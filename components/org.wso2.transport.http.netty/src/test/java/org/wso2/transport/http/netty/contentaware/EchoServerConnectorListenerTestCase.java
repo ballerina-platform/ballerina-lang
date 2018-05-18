@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2015, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- * http://www.apache.org/licenses/LICENSE-2.0
+ *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.passthrough;
+package org.wso2.transport.http.netty.contentaware;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -27,77 +27,64 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
+import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
-import org.wso2.transport.http.netty.util.server.initializers.MockServerInitializer;
+import org.wso2.transport.http.netty.util.server.initializers.EchoServerInitializer;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * A test class for passthrough transport.
+ * A test case for echo message from EchoServerConnectorListener.
  */
-public class PassThroughHttpTestCase {
+public class EchoServerConnectorListenerTestCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(EchoServerConnectorListenerTestCase.class);
 
-    private static final String testValue = "Test Message";
-    private HttpServer httpServer;
-    private HttpWsConnectorFactory httpWsConnectorFactory;
     private ServerConnector serverConnector;
-
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
+    private HttpServer httpServer;
+    private final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
     @BeforeClass
     public void setUp() {
-        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
-
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
-        serverConnector = httpWsConnectorFactory
-                .createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
+        serverConnector = httpConnectorFactory.createServerConnector(
+                new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         serverConnectorFuture.setHttpConnectorListener(
                 new PassthroughMessageProcessorListener(new SenderConfiguration()));
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for server connector to start");
+            log.error("Thread Interrupted while sleeping ", e);
         }
-
-        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT,
-                new MockServerInitializer(testValue, Constants.TEXT_PLAIN, 200));
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new EchoServerInitializer());
     }
 
     @Test
-    public void passthroughGetTest() {
+    public void testMessageEchoing() {
+        String testValue = "Test Message";
         try {
-            HttpResponse<String> response = Unirest.get(baseURI.resolve("/").toString()).asString();
+            URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).body(testValue).asString();
+            assertEquals(200, response.getStatus());
             assertEquals(testValue, response.getBody());
         } catch (UnirestException e) {
-            TestUtil.handleException("IOException occurred while running passthroughGetTest", e);
-        }
-    }
-
-    @Test
-    public void passthroughPostTest() {
-        try {
-            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).asString();
-            assertEquals(testValue, response.getBody());
-        } catch (UnirestException e) {
-            TestUtil.handleException("IOException occurred while running passthroughPostTest", e);
+            TestUtil.handleException("IOException occurred while running messageEchoingFromProcessorTestCase", e);
         }
     }
 
@@ -106,13 +93,16 @@ public class PassThroughHttpTestCase {
         try {
             Unirest.shutdown();
             Options.refresh();
-            serverConnector.stop();
-            httpServer.shutdown();
-            httpWsConnectorFactory.shutdown();
+
+            List connectors = new ArrayList<>();
+            connectors.add(serverConnector);
+            TestUtil.cleanUp(connectors, httpServer);
+
+            httpConnectorFactory.shutdown();
+        }  catch (IOException e) {
+            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for clean up");
-        } catch (IOException e) {
-            logger.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

@@ -124,14 +124,14 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
             HttpContent httpContent) {
-        ChannelFuture outboundChannelFuture;
-        HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
                 (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
         if (responseChunkConfig != null) {
             this.setChunkConfig(responseChunkConfig);
         }
 
+        ChannelFuture outboundChannelFuture;
+        HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         if (isLastHttpContent(httpContent)) {
             if (!headerWritten) {
                 if (chunkConfig == ChunkConfig.ALWAYS && (

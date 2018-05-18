@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.encoding;
+package org.wso2.transport.http.netty.contentaware;
 
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
@@ -28,63 +28,64 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contentaware.listeners.RequestResponseCreationListener;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
-import org.wso2.transport.http.netty.passthrough.PassthroughMessageProcessorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.EchoServerInitializer;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * Test class for content encoding.
+ * A test case for request response creation.
  */
-public class ContentEncodingTestCase {
+public class RequestResponseCreationTestCase {
 
-    private static final Logger logger = LoggerFactory.getLogger(ContentEncodingTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(RequestResponseCreationTestCase.class);
 
-    private HttpWsConnectorFactory httpWsConnectorFactory;
     private ServerConnector serverConnector;
     private HttpServer httpServer;
-    private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
+    private final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
+    private String requestValue = "XXXXXXXX";
+    private String responseValue = "YYYYYYY";
+    private String expectedValue = responseValue + ":" + requestValue;
 
     @BeforeClass
-    public void setup() {
-        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new EchoServerInitializer());
-
-        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+    public void setUp() {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
-        serverConnector = httpWsConnectorFactory
-                .createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
+        serverConnector = httpConnectorFactory.createServerConnector(
+                new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(
-                new PassthroughMessageProcessorListener(new SenderConfiguration()));
+        serverConnectorFuture.setHttpConnectorListener(new RequestResponseCreationListener(responseValue));
         try {
             serverConnectorFuture.sync();
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for server connector to start");
+            log.error("Thread Interrupted while sleeping ", e);
         }
+        httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT, new EchoServerInitializer());
     }
 
     @Test
-    public void messageEchoingFromProcessorTestCase() {
-        String testValue = "Test Message";
+    public void testRequestResponseCreation() {
         try {
-            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).body(testValue).asString();
+            URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).body(requestValue).asString();
             assertEquals(200, response.getStatus());
+            assertEquals(expectedValue, response.getBody());
         } catch (UnirestException e) {
-            TestUtil.handleException("IOException occurred while running the messageEchoingFromProcessorTestCase", e);
+            TestUtil.handleException(
+                    "IOException occurred while running requestResponseCreationFromProcessorTestCase", e);
         }
     }
 
@@ -93,13 +94,16 @@ public class ContentEncodingTestCase {
         try {
             Unirest.shutdown();
             Options.refresh();
-            serverConnector.stop();
-            httpServer.shutdown();
-            httpWsConnectorFactory.shutdown();
+
+            List connectors = new ArrayList<>();
+            connectors.add(serverConnector);
+            TestUtil.cleanUp(connectors, httpServer);
+
+            httpConnectorFactory.shutdown();
+        }  catch (IOException e) {
+            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         } catch (InterruptedException e) {
-            logger.warn("Interrupted while waiting for clean up");
-        } catch (IOException e) {
-            logger.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }
