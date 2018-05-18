@@ -33,6 +33,7 @@ public class BallerinaMediaType implements BallerinaSwaggerObject<BallerinaMedia
     private Object example;
     private Map<String, Encoding> encoding;
     private Map<String, Object> extensions;
+    private String mediaType;
 
     @Override
     public BallerinaMediaType buildContext(MediaType mediaType) throws BallerinaOpenApiException {
@@ -73,5 +74,13 @@ public class BallerinaMediaType implements BallerinaSwaggerObject<BallerinaMedia
 
     public Map<String, Object> getExtensions() {
         return extensions;
+    }
+
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
     }
 }

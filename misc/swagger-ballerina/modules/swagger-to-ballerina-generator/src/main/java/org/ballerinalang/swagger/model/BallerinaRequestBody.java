@@ -49,8 +49,11 @@ public class BallerinaRequestBody implements BallerinaSwaggerObject<BallerinaReq
         if (body == null || openAPI == null) {
             return getDefaultValue();
         }
+        if (body.getContent() == null) {
+            throw new BallerinaOpenApiException("RequestBody content cannot be null");
+        }
 
-        // If reference type request body is provided extract the reference
+        // If reference type request body is provided, extract the reference
         if (!StringUtils.isEmpty(body.get$ref())) {
             String refType = getReferenceType(body.get$ref());
             body = openAPI.getComponents().getRequestBodies().get(refType);
@@ -62,13 +65,17 @@ public class BallerinaRequestBody implements BallerinaSwaggerObject<BallerinaReq
         this.ref = body.get$ref();
         this.content = new LinkedHashSet<>();
 
-        if (body.getContent() == null) {
-            throw new BallerinaOpenApiException("RequestBody content cannot be null");
-        }
-
         int i = 0;
         for (Map.Entry<String, MediaType> m : body.getContent().entrySet()) {
             BallerinaMediaType bMedia = new BallerinaMediaType().buildContext(m.getValue(), openAPI);
+            bMedia.setMediaType(m.getKey());
+            String bType = getRequestBType(m.getKey());
+
+            // Update the response body schema type to a matching ballerina type
+            // bType for json media types will not be changes since bType and json is interchangeable
+            if (bType != null) {
+                bMedia.getSchema().setType(bType);
+            }
             AbstractMap.Entry<String, BallerinaMediaType> entry = new AbstractMap.SimpleEntry<>(m.getKey(), bMedia);
 
             // keep first mediaType as selected media type
@@ -80,6 +87,34 @@ public class BallerinaRequestBody implements BallerinaSwaggerObject<BallerinaReq
         }
 
         return this;
+    }
+
+    /**
+     * Retrieve the matching ballerina type for a http media type.
+     *
+     * @param mType http media type
+     * @return ballerina type for {@code mType}
+     */
+    private String getRequestBType(String mType) {
+        String type = null;
+
+        // support all xml types
+        if (mType == null) {
+            type = null;
+        } else if (javax.ws.rs.core.MediaType.TEXT_PLAIN.equals(mType)) {
+            type = "string";
+        } else if (javax.ws.rs.core.MediaType.APPLICATION_OCTET_STREAM.equals(mType)) {
+            type = "blob";
+        } else if (mType.endsWith("/json") || mType.endsWith("+json")) {
+            // null specifies that the type returned by this method should not be used
+            type = null;
+        } else if (mType.endsWith("/xml") || mType.endsWith("+xml")) {
+            type = "xml";
+        } else if (mType.startsWith("multipart/")) {
+            type = "mime:Entity[]";
+        }
+
+        return type;
     }
 
     @Override

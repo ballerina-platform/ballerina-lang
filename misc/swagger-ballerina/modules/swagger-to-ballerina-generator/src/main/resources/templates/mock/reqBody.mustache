@@ -1,1 +1,1 @@
-, {{#if requestBody.isMultiContent}}var{{/if}}{{^if}}{{#if requestBody.selectedMedia.schema.isComposed}}var{{/if}}{{^if}}{{requestBody.selectedMedia.schema.type}}{{/if}}{{/if}} body
+{{#equals requestBody.selectedMedia.mediaType "multipart/form-data"}}{{else}}, {{requestBody.selectedMedia.schema.type}} _{{operationId}}Body{{/equals}}
