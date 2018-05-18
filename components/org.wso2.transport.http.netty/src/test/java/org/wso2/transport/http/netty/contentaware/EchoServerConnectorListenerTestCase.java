@@ -48,7 +48,7 @@ import java.util.List;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * A test case for echo message from MessageProcessor level.
+ * A test case for echo message from EchoServerConnectorListener.
  */
 public class EchoServerConnectorListenerTestCase {
 

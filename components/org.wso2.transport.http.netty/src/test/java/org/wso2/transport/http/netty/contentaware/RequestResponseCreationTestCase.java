@@ -47,7 +47,7 @@ import java.util.List;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * A test case for echo message from MessageProcessor level.
+ * A test case for request response creation.
  */
 public class RequestResponseCreationTestCase {
 
@@ -77,7 +77,7 @@ public class RequestResponseCreationTestCase {
     }
 
     @Test
-    public void requestResponseCreationFromProcessorTestCase() {
+    public void testRequestResponseCreation() {
         try {
             URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
             HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).body(requestValue).asString();

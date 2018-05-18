@@ -47,7 +47,7 @@ import java.util.List;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
- * A test case for echo message from MessageProcessor level.
+ * A test case for request response transform and streaming.
  */
 public class RequestResponseTransformStreamingTestCase {
 
@@ -74,7 +74,7 @@ public class RequestResponseTransformStreamingTestCase {
     }
 
     @Test
-    public void requestResponseTransformStreamingFromProcessorTestCase() {
+    public void testRequestResponseTransformStreaming() {
         String requestValue = "<A><B><C>Test Message</C></B></A>";
         try {
             URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
