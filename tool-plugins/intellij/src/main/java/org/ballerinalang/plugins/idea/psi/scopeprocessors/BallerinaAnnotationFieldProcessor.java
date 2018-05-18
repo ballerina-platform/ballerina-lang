@@ -150,7 +150,7 @@ public class BallerinaAnnotationFieldProcessor extends BallerinaScopeProcessorBa
                     // Note - Child is passed here instead of identifier because it is is top level
                     // definition.
                     myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(definitionIdentifier,
-                            ownerName, typeName, null, ColonInsertHandler.INSTANCE_WITH_AUTO_POPUP, true));
+                            ownerName, typeName, null, ColonInsertHandler.INSTANCE_WITH_SPACE, true));
                 } else if (myElement.getText().equals(definitionIdentifier.getText())) {
                     add(definitionIdentifier);
                 }

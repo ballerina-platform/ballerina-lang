@@ -18,7 +18,7 @@
 
     <template description="Main Function" name="funm"
               value="function main(string... args) {&#10;    $END$&#10;}"
-              toReformat="false" toShortenFQNames="false">
+              toReformat="true" toShortenFQNames="false">
 
         <context>
             <option name="BALLERINA_FILE" value="true"/>
@@ -41,7 +41,7 @@
 
     <template description='Service Definition' name='service'
               value="&#10;$ANNOTATION$&#10;service&lt;$NOTATION$&gt; $NAME$ bind { $PROPERTIES$ } {&#10;    $END$&#10;}"
-              toReformat="false" toShortenFQNames="false">
+              toReformat="true" toShortenFQNames="false">
 
         <variable name="NOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
@@ -55,7 +55,7 @@
 
     <template description='Endpoint Declaration' name="endpoint"
               value="endpoint $TYPE$ $NAME$ {&#10;    $END$&#10;};"
-              toReformat="false" toShortenFQNames="false">
+              toReformat="true" toShortenFQNames="false">
 
         <variable name="TYPE" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
@@ -66,11 +66,12 @@
     </template>
 
     <template description='Resource Declaration' name="resource"
-              value="$NAME$($PARAM$) {&#10;    $END$&#10;}"
+              value="&#10;$ANNOTATION$&#10;$NAME$($PARAM$) {&#10;    $END$&#10;}"
               toReformat="false" toShortenFQNames="false">
 
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="PARAM" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="ANNOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
 
         <context>
             <option name="BALLERINA_SERVICE" value="true"/>
@@ -78,7 +79,7 @@
     </template>
 
     <template name="sout" value="io:println($END$);"
-              description="System Out" toReformat="false" toShortenFQNames="false">
+              description="System Out" toReformat="true" toShortenFQNames="false">
         <context>
             <option name="BALLERINA_RESOURCE" value="true"/>
             <option name="BALLERINA_FUNCTION" value="true"/>

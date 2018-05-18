@@ -669,7 +669,7 @@ public class BallerinaCompletionUtils {
                 BallerinaUserDefineTypeName.class);
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(identifier.getText(), identifier)
                 .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
-                .withInsertHandler(userDefineTypeName != null ? BracesInsertHandler.INSTANCE_WITH_AUTO_POPUP
+                .withInsertHandler(userDefineTypeName != null ? BracesInsertHandler.INSTANCE
                         : AddSpaceInsertHandler.INSTANCE);
         return PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY);
     }

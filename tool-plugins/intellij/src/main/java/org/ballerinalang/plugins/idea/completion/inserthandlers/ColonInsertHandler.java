@@ -33,18 +33,25 @@ import com.intellij.psi.PsiDocumentManager;
 public class ColonInsertHandler implements InsertHandler<LookupElement> {
 
     public static final InsertHandler<LookupElement> INSTANCE = new ColonInsertHandler(false);
+    public static final InsertHandler<LookupElement> INSTANCE_WITH_SPACE = new ColonInsertHandler(true, false);
     public static final InsertHandler<LookupElement> INSTANCE_WITH_AUTO_POPUP =
             new ColonInsertHandler(true);
 
     private final String myIgnoreOnChars;
+    private final boolean myWithSpace;
     private final boolean myTriggerAutoPopup;
 
     public ColonInsertHandler(boolean triggerAutoPopup) {
-        this("", triggerAutoPopup);
+        this("", false, triggerAutoPopup);
     }
 
-    public ColonInsertHandler(String ignoreOnChars, boolean triggerAutoPopup) {
+    public ColonInsertHandler(boolean withSpace, boolean triggerAutoPopup) {
+        this("", withSpace, triggerAutoPopup);
+    }
+
+    public ColonInsertHandler(String ignoreOnChars, boolean withSpace, boolean triggerAutoPopup) {
         myIgnoreOnChars = ignoreOnChars;
+        myWithSpace = withSpace;
         myTriggerAutoPopup = triggerAutoPopup;
     }
 
@@ -59,6 +66,9 @@ public class ColonInsertHandler implements InsertHandler<LookupElement> {
             int completionCharOffset = getCompletionCharOffset(editor);
             if (completionCharOffset == -1) {
                 EditorModificationUtil.insertStringAtCaret(editor, ":", false, 1);
+                if (myWithSpace) {
+                    EditorModificationUtil.insertStringAtCaret(editor, " ", false, 1);
+                }
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
             } else {
                 editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + completionCharOffset + 1);

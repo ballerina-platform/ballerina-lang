@@ -22,6 +22,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.ColonInsertHandler;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaServiceEndpointAttachments;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
@@ -73,7 +74,7 @@ public class BallerinaAnonymousServiceConfigProcessor extends BallerinaScopeProc
                 if (myResult != null) {
                     myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier,
                             typeDefinition.getIdentifier(), fieldDefinition.getTypeName().getText(), defaultValue,
-                            null, true));
+                            ColonInsertHandler.INSTANCE_WITH_SPACE, true));
                 } else if (myElement.getText().equals(identifier.getText())) {
                     add(identifier);
                     if (!isCompletion()) {
