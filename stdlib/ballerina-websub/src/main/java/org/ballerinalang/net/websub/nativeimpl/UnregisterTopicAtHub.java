@@ -51,7 +51,7 @@ public class UnregisterTopicAtHub extends BlockingNativeCallableUnit {
             Hub.getInstance().unregisterTopic(topic, secret);
             context.setReturnValues();
         } catch (BallerinaWebSubException e) {
-            BLangVMErrors.createError(context, e.getMessage());
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 

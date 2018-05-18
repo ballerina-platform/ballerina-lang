@@ -21,6 +21,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
  * Represents a Runtime Exception that could be thrown when performing WebSub actions.
+ *
+ * @since 0.970.2
  */
 public class BallerinaWebSubException extends BallerinaException {
 
