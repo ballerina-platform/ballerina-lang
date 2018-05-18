@@ -394,14 +394,14 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                 return '';
             } else if (node.isConstructor && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
-                         && node.name.valueWithBar && node.parameters && node.restParameters
+                         && node.name.valueWithBar && node.allParams && node.restParameters
                          && node.endpointNodes && node.body && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
                  + w(' ') + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
                  + (node.hasRestParams ? w() + ',' : '')
                  + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w() + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
@@ -409,27 +409,78 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.isConstructor && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
-                         && node.name.valueWithBar && node.parameters && node.endpointNodes && node.body
+                         && node.name.valueWithBar && node.allParams && node.endpointNodes && node.body
                          && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
                  + w(' ') + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ')
                  + w() + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
                  + getSourceOf(node.body, pretty, l, replaceLambda) + join(node.workers, pretty, replaceLambda, l, w, '')
                  + outdent() + w() + '}';
+            } else if (node.interface && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar && node.allParams && node.restParameters && node.hasReturns
+                         && node.returnTypeAnnotationAttachments && node.returnTypeNode) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
+                 + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
+                 + (node.hasRestParams ? w() + ',' : '')
+                 + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w()
+                 + 'returns' + a(' ')
+                 + join(node.returnTypeAnnotationAttachments, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w() + ';';
+            } else if (node.interface && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar && node.allParams && node.restParameters) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
+                 + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
+                 + (node.hasRestParams ? w() + ',' : '')
+                 + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w()
+                 + ';';
+            } else if (node.interface && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar && node.allParams && node.hasReturns
+                         && node.returnTypeAnnotationAttachments && node.returnTypeNode) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
+                 + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
+                 + w() + ')' + a(' ') + w() + 'returns' + a(' ')
+                 + join(node.returnTypeAnnotationAttachments, pretty, replaceLambda, l, w, '')
+                 + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w()
+                 + ';';
+            } else if (node.interface && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar && node.allParams) {
+                return dent()
+                 + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
+                 + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
+                 + w() + ')' + a(' ') + w() + ';';
             } else if (node.lambda && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.isStreamAction
-                         && node.parameters && node.restParameters && node.endpointNodes
+                         && node.allParams && node.restParameters && node.endpointNodes
                          && node.body && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + '=>' + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
                  + (node.hasRestParams ? w() + ',' : '')
                  + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w() + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
@@ -437,26 +488,26 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.lambda && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.isStreamAction
-                         && node.parameters && node.endpointNodes && node.body
+                         && node.allParams && node.endpointNodes && node.body
                          && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + '=>' + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ')
                  + w() + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + getSourceOf(node.body, pretty, l, replaceLambda)
-                 + join(node.workers, pretty, replaceLambda, l, w, '')
-                 + outdent() + w() + '}';
+                 + join(node.workers, pretty, replaceLambda, l, w, '') + outdent()
+                 + w() + '}';
             } else if (node.lambda && node.annotationAttachments
-                         && node.documentationAttachments && node.deprecatedAttachments && node.parameters
+                         && node.documentationAttachments && node.deprecatedAttachments && node.allParams
                          && node.restParameters && node.hasReturns && node.returnTypeNode
                          && node.endpointNodes && node.body && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + (node.hasRestParams ? w()
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',') + (node.hasRestParams ? w()
                  + ',' : '') + getSourceOf(node.restParameters, pretty, l, replaceLambda)
                  + w() + ')' + a(' ') + w() + '=>'
                  + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w() + '{' + indent()
@@ -464,28 +515,28 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.lambda && node.annotationAttachments
-                         && node.documentationAttachments && node.deprecatedAttachments && node.parameters
+                         && node.documentationAttachments && node.deprecatedAttachments && node.allParams
                          && node.hasReturns && node.returnTypeNode && node.endpointNodes
                          && node.body && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ') + w() + '=>'
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ') + w() + '=>'
                  + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w()
                  + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent()
                  + w() + '}';
             } else if (node.lambda && node.annotationAttachments
-                         && node.documentationAttachments && node.deprecatedAttachments && node.parameters
+                         && node.documentationAttachments && node.deprecatedAttachments && node.allParams
                          && node.restParameters && node.endpointNodes && node.body
                          && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + (node.hasRestParams ? w()
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',') + (node.hasRestParams ? w()
                  + ',' : '') + getSourceOf(node.restParameters, pretty, l, replaceLambda)
                  + w() + ')' + a(' ') + w() + '=>' + w() + '(' + w() + ')' + a(' ')
                  + w() + '{' + indent()
@@ -493,20 +544,20 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.body, pretty, l, replaceLambda) + join(node.workers, pretty, replaceLambda, l, w, '')
                  + outdent() + w() + '}';
             } else if (node.lambda && node.annotationAttachments
-                         && node.documentationAttachments && node.deprecatedAttachments && node.parameters
+                         && node.documentationAttachments && node.deprecatedAttachments && node.allParams
                          && node.endpointNodes && node.body && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ') + w() + '=>'
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ') + w() + '=>'
                  + w() + '(' + w() + ')' + a(' ') + w() + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
                  + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.noVisibleReceiver && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
-                         && node.name.valueWithBar && node.parameters && node.restParameters
+                         && node.name.valueWithBar && node.allParams && node.restParameters
                          && node.hasReturns && node.returnTypeAnnotationAttachments
                          && node.returnTypeNode && node.endpointNodes && node.body && node.workers) {
                 return dent()
@@ -514,7 +565,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
                  + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
                  + (node.hasRestParams ? w() + ',' : '')
                  + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w()
                  + 'returns' + a(' ')
@@ -525,7 +576,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.noVisibleReceiver && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
-                         && node.name.valueWithBar && node.parameters && node.hasReturns
+                         && node.name.valueWithBar && node.allParams && node.hasReturns
                          && node.returnTypeAnnotationAttachments && node.returnTypeNode
                          && node.endpointNodes && node.body && node.workers) {
                 return dent()
@@ -533,47 +584,47 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
                  + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
                  + w() + ')' + a(' ') + w() + 'returns' + a(' ')
                  + join(node.returnTypeAnnotationAttachments, pretty, replaceLambda, l, w, '')
-                 + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w()
-                 + '{' + indent()
+                 + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w() + '{'
+                 + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
                  + '}';
             } else if (node.noVisibleReceiver && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
-                         && node.name.valueWithBar && node.parameters && node.restParameters
+                         && node.name.valueWithBar && node.allParams && node.restParameters
                          && node.endpointNodes && node.body && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
                  + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
                  + (node.hasRestParams ? w() + ',' : '')
-                 + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w()
-                 + '{' + indent()
+                 + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w() + '{'
+                 + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
                  + '}';
             } else if (node.noVisibleReceiver && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
-                         && node.name.valueWithBar && node.parameters && node.endpointNodes && node.body
+                         && node.name.valueWithBar && node.allParams && node.endpointNodes && node.body
                          && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
                  + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
                  + w() + ')' + a(' ') + w() + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
                  + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.hasReturns && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.receiver
-                         && node.name.valueWithBar && node.parameters && node.restParameters
+                         && node.name.valueWithBar && node.allParams && node.restParameters
                          && node.returnTypeAnnotationAttachments && node.returnTypeNode
                          && node.endpointNodes && node.body && node.workers) {
                 return dent()
@@ -583,7 +634,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + w() + 'function' + w() + '<'
                  + getSourceOf(node.receiver, pretty, l, replaceLambda) + w() + '>' + w(' ')
                  + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + (node.hasRestParams ? w() + ',' : '')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',') + (node.hasRestParams ? w() + ',' : '')
                  + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')'
                  + a(' ') + w() + 'returns' + a(' ')
                  + join(node.returnTypeAnnotationAttachments, pretty, replaceLambda, l, w, '')
@@ -593,7 +644,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.hasReturns && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.receiver
-                         && node.name.valueWithBar && node.parameters
+                         && node.name.valueWithBar && node.allParams
                          && node.returnTypeAnnotationAttachments && node.returnTypeNode && node.endpointNodes
                          && node.body && node.workers) {
                 return dent()
@@ -603,7 +654,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + w() + 'function' + w() + '<'
                  + getSourceOf(node.receiver, pretty, l, replaceLambda) + w() + '>' + w(' ')
                  + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ') + w() + 'returns' + a(' ')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ') + w() + 'returns' + a(' ')
                  + join(node.returnTypeAnnotationAttachments, pretty, replaceLambda, l, w, '')
                  + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w() + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
@@ -611,15 +662,15 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + outdent() + w() + '}';
             } else if (node.hasReturns && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
-                         && node.name.valueWithBar && node.parameters && node.restParameters
-                         && node.returnTypeAnnotationAttachments && node.returnTypeNode
-                         && node.endpointNodes && node.body && node.workers) {
+                         && node.name.valueWithBar && node.allParams && node.restParameters
+                         && node.returnTypeAnnotationAttachments && node.returnTypeNode && node.endpointNodes
+                         && node.body && node.workers) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
                  + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
                  + (node.hasRestParams ? w() + ',' : '')
                  + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w()
                  + 'returns' + a(' ')
@@ -630,7 +681,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.hasReturns && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
-                         && node.name.valueWithBar && node.parameters && node.returnTypeAnnotationAttachments
+                         && node.name.valueWithBar && node.allParams && node.returnTypeAnnotationAttachments
                          && node.returnTypeNode && node.endpointNodes && node.body
                          && node.workers) {
                 return dent()
@@ -638,25 +689,25 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + (node.public ? w() + 'public' + a(' ') : '')
                  + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
                  + w() + ')' + a(' ') + w() + 'returns' + a(' ')
                  + join(node.returnTypeAnnotationAttachments, pretty, replaceLambda, l, w, '')
-                 + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w()
-                 + '{' + indent()
+                 + getSourceOf(node.returnTypeNode, pretty, l, replaceLambda) + w() + '{'
+                 + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
                  + '}';
             } else if (node.annotationAttachments && node.documentationAttachments
                          && node.deprecatedAttachments && node.receiver
-                         && node.name.valueWithBar && node.parameters && node.restParameters
-                         && node.endpointNodes && node.body && node.workers) {
+                         && node.name.valueWithBar && node.allParams && node.restParameters && node.endpointNodes
+                         && node.body && node.workers) {
                 return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + (node.public ? w() + 'public' + a(' ') : '')
                  + w() + 'function' + w() + '<'
                  + getSourceOf(node.receiver, pretty, l, replaceLambda) + w() + '>' + w(' ')
                  + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + (node.hasRestParams ? w() + ',' : '')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',') + (node.hasRestParams ? w() + ',' : '')
                  + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')'
                  + a(' ') + w() + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
@@ -664,7 +715,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + outdent() + w() + '}';
             } else if (node.annotationAttachments && node.documentationAttachments
                          && node.deprecatedAttachments && node.receiver
-                         && node.name.valueWithBar && node.parameters && node.endpointNodes && node.body
+                         && node.name.valueWithBar && node.allParams && node.endpointNodes && node.body
                          && node.workers) {
                 return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
@@ -672,22 +723,22 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + w() + 'function' + w() + '<'
                  + getSourceOf(node.receiver, pretty, l, replaceLambda) + w() + '>' + w(' ')
                  + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ') + w() + '{' + indent()
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',') + w() + ')' + a(' ') + w() + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
                  + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.annotationAttachments && node.documentationAttachments
                          && node.deprecatedAttachments && node.name.valueWithBar
-                         && node.parameters && node.restParameters && node.endpointNodes && node.body
+                         && node.allParams && node.restParameters && node.endpointNodes && node.body
                          && node.workers) {
                 return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + (node.public ? w() + 'public' + a(' ') : '')
                  + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
                  + (node.hasRestParams ? w() + ',' : '')
-                 + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w()
-                 + '{' + indent()
+                 + getSourceOf(node.restParameters, pretty, l, replaceLambda) + w() + ')' + a(' ') + w() + '{'
+                 + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + getSourceOf(node.body, pretty, l, replaceLambda)
                  + join(node.workers, pretty, replaceLambda, l, w, '') + outdent() + w()
                  + '}';
@@ -696,7 +747,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + (node.public ? w() + 'public' + a(' ') : '')
                  + w() + 'function' + w(' ') + node.name.valueWithBar + w() + '('
-                 + join(node.parameters, pretty, replaceLambda, l, w, '', ',')
+                 + join(node.allParams, pretty, replaceLambda, l, w, '', ',')
                  + w() + ')' + a(' ') + w() + '{' + indent()
                  + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
                  + getSourceOf(node.body, pretty, l, replaceLambda)
@@ -1631,6 +1682,23 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + '{' + indent() + outdent() + w() + '}';
             } else if (node.serviceEndpoint && node.name.valueWithBar) {
                 return w() + 'endpoint' + w(' ') + node.name.valueWithBar + a(' ');
+            } else if (node.defaultable && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments && node.typeNode
+                         && node.name.valueWithBar && node.initialExpression) {
+                return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + getSourceOf(node.typeNode, pretty, l, replaceLambda)
+                 + w(' ') + node.name.valueWithBar + a(' ') + w(' ') + '='
+                 + a(' ')
+                 + getSourceOf(node.initialExpression, pretty, l, replaceLambda);
+            } else if (node.defaultable && node.annotationAttachments
+                         && node.documentationAttachments && node.deprecatedAttachments
+                         && node.name.valueWithBar && node.initialExpression) {
+                return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
+                 + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w(' ') + node.name.valueWithBar + a(' ') + w(' ')
+                 + '=' + a(' ')
+                 + getSourceOf(node.initialExpression, pretty, l, replaceLambda);
             } else if (node.global && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments && node.safeAssignment
                          && node.typeNode && node.name.valueWithBar
@@ -1691,6 +1759,8 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             }
         case 'VariableDef':
             if (node.endpoint && node.variable) {
+                return getSourceOf(node.variable, pretty, l, replaceLambda);
+            } else if (node.defaultable && node.variable) {
                 return getSourceOf(node.variable, pretty, l, replaceLambda);
             } else {
                 return dent() + getSourceOf(node.variable, pretty, l, replaceLambda)
