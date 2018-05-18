@@ -202,6 +202,7 @@ import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TABLE;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.THROW;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TIMEOUT;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TRANSACTION;
+import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TRIGGER_WORKER;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TRY;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TUPLE_TYPE_NAME;
@@ -469,6 +470,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(IDENTIFIER, ENDPOINT_INITIALIZATION).spaceIf(true)
 
                 .around(ARRAY_TYPE_NAME).spaceIf(false)
+
+                .around(TRANSACTION_PROPERTY_INIT_STATEMENT_LIST).spaceIf(true)
 
                 // Streaming
                 .before(WHERE_CLAUSE).spaceIf(true)
