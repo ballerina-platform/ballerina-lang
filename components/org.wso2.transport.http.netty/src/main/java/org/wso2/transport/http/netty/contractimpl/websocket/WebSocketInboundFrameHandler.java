@@ -20,8 +20,7 @@ package org.wso2.transport.http.netty.contractimpl.websocket;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-
-import java.util.concurrent.CountDownLatch;
+import io.netty.channel.ChannelPromise;
 
 /**
  * Abstract WebSocket frame handler for WebSocket server and client.
@@ -29,11 +28,12 @@ import java.util.concurrent.CountDownLatch;
 public abstract class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
     /**
-     * Set countdown latch for WebSocket connection close.
+     * Set channel promise for WebSocket connection close.
      *
-     * @param closeCountDownLatch {@link CountDownLatch} to wait for WebSocket connection closure.
+     * @param promise {@link ChannelPromise} to indicate the receiving of close frame echo
+     *                                      back from the remote endpoint.
      */
-    public abstract void setCloseCountDownLatch(CountDownLatch closeCountDownLatch);
+    public abstract void setClosePromise(ChannelPromise promise);
 
     /**
      * Retrieve the WebSocket connection associated with the frame handler.

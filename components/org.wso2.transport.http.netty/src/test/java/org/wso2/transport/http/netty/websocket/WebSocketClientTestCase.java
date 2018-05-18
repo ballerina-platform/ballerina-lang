@@ -58,11 +58,11 @@ public class WebSocketClientTestCase {
     private final int latchWaitTimeInSeconds = 10;
     private WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
     private WebSocketClientConnector clientConnector;
-    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.REMOTE_WS_SERVER_PORT,
-                                                                           "xml, json");
+    private WebSocketRemoteServer remoteServer;
 
     @BeforeClass
     public void setup() throws InterruptedException {
+        remoteServer = new WebSocketRemoteServer(TestUtil.REMOTE_WS_SERVER_PORT, "xml, json");
         remoteServer.run();
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
     }

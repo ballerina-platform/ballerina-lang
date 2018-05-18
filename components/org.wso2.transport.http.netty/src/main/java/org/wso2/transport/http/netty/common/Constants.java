@@ -179,6 +179,7 @@ public final class Constants {
     public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
     public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
     public static final int WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE = 1006;
+    public static final int WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION = 1011;
 
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";

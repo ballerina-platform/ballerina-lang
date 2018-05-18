@@ -16,8 +16,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 
 import java.nio.ByteBuffer;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import javax.websocket.Session;
 
 /**
@@ -28,9 +26,9 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     private final WebSocketInboundFrameHandler frameHandler;
     private final ChannelHandlerContext ctx;
     private final DefaultWebSocketSession session;
-    private WebSocketFrameType continuationFrameType = null;
-    private boolean closeFrameSent = false;
-    private boolean closeFrameReceived = false;
+    private WebSocketFrameType continuationFrameType;
+    private boolean closeFrameSent;
+    private int sentCloseStatusCode;
 
     public DefaultWebSocketConnection(WebSocketInboundFrameHandler frameHandler, DefaultWebSocketSession session) {
         this.frameHandler = frameHandler;
@@ -124,34 +122,21 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     }
 
     @Override
-    public ChannelFuture initiateConnectionClosure(int statusCode, String reason, int timeoutInSecs) {
+    public ChannelFuture initiateConnectionClosure(int statusCode, String reason) {
         if (closeFrameSent) {
             throw new IllegalStateException("Already sent close frame. Cannot send close frame again!");
         }
         closeFrameSent = true;
-        CountDownLatch closeCountDownLatch = new CountDownLatch(1);
-        frameHandler.setCloseCountDownLatch(closeCountDownLatch);
-        ChannelPromise channelPromise = ctx.newPromise();
+        sentCloseStatusCode = statusCode;
+        ChannelPromise closePromise = ctx.newPromise();
         ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
+            frameHandler.setClosePromise(closePromise);
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                channelPromise.setFailure(cause);
-                return;
-            }
-
-            if (timeoutInSecs == -1) {
-                closeCountDownLatch.await();
-            } else if (timeoutInSecs > 0) {
-                closeCountDownLatch.await(timeoutInSecs, TimeUnit.SECONDS);
-            }
-
-            if (ctx.channel().isOpen()) {
-                ctx.channel().close().addListener(closeFuture -> channelPromise.setSuccess());
-            } else {
-                channelPromise.setSuccess();
+                ctx.close().addListener(closeFuture -> closePromise.setFailure(cause));
             }
         });
-        return channelPromise;
+        return closePromise;
     }
 
     @Override
@@ -160,17 +145,13 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
             throw new IllegalStateException("Cannot finish a connection closure without receiving a close frame");
         }
         ChannelPromise channelPromise = ctx.newPromise();
-        ctx.channel().writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
+        ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
-                channelPromise.setFailure(cause);
+                ctx.close().addListener(closeFuture -> channelPromise.setFailure(cause));
                 return;
             }
-            if (ctx.channel().isOpen()) {
-                ctx.channel().close().addListener(closeFuture -> channelPromise.setSuccess());
-            } else {
-                channelPromise.setSuccess();
-            }
+            ctx.close().addListener(closeFuture -> channelPromise.setSuccess());
         });
         return channelPromise;
     }
@@ -180,18 +161,8 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         return ctx.close();
     }
 
-    @Override
-    public boolean closeFrameSent() {
-        return closeFrameSent;
-    }
-
-    @Override
-    public boolean closeFrameReceived() {
-        return closeFrameReceived;
-    }
-
-    public void setCloseFrameReceived(boolean closeFrameReceived) {
-        this.closeFrameReceived = closeFrameReceived;
+    public int getSentCloseStatusCode() {
+        return this.sentCloseStatusCode;
     }
 
     @Deprecated

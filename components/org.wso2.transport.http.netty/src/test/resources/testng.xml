@@ -92,6 +92,7 @@
             <class name="org.wso2.transport.http.netty.websocket.WebSocketPassThroughTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketMessagePropertiesTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.HttpToWebSocketProtocolSwitchTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.WebSocketServerCloseConnectionTestCase"/>
 
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolProxyTestCase" />
             <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />

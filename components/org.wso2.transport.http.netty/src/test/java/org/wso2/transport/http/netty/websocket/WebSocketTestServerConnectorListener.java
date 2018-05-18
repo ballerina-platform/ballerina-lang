@@ -19,6 +19,7 @@
 
 package org.wso2.transport.http.netty.websocket;
 
+import io.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -129,9 +130,13 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         this.isIdleTimeout = true;
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
-        webSocketConnection.initiateConnectionClosure(1001, "Connection timeout", -1).addListener(future -> {
+        ChannelFuture channelFuture = webSocketConnection.initiateConnectionClosure(1001, "Connection timeout");
+        channelFuture.addListener(future -> {
            if (!future.isSuccess()) {
                log.error("Error occurred while closing the connection: " + future.cause().getMessage());
+           }
+           if (channelFuture.channel().isOpen()) {
+               channelFuture.channel().close();
            }
         });
     }

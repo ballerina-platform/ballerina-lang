@@ -281,6 +281,15 @@ public class WebSocketTestClient {
     }
 
     /**
+     * Retrieve received close frame.
+     *
+     * @return received close frame.
+     */
+    public CloseWebSocketFrame getReceivedCloseFrame() {
+        return handler.getReceiveCloseFrame();
+    }
+
+    /**
      * Forcefully shutdown WebSocket client.
      *
      * @throws InterruptedException if the connection is interrupted when closing channel.

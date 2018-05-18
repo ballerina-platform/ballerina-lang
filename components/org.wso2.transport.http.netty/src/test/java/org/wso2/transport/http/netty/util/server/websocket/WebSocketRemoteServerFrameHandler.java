@@ -20,6 +20,7 @@
 package org.wso2.transport.http.netty.util.server.websocket;
 
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -42,6 +43,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     private static final String PING = "ping";
     private static final String CLOSE = "close";
     private static final String CLOSE_WITHOUT_FRAME = "close-without-frame";
+    private static final String ECHO_DIFFERENT_FRAME = "echo-back-different-frame";
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -79,7 +81,14 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
             clonedBuffer.flip();
             ctx.writeAndFlush(new BinaryWebSocketFrame(Unpooled.wrappedBuffer(clonedBuffer)));
         } else if (frame instanceof CloseWebSocketFrame) {
-            ctx.close();
+            CloseWebSocketFrame closeFrame = (CloseWebSocketFrame) frame;
+            ChannelFuture closeFuture;
+            if (closeFrame.statusCode() == 1007) {
+                closeFuture = ctx.writeAndFlush(1008);
+            } else {
+                closeFuture = ctx.writeAndFlush(closeFrame.statusCode());
+            }
+            closeFuture.addListener(future -> ctx.close());
         } else {
             String message = "unsupported frame type: " + frame.getClass().getName();
             throw new UnsupportedOperationException(message);

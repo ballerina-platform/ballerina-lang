@@ -20,7 +20,9 @@
 package org.wso2.transport.http.netty.listener;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -52,7 +54,6 @@ import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * This class handles all kinds of WebSocketFrames
@@ -68,8 +69,8 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
     private final String interfaceId;
     private String subProtocol = null;
     private HandlerExecutor handlerExecutor;
+    private ChannelPromise closePromise;
     private WebSocketFrameType continuationFrameType;
-    private CountDownLatch closeCountDownLatch = null;
     private DefaultWebSocketConnection webSocketConnection;
     private boolean closeFrameReceived;
 
@@ -109,8 +110,8 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
     }
 
     @Override
-    public void setCloseCountDownLatch(CountDownLatch closeCountDownLatch) {
-        this.closeCountDownLatch = closeCountDownLatch;
+    public void setClosePromise(ChannelPromise closePromise) {
+        this.closePromise = closePromise;
     }
 
     @Override
@@ -151,12 +152,18 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
             handlerExecutor = null;
         }
 
-        if (!(this.closeFrameReceived || webSocketConnection.closeFrameSent())) {
+        if (webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null) {
             // Notify abnormal closure.
             DefaultWebSocketMessage webSocketCloseMessage =
                     new DefaultWebSocketCloseMessage(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
             setupCommonProperties(webSocketCloseMessage);
             connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
+            return;
+        }
+
+        if (closePromise != null && !closePromise.isDone()) {
+            String errMsg = "Connection is closed by remote endpoint without echoing a close frame";
+            ctx.close().addListener(closeFuture -> closePromise.setFailure(new IllegalStateException(errMsg)));
         }
     }
 
@@ -183,7 +190,6 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
             }
             notifyBinaryMessage(binaryFrame, binaryFrame.content(), binaryFrame.isFinalFragment());
         } else if (msg instanceof CloseWebSocketFrame) {
-            webSocketConnection.setCloseFrameReceived(true);
             notifyCloseMessage((CloseWebSocketFrame) msg);
         } else if (msg instanceof PingWebSocketFrame) {
             notifyPingMessage((PingWebSocketFrame) msg);
@@ -220,16 +226,21 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
     private void notifyCloseMessage(CloseWebSocketFrame closeWebSocketFrame) throws ServerConnectorException {
         String reasonText = closeWebSocketFrame.reasonText();
         int statusCode = closeWebSocketFrame.statusCode();
-
-        // closeCountDownLatch == null means that WebSocketConnection has not yet initiated a connection closure.
-        if (closeCountDownLatch == null) {
+        // closePromise == null means that WebSocketConnection has not yet initiated a connection closure.
+        if (closePromise == null) {
             DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage);
             connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
             closeFrameReceived = true;
         } else {
-            ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reasonText)).addListener(
-                    future -> closeCountDownLatch.countDown());
+            if (webSocketConnection.getSentCloseStatusCode() != closeWebSocketFrame.statusCode()) {
+                String errMsg =
+                        String.format("Expected status code %d but found %d in echoed close frame from remote backend",
+                                      webSocketConnection.getSentCloseStatusCode(), closeWebSocketFrame.statusCode());
+                closePromise.setFailure(new IllegalStateException(errMsg));
+                return;
+            }
+            closePromise.setSuccess();
         }
         closeWebSocketFrame.release();
     }
@@ -274,8 +285,9 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ctx.channel().writeAndFlush(new CloseWebSocketFrame(1011, "Encountered an unexpected condition"));
-        ctx.close();
-        connectorFuture.notifyWSListener(cause);
+        ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
+                Constants.WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION, "Encountered an unexpected condition"));
+        closeFrameFuture.addListener(future -> ctx.close().addListener(
+                closeFuture -> connectorFuture.notifyWSListener(cause)));
     }
 }

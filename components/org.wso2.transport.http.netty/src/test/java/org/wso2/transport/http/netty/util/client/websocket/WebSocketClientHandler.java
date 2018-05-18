@@ -52,6 +52,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     private String textReceived = "";
     private ByteBuffer bufferReceived = null;
+    private CloseWebSocketFrame receiveCloseFrame = null;
     private boolean isPingReceived;
     private boolean isPongReceived;
     private CountDownLatch latch;
@@ -79,6 +80,11 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws InterruptedException {
         logger.debug("WebSocket Client disconnected!");
+        ctx.channel().close().addListener(future -> {
+            if (latch != null) {
+                countDownLatch();
+            }
+        });
     }
 
     @Override
@@ -119,15 +125,8 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
-            if (channel.isOpen()) {
-                CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) frame;
-                channel.writeAndFlush(new CloseWebSocketFrame(closeWebSocketFrame.statusCode(), null))
-                        .addListener(future -> {
-                            if (channel.isOpen()) {
-                                channel.close().sync();
-                            }
-                        });
-            }
+            receiveCloseFrame = (CloseWebSocketFrame) frame.retain();
+
         }
         countDownLatch();
     }
@@ -148,6 +147,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         ByteBuffer tempBuffer = bufferReceived;
         bufferReceived = null;
         return tempBuffer;
+    }
+
+    /**
+     * @return Received close frame.
+     */
+    public CloseWebSocketFrame getReceiveCloseFrame() {
+         CloseWebSocketFrame tempFrame = receiveCloseFrame;
+         receiveCloseFrame = null;
+         return tempFrame;
     }
 
     /**
@@ -186,7 +194,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
     private void countDownLatch() {
-        if (this.latch == null) {
+        if (this.latch == null || latch.getCount() == 0) {
             return;
         }
         latch.countDown();

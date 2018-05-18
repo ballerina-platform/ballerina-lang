@@ -59,7 +59,6 @@ import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.net.InetSocketAddress;
 import java.net.URISyntaxException;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * WebSocket Client Handler. This class responsible for handling the inbound messages for the WebSocket Client.
@@ -81,7 +80,7 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     private ChannelHandlerContext ctx;
     private WebSocketFrameType continuationFrameType;
     private boolean closeFrameReceived;
-    private CountDownLatch closeCountDownLatch = null;
+    private ChannelPromise closePromise;
     private HttpCarbonResponse httpCarbonResponse;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, boolean isSecure, String requestedUri,
@@ -121,8 +120,8 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     }
 
     @Override
-    public void setCloseCountDownLatch(CountDownLatch closeCountDownLatch) {
-        this.closeCountDownLatch = closeCountDownLatch;
+    public void setClosePromise(ChannelPromise closePromise) {
+        this.closePromise = closePromise;
     }
 
     @Override
@@ -134,18 +133,22 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     public void channelActive(ChannelHandlerContext ctx) throws URISyntaxException {
         this.ctx = ctx;
         handshaker.handshake(ctx.channel());
-        webSocketConnection = WebSocketUtil.getWebSocketConnection(this, isSecure, requestedUri);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        if (webSocketConnection != null
-                && !(webSocketConnection.closeFrameReceived() || webSocketConnection.closeFrameSent())) {
+        if (webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null) {
             // Notify abnormal closure.
             DefaultWebSocketMessage webSocketCloseMessage =
                     new DefaultWebSocketCloseMessage(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
             setupCommonProperties(webSocketCloseMessage, ctx);
             connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
+            return;
+        }
+
+        if (closePromise != null && !closePromise.isDone()) {
+            String errMsg = "Connection is closed by remote endpoint without echoing a close frame";
+            closePromise.setFailure(new IllegalStateException(errMsg));
         }
     }
 
@@ -168,9 +171,9 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
             httpCarbonResponse = setUpCarbonMessage(ctx, fullHttpResponse);
             handshaker.finishHandshake(ch, fullHttpResponse);
             log.debug("WebSocket Client connected!");
+            webSocketConnection = WebSocketUtil.getWebSocketConnection(this, isSecure, requestedUri);
             handshakeFuture.setSuccess();
             fullHttpResponse.release();
-            webSocketConnection = WebSocketUtil.getWebSocketConnection(this, isSecure, requestedUri);
             return;
         }
 
@@ -201,7 +204,6 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
         } else if (frame instanceof PingWebSocketFrame) {
             notifyPingMessage((PingWebSocketFrame) frame, ctx);
         } else if (frame instanceof CloseWebSocketFrame) {
-            webSocketConnection.setCloseFrameReceived(true);
             notifyCloseMessage((CloseWebSocketFrame) frame, ctx);
         } else if (frame instanceof ContinuationWebSocketFrame) {
             ContinuationWebSocketFrame conframe = (ContinuationWebSocketFrame) msg;
@@ -240,14 +242,21 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
         if (webSocketConnection == null) {
             throw new ServerConnectorException("Cannot find initialized channel session");
         }
-        if (closeCountDownLatch == null) {
+        // closePromise == null means that WebSocketConnection has not yet initiated a connection closure.
+        if (closePromise == null) {
             DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage, ctx);
             connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
             closeFrameReceived = true;
         } else {
-            ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reasonText)).addListener(
-                    future -> closeCountDownLatch.countDown());
+            if (webSocketConnection.getSentCloseStatusCode() != closeWebSocketFrame.statusCode()) {
+                String errMsg =
+                        String.format("Expected status code %d but found %d in echoed close frame from remote backend",
+                                      webSocketConnection.getSentCloseStatusCode(), closeWebSocketFrame.statusCode());
+                closePromise.setFailure(new IllegalStateException(errMsg));
+                return;
+            }
+            closePromise.setSuccess();
         }
         closeWebSocketFrame.release();
     }
@@ -292,11 +301,13 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
+        } else {
+            ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
+                    Constants.WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION, "Encountered an unexpected condition"));
+            closeFrameFuture.addListener(future -> {
+                ctx.close().addListener(closeFuture -> connectorListener.onError(cause));
+            });
         }
-
-        //TODO: Should we close the connection without close frame?
-        ctx.close();
-        connectorListener.onError(cause);
     }
 
     private HttpCarbonResponse setUpCarbonMessage(ChannelHandlerContext ctx, HttpResponse msg) {

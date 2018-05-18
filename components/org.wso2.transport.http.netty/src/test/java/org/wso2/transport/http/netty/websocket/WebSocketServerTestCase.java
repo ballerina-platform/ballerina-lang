@@ -19,6 +19,7 @@
 
 package org.wso2.transport.http.netty.websocket;
 
+import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -66,6 +67,7 @@ public class WebSocketServerTestCase {
                 listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
         connectorFuture.setWSConnectorListener(new WebSocketTestServerConnectorListener());
+        connectorFuture.sync();
     }
 
     @Test
@@ -166,7 +168,6 @@ public class WebSocketServerTestCase {
 
     @Test(priority = 1)
     public void testIdleTimeout() throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
-        // TODO: Fix this. This fails intermittently. Issue #38
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
         listenerConfiguration.setPort(TestUtil.ALTER_INTERFACE_PORT);
@@ -176,15 +177,20 @@ public class WebSocketServerTestCase {
         ServerConnectorFuture connectorFuture = alterServerConnector.start();
         WebSocketTestServerConnectorListener listener = new WebSocketTestServerConnectorListener();
         connectorFuture.setWSConnectorListener(listener);
-        String url = System.getProperty("url", String.format("ws://%s:%d/%s",
-                                                             TestUtil.TEST_HOST, TestUtil.ALTER_INTERFACE_PORT,
-                                                             "test"));
+        connectorFuture.sync();
+        String url = String.format("ws://%s:%d/%s", TestUtil.TEST_HOST, TestUtil.ALTER_INTERFACE_PORT, "test");
         CountDownLatch latch = new CountDownLatch(1);
         WebSocketTestClient primaryClient = new WebSocketTestClient(url, latch);
         primaryClient.handhshake();
         latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
-        Assert.assertFalse(primaryClient.isOpen());
+        CloseWebSocketFrame closeFrame = primaryClient.getReceivedCloseFrame();
+
+        Assert.assertNotNull(closeFrame);
+        Assert.assertEquals(closeFrame.statusCode(), 1001);
+        Assert.assertEquals(closeFrame.reasonText(), "Connection timeout");
         Assert.assertTrue(listener.isIdleTimeout());
+        primaryClient.sendCloseFrame(closeFrame.statusCode(), null).closeChannel();
+        closeFrame.release();
         alterServerConnector.stop();
     }
 

@@ -104,18 +104,18 @@ public interface WebSocketConnection {
     ChannelFuture pong(ByteBuffer data);
 
     /**
-     * Initiate connection closure.
+     * Initiate connection closure. Channel future will complete operation successfully if and only if it receives back
+     * a echoed WebSocket frame from the remote endpoint with the same status code which is written. Also it will not
+     * move to <b>done</b> state until it receives a WebSocket frame from the remote backend.
+     * If user does not need to wait for the echoed back WebSocket frame of the remote endpoint user need to handle
+     * it separately.
      *
      * @param statusCode Status code to indicate the reason of closure
      *                   @see <a href="https://tools.ietf.org/html/rfc6455">WebSocket Protocol</a>
      * @param reason Reason to close the connection.
-     * @param timeoutInSecs timeout which waits for the close frame from remote endpoint to close the connection.
-     *                      <p>If the timeout exceeds then the connection will be terminated even though a close frame
-     *                      is not received from the remote backend. If the value is -1 the connection will wait until
-     *                      a close frame is received.</p>
      * @return Future to represent the completion of asynchronous frame sending.
      */
-    ChannelFuture initiateConnectionClosure(int statusCode, String reason, int timeoutInSecs);
+    ChannelFuture initiateConnectionClosure(int statusCode, String reason);
 
     /**
      * Finish the connection closure if a close frame has been received without this connection sending a close frame.
@@ -133,18 +133,4 @@ public interface WebSocketConnection {
      * @return Future to represent the completion of closure asynchronously.
      */
     ChannelFuture closeForcefully();
-
-    /**
-     * Check whether a close frame is sent.
-     *
-     * @return true if close frame is sent.
-     */
-    boolean closeFrameSent();
-
-    /**
-     * Check whether a close frame is received.
-     *
-     * @return true if a close frame is received.
-     */
-    boolean closeFrameReceived();
 }
