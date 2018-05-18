@@ -69,6 +69,7 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -252,8 +253,18 @@ public class HttpUtil {
                 && context != null) {
             MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
-            entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(httpMessageDataStreamer.
-                    getInputStream())));
+            PushbackInputStream pushbackInputStream = new PushbackInputStream(httpMessageDataStreamer.
+                    getInputStream());
+            try {
+                int byteOfData = pushbackInputStream.read();
+                if (byteOfData != -1) {
+                    pushbackInputStream.unread(byteOfData);
+                    entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+                            new EntityBodyChannel(pushbackInputStream)));
+                }
+            } catch (IOException e) {
+                throw new BallerinaException("Error occurred while reading pushbackstream : " + e.getMessage());
+            }
         }
         httpMessageStruct.setRefField(isRequest ? REQUEST_ENTITY_INDEX : RESPONSE_ENTITY_INDEX, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
