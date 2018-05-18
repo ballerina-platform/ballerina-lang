@@ -76,8 +76,8 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
+import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_MEMORY_THRESHOLD;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
@@ -88,6 +88,7 @@ import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.Constants.RESPONSE_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
 import static org.ballerinalang.mime.util.EntityBodyHandler.setDiscreteMediaTypeBodyContent;
+import static org.ballerinalang.mime.util.MimeUtil.getOverflowSettings;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
@@ -249,22 +250,25 @@ public class HttpUtil {
                 .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
         HttpMessageDataStreamer httpMessageDataStreamer = new HttpMessageDataStreamer(httpCarbonMessage);
         String contentType = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
+        Map<String, Object> overflowSettings = getOverflowSettings(getServiceConfigAnnotation(context));
         if (MimeUtil.isNotNullAndEmpty(contentType) && contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)
                 && context != null) {
-            MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
+            MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream(),
+                    overflowSettings);
         } else {
             long contentLength = NO_CONTENT_LENGTH_FOUND;
             String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
             try {
                 contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    contentLength = httpCarbonMessage.countMessageLengthTill(BYTE_LIMIT);
+                    contentLength = httpCarbonMessage.countMessageLengthTill((Long) overflowSettings
+                            .get(ANN_CONFIG_MEMORY_THRESHOLD));
                 }
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
-                    contentLength);
+            setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(), contentLength,
+                    overflowSettings);
         }
         httpMessageStruct.setRefField(isRequest ? REQUEST_ENTITY_INDEX : RESPONSE_ENTITY_INDEX, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
@@ -277,6 +281,15 @@ public class HttpUtil {
         }
         return (BStruct) httpMessageStruct.getRefField(isRequestStruct(httpMessageStruct) ? REQUEST_ENTITY_INDEX :
                 RESPONSE_ENTITY_INDEX);
+    }
+
+    private static Annotation getServiceConfigAnnotation(Context context) {
+        if (context == null || context.getServiceInfo() == null) {
+            return null;
+        }
+        Service serviceInstance = BLangConnectorSPIUtil.getService(context.getProgramFile(),
+                context.getServiceInfo().getType());
+        return getServiceConfigAnnotation(serviceInstance, PROTOCOL_PACKAGE_HTTP);
     }
 
     public static void closeMessageOutputStream(OutputStream messageOutputStream) {

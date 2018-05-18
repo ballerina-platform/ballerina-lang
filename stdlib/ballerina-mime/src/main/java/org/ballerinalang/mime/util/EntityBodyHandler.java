@@ -50,8 +50,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_MEMORY_THRESHOLD;
+import static org.ballerinalang.mime.util.Constants.ANN_CONFIG_TEMP_LOCATION;
 import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.CHARSET;
@@ -69,25 +72,27 @@ public class EntityBodyHandler {
 
     /**
      * Handle discrete media type content. This method populates ballerina entity with a byte channel from a given
-     * inputstream. If the payload size exceeds 2MB limit, write the stream to a temp file and get a reference to
-     * a file channel. After that delete the temp file. If the size does not exceed, then wrap the inputstream with an
-     * EntityBodyChannel.
+     * inputstream. If the payload size exceeds the given memory threshold, write the stream to a temp file and get
+     * a reference to a file channel. After that delete the temp file. If the size does not exceed, then wrap
+     * the inputstream with an EntityBodyChannel.
      *
      * @param entityStruct      Represent an 'Entity'
      * @param inputStream       Represent input stream coming from the request/response
      * @param numberOfBytesRead Number of bytes read
      */
     public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream,
-                                                       long numberOfBytesRead) {
+                                                       long numberOfBytesRead, Map<String, Object> overflowSettings) {
         if (numberOfBytesRead > 0) {
-            if (numberOfBytesRead < Constants.BYTE_LIMIT) {
+            if (numberOfBytesRead < (Long) overflowSettings.get(ANN_CONFIG_MEMORY_THRESHOLD)) {
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
             } else {
-                String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
+                String tempLocation = overflowSettings.get(ANN_CONFIG_TEMP_LOCATION) != null ?
+                        (String) overflowSettings.get(ANN_CONFIG_TEMP_LOCATION) : null;
+                String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE,
+                        tempLocation);
                 entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, getByteChannelForTempFile(temporaryFilePath));
             }
         }
-
     }
 
     /**
@@ -321,7 +326,7 @@ public class EntityBodyHandler {
             return;
         }
 
-        MultipartDecoder.parseBody(context, entityStruct, contentType, byteChannel.getInputStream());
+        MultipartDecoder.parseBody(context, entityStruct, contentType, byteChannel.getInputStream(), null);
     }
 
     /**

@@ -86,7 +86,7 @@ public class MultipartEncoderTest {
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
-                    multipartDataBoundary, inputStream);
+                    multipartDataBoundary, inputStream, null);
             Assert.assertEquals(mimeParts.size(), 4);
             BStruct bodyPart = Util.getEntityStruct(result);
             validateBodyPartContent(mimeParts, bodyPart);
@@ -107,7 +107,7 @@ public class MultipartEncoderTest {
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/new-sub-type; boundary=" +
-                    multipartDataBoundary, inputStream);
+                    multipartDataBoundary, inputStream, null);
             Assert.assertEquals(mimeParts.size(), 4);
             BStruct bodyPart = Util.getEntityStruct(result);
             validateBodyPartContent(mimeParts, bodyPart);
@@ -128,7 +128,7 @@ public class MultipartEncoderTest {
         InputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
-                    multipartDataBoundary, inputStream);
+                    multipartDataBoundary, inputStream, null);
             Assert.assertEquals(mimeParts.size(), 4);
             for (MIMEPart mimePart : mimeParts) {
                 testNestedPartContent(mimePart);
@@ -147,7 +147,7 @@ public class MultipartEncoderTest {
      */
     private void testNestedPartContent(MIMEPart mimePart) throws MimeTypeParseException, IOException {
         List<MIMEPart> nestedParts = MultipartDecoder.decodeBodyParts(mimePart.getContentType(),
-                mimePart.readOnce());
+                mimePart.readOnce(), null);
         Assert.assertEquals(nestedParts.size(), 4);
         BStruct ballerinaBodyPart = Util.getEntityStruct(result);
         validateBodyPartContent(nestedParts, ballerinaBodyPart);
@@ -205,7 +205,7 @@ public class MultipartEncoderTest {
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts("multipart/mixed; boundary=" +
-                    "e3a0b9ad7b4e7cdb", inputStream);
+                    "e3a0b9ad7b4e7cdb", inputStream, null);
             Assert.assertEquals(mimeParts.size(), 4);
             BStruct bodyPart = Util.getEntityStruct(result);
             validateBodyPartContent(mimeParts, bodyPart);
@@ -225,11 +225,10 @@ public class MultipartEncoderTest {
         InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
         try {
             List<MIMEPart> mimeParts = MultipartDecoder.decodeBodyParts(inRequestMsg.getHeader(HttpHeaderNames.
-                            CONTENT_TYPE.toString()),
-                    inputStream);
+                            CONTENT_TYPE.toString()), inputStream, null);
             Assert.assertEquals(mimeParts.size(), 2);
             List<MIMEPart> childParts = MultipartDecoder.decodeBodyParts(mimeParts.get(1).getContentType(),
-                    mimeParts.get(1).readOnce());
+                    mimeParts.get(1).readOnce(), null);
             Assert.assertEquals(childParts.size(), 2);
         } catch (MimeTypeParseException e) {
             log.error("Error occurred while testing mulitpart/mixed encoding", e.getMessage());

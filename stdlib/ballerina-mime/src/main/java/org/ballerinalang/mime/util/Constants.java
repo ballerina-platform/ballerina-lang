@@ -105,6 +105,10 @@ public class Constants {
     public static final int REQUEST_ENTITY_INDEX = 1;
     public static final int RESPONSE_ENTITY_INDEX = 1;
 
+    public static final String ANN_CONFIG_OVERFLOW_CONFIG = "overflowConfig";
+    public static final String ANN_CONFIG_MEMORY_THRESHOLD = "memoryThresholdInMB";
+    public static final String ANN_CONFIG_TEMP_LOCATION = "tempLocation";
+
     //Native argument indexes
     public static final int FIRST_PARAMETER_INDEX = 0;
     public static final int SECOND_PARAMETER_INDEX = 1;
@@ -138,6 +142,7 @@ public class Constants {
 
     public static final int BYTE_LIMIT = 2097152; //2MB
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
+    public static final int ONE_MB_IN_BYTES = 1048576; //1MB
 
     public static final String UTF_8 = "UTF-8";
     public static final String CONTENT_TRANSFER_ENCODING_7_BIT = "7bit";
