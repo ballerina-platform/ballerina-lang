@@ -149,7 +149,6 @@ public class PackageLoader {
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo projectRepo = shouldReadBalo ? new BinaryRepo(projectHiddenDir) : new ZipRepo(projectHiddenDir);
 
-
         RepoHierarchyBuilder.RepoNode homeCacheNode;
 
         if (offline) {
@@ -157,6 +156,13 @@ public class PackageLoader {
         } else {
             homeCacheNode = node(homeCacheRepo, node(remote, systemArr));
         }
+
+        Path libsDir = RepoUtils.createAndGetLibsRepoPath();
+        if (libsDir != null) {
+            Repo libRepo = new BinaryRepo(libsDir);
+            homeCacheNode = node(libRepo, homeCacheNode);
+        }
+
         RepoHierarchyBuilder.RepoNode nonLocalRepos = node(projectRepo,
                                                            node(projectCacheRepo, homeCacheNode),
                                                            node(homeRepo, homeCacheNode));

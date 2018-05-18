@@ -511,7 +511,7 @@ public class CompiledPackageSymbolEnter {
             invokableSymbol.params.add(varSymbol);
         }
 
-        for (int i = requiredParamCount; i < defaultableParamCount; i++) {
+        for (int i = requiredParamCount; i < requiredParamCount + defaultableParamCount; i++) {
             String varName = getVarName(localVarDataInStream);
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
                     funcType.paramTypes.get(i), this.env.pkgSymbol);

@@ -47,4 +47,5 @@ public class ProjectDirConstants {
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
     //TODO: remove after moving this dir into ./target
     public static final String API_DOCS_DIR_NAME = "api-docs";
+    public static final String BALLERINA_HOME = "ballerina.home";
 }

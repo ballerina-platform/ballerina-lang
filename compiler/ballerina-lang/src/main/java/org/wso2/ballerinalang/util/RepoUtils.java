@@ -67,4 +67,13 @@ public class RepoUtils {
         }
         return PRODUCTION_URL;
     }
+
+    public static Path createAndGetLibsRepoPath() {
+        String ballerinaHome = System.getProperty(ProjectDirConstants.BALLERINA_HOME);
+        if (ballerinaHome == null || ballerinaHome.isEmpty()) {
+            return null;
+        }
+
+        return Paths.get(ballerinaHome).resolve("libs");
+    }
 }
