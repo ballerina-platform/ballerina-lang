@@ -589,11 +589,11 @@ ExpressionStmt ::= Expression SEMICOLON {pin=1}
 
 TransactionStatement ::= TransactionClause OnretryClause?
 
-TransactionClause ::= transaction (WITH TransactionPropertyInitStatementList)? LEFT_BRACE Block RIGHT_BRACE {pin=1}
+TransactionClause ::= transaction (WITH TransactionPropertyInitStatementList)? LEFT_BRACE Block RIGHT_BRACE {pin(".*")=1}
 
-TransactionPropertyInitStatement ::= RetriesStatement | OncommitStatement | OnabortStatement
+TransactionPropertyInitStatement ::= RetriesStatement | OncommitStatement | OnabortStatement {pin=1}
 
-TransactionPropertyInitStatementList ::= TransactionPropertyInitStatement (COMMA TransactionPropertyInitStatement)*
+TransactionPropertyInitStatementList ::= TransactionPropertyInitStatement (COMMA TransactionPropertyInitStatement)* {pin(".*")=1}
 
 LockStatement ::= lock LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
@@ -605,9 +605,9 @@ retryStatement ::= retry SEMICOLON {pin=1}
 
 RetriesStatement ::= retries ASSIGN Expression {pin=1}
 
-OncommitStatement ::= oncommit ASSIGN Expression
+OncommitStatement ::= oncommit ASSIGN Expression {pin=1}
 
-OnabortStatement ::= onabort ASSIGN Expression
+OnabortStatement ::= onabort ASSIGN Expression {pin=1}
 
 NamespaceDeclarationStatement ::= NamespaceDeclaration /*{pin=1}*/
 
