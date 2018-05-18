@@ -204,7 +204,7 @@ public class ProgramFileReader {
                 }
                 return new UTF8CPEntry(strValue);
             case CP_ENTRY_BLOB:
-                short blobLength = dataInStream.readShort();
+                int blobLength = dataInStream.readInt();
                 byte[] blobValue = null;
                 if (blobLength >= 0) {
                     blobValue = new byte[blobLength];

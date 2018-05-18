@@ -96,7 +96,7 @@ public class PackageInfoWriter {
                     break;
                 case CP_ENTRY_BLOB:
                     byte[] blobValue = ((BlobCPEntry) cpEntry).getValue();
-                    dataOutStream.writeShort(blobValue.length);
+                    dataOutStream.writeInt(blobValue.length);
                     dataOutStream.write(blobValue);
                     break;
                 case CP_ENTRY_PACKAGE:

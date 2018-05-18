@@ -255,7 +255,7 @@ public class CompiledPackageSymbolEnter {
                 utf8CPEntry = (UTF8CPEntry) constantPool[cpIndex];
                 return new StringCPEntry(cpIndex, utf8CPEntry.getValue());
             case CP_ENTRY_BLOB:
-                int length = dataInStream.readShort();
+                int length = dataInStream.readInt();
                 byte[] blobValue = new byte[length];
                 dataInStream.readFully(blobValue);
                 return new BlobCPEntry(blobValue);
