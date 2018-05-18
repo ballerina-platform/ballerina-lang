@@ -1789,7 +1789,7 @@
         <micrometer.version>1.0.4</micrometer.version>
         <hdrhistogram.version>2.1.10</hdrhistogram.version>
         <latencyutils.version>2.0.3</latencyutils.version>
-        <prometheus.simple.client.version>0.3.0</prometheus.simple.client.version>
+        <prometheus.simple.client.version>0.4.0</prometheus.simple.client.version>
 
         <!-- JMS Connector -->
         <wso2.transport.jms.version>6.0.50</wso2.transport.jms.version>
