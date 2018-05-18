@@ -121,8 +121,7 @@ public class LSCompiler {
                 documentManager.openFile(filePath, content);
             }
 
-            BallerinaFile ballerinaFile = LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace,
-                    null);
+            BallerinaFile ballerinaFile = LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace);
 
             documentManager.closeFile(filePath);
             return ballerinaFile;
@@ -149,7 +148,7 @@ public class LSCompiler {
             } else {
                 documentManager.openFile(filePath, content);
             }
-            return LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace, null);
+            return LSCompiler.compile(filePath, phase, documentManager, preserveWhitespace);
         } finally {
             lock.ifPresent(Lock::unlock);
         }
@@ -166,10 +165,9 @@ public class LSCompiler {
      */
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
                                                          LSDocument sourceRoot, boolean preserveWhitespace,
-                                                         WorkspaceDocumentManager documentManager,
-                                                         LSContext lsContext) {
+                                                         WorkspaceDocumentManager documentManager) {
         return prepareCompilerContext(packageID, packageRepository, sourceRoot, preserveWhitespace, documentManager,
-                                      CompilerPhase.TAINT_ANALYZE, lsContext);
+                                      CompilerPhase.TAINT_ANALYZE);
     }
 
     /**
@@ -184,7 +182,7 @@ public class LSCompiler {
     public static CompilerContext prepareCompilerContext(PackageID packageID, PackageRepository packageRepository,
                                                          LSDocument sourceRoot, boolean preserveWhitespace,
                                                          WorkspaceDocumentManager documentManager,
-                                                         CompilerPhase compilerPhase, LSContext lsContext) {
+                                                         CompilerPhase compilerPhase) {
         LSContextManager lsContextManager = LSContextManager.getInstance();
         CompilerContext context = lsContextManager.getCompilerContext(packageID, sourceRoot.getSourceRoot());
         context.put(PackageRepository.class, packageRepository);
@@ -205,17 +203,17 @@ public class LSCompiler {
         if (isProjectDir(sourceRoot.getSourceRoot(), sourceRoot.getURIString())) {
             context.put(SourceDirectory.class,
                         LangServerFSProjectDirectory.getInstance(context, sourceRoot.getSourceRootPath(),
-                                documentManager, lsContext));
+                                documentManager));
         } else {
             context.put(SourceDirectory.class,
                         LangServerFSProgramDirectory.getInstance(context, sourceRoot.getSourceRootPath(),
-                                documentManager, lsContext));
+                                documentManager));
         }
         return context;
     }
 
     private static BallerinaFile compile(Path path, CompilerPhase phase, WorkspaceDocumentManager documentManager,
-                                         boolean preserveWhiteSpace, LSContext lsContext) {
+                                         boolean preserveWhiteSpace) {
         String sourceRoot = getSourceRoot(path);
         String pkgName = getPackageNameForGivenFile(sourceRoot, path.toString());
         LSDocument sourceDocument = new LSDocument();
@@ -232,7 +230,7 @@ public class LSCompiler {
             }
         }
         CompilerContext context = prepareCompilerContext(packageID, packageRepository, sourceDocument,
-                preserveWhiteSpace, documentManager, phase, lsContext);
+                preserveWhiteSpace, documentManager, phase);
 
         // In order to capture the syntactic errors, need to go through the default error strategy
         context.put(DefaultErrorStrategy.class, null);
@@ -281,7 +279,7 @@ public class LSCompiler {
     public static List<BLangPackage> getBLangPackage(LSContext context,
                                                                   WorkspaceDocumentManager docManager,
                                                                   boolean preserveWhitespace, Class customErrorStrategy,
-                                                                  boolean compileFullProject, LSContext lsContext) {
+                                                                  boolean compileFullProject) {
         String uri = context.get(DocumentServiceKeys.FILE_URI_KEY);
         String unsavedFileId = LSCompiler.getUnsavedFileIdOrNull(uri);
         if (unsavedFileId != null) {
@@ -316,7 +314,7 @@ public class LSCompiler {
                             PackageID packageID = new PackageID(fileName);
                             CompilerContext compilerContext =
                                     LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument,
-                                                                      preserveWhitespace, docManager, lsContext);
+                                                                      preserveWhitespace, docManager);
                             Compiler compiler = getCompiler(context, fileName, compilerContext, customErrorStrategy);
                             BLangPackage bLangPackage = compiler.compile(file.getName());
                             packages.add(bLangPackage);
@@ -335,7 +333,7 @@ public class LSCompiler {
             }
             CompilerContext compilerContext =
                     LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument,
-                                                      preserveWhitespace, docManager, lsContext);
+                                                      preserveWhitespace, docManager);
             Compiler compiler = getCompiler(context, fileName, compilerContext, customErrorStrategy);
             BLangPackage bLangPackage = compiler.compile(pkgName);
             packages.add(bLangPackage);
