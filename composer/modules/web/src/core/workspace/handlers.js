@@ -170,7 +170,7 @@ export function getHandlerDefinitions(workspaceManager) {
                     ipcRenderer.once('file-open-wizard-closed', (e, file) => {
                         if (file) {
                             dispatch(COMMANDS.OPEN_FILE, {
-                                filePath: file,
+                                filePath: file[0],
                             });
                         }
                     });

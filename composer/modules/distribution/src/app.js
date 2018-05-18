@@ -38,7 +38,11 @@ function createWindow (pageURL, show = true) {
     setupMenu();
     setupNativeWizards(win);
 
-    win.loadURL(pageURL);
+    if (process.env.NODE_ENV === 'electron-dev') {
+        win.loadURL('http://localhost:8080');
+    } else {
+        win.loadURL(pageURL);
+    }
 
     if (process.env.NODE_ENV === 'electron-dev') {
         win.webContents.openDevTools();
