@@ -18,8 +18,11 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -29,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
+import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,15 +53,27 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
 
         if (bLangEndpoint instanceof BLangEndpoint) {
             BLangExpression configurationExpr = ((BLangEndpoint) bLangEndpoint).configurationExpr;
+            int cursorLine = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
             if (configurationExpr instanceof BLangRecordLiteral) {
-                BType bType = ((BLangRecordLiteral) configurationExpr).type;
-                if (bType instanceof BStructType) {
-                    completionItems.addAll(
-                            CommonUtil.getStructFieldPopulateCompletionItems(((BStructType) bType).getFields())
-                    );
-                    completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BStructType) bType).getFields()));
+                List<BLangRecordLiteral.BLangRecordKeyValue> keyValuePairs =
+                        ((BLangRecordLiteral) configurationExpr).getKeyValuePairs();
+                for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : keyValuePairs) {
+                    BLangExpression valueExpr = keyValuePair.valueExpr;
+                    DiagnosticPos valuePos = CommonUtil.toZeroBasedPosition(valueExpr.getPosition());
+                    if (valuePos.getStartLine() == cursorLine) {
+                        if (isInvocationOrFieldAccess(completionContext)) {
+                            ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
+                            PackageActionFunctionAndTypesFilter actionFunctionTypeFilter
+                                    = new PackageActionFunctionAndTypesFilter();
+                            actionAndFunctions.addAll(actionFunctionTypeFilter.filterItems(completionContext));
+                            this.populateCompletionItemList(actionAndFunctions, completionItems);
+                        } else {
+                            completionItems.addAll(this.getVariableDefinitionCompletionItems(completionContext));
+                        }
+
+                        return completionItems;
+                    }
                 }
-                return completionItems;
             }
         }
         
