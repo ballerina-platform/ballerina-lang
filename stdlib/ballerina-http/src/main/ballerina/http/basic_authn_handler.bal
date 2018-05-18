@@ -26,14 +26,14 @@ documentation {
     Defines Basic Auth handler for HTTP traffic.
 
     F{{name}} Authentication handler name
-    F{{authProvider}} AuthProvider instance
+    F{{authStoreProvider}} AuthStoreProvider instance
 }
 public type HttpBasicAuthnHandler object {
     public {
         string name;
-        auth:AuthProvider authProvider;
+        auth:AuthStoreProvider authStoreProvider;
     }
-    public new(authProvider) {
+    public new(authStoreProvider) {
         name = "basic";
     }
 
@@ -71,12 +71,12 @@ public function HttpBasicAuthnHandler::handle(Request req) returns (boolean) {
     match credentials {
         (string, string) creds => {
             var (username, password) = creds;
-            boolean isAuthenticated = self.authProvider.authenticate(username, password);
+            boolean isAuthenticated = self.authStoreProvider.authenticate(username, password);
             if (isAuthenticated) {
                 // set username
                 runtime:getInvocationContext().userPrincipal.username = username;
                 // read scopes and set to the invocation context
-                string[] scopes = self.authProvider.getScopes(username);
+                string[] scopes = self.authStoreProvider.getScopes(username);
                 if (lengthof scopes > 0) {
                     runtime:getInvocationContext().userPrincipal.scopes = scopes;
                 }

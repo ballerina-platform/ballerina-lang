@@ -50,9 +50,8 @@ class HttpServiceDecorator extends React.Component {
             <span>&nbsp;</span>
             <Button
                 size='mini'
-                inverted
                 disabled={!LaunchManager.active}
-                color='orange'
+                primary
                 onClick={() => {
                     this.props.command.dispatch(TRY_IT_COMMANDS.SHOW_TRY_IT);
                 }}

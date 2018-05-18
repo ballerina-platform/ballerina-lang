@@ -1,12 +1,18 @@
 const request = require('request-promise');
-const { getParserService } = require('../serverStarter');
+const { getParserService, setOutputChannel } = require('../serverStarter');
 
-const RETRY_COUNT = 10;
-const RETRY_WAIT = 2000;
+const RETRY_COUNT = 5;
+const RETRY_WAIT = 1000;
 
 let jsonModel;
+let outputChannel = {
+    // By default just ignore all calls to outputchannel
+    append: () => {},
+    show: () => {},
+};
 
-function render (content, retries=0) {
+
+function render (content, retries=1) {
     const parseOpts = {
         content,
         filename: 'file.bal',
@@ -31,14 +37,18 @@ function render (content, retries=0) {
         return renderDiagram(jsonModel, stale);
     })
     .catch((e) => {
+        outputChannel.append(`Error in parser service ${e} \n`);
         return new Promise((res, rej) => {
             if (retries > RETRY_COUNT) {
+                outputChannel.append('Could not render\n');
+                outputChannel.show();
                 res(renderError());
                 return;
             }
 
             setTimeout(() => {
-                console.log('Retrying rendering');
+                console.log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
+                outputChannel.append(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
                 res(render(content, retries + 1));
             }, RETRY_WAIT);
         });
@@ -121,6 +131,7 @@ function renderDiagram(jsonModelObj, stale) {
                     ballerinaDiagram.renderDiagram(document.getElementById("diagram"), json, {
                         width: window.innerWidth - 6, height: window.innerHeight
                     });
+                    console.log('Successfully rendered')
                 } catch(e) {
                     console.log(e.stack);
                     drawError('Oops. Something went wrong.');
@@ -172,4 +183,8 @@ function renderError() {
 }
 
 module.exports.render = render;
-module.exports.activate = getParserService;
+module.exports.activate = (out) => {
+    outputChannel = out;
+    setOutputChannel(out);
+    return getParserService();
+}

@@ -3,7 +3,6 @@ import ballerina/runtime;
 import ballerina/websub;
 
 function main(string... args) {
-
     io:println("Starting up the Ballerina Hub Service");
     websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9393);
     //Register a topic at the hub
@@ -21,5 +20,4 @@ function main(string... args) {
         runtime:sleep(5000);
         index++;
     }
-
 }

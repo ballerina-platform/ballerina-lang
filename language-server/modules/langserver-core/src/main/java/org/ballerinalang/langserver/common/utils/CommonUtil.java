@@ -79,7 +79,7 @@ public class CommonUtil {
 
     private static final String OPEN_BRACKET_KEY_WORD = "(";
     
-    private static final String LINE_SEPARATOR = System.lineSeparator();
+    public static final String LINE_SEPARATOR = System.lineSeparator();
 
     /**
      * Get the package URI to the given package name.
@@ -94,7 +94,7 @@ public class CommonUtil {
         // If current package path is not null and current package is not default package continue,
         // else new package path is same as the current package path.
         if (currentPkgPath != null && !currentPkgName.equals(".")) {
-            int indexOfCurrentPkgName = currentPkgPath.indexOf(currentPkgName);
+            int indexOfCurrentPkgName = currentPkgPath.lastIndexOf(currentPkgName);
             if (indexOfCurrentPkgName >= 0) {
                 newPackagePath = currentPkgPath.substring(0, indexOfCurrentPkgName);
             } else {
@@ -284,11 +284,10 @@ public class CommonUtil {
     public static String topLevelNodeTypeInLine(TextDocumentIdentifier identifier, Position startPosition,
                                                 WorkspaceDocumentManager docManager) {
         // TODO: Need to support service and resources as well.
-        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "struct", "enum",
-                                                      "transformer", "object");
+        List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
         LSDocument document = new LSDocument(identifier.getUri());
         String fileContent = docManager.getFileContent(getPath(document));
-        String[] splitedFileContent = fileContent.split("\\n|\\r\\n|\\r");
+        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR);
         if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
             String lineContent = splitedFileContent[startPosition.getLine()];
             List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
@@ -406,6 +405,9 @@ public class CommonUtil {
      */
     public static String getDefaultValueForType(BType bType) {
         String typeString;
+        if (bType == null) {
+            return "()";
+        }
         switch (bType.getKind()) {
             case INT:
                 typeString = Integer.toString(0);
@@ -436,7 +438,7 @@ public class CommonUtil {
                 break;
             case STREAM:
             default:
-                typeString = "null";
+                typeString = "()";
                 break;
         }
         return typeString;
@@ -504,6 +506,7 @@ public class CommonUtil {
         BType bType = variable.getScopeEntry().symbol.getType();
         String bTypeValue;
 
+        
         if (variable.getScopeEntry().symbol instanceof BEndpointVarSymbol) {
             BType getClientFuncType = ((BEndpointVarSymbol) variable.getScopeEntry().symbol)
                     .getClientFunction.type;
@@ -511,17 +514,8 @@ public class CommonUtil {
                     || !(getClientFuncType instanceof BInvokableType)) {
                 return actionFunctionList;
             }
-
-            BType boundType = ((BInvokableType) getClientFuncType).retType;
-            boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BInvokableSymbol
-                        && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
-                    String[] nameComponents = name.toString().split("\\.");
-                    SymbolInfo actionFunctionSymbol =
-                            new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
-                    actionFunctionList.add(actionFunctionSymbol);
-                }
-            });
+            
+            actionFunctionList.addAll(getActionsOfEndpoint((BEndpointVarSymbol) variable.getScopeEntry().symbol));
         } else {
             if (bType instanceof BArrayType) {
                 packageID = ((BArrayType) bType).eType.tsymbol.pkgID.getName().getValue();
@@ -754,5 +748,27 @@ public class CommonUtil {
                 });
 
         return returnMap;
+    }
+
+    /**
+     * Get the actions defined over and endpoint.
+     * @param bEndpointVarSymbol    Endpoint variable symbol to evaluate
+     * @return {@link List}         List of extracted actions as Symbol Info
+     */
+    public static List<SymbolInfo> getActionsOfEndpoint(BEndpointVarSymbol bEndpointVarSymbol) {
+        List<SymbolInfo> endpointActions = new ArrayList<>();
+        BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
+        BType boundType = ((BInvokableType) getClientFuncType).retType;
+        boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BInvokableSymbol
+                    && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
+                String[] nameComponents = name.toString().split("\\.");
+                SymbolInfo actionFunctionSymbol =
+                        new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
+                endpointActions.add(actionFunctionSymbol);
+            }
+        });
+        
+        return endpointActions;
     }
 }
