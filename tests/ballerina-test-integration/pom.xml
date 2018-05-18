@@ -158,6 +158,8 @@
                         </hsqldb.jar>
                         <project.build.directory>${project.build.directory}</project.build.directory>
                         <java.util.logging.config.file>${project.build.testOutputDirectory}/logging.properties</java.util.logging.config.file>
+                        <javax.net.ssl.trustStore>${basedir}/../../distribution/zip/ballerina/resources/security/ballerinaTruststore.p12</javax.net.ssl.trustStore>
+                        <javax.net.ssl.trustStorePassword>ballerina</javax.net.ssl.trustStorePassword>
                     </systemPropertyVariables>
                     <suiteXmlFiles>
                         <suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
