@@ -55,13 +55,13 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.wso2.transport.http.netty.common.Constants.TO;
-import static org.wso2.transport.http.netty.common.Constants.IS_PROXY_ENABLED;
-import static org.wso2.transport.http.netty.common.Constants.PROTOCOL;
+import static org.wso2.transport.http.netty.common.Constants.COLON;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_HOST;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_PORT;
+import static org.wso2.transport.http.netty.common.Constants.IS_PROXY_ENABLED;
+import static org.wso2.transport.http.netty.common.Constants.PROTOCOL;
+import static org.wso2.transport.http.netty.common.Constants.TO;
 import static org.wso2.transport.http.netty.common.Constants.URL_AUTHORITY;
-import static org.wso2.transport.http.netty.common.Constants.COLON;
 
 /**
  * Includes utility methods for creating http requests and responses and their related properties.
