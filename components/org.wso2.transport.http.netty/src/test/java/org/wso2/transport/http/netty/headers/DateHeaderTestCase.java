@@ -22,7 +22,6 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -89,8 +88,11 @@ public class DateHeaderTestCase {
         serverConnector.stop();
         try {
             httpWsConnectorFactory.shutdown();
+            Unirest.shutdown();
         } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
+        } catch (IOException e) {
+            log.warn("IOException occurred while waiting for Unirest to shutdown", e);
         }
     }
 }

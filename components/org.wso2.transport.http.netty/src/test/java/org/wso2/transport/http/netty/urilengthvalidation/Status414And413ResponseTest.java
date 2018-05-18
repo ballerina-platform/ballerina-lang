@@ -19,7 +19,6 @@
 package org.wso2.transport.http.netty.urilengthvalidation;
 
 import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.JsonNode;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import io.netty.buffer.Unpooled;
@@ -48,15 +47,12 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http.HttpClient;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertNull;
 
 /**
  * This class tests for 414 and 413 responses.
@@ -100,16 +96,14 @@ public class Status414And413ResponseTest {
     public void largeUriTest() {
         try {
             HttpResponse<String> response = sendExtraLongUri();
-            assertNotNull(response);
             assertEquals(HttpResponseStatus.REQUEST_URI_TOO_LONG.code(), response.getStatus());
             assertEquals(TestUtil.TEST_SERVER, response.getHeaders().getFirst(HttpHeaderNames.SERVER.toString()));
 
             response = sendShortUri();
-            assertNotNull(response);
             assertEquals(HttpResponseStatus.OK.code(), response.getStatus());
             assertEquals(TestUtil.TEST_SERVER, response.getHeaders().getFirst(HttpHeaderNames.SERVER.toString()));
             assertEquals(testValue, response.getBody());
-        } catch (IOException| UnirestException e) {
+        } catch (IOException | UnirestException e) {
             TestUtil.handleException("Exception occurred while running largeUriTest", e);
         }
     }
@@ -210,8 +204,11 @@ public class Status414And413ResponseTest {
         serverConnector.stop();
         try {
             httpWsConnectorFactory.shutdown();
+            Unirest.shutdown();
         } catch (InterruptedException e) {
             log.warn("Interrupted while waiting for HttpWsFactory to close");
+        } catch (IOException e) {
+            log.warn("IOException occurred while waiting for Unirest to shutdown", e);
         }
     }
 }

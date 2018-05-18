@@ -24,8 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportProperty;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -33,7 +31,6 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
@@ -41,11 +38,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 /**
  * A class which read and write content through streams

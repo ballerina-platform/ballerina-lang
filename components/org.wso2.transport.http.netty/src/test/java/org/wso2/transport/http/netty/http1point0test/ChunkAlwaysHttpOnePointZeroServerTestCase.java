@@ -22,7 +22,6 @@ import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpMethod;
 import org.junit.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -30,9 +29,6 @@ import org.wso2.transport.http.netty.chunkdisable.ChunkServerTemplate;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.util.TestUtil;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
 
 import static org.testng.AssertJUnit.assertEquals;
 

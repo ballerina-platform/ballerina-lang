@@ -21,13 +21,11 @@ package org.wso2.transport.http.netty.connectionpool;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
-import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -42,7 +40,6 @@ import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServerInitializer;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -52,6 +49,8 @@ import java.util.concurrent.Future;
 
 import static org.testng.Assert.assertNotEquals;
 import static org.testng.Assert.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.CONNECTION;
+import static org.wso2.transport.http.netty.common.Constants.CONNECTION_KEEP_ALIVE;
 
 /**
  * Tests for connection pool implementation.
@@ -108,17 +107,6 @@ public class ConnectionPoolTimeoutProxyTestCase {
         }
     }
 
-    @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-        try {
-            serverConnector.stop();
-            httpServer.shutdown();
-            httpWsConnectorFactory.shutdown();
-        } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response two", e);
-        }
-    }
-
     private class ClientWorker implements Callable<String> {
 
         private String response;
@@ -128,13 +116,27 @@ public class ConnectionPoolTimeoutProxyTestCase {
             try {
                 URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
                 HttpResponse<String> httpResponse = Unirest.post(baseURI.resolve("/").toString())
-                    .header(Constants.CONNECTION, Constants.CONNECTION_KEEP_ALIVE).body(TestUtil.smallEntity).asString();
+                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(TestUtil.smallEntity).asString();
                 response = httpResponse.getBody();
             } catch (UnirestException e) {
                 logger.error("Couldn't get the response", e);
             }
 
             return response;
+        }
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        try {
+            serverConnector.stop();
+            httpServer.shutdown();
+            httpWsConnectorFactory.shutdown();
+            Unirest.shutdown();
+        } catch (InterruptedException e) {
+            logger.warn("Interrupted while waiting for response two", e);
+        } catch (IOException e) {
+            logger.warn("IOException occurred while waiting for Unirest to shutdown", e);
         }
     }
 }

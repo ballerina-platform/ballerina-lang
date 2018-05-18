@@ -51,7 +51,6 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.CustomClassLoaderConstructor;
 import org.yaml.snakeyaml.introspector.BeanAccess;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -75,6 +74,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import static org.testng.AssertJUnit.fail;
 
 /**
@@ -97,36 +98,12 @@ public class TestUtil {
     public static final String KEY_STORE_PASSWORD = "wso2carbon";
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
 
-//    private static List<ServerConnector> connectors;
     private static ServerConnectorFuture future;
     private static final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
     public static ServerConnector startConnectors(ListenerConfiguration listenerConfiguration,
                                                         ServerBootstrapConfiguration serverBootstrapConfiguration,
                                                             HttpConnectorListener httpConnectorListener) {
-
-//        TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
-//                        .build("src/test/resources/simple-test-config/netty-transports.yml");
-//        ServerBootstrapConfiguration serverBootstrapConfiguration = getServerBootstrapConfiguration(
-//                configuration.getTransportProperties());
-//        Set<ListenerConfiguration> listenerConfigurationSet = transportsConfiguration.getListenerConfigurations();
-//
-//        connectors = new ArrayList<>();
-//        futures = new ArrayList<>();
-
-//        listenerConfigurationSet.forEach(config -> {
-//            ServerConnector serverConnector = httpConnectorFactory.createServerConnector(serverBootstrapConfiguration,
-//                    config);
-//            ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-//            serverConnectorFuture.setHttpConnectorListener(httpConnectorListener);
-//            try {
-//                serverConnectorFuture.sync();
-//            } catch (InterruptedException e) {
-//                log.error("Thread Interrupted while sleeping ", e);
-//            }
-//            futures.add(serverConnectorFuture);
-//            connectors.add(serverConnector);
-//        });
 
         ServerConnector serverConnector = httpConnectorFactory.createServerConnector(serverBootstrapConfiguration,
                 listenerConfiguration);
@@ -138,7 +115,6 @@ public class TestUtil {
             log.error("Thread Interrupted while sleeping ", e);
         }
         future = serverConnectorFuture;
-//        connectors.add(serverConnector);
 
         return serverConnector;
     }
@@ -218,7 +194,6 @@ public class TestUtil {
     }
 
     public static void updateMessageProcessor(HttpConnectorListener httpConnectorListener) {
-//        futures.forEach(future -> future.setHttpConnectorListener(httpConnectorListener));
         future.setHttpConnectorListener(httpConnectorListener);
     }
 

@@ -32,7 +32,6 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -51,7 +50,7 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
             HTTPCarbonMessage outboundResponse =
                     new HTTPCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
             outboundResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
-//            cMsg.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), HttpHeaderValues.CHUNKED.toString());
+            outboundResponse.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), HttpHeaderValues.CHUNKED.toString());
             outboundResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.TEXT_PLAIN.toString());
             outboundResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
             try {

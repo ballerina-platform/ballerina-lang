@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.initializers.MockServerInitializer;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.Properties;
 
@@ -93,7 +94,7 @@ public class PassThroughHttpsTestCase {
                     .header("Connection", "Keep-Alive").asString();
             assertEquals(testValue, response.getBody());
         } catch (UnirestException e) {
-            TestUtil.handleException("Exception occurred while running passthroughGetTest", e);
+            TestUtil.handleException("IOException occurred while running passthroughGetTest", e);
         }
     }
 
@@ -110,8 +111,11 @@ public class PassThroughHttpsTestCase {
             serverConnector.stop();
             httpsServer.shutdown();
             httpWsConnectorFactory.shutdown();
+            Unirest.shutdown();
         } catch (InterruptedException e) {
             log.warn("Interrupted while waiting for clean up");
+        } catch (IOException e) {
+            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

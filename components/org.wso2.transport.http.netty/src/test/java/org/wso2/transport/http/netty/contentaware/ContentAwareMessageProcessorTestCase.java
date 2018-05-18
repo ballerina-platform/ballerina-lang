@@ -21,6 +21,8 @@ package org.wso2.transport.http.netty.contentaware;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -39,6 +41,7 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.EchoServerInitializer;
 
+import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,6 +56,7 @@ import static org.wso2.transport.http.netty.common.Constants.CONNECTION_KEEP_ALI
  */
 public class ContentAwareMessageProcessorTestCase {
 
+    private static final Logger log = LoggerFactory.getLogger(ContentAwareMessageProcessorTestCase.class);
     private ServerConnector serverConnector;
     private HttpConnectorListener httpConnectorListener;
     private HttpServer httpServer;
@@ -77,7 +81,7 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(200, response.getStatus());
             assertEquals(testValue, response.getBody());
         } catch (UnirestException e) {
-            TestUtil.handleException("Exception occurred while running messageEchoingFromProcessorTestCase", e);
+            TestUtil.handleException("IOException occurred while running messageEchoingFromProcessorTestCase", e);
         }
     }
 
@@ -96,7 +100,7 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(expectedValue, response.getBody());
         } catch (UnirestException e) {
             TestUtil.handleException(
-                    "Exception occurred while running requestResponseTransformFromProcessorTestCase", e);
+                    "IOException occurred while running requestResponseTransformFromProcessorTestCase", e);
         }
     }
 
@@ -114,7 +118,7 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(expectedValue, response.getBody());
         } catch (UnirestException e) {
             TestUtil.handleException(
-                    "Exception occurred while running requestResponseCreationFromProcessorTestCase", e);
+                    "IOException occurred while running requestResponseCreationFromProcessorTestCase", e);
         }
     }
 
@@ -130,7 +134,7 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(requestValue, response.getBody());
         } catch (UnirestException e) {
             TestUtil.handleException(
-                    "Exception occurred while running requestResponseStreamingFromProcessorTestCase", e);
+                    "IOException occurred while running requestResponseStreamingFromProcessorTestCase", e);
         }
     }
 
@@ -146,7 +150,7 @@ public class ContentAwareMessageProcessorTestCase {
             assertEquals(requestValue, response.getBody());
         } catch (UnirestException e) {
             TestUtil.handleException(
-                    "Exception occurred while running requestResponseTransformStreamingFromProcessorTestCase", e);
+                    "IOException occurred while running requestResponseTransformStreamingFromProcessorTestCase", e);
         }
     }
 
@@ -155,5 +159,10 @@ public class ContentAwareMessageProcessorTestCase {
         List connectors = new ArrayList<>();
         connectors.add(serverConnector);
         TestUtil.cleanUp(connectors, httpServer);
+        try {
+            Unirest.shutdown();
+        }  catch (IOException e) {
+            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+        }
     }
 }
