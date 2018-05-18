@@ -69,7 +69,6 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PushbackInputStream;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,7 +83,9 @@ import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
+import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.Constants.ONE_BYTE;
 import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.Constants.RESPONSE_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
@@ -253,17 +254,20 @@ public class HttpUtil {
                 && context != null) {
             MultipartDecoder.parseBody(context, entity, contentType, httpMessageDataStreamer.getInputStream());
         } else {
-            PushbackInputStream pushbackInputStream = new PushbackInputStream(httpMessageDataStreamer.
-                    getInputStream());
+            long contentLength = NO_CONTENT_LENGTH_FOUND;
+            String lengthStr = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
             try {
-                int byteOfData = pushbackInputStream.read();
-                if (byteOfData != -1) {
-                    pushbackInputStream.unread(byteOfData);
-                    entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
-                            new EntityBodyChannel(pushbackInputStream)));
+                contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
+                if (contentLength == NO_CONTENT_LENGTH_FOUND) {
+                    //Read one byte to make sure the incoming stream has data
+                    contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
                 }
-            } catch (IOException e) {
-                throw new BallerinaException("Error occurred while reading pushbackstream : " + e.getMessage());
+            } catch (NumberFormatException e) {
+                throw new BallerinaException("Invalid content length");
+            }
+            if (contentLength > 0) {
+                entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+                        new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
             }
         }
         httpMessageStruct.setRefField(isRequest ? REQUEST_ENTITY_INDEX : RESPONSE_ENTITY_INDEX, entity);
