@@ -19,13 +19,14 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
@@ -40,7 +41,7 @@ import org.ballerinalang.net.websub.hub.Hub;
         args = {@Argument(name = "hubUrl", type = TypeKind.STRING),
                 @Argument(name = "topic", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.JSON)},
-        returnType = {@ReturnType(type = TypeKind.STRING)}
+        returnType = {@ReturnType(type = TypeKind.STRUCT)}
 )
 public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit {
 
@@ -49,15 +50,19 @@ public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit 
         String hubUrl = context.getStringArgument(0);
         String topic = context.getStringArgument(1);
         BJSON jsonPayload = (BJSON) context.getRefArgument(0);
-        String errorMessage;
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted() && hubInstance.retrieveHubUrl().equals(hubUrl)) {
             String payload = jsonPayload.stringValue();
-            errorMessage = Hub.getInstance().publish(topic, payload);
+            try {
+                Hub.getInstance().publish(topic, payload);
+                context.setReturnValues();
+            } catch (BallerinaWebSubException e) {
+                context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+            }
         } else {
-            errorMessage = "Internal Ballerina Hub not initialized or incorrectly referenced";
+            context.setReturnValues(BLangVMErrors.createError(context,
+                                          "Internal Ballerina Hub not initialized or incorrectly referenced"));
         }
-        context.setReturnValues(new BString(errorMessage));
     }
 
 }
