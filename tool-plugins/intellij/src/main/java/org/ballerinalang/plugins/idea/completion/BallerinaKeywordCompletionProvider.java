@@ -57,18 +57,6 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
             return;
         }
 
-        BallerinaTransactionStatement transactionStatement = PsiTreeUtil.getParentOfType(position,
-                BallerinaTransactionStatement.class);
-        if (transactionStatement != null) {
-            BallerinaCompletionUtils.addTransactionKeywordsAsLookups(result);
-        }
-
-        BallerinaCompositeElement loopTypes = PsiTreeUtil.getParentOfType(position,
-                BallerinaWhileStatement.class, BallerinaForeachStatement.class);
-        if (loopTypes != null) {
-            BallerinaCompletionUtils.addLoopKeywordsAsLookups(result);
-        }
-
         // Todo - Add bind
         //        if (parent instanceof BallerinaServiceEndpointAttachments) {
         //            if (parent.getFirstChild().equals(position)) {
@@ -128,6 +116,19 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                             || ((LeafPsiElement) prevVisibleLeaf).getElementType() ==
                             BallerinaTypes.DECIMAL_INTEGER_LITERAL
                             || ((LeafPsiElement) prevVisibleLeaf).getElementType() == BallerinaTypes.COLON))) {
+
+                        BallerinaTransactionStatement transactionStatement = PsiTreeUtil.getParentOfType(position,
+                                BallerinaTransactionStatement.class);
+                        if (transactionStatement != null) {
+                            BallerinaCompletionUtils.addTransactionKeywordsAsLookups(result);
+                        }
+
+                        BallerinaCompositeElement loopTypes = PsiTreeUtil.getParentOfType(position,
+                                BallerinaWhileStatement.class, BallerinaForeachStatement.class);
+                        if (loopTypes != null) {
+                            BallerinaCompletionUtils.addLoopKeywordsAsLookups(result);
+                        }
+
                         BallerinaCompletionUtils.addValueTypesAsLookups(result, true);
                         BallerinaCompletionUtils.addReferenceTypesAsLookups(result, true);
                         BallerinaCompletionUtils.addVarAsLookup(result);

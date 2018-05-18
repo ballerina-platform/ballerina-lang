@@ -179,6 +179,10 @@ class TreeBuilder {
                     }
                 }
             }
+
+            if (node.typeNode && node.typeNode.ws && !node.ws) {
+                node.noVisibleName = true;
+            }
         }
 
         if (node.kind === 'Service') {
@@ -208,9 +212,9 @@ class TreeBuilder {
         }
 
         // Check if sorrounded by curlies
-        if (node.kind === 'MatchPatternClause') {
-            if (!node.ws) {
-                node.withoutCurlies = true;
+        if (node.kind === 'MatchPatternClause' || node.kind === 'MatchExpressionPatternClause') {
+            if (node.ws && node.ws.length > 2) {
+                node.withCurlies = true;
             }
         }
 
@@ -221,13 +225,27 @@ class TreeBuilder {
             }
 
             if (node.typeKind && node.typeKind === 'nil' && node.ws) {
-                node.emptyParantheses=true;
+                node.emptyParantheses = true;
+            }
+
+            if (node.nullable && node.ws) {
+                for (let i = 0; i < node.ws.length; i++) {
+                    if (node.ws[i].text === '?') {
+                        node.nullableOperatorAvailable = true;
+                    }
+                }
             }
         }
 
-        if (node.kind === 'UnionTypeNode') {
-            if (node.ws && node.ws.length > 2) {
+        if (node.kind === 'UnionTypeNode' && node.ws) {
+            if (node.ws.length > 2 && _.find(node.ws, (ws) => ws.text === '(')) {
                 node.withParantheses = true;
+            }
+
+            for (let i = 0; i < node.memberTypeNodes.length; i++) {
+                if (node.memberTypeNodes[i].nullable && _.find(node.ws, (ws) => ws.text === '?')) {
+                    node.memberTypeNodes[i].nullableOperatorAvailable = true;
+                }
             }
         }
 
@@ -269,6 +287,10 @@ class TreeBuilder {
             let fields = node.fields;
             let privateFieldBlockVisible = false;
             let publicFieldBlockVisible = false;
+            let publicFieldsSemicolonCount = 0;
+            let privateFieldsSemicolonCount = 0;
+            let publicFieldsCommaCount = 0;
+            let privateFieldsCommaCount = 0;
 
             for (let i = 0; i < fields.length; i++) {
                 if (fields[i].public) {
@@ -287,6 +309,40 @@ class TreeBuilder {
                     if (node.ws[i].text === 'private' && node.ws[i + 1].text === '{') {
                         privateFieldBlockVisible = true;
                     }
+
+                    if (publicFieldBlockVisible) {
+                        if (node.ws[i].text === ',') {
+                            publicFieldsCommaCount += 1;
+                        } else if (node.ws[i].text === ';') {
+                            publicFieldsSemicolonCount += 1;
+                        }
+                    }
+
+                    if (privateFieldBlockVisible) {
+                        if (node.ws[i].text === ',') {
+                            privateFieldsCommaCount += 1;
+                        } else if (node.ws[i].text === ';') {
+                            privateFieldsSemicolonCount += 1;
+                        }
+                    }
+
+                }
+
+                if (publicFieldsCommaCount > 0) {
+                    node.publicCommaSeparator = true;
+                }
+
+                if (publicFieldsSemicolonCount > 1) {
+                    node.publicSemicolonSeparator = true;
+                }
+
+
+                if (privateFieldsCommaCount > 0) {
+                    node.privateCommaSeparator = true;
+                }
+
+                if (privateFieldsSemicolonCount > 1) {
+                    node.privateSemicolonSeparator = true;
                 }
             }
 
@@ -401,6 +457,13 @@ class TreeBuilder {
         if (node.kind === 'FunctionType') {
             if (node.returnTypeNode && node.returnTypeNode.ws) {
                 node.hasReturn = true;
+            }
+        }
+
+        if (node.kind === 'Literal') {
+            if ((node.value === 'nil' || node.value === 'null') && node.ws
+                && node.ws.length < 3 && node.ws[0].text === '(') {
+                node.emptyParantheses = true;
             }
         }
     }

@@ -592,7 +592,7 @@ function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentSta
            float currentFailureRate = 0;
 
            if (circuitHealth.requestCount > 0 && circuitHealth.errorCount > 0) {
-               currentFailureRate = getcurrentFailureRatio(circuitHealth);
+               currentFailureRate = getCurrentFailureRatio(circuitHealth);
            }
 
            if (currentFailureRate > circuitBreakerInferredConfig.failureThreshold) {
@@ -677,7 +677,7 @@ documentation {
     P{{circuitHealth}}  Circuit Breaker health status
     R{{}} Current failure ratio
 }
-function getcurrentFailureRatio(CircuitHealth circuitHealth) returns float {
+function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
     int totalSuccess;
     int totalFailures;
 

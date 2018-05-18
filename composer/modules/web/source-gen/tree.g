@@ -157,8 +157,8 @@ ForkJoin
 
 Function
    : <defaultConstructor?>
-   | <isConstructor?>          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                         { <endpointNodes>* <body.source> <workers>* }
-   | <isConstructor?>          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                <name.value> ( <parameters-joined-by,>*                                           )                                                                                         { <endpointNodes>* <body.source> <workers>* }
+   | <isConstructor?>          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public>                                <name.value> ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                         { <endpointNodes>* <body.source> <workers>* }
+   | <isConstructor?>          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public>                                <name.value> ( <parameters-joined-by,>*                                           )                                                                                         { <endpointNodes>* <body.source> <workers>* }
    | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <isStreamAction?> =>                                        ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                         { <endpointNodes>* <body.source> <workers>* }
    | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <isStreamAction?> =>                                        ( <parameters-joined-by,>*                                           )                                                                                         { <endpointNodes>* <body.source> <workers>* }
    | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                             ( <parameters-joined-by,>* <hasRestParams?,> <restParameters.source> ) <hasReturns?> =>                                             <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
@@ -231,9 +231,10 @@ Limit
    ;
 
 Literal
-   : <inTemplateLiteral?> <unescapedValue>
-   : <inTemplateLiteral?>
-   | <value>
+   : <inTemplateLiteral?>   <unescapedValue>
+   | <inTemplateLiteral?>
+   | <emptyParantheses?>  (                  )
+   |                        <value>
    ;
 
 Lock
@@ -245,16 +246,17 @@ Match
    ;
 
 MatchPatternClause
-   : <withoutCurlies?> <variableNode.source> =>   <statement.source>
-   :                   <variableNode.source> => { <statement.source> }
+   : <withCurlies?> <variableNode.source> => { <statement.source> }
+   |                <variableNode.source> =>   <statement.source>
    ;
 
 MatchExpression
-   : <expression.source> but { <patternClauses>* }
+   : <expression.source> but { <patternClauses-joined-by,>* }
    ;
 
 MatchExpressionPatternClause
-   : <variableNode.source> => <statement.source>
+   : <withCurlies?> <variableNode.source> => { <statement.source> }
+   |                <variableNode.source> =>   <statement.source>
    ;
 
 NamedArgsExpr
@@ -266,10 +268,16 @@ Next
    ;
 
 Object
-   : <noFieldsAvailable?>        <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object {                                                                                     <initFunction.source> <functions>* };
-   | <noPrivateFieldsAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* }                                            <initFunction.source> <functions>* };
-   | <noPublicFieldAvailable?>   <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object {                                          private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
-   |                             <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* } private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
+   : <noFieldsAvailable?>                                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object {                                                                                     <initFunction.source> <functions>* };
+   | <noPrivateFieldsAvailable?> <publicCommaSeparator?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-,>* }                                            <initFunction.source> <functions>* };
+   | <noPrivateFieldsAvailable?> <publicSemicolonSeparator?>  <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* }                                            <initFunction.source> <functions>* };
+   | <noPublicFieldAvailable?>   <privateCommaSeparator?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object {                                          private { <privateFields-suffixed-by-,>* } <initFunction.source> <functions>* };
+   | <noPublicFieldAvailable?>   <privateSemicolonSeparator?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object {                                          private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
+   | <publicCommaSeparator?>     <privateCommaSeparator?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-,>* } private { <privateFields-suffixed-by-,>* } <initFunction.source> <functions>* };
+   | <publicSemicolonSeparator?> <privateSemicolonSeparator?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* } private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
+   | <publicCommaSeparator?>     <privateSemicolonSeparator?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-,>* } private { <privateFields-suffixed-by-;>* } <initFunction.source> <functions>* };
+   | <publicSemicolonSeparator?> <privateCommaSeparator?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-;>* } private { <privateFields-suffixed-by-,>* } <initFunction.source> <functions>* };
+   |                                                          <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> object { public { <publicFields-suffixed-by-,>* } private { <privateFields-suffixed-by-,>* } <initFunction.source> <functions>* };
    ;
 
 OrderBy
@@ -475,10 +483,11 @@ TypeofExpression
    ;
 
 TypeInitExpr
-   : <noExpressionAvailable?> new <hasParantheses?> (                           )
-   : <noExpressionAvailable?> new
-   | <noTypeAttached?>        new                   ( <expressions-joined-by,>* )
-   |                          new <typeName.source> ( <expressions-joined-by,>* )
+   : <noExpressionAvailable?> <noTypeAttached?> new               <hasParantheses?> (                           )
+   : <noExpressionAvailable?> <noTypeAttached?> new
+   : <noExpressionAvailable?>                   new <type.source>                   (                           )
+   | <noTypeAttached?>                          new                                 ( <expressions-joined-by,>* )
+   |                                            new <type.source>                   ( <expressions-joined-by,>* )
    ;
 
 UnaryExpr
@@ -500,22 +509,25 @@ UserDefinedType
    ;
 
 ValueType
-   : <emptyParantheses?> (            )
-   : <withParantheses?>  ( <typeKind> )
-   :                       <typeKind>
+   : <emptyParantheses?> (                                           )
+   | <withParantheses?>  ( <typeKind> <nullableOperatorAvailable?> ? )
+   | <withParantheses?>  ( <typeKind>                                )
+   |                       <typeKind> <nullableOperatorAvailable?> ?
+   |                       <typeKind>
    ;
 
 Variable
-   : <endpoint?>                                                                                                                             endpoint <typeNode.source> <name.value> { <initialExpression.source> ; }
+   : <noVisibleName?>                                                                                                                                 <typeNode.source>
+   | <endpoint?>                                                                                                                             endpoint <typeNode.source> <name.value> { <initialExpression.source> ; }
    | <endpoint?>                                                                                                                             endpoint <typeNode.source> <name.value> { }
    | <serviceEndpoint?>                                                                                                                      endpoint                   <name.value> 
    | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const> <safeAssignment?>          <typeNode.source> <name.value> =? <initialExpression.source> ;
    | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const>                            <typeNode.source> <name.value> =  <initialExpression.source> ;
+   | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const>                            <typeNode.source> <name.value>                               ;
    | <global?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                          <typeNode.source> <name.value>                               ;
    |                                                                                                                       <safeAssignment?>          <typeNode.source> <name.value> =? <initialExpression.source>
    |                                                                                                                                                  <typeNode.source> <name.value> =  <initialExpression.source>
    |           <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                          <typeNode.source> <rest?...> <name.value>
-   |                                                                                                                                                  <typeNode.source>
    ;
 
 VariableDef

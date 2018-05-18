@@ -25,8 +25,7 @@ import ballerina/runtime;
 @final string SCENARIO_CB_FORCE_OPEN = "cb-force-open-scenario";
 @final string SCENARIO_CB_FORCE_CLOSE = "cb-force-close-scenario";
 
-function testTypicalScenario () returns (http:Response[] , error[]) {
-
+function testTypicalScenario() returns http:Response[], error[] {
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
         circuitBreaker: {
@@ -68,8 +67,7 @@ function testTypicalScenario () returns (http:Response[] , error[]) {
     return (responses, errs);
 }
 
-function testTrialRunFailure () returns (http:Response[] , error[]) {
-    
+function testTrialRunFailure() returns http:Response[], error[] {
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
         circuitBreaker: {
@@ -111,8 +109,7 @@ function testTrialRunFailure () returns (http:Response[] , error[]) {
     return (responses, errs);
 }
 
-function testHttpStatusCodeFailure () returns (http:Response[] , error[]) {
-    
+function testHttpStatusCodeFailure() returns http:Response[], error[] {
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
         circuitBreaker: {
@@ -150,7 +147,7 @@ function testHttpStatusCodeFailure () returns (http:Response[] , error[]) {
     return (responses, errs);
 }
 
-function testForceOpenScenario() returns (http:Response[], error[]) {
+function testForceOpenScenario() returns http:Response[], error[] {
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
         circuitBreaker: {
@@ -191,7 +188,7 @@ function testForceOpenScenario() returns (http:Response[], error[]) {
     return (responses, errs);
 }
 
-function testForceCloseScenario() returns (http:Response[], error[]) {
+function testForceCloseScenario() returns http:Response[], error[] {
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
         circuitBreaker: {
@@ -240,37 +237,37 @@ public type MockClient object {
         http:ClientEndpointConfig config;
     }
 
-    public function post (string path, http:Request req) returns (http:Response | error) {
+    public function post(string path, http:Request req) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function head (string path, http:Request req) returns (http:Response | error) {
+    public function head(string path, http:Request req) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function put (string path, http:Request req) returns (http:Response | error) {
+    public function put(string path, http:Request req) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function execute (string httpVerb, string path, http:Request req) returns (http:Response | error) {
+    public function execute(string httpVerb, string path, http:Request req) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function patch (string path, http:Request req) returns (http:Response | error) {
+    public function patch(string path, http:Request req) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function delete (string path, http:Request req) returns (http:Response | error) {
+    public function delete(string path, http:Request req) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function get (string path, http:Request req) returns (http:Response | error){
+    public function get(string path, http:Request req) returns http:Response|error {
         http:Response response = new;
         actualRequestNumber = actualRequestNumber + 1;
         string scenario = req.getHeader(TEST_SCENARIO_HEADER);
@@ -297,7 +294,7 @@ public type MockClient object {
                     response.setTextPayload(message);
                 }
             }
-        }   else if (scenario == SCENARIO_HTTP_SC_FAILURE) {
+        } else if (scenario == SCENARIO_HTTP_SC_FAILURE) {
             match  handleHTTPStatusCodeErrorScenario(actualRequestNumber) {
                 http:Response res => {
                     response = res;
@@ -325,56 +322,55 @@ public type MockClient object {
         return response;
     }
 
-    public function options (string path, http:Request req) returns (http:Response | error) {
+    public function options(string path, http:Request req) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function forward (string path, http:Request req) returns (http:Response | error) {
+    public function forward(string path, http:Request req) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function submit (string httpVerb, string path, http:Request req) returns (http:HttpFuture | error) {
+    public function submit(string httpVerb, string path, http:Request req) returns http:HttpFuture|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function getResponse (http:HttpFuture httpFuture)  returns (http:Response | error) {
+    public function getResponse(http:HttpFuture httpFuture)  returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function hasPromise (http:HttpFuture httpFuture) returns (boolean) {
+    public function hasPromise(http:HttpFuture httpFuture) returns boolean {
         return false;
     }
 
-    public function getNextPromise (http:HttpFuture httpFuture) returns (http:PushPromise | error) {
+    public function getNextPromise(http:HttpFuture httpFuture) returns http:PushPromise|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function getPromisedResponse (http:PushPromise promise) returns (http:Response | error) {
+    public function getPromisedResponse(http:PushPromise promise) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function rejectPromise (http:PushPromise promise) {
+    public function rejectPromise(http:PushPromise promise) {
     }
 };
 
-function handleBackendFailureScenario (int requesetNo) returns (http:Response | error) {
+function handleBackendFailureScenario(int requesetNo) returns http:Response|error {
     // Deliberately fail a request
     if (requesetNo == 3) {
         error err = getErrorStruct();
         return err;
     }
-
     http:Response response = getResponse();
     return response;
 }
 
-function handleTrialRunFailureScenario (int counter) returns (http:Response | error) {
+function handleTrialRunFailureScenario(int counter) returns http:Response|error {
     // Fail a request. Then, fail the trial request sent while in the HALF_OPEN state as well.
     if (counter == 2 || counter == 3) {
         error err = getErrorStruct();
@@ -385,7 +381,7 @@ function handleTrialRunFailureScenario (int counter) returns (http:Response | er
     return response;
 }
 
-function handleHTTPStatusCodeErrorScenario (int counter) returns (http:Response | error) {
+function handleHTTPStatusCodeErrorScenario(int counter) returns http:Response|error {
     // Fail a request. Then, fail the trial request sent while in the HALF_OPEN state as well.
     if (counter == 2 || counter == 3) {
         error err = getMockErrorStruct();
@@ -396,13 +392,13 @@ function handleHTTPStatusCodeErrorScenario (int counter) returns (http:Response 
     return response;
 }
 
-function handleCBForceOpenScenario () returns (http:Response) {
+function handleCBForceOpenScenario() returns http:Response {
     return getResponse();
 }
 
-function handleCBForceCloseScenario (int requesetNo) returns (http:Response | error) {
+function handleCBForceCloseScenario(int requestNo) returns http:Response|error {
     // Deliberately fail a request
-    if (requesetNo == 3) {
+    if (requestNo == 3) {
         error err = getErrorStruct();
         return err;
     }
@@ -410,19 +406,19 @@ function handleCBForceCloseScenario (int requesetNo) returns (http:Response | er
     return response;
 }
 
-function getErrorStruct () returns (error) {
+function getErrorStruct() returns error {
     error err = {message:"Connection refused"};
     return err;
 }
 
-function getResponse () returns (http:Response) {
+function getResponse() returns http:Response {
     // TODO: The way the status code is set may need to be changed once struct fields can be made read-only
     http:Response response = new;
     response.statusCode = http:OK_200;
     return response;
 }
 
-function getMockErrorStruct () returns (error) {
+function getMockErrorStruct() returns error {
     error err = {message:"Internal Server Error"};
     return err;
 }

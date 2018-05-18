@@ -2269,17 +2269,18 @@ public class BLangPackageBuilder {
         BLangMatchStmtPatternClause patternClause =
                 (BLangMatchStmtPatternClause) TreeBuilder.createMatchStatementPattern();
         patternClause.pos = pos;
-
-        Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
         patternClause.addWS(ws);
 
         // Create a variable node
-        identifier = identifier == null ? Names.IGNORE.value : identifier;
+        String patternIdentifier = identifier == null ? Names.IGNORE.value : identifier;
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
-        var.setName(this.createIdentifier(identifier));
+        var.setName(this.createIdentifier(patternIdentifier));
         var.setTypeNode(this.typeNodeStack.pop());
-        var.addWS(varDefWS);
+        if (identifier != null) {
+            Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
+            var.addWS(varDefWS);
+        }
         patternClause.variable = var;
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
@@ -3375,13 +3376,15 @@ public class BLangPackageBuilder {
         pattern.pos = pos;
         pattern.addWS(ws);
 
-        identifier = identifier == null ? Names.IGNORE.value : identifier;
+        String patternIdentifier = identifier == null ? Names.IGNORE.value : identifier;
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
-        var.setName(this.createIdentifier(identifier));
+        var.setName(this.createIdentifier(patternIdentifier));
         var.setTypeNode(this.typeNodeStack.pop());
-        Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
-        var.addWS(varDefWS);
+        if (identifier != null) {
+            Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
+            var.addWS(varDefWS);
+        }
         pattern.variable = var;
 
         this.matchExprPatternNodeListStack.peek().add(pattern);

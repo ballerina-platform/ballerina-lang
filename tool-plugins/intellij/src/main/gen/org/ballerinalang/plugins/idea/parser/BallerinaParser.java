@@ -3583,12 +3583,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   public static boolean OnabortStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "OnabortStatement")) return false;
     if (!nextTokenIs(b, ONABORT)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, ONABORT, ASSIGN);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, ONABORT_STATEMENT, null);
+    r = consumeTokens(b, 1, ONABORT, ASSIGN);
+    p = r; // pin = 1
     r = r && Expression(b, l + 1, -1);
-    exit_section_(b, m, ONABORT_STATEMENT, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -3596,12 +3597,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   public static boolean OncommitStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "OncommitStatement")) return false;
     if (!nextTokenIs(b, ONCOMMIT)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokens(b, 0, ONCOMMIT, ASSIGN);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, ONCOMMIT_STATEMENT, null);
+    r = consumeTokens(b, 1, ONCOMMIT, ASSIGN);
+    p = r; // pin = 1
     r = r && Expression(b, l + 1, -1);
-    exit_section_(b, m, ONCOMMIT_STATEMENT, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -5665,12 +5667,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // WITH TransactionPropertyInitStatementList
   private static boolean TransactionClause_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TransactionClause_1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, WITH);
+    p = r; // pin = 1
     r = r && TransactionPropertyInitStatementList(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -5690,12 +5693,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // TransactionPropertyInitStatement (COMMA TransactionPropertyInitStatement)*
   public static boolean TransactionPropertyInitStatementList(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TransactionPropertyInitStatementList")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, TRANSACTION_PROPERTY_INIT_STATEMENT_LIST, "<transaction property init statement list>");
     r = TransactionPropertyInitStatement(b, l + 1);
+    p = r; // pin = 1
     r = r && TransactionPropertyInitStatementList_1(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // (COMMA TransactionPropertyInitStatement)*
@@ -5713,12 +5717,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // COMMA TransactionPropertyInitStatement
   private static boolean TransactionPropertyInitStatementList_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TransactionPropertyInitStatementList_1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, COMMA);
+    p = r; // pin = 1
     r = r && TransactionPropertyInitStatement(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
