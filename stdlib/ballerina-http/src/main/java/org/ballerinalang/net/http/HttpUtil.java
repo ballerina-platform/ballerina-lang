@@ -36,7 +36,9 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
@@ -77,17 +79,16 @@ import java.util.Set;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.Constants.ONE_BYTE;
 import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.Constants.RESPONSE_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
-import static org.ballerinalang.mime.util.EntityBodyHandler.setDiscreteMediaTypeBodyContent;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
@@ -258,13 +259,16 @@ public class HttpUtil {
             try {
                 contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    contentLength = httpCarbonMessage.countMessageLengthTill(BYTE_LIMIT);
+                    //Read one byte to make sure the incoming stream has data
+                    contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
                 }
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
-                    contentLength);
+            if (contentLength > 0) {
+                entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+                        new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
+            }
         }
         httpMessageStruct.setRefField(isRequest ? REQUEST_ENTITY_INDEX : RESPONSE_ENTITY_INDEX, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);

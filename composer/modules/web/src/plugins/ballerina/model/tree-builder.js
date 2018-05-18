@@ -193,11 +193,13 @@ class TreeBuilder {
 
         // Mark the first argument ad a service endpoint.
         if (node.kind === 'Resource' && node.parameters[0]) {
-            const endpointParam = node.parameters[0];
-            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
-            endpointParam.serviceEndpoint = true;
-            endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
-            endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
+            if (node.parameters[0].ws && _.find(node.parameters[0].ws, (ws) => ws.text === 'endpoint')) {
+                const endpointParam = node.parameters[0];
+                const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
+                endpointParam.serviceEndpoint = true;
+                endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
+                endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
+            }
         }
 
         // Add the positions for the join and timeout bodies.
@@ -267,6 +269,20 @@ class TreeBuilder {
                     }
                 }
             }
+
+            if (node.defaultableParameters) {
+                for (let i = 0; i < node.defaultableParameters.length; i++) {
+                    node.defaultableParameters[i].defaultable = true;
+                    node.defaultableParameters[i].variable.defaultable = true;
+                }
+            }
+
+            node.allParams = _.concat(node.parameters, node.defaultableParameters);
+            node.allParams.sort((a, b) => {
+                return (((a.position.endColumn > b.position.startColumn)
+                    && (a.position.endLine === b.position.endLine))
+                    || (a.position.endLine > b.position.endLine));
+            });
 
             if (node.receiver && !node.receiver.ws) {
                 node.noVisibleReceiver = true;

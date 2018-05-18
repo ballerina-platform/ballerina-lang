@@ -68,12 +68,10 @@ public class WebSubHttpService extends HttpService {
             logger.debug("ServiceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
             websubHttpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(websubHttpService.getName()));
-            return websubHttpService;
+        } else {
+            Struct serviceConfig = serviceConfigAnnotation.getValue();
+            websubHttpService.setBasePath(serviceConfig.getStringField(PATH_FIELD));
         }
-
-        Struct serviceConfig = serviceConfigAnnotation.getValue();
-
-        websubHttpService.setBasePath(serviceConfig.getStringField(PATH_FIELD));
 
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : websubHttpService.getBallerinaService().getResources()) {
