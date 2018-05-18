@@ -18,9 +18,7 @@
 
 package org.wso2.transport.http.netty.passthrough;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
+import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -39,6 +37,7 @@ import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.initializers.MockServerInitializer;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.Properties;
 
@@ -90,10 +89,11 @@ public class PassThroughHttpsTestCase {
     public void passthroughTest() {
         try {
             setSslSystemProperties();
-            HttpResponse<String> response = Unirest.get(baseURI.resolve("/").toString())
-                    .header("Connection", "Keep-Alive").asString();
-            assertEquals(testValue, response.getBody());
-        } catch (UnirestException e) {
+            HttpURLConnection urlConn = TestUtil.httpsRequest(baseURI, "/", HttpMethod.GET.name(), true);
+            String content = TestUtil.getContent(urlConn);
+            assertEquals(testValue, content);
+            urlConn.disconnect();
+        } catch (IOException e) {
             TestUtil.handleException("IOException occurred while running passthroughGetTest", e);
         }
     }
@@ -111,11 +111,8 @@ public class PassThroughHttpsTestCase {
             serverConnector.stop();
             httpsServer.shutdown();
             httpWsConnectorFactory.shutdown();
-            Unirest.shutdown();
         } catch (InterruptedException e) {
             log.warn("Interrupted while waiting for clean up");
-        } catch (IOException e) {
-            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

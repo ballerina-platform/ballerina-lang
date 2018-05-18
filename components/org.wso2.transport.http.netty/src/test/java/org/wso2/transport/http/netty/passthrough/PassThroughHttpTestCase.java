@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.passthrough;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.http.options.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -83,8 +84,7 @@ public class PassThroughHttpTestCase {
     @Test
     public void passthroughGetTest() {
         try {
-            HttpResponse<String> response = Unirest.get(baseURI.resolve("/").toString())
-                    .header("Connection", "Keep-Alive").asString();
+            HttpResponse<String> response = Unirest.get(baseURI.resolve("/").toString()).asString();
             assertEquals(testValue, response.getBody());
         } catch (UnirestException e) {
             TestUtil.handleException("IOException occurred while running passthroughGetTest", e);
@@ -94,8 +94,7 @@ public class PassThroughHttpTestCase {
     @Test
     public void passthroughPostTest() {
         try {
-            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
-                    .header("Connection", "Keep-Alive").asString();
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).asString();
             assertEquals(testValue, response.getBody());
         } catch (UnirestException e) {
             TestUtil.handleException("IOException occurred while running passthroughPostTest", e);
@@ -105,10 +104,11 @@ public class PassThroughHttpTestCase {
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         try {
+            Unirest.shutdown();
+            Options.refresh();
             serverConnector.stop();
             httpServer.shutdown();
             httpWsConnectorFactory.shutdown();
-            Unirest.shutdown();
         } catch (InterruptedException e) {
             logger.warn("Interrupted while waiting for clean up");
         } catch (IOException e) {

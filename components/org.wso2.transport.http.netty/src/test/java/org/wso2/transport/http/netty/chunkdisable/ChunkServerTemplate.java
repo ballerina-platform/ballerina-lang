@@ -19,6 +19,7 @@
 package org.wso2.transport.http.netty.chunkdisable;
 
 import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.options.Options;
 import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,12 +88,13 @@ public class ChunkServerTemplate {
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
         try {
-            httpWsConnectorFactory.shutdown();
             Unirest.shutdown();
+            Options.refresh();
+            httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
             log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }  catch (IOException e) {
-            log.warn("IOException occurred while waiting for Unirest to shutdown", e);
+            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

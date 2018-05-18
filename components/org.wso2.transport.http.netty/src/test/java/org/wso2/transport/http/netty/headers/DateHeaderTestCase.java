@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.headers;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.http.options.Options;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+
+import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
+import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 
 /**
  * Test case for ensuring that the Date header is correctly set.
@@ -72,8 +76,8 @@ public class DateHeaderTestCase {
     public void testDateHeaderFormatAndExistence() {
         try {
             URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
-            HttpResponse<String> response =  Unirest.post(baseURI.resolve("/").toString())
-                    .header("Connection", "Close").body(TestUtil.smallEntity).asString();
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
+                    .header(CONNECTION, CLOSE.toString()).body(TestUtil.smallEntity).asString();
 
             String date = response.getHeaders().getFirst(HttpHeaderNames.DATE.toString());
             Assert.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
@@ -87,12 +91,13 @@ public class DateHeaderTestCase {
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
         try {
-            httpWsConnectorFactory.shutdown();
             Unirest.shutdown();
+            Options.refresh();
+            httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
             log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
         } catch (IOException e) {
-            log.warn("IOException occurred while waiting for Unirest to shutdown", e);
+            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

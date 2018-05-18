@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.urilengthvalidation;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.http.options.Options;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -104,7 +105,7 @@ public class Status414And413ResponseTest {
             assertEquals(TestUtil.TEST_SERVER, response.getHeaders().getFirst(HttpHeaderNames.SERVER.toString()));
             assertEquals(testValue, response.getBody());
         } catch (IOException | UnirestException e) {
-            TestUtil.handleException("Exception occurred while running largeUriTest", e);
+            TestUtil.handleException("IOException occurred while running largeUriTest", e);
         }
     }
 
@@ -196,19 +197,20 @@ public class Status414And413ResponseTest {
     }
 
     private HttpResponse<String> sendPostRequest(URL url) throws UnirestException {
-        return Unirest.post(url.toString()).header("Connection", "Keep-Alive").body(testValue).asString();
+        return Unirest.post(url.toString()).body(testValue).asString();
     }
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
         try {
-            httpWsConnectorFactory.shutdown();
             Unirest.shutdown();
+            Options.refresh();
+            httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
             log.warn("Interrupted while waiting for HttpWsFactory to close");
         } catch (IOException e) {
-            log.warn("IOException occurred while waiting for Unirest to shutdown", e);
+            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

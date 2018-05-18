@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.contentaware;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.http.options.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -48,8 +49,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static org.wso2.transport.http.netty.common.Constants.CONNECTION;
-import static org.wso2.transport.http.netty.common.Constants.CONNECTION_KEEP_ALIVE;
 
 /**
  * A test case for echo message from MessageProcessor level.
@@ -76,8 +75,7 @@ public class ContentAwareMessageProcessorTestCase {
     public void messageEchoingFromProcessorTestCase() {
         String testValue = "Test Message";
         try {
-            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
-                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(testValue).asString();
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).body(testValue).asString();
             assertEquals(200, response.getStatus());
             assertEquals(testValue, response.getBody());
         } catch (UnirestException e) {
@@ -94,8 +92,7 @@ public class ContentAwareMessageProcessorTestCase {
         try {
             httpConnectorListener = new RequestResponseTransformListener(responseValue);
             TestUtil.updateMessageProcessor(httpConnectorListener);
-            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
-                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(requestValue).asString();
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).body(requestValue).asString();
             assertEquals(200, response.getStatus());
             assertEquals(expectedValue, response.getBody());
         } catch (UnirestException e) {
@@ -112,8 +109,7 @@ public class ContentAwareMessageProcessorTestCase {
         try {
             httpConnectorListener = new RequestResponseCreationListener(responseValue);
             TestUtil.updateMessageProcessor(httpConnectorListener);
-            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
-                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(requestValue).asString();
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).body(requestValue).asString();
             assertEquals(200, response.getStatus());
             assertEquals(expectedValue, response.getBody());
         } catch (UnirestException e) {
@@ -128,8 +124,7 @@ public class ContentAwareMessageProcessorTestCase {
         try {
             httpConnectorListener = new RequestResponseCreationStreamingListener();
             TestUtil.updateMessageProcessor(httpConnectorListener);
-            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
-                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(requestValue).asString();
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).body(requestValue).asString();
             assertEquals(200, response.getStatus());
             assertEquals(requestValue, response.getBody());
         } catch (UnirestException e) {
@@ -144,8 +139,7 @@ public class ContentAwareMessageProcessorTestCase {
         try {
             httpConnectorListener = new RequestResponseTransformStreamingListener();
             TestUtil.updateMessageProcessor(httpConnectorListener);
-            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
-                    .header(CONNECTION, CONNECTION_KEEP_ALIVE).body(requestValue).asString();
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).body(requestValue).asString();
             assertEquals(200, response.getStatus());
             assertEquals(requestValue, response.getBody());
         } catch (UnirestException e) {
@@ -156,11 +150,12 @@ public class ContentAwareMessageProcessorTestCase {
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        List connectors = new ArrayList<>();
-        connectors.add(serverConnector);
-        TestUtil.cleanUp(connectors, httpServer);
         try {
             Unirest.shutdown();
+            Options.refresh();
+            List connectors = new ArrayList<>();
+            connectors.add(serverConnector);
+            TestUtil.cleanUp(connectors, httpServer);
         }  catch (IOException e) {
             log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
