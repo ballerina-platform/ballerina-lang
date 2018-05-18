@@ -31,9 +31,7 @@ import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -43,7 +41,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -135,8 +132,7 @@ public class PackagingPushTestCase extends IntegrationTestCase {
                                                      "Package.md").getAbsolutePath());
         Files.copy(mdFilePath, mdDir.resolve("Package.md"));
 
-        compressFiles(tempDir, new FileOutputStream(projectPath.resolve(generatedPackagePath)
-                                                               .resolve(packageName + ".zip").toFile()));
+        compressFiles(tempDir, projectPath.resolve(generatedPackagePath).resolve(packageName + ".zip"));
     }
 
     @Test(description = "Test pushing a package to central")
@@ -197,16 +193,18 @@ public class PackagingPushTestCase extends IntegrationTestCase {
     @AfterClass
     private void cleanup() throws Exception {
         ballerinaClient.stopServer();
-        Files.walk(tempHomeDirectory)
-             .sorted(Comparator.reverseOrder())
-             .forEach(path -> {
-                 try {
-                     Files.delete(path);
-                 } catch (IOException e) {
-                     Assert.fail(e.getMessage(), e);
-                 }
-             });
-        Files.walk(tempProjectDirectory)
+        deleteFiles(tempHomeDirectory);
+        deleteFiles(tempProjectDirectory);
+    }
+
+    /**
+     * Delete files inside directories.
+     *
+     * @param dirPath direectory path
+     * @throws IOException throw an exception if an issue occurs
+     */
+    private void deleteFiles(Path dirPath) throws IOException {
+        Files.walk(dirPath)
              .sorted(Comparator.reverseOrder())
              .forEach(path -> {
                  try {
@@ -218,49 +216,30 @@ public class PackagingPushTestCase extends IntegrationTestCase {
     }
 
     /**
-     * Add file inside the src directory to the ZipOutputStream.
+     * Compress files.
      *
-     * @param zos      ZipOutputStream
-     * @param filePath file path of each file inside the driectory
-     * @throws IOException exception if an error occurrs when compressing
+     * @param sourceDirPath source directory path to be compressed
+     * @param zipFilePath   destination directory path
+     * @throws IOException throw I/O exception if an issue occurs
      */
-    private static void addEntry(ZipOutputStream zos, Path filePath, String fileStr) throws IOException {
-        ZipEntry ze = new ZipEntry(fileStr);
-        zos.putNextEntry(ze);
-        Files.copy(filePath, zos);
-        zos.closeEntry();
-    }
-
-    /**
-     * Compresses files.
-     *
-     * @param outputStream outputstream
-     * @throws IOException exception if an error occurrs when compressing
-     */
-    private static void compressFiles(Path dir, OutputStream outputStream) throws IOException {
-        ZipOutputStream zos = new ZipOutputStream(outputStream);
-        if (Files.isRegularFile(dir)) {
-            Path fileName = dir.getFileName();
-            if (fileName != null) {
-                addEntry(zos, dir, fileName.toString());
-            } else {
-                throw new RuntimeException("Error occurred when compressing");
-            }
-        } else {
-            Stream<Path> list = Files.walk(dir);
-            list.forEach(p -> {
-                StringJoiner joiner = new StringJoiner("/");
-                for (Path path : dir.relativize(p)) {
-                    joiner.add(path.toString());
-                }
-                if (Files.isRegularFile(p)) {
-                    try {
-                        addEntry(zos, p, joiner.toString());
-                    } catch (IOException ignore) {
-                    }
-                }
-            });
+    private static void compressFiles(Path sourceDirPath, Path zipFilePath) throws IOException {
+        Path p = Files.createFile(zipFilePath);
+        try (ZipOutputStream zs = new ZipOutputStream(Files.newOutputStream(p))) {
+            Files.walk(sourceDirPath)
+                 .filter(path -> !Files.isDirectory(path))
+                 .forEach(path -> {
+                     StringJoiner joiner = new StringJoiner("/");
+                     for (Path newPath : sourceDirPath.relativize(path)) {
+                         joiner.add(newPath.toString());
+                     }
+                     ZipEntry zipEntry = new ZipEntry(joiner.toString());
+                     try {
+                         zs.putNextEntry(zipEntry);
+                         Files.copy(path, zs);
+                         zs.closeEntry();
+                     } catch (IOException ignore) {
+                     }
+                 });
         }
-        zos.close();
     }
 }
