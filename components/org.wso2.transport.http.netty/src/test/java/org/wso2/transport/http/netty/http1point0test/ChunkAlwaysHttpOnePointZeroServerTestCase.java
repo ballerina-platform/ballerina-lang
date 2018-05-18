@@ -28,6 +28,8 @@ import org.wso2.transport.http.netty.chunkdisable.ChunkServerTemplate;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.util.TestUtil;
 
+import java.net.URI;
+
 import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
 import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
 import static io.netty.handler.codec.http.HttpHeaderValues.CHUNKED;
@@ -47,6 +49,7 @@ public class ChunkAlwaysHttpOnePointZeroServerTestCase extends ChunkServerTempla
     @Test
     public void postTest() {
         try {
+            URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
             HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
                     .body(TestUtil.largeEntity).asString();
 

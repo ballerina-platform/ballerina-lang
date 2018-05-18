@@ -52,8 +52,6 @@ public class ChunkServerTemplate {
     protected ListenerConfiguration listenerConfiguration;
     protected HttpWsConnectorFactory httpWsConnectorFactory;
 
-    public URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
-
     public ChunkServerTemplate() {
         listenerConfiguration = new ListenerConfiguration();
     }
@@ -78,6 +76,7 @@ public class ChunkServerTemplate {
     public void postTest() {}
 
     protected HttpURLConnection sendEntityBody(String entityBody) throws IOException {
+        URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
         HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
         urlConn.getOutputStream().write(entityBody.getBytes());
         TestUtil.getContent(urlConn);
@@ -92,7 +91,7 @@ public class ChunkServerTemplate {
             Options.refresh();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }  catch (IOException e) {
             log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }

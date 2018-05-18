@@ -30,16 +30,12 @@ import org.apache.commons.io.Charsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.config.TransportProperty;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
-import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -68,12 +64,9 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import javax.net.ssl.HttpsURLConnection;
 
 import static org.testng.AssertJUnit.fail;
@@ -97,27 +90,7 @@ public class TestUtil {
     public static final String TRUST_STORE_FILE_PATH = "/simple-test-config/client-truststore.jks";
     public static final String KEY_STORE_PASSWORD = "wso2carbon";
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
-
-    private static ServerConnectorFuture future;
     private static final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
-
-    public static ServerConnector startConnectors(ListenerConfiguration listenerConfiguration,
-                                                        ServerBootstrapConfiguration serverBootstrapConfiguration,
-                                                            HttpConnectorListener httpConnectorListener) {
-
-        ServerConnector serverConnector = httpConnectorFactory.createServerConnector(serverBootstrapConfiguration,
-                listenerConfiguration);
-        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(httpConnectorListener);
-        try {
-            serverConnectorFuture.sync();
-        } catch (InterruptedException e) {
-            log.error("Thread Interrupted while sleeping ", e);
-        }
-        future = serverConnectorFuture;
-
-        return serverConnector;
-    }
 
     public static HttpServer startHTTPServer(int port, ChannelInitializer channelInitializer) {
         HttpServer httpServer = new HttpServer(port, channelInitializer);
@@ -193,25 +166,9 @@ public class TestUtil {
         urlConnection.setRequestProperty(key, value);
     }
 
-    public static void updateMessageProcessor(HttpConnectorListener httpConnectorListener) {
-        future.setHttpConnectorListener(httpConnectorListener);
-    }
-
     public static void handleException(String msg, Exception ex) {
         log.error(msg, ex);
         fail(msg);
-    }
-
-    private static ServerBootstrapConfiguration getServerBootstrapConfiguration(
-            Set<TransportProperty> transportPropertiesSet) {
-        Map<String, Object> transportProperties = new HashMap<>();
-
-        if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-            transportProperties = transportPropertiesSet.stream().collect(
-                    Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-        }
-        // Create Bootstrap Configuration from listener parameters
-        return new ServerBootstrapConfiguration(transportProperties);
     }
 
     public static TransportsConfiguration getConfiguration(String configFileLocation) {
@@ -288,7 +245,6 @@ public class TestUtil {
                 log.warn("Couldn't stop server connectors successfully");
             }
         }
-
 
         try {
             httpConnectorFactory.shutdown();

@@ -88,7 +88,7 @@ public class ConnectionPoolTimeoutProxyTestCase {
     }
 
     @Test (description = "when connection times out for TargetHandler, we need to invalidate the connection. "
-            + "This test case validates that.", enabled = false)
+            + "This test case validates that.")
     public void connectionPoolTimeoutProxyTestCase() {
         try {
             Future<String> requestOneResponse;
