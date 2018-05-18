@@ -320,7 +320,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .map(identifier -> names.fromIdNode(identifier))
                 .collect(Collectors.toList());
 
-//        String version = names.fromIdNode(importPkgNode.version).getValue().replaceAll("[^\\d.]", "");
         String version = names.fromIdNode(importPkgNode.version).getValue();
         PackageID pkgId = new PackageID(orgName, nameComps, new Name(version));
         if (pkgId.name.getValue().startsWith(Names.BUILTIN_PACKAGE.value)) {

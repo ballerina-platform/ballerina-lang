@@ -25,9 +25,6 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.natives.NativeElementRepository;
-import org.ballerinalang.natives.NativeUnitLoader;
-import org.ballerinalang.test.utils.mock.StandardNativeElementProvider;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -38,7 +35,7 @@ import java.nio.file.Paths;
 /**
  * Test function signatures and calling with optional and named params.
  */
-public class FunctionSignatureTest {
+public class FunctionSignatureInBaloTest {
     CompileResult result;
 
     @BeforeClass

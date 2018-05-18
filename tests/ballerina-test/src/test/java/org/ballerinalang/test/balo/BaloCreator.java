@@ -24,17 +24,29 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Class containing utility methods for creating BALO.
+ * 
+ * @since 0.975.0
+ */
 public class BaloCreator {
 
+    /**
+     * Generates BALO from the provided package and copy it to the ballerina.home directory.
+     * 
+     * @param projectPath Path to the project
+     * @param packageId Package ID
+     * @throws IOException If any error occurred while reading the source files
+     */
     public static void create(Path projectPath, String packageId) throws IOException {
         Path baloPath = Paths.get(".ballerina");
         projectPath = Paths.get("src", "test", "resources").resolve(projectPath);
-        
+
         // Clear any old balos
         // clearing from .ballerina will remove the .ballerina file as well. Therefore start clearing from
         // another level down
         BFileUtil.delete(projectPath.resolve(baloPath).resolve("repo"));
-        
+
         // compile and create the balo
         BuilderUtils.compileAndWrite(projectPath, packageId, "target/libs/", false, true);
 
