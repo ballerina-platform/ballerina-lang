@@ -25,7 +25,7 @@ import ballerina/runtime;
 @final string SCENARIO_CB_FORCE_OPEN = "cb-force-open-scenario";
 @final string SCENARIO_CB_FORCE_CLOSE = "cb-force-close-scenario";
 
-function testTypicalScenario() returns http:Response[], error[] {
+function testTypicalScenario() returns (http:Response[], error[]) {
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
         circuitBreaker: {
@@ -55,7 +55,7 @@ function testTypicalScenario() returns http:Response[], error[] {
                 responses[counter] = res;
             }
             error httpConnectorError => {
-                errs[counter] = httpConnectorError; 
+                errs[counter] = httpConnectorError;
             }
         }
        counter = counter + 1;
@@ -67,7 +67,7 @@ function testTypicalScenario() returns http:Response[], error[] {
     return (responses, errs);
 }
 
-function testTrialRunFailure() returns http:Response[], error[] {
+function testTrialRunFailure() returns (http:Response[], error[]) {
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
         circuitBreaker: {
@@ -109,7 +109,7 @@ function testTrialRunFailure() returns http:Response[], error[] {
     return (responses, errs);
 }
 
-function testHttpStatusCodeFailure() returns http:Response[], error[] {
+function testHttpStatusCodeFailure() returns (http:Response[], error[]) {
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
         circuitBreaker: {
@@ -147,7 +147,7 @@ function testHttpStatusCodeFailure() returns http:Response[], error[] {
     return (responses, errs);
 }
 
-function testForceOpenScenario() returns http:Response[], error[] {
+function testForceOpenScenario() returns (http:Response[], error[]) {
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
         circuitBreaker: {
@@ -188,7 +188,7 @@ function testForceOpenScenario() returns http:Response[], error[] {
     return (responses, errs);
 }
 
-function testForceCloseScenario() returns http:Response[], error[] {
+function testForceCloseScenario() returns (http:Response[], error[]) {
     endpoint http:Client backendClientEP {
         url: "http://localhost:8080",
         circuitBreaker: {
