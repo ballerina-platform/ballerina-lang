@@ -24,7 +24,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -313,7 +313,7 @@ public class BTestUtils {
 
     public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
         PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
-        TypeInfo structInfo = structPackageInfo.getStructInfo(structName);
+        StructureTypeInfo structInfo = structPackageInfo.getStructInfo(structName);
         BStructureType structType = structInfo.getType();
         return new BStruct(structType);
     }

@@ -30,7 +30,7 @@ import java.util.Map;
  *
  * @since 0.971.0
  */
-public class StructureTypeInfo implements TypeInfo {
+public abstract class StructureTypeInfo implements TypeInfo {
 
     private List<StructFieldInfo> fieldInfoEntries = new ArrayList<>();
     public Map<String, AttachedFunctionInfo> funcInfoEntries = new HashMap<>();
@@ -63,8 +63,5 @@ public class StructureTypeInfo implements TypeInfo {
         return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 
-    @Override
-    public BStructureType getType() {
-        return null;
-    }
+    public abstract BStructureType getType();
 }

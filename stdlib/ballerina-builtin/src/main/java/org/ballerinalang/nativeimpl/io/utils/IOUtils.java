@@ -40,7 +40,7 @@ import org.ballerinalang.nativeimpl.io.events.records.CloseDelimitedRecordEvent;
 import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadEvent;
 import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class IOUtils {
      */
     public static BStruct createError(Context context, String message) {
         PackageInfo ioPkg = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN);
-        TypeInfo error = ioPkg.getStructInfo(IO_ERROR_STRUCT);
+        StructureTypeInfo error = ioPkg.getStructInfo(IO_ERROR_STRUCT);
         return BLangVMStructs.createBStruct(error, message);
     }
 

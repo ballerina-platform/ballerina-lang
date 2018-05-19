@@ -237,14 +237,14 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
     private StructureTypeInfo getTimeZoneStructInfo(Context context) {
         if (zoneStructInfo == null) {
-            zoneStructInfo = (StructureTypeInfo) Utils.getTimeZoneStructInfo(context);
+            zoneStructInfo = Utils.getTimeZoneStructInfo(context);
         }
         return zoneStructInfo;
     }
 
     private StructureTypeInfo getTimeStructInfo(Context context) {
         if (timeStructInfo == null) {
-            timeStructInfo = (StructureTypeInfo) Utils.getTimeStructInfo(context);
+            timeStructInfo = Utils.getTimeStructInfo(context);
         }
         return timeStructInfo;
     }

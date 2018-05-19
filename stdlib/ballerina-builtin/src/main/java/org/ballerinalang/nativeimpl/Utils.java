@@ -31,7 +31,7 @@ import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.util.Base64ByteChannel;
 import org.ballerinalang.nativeimpl.util.Base64Wrapper;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -63,7 +63,7 @@ public class Utils {
     public static final String BASE64_DECODE_ERROR = "Base64DecodeError";
     private static final String STRUCT_TYPE = "ByteChannel";
 
-    public static BStruct createTimeZone(TypeInfo timezoneStructInfo, String zoneIdValue) {
+    public static BStruct createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
         String zoneIdName;
         try {
             ZoneId zoneId = ZoneId.of(zoneIdValue);
@@ -78,13 +78,13 @@ public class Utils {
         }
     }
 
-    public static BStruct createTimeStruct(TypeInfo timezoneStructInfo, TypeInfo timeStructInfo, long millis,
+    public static BStruct createTimeStruct(StructureTypeInfo timezoneStructInfo, StructureTypeInfo timeStructInfo, long millis,
                                            String zoneIdName) {
         BStruct timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
         return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
     }
 
-    public static TypeInfo getTimeZoneStructInfo(Context context) {
+    public static StructureTypeInfo getTimeZoneStructInfo(Context context) {
         PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
         if (timePackageInfo == null) {
             return null;
@@ -92,7 +92,7 @@ public class Utils {
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
     }
 
-    public static TypeInfo getTimeStructInfo(Context context) {
+    public static StructureTypeInfo getTimeStructInfo(Context context) {
         PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
         if (timePackageInfo == null) {
             return null;
@@ -111,7 +111,7 @@ public class Utils {
         } else {
             filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_UTIL);
         }
-        TypeInfo entityErrInfo = filePkg.getStructInfo(isEncoder ? BASE64_ENCODE_ERROR : BASE64_DECODE_ERROR);
+        StructureTypeInfo entityErrInfo = filePkg.getStructInfo(isEncoder ? BASE64_ENCODE_ERROR : BASE64_DECODE_ERROR);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
     }
 

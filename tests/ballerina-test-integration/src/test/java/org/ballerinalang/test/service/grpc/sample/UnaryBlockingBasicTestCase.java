@@ -33,7 +33,7 @@ import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -120,7 +120,7 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo httpPackageInfo = result.getProgFile().getPackageInfo(".");
-        TypeInfo structInfo = httpPackageInfo.getStructInfo("Request");
+        StructureTypeInfo structInfo = httpPackageInfo.getStructInfo("Request");
         BStructureType structType = structInfo.getType();
         BStruct request = new BStruct(structType);
         request.setStringField(0, "Sam");

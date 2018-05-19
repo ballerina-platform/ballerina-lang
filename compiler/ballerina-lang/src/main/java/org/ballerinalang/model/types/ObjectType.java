@@ -17,13 +17,10 @@
 */
 package org.ballerinalang.model.types;
 
-import java.util.List;
-
 /**
  * {@code ObjectType} represents the type of a object in Ballerina.
  *
  * @since 0.971.0
  */
 public interface ObjectType extends ReferenceType {
-    List<? extends Field> getFields();
 }

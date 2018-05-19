@@ -30,7 +30,7 @@ import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -78,7 +78,7 @@ public class UnaryBlockingEmptyValueTestCase extends IntegrationTestCase {
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Stock Quote struct
         // StockQuote quote2 = {symbol: "Ballerina", name:"ballerina.io", last:1.0, low:0.5, high:2.0};
-        TypeInfo requestInfo = packageInfo.getStructInfo("StockQuote");
+        StructureTypeInfo requestInfo = packageInfo.getStructInfo("StockQuote");
         BStructureType requestType = requestInfo.getType();
         BStruct requestStruct = new BStruct(requestType);
         requestStruct.setStringField(0, "Ballerina");

@@ -20,7 +20,7 @@ package org.ballerinalang.util.codegen;
 
 
 import org.ballerinalang.model.types.BFiniteType;
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind;
 
@@ -41,11 +41,7 @@ public class FiniteTypeInfo implements TypeInfo {
     public FiniteTypeInfo() {
     }
 
-    public BStructureType getType() {
-        return null;
-    }
-
-    public BFiniteType getFiniteType() {
+    public BType getType() {
         return finiteType;
     }
 

@@ -17,11 +17,13 @@
 */
 package org.ballerinalang.util.codegen;
 
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.LineNumberTableAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,7 +147,16 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return functionInfoMap.values().toArray(new FunctionInfo[0]);
     }
 
-    public TypeInfo getStructInfo(String name) {
+    public StructureTypeInfo getStructInfo(String name) {
+        TypeInfo typeInfo = typeDefInfoMap.get(name).typeInfo;
+        if (typeInfo == null || (typeInfo.getType().getTag() != TypeTags.OBJECT_TYPE_TAG
+                && typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG)) {
+            throw new BallerinaException("structure - " + name + " does not exist");
+        }
+        return (StructureTypeInfo) typeDefInfoMap.get(name).typeInfo;
+    }
+
+    public TypeInfo getTypeInfo(String name) {
         return typeDefInfoMap.get(name).typeInfo;
     }
 

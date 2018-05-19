@@ -2751,7 +2751,8 @@ public class CPU {
         int cpIndex = operands[0];
         int i = operands[1];
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) ctx.constPool[cpIndex];
-        TypeInfo structInfo = ((TypeDefInfo) structureRefCPEntry.getStructureTypeInfo()).typeInfo;
+        StructureTypeInfo structInfo = (StructureTypeInfo) ((TypeDefInfo) structureRefCPEntry
+                .getStructureTypeInfo()).typeInfo;
         sf.refRegs[i] = new BStruct(structInfo.getType());
     }
 
@@ -2890,7 +2891,8 @@ public class CPU {
             return null;
         }
 
-        ObjectTypeInfo structInfo = (ObjectTypeInfo) structVal.getType().getTypeInfo();
+        // TODO use ObjectTypeInfo once record init function is removed
+        StructureTypeInfo structInfo = (StructureTypeInfo) structVal.getType().getTypeInfo();
         AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
         return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, flags);
@@ -3797,7 +3799,7 @@ public class CPU {
         int refRegIndex = -1;
         BStructureType structType = (BStructureType) typeRefCPEntry.getType();
         BStruct bStruct = new BStruct(structType);
-        StructureTypeInfo structInfo = (StructureTypeInfo) ctx.callableUnitInfo
+        StructureTypeInfo structInfo = ctx.callableUnitInfo
                 .getPackageInfo().getStructInfo(structType.getName());
 
         Set<String> keys = bMap.keySet();

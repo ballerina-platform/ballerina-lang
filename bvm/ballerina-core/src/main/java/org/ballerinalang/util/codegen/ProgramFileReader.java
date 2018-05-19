@@ -979,7 +979,7 @@ public class ProgramFileReader {
                         typeStack.push(new BTableType(packageInfoOfType.getStructInfo(name).getType()));
                     }
                 } else if (typeChar == 'G') {
-                    typeStack.push(((FiniteTypeInfo) packageInfoOfType.getTypeDefInfo(name).typeInfo).getFiniteType());
+                    typeStack.push(packageInfoOfType.getTypeDefInfo(name).typeInfo.getType());
                 } else {
                     // This is a struct type
                     typeStack.push(packageInfoOfType.getStructInfo(name).getType());
@@ -1098,7 +1098,7 @@ public class ProgramFileReader {
                 } else if (ch == 'D') {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'G') {
-                    return ((FiniteTypeInfo) packageInfoOfType.getTypeDefInfo(name).typeInfo).getFiniteType();
+                    return (packageInfoOfType.getTypeDefInfo(name).typeInfo.getType());
                 } else {
                     return packageInfoOfType.getStructInfo(name).getType();
                 }

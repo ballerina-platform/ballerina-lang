@@ -640,17 +640,14 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        HashSet<BLangExpression> valueSpace = new HashSet<>();
-
-        for (BLangExpression literal : finiteTypeNode.valueSpace) {
-            ((BLangLiteral) literal).type = symTable.getTypeFromTag(((BLangLiteral) literal).typeTag);
-            valueSpace.add(literal);
-        }
-
         BTypeSymbol finiteTypeSymbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, Flags.asMask(EnumSet
                 .of(Flag.PUBLIC)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
 
-        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol, valueSpace);
+        BFiniteType finiteType = new BFiniteType(finiteTypeSymbol);
+        for (BLangExpression literal : finiteTypeNode.valueSpace) {
+            ((BLangLiteral) literal).type = symTable.getTypeFromTag(((BLangLiteral) literal).typeTag);
+            finiteType.valueSpace.add(literal);
+        }
         finiteTypeSymbol.type = finiteType;
 
         resultType = finiteType;

@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 /**
  * {@code ConnectorUtil} Utilities related to connector processing.
@@ -61,11 +61,8 @@ public class ConnectorUtils extends ConnectorSPIModelHelper {
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + packagePath + " does not exist");
         }
-        TypeInfo structInfo = packageInfo.getStructInfo(structName);
-        if (structInfo == null) {
-            throw new BallerinaConnectorException("struct - " + structName + " does not exist");
-        }
-        BStructureType structType = structInfo.getType();
+        StructureTypeInfo structureInfo = packageInfo.getStructInfo(structName);
+        BStructureType structType = structureInfo.getType();
         BStruct bStruct = new BStruct(structType);
 
         return bStruct;

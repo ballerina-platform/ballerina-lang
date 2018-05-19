@@ -23,7 +23,7 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -362,8 +362,8 @@ public class BCompileUtil {
 
     public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
         PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
-        TypeInfo structInfo = structPackageInfo.getStructInfo(structName);
-        BStructureType structType = structInfo.getType();
+        StructureTypeInfo typeInfo = structPackageInfo.getStructInfo(structName);
+        BStructureType structType = typeInfo.getType();
         return new BStruct(structType);
     }
 

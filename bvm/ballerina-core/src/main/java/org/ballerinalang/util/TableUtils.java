@@ -30,7 +30,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -188,7 +188,7 @@ public class TableUtils {
      */
     public static BStruct createTableOperationError(Context context, Throwable throwable) {
         PackageInfo tableLibPackage = context.getProgramFile().getPackageInfo(TABLE_PACKAGE_PATH);
-        TypeInfo errorStructInfo = tableLibPackage.getStructInfo(TABLE_OPERATION_ERROR);
+        StructureTypeInfo errorStructInfo = tableLibPackage.getStructInfo(TABLE_OPERATION_ERROR);
         BStruct tableOperationError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
             tableOperationError.setStringField(0, EXCEPTION_OCCURRED);

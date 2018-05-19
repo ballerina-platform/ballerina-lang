@@ -48,7 +48,7 @@ import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -124,7 +124,7 @@ public class MessageUtils {
     public static BStruct getConnectorError(Context context, Throwable throwable) {
         ProgramFile progFile = context.getProgramFile();
         PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_BUILTIN);
-        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         return getConnectorError(errorStructInfo.getType(), throwable);
     }
     

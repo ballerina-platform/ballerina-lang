@@ -40,6 +40,7 @@ import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
@@ -506,7 +507,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     protected BStruct createStruct(Context context, String structName, String protocolPackage) {
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(protocolPackage);
-        TypeInfo structInfo = httpPackageInfo.getStructInfo(structName);
+        StructureTypeInfo structInfo = httpPackageInfo.getStructInfo(structName);
         BStructureType structType = structInfo.getType();
         return new BStruct(structType);
     }

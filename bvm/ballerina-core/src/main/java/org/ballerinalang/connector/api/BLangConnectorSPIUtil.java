@@ -24,11 +24,12 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.codegen.ObjectTypeInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ServiceInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -92,11 +93,8 @@ public final class BLangConnectorSPIUtil {
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
         }
-        TypeInfo structInfo = packageInfo.getStructInfo(structName);
-        if (structInfo == null) {
-            throw new BallerinaConnectorException("struct - " + structName + " does not exist");
-        }
-        return BLangVMStructs.createBStruct(structInfo, values);
+        StructureTypeInfo structureInfo = packageInfo.getStructInfo(structName);
+        return BLangVMStructs.createBStruct(structureInfo, values);
     }
 
 
@@ -104,16 +102,16 @@ public final class BLangConnectorSPIUtil {
         return createObject(context.getProgramFile(), pkgPath, structName, values);
     }
 
-    public static BStruct createObject(ProgramFile programFile, String pkgPath, String structName, BValue... values) {
+    public static BStruct createObject(ProgramFile programFile, String pkgPath, String objectName, BValue... values) {
         PackageInfo packageInfo = programFile.getPackageInfo(pkgPath);
         if (packageInfo == null) {
             throw new BallerinaConnectorException("package - " + pkgPath + " does not exist");
         }
-        TypeInfo typeInfo = packageInfo.getStructInfo(structName);
-        if (typeInfo == null) {
-            throw new BallerinaConnectorException("struct - " + structName + " does not exist");
+        StructureTypeInfo typeInfo = packageInfo.getStructInfo(objectName);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.OBJECT_TYPE_TAG) {
+            throw new BallerinaConnectorException("object - " + objectName + " does not exist");
         }
-        return BLangVMStructs.createObject(typeInfo, values);
+        return BLangVMStructs.createObject((ObjectTypeInfo) typeInfo, values);
     }
 
     /**

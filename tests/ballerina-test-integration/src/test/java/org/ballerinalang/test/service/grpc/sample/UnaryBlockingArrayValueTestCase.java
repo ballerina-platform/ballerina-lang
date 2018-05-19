@@ -37,7 +37,7 @@ import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -67,7 +67,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
-        TypeInfo requestInfo = packageInfo.getStructInfo("TestInt");
+        StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestInt");
         BStructureType requestType = requestInfo.getType();
         BStruct requestStruct = new BStruct(requestType);
         BIntArray intArray = new BIntArray();
@@ -91,7 +91,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
-        TypeInfo requestInfo = packageInfo.getStructInfo("TestString");
+        StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestString");
         BStructureType requestType = requestInfo.getType();
         BStruct requestStruct = new BStruct(requestType);
         BStringArray stringArray = new BStringArray();
@@ -113,7 +113,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
-        TypeInfo requestInfo = packageInfo.getStructInfo("TestFloat");
+        StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestFloat");
         BStructureType requestType = requestInfo.getType();
         BStruct requestStruct = new BStruct(requestType);
         BFloatArray floatArray = new BFloatArray();
@@ -137,7 +137,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
-        TypeInfo requestInfo = packageInfo.getStructInfo("TestBoolean");
+        StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestBoolean");
         BStructureType requestType = requestInfo.getType();
         BStruct requestStruct = new BStruct(requestType);
         BBooleanArray booleanArray = new BBooleanArray();
@@ -161,11 +161,11 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "array_field_type_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
-        TypeInfo requestInfo = packageInfo.getStructInfo("TestStruct");
+        StructureTypeInfo requestInfo = packageInfo.getStructInfo("TestStruct");
         BStructureType requestType = requestInfo.getType();
         BStruct requestStruct = new BStruct(requestType);
         BRefValueArray refArray = new BRefValueArray();
-        TypeInfo aInfo = packageInfo.getStructInfo("A");
+        StructureTypeInfo aInfo = packageInfo.getStructInfo("A");
         BStructureType aType = aInfo.getType();
         BStruct a1 = new BStruct(aType);
         a1.setStringField(0, "Sam");

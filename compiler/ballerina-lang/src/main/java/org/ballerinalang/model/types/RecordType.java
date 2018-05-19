@@ -17,13 +17,10 @@
 */
 package org.ballerinalang.model.types;
 
-import java.util.List;
-
 /**
  * {@code RecordType} represents the type of a record in Ballerina.
  *
  * @since 0.971.0
  */
 public interface RecordType extends ReferenceType {
-    List<? extends Field> getFields();
 }

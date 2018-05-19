@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeInfo;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
@@ -82,14 +83,14 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
     BStruct createStruct(Context context, String structName) {
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(PROTOCOL_STRUCT_PACKAGE_GRPC);
-        TypeInfo structInfo = httpPackageInfo.getStructInfo(structName);
+        StructureTypeInfo structInfo = httpPackageInfo.getStructInfo(structName);
         BStructureType structType = structInfo.getType();
         return new BStruct(structType);
     }
     
     void notifyErrorReply(Context context, String errorMessage) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         BStruct outboundError = new BStruct(errorStructInfo.getType());
         outboundError.setStringField(0, errorMessage);
         context.setError(outboundError);

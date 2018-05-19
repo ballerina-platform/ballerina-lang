@@ -67,8 +67,8 @@ public class Parse extends AbstractTimeFunction {
     }
 
     private BStruct getTimeStruct(TemporalAccessor dateTime, Context context, String dateString, String pattern) {
-        StructureTypeInfo timeZoneStructInfo = (StructureTypeInfo) Utils.getTimeZoneStructInfo(context);
-        StructureTypeInfo timeStructInfo = (StructureTypeInfo) Utils.getTimeStructInfo(context);
+        StructureTypeInfo timeZoneStructInfo = Utils.getTimeZoneStructInfo(context);
+        StructureTypeInfo timeStructInfo = Utils.getTimeStructInfo(context);
         long epochTime = -1;
         String zoneId;
         try {

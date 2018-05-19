@@ -52,7 +52,6 @@ import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.ballerinalang.util.observability.ObservabilityUtils;
@@ -358,7 +357,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private static BStruct getSQLParameter(Context context) {
         PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.SQL_PACKAGE_PATH);
-        TypeInfo paramStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_PARAMETER);
+        StructureTypeInfo paramStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_PARAMETER);
         return new BStruct(paramStructInfo.getType());
     }
 
@@ -908,8 +907,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             boolean loadSQLTableToMemory, List<ColumnDefinition> columnDefinitions)
             throws SQLException {
         return new BTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
-                (StructureTypeInfo) Utils.getTimeStructInfo(context),
-                (StructureTypeInfo) Utils.getTimeZoneStructInfo(context)), loadSQLTableToMemory);
+                Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)), loadSQLTableToMemory);
     }
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructureType structType)
@@ -920,8 +918,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private BMirrorTable constructTable(Context context, BStructureType structType, SQLDatasource dataSource,
             String tableName) throws SQLException {
-       return new BMirrorTable(dataSource, tableName, structType, (StructureTypeInfo) Utils.getTimeStructInfo(context),
-               (StructureTypeInfo) Utils.getTimeZoneStructInfo(context), utcCalendar);
+       return new BMirrorTable(dataSource, tableName, structType, Utils.getTimeStructInfo(context),
+               Utils.getTimeZoneStructInfo(context), utcCalendar);
     }
 
     private String getSQLType(BStruct parameter) {

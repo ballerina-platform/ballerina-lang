@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.codegen;
 
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BType;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 
 /**
@@ -26,5 +26,5 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
  * @since 0.971.0
  */
 public interface TypeInfo extends AttributeInfoPool {
-    BStructureType getType();
+    BType getType();
 }

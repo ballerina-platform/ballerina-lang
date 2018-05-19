@@ -128,7 +128,7 @@ public class ErrorTableEntry {
                         entry.status = 0;
                         rangeMatched.add(entry);
                     } else if (CPU.checkStructEquivalency(error.getType(),
-                            errorTableEntry.getError().typeInfo.getType())) {
+                            ((StructureTypeInfo) errorTableEntry.getError().typeInfo).getType())) {
                         entry.status = 1;
                         rangeMatched.add(entry);
                     }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -26,22 +27,30 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -189,9 +198,6 @@ public class CompiledPackageSymbolEnter {
         // define import packages
         defineSymbols(dataInStream, rethrow(this::defineImportPackage));
 
-        // define objects
-        defineSymbols(dataInStream, rethrow(this::defineObject));
-
         // define type defs
         defineSymbols(dataInStream, rethrow(this::defineTypeDef));
 
@@ -332,37 +338,6 @@ public class CompiledPackageSymbolEnter {
 //        readAttributes(dataInStream);
     }
 
-//    private void defineObjectField(DataInputStream dataInStream,
-//                                   BTypeSymbol objectSymbol,
-//                                   BStructType objectType) throws IOException {
-//        String fieldName = getUTF8CPEntryValue(dataInStream);
-//        String typeSig = getUTF8CPEntryValue(dataInStream);
-//        int flags = dataInStream.readInt();
-//
-//        BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(fieldName),
-//                objectSymbol.pkgID, null, objectSymbol.scope.owner);
-//        objectSymbol.scope.define(varSymbol.name, varSymbol);
-//
-//        // Read the default value attribute
-//        Map<AttributeInfo.Kind, byte[]> attrData = readAttributes(dataInStream);
-//
-//        // The object field type cannot be resolved now. Hence add it to the unresolved type list.
-//        UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
-//            varSymbol.type = type;
-//            BStructType.BStructField structField = new BStructType.BStructField(varSymbol.name,
-//                    varSymbol, varSymbol.defaultValue != null);
-//            objectType.fields.add(structField);
-//        });
-//        this.env.unresolvedTypes.add(unresolvedFieldType);
-//    }
-
-    private void defineObjectAttachedFunction(DataInputStream dataInStream) throws IOException {
-        // Consider attached functions.. remove the first variable
-        getUTF8CPEntryValue(dataInStream);
-        getUTF8CPEntryValue(dataInStream);
-        dataInStream.readInt();
-    }
-
     private void defineFunction(DataInputStream dataInStream) throws IOException {
         // Consider attached functions.. remove the first variable
         String funcName = getUTF8CPEntryValue(dataInStream);
@@ -424,6 +399,166 @@ public class CompiledPackageSymbolEnter {
     }
 
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
+        String typeDefName = getUTF8CPEntryValue(dataInStream);
+        int flags = dataInStream.readInt();
+        int typeTag = dataInStream.readInt();
+
+        BTypeSymbol typeDefSymbol;
+
+        switch (typeTag) {
+            case TypeTags.OBJECT:
+                typeDefSymbol = readObjectTypeSymbol(dataInStream, typeDefName, flags);
+                break;
+            case TypeTags.RECORD:
+                typeDefSymbol = readRecordTypeSymbol(dataInStream, typeDefName, flags);
+                break;
+            case TypeTags.FINITE:
+                typeDefSymbol = readFiniteTypeSymbol(dataInStream, typeDefName, flags);
+                break;
+            default:
+                typeDefSymbol = symTable.errSymbol;
+        }
+
+        this.env.pkgSymbol.scope.define(typeDefSymbol.name, typeDefSymbol);
+    }
+
+    private BObjectTypeSymbol readObjectTypeSymbol(DataInputStream dataInStream,
+                                                   String name, int flags) throws IOException {
+        BObjectTypeSymbol symbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(flags, names.fromString(name),
+                this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+        symbol.scope = new Scope(symbol);
+        BObjectType type = new BObjectType(symbol);
+        symbol.type = type;
+
+
+        // Define Object Fields
+        defineSymbols(dataInStream, rethrow(dataInputStream ->
+                defineStructureField(dataInStream, symbol, type)));
+
+        // Define Object attached functions
+        defineSymbols(dataInStream, rethrow(dataInputStream ->
+                defineObjectAttachedFunction(dataInStream)));
+
+        // Read and ignore attributes
+        readAttributes(dataInStream);
+
+        return symbol;
+    }
+
+    private BRecordTypeSymbol readRecordTypeSymbol(DataInputStream dataInStream,
+                                      String name, int flags) throws IOException {
+        BRecordTypeSymbol symbol = (BRecordTypeSymbol) Symbols.createRecordSymbol(flags, names.fromString(name),
+                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+        symbol.scope = new Scope(symbol);
+        BRecordType type = new BRecordType(symbol);
+        symbol.type = type;
+
+
+        // Define Object Fields
+        defineSymbols(dataInStream, rethrow(dataInputStream ->
+                defineStructureField(dataInStream, symbol, type)));
+
+        // TODO remove once record init function is removed
+        // Define record attached functions
+        defineSymbols(dataInStream, rethrow(dataInputStream ->
+                defineObjectAttachedFunction(dataInStream)));
+
+        // Read and ignore attributes
+        readAttributes(dataInStream);
+
+        return symbol;
+    }
+
+    private BTypeSymbol readFiniteTypeSymbol(DataInputStream dataInStream,
+                                                   String name, int flags) throws IOException {
+        BTypeSymbol symbol = Symbols.createTypeSymbol(SymTag.FINITE_TYPE, flags, names.fromString(name),
+                this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+        symbol.scope = new Scope(symbol);
+        BFiniteType finiteType = new BFiniteType(symbol);
+        symbol.type = finiteType;
+
+
+        // Define Object Fields
+        defineSymbols(dataInStream, rethrow(dataInputStream ->
+                defineValueSpace(dataInStream, finiteType)));
+
+        // Read and ignore attributes
+        readAttributes(dataInStream);
+
+        return symbol;
+    }
+
+    private void defineValueSpace(DataInputStream dataInStream, BFiniteType finiteType) throws IOException {
+        int typeDescCPIndex = dataInStream.readInt();
+        UTF8CPEntry typeDescCPEntry = (UTF8CPEntry) this.env.constantPool[typeDescCPIndex];
+        String typeDesc = typeDescCPEntry.getValue();
+
+        BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
+
+        int valueCPIndex;
+        switch (typeDesc) {
+            case TypeDescriptor.SIG_BOOLEAN:
+                litExpr.value = dataInStream.readBoolean();
+                litExpr.typeTag = TypeTags.BOOLEAN;
+                break;
+            case TypeDescriptor.SIG_INT:
+                valueCPIndex = dataInStream.readInt();
+                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
+                litExpr.value = integerCPEntry.getValue();
+                litExpr.typeTag = TypeTags.INT;
+                break;
+            case TypeDescriptor.SIG_FLOAT:
+                valueCPIndex = dataInStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
+                litExpr.value = floatCPEntry.getValue();
+                litExpr.typeTag = TypeTags.FLOAT;
+                break;
+            case TypeDescriptor.SIG_STRING:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                litExpr.value = stringCPEntry.getValue();
+                litExpr.typeTag = TypeTags.STRING;
+                break;
+            case TypeDescriptor.SIG_NULL:
+                litExpr.typeTag = TypeTags.NIL;
+                break;
+            default:
+                throw new BLangCompilerException("unknown default value type " + typeDesc);
+        }
+
+        finiteType.valueSpace.add(litExpr);
+    }
+
+    private void defineStructureField(DataInputStream dataInStream,
+                                   BTypeSymbol objectSymbol,
+                                   BStructureType objectType) throws IOException {
+        String fieldName = getUTF8CPEntryValue(dataInStream);
+        String typeSig = getUTF8CPEntryValue(dataInStream);
+        int flags = dataInStream.readInt();
+
+        BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(fieldName),
+                objectSymbol.pkgID, null, objectSymbol.scope.owner);
+        objectSymbol.scope.define(varSymbol.name, varSymbol);
+
+        // Read the default value attribute
+        Map<AttributeInfo.Kind, byte[]> attrData = readAttributes(dataInStream);
+
+        // The object field type cannot be resolved now. Hence add it to the unresolved type list.
+        UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
+            varSymbol.type = type;
+            BField structField = new BField(varSymbol.name,
+                    varSymbol, varSymbol.defaultValue != null);
+            objectType.fields.add(structField);
+        });
+
+        this.env.unresolvedTypes.add(unresolvedFieldType);
+    }
+
+    private void defineObjectAttachedFunction(DataInputStream dataInStream) throws IOException {
+        // Consider attached functions.. remove the first variable
+        getUTF8CPEntryValue(dataInStream);
+        getUTF8CPEntryValue(dataInStream);
+        dataInStream.readInt();
     }
 
     private void defineService(DataInputStream dataInStream) throws IOException {

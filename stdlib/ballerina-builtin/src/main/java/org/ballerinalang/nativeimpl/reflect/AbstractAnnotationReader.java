@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.codegen.TypeInfo;
 
 /**
@@ -50,7 +51,7 @@ abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
             return null;
         }
         final PackageInfo packageInfo = context.getProgramFile().getPackageInfo(PKG_REFELCT);
-        final TypeInfo structInfo = packageInfo.getStructInfo(STRUCT_ANNOTATION);
+        final StructureTypeInfo structInfo = packageInfo.getStructInfo(STRUCT_ANNOTATION);
         BRefValueArray annotationArray = new BRefValueArray(structInfo.getType());
         BMap<String, BValue> annotationMap = (BMap<String, BValue>) map;
         long index = 0;

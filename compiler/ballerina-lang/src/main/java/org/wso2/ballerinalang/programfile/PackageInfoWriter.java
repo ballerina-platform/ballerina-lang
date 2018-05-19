@@ -269,22 +269,6 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(dataChannelInfo.getDataChannelRefIndex());
     }
 
-    private static void writeTypeDefinitionInfo(DataOutputStream dataOutStream,
-                                                TypeDefinitionInfo typeDefinitionInfo) throws IOException {
-        dataOutStream.writeInt(typeDefinitionInfo.nameCPIndex);
-        dataOutStream.writeInt(typeDefinitionInfo.flags);
-        ValueSpaceItemInfo[] valueSpaceItemInfos = typeDefinitionInfo.
-                valueSpaceItemInfos.toArray(new ValueSpaceItemInfo[0]);
-
-        dataOutStream.writeShort(valueSpaceItemInfos.length);
-        for (ValueSpaceItemInfo valueSpaceItem : valueSpaceItemInfos) {
-            writeDefaultValue(dataOutStream, valueSpaceItem.value);
-        }
-
-        // Write attribute info
-        writeAttributeInfoEntries(dataOutStream, typeDefinitionInfo.getAttributeInfoEntries());
-    }
-
     private static void writeTypeDefInfo(DataOutputStream dataOutStream,
                                                 TypeDefInfo typeDefInfo) throws IOException {
         dataOutStream.writeInt(typeDefInfo.nameCPIndex);

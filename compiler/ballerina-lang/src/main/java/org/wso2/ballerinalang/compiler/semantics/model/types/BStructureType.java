@@ -17,7 +17,6 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
-import org.ballerinalang.model.types.ObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ import java.util.List;
  *
  * @since 0.971.0
  */
-public class BStructureType extends BType implements ObjectType {
+public abstract class BStructureType extends BType {
     public List<BField> fields;
 
     public BStructureType(int tag, BTypeSymbol tSymbol) {
@@ -36,7 +35,6 @@ public class BStructureType extends BType implements ObjectType {
         this.fields = new ArrayList<>();
     }
 
-    @Override
     public List<BField> getFields() {
         return fields;
     }

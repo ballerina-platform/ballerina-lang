@@ -18,6 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -25,7 +27,7 @@ import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,7 +110,7 @@ public class BLangVMErrors {
      * @param values          values of the error
      * @return generated error struct
      */
-    public static BStruct createError(Context context, boolean attachCallStack, TypeInfo errorType,
+    public static BStruct createError(Context context, boolean attachCallStack, StructureTypeInfo errorType,
                                       Object... values) {
         return generateError(context.getCallableUnitInfo(), attachCallStack, errorType, values);
     }
@@ -129,40 +131,55 @@ public class BLangVMErrors {
 
     public static BStruct createNullRefException(Context context) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_RUNTIME);
-        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
-        return generateError(context.getCallableUnitInfo(), true, errorStructInfo, "");
+        StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new BallerinaConnectorException("record - " + STRUCT_NULL_REF_EXCEPTION + " does not exist");
+        }
+        return generateError(context.getCallableUnitInfo(), true, typeInfo, "");
     }
 
     public static BStruct createNullRefException(WorkerExecutionContext context) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
-        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
-        return generateError(context, true, errorStructInfo);
+        StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new BallerinaConnectorException("record - " + STRUCT_NULL_REF_EXCEPTION + " does not exist");
+        }
+        return generateError(context, true, typeInfo);
     }
 
     public static BStruct createNullRefException(CallableUnitInfo callableUnitInfo) {
         ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
         PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_RUNTIME);
-        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
-        return generateError(callableUnitInfo, true, errorStructInfo);
+        StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new BallerinaConnectorException("record - " + STRUCT_NULL_REF_EXCEPTION + " does not exist");
+        }
+        return generateError(callableUnitInfo, true, typeInfo);
     }
 
     public static BStruct createCallFailedException(WorkerExecutionContext context, Map<String, BStruct> errors) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
-        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
-        return generateError(context, true, errorStructInfo, MSG_CALL_FAILED, errors.isEmpty() ? null : 
-            errors.values().iterator().next(), createErrorCauseArray(errors));
+        StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new BallerinaConnectorException("record - " + STRUCT_CALL_FAILED_EXCEPTION + " does not exist");
+        }
+        return generateError(context, true, typeInfo, MSG_CALL_FAILED,
+                errors.isEmpty() ? null : errors.values().iterator().next(), createErrorCauseArray(errors));
     }
     
     public static BStruct createCallCancelledException(CallableUnitInfo callableUnitInfo) {
         PackageInfo errorPackageInfo = callableUnitInfo.getPackageInfo().getProgramFile().getPackageInfo(
                 PACKAGE_RUNTIME);
-        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
-        return generateError(callableUnitInfo, true, errorStructInfo, MSG_CALL_CANCELLED);
+        StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new BallerinaConnectorException("record - " + STRUCT_CALL_FAILED_EXCEPTION + " does not exist");
+        }
+        return generateError(callableUnitInfo, true, typeInfo, MSG_CALL_CANCELLED);
     }
 
     public static BStruct createIllegalStateException(Context context, String msg) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_RUNTIME);
-        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ILLEGAL_STATE_EXCEPTION);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ILLEGAL_STATE_EXCEPTION);
         return createError(context, true, errorStructInfo, msg);
     }
 
@@ -180,20 +197,26 @@ public class BLangVMErrors {
 
     private static BStruct generateError(WorkerExecutionContext context, boolean attachCallStack, Object... values) {
         PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_BUILTIN);
-        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        return generateError(context, attachCallStack, errorStructInfo, values);
+        StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new BallerinaConnectorException("record - " + STRUCT_GENERIC_ERROR + " does not exist");
+        }
+        return generateError(context, attachCallStack, typeInfo, values);
     }
 
     private static BStruct generateError(CallableUnitInfo callableUnitInfo, boolean attachCallStack,
                                          Object... values) {
         ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
         PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_BUILTIN);
-        TypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        return generateError(callableUnitInfo, attachCallStack, errorStructInfo, values);
+        StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new BallerinaConnectorException("record - " + STRUCT_GENERIC_ERROR + " does not exist");
+        }
+        return generateError(callableUnitInfo, attachCallStack, typeInfo, values);
     }
 
     private static BStruct generateError(WorkerExecutionContext context,
-                                         boolean attachCallStack, TypeInfo structInfo, Object... values) {
+                                         boolean attachCallStack, StructureTypeInfo structInfo, Object... values) {
         BStruct error = BLangVMStructs.createBStruct(structInfo, values);
         if (attachCallStack) {
             attachStackFrame(error, context);
@@ -202,7 +225,7 @@ public class BLangVMErrors {
     }
 
     private static BStruct generateError(CallableUnitInfo callableUnitInfo, boolean attachCallStack,
-                                         TypeInfo structInfo, Object... values) {
+                                         StructureTypeInfo structInfo, Object... values) {
         BStruct error = BLangVMStructs.createBStruct(structInfo, values);
         if (attachCallStack) {
             attachStackFrame(error, callableUnitInfo);
@@ -240,7 +263,10 @@ public class BLangVMErrors {
         
         ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
         PackageInfo runtimePackage = progFile.getPackageInfo(PACKAGE_RUNTIME);
-        TypeInfo callStackElement = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
+        StructureTypeInfo typeInfo = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
+        if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new BallerinaConnectorException("record - " + STRUCT_CALL_STACK_ELEMENT + " does not exist");
+        }
 
         int currentIP = ip - 1;
         Object[] values;
@@ -264,7 +290,7 @@ public class BLangVMErrors {
             }
         }
 
-        return BLangVMStructs.createBStruct(callStackElement, values);
+        return BLangVMStructs.createBStruct(typeInfo, values);
     }
 
     public static BStruct getStackFrame(WorkerExecutionContext context) {

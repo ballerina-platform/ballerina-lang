@@ -37,6 +37,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -193,7 +194,7 @@ public class CommandUtil {
         return null;
     }
 
-    static DocAttachmentInfo getStructNodeDocumentation(BLangStruct bLangStruct, int replaceFrom) {
+    static DocAttachmentInfo getStructNodeDocumentation(BLangTypeDefinition bLangStruct, int replaceFrom) {
         List<String> attributes = new ArrayList<>();
         DiagnosticPos structPos = CommonUtil.toZeroBasedPosition(bLangStruct.getPosition());
         int offset = structPos.getStartColumn();

@@ -29,7 +29,7 @@ import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -60,14 +60,14 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Address struct
-        TypeInfo addressInfo = packageInfo.getStructInfo("Address");
+        StructureTypeInfo addressInfo = packageInfo.getStructInfo("Address");
         BStructureType addressType = addressInfo.getType();
         BStruct addressStruct = new BStruct(addressType);
         addressStruct.setIntField(0, 10300);
         addressStruct.setStringField(0, "Western");
         addressStruct.setStringField(1, "Sri Lanka");
         // Person struct
-        TypeInfo personInfo = packageInfo.getStructInfo("Person");
+        StructureTypeInfo personInfo = packageInfo.getStructInfo("Person");
         BStructureType personType = personInfo.getType();
         BStruct personStruct = new BStruct(personType);
         personStruct.setStringField(0, "Sam");
@@ -105,7 +105,7 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Address struct
-        TypeInfo requestInfo = packageInfo.getStructInfo("StockRequest");
+        StructureTypeInfo requestInfo = packageInfo.getStructInfo("StockRequest");
         BStructureType requestType = requestInfo.getType();
         BStruct requestStruct = new BStruct(requestType);
         requestStruct.setStringField(0, "WSO2");

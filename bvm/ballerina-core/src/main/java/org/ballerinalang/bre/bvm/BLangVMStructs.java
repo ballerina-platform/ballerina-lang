@@ -30,7 +30,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.util.codegen.ObjectTypeInfo;
-import org.ballerinalang.util.codegen.TypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.program.BLangFunctions;
 
 /**
@@ -43,11 +43,11 @@ public class BLangVMStructs {
     /**
      * Create BStruct for given StructInfo and BValues.
      *
-     * @param structInfo {@link TypeInfo} of the BStruct
+     * @param structInfo {@link StructureTypeInfo} of the BStruct
      * @param values     field values of the BStruct.
      * @return BStruct instance.
      */
-    public static BStruct createBStruct(TypeInfo structInfo, Object... values) {
+    public static BStruct createBStruct(StructureTypeInfo structInfo, Object... values) {
         BStructureType structType = structInfo.getType();
         BStruct bStruct = new BStruct(structType);
 
@@ -66,17 +66,17 @@ public class BLangVMStructs {
     /**
      * Create ballerina object.
      *
-     * @param structInfo {@link TypeInfo} of the BStruct
+     * @param objectInfo {@link ObjectTypeInfo} of the BStruct
      * @param values     field values of the BStruct.
      * @return BStruct instance.
      */
-    public static BStruct createObject(TypeInfo structInfo, BValue... values) {
-        BStructureType structType = structInfo.getType();
+    public static BStruct createObject(ObjectTypeInfo objectInfo, BValue... values) {
+        BStructureType structType = objectInfo.getType();
         BStruct bStruct = new BStruct(structType);
         BValue[] vals = new BValue[values.length + 1];
         vals[0] = bStruct;
         System.arraycopy(values, 0, vals, 1, values.length);
-        BLangFunctions.invokeCallable(((ObjectTypeInfo) structInfo).initializer.functionInfo, vals);
+        BLangFunctions.invokeCallable(objectInfo.initializer.functionInfo, vals);
         return bStruct;
     }
 
