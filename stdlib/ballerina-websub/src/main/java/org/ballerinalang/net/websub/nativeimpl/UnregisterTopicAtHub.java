@@ -19,12 +19,13 @@
 package org.ballerinalang.net.websub.nativeimpl;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 /**
@@ -37,7 +38,7 @@ import org.ballerinalang.net.websub.hub.Hub;
         functionName = "unregisterTopicAtHub",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
                 @Argument(name = "secret", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING)},
+        returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
 public class UnregisterTopicAtHub extends BlockingNativeCallableUnit {
@@ -46,7 +47,12 @@ public class UnregisterTopicAtHub extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String topic = context.getStringArgument(0);
         String secret = context.getStringArgument(1);
-        context.setReturnValues(new BString(Hub.getInstance().unregisterTopic(topic, secret)));
+        try {
+            Hub.getInstance().unregisterTopic(topic, secret);
+            context.setReturnValues();
+        } catch (BallerinaWebSubException e) {
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
+        }
     }
 
 }

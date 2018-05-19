@@ -125,7 +125,7 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
 
     @Test
     public void testSubscriptionAndIntentVerification() throws BallerinaTestException, InterruptedException {
-        intentVerificationLogLeecher.waitForText(10000);
+        intentVerificationLogLeecher.waitForText(30000);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")

@@ -201,10 +201,17 @@ public function CallerActions::publishUpdate(string topic, json payload, string?
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
-        http:Response => return;
-        error httpConnectorError => { error webSubError = {
-            message:"Notification failed for topic [" + topic + "]", cause:httpConnectorError};
-        return webSubError;
+        http:Response response => {
+            if (!isSuccessStatusCode(response.statusCode)) {
+                string payload = response.getTextPayload() but { error => "" };
+                error webSubError = {message:"Error occured publishing update: " + payload};
+                return webSubError;
+            }
+            return;
+        }
+        error httpConnectorError => {
+            error webSubError = {message: "Publish failed for topic [" + topic + "]", cause:httpConnectorError};
+            return webSubError;
         }
     }
 }
@@ -225,10 +232,18 @@ public function CallerActions::notifyUpdate(string topic, map<string>? headers =
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
-        http:Response => return;
-        error httpConnectorError => { error webSubError = {
-            message:"Update availability notification failed for topic [" + topic + "]", cause:httpConnectorError};
-        return webSubError;
+        http:Response response => {
+            if (!isSuccessStatusCode(response.statusCode)) {
+                string payload = response.getTextPayload() but { error => "" };
+                error webSubError = {message:"Error occured notifying update availability: " + payload};
+                return webSubError;
+            }
+            return;
+        }
+        error httpConnectorError => {
+            error webSubError = {message:"Update availability notification failed for topic [" + topic + "]",
+                                 cause:httpConnectorError};
+            return webSubError;
         }
     }
 }
@@ -394,4 +409,8 @@ function getRedirectionMaxCount(http:FollowRedirects? followRedirects) returns i
         () => {}
     }
     return 0;
+}
+
+function isSuccessStatusCode(int statusCode) returns boolean {
+    return (200 <= statusCode && statusCode < 300);
 }
