@@ -27,12 +27,16 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.psi.BallerinaAssignmentStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
 import org.ballerinalang.plugins.idea.psi.BallerinaOrgName;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageName;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaResourceDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -94,11 +98,36 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             if (variableReferenceList != null) {
                 continue;
             }
+
+            // Skip record key highlighting in json.
+            BallerinaRecordKey recordKey = PsiTreeUtil.getParentOfType(identifier, BallerinaRecordKey.class);
+            BallerinaAssignmentStatement assignmentStatement = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaAssignmentStatement.class);
+            BallerinaVariableDefinitionStatement definitionStatement = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaVariableDefinitionStatement.class);
+            if (recordKey != null && (assignmentStatement == null || definitionStatement == null)) {
+                continue;
+            }
+
+            // Skip var assignment.
+            BallerinaSimpleVariableReference variableReference = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaSimpleVariableReference.class);
+            if (variableReference != null && variableReference.getParent() instanceof BallerinaAssignmentStatement
+                    && assignmentStatement != null && assignmentStatement.getVar() != null) {
+                continue;
+            }
+
+            // Skip object creation.
+            if (identifier.getText().equals("new")) {
+                continue;
+            }
+
             PsiReference reference = identifier.getReference();
             if (reference != null && reference.resolve() == null) {
                 problemDescriptors.add(createProblemDescriptor(manager, identifier, isOnTheFly, availableFixes));
                 continue;
             }
+
             PsiElement parent = identifier.getParent();
             if (parent instanceof BallerinaPackageReference) {
                 reference = parent.getReference();
