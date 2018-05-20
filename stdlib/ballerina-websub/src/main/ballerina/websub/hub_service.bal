@@ -146,10 +146,19 @@ service<http:Service> hubService {
 
             if (mode == MODE_PUBLISH && hubRemotePublishingEnabled) {
                 if (!hubTopicRegistrationRequired || isTopicRegistered(topic)) {
-                    var reqJsonPayload = request.getJsonPayload(); //TODO: allow others
+                    http:Request notificationRequest = new;
+                    blob|error binaryPayload;
+                    string stringPayload;
+                    string contentType;
                     if (hubRemotePublishingMode == REMOTE_PUBLISHING_MODE_FETCH) {
                         match (fetchTopicUpdate(topic)) {
-                            http:Response fetchResp => { reqJsonPayload = fetchResp.getJsonPayload(); }
+                            http:Response fetchResp => {
+                                binaryPayload = fetchResp.getBinaryPayload();
+                                if (fetchResp.hasHeader(CONTENT_TYPE)) {
+                                    contentType = fetchResp.getHeader(CONTENT_TYPE);
+                                }
+                                stringPayload = fetchResp.getPayloadAsString() but { error => "" };
+                            }
                             error err => {
                                 string errorMessage = "Error fetching updates for topic URL [" + topic + "]: "
                                                         + err.message;
@@ -160,56 +169,65 @@ service<http:Service> hubService {
                                 done;
                             }
                         }
+                    } else {
+                        binaryPayload = request.getBinaryPayload();
+                        if (request.hasHeader(CONTENT_TYPE)) {
+                            contentType = request.getHeader(CONTENT_TYPE);
+                        }
+                        stringPayload = request.getPayloadAsString() but { error => "" };
                     }
 
-                    match (reqJsonPayload) {
-                        json payload => {
-                            if (hubTopicRegistrationRequired) {
-                                string secret = retrievePublisherSecret(topic);
-                                if (secret != "") {
-                                    if (request.hasHeader(PUBLISHER_SIGNATURE)) {
-                                        string publisherSignature = request.getHeader(PUBLISHER_SIGNATURE);
-                                        string strPayload = payload.toString();
-                                        var signatureValidation = validateSignature(publisherSignature,
-                                            strPayload, secret);
-                                        match (signatureValidation) {
-                                            error err => {
-                                                string errorMessage = "Signature validation failed for publish request"
-                                                                        + "for topic[" + topic + "]: " + err.message;
-                                                log:printError(errorMessage);
-                                                response.statusCode = http:BAD_REQUEST_400;
-                                                response.setTextPayload(errorMessage);
-                                                _ = client->respond(response);
-                                                done;
-                                            }
-                                            () => {
-                                                log:printDebug("Signature validation successful for publish request "
-                                                        + "for Topic [" + topic + "]");
-                                            }
-                                        }
+                    if (hubTopicRegistrationRequired) {
+                        string secret = retrievePublisherSecret(topic);
+                        if (secret != "") {
+                            if (request.hasHeader(PUBLISHER_SIGNATURE)) {
+                                string publisherSignature = request.getHeader(PUBLISHER_SIGNATURE);
+                                var signatureValidation = validateSignature(publisherSignature, stringPayload, secret);
+                                match (signatureValidation) {
+                                    error err => {
+                                        string errorMessage = "Signature validation failed for publish request"
+                                                                + "for topic[" + topic + "]: " + err.message;
+                                        log:printError(errorMessage);
+                                        response.statusCode = http:BAD_REQUEST_400;
+                                        response.setTextPayload(errorMessage);
+                                        _ = client->respond(response);
+                                        done;
+                                    }
+                                    () => {
+                                        log:printDebug("Signature validation successful for publish request "
+                                                + "for Topic [" + topic + "]");
                                     }
                                 }
                             }
-                            match(publishToInternalHub(topic, payload)) {
-                                error err => {
-                                    string errorMessage = "Event notification failed for Topic [" + topic + "]: "
-                                                            + err.message;
-                                    response.setTextPayload(errorMessage);
-                                    log:printError(errorMessage);
-                                }
-                                () => {
-                                    log:printInfo("Event notification done for Topic [" + topic + "]");
-                                    response.statusCode = http:ACCEPTED_202;
-                                    _ = client->respond(response);
-                                    done;
-                                }
-                            }
                         }
-                        error payloadError => {
-                            string errorMessage = "Error retreiving payload for WebSub publish request: "
-                                                    + payloadError.message;
+                    }
+
+                    match (binaryPayload) {
+                        blob payload => notificationRequest.setBinaryPayload(payload);
+                        error err => {
+                            string errorMessage = "Error extracting payload: " + err.message;
                             log:printError(errorMessage);
+                            response.statusCode = http:BAD_REQUEST_400;
                             response.setTextPayload(errorMessage);
+                            _ = client->respond(response);
+                            done;
+                        }
+                    }
+                    if (contentType != "") {
+                        notificationRequest.setHeader(CONTENT_TYPE, contentType);
+                    }
+                    match(publishToInternalHub(topic, notificationRequest)) {
+                        error err => {
+                            string errorMessage = "Event notification failed for Topic [" + topic + "]: "
+                                                    + err.message;
+                            response.setTextPayload(errorMessage);
+                            log:printError(errorMessage);
+                        }
+                        () => {
+                            log:printInfo("Event notification done for Topic [" + topic + "]");
+                            response.statusCode = http:ACCEPTED_202;
+                            _ = client->respond(response);
+                            done;
                         }
                     }
                 } else {
@@ -526,15 +544,14 @@ documentation {
 
     P{{callback}} The callback URL registered for the subscriber
     P{{subscriptionDetails}} The subscription details for the particular subscriber
-    P{{payload}} The update payload to be delivered to the subscribers
+    P{{request}} The request to send to subscribers, with the payload and content-type header set
 }
-function distributeContent(string callback, SubscriptionDetails subscriptionDetails, json payload) {
+function distributeContent(string callback, SubscriptionDetails subscriptionDetails, http:Request request) {
     endpoint http:Client callbackEp {
         url:callback,
         secureSocket:secureSocket
     };
 
-    http:Request request = new;
     int currentTime = time:currentTime().time;
     int createdAt = subscriptionDetails.createdAt;
     int leaseSeconds = subscriptionDetails.leaseSeconds;
@@ -546,8 +563,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
             changeSubscriptionInDatabase(MODE_UNSUBSCRIBE, subscriptionDetails);
         }
     } else {
-        string stringPayload = payload.toString();
-        request.setHeader(CONTENT_TYPE, mime:APPLICATION_JSON);
+        string stringPayload = request.getPayloadAsString() but { error => "" };
         if (subscriptionDetails.secret != "") {
             string xHubSignature = hubSignatureMethod + "=";
             string generatedSignature = "";
@@ -565,7 +581,6 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
         request.setHeader(X_HUB_UUID, system:uuid());
         request.setHeader(X_HUB_TOPIC, subscriptionDetails.topic);
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
-        request.setJsonPayload(payload);
         var contentDistributionRequest = callbackEp->post("", request = request);
         match (contentDistributionRequest) {
             http:Response response => { return; }

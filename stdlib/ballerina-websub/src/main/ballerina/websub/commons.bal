@@ -16,6 +16,7 @@
 
 import ballerina/crypto;
 import ballerina/http;
+import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/reflect;
@@ -242,21 +243,22 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
         return;
     }
 
-    json payload;
-    var reqJsonPayload = request.getJsonPayload(); //TODO: fix for all types
-    match (reqJsonPayload) {
-        json jsonPayload => { payload = jsonPayload; }
-        error entityError => {
-            error webSubError = {message:"Error extracting notification payload", cause:entityError};
-            return webSubError;
-        }
-    }
-
     if (secret == "" && xHubSignature != "") {
         log:printWarn("Ignoring " + X_HUB_SIGNATURE + " value since secret is not specified.");
         return;
     }
-    return validateSignature(xHubSignature, payload.toString(), secret);
+
+    string stringPayload;
+    match (request.getPayloadAsString()) {
+        string payloadAsString => { stringPayload = payloadAsString; }
+        error entityError => {
+            error webSubError = {message:"Error extracting notification payload as string for signature validation",
+                                 cause:entityError};
+            return webSubError;
+        }
+    }
+
+    return validateSignature(xHubSignature, stringPayload, secret);
 }
 
 documentation {
@@ -295,11 +297,9 @@ function validateSignature(string xHubSignature, string stringPayload, string se
 documentation {
     Record representing the WebSub Content Delivery Request received.
 
-    F{{payload}} The JSON payload of the notification received
     F{{request}} The HTTP POST request received as the notification
 }
 public type Notification {
-    json payload,
     http:Request request,
 };
 
@@ -373,9 +373,11 @@ public type WebSubHub object {
         
         P{{topic}} The topic for which the update should happen
         P{{payload}} The update payload
+        P{{contentType}} The content type header to set for the request delivering the payload
         R{{}} `error` if the hub is not initialized or does not represent the internal hub
     }
-    public function publishUpdate(string topic, json payload) returns error?;
+    public function publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+                                  string? contentType = ()) returns error?;
 
     documentation {
         Registers a topic in the Ballerina Hub.
@@ -399,12 +401,21 @@ public function WebSubHub::stop() returns (boolean) {
     return stopHubService(self.hubUrl);
 }
 
-public function WebSubHub::publishUpdate(string topic, json payload) returns error? {
+public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+                                         string? contentType = ()) returns error? {
+
     if (self.hubUrl == "") {
-        error webSubError = {message:"Internal Ballerina Hub not initialized or incorrectly referenced"};
+        error webSubError = {message: "Internal Ballerina Hub not initialized or incorrectly referenced"};
         return webSubError;
     }
-    return validateAndPublishToInternalHub(self.hubUrl, topic, payload);
+
+    http:Request request = new;
+    request.setPayload(payload);
+    match (contentType) {
+        string contentTypeValue => request.setHeader(CONTENT_TYPE, contentTypeValue);
+        () => {}
+    }
+    return validateAndPublishToInternalHub(self.hubUrl, topic, request);
 }
 
 public function WebSubHub::registerTopic(string topic) returns error? {
