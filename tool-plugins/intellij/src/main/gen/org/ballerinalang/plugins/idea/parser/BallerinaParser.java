@@ -2332,7 +2332,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter?
+  // function LEFT_PARENTHESIS (ParameterTypeNameList | ParameterList)? RIGHT_PARENTHESIS ReturnParameter?
   public static boolean FunctionTypeName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionTypeName")) return false;
     if (!nextTokenIs(b, FUNCTION)) return false;
@@ -2347,20 +2347,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // (ParameterList | ParameterTypeNameList)?
+  // (ParameterTypeNameList | ParameterList)?
   private static boolean FunctionTypeName_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionTypeName_2")) return false;
     FunctionTypeName_2_0(b, l + 1);
     return true;
   }
 
-  // ParameterList | ParameterTypeNameList
+  // ParameterTypeNameList | ParameterList
   private static boolean FunctionTypeName_2_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionTypeName_2_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = ParameterList(b, l + 1);
-    if (!r) r = ParameterTypeNameList(b, l + 1);
+    r = ParameterTypeNameList(b, l + 1);
+    if (!r) r = ParameterList(b, l + 1);
     exit_section_(b, m, null, r);
     return r;
   }

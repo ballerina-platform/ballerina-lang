@@ -380,7 +380,7 @@ TableTypeName ::= table (LT NameReference GT)? {pin=1}
 StreamTypeName ::= stream (LT TypeName GT)? {pin=1}
 
 // Todo - Pin 1?
-FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterList | ParameterTypeNameList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
+FunctionTypeName ::= function LEFT_PARENTHESIS (ParameterTypeNameList | ParameterList)? RIGHT_PARENTHESIS ReturnParameter? {pin=3}
 
 XmlNamespaceName ::= QUOTED_STRING_LITERAL
 
