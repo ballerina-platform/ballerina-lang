@@ -52,6 +52,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaArrayTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaAssignmentStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaBuiltInReferenceTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaCallableUnitSignature;
+import org.ballerinalang.plugins.idea.psi.BallerinaCatchClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaCompletePackageName;
 import org.ballerinalang.plugins.idea.psi.BallerinaCompositeElement;
 import org.ballerinalang.plugins.idea.psi.BallerinaEndpointDefinition;
@@ -801,6 +802,9 @@ public class BallerinaPsiImplUtil {
                 } else if (parent instanceof BallerinaParameterWithType) {
                     return CachedValueProvider.Result.create(
                             getTypeNameFromParameter(((BallerinaParameterWithType) parent)), variableReference);
+                } else if (parent instanceof BallerinaCatchClause) {
+                    return CachedValueProvider.Result.create(
+                            ((BallerinaCatchClause) parent).getTypeName(), variableReference);
                 } else if (parent instanceof BallerinaNamedPattern) {
                     BallerinaNamedPattern ballerinaNamedPattern = (BallerinaNamedPattern) parent;
                     BallerinaTypeName typeName = ballerinaNamedPattern.getTypeName();
