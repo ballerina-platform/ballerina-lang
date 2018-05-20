@@ -1079,6 +1079,17 @@ public class BallerinaPsiImplUtil {
     }
 
     @Nullable
+    public static PsiElement resolveTypeToDefinition(@NotNull BallerinaTypeName typeName) {
+        return CachedValuesManager.getCachedValue(typeName, () -> {
+            PsiReference reference = typeName.findReferenceAt(typeName.getTextLength());
+            if (reference == null) {
+                return CachedValueProvider.Result.create(null, typeName);
+            }
+            return CachedValueProvider.Result.create(reference.resolve(), typeName);
+        });
+    }
+
+    @Nullable
     private static PsiElement getTypeFromTypeName(@NotNull BallerinaTypeName type) {
         return CachedValuesManager.getCachedValue(type, () -> {
             PsiReference reference = type.findReferenceAt(type.getTextLength());
