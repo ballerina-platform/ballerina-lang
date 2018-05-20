@@ -1233,6 +1233,34 @@ public class BallerinaPsiImplUtil {
     }
 
     @Nullable
+    public static BallerinaTypeName liftErrorAndGetType(@NotNull BallerinaUnionTypeName ballerinaTypeName) {
+        return CachedValuesManager.getCachedValue(ballerinaTypeName, () -> {
+            List<BallerinaTypeName> typeNameList = ballerinaTypeName.getTypeNameList();
+            if (typeNameList.size() != 2) {
+                return CachedValueProvider.Result.create(null, ballerinaTypeName);
+            }
+            BallerinaTypeName typeName1 = typeNameList.get(0);
+            if (!(typeName1 instanceof BallerinaSimpleTypeName)) {
+                return CachedValueProvider.Result.create(null, ballerinaTypeName);
+            }
+            BallerinaTypeName typeName2 = typeNameList.get(1);
+            if (!(typeName2 instanceof BallerinaSimpleTypeName)) {
+                return CachedValueProvider.Result.create(null, ballerinaTypeName);
+            }
+
+            BallerinaSimpleTypeName simpleTypeName1 = (BallerinaSimpleTypeName) typeName1;
+            BallerinaSimpleTypeName simpleTypeName2 = (BallerinaSimpleTypeName) typeName2;
+            if (simpleTypeName1.getReferenceTypeName() != null && "error".equals(simpleTypeName2.getText())) {
+                return CachedValueProvider.Result.create(typeName1, ballerinaTypeName);
+            }
+            if ("error".equals(simpleTypeName2.getText()) && simpleTypeName2.getReferenceTypeName() != null) {
+                return CachedValueProvider.Result.create(typeName2, ballerinaTypeName);
+            }
+            return CachedValueProvider.Result.create(null, ballerinaTypeName);
+        });
+    }
+
+    @Nullable
     public static PsiElement getConfigTypeDefinitionFromServiceType(@NotNull BallerinaTypeDefinition serviceType) {
         return CachedValuesManager.getCachedValue(serviceType, () -> {
             BallerinaTypeDefinition listenerType = BallerinaPsiImplUtil.getReturnTypeFromObjectFunction(serviceType,

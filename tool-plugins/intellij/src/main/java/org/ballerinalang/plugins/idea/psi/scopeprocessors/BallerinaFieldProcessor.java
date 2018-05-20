@@ -39,6 +39,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaSimpleTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaUnionTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReference;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -150,6 +151,15 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                     PsiElement identifier = BallerinaPsiImplUtil.resolveTypeToDefinition(nillableType);
                     if (identifier != null && identifier.getParent() instanceof BallerinaTypeDefinition) {
                         processTypeDefinition(((BallerinaTypeDefinition) identifier.getParent()), identifier);
+                    }
+                } else if (type instanceof BallerinaUnionTypeName) {
+                    BallerinaTypeName typeName =
+                            BallerinaPsiImplUtil.liftErrorAndGetType(((BallerinaUnionTypeName) type));
+                    if (typeName != null) {
+                        PsiElement identifier = BallerinaPsiImplUtil.resolveTypeToDefinition(typeName);
+                        if (identifier != null && identifier.getParent() instanceof BallerinaTypeDefinition) {
+                            processTypeDefinition(((BallerinaTypeDefinition) identifier.getParent()), identifier);
+                        }
                     }
                 }
 
