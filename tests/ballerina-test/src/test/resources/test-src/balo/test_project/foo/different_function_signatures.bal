@@ -52,49 +52,49 @@ public function funcWithNilDefaultParamExpr_1(string? s = null) returns string? 
     return s;
 }
 
-// type Student {
-//     int a;
-// };
+public type Student {
+    int a;
+};
 
-// function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? {
-//     return s;
-// }
+public function funcWithNilDefaultParamExpr_2(Student? s = ()) returns Student? {
+    return s;
+}
 
 
 // ------------------- Test function signature for attached functions ------------------
 
-// public type Employee object {
-//
-//     public {
-//         string name;
-//         int salary;
-//     }
-//
-//     new (name = "supun", salary = 100) {
-//     }
-//
-//     public function getSalary (string name, int bonus = 0) returns int {
-//         return salary + bonus;
-//     }
-// };
+public type Employee object {
+
+    public {
+        string name;
+        int salary;
+    }
+
+    public new (name = "supun", salary = 100) {
+    }
+
+    public function getSalary (string name, int bonus = 0) returns int {
+        return salary + bonus;
+    }
+};
 
 
-// type Person object {
-//     public {
-//         int age,
-//     }
-//
-//     function test1(int age = 77, string name = "inner default") returns (int, string);
+public type Person object {
+    public {
+        int age,
+    }
 
-//     function test2(int age = 89, string name = "hello") returns (int, string) {
-//         string val = name + " world";
-//         int intVal = age + 10;
-//         return (intVal, val);
-//     }
-// };
+    public function test1(int age = 77, string name = "inner default") returns (int, string);
 
-// function Person::test1(int age = 77, string name = "hello") returns (int, string) {
-//     string val = name + " world";
-//     int intVal = age + 10;
-//     return (intVal, val);
-// }
+    public function test2(int age = 89, string name = "hello") returns (int, string) {
+        string val = name + " world";
+        int intVal = age + 10;
+        return (intVal, val);
+    }
+};
+
+public function Person::test1(int age = 77, string name = "hello") returns (int, string) {
+    string val = name + " world";
+    int intVal = age + 10;
+    return (intVal, val);
+}
