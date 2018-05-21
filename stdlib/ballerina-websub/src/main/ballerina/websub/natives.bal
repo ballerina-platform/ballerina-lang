@@ -56,10 +56,10 @@ documentation {
     Publishes an update against the topic in the Ballerina Hub.
 
     P{{topic}} The topic for which the update should happen
-    P{{request}} The request to send to subscribers, with the payload and content-type header set
+    P{{content}} The content to send to subscribers, with the payload and content-type specified
     R{{}} `error` if an error occurred during publishing
 }
-native function publishToInternalHub(string topic, http:Request request) returns error?;
+native function publishToInternalHub(string topic, WebSubContent content) returns error?;
 
 documentation {
     Removes a subscription added for the specified topic in the Ballerina Hub.
@@ -112,7 +112,7 @@ documentation {
 
     P{{hubUrl}} The URL of the Ballerina WebSub Hub as included in the WebSubHub struct
     P{{topic}} The topic for which the update should happen
-    P{{request}} The request to send to subscribers, with the payload and content-type header set
+    P{{content}} The content to send to subscribers, with the payload and content-type specified
     R{{}} `error` if an error occurred during publishing
 }
-native function validateAndPublishToInternalHub(string hubUrl, string topic, http:Request request) returns error?;
+native function validateAndPublishToInternalHub(string hubUrl, string topic, WebSubContent content) returns error?;

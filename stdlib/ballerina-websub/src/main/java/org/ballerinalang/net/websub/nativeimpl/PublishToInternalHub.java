@@ -38,7 +38,7 @@ import org.ballerinalang.net.websub.hub.Hub;
         orgName = "ballerina", packageName = "websub",
         functionName = "publishToInternalHub",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
-                @Argument(name = "request", type = TypeKind.STRUCT)},
+                @Argument(name = "content", type = TypeKind.STRUCT)},
         returnType = {@ReturnType(type = TypeKind.STRUCT)},
         isPublic = true
 )
@@ -47,9 +47,9 @@ public class PublishToInternalHub extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String topic = context.getStringArgument(0);
-        BStruct request = (BStruct) context.getRefArgument(0);
+        BStruct content = (BStruct) context.getRefArgument(0);
         try {
-            Hub.getInstance().publish(topic, request);
+            Hub.getInstance().publish(topic, content);
             context.setReturnValues();
         } catch (BallerinaWebSubException e) {
             context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));

@@ -40,7 +40,7 @@ import org.ballerinalang.net.websub.hub.Hub;
         functionName = "validateAndPublishToInternalHub",
         args = {@Argument(name = "hubUrl", type = TypeKind.STRING),
                 @Argument(name = "topic", type = TypeKind.STRING),
-                @Argument(name = "payload", type = TypeKind.STRUCT)},
+                @Argument(name = "content", type = TypeKind.STRUCT)},
         returnType = {@ReturnType(type = TypeKind.STRUCT)}
 )
 public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit {
@@ -49,11 +49,11 @@ public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit 
     public void execute(Context context) {
         String hubUrl = context.getStringArgument(0);
         String topic = context.getStringArgument(1);
-        BStruct request = (BStruct) context.getRefArgument(0);
+        BStruct content = (BStruct) context.getRefArgument(0);
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted() && hubInstance.retrieveHubUrl().equals(hubUrl)) {
             try {
-                Hub.getInstance().publish(topic, request);
+                Hub.getInstance().publish(topic, content);
                 context.setReturnValues();
             } catch (BallerinaWebSubException e) {
                 context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));

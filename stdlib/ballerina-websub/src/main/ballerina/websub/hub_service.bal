@@ -146,7 +146,6 @@ service<http:Service> hubService {
 
             if (mode == MODE_PUBLISH && hubRemotePublishingEnabled) {
                 if (!hubTopicRegistrationRequired || isTopicRegistered(topic)) {
-                    http:Request notificationRequest = new;
                     blob|error binaryPayload;
                     string stringPayload;
                     string contentType;
@@ -202,8 +201,12 @@ service<http:Service> hubService {
                         }
                     }
 
+                    error? publishStatus = ();
                     match (binaryPayload) {
-                        blob payload => notificationRequest.setBinaryPayload(payload);
+                        blob payload => {
+                            WebSubContent notification = { payload:payload, contentType:contentType };
+                            publishStatus = publishToInternalHub(topic, notification);
+                        }
                         error err => {
                             string errorMessage = "Error extracting payload: " + err.message;
                             log:printError(errorMessage);
@@ -213,10 +216,8 @@ service<http:Service> hubService {
                             done;
                         }
                     }
-                    if (contentType != "") {
-                        notificationRequest.setHeader(CONTENT_TYPE, contentType);
-                    }
-                    match(publishToInternalHub(topic, notificationRequest)) {
+
+                    match(publishStatus) {
                         error err => {
                             string errorMessage = "Event notification failed for Topic [" + topic + "]: "
                                                     + err.message;
@@ -544,13 +545,17 @@ documentation {
 
     P{{callback}} The callback URL registered for the subscriber
     P{{subscriptionDetails}} The subscription details for the particular subscriber
-    P{{request}} The request to send to subscribers, with the payload and content-type header set
+    P{{webSubContent}} The content to be sent to subscribers
 }
-function distributeContent(string callback, SubscriptionDetails subscriptionDetails, http:Request request) {
+function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent) {
     endpoint http:Client callbackEp {
         url:callback,
         secureSocket:secureSocket
     };
+
+    http:Request request = new;
+    request.setPayload(webSubContent.payload);
+    request.setContentType(webSubContent.contentType);
 
     int currentTime = time:currentTime().time;
     int createdAt = subscriptionDetails.createdAt;

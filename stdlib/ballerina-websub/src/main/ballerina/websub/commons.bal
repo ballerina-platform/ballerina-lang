@@ -409,13 +409,22 @@ public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:B
         return webSubError;
     }
 
-    http:Request request = new;
-    request.setPayload(payload);
-    match (contentType) {
-        string contentTypeValue => request.setHeader(CONTENT_TYPE, contentTypeValue);
-        () => {}
+    WebSubContent content = { payload:payload };
+
+    match(contentType) {
+        string contentType => content.contentType = contentType;
+        () => {
+            match(payload) {
+                string => content.contentType = mime:TEXT_PLAIN;
+                xml => content.contentType = mime:APPLICATION_XML;
+                json => content.contentType = mime:APPLICATION_JSON;
+                blob => content.contentType = mime:APPLICATION_OCTET_STREAM;
+                io:ByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
+            }
+        }
     }
-    return validateAndPublishToInternalHub(self.hubUrl, topic, request);
+
+    return validateAndPublishToInternalHub(self.hubUrl, topic, content);
 }
 
 public function WebSubHub::registerTopic(string topic) returns error? {
@@ -474,3 +483,14 @@ function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns Subs
     }
     return;
 }
+
+documentation {
+    Record to represent a WebSub content delivery.
+
+    F{{payload}} The payload to be sent
+    F{{contentType}} The content-type of the payload
+}
+type WebSubContent {
+    string|xml|json|blob|io:ByteChannel payload,
+    string contentType,
+};

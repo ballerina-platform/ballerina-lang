@@ -54,9 +54,9 @@ class HubSubscriber extends Consumer {
     @Override
     protected void send(Message message) throws BrokerException {
         ProgramFile programFile = Hub.getInstance().getHubProgramFile();
-        BStruct request = (BStruct) (
-                (BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-        BValue[] args = {new BString(callback), subscriptionDetails, request};
+        BValue content =
+                ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
+        BValue[] args = {new BString(callback), subscriptionDetails, content};
         BLangFunctions.invokeCallable(programFile.getPackageInfo(WEBSUB_PACKAGE)
                                      .getFunctionInfo("distributeContent"), args);
     }
