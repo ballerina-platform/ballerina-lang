@@ -1,0 +1,1 @@
+//Ballerina supports HTTP input and output streaming capability through io:ByteChannel.
