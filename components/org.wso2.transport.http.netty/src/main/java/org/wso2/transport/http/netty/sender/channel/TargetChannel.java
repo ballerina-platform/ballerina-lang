@@ -228,7 +228,7 @@ public class TargetChannel {
 
             writeOutboundRequestBody(httpContent);
 
-            resetState(httpOutboundRequest);
+            resetState();
 
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
@@ -274,8 +274,7 @@ public class TargetChannel {
         });
     }
 
-    public void resetState(HTTPCarbonMessage httpOutboundRequest) {
-        httpOutboundRequest.removeHttpContentAsyncFuture();
+    public void resetState() {
         contentList.clear();
         contentLength = 0;
     }

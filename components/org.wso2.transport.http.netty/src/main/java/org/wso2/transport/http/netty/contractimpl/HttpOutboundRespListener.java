@@ -155,7 +155,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtSourceResponseSending(outboundResponseMsg);
             }
-            resetState(outboundResponseMsg);
+            resetState();
         } else {
             if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (
                     isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) ||
@@ -206,8 +206,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture);
     }
 
-    private void resetState(HTTPCarbonMessage outboundResponseMsg) {
-        outboundResponseMsg.removeHttpContentAsyncFuture();
+    private void resetState() {
         contentList.clear();
         contentLength = 0;
         headerWritten = false;
