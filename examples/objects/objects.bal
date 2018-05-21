@@ -5,6 +5,8 @@ type Person object {
     public {
         int age,
         string name,
+        // If you need to have a field with own type, then you need to make that field defaultable, here we have made 'parent' field defaultable by making it nullable.
+        Person? parent,
     }
     private {
         string email = "default@abc.com",
