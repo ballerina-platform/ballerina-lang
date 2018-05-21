@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TableLiteralNode;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 /**
@@ -30,13 +29,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 public class BLangTableLiteral extends BLangExpression implements TableLiteralNode {
 
     public BLangExpression configurationExpr;
-
-    public BLangTableLiteral() {
-    }
-
-    public BLangTableLiteral(BType tableType) {
-        this.type = tableType;
-    }
 
     @Override
     public ExpressionNode getConfigurationExpression() {

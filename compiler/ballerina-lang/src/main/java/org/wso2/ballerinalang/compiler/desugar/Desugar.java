@@ -982,6 +982,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
+        if (tableLiteral.configurationExpr == null) {
+            tableLiteral.configurationExpr = ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.nilType, null);
+        }
         tableLiteral.configurationExpr = rewriteExpr(tableLiteral.configurationExpr);
         result = tableLiteral;
     }
@@ -2345,7 +2348,9 @@ public class Desugar extends BLangNodeVisitor {
                 return new BLangStreamLiteral(type, varNode.name);
             case TypeTags.TABLE:
                 if (((BTableType) type).getConstraint().tag == TypeTags.STRUCT) {
-                    return new BLangTableLiteral(type);
+                    BLangTableLiteral table = new BLangTableLiteral();
+                    table.type = type;
+                    return rewriteExpr(table);
                 }
                 break;
             case TypeTags.STRUCT:
