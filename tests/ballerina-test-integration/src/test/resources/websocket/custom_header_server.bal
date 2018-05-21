@@ -14,48 +14,33 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/log;
+import ballerina/io;
 import ballerina/http;
 
-endpoint http:Listener ep {
-    port: 9090
-};
+@final string CUSTOM_HEADER = "X-some-header";
 
-service<http:Service> simple bind ep {
+service<http:Service> simple bind { port: 9090 } {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
-            upgradePath: "/cancel",
+            upgradePath: "/custom/header/server",
             upgradeService: simpleProxy
         }
     }
-    websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
-        httpEp->cancelWebSocketUpgrade(404, "Cannot proceed") but {
-            error e => log:printError("Error sending message", err = e)
-        };
-
+    websocketProxy(endpoint httpEp, http:Request req) {
+        endpoint http:WebSocketListener wsServiceEp;
+        wsServiceEp = httpEp->acceptWebSocketUpgrade({ "X-some-header": "some-header-value" });
+        wsServiceEp.attributes[CUSTOM_HEADER] = req.getHeader(CUSTOM_HEADER);
     }
 }
 
 service<http:WebSocketService> simpleProxy {
 
-    onOpen(endpoint wsEp) {
-    }
-}
-
-service<http:Service> cannotcancel bind ep {
-
-    @http:ResourceConfig {
-        webSocketUpgrade: {
-            upgradePath: "/cannot/cancel",
-            upgradeService: simpleProxy
+    onText(endpoint wsEp, string text) {
+        if (text == "custom-headers"){
+            wsEp->pushText(<string>wsEp.attributes[CUSTOM_HEADER]) but {
+                error e => io:println("Error sending message. " + e.message)
+            };
         }
     }
-    websocketProxy(endpoint httpEp, http:Request req, string path1, string path2) {
-        httpEp->cancelWebSocketUpgrade(200, "Cannot proceed") but {
-            error e => log:printError("Error sending message", err = e)
-        };
-
-    }
 }
-

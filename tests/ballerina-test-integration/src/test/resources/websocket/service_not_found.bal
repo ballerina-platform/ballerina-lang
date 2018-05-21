@@ -17,14 +17,10 @@
 import ballerina/log;
 import ballerina/http;
 
-endpoint http:Listener ep {
-    port:9090
-};
-
 @http:ServiceConfig {
     basePath: "/proxy"
 }
-service<http:Service> simple bind ep {
+service<http:Service> simple bind { port: 9090 } {
 
     @http:ResourceConfig {
         webSocketUpgrade: {
