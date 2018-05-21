@@ -32,6 +32,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
 import org.ballerinalang.plugins.idea.psi.BallerinaOrgName;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageName;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaResourceDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -81,9 +82,11 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             if (orgName != null) {
                 continue;
             }
-
             BallerinaPackageName packageNameNode = PsiTreeUtil.getParentOfType(identifier, BallerinaPackageName.class);
             if (packageNameNode != null) {
+                continue;
+            }
+            if (identifier.getParent() instanceof BallerinaResourceDefinition) {
                 continue;
             }
             BallerinaVariableReferenceList variableReferenceList = PsiTreeUtil.getParentOfType(identifier,

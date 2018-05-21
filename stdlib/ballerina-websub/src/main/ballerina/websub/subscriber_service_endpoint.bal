@@ -118,7 +118,6 @@ public function Listener::init(SubscriberServiceEndpointConfiguration config) {
 }
 
 public function Listener::register(typedesc serviceType) {
-    self.serviceEndpoint.register(serviceType);
     self.registerWebSubSubscriberServiceEndpoint(serviceType);
 }
 

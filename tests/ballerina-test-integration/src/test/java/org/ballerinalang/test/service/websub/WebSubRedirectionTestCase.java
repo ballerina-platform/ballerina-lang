@@ -118,12 +118,12 @@ public class WebSubRedirectionTestCase extends IntegrationTestCase {
 
     @Test
     public void testTopicMovedPermanentlyAndHubTemporaryRedirect() throws BallerinaTestException, InterruptedException {
-        intentVerificationLogLeecherOne.waitForText(10000);
+        intentVerificationLogLeecherOne.waitForText(30000);
     }
 
     @Test
     public void testTopicRedirectFoundAndHubPermanentRedirect() throws BallerinaTestException, InterruptedException {
-        intentVerificationLogLeecherTwo.waitForText(10000);
+        intentVerificationLogLeecherTwo.waitForText(30000);
     }
 
     @AfterClass
