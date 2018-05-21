@@ -96,6 +96,21 @@ goto end
 :doneStart
 if "%OS%"=="Windows_NT" @setlocal
 if "%OS%"=="WINNT" @setlocal
+rem find the version of the jdk
+:findJdk
+
+set CMD=RUN %*
+
+:checkJdk18
+"%JAVA_HOME%\bin\java" -version 2>&1 | findstr /r "1.[8|9]" >NUL
+IF ERRORLEVEL 1 goto unknownJdk
+goto jdk18
+
+:unknownJdk
+echo Ballerina is supported only on JDK 1.8 and above
+goto end
+
+:jdk18
 goto runServer
 
 
