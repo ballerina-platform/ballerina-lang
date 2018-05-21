@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.util;
 
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BRefType;
@@ -84,7 +85,7 @@ public class TableProvider {
     }
 
 
-    public String createTable(String fromTableName, String joinTableName,  String query, BStructType tableType,
+    public String createTable(String fromTableName, String joinTableName,  String query, BStructureType tableType,
                               BRefValueArray params) {
         String newTableName = TableConstants.TABLE_PREFIX + tableType.getName().toUpperCase()
                            + "_" + getTableID();
@@ -97,7 +98,7 @@ public class TableProvider {
         return newTableName;
     }
 
-    public String createTable(String fromTableName, String query, BStructType tableType,
+    public String createTable(String fromTableName, String query, BStructureType tableType,
                               BRefValueArray params) {
         return createTable(fromTableName, null, query, tableType, params);
     }
@@ -118,7 +119,7 @@ public class TableProvider {
         executeStatement(sqlStmt);
     }
 
-    public TableIterator createIterator(String tableName, BStructType type) {
+    public TableIterator createIterator(String tableName, BStructureType type) {
         TableIterator itr;
         Statement stmt = null;
         Connection conn = this.getConnection();
@@ -149,9 +150,9 @@ public class TableProvider {
     private String generateCreateTableStatment(String tableName, BType constrainedType, BStringArray primaryKeys) {
         StringBuilder sb = new StringBuilder();
         sb.append(TableConstants.SQL_CREATE).append(tableName).append(" (");
-        BStructType.StructField[] structFields = ((BStructType) constrainedType).getStructFields();
+        BField[] structFields = ((BStructureType) constrainedType).getFields();
         String seperator = "";
-        for (BStructType.StructField sf : structFields) {
+        for (BField sf : structFields) {
             int type = sf.getFieldType().getTag();
             String name = sf.getFieldName();
             sb.append(seperator).append(name).append(" ");

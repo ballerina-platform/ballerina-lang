@@ -30,7 +30,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -452,7 +452,7 @@ public class MimeUtil {
      */
     public static BStruct createEntityError(Context context, String msg) {
         PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+        StructureTypeInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         BStruct genericError = new BStruct(entityErrInfo.getType());
         genericError.setStringField(0, msg);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
@@ -467,7 +467,7 @@ public class MimeUtil {
      */
     public static BStruct getParserError(Context context, String errMsg) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
 
         BStruct parserError = new BStruct(errorStructInfo.getType());
         parserError.setStringField(0, errMsg);

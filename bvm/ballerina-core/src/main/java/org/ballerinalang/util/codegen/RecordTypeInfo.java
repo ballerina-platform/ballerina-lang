@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,21 +15,28 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.util.codegen;
 
-import java.util.List;
+import org.ballerinalang.model.types.BRecordType;
 
 /**
- * @since 0.94
+ * {@code RecordTypeInfo} contains metadata of a Ballerina record entry in the program file.
+ *
+ * @since 0.971.0
  */
-public interface StructNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
-    
-    IdentifierNode getName();
-    
-    void setName(IdentifierNode name);
+public class RecordTypeInfo extends StructureTypeInfo {
 
-    List<? extends VariableNode> getFields();
-    
-    void addField(VariableNode field);
-    
+    private BRecordType recordType;
+
+    public RecordTypeInfo() {
+    }
+
+    public BRecordType getType() {
+        return recordType;
+    }
+
+    public void setType(BRecordType structType) {
+        this.recordType = structType;
+    }
+
 }

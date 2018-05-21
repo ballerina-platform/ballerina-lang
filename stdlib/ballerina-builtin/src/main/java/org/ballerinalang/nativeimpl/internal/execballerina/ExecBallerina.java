@@ -46,7 +46,7 @@ import java.util.Properties;
         args = {@Argument(name = "command", type = TypeKind.STRING),
                 @Argument(name = "packagePath", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),
-                      @ReturnType(type = TypeKind.STRUCT)},
+                      @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class ExecBallerina extends BlockingNativeCallableUnit {

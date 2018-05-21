@@ -15,21 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
-
-import java.util.List;
+package org.ballerinalang.model.types;
 
 /**
- * @since 0.970.0
+ * {@code ObjectType} represents the type of a object in Ballerina.
+ *
+ * @since 0.971.0
  */
-public interface RecordNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
-    
-    IdentifierNode getName();
-    
-    void setName(IdentifierNode name);
-
-    List<? extends VariableNode> getFields();
-
-    void addField(VariableNode field);
-    
+public interface ObjectType extends ReferenceType {
 }

@@ -27,11 +27,8 @@ import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.ImportPackageNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.ObjectNode;
 import org.ballerinalang.model.tree.PackageNode;
-import org.ballerinalang.model.tree.RecordNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.StructNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.TypeDefinition;
@@ -61,12 +58,9 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public List<BLangService> services;
     public List<BLangConnector> connectors;
     public List<BLangFunction> functions;
-    public List<BLangStruct> structs;
-    public List<BLangObject> objects;
     public List<BLangTypeDefinition> typeDefinitions;
     public List<BLangEnum> enums;
     public List<BLangAnnotation> annotations;
-    public List<BLangRecord> records;
     public BLangFunction initFunction, startFunction, stopFunction;
     public Set<CompilerPhase> completedPhases;
     public List<BLangTransformer> transformers;
@@ -91,9 +85,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
         this.services = new ArrayList<>();
         this.connectors = new ArrayList<>();
         this.functions = new ArrayList<>();
-        this.structs = new ArrayList<>();
-        this.objects = new ArrayList<>();
-        this.records = new ArrayList<>();
         this.typeDefinitions = new ArrayList<>();
         this.enums = new ArrayList<>();
         this.annotations = new ArrayList<>();
@@ -151,16 +142,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public List<BLangStruct> getStructs() {
-        return structs;
-    }
-
-    @Override
-    public List<BLangObject> getObjects() {
-        return objects;
-    }
-
-    @Override
     public List<BLangTypeDefinition> getTypeDefinitions() {
         return typeDefinitions;
     }
@@ -178,11 +159,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     @Override
     public List<? extends TransformerNode> getTransformers() {
         return transformers;
-    }
-
-    @Override
-    public List<BLangRecord> getRecords() {
-        return records;
     }
 
     @Override
@@ -226,18 +202,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     }
 
     @Override
-    public void addStruct(StructNode struct) {
-        this.structs.add((BLangStruct) struct);
-        this.topLevelNodes.add(struct);
-    }
-
-    @Override
-    public void addObject(ObjectNode object) {
-        this.objects.add((BLangObject) object);
-        this.topLevelNodes.add(object);
-    }
-
-    @Override
     public void addEnum(EnumNode enumNode) {
         this.enums.add((BLangEnum) enumNode);
         this.topLevelNodes.add(enumNode);
@@ -253,12 +217,6 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public void addTransformer(TransformerNode transformer) {
         this.transformers.add((BLangTransformer) transformer);
         this.topLevelNodes.add(transformer);
-    }
-
-    @Override
-    public void addRecord(RecordNode recordNode) {
-        this.records.add((BLangRecord) recordNode);
-        this.topLevelNodes.add(recordNode);
     }
 
     @Override

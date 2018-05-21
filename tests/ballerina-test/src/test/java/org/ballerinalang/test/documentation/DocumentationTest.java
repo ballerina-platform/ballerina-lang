@@ -30,13 +30,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
@@ -56,7 +54,8 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangObject) packageNode.getObjects().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangTypeDefinition) packageNode
+                .getTypeDefinitions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
@@ -119,7 +118,8 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangRecord) packageNode.getRecords().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangTypeDefinition) packageNode
+                .getTypeDefinitions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test type\n");
@@ -158,7 +158,7 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(2).documentationText, " success or not\n");
         Assert.assertEquals(dNode.getAttributes().get(2).type.tag, TypeTags.BOOLEAN);
 
-        docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        docNodes = ((BLangTypeDefinition) packageNode.getTypeDefinitions().get(0)).docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for File type\n");
@@ -284,7 +284,7 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
-        BLangObject connector = (BLangObject) packageNode.getObjects().get(0);
+        BLangTypeDefinition connector = (BLangTypeDefinition) packageNode.getTypeDefinitions().get(0);
         List<BLangDocumentation> docNodes = connector.docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
@@ -296,14 +296,16 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "path");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationText, " path for endpoint\n");
 
-        dNode = ((BLangFunction) connector.getFunctions().get(0)).docAttachments.get(0);
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) connector.typeNode;
+
+        dNode = objectTypeNode.getFunctions().get(0).docAttachments.get(0);
         Assert.assertEquals(dNode.getAttributes().size(), 1);
         Assert.assertEquals(dNode.documentationText, "Test Connector action testAction ");
         Assert.assertEquals(dNode.getAttributes().get(0).docTag, DocTag.RETURN);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "value");
         Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " whether successful or not");
 
-        dNode = ((BLangFunction) connector.getFunctions().get(1)).docAttachments.get(0);
+        dNode = objectTypeNode.getFunctions().get(1).docAttachments.get(0);
         Assert.assertEquals(dNode.documentationText, "Test Connector action testSend ");
         Assert.assertEquals(dNode.getAttributes().size(), 2);
         Assert.assertEquals(dNode.getAttributes().get(0).docTag, DocTag.PARAM);
@@ -353,7 +355,8 @@ public class DocumentationTest {
         Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
         PackageNode packageNode = compileResult.getAST();
 
-        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangTypeDefinition) packageNode
+                .getTypeDefinitions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Tst struct\n");
@@ -442,8 +445,8 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.documentationText, "\n" + "  This function is deprecated use `openFile(string " +
                 "accessMode){}` instead.\n");
 
-        dNodes = ((BLangStruct) packageNode.getStructs().stream().filter(node -> node.getName().getValue().equals
-                ("File")).findFirst().get()).deprecatedAttachments;
+        dNodes = ((BLangTypeDefinition) packageNode.getTypeDefinitions().stream()
+                .filter(node -> node.getName().getValue().equals("File")).findFirst().get()).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, "\n" + "  This Struct is deprecated use `File2` instead.\n");

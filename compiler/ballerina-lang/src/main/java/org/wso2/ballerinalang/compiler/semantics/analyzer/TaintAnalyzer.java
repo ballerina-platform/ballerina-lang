@@ -49,12 +49,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -153,6 +150,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -272,7 +271,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
-        /* ignore */
+        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
+            || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+            typeDefinition.typeNode.accept(this);
+        }
     }
 
     @Override
@@ -350,14 +352,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangStruct structNode) {
-        BSymbol structSymbol = structNode.symbol;
-        SymbolEnv structEnv = SymbolEnv.createPkgLevelSymbolEnv(structNode, structSymbol.scope, env);
-        structNode.fields.forEach(field -> analyzeNode(field, structEnv));
-    }
-
-    @Override
-    public void visit(BLangObject objectNode) {
+    public void visit(BLangObjectTypeNode objectNode) {
         BSymbol objectSymbol = objectNode.symbol;
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(objectNode, objectSymbol.scope, env);
         objectNode.fields.forEach(field -> analyzeNode(field, objectEnv));
@@ -366,7 +361,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangRecord recordNode) {
+    public void visit(BLangRecordTypeNode recordNode) {
         BSymbol objectSymbol = recordNode.symbol;
         SymbolEnv objectEnv = SymbolEnv.createPkgLevelSymbolEnv(recordNode, objectSymbol.scope, env);
         recordNode.fields.forEach(field -> analyzeNode(field, objectEnv));
@@ -906,7 +901,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         BType varRefType = fieldAccessExpr.expr.type;
         switch (varRefType.tag) {
-            case TypeTags.STRUCT:
+            case TypeTags.OBJECT:
+                fieldAccessExpr.expr.accept(this);
+                break;
+            case TypeTags.RECORD:
                 fieldAccessExpr.expr.accept(this);
                 break;
             case TypeTags.MAP:

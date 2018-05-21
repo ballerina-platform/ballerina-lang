@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -15,27 +15,23 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.types;
+package org.ballerinalang.model.tree.types;
 
-import org.ballerinalang.model.Name;
+import org.ballerinalang.model.tree.VariableNode;
 
 import java.util.List;
 
 /**
- * {@code StructType} represents the type of a struct in Ballerina.
+ * {@code BLangRecordTypeNode} represents a record type node in Ballerina
+ * <p>
+ * e.g. record { int a; string name; };
  *
- * @since 0.94
+ * @since 0.971.0
  */
-public interface StructType extends ReferenceType {
+public interface RecordTypeNode extends ReferenceTypeNode {
+    
+    List<? extends VariableNode> getFields();
 
-    /**
-     * @since 0.94
-     */
-    interface Field {
-        Name getName();
-
-        Type getType();
-    }
-
-    List<? extends Field> getFields();
+    void addField(VariableNode field);
+    
 }

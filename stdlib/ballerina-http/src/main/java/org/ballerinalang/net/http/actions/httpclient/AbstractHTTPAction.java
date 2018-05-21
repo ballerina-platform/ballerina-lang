@@ -29,7 +29,7 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.http.AcceptEncodingConfig;
@@ -38,7 +38,7 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.ballerinalang.util.observability.ObservabilityUtils;
@@ -502,8 +502,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     protected BStruct createStruct(Context context, String structName, String protocolPackage) {
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(protocolPackage);
-        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
+        StructureTypeInfo structInfo = httpPackageInfo.getStructInfo(structName);
+        BStructureType structType = structInfo.getType();
         return new BStruct(structType);
     }
 

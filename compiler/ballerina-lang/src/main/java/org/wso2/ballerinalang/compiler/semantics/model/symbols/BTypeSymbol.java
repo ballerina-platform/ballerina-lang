@@ -41,4 +41,9 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
         }
         return this.pkgID.bvmAlias() + ":" + this.name;
     }
+
+    @Override
+    public BTypeSymbol copy() {
+        return Symbols.createTypeSymbol(SymTag.TYPE_DEF, flags, Names.EMPTY, pkgID, type, owner);
+    }
 }

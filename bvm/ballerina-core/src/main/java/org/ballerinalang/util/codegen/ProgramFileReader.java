@@ -19,13 +19,17 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BAttachedFunction;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BObjectType;
+import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BServiceType;
 import org.ballerinalang.model.types.BStreamType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -303,7 +307,7 @@ public class ProgramFileReader {
 
                 packageInfoOptional = Optional.ofNullable(
                         programFile.getPackageInfo(packageRefCPEntry.getPackageName()));
-                Optional<StructureTypeInfo> structInfoOptional = packageInfoOptional.map(
+                Optional<CustomTypeInfo> structInfoOptional = packageInfoOptional.map(
                         packageInfo -> packageInfo.getStructureTypeInfo(utf8CPEntry.getValue()));
                 if (!structInfoOptional.isPresent()) {
                     // This must reference to the current package and the current package is not been read yet.
@@ -373,11 +377,8 @@ public class ProgramFileReader {
         // Read import package entries
         readImportPackageInfoEntries(dataInStream, packageInfo);
 
-        // Read struct info entries
-        readStructInfoEntries(dataInStream, packageInfo);
-
-        // Read type definition info entries
-        readTypeDefinitionInfoEntries(dataInStream, packageInfo);
+        // Read type def info entries
+        readTypeDefInfoEntries(dataInStream, packageInfo);
 
         // Read service info entries
         readServiceInfoEntries(dataInStream, packageInfo);
@@ -419,111 +420,173 @@ public class ProgramFileReader {
         }
     }
 
-    private void readStructInfoEntries(DataInputStream dataInStream,
-                                       PackageInfo packageInfo) throws IOException {
-        int structCount = dataInStream.readShort();
-        for (int i = 0; i < structCount; i++) {
-            // Create struct info entry
-            int structNameCPIndex = dataInStream.readInt();
-            int flags = dataInStream.readInt();
-            UTF8CPEntry structNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(structNameCPIndex);
-            String structName = structNameUTF8Entry.getValue();
-            StructInfo structInfo = new StructInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
-                    structNameCPIndex, structName, flags);
-            packageInfo.addStructInfo(structName, structInfo);
-
-            // Set struct type
-            BStructType bStructType = new BStructType(structInfo, structName, packageInfo.getPkgPath(), flags);
-            structInfo.setType(bStructType);
-
-            // Read struct field info entries
-            int structFiledCount = dataInStream.readShort();
-            for (int j = 0; j < structFiledCount; j++) {
-                // Read field name
-                int fieldNameCPIndex = dataInStream.readInt();
-                UTF8CPEntry fieldNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(fieldNameCPIndex);
-
-                // Read field type signature
-                int fieldTypeSigCPIndex = dataInStream.readInt();
-                UTF8CPEntry fieldTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(fieldTypeSigCPIndex);
-
-                int fieldFlags = dataInStream.readInt();
-
-                StructFieldInfo fieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldNameUTF8Entry.getValue(),
-                        fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), fieldFlags);
-                structInfo.addFieldInfo(fieldInfo);
-
-                readAttributeInfoEntries(dataInStream, packageInfo, fieldInfo);
-            }
-
-            String defaultInit = structName + INIT_FUNCTION_SUFFIX;
-            String objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
-
-            // Read attached function info entries
-            int attachedFuncCount = dataInStream.readShort();
-            for (int j = 0; j < attachedFuncCount; j++) {
-                // Read function name
-                int nameCPIndex = dataInStream.readInt();
-                UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
-                String attachedFuncName = nameUTF8Entry.getValue();
-
-                // Read function type signature
-                int typeSigCPIndex = dataInStream.readInt();
-                UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
-
-                int funcFlags = dataInStream.readInt();
-                AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
-                        typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
-                structInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
-
-                // TODO remove when removing struct
-                // Setting the initializer function info, if any.
-                if (structName.equals(attachedFuncName)) {
-                    structInfo.initializer = functionInfo;
-                }
-                // Setting the object initializer
-                if (objectInit.equals(attachedFuncName)) {
-                    structInfo.initializer = functionInfo;
-                }
-
-                // TODO remove when removing struct
-                // Setting the default initializer function info
-                if (defaultInit.equals(attachedFuncName)) {
-                    structInfo.defaultsValuesInitFunc = functionInfo;
-                }
-            }
-
-            // Read attributes of the struct info
-            readAttributeInfoEntries(dataInStream, packageInfo, structInfo);
-        }
-    }
-
-    private void readTypeDefinitionInfoEntries(DataInputStream dataInStream,
+    private void readTypeDefInfoEntries(DataInputStream dataInStream,
                                                PackageInfo packageInfo) throws IOException {
         int typeDefCount = dataInStream.readShort();
         for (int i = 0; i < typeDefCount; i++) {
 
             int typeDefNameCPIndex = dataInStream.readInt();
             int flags = dataInStream.readInt();
+            int typeTag = dataInStream.readInt();
             UTF8CPEntry typeDefNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeDefNameCPIndex);
             String typeDefName = typeDefNameUTF8Entry.getValue();
-            TypeDefinitionInfo typeDefinitionInfo = new TypeDefinitionInfo(packageInfo.getPkgNameCPIndex(),
-                    packageInfo.getPkgPath(),
+            TypeDefInfo typeDefInfo = new TypeDefInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
                     typeDefNameCPIndex, typeDefName, flags);
-            packageInfo.addTypeDefinitionInfo(typeDefName, typeDefinitionInfo);
+            packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
 
-            BFiniteType finiteType = new BFiniteType(typeDefName, packageInfo.getPkgPath());
-            typeDefinitionInfo.setType(finiteType);
+            typeDefInfo.typeTag = typeTag;
 
-            int valueSpaceCount = dataInStream.readShort();
-            for (int k = 0; k < valueSpaceCount; k++) {
-                finiteType.valueSpace.add(getDefaultValueToBValue(getDefaultValue(dataInStream, packageInfo)));
+            switch (typeDefInfo.typeTag) {
+                case TypeTags.OBJECT_TYPE_TAG:
+                    readObjectInfoEntry(dataInStream, packageInfo, typeDefInfo);
+                    break;
+                case TypeTags.RECORD_TYPE_TAG:
+                    readRecordInfoEntry(dataInStream, packageInfo, typeDefInfo);
+                    break;
+                case TypeTags.FINITE_TYPE_TAG:
+                    readFiniteTypeInfoEntry(dataInStream, packageInfo, typeDefInfo);
+                    break;
             }
-
-            readAttributeInfoEntries(dataInStream, packageInfo, typeDefinitionInfo);
         }
 
     }
+
+    private void readObjectInfoEntry(DataInputStream dataInStream, PackageInfo packageInfo,
+                                     TypeDefInfo typeDefInfo) throws IOException {
+        ObjectTypeInfo objectInfo = new ObjectTypeInfo();
+
+        // Set struct type
+        BObjectType objectType = new BObjectType(objectInfo, typeDefInfo.name,
+                packageInfo.getPkgPath(), typeDefInfo.flags);
+        objectInfo.setType(objectType);
+
+        // Read struct field info entries
+        int fieldCount = dataInStream.readShort();
+        for (int j = 0; j < fieldCount; j++) {
+            // Read field name
+            int fieldNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry fieldNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(fieldNameCPIndex);
+
+            // Read field type signature
+            int fieldTypeSigCPIndex = dataInStream.readInt();
+            UTF8CPEntry fieldTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(fieldTypeSigCPIndex);
+
+            int fieldFlags = dataInStream.readInt();
+
+            StructFieldInfo fieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldNameUTF8Entry.getValue(),
+                    fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), fieldFlags);
+            objectInfo.addFieldInfo(fieldInfo);
+
+            readAttributeInfoEntries(dataInStream, packageInfo, fieldInfo);
+        }
+
+        String objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
+
+        // Read attached function info entries
+        int attachedFuncCount = dataInStream.readShort();
+        for (int j = 0; j < attachedFuncCount; j++) {
+            // Read function name
+            int nameCPIndex = dataInStream.readInt();
+            UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
+            String attachedFuncName = nameUTF8Entry.getValue();
+
+            // Read function type signature
+            int typeSigCPIndex = dataInStream.readInt();
+            UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
+
+            int funcFlags = dataInStream.readInt();
+            AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
+                    typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
+            objectInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
+
+            // Setting the object initializer
+            if (objectInit.equals(attachedFuncName)) {
+                objectInfo.initializer = functionInfo;
+            }
+        }
+
+        // Read attributes of the struct info
+        readAttributeInfoEntries(dataInStream, packageInfo, objectInfo);
+        typeDefInfo.typeInfo = objectInfo;
+    }
+
+    private void readRecordInfoEntry(DataInputStream dataInStream, PackageInfo packageInfo,
+                                     TypeDefInfo typeDefInfo) throws IOException {
+        RecordTypeInfo recordInfo = new RecordTypeInfo();
+
+        // Set struct type
+        BRecordType recordType = new BRecordType(recordInfo, typeDefInfo.name,
+                packageInfo.getPkgPath(), typeDefInfo.flags);
+        recordInfo.setType(recordType);
+
+        // Read struct field info entries
+        int fieldCount = dataInStream.readShort();
+        for (int j = 0; j < fieldCount; j++) {
+            // Read field name
+            int fieldNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry fieldNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(fieldNameCPIndex);
+
+            // Read field type signature
+            int fieldTypeSigCPIndex = dataInStream.readInt();
+            UTF8CPEntry fieldTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(fieldTypeSigCPIndex);
+
+            int fieldFlags = dataInStream.readInt();
+
+            StructFieldInfo fieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldNameUTF8Entry.getValue(),
+                    fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), fieldFlags);
+            recordInfo.addFieldInfo(fieldInfo);
+
+            readAttributeInfoEntries(dataInStream, packageInfo, fieldInfo);
+        }
+
+        String defaultInit = typeDefInfo.name + INIT_FUNCTION_SUFFIX;
+
+        // Read attached function info entries
+        int attachedFuncCount = dataInStream.readShort();
+        for (int j = 0; j < attachedFuncCount; j++) {
+            // Read function name
+            int nameCPIndex = dataInStream.readInt();
+            UTF8CPEntry nameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(nameCPIndex);
+            String attachedFuncName = nameUTF8Entry.getValue();
+
+            // Read function type signature
+            int typeSigCPIndex = dataInStream.readInt();
+            UTF8CPEntry typeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeSigCPIndex);
+
+            int funcFlags = dataInStream.readInt();
+            AttachedFunctionInfo functionInfo = new AttachedFunctionInfo(nameCPIndex, attachedFuncName,
+                    typeSigCPIndex, typeSigUTF8Entry.getValue(), funcFlags);
+            recordInfo.funcInfoEntries.put(functionInfo.name, functionInfo);
+
+            // TODO remove when removing struct
+            // Setting the default initializer function info
+            if (defaultInit.equals(attachedFuncName)) {
+                recordInfo.initializer = functionInfo;
+            }
+        }
+
+        // Read attributes of the struct info
+        readAttributeInfoEntries(dataInStream, packageInfo, recordInfo);
+        typeDefInfo.typeInfo = recordInfo;
+    }
+
+    private void readFiniteTypeInfoEntry(DataInputStream dataInStream, PackageInfo packageInfo,
+                                         TypeDefInfo typeDefInfo) throws IOException {
+        FiniteTypeInfo typeInfo = new FiniteTypeInfo();
+
+        BFiniteType finiteType = new BFiniteType(typeDefInfo.name, packageInfo.getPkgPath());
+        typeInfo.setType(finiteType);
+
+        int valueSpaceCount = dataInStream.readShort();
+        for (int k = 0; k < valueSpaceCount; k++) {
+            finiteType.valueSpace.add(getDefaultValueToBValue(getDefaultValue(dataInStream, packageInfo)));
+        }
+
+        readAttributeInfoEntries(dataInStream, packageInfo, typeDefInfo);
+
+        typeDefInfo.typeInfo = typeInfo;
+    }
+
 
     private void readServiceInfoEntries(DataInputStream dataInStream,
                                         PackageInfo packageInfo) throws IOException {
@@ -694,9 +757,15 @@ public class ProgramFileReader {
             packageInfo.addFunctionInfo(uniqueFuncName, functionInfo);
 
             //Update the attachedFunctionInfo
-            if (typeRefCPEntry.getType().getTag() == TypeTags.STRUCT_TAG) {
-                BStructType structType = (BStructType) typeRefCPEntry.getType();
-                AttachedFunctionInfo attachedFuncInfo = structType.structInfo.funcInfoEntries.get(funcName);
+            if (typeRefCPEntry.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
+                BObjectType structType = (BObjectType) typeRefCPEntry.getType();
+                AttachedFunctionInfo attachedFuncInfo = ((ObjectTypeInfo) structType
+                        .getTypeInfo()).funcInfoEntries.get(funcName);
+                attachedFuncInfo.functionInfo = functionInfo;
+            } else if (typeRefCPEntry.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+                BRecordType structType = (BRecordType) typeRefCPEntry.getType();
+                AttachedFunctionInfo attachedFuncInfo = ((RecordTypeInfo) structType
+                        .getTypeInfo()).funcInfoEntries.get(funcName);
                 attachedFuncInfo.functionInfo = functionInfo;
             }
         } else {
@@ -910,7 +979,7 @@ public class ProgramFileReader {
                         typeStack.push(new BTableType(packageInfoOfType.getStructInfo(name).getType()));
                     }
                 } else if (typeChar == 'G') {
-                    typeStack.push(packageInfoOfType.getTypeDefinitionInfo(name).getType());
+                    typeStack.push(packageInfoOfType.getTypeDefInfo(name).typeInfo.getType());
                 } else {
                     // This is a struct type
                     typeStack.push(packageInfoOfType.getStructInfo(name).getType());
@@ -1029,7 +1098,7 @@ public class ProgramFileReader {
                 } else if (ch == 'D') {
                     return new BTableType(packageInfoOfType.getStructInfo(name).getType());
                 } else if (ch == 'G') {
-                    return packageInfoOfType.getTypeDefinitionInfo(name).getType();
+                    return (packageInfoOfType.getTypeDefInfo(name).typeInfo.getType());
                 } else {
                     return packageInfoOfType.getStructInfo(name).getType();
                 }
@@ -1220,7 +1289,7 @@ public class ProgramFileReader {
                     if (errorStructCPIndex != -1) {
                         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry)
                                 constantPool.getCPEntry(errorStructCPIndex);
-                        tableEntry.setError((StructInfo) structureRefCPEntry.getStructureTypeInfo());
+                        tableEntry.setError((TypeDefInfo) structureRefCPEntry.getStructureTypeInfo());
                     }
                     tableAttributeInfo.addErrorTableEntry(tableEntry);
                 }
@@ -1738,7 +1807,7 @@ public class ProgramFileReader {
                 case CP_ENTRY_STRUCTURE_REF:
                     structureRefCPEntry = (StructureRefCPEntry) cpEntry;
                     packageInfo = programFile.getPackageInfo(structureRefCPEntry.getPackagePath());
-                    StructureTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(
+                    CustomTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(
                             structureRefCPEntry.getStructureName());
                     structureRefCPEntry.setStructureTypeInfo(structureTypeInfo);
                     break;
@@ -1763,12 +1832,16 @@ public class ProgramFileReader {
 
     private void resolveUserDefinedTypes(PackageInfo packageInfo) {
         // TODO Improve this. We should be able to this in a single pass.
-        StructInfo[] structInfoEntries = packageInfo.getStructInfoEntries();
-        for (StructInfo structInfo : structInfoEntries) {
-            StructFieldInfo[] fieldInfoEntries = structInfo.getFieldInfoEntries();
+        TypeDefInfo[] structInfoEntries = packageInfo.getTypeDefInfoEntries();
+        for (TypeDefInfo structInfo : structInfoEntries) {
+            if (structInfo.typeTag == TypeTags.FINITE_TYPE_TAG) {
+                continue;
+            }
+            StructureTypeInfo structureTypeInfo = (StructureTypeInfo) structInfo.typeInfo;
+            StructFieldInfo[] fieldInfoEntries = structureTypeInfo.getFieldInfoEntries();
 
-            BStructType structType = structInfo.getType();
-            BStructType.StructField[] structFields = new BStructType.StructField[fieldInfoEntries.length];
+            BStructureType structType = structureTypeInfo.getType();
+            BField[] structFields = new BField[fieldInfoEntries.length];
             for (int i = 0; i < fieldInfoEntries.length; i++) {
                 // Get the BType from the type descriptor
                 StructFieldInfo fieldInfo = fieldInfoEntries[i];
@@ -1777,33 +1850,34 @@ public class ProgramFileReader {
                 fieldInfo.setFieldType(fieldType);
 
                 // Create the StructField in the BStructType. This is required for the type equivalence algorithm
-                BStructType.StructField structField = new BStructType.StructField(fieldType,
+                BField structField = new BField(fieldType,
                         fieldInfo.getName(), fieldInfo.flags);
                 structFields[i] = structField;
             }
 
             VarTypeCountAttributeInfo attributeInfo = (VarTypeCountAttributeInfo)
-                    structInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
+                    structInfo.typeInfo.getAttributeInfo(AttributeInfo.Kind.VARIABLE_TYPE_COUNT_ATTRIBUTE);
             structType.setFieldTypeCount(attributeInfo.getVarTypeCount());
-            structType.setStructFields(structFields);
+            structType.setFields(structFields);
 
             // Resolve attached function signature
-            int attachedFuncCount = structInfo.funcInfoEntries.size();
-            BStructType.AttachedFunction[] attachedFunctions = new BStructType.AttachedFunction[attachedFuncCount];
-            int count = 0;
-            for (AttachedFunctionInfo attachedFuncInfo : structInfo.funcInfoEntries.values()) {
-                BFunctionType funcType = getFunctionType(attachedFuncInfo.typeSignature, packageInfo);
+            if (structureTypeInfo.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
+                    || structureTypeInfo.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
+                int attachedFuncCount = structureTypeInfo.funcInfoEntries.size();
+                BAttachedFunction[] attachedFunctions = new BAttachedFunction[attachedFuncCount];
+                int count = 0;
+                for (AttachedFunctionInfo attachedFuncInfo : structureTypeInfo.funcInfoEntries.values()) {
+                    BFunctionType funcType = getFunctionType(attachedFuncInfo.typeSignature, packageInfo);
 
-                BStructType.AttachedFunction attachedFunction = new BStructType.AttachedFunction(
-                        attachedFuncInfo.name, funcType, attachedFuncInfo.flags);
-                attachedFunctions[count++] = attachedFunction;
-                if (structInfo.initializer == attachedFuncInfo) {
-                    structType.initializer = attachedFunction;
-                } else if (structInfo.defaultsValuesInitFunc == attachedFuncInfo) {
-                    structType.defaultsValuesInitFunc = attachedFunction;
+                    BAttachedFunction attachedFunction = new BAttachedFunction(
+                            attachedFuncInfo.name, funcType, attachedFuncInfo.flags);
+                    attachedFunctions[count++] = attachedFunction;
+                    if (structureTypeInfo.initializer == attachedFuncInfo) {
+                        structureTypeInfo.getType().initializer = attachedFunction;
+                    }
                 }
+                structureTypeInfo.getType().setAttachedFunctions(attachedFunctions);
             }
-            structType.setAttachedFunctions(attachedFunctions);
         }
 
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {

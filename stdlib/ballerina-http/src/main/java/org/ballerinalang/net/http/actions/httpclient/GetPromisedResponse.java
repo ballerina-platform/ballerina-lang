@@ -40,16 +40,16 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getPromisedResponse",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CALLER_ACTIONS,
                 structPackage = "ballerina.http"),
         args = {
-                @Argument(name = "client", type = TypeKind.STRUCT),
-                @Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
+                @Argument(name = "client", type = TypeKind.OBJECT),
+                @Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
                         structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.http"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+                @ReturnType(type = TypeKind.OBJECT, structType = "InResponse", structPackage = "ballerina.http"),
+                @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                         structPackage = "ballerina.http"),
         }
 )

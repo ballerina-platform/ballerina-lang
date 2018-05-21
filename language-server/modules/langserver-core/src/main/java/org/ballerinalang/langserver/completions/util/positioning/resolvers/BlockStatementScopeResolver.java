@@ -22,7 +22,7 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -115,8 +116,10 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
     private boolean isNodeLastStatement(BLangBlockStmt bLangBlockStmt, Node blockOwner, Node node) {
         if (bLangBlockStmt != null) {
             return (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
-        } else if (blockOwner instanceof BLangStruct) {
-            List<BLangVariable> structFields = ((BLangStruct) blockOwner).getFields();
+        } else if (blockOwner instanceof BLangTypeDefinition
+                && ((BLangTypeDefinition) blockOwner).typeNode instanceof BLangObjectTypeNode) {
+            List<BLangVariable> structFields
+                    = ((BLangObjectTypeNode) ((BLangTypeDefinition) blockOwner).typeNode).getFields();
             return (structFields.indexOf(node) == structFields.size() - 1);
         } else {
             return false;

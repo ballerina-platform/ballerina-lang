@@ -37,7 +37,9 @@ public interface BTypeVisitor<T, R> {
 
     R visit(BArrayType t, T s);
 
-    R visit(BStructType t, T s);
+    R visit(BObjectType t, T s);
+
+    R visit(BRecordType t, T s);
 
     R visit(BTableType t, T s);
 

@@ -41,7 +41,7 @@ import org.ballerinalang.net.websub.hub.Hub;
         args = {@Argument(name = "hubUrl", type = TypeKind.STRING),
                 @Argument(name = "topic", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.JSON)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)}
+        returnType = {@ReturnType(type = TypeKind.OBJECT)}
 )
 public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit {
 

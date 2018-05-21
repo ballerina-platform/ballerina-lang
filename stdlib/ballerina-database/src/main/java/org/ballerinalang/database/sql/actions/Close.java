@@ -34,7 +34,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
         orgName = "ballerina", packageName = "sql",
         functionName = "close",
         args = {
-                @Argument(name = "callerActions", type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS ,
+                @Argument(name = "callerActions", type = TypeKind.RECORD, structType = Constants.CALLER_ACTIONS ,
                           structPackage = "ballerina.sql")
         }
 )
