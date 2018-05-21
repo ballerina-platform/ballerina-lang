@@ -62,7 +62,8 @@ public class TableIterator implements DataIterator {
     protected BStructureType type;
     protected List<ColumnDefinition> columnDefs;
 
-    public TableIterator(TableResourceManager rm, ResultSet rs, BStructureType type, List<ColumnDefinition> columnDefs) {
+    public TableIterator(TableResourceManager rm, ResultSet rs, BStructureType type,
+                         List<ColumnDefinition> columnDefs) {
         this.resourceManager = rm;
         this.rs = rs;
         this.type = type;

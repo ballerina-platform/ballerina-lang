@@ -48,11 +48,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -602,12 +603,12 @@ public class CommonUtil {
      * @param structFields      List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<CompletionItem> getStructFieldPopulateCompletionItems(List<BStructType.BStructField>
+    public static List<CompletionItem> getStructFieldPopulateCompletionItems(List<BField>
                                                                                      structFields) {
         List<CompletionItem> completionItems = new ArrayList<>();
         structFields.forEach(bStructField -> {
             StringBuilder insertText = new StringBuilder(bStructField.getName().getValue() + ": ");
-            if (bStructField.getType() instanceof BStructType) {
+            if (bStructField.getType() instanceof BStructureType) {
                 insertText.append("{").append(LINE_SEPARATOR).append("\t${1}").append(LINE_SEPARATOR).append("}");
             } else {
                 insertText.append("${1:").append(getDefaultValueForType(bStructField.getType())).append("}");
@@ -629,7 +630,7 @@ public class CommonUtil {
      * @param fields                    List of struct fields
      * @return {@link CompletionItem}   Completion Item to fill all the options
      */
-    public static CompletionItem getFillAllStructFieldsItem(List<BStructType.BStructField> fields) {
+    public static CompletionItem getFillAllStructFieldsItem(List<BField> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
         fields.forEach(bStructField -> {

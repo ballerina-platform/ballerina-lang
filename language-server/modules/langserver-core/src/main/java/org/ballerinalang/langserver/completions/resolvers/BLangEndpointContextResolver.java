@@ -24,7 +24,8 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -49,7 +50,7 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         BLangNode bLangEndpoint = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<BStructSymbol.BAttachedFunction> attachedFunctions = new ArrayList<>();
+        List<BAttachedFunction> attachedFunctions = new ArrayList<>();
 
         if (bLangEndpoint instanceof BLangEndpoint) {
             BLangExpression configurationExpr = ((BLangEndpoint) bLangEndpoint).configurationExpr;

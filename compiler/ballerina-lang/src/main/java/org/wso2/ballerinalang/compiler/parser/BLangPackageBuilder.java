@@ -633,12 +633,10 @@ public class BLangPackageBuilder {
         this.commaWsStack.push(ws);
     }
 
-    public BLangVariable addReturnParam(DiagnosticPos pos,
-                                        Set<Whitespace> ws,
-                                        String identifier,
-                                        boolean exprAvailable,
-                                        int annotCount) {
-        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
+    void addReturnParam(DiagnosticPos pos,
+                                 Set<Whitespace> ws,
+                                 int annotCount) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, null, false);
         attachAnnotations(var, annotCount);
         var.pos = pos;
         this.varStack.push(var);

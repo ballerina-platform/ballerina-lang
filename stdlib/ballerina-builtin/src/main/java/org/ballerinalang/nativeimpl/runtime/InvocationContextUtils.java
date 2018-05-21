@@ -81,7 +81,8 @@ public class InvocationContextUtils {
     }
 
     private static BStruct createInvocationContext(Context context, BStruct userPrincipal, BStruct authContext) {
-        StructureTypeInfo invocationContextInfo = getStructInfo(context, PACKAGE_RUNTIME, STRUCT_TYPE_INVOCATION_CONTEXT);
+        StructureTypeInfo invocationContextInfo = getStructInfo(context,
+                PACKAGE_RUNTIME, STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
         return BLangVMStructs.createBStruct(invocationContextInfo, invocationId.toString(), userPrincipal, authContext);
     }

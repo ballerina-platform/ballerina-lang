@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -34,7 +35,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
@@ -362,7 +362,9 @@ public class CommandUtil {
         for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
             DiagnosticPos typeNodePos;
             typeNodePos = (DiagnosticPos) topLevelNode.getPosition();
-            if ((topLevelNode instanceof BLangRecord || topLevelNode instanceof BLangObject)
+            if ((topLevelNode instanceof BLangTypeDefinition &&
+                    (((BLangTypeDefinition) topLevelNode).symbol.getKind() == SymbolKind.OBJECT
+                            || ((BLangTypeDefinition) topLevelNode).symbol.getKind() == SymbolKind.RECORD))
                     && typeNodePos.getStartLine() - 1 == line) {
                 return getTypeNodeDocumentation(topLevelNode, line);
             }
@@ -376,12 +378,14 @@ public class CommandUtil {
         DiagnosticPos typeNodePos = CommonUtil.toZeroBasedPosition((DiagnosticPos) typeNode.getPosition());
         int offset = typeNodePos.getStartColumn();
         List<VariableNode> publicFields = new ArrayList<>();
-        if (typeNode instanceof BLangObject) {
-            publicFields.addAll(((BLangObject) typeNode).getFields().stream()
+        if (typeNode instanceof BLangTypeDefinition &&
+                ((BLangTypeDefinition) typeNode).symbol.getKind() == SymbolKind.OBJECT) {
+            publicFields.addAll(((BLangObjectTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields().stream()
                     .filter(field -> field.getFlags().contains(Flag.PUBLIC)).collect(Collectors.toList()));
             
-        } else if (typeNode instanceof BLangRecord) {
-            publicFields.addAll(((BLangRecord) typeNode).getFields());
+        } else if (typeNode instanceof BLangTypeDefinition &&
+                ((BLangTypeDefinition) typeNode).symbol.getKind() == SymbolKind.RECORD) {
+            publicFields.addAll(((BLangObjectTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields());
         }
         
         publicFields.forEach(variableNode -> {

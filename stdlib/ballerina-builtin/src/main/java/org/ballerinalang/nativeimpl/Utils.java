@@ -78,8 +78,8 @@ public class Utils {
         }
     }
 
-    public static BStruct createTimeStruct(StructureTypeInfo timezoneStructInfo, StructureTypeInfo timeStructInfo, long millis,
-                                           String zoneIdName) {
+    public static BStruct createTimeStruct(StructureTypeInfo timezoneStructInfo,
+                                           StructureTypeInfo timeStructInfo, long millis, String zoneIdName) {
         BStruct timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
         return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
     }
