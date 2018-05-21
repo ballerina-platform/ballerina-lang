@@ -107,7 +107,7 @@ public class MicrometerMetricProviderTest {
         Gauge gauge = Gauge.builder("test_gauge").description("Test Gauge").register(metricRegistry);
         gauge.increment(100D);
         gauge.decrement(50D);
-        Assert.assertEquals(gauge.get(), 50D);
+        Assert.assertEquals(gauge.getValue(), 50D);
     }
 
     @Test

@@ -60,7 +60,7 @@ public class MicrometerGauge extends AbstractMetric implements Gauge {
     }
 
     @Override
-    public double get() {
+    public double getValue() {
         synchronized (this) {
             return value.sum();
         }

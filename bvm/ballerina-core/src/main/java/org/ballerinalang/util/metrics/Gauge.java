@@ -129,6 +129,6 @@ public interface Gauge extends Metric {
     /**
      * @return The value of the gauge.
      */
-    double get();
+    double getValue();
 
 }

@@ -46,7 +46,7 @@ public class NoOpGauge extends AbstractMetric implements Gauge {
     }
 
     @Override
-    public double get() {
+    public double getValue() {
         return 0;
     }
 }
