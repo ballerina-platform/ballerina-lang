@@ -1,6 +1,6 @@
 #To run this sample, navigate to the directory that contains the
 #'.bal' file and issue the 'ballerina run' command.
 $ ballerina run objects.bal
-{age:0, name:"", email:"default@abc.com"}
-{age:0, name:"", email:"default@abc.com"}
-{age:0, name:"", email:"default@abc.com"}
+{age:0, name:"", parent:null, email:"default@abc.com"}
+{age:0, name:"", parent:null, email:"default@abc.com"}
+{age:0, name:"", parent:null, email:"default@abc.com"}
