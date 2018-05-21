@@ -216,6 +216,12 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
         if (lookAhead == BallerinaTypes.ELLIPSIS) {
             return false;
         }
+        if (lookAhead == BallerinaTypes.LEFT_BRACKET) {
+            IElementType lookAhead3 = builder.lookAhead(3);
+            if (lookAhead3 == BallerinaTypes.ELLIPSIS) {
+                return false;
+            }
+        }
         return true;
     }
 
