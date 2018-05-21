@@ -67,6 +67,12 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
 
   @Override
   @Nullable
+  public BallerinaDoneStatement getDoneStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDoneStatement.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaExpressionStmt getExpressionStmt() {
     return PsiTreeUtil.getChildOfType(this, BallerinaExpressionStmt.class);
   }

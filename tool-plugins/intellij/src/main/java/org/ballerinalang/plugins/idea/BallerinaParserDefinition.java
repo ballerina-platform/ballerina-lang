@@ -56,6 +56,7 @@ import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.DAYS;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.DEPRECATED;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.DESCENDING;
+import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.DONE;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.DOUBLE_COLON;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ELSE;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ELVIS;
@@ -174,9 +175,9 @@ public class BallerinaParserDefinition implements ParserDefinition {
 
     // Todo - Annotate ReservedWord in the runtime to prevent highlighting as keywords.
     public static final TokenSet KEYWORDS = TokenSet.create(ABORT, ALL, ANNOTATION, ANY, AS, AWAIT, BIND, BLOB,
-            BOOLEAN, BREAK, BUT, CATCH, CHECK, DEPRECATED, ELSE, ENDPOINT, ENUM, FAIL, FINALLY, FLOAT, FOREACH, FORK,
-            FUNCTION, FUTURE, IF, IMPORT, IN, INT, JOIN, JSON, LENGTHOF, LOCK, MAP, MATCH, NATIVE, NEW, NEXT, OBJECT,
-            ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PRIVATE, PUBLIC, RESOURCE, RETRIES, RETRY, RETURN, RETURNS,
+            BOOLEAN, BREAK, BUT, CATCH, CHECK, DEPRECATED, DONE, ELSE, ENDPOINT, ENUM, FAIL, FINALLY, FLOAT, FOREACH,
+            FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, JOIN, JSON, LENGTHOF, LOCK, MAP, MATCH, NATIVE, NEW, NEXT,
+            OBJECT, ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PRIVATE, PUBLIC, RESOURCE, RETRIES, RETRY, RETURN, RETURNS,
             SERVICE, SOME, START, STREAM, STRING, TABLE, TIMEOUT, TRANSACTION, TRY, TYPE, TYPEDESC, THROW, UNTAINT,
             WHILE, WITH, WORKER, VAR, VERSION, XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL,
 
