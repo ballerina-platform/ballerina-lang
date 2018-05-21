@@ -116,7 +116,7 @@ public class MicrometerMetricProviderTest {
         IntStream.range(0, 100).forEach(list::add);
         PolledGauge gauge = PolledGauge.builder("test_polled_gauge", list, List::size).description("")
                 .register(metricRegistry);
-        Assert.assertEquals(gauge.get(), 100D);
+        Assert.assertEquals(gauge.getValue(), 100D);
     }
 
     @Test

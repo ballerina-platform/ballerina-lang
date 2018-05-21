@@ -44,7 +44,7 @@ public class MicrometerPolledGauge extends AbstractMetric implements PolledGauge
 
 
     @Override
-    public double get() {
+    public double getValue() {
         return gauge.value();
     }
 }

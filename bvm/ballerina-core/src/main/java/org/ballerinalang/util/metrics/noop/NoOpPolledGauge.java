@@ -31,7 +31,7 @@ public class NoOpPolledGauge extends AbstractMetric implements PolledGauge {
     }
 
     @Override
-    public double get() {
+    public double getValue() {
         return 0;
     }
 }
