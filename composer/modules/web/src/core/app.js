@@ -31,7 +31,8 @@ import WorkspacePlugin from './workspace/plugin';
 import EditorPlugin from './editor/plugin';
 import PreferencesPlugin from './preferences/plugin';
 import { makeImutable } from './utils/object-utils';
-import { isOnElectron } from './utils/client-info'
+import { isOnElectron } from './utils/client-info';
+
 /**
  * Composer Application
  */
@@ -222,7 +223,9 @@ class Application {
             plugin.onAfterInitialRender();
         });
         if (isOnElectron()) {
-            require('electron').ipcRenderer.send('composer-rendered');
+            setTimeout(() => {
+                require('electron').ipcRenderer.send('composer-rendered');
+            }, 200);
         }
     }
 
