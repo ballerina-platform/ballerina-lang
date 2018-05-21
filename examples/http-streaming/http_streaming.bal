@@ -20,7 +20,7 @@ service<http:Service> HTTPStreamingService bind testEP {
         methods: ["GET"],
         path: "/fileupload"
     }
-    handleOutputStream(endpoint outboundEP, http:Request clientRequest) {
+    handleOutputStream(endpoint caller, http:Request clientRequest) {
         http:Request request = new;
 
         //Set the file as request payload.
@@ -50,14 +50,15 @@ service<http:Service> HTTPStreamingService bind testEP {
             error err => { log:printError(err.message, err = err);
             setError(res, err.message);}
         }
-        _ = outboundEP->respond(res);
+        caller->respond(res) but { error e => log:printError(
+                                  "Error sending response", err = e) };
     }
 
     @http:ResourceConfig {
         methods: ["POST"],
         path: "/receiver"
     }
-    handleInputStream(endpoint outboundEP, http:Request clientRequest) {
+    handleInputStream(endpoint caller, http:Request clientRequest) {
         http:Response response = new;
 
         //Get the payload as a byte channel.
@@ -91,7 +92,8 @@ service<http:Service> HTTPStreamingService bind testEP {
                 setError(response, err.message);
             }
         }
-        _ = outboundEP->respond(response);
+        caller->respond(response) but { error e => log:printError(
+                                        "Error sending response", err = e) };
     }
 }
 
