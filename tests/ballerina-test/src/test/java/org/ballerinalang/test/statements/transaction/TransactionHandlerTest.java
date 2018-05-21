@@ -163,7 +163,7 @@ public class TransactionHandlerTest {
     @Test(description = "Test transaction handler function with invalid argument")
     public void testInvalidHandlers() {
         CompileResult res = BCompileUtil.compile("test-src/statements/transaction/transaction_handler_negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 17);
+        Assert.assertEquals(res.getErrorCount(), 18);
         BAssertUtil.validateError(res, 0,
                 "transaction handler function required single string parameter which is transaction id", 4, 50);
         BAssertUtil.validateError(res, 1,
@@ -193,12 +193,12 @@ public class TransactionHandlerTest {
                 "lambda function with string input parameter is required as transaction handler", 65, 63);
         BAssertUtil.validateError(res, 12, "transaction handler function cannot have a return type", 79, 50);
         BAssertUtil.validateError(res, 13, "transaction handler function cannot have a return type", 79, 77);
-        BAssertUtil.validateError(res, 14, "transaction statement cannot be used within a transaction handler function",
-                116, 5);
-        BAssertUtil.validateError(res, 15, "transaction statement cannot be used within a transaction handler function",
-                123, 5);
+        BAssertUtil.validateError(res, 14, "transaction statement cannot be used within a transaction handler", 116, 5);
+        BAssertUtil.validateError(res, 15, "transaction statement cannot be used within a transaction handler", 123, 5);
         BAssertUtil
-                .validateError(res, 16, "invalid function pointer assignment for the transaction handler function", 133,
+                .validateError(res, 16, "invalid function pointer assignment for the transaction handler function", 132,
                         50);
+        BAssertUtil
+                .validateError(res, 17, "transaction statement cannot be used within a transaction handler", 150, 13);
     }
 }
