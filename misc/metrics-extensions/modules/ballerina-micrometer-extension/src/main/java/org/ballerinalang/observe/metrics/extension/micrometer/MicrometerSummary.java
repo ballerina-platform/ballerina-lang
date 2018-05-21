@@ -23,12 +23,11 @@ import io.micrometer.core.instrument.distribution.HistogramSnapshot;
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.PercentileValue;
+import org.ballerinalang.util.metrics.Snapshot;
 import org.ballerinalang.util.metrics.StatisticConfig;
 import org.ballerinalang.util.metrics.Summary;
 
-import java.util.Collections;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 /**
@@ -55,28 +54,24 @@ public class MicrometerSummary extends AbstractMetric implements Summary {
     }
 
     @Override
-    public long count() {
+    public long getCount() {
         return summary.count();
     }
 
     @Override
-    public double mean() {
-        return summary.mean();
+    public double getSum() {
+        return summary.totalAmount();
     }
 
     @Override
-    public double max() {
-        return summary.max();
-    }
-
-    @Override
-    public SortedMap<Double, Double> percentileValues() {
-        SortedMap<Double, Double> result = new TreeMap<>();
-        HistogramSnapshot snapshot = summary.takeSnapshot();
-        for (ValueAtPercentile valueAtPercentile : snapshot.percentileValues()) {
-            result.put(valueAtPercentile.percentile(), valueAtPercentile.value());
+    public Snapshot getSnapshot() {
+        HistogramSnapshot histogramSnapshot = summary.takeSnapshot();
+        ValueAtPercentile[] percentileValues = histogramSnapshot.percentileValues();
+        PercentileValue[] values = new PercentileValue[percentileValues.length];
+        for (int i = 0; i < percentileValues.length; i++) {
+            ValueAtPercentile percentileValue = percentileValues[i];
+            values[i] = new PercentileValue(percentileValue.percentile(), percentileValue.value());
         }
-        return Collections.unmodifiableSortedMap(result);
+        return new Snapshot(histogramSnapshot.mean(), histogramSnapshot.max(), values);
     }
-
 }

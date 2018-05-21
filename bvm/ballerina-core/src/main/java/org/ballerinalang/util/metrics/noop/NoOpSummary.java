@@ -19,15 +19,15 @@ package org.ballerinalang.util.metrics.noop;
 
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.Snapshot;
 import org.ballerinalang.util.metrics.Summary;
-
-import java.util.Collections;
-import java.util.SortedMap;
 
 /**
  * Implementation of No-Op {@link Summary}.
  */
 public class NoOpSummary extends AbstractMetric implements Summary {
+
+    private static final Snapshot EMPTY_SNAPSHOT = new Snapshot(0, 0, null);
 
     public NoOpSummary(MetricId id) {
         super(id);
@@ -39,23 +39,17 @@ public class NoOpSummary extends AbstractMetric implements Summary {
     }
 
     @Override
-    public long count() {
+    public long getCount() {
         return 0;
     }
 
     @Override
-    public double mean() {
+    public double getSum() {
         return 0;
     }
 
     @Override
-    public double max() {
-        return 0;
+    public Snapshot getSnapshot() {
+        return EMPTY_SNAPSHOT;
     }
-
-    @Override
-    public SortedMap<Double, Double> percentileValues() {
-        return Collections.emptySortedMap();
-    }
-
 }

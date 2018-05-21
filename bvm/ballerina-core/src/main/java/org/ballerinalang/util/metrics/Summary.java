@@ -21,7 +21,6 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 
 /**
  * Track the sample distribution of events.
@@ -124,27 +123,23 @@ public interface Summary extends Metric {
     void record(double amount);
 
     /**
-     * @return The number of times that record has been called since this summary was created.
-     */
-    long count();
-
-    /**
-     * @return The distribution average for all recorded events.
-     */
-    double mean();
-
-    /**
-     * @return The maximum time of a single event.
-     */
-    double max();
-
-    /**
-     * Return a sorted map of percentile values. The percentile is the key, which is in the domain [0, 1]. For example,
-     * 0.5 represents the 50th percentile of the distribution. The keys will be specific to underlying implementation.
-     * These value are non-aggregable across dimensions.
+     * Returns the number of times that record has been called since this summary was created.
      *
-     * @return A map of values at specific percentiles.
+     * @return The number of values recorded.
      */
-    SortedMap<Double, Double> percentileValues();
+    long getCount();
 
+    /**
+     * Returns the total amount of all recorded events.
+     *
+     * @return The sum of values recorded.
+     */
+    double getSum();
+
+    /**
+     * Returns a snapshot of the values.
+     *
+     * @return A snapshot of all distribution statistics at a point in time.
+     */
+    Snapshot getSnapshot();
 }

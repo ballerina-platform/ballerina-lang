@@ -123,7 +123,8 @@ public class MicrometerMetricProviderTest {
     public void testSummary() {
         Summary summary = Summary.builder("test_summary").description("Test Summary").register(metricRegistry);
         summary.record(100);
-        Assert.assertEquals(summary.count(), 1);
+        Assert.assertEquals(summary.getCount(), 1);
+        Assert.assertEquals(summary.getSum(), 100.0D);
     }
 
     @Test
