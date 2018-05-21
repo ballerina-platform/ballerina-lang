@@ -69,7 +69,7 @@ public class BLangMatch extends BLangStatement implements MatchNode {
     }
 
     /**
-     * {@code BLangMatchStmtPatternClause} represents a pattern inside a type switch statement
+     * {@code BLangMatchStmtPatternClause} represents a pattern inside a type switch statement.
      *
      * @since 0.966.0
      */

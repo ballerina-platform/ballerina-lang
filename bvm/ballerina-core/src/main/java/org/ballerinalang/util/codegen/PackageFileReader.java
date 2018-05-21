@@ -96,9 +96,9 @@ public class PackageFileReader {
     }
 
     private InputStream getCompiledPackageBinary() throws IOException {
-        String ballerinaSDKHome = System.getProperty(BALLERINA_HOME);
+        String ballerinaHome = System.getProperty(BALLERINA_HOME);
         // FIXME: read the zip file and get the binary content
-        Path libsPath = Paths.get(ballerinaSDKHome, "libs", "stdlib-compile-0.970.1-SNAPSHOT.zip");
+        Path libsPath = Paths.get(ballerinaHome, "lib", "stdlib-compile-0.971.1-SNAPSHOT.zip");
         Path fileToExtract = Paths.get("obj", "builtin.balo");
 
         ZipFile zipFile = new ZipFile(libsPath.toFile());

@@ -1,17 +1,18 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
 package org.ballerinalang.plugins.idea.debugger;
@@ -31,9 +32,6 @@ import com.intellij.openapi.application.ReadAction;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.PsiManager;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.ContainerUtil;
 import com.intellij.xdebugger.XDebugProcess;
 import com.intellij.xdebugger.XDebugSession;
@@ -55,11 +53,11 @@ import org.ballerinalang.plugins.idea.debugger.dto.BreakPoint;
 import org.ballerinalang.plugins.idea.debugger.dto.Message;
 import org.ballerinalang.plugins.idea.debugger.protocol.Command;
 import org.ballerinalang.plugins.idea.debugger.protocol.Response;
-import org.ballerinalang.plugins.idea.psi.FullyQualifiedPackageNameNode;
-import org.ballerinalang.plugins.idea.psi.PackageDeclarationNode;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -337,14 +335,14 @@ public class BallerinaDebugProcess extends XDebugProcess {
         // If the package is ".", full path of the file will be sent as the filename.
         if (".".equals(packagePath)) {
             // Then we need to get the actual filename from the path.
-            int index = fileName.lastIndexOf("/");
+            int index = fileName.lastIndexOf(File.separator);
             if (index <= -1) {
                 return null;
             }
             relativeFilePathInProject = fileName.substring(index);
         } else {
             // If the absolute path is not sent, we need to construct the relative file path in the project.
-            relativeFilePathInProject = packagePath.replaceAll("\\.", "/") + "/" + fileName;
+            relativeFilePathInProject = packagePath.replaceAll("\\.", File.separator) + File.separator + fileName;
         }
         int lineNumber = breakPoint.getLineNumber();
         for (XBreakpoint<BallerinaBreakpointProperties> breakpoint : breakpoints) {
@@ -436,19 +434,16 @@ public class BallerinaDebugProcess extends XDebugProcess {
                         int line = breakpointPosition.getLine();
                         Project project = getSession().getProject();
 
-                        String name = file.getName();
-                        String packagePath = ".";
-                        // Only get relative path if a package declaration is present in the file.
-                        PsiFile psiFile = PsiManager.getInstance(project).findFile(file);
-                        PackageDeclarationNode packageDeclarationNode = PsiTreeUtil.findChildOfType(psiFile,
-                                PackageDeclarationNode.class);
-                        if (packageDeclarationNode != null) {
-                            FullyQualifiedPackageNameNode packagePathNode =
-                                    PsiTreeUtil.getChildOfType(packageDeclarationNode,
-                                            FullyQualifiedPackageNameNode.class);
-                            if (packagePathNode != null && !packagePathNode.getText().isEmpty()) {
-                                packagePath = packagePathNode.getText();
-                            }
+                        // Get package path.
+                        String packagePath = BallerinaPsiImplUtil.getPackage(project, file);
+                        if (packagePath.isEmpty()) {
+                            packagePath = ".";
+                        }
+
+                        // Get relative file path in the package.
+                        String name = BallerinaPsiImplUtil.getFilePathInPackage(project, file);
+                        if (name.isEmpty()) {
+                            name = file.getName();
                         }
 
                         stringBuilder.append("{\"packagePath\":\"").append(packagePath).append("\", ");

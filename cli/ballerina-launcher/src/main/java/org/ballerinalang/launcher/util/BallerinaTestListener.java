@@ -39,7 +39,7 @@ public class BallerinaTestListener implements ISuiteListener {
 
     private static final String BALLERINA_HOME = "ballerina.home";
     private static Logger log = LoggerFactory.getLogger(BallerinaTestListener.class);
-    private Path stdlibs = Paths.get("target", "libs");
+    private Path stdlibs = Paths.get("target", "lib");
     private String ballerinaHome;
 
     @Override
@@ -58,13 +58,13 @@ public class BallerinaTestListener implements ISuiteListener {
             ballerinaHome = System.getProperty(BALLERINA_HOME);
             Path stdlibModule =
                     Paths.get(GenerateBalo.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            Path stdlibCompileZip = stdlibModule.getParent().resolve("stdlib-compile-0.970.1-SNAPSHOT.zip");
+            Path stdlibCompileZip = stdlibModule.getParent().resolve("stdlib-compile-0.971.1-SNAPSHOT.zip");
 
             if (!stdlibs.toFile().exists()) {
                 Files.createDirectory(stdlibs);
             }
 
-            Path zip = stdlibs.resolve("stdlib-compile-0.970.1-SNAPSHOT.zip");
+            Path zip = stdlibs.resolve("stdlib-compile-0.971.1-SNAPSHOT.zip");
             Files.copy(stdlibCompileZip, zip);
             System.setProperty(BALLERINA_HOME, stdlibs.getParent().toAbsolutePath().toString());
             log.info(BALLERINA_HOME + " is set to: " + System.getProperty(BALLERINA_HOME));

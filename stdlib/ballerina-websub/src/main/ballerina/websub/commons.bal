@@ -14,10 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
 import ballerina/http;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/crypto;
+import ballerina/reflect;
 
 documentation {
     Intent verification request parameter `hub.challenge` representing the challenge that needs to be echoed by
@@ -95,6 +96,9 @@ documentation {
 @final string SHA256 = "SHA256";
 @final string MD5 = "MD5";
 
+@final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
+@final string WEBSUB_PACKAGE_NAME = "ballerina.websub";
+
 //TODO: Make public once extension story is finalized.
 documentation {
     The identifier to be used to identify the topic for dispatching with custom subscriber services.
@@ -163,23 +167,15 @@ public type IntentVerificationRequest object {
 public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string? topic = ())
     returns http:Response {
 
-    SubscriberServiceConfiguration subscriberServiceConfiguration = {};
-    match (topic) {
-        string specifiedTopic => { subscriberServiceConfiguration = {topic:specifiedTopic}; }
-        () => { subscriberServiceConfiguration = retrieveAnnotations(); }
-    }
-    return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, subscriberServiceConfiguration);
+    string intendedTopic = topic but {() => retrieveIntendedTopic()};
+    return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, intendedTopic);
 }
 
 public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string? topic = ())
     returns http:Response {
 
-    SubscriberServiceConfiguration subscriberServiceConfiguration = {};
-    match (topic) {
-        string specifiedTopic => { subscriberServiceConfiguration = {topic:specifiedTopic}; }
-        () => { subscriberServiceConfiguration = retrieveAnnotations(); }
-    }
-    return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, subscriberServiceConfiguration);
+    string intendedTopic = topic but {() => retrieveIntendedTopic()};
+    return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, intendedTopic);
 }
 
 documentation {
@@ -187,28 +183,22 @@ documentation {
 
     P{{intentVerificationRequest}} The intent verification request from the hub
     P{{mode}} The mode (subscription/unsubscription) for which a request was sent
-    P{{webSubSubscriberAnnotations}} The SubscriberServiceConfiguration containing topic details
+    P{{topic}} The intended topic for which subscription change should be verified
     R{{}} `http:Response` The response to the hub verifying/denying intent to subscripe/unsubscribe
 }
 function buildIntentVerificationResponse(IntentVerificationRequest intentVerificationRequest, string mode,
-                                         SubscriberServiceConfiguration webSubSubscriberAnnotations)
+                                         string topic)
     returns http:Response {
 
     http:Response response = new;
-    string topic = webSubSubscriberAnnotations.topic;
+    string reqTopic = check http:decode(intentVerificationRequest.topic, "UTF-8");
     if (topic == "") {
         response.statusCode = http:NOT_FOUND_404;
-        log:printError("Intent Verification denied - Mode [" + mode + "], Topic [" + topic +
+        log:printError("Intent Verification denied - Mode [" + mode + "], Topic [" + reqTopic +
                 "], since topic unavailable as an annotation or unspecified as a parameter");
     } else {
         string reqMode = intentVerificationRequest.mode;
         string challenge = intentVerificationRequest.challenge;
-        string reqTopic = intentVerificationRequest.topic;
-
-        match (http:decode(reqTopic, "UTF-8")) {
-            string decodedTopic => reqTopic = decodedTopic;
-            error => {}
-        }
 
         string reqLeaseSeconds = <string>intentVerificationRequest.leaseSeconds;
 
@@ -219,7 +209,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
                     + reqLeaseSeconds + "]");
         } else {
             response.statusCode = http:NOT_FOUND_404;
-            log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + topic + "]");
+            log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + reqTopic + "]");
         }
     }
     return response;
@@ -233,7 +223,12 @@ documentation {
     R{{}} `error`, if an error occurred in extraction or signature validation failed
 }
 function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
-    string secret = retrieveSecret(serviceType);
+    string secret;
+    match (retrieveSubscriberServiceAnnotations(serviceType)) {
+        SubscriberServiceConfiguration subscriberServiceAnnotation => { secret = subscriberServiceAnnotation.secret; }
+        () => { log:printDebug("WebSub notification received for subscription with no secret specified"); }
+    }
+
     string xHubSignature;
 
     if (request.hasHeader(X_HUB_SIGNATURE)) {
@@ -243,9 +238,8 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
             error webSubError = {message:X_HUB_SIGNATURE + " header not present for subscription added" +
                 " specifying " + HUB_SECRET};
             return webSubError;
-        } else {
-            return;
         }
+        return;
     }
 
     json payload;
@@ -261,10 +255,8 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
     if (secret == "" && xHubSignature != "") {
         log:printWarn("Ignoring " + X_HUB_SIGNATURE + " value since secret is not specified.");
         return;
-    } else {
-        string strPayload = payload.toString();
-        return validateSignature(xHubSignature, strPayload, secret);
     }
+    return validateSignature(xHubSignature, payload.toString(), secret);
 }
 
 documentation {
@@ -411,32 +403,16 @@ public function WebSubHub::publishUpdate(string topic, json payload) returns err
     if (self.hubUrl == "") {
         error webSubError = {message:"Internal Ballerina Hub not initialized or incorrectly referenced"};
         return webSubError;
-    } else {
-        string errorMessage = validateAndPublishToInternalHub(self.hubUrl, topic, payload);
-        if (errorMessage != "") {
-            error webSubError = {message:errorMessage};
-            return webSubError;
-        }
     }
-    return;
+    return validateAndPublishToInternalHub(self.hubUrl, topic, payload);
 }
 
 public function WebSubHub::registerTopic(string topic) returns error? {
-    string errorMessage = registerTopicAtHub(topic, "");
-    if (errorMessage != "") {
-        error webSubError = {message:errorMessage};
-        return webSubError;
-    }
-    return;
+    return registerTopicAtHub(topic, "");
 }
 
 public function WebSubHub::unregisterTopic(string topic) returns error? {
-    string errorMessage = unregisterTopicAtHub(topic, "");
-    if (errorMessage != "") {
-        error webSubError = {message:errorMessage};
-        return webSubError;
-    }
-    return;
+    return unregisterTopicAtHub(topic, "");
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -475,3 +451,15 @@ type SubscriptionDetails {
     int leaseSeconds,
     int createdAt,
 };
+
+function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns SubscriberServiceConfiguration? {
+    reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
+    foreach annData in annotationDataArray {
+        if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.pkgName == WEBSUB_PACKAGE_NAME) {
+            SubscriberServiceConfiguration subscriberServiceAnnotation =
+                                                            check <SubscriberServiceConfiguration> (annData.value);
+            return subscriberServiceAnnotation;
+        }
+    }
+    return;
+}

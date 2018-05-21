@@ -85,7 +85,6 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     private List<BLangExpression> outStreamRefs;
     private List<BLangExpression> outTableRefs;
 
-    private boolean isInPatternForOrWithinClause = false;
     private boolean isSequence = false;
 
     public static SiddhiQueryBuilder getInstance(CompilerContext context) {
@@ -157,16 +156,22 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
         WhereNode beforeWhereNode = streamingInput.getBeforeStreamingCondition();
         WhereNode afterWhereNode = streamingInput.getAfterStreamingCondition();
         WindowClauseNode windowClauseNode = streamingInput.getWindowClause();
+        List<ExpressionNode> preInvocations = streamingInput.getPreFunctionInvocations();
+        List<ExpressionNode> postInvocations = streamingInput.getPostFunctionInvocations();
 
         if (beforeWhereNode != null) {
             ((BLangWhere) beforeWhereNode).accept(this);
             streamingInputClause.append(" ").append(whereClause);
         }
 
+        appendInvocations(preInvocations);
+
         if (windowClauseNode != null) {
             ((BLangWindow) windowClauseNode).accept(this);
             streamingInputClause.append(" ").append(windowClause);
         }
+
+        appendInvocations(postInvocations);
 
         if (afterWhereNode != null) {
             ((BLangWhere) afterWhereNode).accept(this);
@@ -177,6 +182,15 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
             streamingInputClause.append(" as ").append(streamingInput.getAlias()).append(" ");
         }
         addInRefs(streamRef);
+    }
+
+    private void appendInvocations(List<ExpressionNode> invocations) {
+        if (invocations != null && !invocations.isEmpty()) {
+            invocations.stream().map(expressionNode -> (BLangExpression) expressionNode).forEachOrdered(expr -> {
+                expr.accept(this);
+                streamingInputClause.append("#").append(this.exprStack.pop());
+            });
+        }
     }
 
     @Override
@@ -306,8 +320,8 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     @Override
     public void visit(BLangWithinClause withinClause) {
         patternStreamingClause.append(" within ");
-        isInPatternForOrWithinClause = true;
-        addExprToClause((BLangExpression) withinClause.getWithinTimePeriod(), patternStreamingClause, null);
+        patternStreamingClause.append(withinClause.getTimeDurationValue()).append(" ").
+                append(withinClause.getTimeScale());
     }
 
     @Override
@@ -420,12 +434,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     public void visit(BLangLiteral bLangLiteral) {
         String literal = String.valueOf(bLangLiteral.value);
         if (bLangLiteral.typeTag == TypeTags.STRING) {
-            if (!isInPatternForOrWithinClause) {
-                literal = String.format("'%s'", literal);
-            } else {
-                literal = String.format("%s", literal);
-                isInPatternForOrWithinClause = false;
-            }
+            literal = String.format("'%s'", literal);
         }
         exprStack.push(literal);
     }
@@ -437,8 +446,8 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
                 patternStreamingEdgeInputs.get(0);
         patternStreamingEdgeInput.accept(this);
         patternStreamingClause.append(" for ");
-        isInPatternForOrWithinClause = true;
-        addExprToClause((BLangExpression) patternStreamingInput.getTimeExpr(), patternStreamingClause, null);
+        patternStreamingClause.append(patternStreamingInput.getTimeDurationValue()).append(" ").
+                append(patternStreamingInput.getTimeScale());
     }
 
     private void buildPatternWithAndOr(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs, String op) {
@@ -458,7 +467,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     }
 
     private void buildFollowedByPattern(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs,
-            BLangPatternStreamingInput nestedPatternStreamingInput, String followedByOp) {
+                                        BLangPatternStreamingInput nestedPatternStreamingInput, String followedByOp) {
         BLangPatternStreamingEdgeInput patternStreamingEdgeInput = (BLangPatternStreamingEdgeInput)
                 patternStreamingEdgeInputs.get(0);
         patternStreamingEdgeInput.accept(this);

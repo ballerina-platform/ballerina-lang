@@ -227,6 +227,8 @@ public class CsvChannelTest {
         BValue[] returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "nextRecord");
         records = (BStringArray) returns[0];
         Assert.assertEquals(records.size(), expectedRecordLength);
+        Assert.assertEquals(records.stringValue(), "[\"User1,12\", \" WSO2\", \" 07xxxxxx\"]");
+
         returns = BRunUtil.invokeStateful(csvInputOutputProgramFile, "hasNextRecord");
         hasNextRecord = (BBoolean) returns[0];
         Assert.assertTrue(hasNextRecord.booleanValue(), "Expecting more records");
@@ -304,6 +306,12 @@ public class CsvChannelTest {
         BValue[] args = {new BString(sourceToWrite), new BString("w"), new BString("UTF-8"),
                 new BString(",")};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "initCSVChannel", args);
+
+        args = new BValue[]{record};
+        BRunUtil.invokeStateful(csvInputOutputProgramFile, "writeRecord", args);
+
+        String[] data = {"Foo,12", "foo@ballerina.io", "332424242"};
+        record = new BStringArray(data);
 
         args = new BValue[]{record};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "writeRecord", args);

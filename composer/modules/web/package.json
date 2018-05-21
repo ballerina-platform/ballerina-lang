@@ -117,7 +117,7 @@
     "mousetrap": "^1.6.0",
     "prop-types": "^15.5.8",
     "rc-menu": "^5.0.10",
-    "rc-tabs": "^9.1.10",
+    "rc-tabs": "^9.2.5",
     "react": "^16.2.0",
     "react-ace": "^5.8.0",
     "react-autosuggest": "^9.0.1",

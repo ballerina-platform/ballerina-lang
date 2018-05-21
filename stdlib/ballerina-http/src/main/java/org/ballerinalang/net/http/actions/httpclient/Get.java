@@ -62,7 +62,7 @@ public class Get extends AbstractHTTPAction {
             // This is should be a JavaError. Need to handle this properly.
             BallerinaException exception = new BallerinaException("Failed to invoke 'get' action in " +
                     HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
-            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
+            dataContext.notifyReply(null, HttpUtil.getError(context, exception));
         }
     }
 

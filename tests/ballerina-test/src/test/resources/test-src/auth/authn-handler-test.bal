@@ -3,9 +3,9 @@ import ballerina/mime;
 import ballerina/auth;
 
 function testCanHandleHttpBasicAuthWithoutHeader () returns (boolean) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
-    http:HttpBasicAuthnHandler handler = new(authProvider);
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    http:HttpBasicAuthnHandler handler = new(authStoreProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "123Basic xxxxxx";
     mime:Entity requestEntity = new;
@@ -15,9 +15,9 @@ function testCanHandleHttpBasicAuthWithoutHeader () returns (boolean) {
 }
 
 function testCanHandleHttpBasicAuth () returns (boolean) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
-    http:HttpBasicAuthnHandler handler = new(authProvider);
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    http:HttpBasicAuthnHandler handler = new(authStoreProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic xxxxxx";
     mime:Entity requestEntity = new;
@@ -27,9 +27,9 @@ function testCanHandleHttpBasicAuth () returns (boolean) {
 }
 
 function testHandleHttpBasicAuthFailure () returns (boolean) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
-    http:HttpBasicAuthnHandler handler = new(authProvider);
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    http:HttpBasicAuthnHandler handler = new(authStoreProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic YW1pbGE6cHFy";
     mime:Entity requestEntity = new;
@@ -39,9 +39,9 @@ function testHandleHttpBasicAuthFailure () returns (boolean) {
 }
 
 function testHandleHttpBasicAuth () returns (boolean) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
-    http:HttpBasicAuthnHandler handler = new(authProvider);
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    http:HttpBasicAuthnHandler handler = new(authStoreProvider);
     http:Request inRequest = createRequest();
     string basicAutheaderValue = "Basic aXN1cnU6eHh4";
     mime:Entity requestEntity = new;

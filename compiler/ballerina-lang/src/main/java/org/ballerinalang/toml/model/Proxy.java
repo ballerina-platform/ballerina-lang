@@ -23,10 +23,10 @@ package org.ballerinalang.toml.model;
  * @since 0.964
  */
 public class Proxy {
-    private String host;
-    private String port;
-    private String userName;
-    private String password;
+    private String host = "";
+    private String port = "";
+    private String userName = "";
+    private String password = "";
 
     /**
      * Get host name.

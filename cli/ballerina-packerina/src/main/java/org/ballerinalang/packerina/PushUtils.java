@@ -18,12 +18,13 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.ManifestProcessor;
-import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -57,11 +58,11 @@ import java.util.zip.ZipFile;
  */
 public class PushUtils {
 
+    private static final String BALLERINA_CENTRAL_CLI_TOKEN = "https://central.ballerina.io/cli-token";
+    private static final PrintStream SYS_ERR = System.err;
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
-    public static final String BALLERINA_CENTRAL_CLI_TOKEN = "https://central.ballerina.io/cli-token";
-    public static final PrintStream SYS_ERR = System.err;
     private static PrintStream outStream = System.err;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
 
@@ -69,10 +70,12 @@ public class PushUtils {
      * Push/Uploads packages to the central repository.
      *
      * @param packageName   path of the package folder to be pushed
+     * @param sourceRoot    path to the directory containing source files and packages
      * @param installToRepo if it should be pushed to central or home
      */
-    public static void pushPackages(String packageName, String installToRepo) {
-        Manifest manifest = readManifestConfigurations();
+    public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
+        Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        Manifest manifest = readManifestConfigurations(prjDirPath);
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
@@ -87,8 +90,6 @@ public class PushUtils {
         String version = manifest.getVersion();
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
-
-        Path prjDirPath = Paths.get(".").toAbsolutePath().normalize();
 
         // Get package path from project directory path
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
@@ -119,9 +120,12 @@ public class PushUtils {
             // Push package to central
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
+            Proxy proxy = RepoUtils.readSettings().getProxy();
+
             executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
                              description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
-                             resourcePath, pkgPathFromPrjtDir.toString(), msg);
+                             resourcePath, pkgPathFromPrjtDir.toString(), msg, proxy.getHost(), proxy.getPort(),
+                             proxy.getUserName(), proxy.getPassword());
 
         } else {
             if (!installToRepo.equals("home")) {
@@ -252,28 +256,14 @@ public class PushUtils {
      * Read the manifest.
      *
      * @return manifest configuration object
+     * @param prjDirPath
      */
-    private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
-                (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
+    private static Manifest readManifestConfigurations(Path prjDirPath) {
+        String tomlFilePath = prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME).toString();
         try {
             return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {
             return new Manifest();
-        }
-    }
-
-    /**
-     * Read Settings.toml to populate the configurations.
-     *
-     * @return settings object
-     */
-    private static Settings readSettings() {
-        String tomlFilePath = SETTINGS_TOML_FILE_PATH.toString();
-        try {
-            return SettingsProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Settings();
         }
     }
 
@@ -283,7 +273,7 @@ public class PushUtils {
      * @return access token for generated for the CLI
      */
     private static String getAccessTokenOfCLI() {
-        Settings settings = readSettings();
+        Settings settings = RepoUtils.readSettings();
         if (settings.getCentral() != null) {
             return settings.getCentral().getAccessToken();
         }

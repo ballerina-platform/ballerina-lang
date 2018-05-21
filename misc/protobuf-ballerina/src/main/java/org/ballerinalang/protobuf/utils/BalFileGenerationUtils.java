@@ -23,11 +23,13 @@ import org.ballerinalang.protobuf.exception.BalGenToolException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -73,7 +75,7 @@ public class BalFileGenerationUtils {
                 .toLowerCase(Locale.ENGLISH).startsWith("windows");
         ProcessBuilder builder = new ProcessBuilder();
         if (isWindows) {
-            builder.command("cmd.exe", "/c", "dir");
+            builder.command("cmd.exe", "/c", command);
         } else {
             builder.command("sh", "-c", command);
         }
@@ -89,6 +91,19 @@ public class BalFileGenerationUtils {
         } catch (InterruptedException e) {
             throw new BalGenToolException("Process not successfully completed. Process is interrupted while" +
                     " running the protoC executor.", e);
+        }
+        if (process.exitValue() != 0) {
+            try (BufferedReader bufferedReader = new BufferedReader(new
+                    InputStreamReader(process.getErrorStream(), "UTF-8"))) {
+                String err;
+                StringBuilder errMsg = new StringBuilder();
+                while ((err = bufferedReader.readLine()) != null) {
+                    errMsg.append(System.lineSeparator()).append(err);
+                }
+                throw new BalGenToolException(errMsg.toString());
+            } catch (IOException e) {
+                throw new BalGenToolException("Invalid command syntax.", e);
+            }
         }
     }
     

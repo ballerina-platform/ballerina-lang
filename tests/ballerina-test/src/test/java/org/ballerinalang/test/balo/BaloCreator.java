@@ -48,9 +48,9 @@ public class BaloCreator {
         BFileUtil.delete(projectPath.resolve(baloPath).resolve("repo"));
 
         // compile and create the balo
-        BuilderUtils.compileAndWrite(projectPath, packageId, "target/libs/", false, true);
+        BuilderUtils.compileAndWrite(projectPath, packageId, "target/lib/", false, true);
 
         // copy the balo to the temp-ballerina-home/libs/
-        BFileUtil.copy(projectPath.resolve(baloPath), Paths.get("target", "libs"));
+        BFileUtil.copy(projectPath.resolve(baloPath), Paths.get("target", "lib"));
     }
 }

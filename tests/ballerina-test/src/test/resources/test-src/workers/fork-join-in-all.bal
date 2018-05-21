@@ -25,3 +25,23 @@ function testForkJoinAll() returns int[] {
         }
         return results;
 }
+
+function testForkJoinWithEmptyTimeoutBlock() returns int[] {
+    forkJoinWithEmptyTimeoutBlock();
+    int[] p;
+    p[0] = 234;
+    p[1] = 500;
+    return p;
+}
+function forkJoinWithEmptyTimeoutBlock() {
+    fork {
+        worker worker1 {
+            7 -> fork;
+        }
+        worker worker2 {
+            6 -> fork;
+        }
+    }join (all)(map results) {
+    }timeout(100)(map results1) {
+    }
+}

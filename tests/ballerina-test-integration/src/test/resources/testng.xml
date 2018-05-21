@@ -38,6 +38,7 @@
             <package name="org.ballerinalang.test.filter"/>
             <package name="org.ballerinalang.test.auth"/>
             <package name="org.ballerinalang.test.securelistener"/>
+            <package name="org.ballerinalang.test.service.websocket"/>
         </packages>
     </test>
 
@@ -51,14 +52,6 @@
         <packages>
             <package name="org.ballerinalang.test.service.websub"/>
         </packages>
-    </test>
-
-    <test name="ballerina-web-socket-sample-tests" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.test.service.websocket.sample.WebSocketSimpleProxyTestCase"/>
-            <class name="org.ballerinalang.test.service.websocket.sample.WebSocketQueryAndPathParamSupportTestCase"/>
-            <class name="org.ballerinalang.test.service.websocket.sample.PingPongSupportTestCase"/>
-        </classes>
     </test>
 
     <test name="ballerina-grpc-sample-tests" preserve-order="true" parallel="false">
@@ -90,6 +83,7 @@
     <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.packaging.PackagingPullTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingPushTestCase"/>
         </classes>
     </test>
 
