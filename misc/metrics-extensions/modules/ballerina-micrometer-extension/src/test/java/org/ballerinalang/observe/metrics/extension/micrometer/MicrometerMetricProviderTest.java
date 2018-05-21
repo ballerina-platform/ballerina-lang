@@ -54,7 +54,7 @@ public class MicrometerMetricProviderTest {
     public void testCounter() {
         Counter counter = Counter.builder("test_counter").description("Test Counter").register(metricRegistry);
         counter.increment(100D);
-        Assert.assertEquals(counter.count(), 100D);
+        Assert.assertEquals(counter.getValue(), 100D);
     }
 
     @Test
@@ -62,7 +62,7 @@ public class MicrometerMetricProviderTest {
         Counter counter = Counter.builder("test_tags_counter").description("Test Counter Tags")
                 .tags("key", "value").register(metricRegistry);
         counter.increment(100D);
-        Assert.assertEquals(counter.count(), 100D);
+        Assert.assertEquals(counter.getValue(), 100D);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class MicrometerMetricProviderTest {
         counter = Counter.builder("test_multiple_tags_counter").description("Test Counter Multiple Tags")
                 .tags("key2", "value2", "key1", "value1").register(metricRegistry);
         counter.increment(100D);
-        Assert.assertEquals(counter.count(), 200D);
+        Assert.assertEquals(counter.getValue(), 200D);
     }
 
     @Test
@@ -81,7 +81,7 @@ public class MicrometerMetricProviderTest {
         Counter counter = Counter.builder("test_different_multiple_tags_counter")
                 .tags("key1", "value1", "key2", "value2").register(metricRegistry);
         counter.increment(100D);
-        Assert.assertEquals(counter.count(), 100D);
+        Assert.assertEquals(counter.getValue(), 100D);
         try {
             Counter.builder("test_different_multiple_tags_counter")
                     .tags("key2", "value2", "key3", "value3").register(metricRegistry);

@@ -28,7 +28,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.Counter;
 
 /**
- * Get a Counter instance using name and tags.
+ * Get a Counter instance.
  */
 @BallerinaFunction(
         orgName = "ballerina",

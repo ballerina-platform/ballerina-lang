@@ -45,6 +45,6 @@ public class CounterValue extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct bCounter = (BStruct) context.getRefArgument(0);
         Counter counter = (Counter) bCounter.getNativeData(Constants.COUNTER);
-        context.setReturnValues(new BInteger((long) counter.count()));
+        context.setReturnValues(new BInteger((long) counter.getValue()));
     }
 }

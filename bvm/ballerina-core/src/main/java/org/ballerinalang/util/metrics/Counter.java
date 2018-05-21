@@ -106,8 +106,10 @@ public interface Counter extends Metric {
     void increment(double amount);
 
     /**
-     * @return The cumulative count since this counter was created.
+     * Returns the counter's current value.
+     *
+     * @return the counter's current value.
      */
-    double count();
+    double getValue();
 
 }
