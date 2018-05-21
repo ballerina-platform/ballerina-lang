@@ -35,6 +35,8 @@ import java.io.IOException;
 
 /**
  * Tests for global variables in a BALO usage within services test cases.
+ * 
+ * @since 0.975.0
  */
 public class GlobalVarServiceInBaloTest {
 

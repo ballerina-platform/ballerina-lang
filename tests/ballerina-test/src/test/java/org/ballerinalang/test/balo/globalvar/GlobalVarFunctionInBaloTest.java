@@ -34,6 +34,8 @@ import java.io.IOException;
 
 /**
  * Global variable functions in BALO test.
+ * 
+ * @since 0.975.0
  */
 public class GlobalVarFunctionInBaloTest {
 
