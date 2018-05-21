@@ -404,7 +404,7 @@ Statement ::=
     |   ThrowStatement
     |   ReturnStatement
     |   AbortStatement
-    |   retryStatement
+    |   RetryStatement
     |   LockStatement
     |   NamespaceDeclarationStatement
     |   TransactionStatement
@@ -424,7 +424,7 @@ Statement ::=
 // Todo - Add more tokens
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|next|break|fork|try|throw|return|abort|fail|lock|transaction|if|forever|object|check|identifier)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|next|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|identifier)
 
 //private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /*struct | switch | var | next |try |*/ int )
 
@@ -481,7 +481,7 @@ ElseIfClause ::= else if LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS LEFT_BRAC
 ElseClause ::= else LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 matchStatement ::= match Expression matchStatementBody {pin=1}
-matchStatementBody ::= LEFT_BRACE matchPatternClause+ RIGHT_BRACE
+matchStatementBody ::= LEFT_BRACE matchPatternClause+ RIGHT_BRACE {pin=1}
 
 // Todo - Add fake rule
 matchPatternClause ::= namedPattern | unnamedPattern
@@ -592,9 +592,9 @@ ExpressionStmt ::= Expression SEMICOLON {pin=1}
 
 TransactionStatement ::= TransactionClause OnretryClause?
 
-TransactionClause ::= transaction (WITH TransactionPropertyInitStatementList)? LEFT_BRACE Block RIGHT_BRACE {pin(".*")=1}
+TransactionClause ::= transaction (with TransactionPropertyInitStatementList)? LEFT_BRACE Block RIGHT_BRACE {pin(".*")=1}
 
-TransactionPropertyInitStatement ::= RetriesStatement | OncommitStatement | OnabortStatement {pin=1}
+TransactionPropertyInitStatement ::= RetriesStatement | OnCommitStatement | OnAbortStatement {pin=1}
 
 TransactionPropertyInitStatementList ::= TransactionPropertyInitStatement (COMMA TransactionPropertyInitStatement)* {pin(".*")=1}
 
@@ -604,13 +604,13 @@ OnretryClause ::= onretry LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 AbortStatement ::= abort SEMICOLON {pin=1}
 
-retryStatement ::= retry SEMICOLON {pin=1}
+RetryStatement ::= retry SEMICOLON {pin=1}
 
 RetriesStatement ::= retries ASSIGN Expression {pin=1}
 
-OncommitStatement ::= oncommit ASSIGN Expression {pin=1}
+OnCommitStatement ::= oncommit ASSIGN Expression {pin=1}
 
-OnabortStatement ::= onabort ASSIGN Expression {pin=1}
+OnAbortStatement ::= onabort ASSIGN Expression {pin=1}
 
 NamespaceDeclarationStatement ::= NamespaceDeclaration /*{pin=1}*/
 
