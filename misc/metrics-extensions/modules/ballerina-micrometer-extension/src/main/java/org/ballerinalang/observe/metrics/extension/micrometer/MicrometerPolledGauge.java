@@ -20,21 +20,21 @@ package org.ballerinalang.observe.metrics.extension.micrometer;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import org.ballerinalang.util.metrics.AbstractMetric;
-import org.ballerinalang.util.metrics.CallbackGauge;
+import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.MetricId;
 
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;
 
 /**
- * An implementation of {@link CallbackGauge} using Micrometer.
+ * An implementation of {@link PolledGauge} using Micrometer.
  */
-public class MicrometerCallbackGauge extends AbstractMetric implements CallbackGauge {
+public class MicrometerPolledGauge extends AbstractMetric implements PolledGauge {
 
     private final io.micrometer.core.instrument.Gauge gauge;
 
-    public <T> MicrometerCallbackGauge(MeterRegistry meterRegistry, MetricId id, T obj,
-                                       ToDoubleFunction<T> toDoubleFunction) {
+    public <T> MicrometerPolledGauge(MeterRegistry meterRegistry, MetricId id, T obj,
+                                     ToDoubleFunction<T> toDoubleFunction) {
         super(id);
         gauge = io.micrometer.core.instrument.Gauge.builder(id.getName(), obj, toDoubleFunction)
                 .description(id.getDescription())

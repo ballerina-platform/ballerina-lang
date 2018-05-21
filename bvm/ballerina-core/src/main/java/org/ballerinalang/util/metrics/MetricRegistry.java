@@ -66,16 +66,16 @@ public class MetricRegistry {
     }
 
     /**
-     * Use {@link CallbackGauge#builder(String, Object, ToDoubleFunction)}.
+     * Use {@link PolledGauge#builder(String, Object, ToDoubleFunction)}.
      *
      * @param id            The {@link MetricId}.
      * @param obj           State object used to compute a value.
      * @param valueFunction Function that produces an instantaneous gauge value from the state object.
      * @param <T>           The type of the state object from which the gauge value is extracted.
-     * @return A existing or a new {@link CallbackGauge} metric.
+     * @return A existing or a new {@link PolledGauge} metric.
      */
-    public <T> CallbackGauge callbackGauge(MetricId id, T obj, ToDoubleFunction<T> valueFunction) {
-        return getOrCreate(id, CallbackGauge.class, () -> metricProvider.newCallbackGauge(id, obj, valueFunction));
+    public <T> PolledGauge polledGauge(MetricId id, T obj, ToDoubleFunction<T> valueFunction) {
+        return getOrCreate(id, PolledGauge.class, () -> metricProvider.newPolledGauge(id, obj, valueFunction));
     }
 
     /**

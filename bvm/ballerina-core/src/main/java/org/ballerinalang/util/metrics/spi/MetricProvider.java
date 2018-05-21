@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.util.metrics.spi;
 
-import org.ballerinalang.util.metrics.CallbackGauge;
+import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
@@ -50,7 +50,7 @@ public interface MetricProvider {
 
     Gauge newGauge(MetricId metricId);
 
-    <T> CallbackGauge newCallbackGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction);
+    <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction);
 
     Summary newSummary(MetricId metricId, StatisticConfig statisticConfig);
 

@@ -18,7 +18,7 @@
 package org.ballerinalang.util.metrics.noop;
 
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.util.metrics.CallbackGauge;
+import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
@@ -56,8 +56,8 @@ public class NoOpMetricProvider implements MetricProvider {
     }
 
     @Override
-    public <T> CallbackGauge newCallbackGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
-        return new NoOpCallbackGauge(metricId);
+    public <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
+        return new NoOpPolledGauge(metricId);
     }
 
     @Override

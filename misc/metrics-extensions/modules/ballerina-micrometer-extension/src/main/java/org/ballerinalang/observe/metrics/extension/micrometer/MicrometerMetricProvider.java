@@ -22,7 +22,7 @@ import io.micrometer.core.instrument.Metrics;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.observe.metrics.extension.micrometer.spi.MeterRegistryProvider;
-import org.ballerinalang.util.metrics.CallbackGauge;
+import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
@@ -96,8 +96,8 @@ public class MicrometerMetricProvider implements MetricProvider {
     }
 
     @Override
-    public <T> CallbackGauge newCallbackGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
-        return new MicrometerCallbackGauge(meterRegistry, metricId, obj, toDoubleFunction);
+    public <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
+        return new MicrometerPolledGauge(meterRegistry, metricId, obj, toDoubleFunction);
     }
 
     @Override

@@ -18,15 +18,15 @@
 package org.ballerinalang.util.metrics.noop;
 
 import org.ballerinalang.util.metrics.AbstractMetric;
-import org.ballerinalang.util.metrics.CallbackGauge;
+import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.MetricId;
 
 /**
- * Implementation of No-Op {@link CallbackGauge}.
+ * Implementation of No-Op {@link PolledGauge}.
  */
-public class NoOpCallbackGauge extends AbstractMetric implements CallbackGauge {
+public class NoOpPolledGauge extends AbstractMetric implements PolledGauge {
 
-    public NoOpCallbackGauge(MetricId id) {
+    public NoOpPolledGauge(MetricId id) {
         super(id);
     }
 

@@ -25,27 +25,27 @@ import java.util.function.ToDoubleFunction;
 /**
  * Gauge to report instantaneous values by using a callback function.
  */
-public interface CallbackGauge extends Metric {
+public interface PolledGauge extends Metric {
 
     /**
-     * Create new builder for {@link CallbackGauge}.
+     * Create new builder for {@link PolledGauge}.
      *
      * @param name          The name of the metric.
      * @param obj           State object used to compute a value.
      * @param valueFunction Function that produces an instantaneous gauge value from the state object.
      * @param <T>           The type of the state object from which the gauge value is extracted.
-     * @return The builder for {@link CallbackGauge}.
+     * @return The builder for {@link PolledGauge}.
      */
     static <T> Builder<T> builder(String name, T obj, ToDoubleFunction<T> valueFunction) {
         return new Builder<>(name, obj, valueFunction);
     }
 
     /**
-     * Builder for {@link CallbackGauge}s.
+     * Builder for {@link PolledGauge}s.
      *
      * @param <T> The type of the state object from which the gauge value is extracted.
      */
-    class Builder<T> implements Metric.Builder<Builder<T>, CallbackGauge> {
+    class Builder<T> implements Metric.Builder<Builder<T>, PolledGauge> {
 
         private final String name;
         // Expecting at least 10 tags
@@ -91,13 +91,13 @@ public interface CallbackGauge extends Metric {
         }
 
         @Override
-        public CallbackGauge register() {
+        public PolledGauge register() {
             return register(DefaultMetricRegistry.getInstance());
         }
 
         @Override
-        public CallbackGauge register(MetricRegistry registry) {
-            return registry.callbackGauge(new MetricId(name, description, tags), obj, valueFunction);
+        public PolledGauge register(MetricRegistry registry) {
+            return registry.polledGauge(new MetricId(name, description, tags), obj, valueFunction);
         }
     }
 

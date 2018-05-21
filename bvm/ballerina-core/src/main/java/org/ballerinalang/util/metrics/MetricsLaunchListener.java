@@ -83,17 +83,17 @@ public class MetricsLaunchListener implements LaunchListener {
     private void registerBallerinaMetrics() {
         final BLangScheduler.SchedulerStats schedulerStats = BLangScheduler.getStats();
         final String prefix = "ballerina_scheduler_";
-        CallbackGauge.builder(prefix + "ready_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "ready_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getReadyWorkerCount).register();
-        CallbackGauge.builder(prefix + "running_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "running_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getRunningWorkerCount).register();
-        CallbackGauge.builder(prefix + "excepted_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "excepted_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getExceptedWorkerCount).register();
-        CallbackGauge.builder(prefix + "paused_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "paused_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getPausedWorkerCount).register();
-        CallbackGauge.builder(prefix + "waiting_for_response_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "waiting_for_response_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getWaitingForResponseWorkerCount).register();
-        CallbackGauge.builder(prefix + "waiting_for_lock_worker_count", schedulerStats,
+        PolledGauge.builder(prefix + "waiting_for_lock_worker_count", schedulerStats,
                 BLangScheduler.SchedulerStats::getWaitingForLockWorkerCount).register();
     }
 

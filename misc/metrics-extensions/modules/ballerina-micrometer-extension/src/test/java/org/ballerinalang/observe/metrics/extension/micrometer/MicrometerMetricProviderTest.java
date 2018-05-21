@@ -20,7 +20,7 @@ package org.ballerinalang.observe.metrics.extension.micrometer;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
-import org.ballerinalang.util.metrics.CallbackGauge;
+import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricRegistry;
@@ -111,10 +111,10 @@ public class MicrometerMetricProviderTest {
     }
 
     @Test
-    public void testCallbackGauge() {
+    public void testPolledGauge() {
         List<Integer> list = new ArrayList();
         IntStream.range(0, 100).forEach(list::add);
-        CallbackGauge gauge = CallbackGauge.builder("test_callback_gauge", list, List::size).description("")
+        PolledGauge gauge = PolledGauge.builder("test_polled_gauge", list, List::size).description("")
                 .register(metricRegistry);
         Assert.assertEquals(gauge.get(), 100D);
     }
