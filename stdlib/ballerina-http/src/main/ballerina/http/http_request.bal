@@ -40,6 +40,21 @@ public type Request object {
         RequestCacheControl? cacheControl;
     }
 
+    private {
+        mime:Entity entity;
+    }
+
+    public new() {
+        self.entity = createNewEntity();
+    }
+
+    documentation {
+        Create a new `Entity` and link it with the request.
+
+        R{{}} Newly created `Entity` that has been set to the request
+    }
+    native function createNewEntity() returns mime:Entity;
+
     documentation {
         Sets the provided `Entity` to the request.
 

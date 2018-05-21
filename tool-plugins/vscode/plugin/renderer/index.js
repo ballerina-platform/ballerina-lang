@@ -26,9 +26,7 @@ let diagramProvider;
 const DEBOUNCE_WAIT = 500;
 
 exports.activate = function(context) {
-
-	const outputChannel = window.createOutputChannel("Ballerina");
-	const provider = diagramProvider = new DiagramProvider(outputChannel);
+	const provider = diagramProvider = new DiagramProvider();
 
 	workspace.onDidChangeTextDocument(_.debounce((e) => {
         if ((window.activeTextEditor) && (e.document === window.activeTextEditor.document) &&

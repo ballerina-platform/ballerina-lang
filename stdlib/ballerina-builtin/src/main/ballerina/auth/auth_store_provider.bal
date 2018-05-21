@@ -15,10 +15,10 @@
 // under the License.
 
 documentation {
-    Represents the auth provider. Any type of implementation, such as ldap, jdbc, file based, etc. should be
-    object-wise similar
+    Represents the auth store provider. Any type of implementation, such as
+    LDAP, JDBC, file based, etc. should be object-wise similar
 }
-public type AuthProvider object {
+public type AuthStoreProvider object {
 
     documentation {
         P{{username}} user name
@@ -37,12 +37,12 @@ public type AuthProvider object {
 };
 
 //Dummy implementation, please fix
-public function AuthProvider::authenticate (string username, string password) returns boolean {
+public function AuthStoreProvider::authenticate (string username, string password) returns boolean {
     return true;
 }
 
 //Dummy implementation, please fix
-public function AuthProvider::getScopes (string username) returns string[] {
+public function AuthStoreProvider::getScopes (string username) returns string[] {
     string[] val;
     return val;
 }

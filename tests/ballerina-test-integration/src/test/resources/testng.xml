@@ -83,6 +83,7 @@
     <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.packaging.PackagingPullTestCase"/>
+            <class name="org.ballerinalang.test.packaging.PackagingPushTestCase"/>
         </classes>
     </test>
 

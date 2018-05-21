@@ -32,12 +32,12 @@ type ResultCount {
 };
 
 type ResultArrayType {
-    map INT_ARRAY,
-    map LONG_ARRAY,
-    map DOUBLE_ARRAY,
-    map BOOLEAN_ARRAY,
-    map STRING_ARRAY,
-    map FLOAT_ARRAY,
+    int[] INT_ARRAY,
+    int[] LONG_ARRAY,
+    float[] DOUBLE_ARRAY,
+    boolean[] BOOLEAN_ARRAY,
+    string[] STRING_ARRAY,
+    float[] FLOAT_ARRAY,
 };
 
 type ResultDates {
@@ -73,7 +73,7 @@ function testInsertTableData() returns (int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    var insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
+    int insertCount = check testDB->update("Insert into Customers (firstName,lastName,registrationID,creditLimit,country)
                                          values ('James', 'Clerk', 2, 5000.75, 'USA')");
     testDB.stop();
     return insertCount;
@@ -98,7 +98,7 @@ function testUpdateTableData() returns (int) {
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    var updateCount = check testDB->update("Update Customers set country = 'UK' where registrationID = 1");
+    int updateCount = check testDB->update("Update Customers set country = 'UK' where registrationID = 1");
     testDB.stop();
     return updateCount;
 }
@@ -436,7 +436,7 @@ function testBoolArrayofQueryParameters() returns (int) {
     return value;
 }
 
-function testArrayInParameters() returns (int, map, map, map, map, map, map) {
+function testArrayInParameters() returns (int, int[], int[], float[], string[], boolean[], float[]) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
         username: "SA",
@@ -457,12 +457,12 @@ function testArrayInParameters() returns (int, map, map, map, map, map, map) {
     sql:Parameter para7 = { sqlType: sql:TYPE_ARRAY, value: stringArray };
 
     int insertCount;
-    map int_arr;
-    map long_arr;
-    map double_arr;
-    map string_arr;
-    map boolean_arr;
-    map float_arr;
+    int[] int_arr;
+    int[] long_arr;
+    float[] double_arr;
+    string[] string_arr;
+    boolean[] boolean_arr;
+    float[] float_arr;
 
     insertCount = check testDB->update("INSERT INTO ArrayTypes (row_id, int_array, long_array,
         float_array, double_array, boolean_array, string_array) values (?,?,?,?,?,?,?)", 2, para2, para3, para4,
@@ -617,7 +617,7 @@ function testINParametersWithDirectValues() returns (int, int, float, float, boo
     blob blobReturn;
 
     while (dt.hasNext()) {
-        var rs = check <ResultBalTypes>dt.getNext();
+        ResultBalTypes rs = check <ResultBalTypes>dt.getNext();
         i = rs.INT_TYPE;
         l = rs.LONG_TYPE;
         f = rs.FLOAT_TYPE;
@@ -974,7 +974,7 @@ function testBatchUpdateWithFailure() returns (int[], int) {
         ResultCount);
 
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count = rs.COUNTVAL;
     }
 
@@ -1064,7 +1064,7 @@ function testDateTimeNullInValues() returns (string) {
 
     string data;
 
-    var j = check <json>dt;
+    json j = check <json>dt;
     data = io:sprintf("%j", j);
 
     testDB.stop();
@@ -1181,15 +1181,15 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
     string s4;
 
     table dt = check testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
-    var x1 = check <xml>dt;
+    xml x1 = check <xml>dt;
     s1 = io:sprintf("%l", x1);
 
     dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
-    var x2 = check <xml>dt;
+    xml x2 = check <xml>dt;
     s2 = io:sprintf("%l", x2);
 
     dt = check testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
-    var j = check <json>dt;
+    json j = check <json>dt;
     s3 = io:sprintf("%j", j);
 
     dt = check testDB->select("SELECT * from DateTimeTypes where row_id = 1", ());
@@ -1214,7 +1214,7 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
     Employee[] employeeArray3;
     int i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray1[i] = e;
         i++;
@@ -1222,7 +1222,7 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
 
     i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray2[i] = e;
         i++;
@@ -1230,7 +1230,7 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
 
     i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray3[i] = e;
         i++;
@@ -1254,14 +1254,14 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
     Employee[] employeeArray3;
     int i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray1[i] = e;
         i++;
     }
     i = 0;
     while (dt.hasNext()) {
-        var rs = check <Employee>dt.getNext();
+        Employee rs = check <Employee>dt.getNext();
         Employee e = { id: rs.id, name: rs.name, address: rs.address };
         employeeArray2[i] = e;
         i++;
@@ -1271,7 +1271,7 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
     error e;
     try {
         while (dt.hasNext()) {
-            var rs = check <Employee>dt.getNext();
+            Employee rs = check <Employee>dt.getNext();
             Employee e = { id: rs.id, name: rs.name, address: rs.address };
             employeeArray3[i] = e;
             i++;

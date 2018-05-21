@@ -54,6 +54,7 @@ documentation {
     F{{requestCount}} Total request count since the starting time
     F{{errorCount}} Total error count since the starting time
     F{{lastErrorTime}} The time that the last error occurred
+    F{{lastForcedOpenTime}} The time that circuit forcefully opened at last
     F{{totalBuckets}} The discrete time buckets into which the time window is divided
     F{{lastUsedBucketId}} ID of the last bucket used in Circuit Breaker calculations
 }
@@ -62,6 +63,7 @@ public type CircuitHealth {
    int requestCount,
    int errorCount,
    time:Time lastErrorTime,
+   time:Time lastForcedOpenTime,
    Bucket[] totalBuckets,
    int lastUsedBucketId,
 };
@@ -306,6 +308,18 @@ public type CircuitBreakerClient object {
         P{{promise}} The `PushPromise` to be rejected
     }
     public function rejectPromise(PushPromise promise);
+
+    documentation {
+        Force the circuit into a closed state in which it will allow requests regardless of the error percentage
+        until the failure threshold exceeds.
+    }
+    public function forceClose();
+
+    documentation {
+        Force the circuit into a open state in which it will suspend all requests
+        until `resetTimeMillis` interval exceeds.
+    }
+    public function forceOpen();
 };
 
 public function CircuitBreakerClient::post(string path, Request? request = ()) returns Response|error {
@@ -531,6 +545,17 @@ public function CircuitBreakerClient::rejectPromise(PushPromise promise) {
     return self.httpClient.rejectPromise(promise);
 }
 
+public function CircuitBreakerClient::forceClose() {
+    self.currentCircuitState = CB_CLOSED_STATE;
+    self.circuitHealth.errorCount = 0;
+    self.circuitHealth.requestCount = 0;
+}
+
+public function CircuitBreakerClient::forceOpen() {
+    self.currentCircuitState = CB_OPEN_STATE;
+    self.circuitHealth.lastForcedOpenTime = time:currentTime();
+}
+
 documentation {
     Update circuit state.
 
@@ -539,22 +564,20 @@ documentation {
     P{{circuitBreakerInferredConfig}}   Configurations derived from `CircuitBreakerConfig`
     R{{}} State of the circuit
 }
-// TODO: make this private
-public function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentStateValue,
+function updateCircuitState(CircuitHealth circuitHealth, CircuitState currentStateValue,
                                    CircuitBreakerInferredConfig circuitBreakerInferredConfig) returns (CircuitState) {
     CircuitState currentState = currentStateValue;
     lock {
        if (currentState == CB_OPEN_STATE) {
-           time:Time currentT = time:currentTime();
-           int elapsedTime = currentT.time - circuitHealth.lastErrorTime.time;
-
+           time:Time currentTime = time:currentTime();
+           time:Time effectiveErrorTime = getEffectiveErrorTime(circuitHealth);
+           int elapsedTime = currentTime.time - effectiveErrorTime.time;
            if (elapsedTime > circuitBreakerInferredConfig.resetTimeMillis) {
                circuitHealth.errorCount = 0;
                circuitHealth.requestCount = 0;
                currentState = CB_HALF_OPEN_STATE;
                log:printInfo("CircuitBreaker reset timeout reached. Circuit switched from OPEN to HALF_OPEN state.");
            }
-
        } else if (currentState == CB_HALF_OPEN_STATE) {
            if (circuitHealth.errorCount > 0) {
                // If the trial run has failed, trip the circuit again
@@ -569,7 +592,7 @@ public function updateCircuitState(CircuitHealth circuitHealth, CircuitState cur
            float currentFailureRate = 0;
 
            if (circuitHealth.requestCount > 0 && circuitHealth.errorCount > 0) {
-               currentFailureRate = getcurrentFailureRatio(circuitHealth);
+               currentFailureRate = getCurrentFailureRatio(circuitHealth);
            }
 
            if (currentFailureRate > circuitBreakerInferredConfig.failureThreshold) {
@@ -627,8 +650,9 @@ function updateCircuitHealthSuccess(CircuitHealth circuitHealth, Response inResp
 // Handles open circuit state.
 function handleOpenCircuit(CircuitHealth circuitHealth, CircuitBreakerInferredConfig circuitBreakerInferredConfig)
                                                                                         returns (error) {
-   time:Time currentT = time:currentTime();
-   int timeDif = currentT.time - circuitHealth.lastErrorTime.time;
+   time:Time currentTime = time:currentTime();
+   time:Time effectiveErrorTime = getEffectiveErrorTime(circuitHealth);
+   int timeDif = currentTime.time - effectiveErrorTime.time;
    int timeRemaining = circuitBreakerInferredConfig.resetTimeMillis - timeDif;
    string errorMessage = "Upstream service unavailable. Requests to upstream service will be suspended for "
              + timeRemaining + " milliseconds.";
@@ -653,8 +677,7 @@ documentation {
     P{{circuitHealth}}  Circuit Breaker health status
     R{{}} Current failure ratio
 }
-// TODO: make this private
-public function getcurrentFailureRatio(CircuitHealth circuitHealth) returns float {
+function getCurrentFailureRatio(CircuitHealth circuitHealth) returns float {
     int totalSuccess;
     int totalFailures;
 
@@ -675,8 +698,12 @@ documentation {
     P{{circuitHealth}}  - Circuit Breaker health status.
     P{{bucketId}}  - Id of the bucket should reset.
 }
-// TODO: make this private
-public function resetBucketStats(CircuitHealth circuitHealth, int bucketId) {
+function resetBucketStats(CircuitHealth circuitHealth, int bucketId) {
     circuitHealth.totalBuckets[bucketId].successCount = 0;
     circuitHealth.totalBuckets[bucketId].failureCount = 0;
+}
+
+function getEffectiveErrorTime(CircuitHealth circuitHealth) returns time:Time {
+    return (circuitHealth.lastErrorTime.time > circuitHealth.lastForcedOpenTime.time)
+                        ? circuitHealth.lastErrorTime : circuitHealth.lastForcedOpenTime;
 }
