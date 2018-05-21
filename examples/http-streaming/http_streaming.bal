@@ -3,18 +3,13 @@ import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 
-// Creating a listener for the streaming service.
-endpoint http:Listener testEP {
-    port: 9090
-};
-
 // Creating an endpoint for the client.
 endpoint http:Client clientEndpoint {
     url: "http://localhost:9090"
 };
 
 @http:ServiceConfig { basePath: "/stream" }
-service<http:Service> HTTPStreamingService bind testEP {
+service<http:Service> HTTPStreamingService bind { port: 9090 } {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -33,11 +28,9 @@ service<http:Service> HTTPStreamingService bind testEP {
         http:Response res = new;
         match response {
             http:Response resp => {
-
                 //Get the text payload received from the client endpoint.
                 match resp.getTextPayload() {
                     string payload => {
-
                         //Set the response payload.
                         res.setTextPayload(payload);
                     }
@@ -64,7 +57,6 @@ service<http:Service> HTTPStreamingService bind testEP {
         //Get the payload as a byte channel.
         match clientRequest.getByteChannel() {
             io:ByteChannel byteChannel => {
-
                 //Write the incoming stream to a file. First get the destination
                 //channel by providing the file name the content should be
                 //written to.
@@ -98,7 +90,7 @@ service<http:Service> HTTPStreamingService bind testEP {
 }
 
 // This function returns a ByteChannel from a given file location according
-// to the specified file permission
+// to the specified file permission.
 //(i.e., whether the file should be opened for read or write)."}
 function getFileChannel(string filePath, io:Mode permission)
     returns (io:ByteChannel) {
