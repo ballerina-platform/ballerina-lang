@@ -22,4 +22,5 @@
 
 <suppressions>
     <suppress checks="." files="gen/org/ballerinalang/plugins/idea"/>
+    <suppress checks="." files="gen\\org\\ballerinalang\\plugins\\idea"/>
 </suppressions>
