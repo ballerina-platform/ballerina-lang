@@ -18,19 +18,11 @@
 //////////////////// WebSub Subscriber Natives ////////////////////
 ///////////////////////////////////////////////////////////////////
 documentation {
-    Function to retrieve annotations specified for the WebSub Subscriber Service.
+    Function to retrieve the topic specified as an annotation.
     
-    R{{}} `SubscriberServiceConfiguration` representing the annotation
+    R{{}} `string` representing the annotation
 }
-native function retrieveAnnotations() returns SubscriberServiceConfiguration;
-
-documentation {
-    Function to retrieve annotations specified for the WebSub Subscriber Service.
-
-    P{{serviceType}} the typedesc for the service
-    R{{}} `string` The secret specified in the the annotation
-}
-native function retrieveSecret(typedesc serviceType) returns string;
+native function retrieveIntendedTopic() returns string;
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Natives ///////////////////////////
@@ -64,9 +56,9 @@ documentation {
 
     P{{topic}} The topic for which the update should happen
     P{{payload}} The update payload
-    R{{}} `string` Error Message if an error occurred with publishing
+    R{{}} `error` if an error occurred during publishing
 }
-native function publishToInternalHub(string topic, json payload) returns string;
+native function publishToInternalHub(string topic, json payload) returns error?;
 
 documentation {
     Removes a subscription added for the specified topic in the Ballerina Hub.
@@ -82,18 +74,18 @@ documentation {
     P{{topic}} The topic to register
     P{{secret}} The secret to use to identify the registration
     P{{loadingOnStartUp}} Whether registration is being called on loading from the database at start up
-    R{{}} `string` Error Message if an error occurred with registration
+    R{{}} `error` if an error occurred with registration
 }
-native function registerTopicAtHub(string topic, string secret, boolean loadingOnStartUp = false) returns string;
+native function registerTopicAtHub(string topic, string secret, boolean loadingOnStartUp = false) returns error?;
 
 documentation {
     Unregisters a topic in the Ballerina Hub.
 
     P{{topic}} The topic to unregister
     P{{secret}} The secret specified at registration
-    R{{}} `string` Error Message if an error occurred with unregistration
+    R{{}} `error` if an error occurred with unregistration
 }
-native function unregisterTopicAtHub(string topic, string secret) returns string;
+native function unregisterTopicAtHub(string topic, string secret) returns error?;
 
 documentation {
     Retrieves whether a topic is registered with the Ballerina Hub.
@@ -120,6 +112,6 @@ documentation {
     P{{hubUrl}} The URL of the Ballerina WebSub Hub as included in the WebSubHub struct
     P{{topic}} The topic for which the update should happen
     P{{payload}} The update payload
-    R{{}} `string` String indicating the error, if an error occurred
+    R{{}} `error` if an error occurred during publishing
 }
-native function validateAndPublishToInternalHub(string hubUrl, string topic, json payload) returns string;
+native function validateAndPublishToInternalHub(string hubUrl, string topic, json payload) returns error?;

@@ -28,6 +28,7 @@ import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -46,7 +47,7 @@ public class WriterTest {
     }
     
     @Test(description = "Test if writer class is working.", enabled = false)
-    public void testWriter() {
+    public void testWriter() throws IOException {
         URL location = Writer.class.getProtectionDomain().getCodeSource().getLocation();
         String outputPath = location.getPath() + File.separator + "sample.html";
         Writer.writeHtmlDocument(
@@ -55,7 +56,7 @@ public class WriterTest {
     }
     
     @Test(description = "Test writer with invalid output path.", enabled = false)
-    public void testWriterWithInvalidPath() {
+    public void testWriterWithInvalidPath() throws IOException {
         URL location = Writer.class.getProtectionDomain().getCodeSource().getLocation();
         String outputPath = location.getPath();
         Writer.writeHtmlDocument(

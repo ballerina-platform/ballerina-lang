@@ -9,7 +9,6 @@ function testTransaction(int i) returns (string) {
     return a;
 }
 
-
 function testTransactionStmtVariableRetry() returns (string) {
     int retryCount = getRetryCount();
     string a = "start";

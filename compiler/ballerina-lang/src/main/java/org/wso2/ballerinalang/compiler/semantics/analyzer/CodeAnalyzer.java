@@ -179,6 +179,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> returnWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithintransactionCheckStack = new Stack<>();
+    private Stack<Boolean> transactionWithinHandlerCheckStack = new Stack<>();
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
@@ -261,6 +262,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangFunction funcNode) {
+        if (funcNode.symbol.isTransactionHandler) {
+            transactionWithinHandlerCheckStack.push(true);
+        }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
         this.validateMainFunction(funcNode);
@@ -268,6 +272,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
+        if (funcNode.symbol.isTransactionHandler) {
+            transactionWithinHandlerCheckStack.pop();
+        }
     }
 
     private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {
@@ -368,6 +375,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
+        //Check whether transaction is within a handler function. This can check for single level only. We need data
+        //flow analysis to check for further levels.
+        if (!isValidTransactionBlock()) {
+            this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER);
+            return;
+        }
         this.loopWithintransactionCheckStack.push(false);
         this.returnWithintransactionCheckStack.push(false);
         this.doneWithintransactionCheckStack.push(false);
@@ -1303,6 +1316,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean checkReturnValidityInTransaction() {
         return (this.returnWithintransactionCheckStack.empty() || !this.returnWithintransactionCheckStack.peek())
                 && transactionCount > 0;
+    }
+
+    private boolean isValidTransactionBlock() {
+        return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek());
     }
 
     private boolean checkDoneValidityInTransaction() {

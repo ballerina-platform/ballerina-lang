@@ -22,9 +22,11 @@ package org.ballerinalang.net.grpc.builder.components;
  */
 public class EndPoint {
     private String connectorId;
+    private String connectorIdName;
     
     public EndPoint(String connectorId) {
         this.connectorId = connectorId;
+        this.connectorIdName = Character.toLowerCase(connectorId.charAt(0)) + connectorId.substring(1);
     }
     
     public String getConnectorId() {
@@ -33,5 +35,13 @@ public class EndPoint {
     
     public void setConnectorId(String connectorId) {
         this.connectorId = connectorId;
+    }
+    
+    public String getConnectorIdName() {
+        return connectorIdName;
+    }
+    
+    public void setConnectorIdName(String connectorIdName) {
+        this.connectorIdName = connectorIdName;
     }
 }

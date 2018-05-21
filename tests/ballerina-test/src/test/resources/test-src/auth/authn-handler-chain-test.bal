@@ -69,8 +69,8 @@ function createRequest () returns (http:Request) {
 }
 
 function createBasicAuthnHandler () returns (http:HttpAuthnHandler) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    auth:AuthProvider authProvider = <auth:AuthProvider> configAuthProvider;
-    http:HttpBasicAuthnHandler basicAuthnHandler = new(authProvider);
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
+    http:HttpBasicAuthnHandler basicAuthnHandler = new(authStoreProvider);
     return <http:HttpAuthnHandler> basicAuthnHandler;
 }

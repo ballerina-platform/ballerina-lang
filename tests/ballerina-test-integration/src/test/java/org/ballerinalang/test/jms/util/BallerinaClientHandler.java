@@ -26,6 +26,9 @@ import org.ballerinalang.test.context.ServerInstance;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Client handler class to handle JMS client related operations.
+ */
 public class BallerinaClientHandler {
     private final String filename;
     private final String expectedLog;

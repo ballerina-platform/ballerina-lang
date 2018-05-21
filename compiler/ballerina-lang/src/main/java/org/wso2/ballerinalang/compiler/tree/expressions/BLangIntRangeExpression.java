@@ -48,7 +48,7 @@ public class BLangIntRangeExpression extends BLangExpression implements IntRange
     }
 
     @Override
-    public void getEndExpression(ExpressionNode expression) {
+    public void setEndExpression(ExpressionNode expression) {
         this.endExpr = (BLangExpression) expression;
     }
 

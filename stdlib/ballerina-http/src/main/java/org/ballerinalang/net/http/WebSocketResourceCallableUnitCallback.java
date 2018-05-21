@@ -36,17 +36,13 @@ public class WebSocketResourceCallableUnitCallback implements CallableUnitCallba
 
     @Override
     public void notifySuccess() {
-        if (webSocketConnection != null) {
-            webSocketConnection.readNextFrame();
-        }
+        webSocketConnection.readNextFrame();
     }
 
     @Override
     public void notifyFailure(BStruct error) {
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-        if (webSocketConnection != null) {
-            webSocketConnection.readNextFrame();
-        }
+        webSocketConnection.readNextFrame();
     }
 
 }

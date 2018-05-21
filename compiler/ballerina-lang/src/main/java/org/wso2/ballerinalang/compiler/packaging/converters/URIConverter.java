@@ -3,6 +3,7 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
 import org.ballerinalang.spi.EmbeddedExecutor;
+import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -80,9 +81,12 @@ public class URIConverter implements Converter<URI> {
         createDirectory(destDirPath);
         try {
             String fullPkgPath = orgName + "/" + pkgName;
+            Proxy proxy = RepoUtils.readSettings().getProxy();
+
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
             executor.execute("packaging_pull/packaging_pull.balx", true, u.toString(), destDirPath.toString(),
-                             fullPkgPath, File.separator);
+                             fullPkgPath, File.separator, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
+                             proxy.getPassword());
             // TODO Simplify using ZipRepo
             Patten pattern = new Patten(Patten.LATEST_VERSION_DIR,
                                         Patten.path(pkgName + ".zip"),

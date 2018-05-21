@@ -18,9 +18,8 @@
 
 package org.ballerinalang.mime.util;
 
-import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
@@ -40,7 +39,6 @@ import org.jvnet.mimepull.MIMEPart;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -53,14 +51,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
+import static org.ballerinalang.mime.util.Constants.CHARSET;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
-import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.FIRST_BODY_PART_INDEX;
-import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MESSAGE_DATA_SOURCE;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 
 /**
@@ -69,46 +64,6 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
  * @since 0.963.0
  */
 public class EntityBodyHandler {
-
-    /**
-     * Set new entity to in/out request/response struct.
-     *
-     * @param context           ballerina context.
-     * @param httpMessageStruct request/response struct.
-     */
-    public static BStruct createNewEntity(Context context, BStruct httpMessageStruct) {
-        BStruct entity = ConnectorUtils.createAndGetStruct(context
-                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
-                , org.ballerinalang.mime.util.Constants.ENTITY);
-        entity.addNativeData(ENTITY_HEADERS, new DefaultHttpHeaders());
-        entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
-        httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
-        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
-        return entity;
-    }
-
-    /**
-     * Handle discrete media type content. This method populates ballerina entity with a byte channel from a given
-     * inputstream. If the payload size exceeds 2MB limit, write the stream to a temp file and get a reference to
-     * a file channel. After that delete the temp file. If the size does not exceed, then wrap the inputstream with an
-     * EntityBodyChannel.
-     *
-     * @param entityStruct      Represent an 'Entity'
-     * @param inputStream       Represent input stream coming from the request/response
-     * @param numberOfBytesRead Number of bytes read
-     */
-    public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream,
-                                                       long numberOfBytesRead) {
-        if (numberOfBytesRead > 0) {
-            if (numberOfBytesRead < Constants.BYTE_LIMIT) {
-                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
-            } else {
-                String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
-                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, getByteChannelForTempFile(temporaryFilePath));
-            }
-        }
-
-    }
 
     /**
      * Get a byte channel for a given text data.
@@ -186,11 +141,22 @@ public class EntityBodyHandler {
      */
     public static BJSON constructJsonDataSource(BStruct entityStruct) {
         try {
+            BJSON jsonData;
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
                 return null;
             }
-            BJSON jsonData = new BJSON(byteChannel.getInputStream());
+            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
+            if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
+                String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                if (charsetValue != null && !charsetValue.isEmpty()) {
+                    jsonData = new BJSON(byteChannel.getInputStream(), null, charsetValue);
+                } else {
+                    jsonData = new BJSON(byteChannel.getInputStream());
+                }
+            } else {
+                jsonData = new BJSON(byteChannel.getInputStream());
+            }
             byteChannel.close();
             return jsonData;
         } catch (IOException e) {
@@ -206,11 +172,22 @@ public class EntityBodyHandler {
      */
     public static BXML constructXmlDataSource(BStruct entityStruct) {
         try {
+            BXML xmlContent;
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
                 throw new BallerinaIOException("Empty xml payload");
             }
-            BXML xmlContent = XMLUtils.parse(byteChannel.getInputStream());
+            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
+            if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
+                String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                if (charsetValue != null && !charsetValue.isEmpty()) {
+                    xmlContent = XMLUtils.parse(byteChannel.getInputStream(), charsetValue);
+                } else {
+                    xmlContent = XMLUtils.parse(byteChannel.getInputStream());
+                }
+            } else {
+                xmlContent = XMLUtils.parse(byteChannel.getInputStream());
+            }
             byteChannel.close();
             return xmlContent;
         } catch (IOException e) {
@@ -226,11 +203,22 @@ public class EntityBodyHandler {
      */
     public static StringDataSource constructStringDataSource(BStruct entityStruct) {
         try {
+            String textContent;
             Channel byteChannel = getByteChannel(entityStruct);
             if (byteChannel == null) {
                 throw new BallerinaIOException("String payload is null");
             }
-            String textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
+            String contentTypeValue = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
+            if (contentTypeValue != null && !contentTypeValue.isEmpty()) {
+                String charsetValue = MimeUtil.getContentTypeParamValue(contentTypeValue, CHARSET);
+                if (charsetValue != null && !charsetValue.isEmpty()) {
+                    textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream(), charsetValue);
+                } else {
+                    textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
+                }
+            } else {
+                textContent = StringUtils.getStringFromInputStream(byteChannel.getInputStream());
+            }
             byteChannel.close();
             return new StringDataSource(textContent);
         } catch (IOException e) {
