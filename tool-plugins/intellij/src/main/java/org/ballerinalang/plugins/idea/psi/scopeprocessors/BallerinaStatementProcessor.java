@@ -26,6 +26,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaCatchClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinitionList;
+import org.ballerinalang.plugins.idea.psi.BallerinaJoinClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaNamedPattern;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKeyValue;
@@ -162,6 +163,7 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                 ballerinaNamedPattern = PsiTreeUtil.getParentOfType(ballerinaNamedPattern, BallerinaNamedPattern.class);
             }
 
+            // Process catch clause variable.
             BallerinaCatchClause ballerinaCatchClause = PsiTreeUtil.getParentOfType(statement,
                     BallerinaCatchClause.class);
             while (ballerinaCatchClause != null) {
@@ -178,6 +180,24 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                     return false;
                 }
                 ballerinaCatchClause = PsiTreeUtil.getParentOfType(ballerinaCatchClause, BallerinaCatchClause.class);
+            }
+
+            // Process join clause variable.
+            BallerinaJoinClause ballerinaJoinClause = PsiTreeUtil.getParentOfType(statement, BallerinaJoinClause.class);
+            while (ballerinaJoinClause != null) {
+                PsiElement identifier = ballerinaJoinClause.getIdentifier();
+                if (identifier != null) {
+                    if (myResult != null) {
+                        myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
+                                BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaJoinClause.getTypeName())));
+                    } else if (myElement.getText().equals(identifier.getText())) {
+                        add(identifier);
+                    }
+                }
+                if (!isCompletion() && getResult() != null) {
+                    return false;
+                }
+                ballerinaJoinClause = PsiTreeUtil.getParentOfType(ballerinaJoinClause, BallerinaJoinClause.class);
             }
         }
         return true;
