@@ -56,8 +56,8 @@
         }
       ]
     },
-    "fileAssociations":[
-      { 
+    "fileAssociations": [
+      {
         "ext": "bal",
         "name": "Ballerina File",
         "description": "A ballerina source file"

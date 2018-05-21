@@ -87,7 +87,9 @@ function startServer(){
             logger.info('Backend server is properly started at ' + pageURL + ', starting composer UI');
             win = createWindow(pageURL, false);
             ipcMain.once('composer-rendered', () => {
-                splashWin.destroy();
+                if (splashWin) {
+                    splashWin.destroy();
+                }
                 win.show();
                 if (openFilePath) {
                     win.webContents.send('open-file', openFilePath);
