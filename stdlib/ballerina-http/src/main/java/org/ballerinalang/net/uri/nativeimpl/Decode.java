@@ -52,7 +52,7 @@ public class Decode extends BlockingNativeCallableUnit {
         try {
             context.setReturnValues(new BString(URLDecoder.decode(url, charset)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(HttpUtil.getGenericError(context, "Error occurred while decoding the url. " + e
+            context.setReturnValues(HttpUtil.getError(context, "Error occurred while decoding the url. " + e
                     .getMessage()));
         }
     }

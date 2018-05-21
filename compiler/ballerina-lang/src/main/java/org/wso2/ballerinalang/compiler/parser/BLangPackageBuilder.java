@@ -540,6 +540,7 @@ public class BLangPackageBuilder {
         functionTypeNode.returnsKeywordExists = true;
 
         if (retParamsAvail) {
+            functionTypeNode.addWS(this.varStack.peek().getWS());
             functionTypeNode.returnTypeNode = (BLangType) this.varStack.pop().getTypeNode();
         } else {
             BLangValueType nilTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -628,10 +629,16 @@ public class BLangPackageBuilder {
         return var;
     }
 
-    void addReturnParam(DiagnosticPos pos,
-                        Set<Whitespace> ws,
-                        int annotCount) {
-        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, null, false);
+    public void endFormalParameterList(Set<Whitespace> ws) {
+        this.commaWsStack.push(ws);
+    }
+
+    public BLangVariable addReturnParam(DiagnosticPos pos,
+                                        Set<Whitespace> ws,
+                                        String identifier,
+                                        boolean exprAvailable,
+                                        int annotCount) {
+        BLangVariable var = (BLangVariable) this.generateBasicVarNode(pos, ws, identifier, exprAvailable);
         attachAnnotations(var, annotCount);
         var.pos = pos;
         this.varStack.push(var);
@@ -650,7 +657,8 @@ public class BLangPackageBuilder {
         if (retParamsAvail) {
             BLangVariable varNode = (BLangVariable) this.varStack.pop();
             returnTypeNode = varNode.getTypeNode();
-            returnTypeNode.addWS(varNode.getWS());
+            // set returns keyword to invocation node.
+            invNode.addWS(varNode.getWS());
             varNode.getAnnotationAttachments().forEach(invNode::addReturnTypeAnnotationAttachment);
         } else {
             BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -676,6 +684,8 @@ public class BLangPackageBuilder {
             if (restParamAvail) {
                 invNode.setRestParameter(this.restParamStack.pop());
             }
+
+            invNode.addWS(this.commaWsStack.pop());
         }
     }
 
@@ -1544,6 +1554,7 @@ public class BLangPackageBuilder {
         endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
+        function.addWS(invocationWsStack.pop());
 
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
@@ -1567,7 +1578,6 @@ public class BLangPackageBuilder {
 
         IdentifierNode name = createIdentifier(Names.SELF.getValue());
         receiver.setName(name);
-        receiver.addWS(ws);
 
         receiver.docTag = DocTag.RECEIVER;
         receiver.setTypeNode(objectType);
@@ -2042,17 +2052,18 @@ public class BLangPackageBuilder {
         BLangMatchStmtPatternClause patternClause =
                 (BLangMatchStmtPatternClause) TreeBuilder.createMatchStatementPattern();
         patternClause.pos = pos;
-
-        Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
         patternClause.addWS(ws);
 
         // Create a variable node
-        identifier = identifier == null ? Names.IGNORE.value : identifier;
+        String patternIdentifier = identifier == null ? Names.IGNORE.value : identifier;
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
-        var.setName(this.createIdentifier(identifier));
+        var.setName(this.createIdentifier(patternIdentifier));
         var.setTypeNode(this.typeNodeStack.pop());
-        var.addWS(varDefWS);
+        if (identifier != null) {
+            Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
+            var.addWS(varDefWS);
+        }
         patternClause.variable = var;
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
@@ -2660,6 +2671,13 @@ public class BLangPackageBuilder {
         windowClauseNode.addWS(ws);
         windowClauseNode.setFunctionInvocation(this.exprNodeStack.pop());
 
+        if (this.exprNodeStack.size() > 1) { // contains other than the streaming input name reference
+            List<ExpressionNode> exprList = new ArrayList<>();
+            addExprToExprNodeList(exprList, this.exprNodeStack.size() - 1);
+            StreamingInput streamingInput = this.streamingInputStack.peek();
+            streamingInput.setPreFunctionInvocations(exprList);
+        }
+
         if (!this.whereClauseStack.empty()) {
             this.streamingInputStack.peek().setWindowTraversedAfterWhere(true);
         } else {
@@ -2688,6 +2706,12 @@ public class BLangPackageBuilder {
             } else {
                 streamingInput.setAfterStreamingCondition(this.whereClauseStack.pop());
             }
+        }
+
+        if (this.exprNodeStack.size() > 1) {
+            List<ExpressionNode> exprList = new ArrayList<>();
+            addExprToExprNodeList(exprList, this.exprNodeStack.size() - 1);
+            streamingInput.setPostFunctionInvocations(exprList);
         }
 
         if (!this.windowClausesStack.empty()) {
@@ -2808,6 +2832,9 @@ public class BLangPackageBuilder {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
+        this.varListStack.push(new ArrayList<>());
+        this.varListStack.peek().add(this.varStack.pop());
+        this.commaWsStack.push(ws);
         this.addLambdaFunctionDef(pos, ws, true, false, false);
         streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
     }
@@ -2844,9 +2871,10 @@ public class BLangPackageBuilder {
     }
 
     void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
-                                      boolean enclosedInParenthesis, boolean andWithNotAvailable,
-                                      boolean forWithNotAvailable, boolean onlyAndAvailable,
-                                      boolean onlyOrAvailable, boolean commaSeparated) {
+                                             boolean enclosedInParenthesis, boolean andWithNotAvailable,
+                                             boolean forWithNotAvailable, boolean onlyAndAvailable,
+                                             boolean onlyOrAvailable, boolean commaSeparated,
+                                             String timeDurationValue, String timeScale) {
         if (!this.patternStreamingInputStack.empty()) {
             PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
@@ -2874,7 +2902,7 @@ public class BLangPackageBuilder {
             }
 
             if (forWithNotAvailable) {
-                processNegationPatternWithTimeDuration(patternStreamingInputNode);
+                processNegationPatternWithTimeDuration(patternStreamingInputNode, timeDurationValue, timeScale);
             }
 
             if (commaSeparated) {
@@ -2901,10 +2929,12 @@ public class BLangPackageBuilder {
         this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
-    private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode) {
+    private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode,
+                                                        String timeDurationValue, String timeScale) {
         patternStreamingInputNode.setForWithNot(true);
         patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
-        patternStreamingInputNode.setTimeExpr(this.exprNodeStack.pop());
+        patternStreamingInputNode.setTimeDurationValue(timeDurationValue);
+        patternStreamingInputNode.setTimeScale(timeScale);
         this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
@@ -2986,14 +3016,13 @@ public class BLangPackageBuilder {
     }
 
     void endOutputRateLimitNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isSnapshotOutputRateLimit,
-                                boolean isEventBasedOutputRateLimit, boolean isFirst, boolean isLast,
-                                boolean isAll, String timeScale, String rateLimitValue) {
+                                       boolean isFirst, boolean isLast, boolean isAll, String timeScale,
+                                       String rateLimitValue) {
         OutputRateLimitNode outputRateLimit = this.outputRateLimitStack.peek();
         ((BLangOutputRateLimit) outputRateLimit).pos = pos;
         outputRateLimit.addWS(ws);
 
         outputRateLimit.setSnapshot(isSnapshotOutputRateLimit);
-        outputRateLimit.setEventBasedRateLimit(isEventBasedOutputRateLimit);
         outputRateLimit.setOutputRateType(isFirst, isLast, isAll);
         outputRateLimit.setTimeScale(timeScale);
         outputRateLimit.setRateLimitValue(rateLimitValue);
@@ -3005,11 +3034,12 @@ public class BLangPackageBuilder {
         this.withinClauseStack.push(withinClause);
     }
 
-    void endWithinClause(DiagnosticPos pos, Set<Whitespace> ws) {
+    void endWithinClause(DiagnosticPos pos, Set<Whitespace> ws, String timeDurationValue, String timeScale) {
         WithinClause withinClause = this.withinClauseStack.peek();
         ((BLangWithinClause) withinClause).pos = pos;
         withinClause.addWS(ws);
-        withinClause.setWithinTimePeriod(exprNodeStack.pop());
+        withinClause.setTimeDurationValue(timeDurationValue);
+        withinClause.setTimeScale(timeScale);
     }
 
     void startPatternClause(DiagnosticPos pos) {
@@ -3063,13 +3093,15 @@ public class BLangPackageBuilder {
         pattern.pos = pos;
         pattern.addWS(ws);
 
-        identifier = identifier == null ? Names.IGNORE.value : identifier;
+        String patternIdentifier = identifier == null ? Names.IGNORE.value : identifier;
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
-        var.setName(this.createIdentifier(identifier));
+        var.setName(this.createIdentifier(patternIdentifier));
         var.setTypeNode(this.typeNodeStack.pop());
-        Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
-        var.addWS(varDefWS);
+        if (identifier != null) {
+            Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
+            var.addWS(varDefWS);
+        }
         pattern.variable = var;
 
         this.matchExprPatternNodeListStack.peek().add(pattern);

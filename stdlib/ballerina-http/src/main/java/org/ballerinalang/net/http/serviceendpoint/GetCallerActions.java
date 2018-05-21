@@ -45,7 +45,8 @@ public class GetCallerActions extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct endpoint = (BStruct) context.getRefArgument(0);
-        BStruct connection = (BStruct) endpoint.getRefField(0);
+        BStruct connection = (BStruct) endpoint.getRefField(
+                                        org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX);
         context.setReturnValues(connection);
     }
 }

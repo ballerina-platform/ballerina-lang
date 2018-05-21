@@ -66,7 +66,6 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
         } else if (protoType.equalsIgnoreCase("BytesValue")) {
             return BTypes.typeBlob;
         } else {
-            // TODO: 2/22/18 enum
             return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
         }
     }
@@ -93,6 +92,6 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         BStruct outboundError = new BStruct(errorStructInfo.getType());
         outboundError.setStringField(0, errorMessage);
-        context.setError(outboundError);
+        context.setReturnValues(outboundError);
     }
 }

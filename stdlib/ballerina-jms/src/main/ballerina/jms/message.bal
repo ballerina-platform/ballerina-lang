@@ -28,6 +28,11 @@ public type Message object {
     }
     public native function getTextMessageContent() returns @tainted string|error;
 
+    documentation { Gets map content of the JMS message
+        R{{}} the string containing this message's data or an JMS error
+    }
+    public native function getMapMessageContent() returns @tainted map|error;
+
     documentation { Sets a JMS transport string property from the message
         P{{key}} The string property name
         P{{value}} The string property value

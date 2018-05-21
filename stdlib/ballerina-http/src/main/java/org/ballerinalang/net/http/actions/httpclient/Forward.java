@@ -68,7 +68,7 @@ public class Forward extends AbstractHTTPAction {
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'forward' action in " +
                     HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
-            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
+            dataContext.notifyReply(null, HttpUtil.getError(context, exception));
         }
     }
 
@@ -79,13 +79,13 @@ public class Forward extends AbstractHTTPAction {
         BStruct requestStruct = ((BStruct) context.getRefArgument(1));
 
         if (requestStruct.getNativeData(HttpConstants.REQUEST) == null &&
-                !HttpUtil.isEntityDataSourceAvailble(requestStruct)) {
+                !HttpUtil.isEntityDataSourceAvailable(requestStruct)) {
             throw new BallerinaException("invalid inbound request parameter");
         }
         HTTPCarbonMessage outboundRequestMsg = HttpUtil
                 .getCarbonMsg(requestStruct, HttpUtil.createHttpCarbonMessage(true));
 
-        if (HttpUtil.isEntityDataSourceAvailble(requestStruct)) {
+        if (HttpUtil.isEntityDataSourceAvailable(requestStruct)) {
             HttpUtil.enrichOutboundMessage(outboundRequestMsg, requestStruct);
             prepareOutboundRequest(context, bConnector, path, outboundRequestMsg);
             outboundRequestMsg.setProperty(HttpConstants.HTTP_METHOD,

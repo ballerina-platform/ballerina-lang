@@ -73,6 +73,20 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
     }
 
     @Test
+    public void testBlockingErrorResponse() {
+
+        Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
+        CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
+        BString request = new BString("invalid");
+        final String serverMsg = "Error from Connector: gRPC Client Connector Error :ABORTED: Operation aborted";
+
+        BValue[] responses = BRunUtil.invoke(result, "testUnaryBlockingClient", new BValue[]{request});
+        Assert.assertEquals(responses.length, 1);
+        Assert.assertTrue(responses[0] instanceof BString);
+        Assert.assertEquals(responses[0].stringValue(), serverMsg);
+    }
+
+    @Test
     public void testIntBlockingBallerinaClient() {
 
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");

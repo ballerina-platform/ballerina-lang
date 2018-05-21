@@ -26,6 +26,9 @@ import io.ballerina.messaging.broker.common.config.BrokerConfigProvider;
 import io.ballerina.messaging.broker.core.BrokerImpl;
 import io.ballerina.messaging.broker.core.configuration.BrokerCoreConfiguration;
 
+/**
+ * Wrapper class to create a embeddable broker implementation.
+ */
 public class EmbeddedBroker {
 
     private BrokerImpl broker;

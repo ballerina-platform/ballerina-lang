@@ -133,7 +133,7 @@ public class ConfigProcessor {
 
         if (userProvidedPath != null) {
             if (!Files.exists(userProvidedPath)) {
-                throw new RuntimeException("failed to start ballerina runtime: config file not found: " + fileLocation);
+                throw new RuntimeException("configuration file not found: " + fileLocation);
             }
 
             // If there is an explicitly specified config file, use it.

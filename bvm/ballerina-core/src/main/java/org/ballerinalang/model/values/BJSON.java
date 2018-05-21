@@ -130,6 +130,21 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     }
 
     /**
+     * Create a {@link BJSON} from a {@link InputStream} with a given charset.
+     *
+     * @param in      InputStream of the json content
+     * @param schema  Schema of the json
+     * @param charset Charset value to be used in parsing
+     */
+    public BJSON(InputStream in, String schema, String charset) {
+        try {
+            this.value = JsonParser.parse(in, charset);
+        } catch (Throwable t) {
+            handleJsonException("failed to create json with the given charset: ", t);
+        }
+    }
+
+    /**
      * Return the string representation of this json object.
      */
     public String toString() {

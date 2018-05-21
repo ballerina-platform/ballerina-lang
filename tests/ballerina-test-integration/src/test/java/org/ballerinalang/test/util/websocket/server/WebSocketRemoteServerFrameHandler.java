@@ -34,7 +34,7 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Simple WebSocket frame handler for testing
+ * Simple WebSocket frame handler for testing.
  */
 public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandler<WebSocketFrame> {
 

@@ -56,7 +56,7 @@ class DetailView extends React.Component {
                             collapsed={1}
                             displayObjectSize={false}
                             style={{ marginTop: 10, background: 'inherit' }}
-                        /> : null
+                        /> : <code><pre>{meta.payload}</pre></code>
                 }
 
             </Segment>

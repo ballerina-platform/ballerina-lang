@@ -157,7 +157,7 @@ public class ServerLauncher {
         out.println("  Options:");
         out.println("    --port <port_number>           Specify a custom port for file server to start.");
         out.println("    --host <interface>             Specify a custom interface to bind the server.");
-        out.println("    --publicPath <public_path>     Specify a custom path to server the public content from.");
+        //out.println("    --publicPath <public_path>     Specify a custom path to serve the public content from.");
         out.println("    --help -h help                 for more information.");
         out.println("");
     }

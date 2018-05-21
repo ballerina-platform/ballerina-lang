@@ -157,6 +157,7 @@ public class Init extends BlockingNativeCallableUnit {
                     senderConfiguration.setKeyStorePassword(keyStorePassword);
                 }
             }
+            senderConfiguration.setTLSStoreType(GrpcConstants.PKCS_STORE_TYPE);;
             if (protocols != null) {
                 List<Value> sslEnabledProtocolsValueList = Arrays
                         .asList(protocols.getArrayField(GrpcConstants.ENABLED_PROTOCOLS));

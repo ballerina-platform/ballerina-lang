@@ -280,8 +280,8 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
-    public void testINParameters2() {
-        BValue[] returns = BRunUtil.invoke(result, "testINParameters2");
+    public void testINParametersWithDirectValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectValues");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
@@ -290,6 +290,21 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D);
+        Assert.assertTrue(returns[9].stringValue().equals(returns[10].stringValue()));
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testINParametersWithDirectVariables() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectVariables");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039.1D);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D);
+        Assert.assertTrue(returns[9].stringValue().equals(returns[10].stringValue()));
     }
 
     @Test(groups = "ConnectorTest")
@@ -412,6 +427,22 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest")
     public void testBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate");
+        BIntArray retValue = (BIntArray) returns[0];
+        Assert.assertEquals(retValue.get(0), 1);
+        Assert.assertEquals(retValue.get(1), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testBatchUpdateWithValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithValues");
+        BIntArray retValue = (BIntArray) returns[0];
+        Assert.assertEquals(retValue.get(0), 1);
+        Assert.assertEquals(retValue.get(1), 1);
+    }
+
+    @Test(groups = "ConnectorTest", description = "Test batch update operation with variable parameters")
+    public void testBatchUpdateWithVariables() {
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithVariables");
         BIntArray retValue = (BIntArray) returns[0];
         Assert.assertEquals(retValue.get(0), 1);
         Assert.assertEquals(retValue.get(1), 1);
@@ -605,10 +636,10 @@ public class SQLActionsTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTable", args);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+        Assert.assertEquals(returns[0].stringValue(), "([{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
                 + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
-                + "name:\"Thurani\", address:\"Sri Lanka\"}]]");
+                + "name:\"Thurani\", address:\"Sri Lanka\"}])");
     }
 
     @Test(groups = "ConnectorTest", description = "Test iterating data of a mirrored table after closing")
@@ -616,11 +647,11 @@ public class SQLActionsTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTableAfterClose", args);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+        Assert.assertEquals(returns[0].stringValue(), "([{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
                 + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
                 + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
-                + "closed table\", cause:null}]");
+                + "closed table\", cause:null})");
     }
 
     @Test(groups = "ConnectorTest", description = "Test iterating data of a table loaded to memory multiple times")
@@ -628,11 +659,11 @@ public class SQLActionsTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory", args);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+        Assert.assertEquals(returns[0].stringValue(), "([{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
                 + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
                 + "name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2,"
-                + " name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}]]");
+                + " name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}])");
     }
 
     @Test(groups = "ConnectorTest", description = "Test iterating data of a table loaded to memory after closing")
@@ -640,11 +671,11 @@ public class SQLActionsTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose", args);
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), "[[{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
+        Assert.assertEquals(returns[0].stringValue(), "([{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
                 + "name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}], [{id:1, "
                 + "name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, name:\"Devni\", address:\"Sri Lanka\"}, {id:3, "
                 + "name:\"Thurani\", address:\"Sri Lanka\"}], {message:\"Trying to perform hasNext operation over a "
-                + "closed table\", cause:null}]");
+                + "closed table\", cause:null})");
     }
 
     @AfterSuite

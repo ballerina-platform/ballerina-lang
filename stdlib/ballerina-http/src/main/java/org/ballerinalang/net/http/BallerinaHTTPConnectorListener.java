@@ -24,7 +24,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
@@ -86,13 +87,17 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 extractPropertiesAndStartResourceExecution(inboundMessage, httpResource);
             }
         } catch (BallerinaException ex) {
-            HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+            try {
+                HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+            } catch (Exception e) {
+                log.error("Cannot handle error using the error handler for: " + e.getMessage(), e);
+            }
         }
     }
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Error in http server connector" + throwable.getMessage(), throwable);
+        log.error("Error in HTTP server connector: " + throwable.getMessage(), throwable);
     }
 
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage inboundMessage,
@@ -132,11 +137,12 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                                                                 .getType()));
         filterCtxtStruct.setStringField(0, httpResource.getParentService().getName());
         filterCtxtStruct.setStringField(1, httpResource.getName());
+        filterCtxtStruct.setRefField(1, new BMap());
         return filterCtxtStruct;
     }
 
-    protected boolean accessed(HTTPCarbonMessage httpCarbonMessage) {
-        return httpCarbonMessage.getProperty(HTTP_RESOURCE) != null;
+    protected boolean accessed(HTTPCarbonMessage inboundMessage) {
+        return inboundMessage.getProperty(HTTP_RESOURCE) != null;
     }
 
     private Map<String, Object> collectRequestProperties(HTTPCarbonMessage inboundMessage, boolean isInfectable) {

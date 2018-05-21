@@ -109,7 +109,7 @@ public class ServerInstance implements Server {
     }
 
     /**
-     * Start the server pointing to the ballerina.conf path
+     * Start the server pointing to the ballerina.conf path.
      *
      * @param balFile ballerina file path
      * @param ballerinaConfPath ballerina.conf file path
@@ -128,7 +128,7 @@ public class ServerInstance implements Server {
     /**
      * Start a server instance y extracting a server zip distribution.
      *
-     * @throws Exception if server start fails
+     * @throws BallerinaTestException if server start fails
      */
     @Override
     public void startServer() throws BallerinaTestException {
@@ -513,10 +513,10 @@ public class ServerInstance implements Server {
     }
 
     /**
-     * This method returns the pid of the service which is using the provided port
+     * This method returns the pid of the service which is using the provided port.
      * @param httpServerPort port of the service running
      * @return the pid of the service
-     * @throws BallerinaTestException
+     * @throws BallerinaTestException if pid could not be retrieved
      */
     private String getPidWithLsof(int httpServerPort) throws BallerinaTestException {
         String pid;

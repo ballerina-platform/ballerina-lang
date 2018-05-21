@@ -46,13 +46,13 @@ function testXATransactionSuccess() returns (int, int) {
     table dt = check testDB1->select("Select COUNT(*) as countval from CustomersTrx where customerId = 1 ", ResultCount)
     ;
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
     dt = check testDB2->select("Select COUNT(*) as countval from SalaryTrx where id = 1", ResultCount);
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     testDB1.stop();
@@ -94,13 +94,13 @@ function testXATransactionFailed1() returns (int, int) {
     //check whether update action is performed
     table dt = check testDB1->select("Select COUNT(*) as countval from CustomersTrx where customerId = 2", ResultCount);
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
     dt = check testDB2->select("Select COUNT(*) as countval from SalaryTrx where id=20 AND value = 1000", ResultCount);
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     testDB1.stop();
@@ -144,14 +144,14 @@ function testXATransactionFailed2() returns (int, int) {
     int count1;
     int count2;
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
     dt = check testDB2->select("Select COUNT(*) as countval from SalaryTrx where id = 3 ", ResultCount);
 
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     testDB1.stop();
@@ -200,14 +200,14 @@ function testXATransactionRetry() returns (int, int) {
     int count2;
 
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count1 = rs.COUNTVAL;
     }
 
     dt = check testDB2->select("Select COUNT(*) as countval from SalaryTrx where id = 4", ResultCount);
 
     while (dt.hasNext()) {
-        var rs = check <ResultCount>dt.getNext();
+        ResultCount rs = check <ResultCount>dt.getNext();
         count2 = rs.COUNTVAL;
     }
     testDB1.stop();

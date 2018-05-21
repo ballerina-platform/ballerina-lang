@@ -30,12 +30,14 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
@@ -299,19 +301,29 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
           During the first iteration we filter out the functions and if there is, the variable reference against which
           the function is called.
          */
-        symbolEntries.forEach((k, v) -> {
+        for (Map.Entry<Name, Scope.ScopeEntry> entry : symbolEntries.entrySet()) {
+            Scope.ScopeEntry v = entry.getValue();
+            Name k = entry.getKey();
             if (v.symbol instanceof BInvokableSymbol && !(v.symbol instanceof BOperatorSymbol)
                     && !v.symbol.getName().getValue().contains("<init>")) {
                 SymbolInfo symbolInfo = new SymbolInfo(k.getValue(), v);
                 visibleSymbols.add(symbolInfo);
             } else if (v.symbol instanceof BVarSymbol && k.getValue().equals(identifierAgainst)) {
-                documentServiceContext.put(SignatureKeys.IDENTIFIER_TYPE, v.symbol.type.toString());
+                documentServiceContext.put(SignatureKeys.IDENTIFIER_TYPE, v.symbol.type);
+                documentServiceContext.put(SignatureKeys.IDENTIFIER_SYMBOL, v.symbol);
+                if (v.symbol instanceof BEndpointVarSymbol) {
+                    visibleSymbols.clear();
+                    visibleSymbols.addAll(CommonUtil.getActionsOfEndpoint((BEndpointVarSymbol) v.symbol));
+                    break;
+                }
             } else if (v.symbol instanceof BPackageSymbol && k.getValue().equals(identifierAgainst)) {
                 documentServiceContext.put(SignatureKeys.IDENTIFIER_PKGID, v.symbol.pkgID.toString());
-                documentServiceContext.put(SignatureKeys.IDENTIFIER_TYPE, v.symbol.type.toString());
+                documentServiceContext.put(SignatureKeys.IDENTIFIER_TYPE, v.symbol.type);
+                visibleSymbols.clear();
                 visibleSymbols.addAll(this.getInvokableSymbolsInPackage((BPackageSymbol) v.symbol));
+                break;
             }
-        });
+        }
         
         /*
           In this iteration we filter out the functions either having a receiver or otherwise.
@@ -319,20 +331,23 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
           type. If there is no identifier, filter out functions without the receiver
          */
         List<SymbolInfo> filteredSymbols = new ArrayList<>();
+        String functionName = documentServiceContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
+        String identifierPkgName = documentServiceContext.get(SignatureKeys.IDENTIFIER_PKGID);
+        boolean onEndpointActions =
+                documentServiceContext.get(SignatureKeys.IDENTIFIER_SYMBOL) instanceof BEndpointVarSymbol;
         visibleSymbols.forEach(symbolInfo -> {
             BVarSymbol receiver = ((BInvokableSymbol) symbolInfo.getScopeEntry().symbol).receiverSymbol;
             String[] nameTokens = symbolInfo.getSymbolName().split("\\.");
             String funcNameFromSymbol = nameTokens[nameTokens.length - 1];
-            String functionName = documentServiceContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
-            String identifierPkgName = documentServiceContext.get(SignatureKeys.IDENTIFIER_PKGID);
-            boolean onIdentifierTypePkg = "package".equals(documentServiceContext.get(SignatureKeys.IDENTIFIER_TYPE))
-                    && symbolInfo.getScopeEntry().symbol.pkgID.toString().equals(identifierPkgName);
-            boolean onReceiverTypeMatchIdentifier = receiver != null &&
-                    receiver.type.toString().equals(documentServiceContext.get(SignatureKeys.IDENTIFIER_TYPE));
+            boolean onIdentifierTypePkg =
+                    (documentServiceContext.get(SignatureKeys.IDENTIFIER_TYPE)instanceof BPackageType)
+                            && symbolInfo.getScopeEntry().symbol.pkgID.toString().equals(identifierPkgName);
+            boolean onReceiverTypeMatchIdentifier = receiver != null && receiver.type.toString()
+                    .equals(documentServiceContext.get(SignatureKeys.IDENTIFIER_TYPE).toString());
             boolean onIdentifierAgainstNull = (receiver == null
                     && (identifierAgainst == null || identifierAgainst.equals("")));
 
-            if ((onIdentifierTypePkg || onReceiverTypeMatchIdentifier || onIdentifierAgainstNull)
+            if ((onIdentifierTypePkg || onReceiverTypeMatchIdentifier || onIdentifierAgainstNull || onEndpointActions)
                     && funcNameFromSymbol.equals(functionName)) {
                 filteredSymbols.add(symbolInfo);
             }

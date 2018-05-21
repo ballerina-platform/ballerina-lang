@@ -27,7 +27,6 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BStructureType;
@@ -37,7 +36,6 @@ import org.ballerinalang.net.http.AcceptEncodingConfig;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -67,13 +65,12 @@ import java.net.URL;
 import java.util.Optional;
 
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
+import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_GZIP;
@@ -275,11 +272,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         try {
             send(dataContext, outboundRequestMsg, async);
         } catch (BallerinaConnectorException e) {
-            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, e));
+            dataContext.notifyReply(null, HttpUtil.getError(dataContext.context, e));
         } catch (Exception e) {
             BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend",
                                                                   e, dataContext.context);
-            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(dataContext.context, exception));
+            dataContext.notifyReply(null, HttpUtil.getError(dataContext.context, exception));
         }
     }
 
@@ -370,8 +367,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
     private BStruct getEntityStruct(Context context) {
         BStruct requestStruct = ((BStruct) context.getRefArgument(1));
-        return requestStruct.getNativeData(MESSAGE_ENTITY) != null ?
-                (BStruct) requestStruct.getNativeData(MESSAGE_ENTITY) : null;
+        return (BStruct) requestStruct.getRefField(REQUEST_ENTITY_INDEX);
     }
 
     /**
@@ -394,7 +390,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             return;
         }
 
-        BStruct entityStruct = MimeUtil.extractEntity(requestStruct);
+        BStruct entityStruct = extractEntity(requestStruct);
         if (entityStruct != null) {
             MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
@@ -450,10 +446,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                         HttpConstants.PROTOCOL_PACKAGE_HTTP);
             } else if (throwable instanceof IOException) {
                 this.outboundMsgDataStreamer.setIoException((IOException) throwable);
-                httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
+                httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             } else {
                 this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
-                httpConnectorError = HttpUtil.getHttpConnectorError(this.dataContext.context, throwable);
+                httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             }
             httpConnectorError.setStringField(0, throwable.getMessage());
             this.dataContext.notifyReply(null, httpConnectorError);
@@ -524,11 +520,9 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
         BStruct entity = createStruct(context, HttpConstants.ENTITY, PROTOCOL_PACKAGE_MIME);
         BStruct mediaType = createStruct(context, MEDIA_TYPE, PROTOCOL_PACKAGE_MIME);
-        ResponseCacheControlStruct responseCacheControl
-                = new ResponseCacheControlStruct(context.getProgramFile()
-                                                         .getPackageInfo(PROTOCOL_PACKAGE_HTTP)
-                                                         .getStructInfo(RESPONSE_CACHE_CONTROL));
-        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, responseCacheControl, httpCarbonMessage);
+
+        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, context.getProgramFile(),
+                                         httpCarbonMessage);
         return responseStruct;
     }
 }

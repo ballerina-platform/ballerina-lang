@@ -21,10 +21,12 @@ import org.ballerinalang.langserver.common.position.PositionTreeVisitor;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
+import org.ballerinalang.model.Whitespace;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
@@ -40,14 +42,16 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Set;
 
 /**
  * Utility class for Hover functionality of language server.
@@ -189,7 +193,7 @@ public class HoverUtil {
      */
     public static boolean isMatchingPosition(DiagnosticPos nodePosition, Position textPosition) {
         boolean isCorrectPosition = false;
-        if (nodePosition.sLine <= textPosition.getLine()
+        if (nodePosition.sLine == textPosition.getLine()
                 && nodePosition.eLine >= textPosition.getLine()
                 && nodePosition.sCol <= textPosition.getCharacter()
                 && nodePosition.eCol >= textPosition.getCharacter()) {
@@ -453,5 +457,62 @@ public class HoverUtil {
                                                     List<BLangAnnotationAttachment> annotationDocs) {
         return (mdDocs.size() > 0) ? getDocumentationContent(mdDocs)
                 : getAnnotationContent(annotationDocs);
+    }
+
+    /**
+     * Calculate and returns identifier position of this BlangVariable.
+     *
+     * @param varNode BLangVariable
+     * @return position
+     */
+    public static DiagnosticPos getIdentifierPosition(BLangVariable varNode) {
+        DiagnosticPos position = varNode.getPosition();
+        Set<Whitespace> wsSet = varNode.getWS();
+        if (wsSet != null && wsSet.size() > 0) {
+            BLangType typeNode = varNode.getTypeNode();
+            int beforeIdentifierWSLength = getLowestIndexedWS(wsSet).getWs().length();
+            if (varNode.symbol.type != null && varNode.symbol.type.tsymbol != null) {
+                if (typeNode instanceof BLangConstrainedType) {
+                    int typeSpecifierSymbolLength = 2;
+                    int typeSpecifierLength = typeSpecifierSymbolLength + getTotalWhitespaceLen(typeNode.getWS());
+                    position.sCol += ((BLangConstrainedType) typeNode).type.type.tsymbol.name.value.length() +
+                            ((BLangConstrainedType) typeNode).constraint.type.tsymbol.name.value.length() +
+                            typeSpecifierLength + beforeIdentifierWSLength;
+                } else {
+                    position.sCol += varNode.symbol.type.tsymbol.name.value.length() + beforeIdentifierWSLength;
+                }
+            } else if (typeNode != null && typeNode instanceof BLangArrayType && typeNode.type instanceof BArrayType) {
+                int arraySpecifierSymbolLength = 2;
+                int arraySpecifierLength = arraySpecifierSymbolLength + getTotalWhitespaceLen(typeNode.getWS());
+                position.sCol += ((BArrayType) typeNode.type).eType.tsymbol.name.value.length() + arraySpecifierLength +
+                        beforeIdentifierWSLength;
+            }
+            position.eCol = position.sCol + varNode.symbol.name.value.length();
+        }
+        return position;
+    }
+
+    private static int getTotalWhitespaceLen(Set<Whitespace> wsSet) {
+        Whitespace[] ws = new Whitespace[wsSet.size()];
+        wsSet.toArray(ws);
+        int length = 0;
+        for (Whitespace whitespace : ws) {
+            length += whitespace.getWs().length();
+        }
+        return length;
+    }
+
+    private static Whitespace getLowestIndexedWS(Set<Whitespace> wsSet) {
+        Whitespace[] ws = new Whitespace[wsSet.size()];
+        wsSet.toArray(ws);
+        Whitespace sWhitespace = ws[0];
+        int sIndex = sWhitespace.getIndex();
+        for (Whitespace whitespace : ws) {
+            if (sIndex > whitespace.getIndex()) {
+                sIndex = whitespace.getIndex();
+                sWhitespace = whitespace;
+            }
+        }
+        return sWhitespace;
     }
 }

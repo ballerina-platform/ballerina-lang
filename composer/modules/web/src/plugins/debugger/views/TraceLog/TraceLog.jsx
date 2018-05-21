@@ -71,7 +71,7 @@ class LogsConsole extends React.Component {
             }
             this.setState({
                 messages: [...this.state.messages, message],
-                filteredMessages: [...this.state.filteredMessages, message],
+                filteredMessages: this.mergeRelatedMessages([...this.state.filteredMessages, message]),
             });
         });
     }
@@ -82,13 +82,13 @@ class LogsConsole extends React.Component {
         });
         this.setState({
             messages,
-            filteredMessages: messages,
+            filteredMessages: this.mergeRelatedMessages(messages),
         });
     }
 
     onFilteredMessages(filteredMessages) {
         this.setState({
-            filteredMessages,
+            filteredMessages: this.mergeRelatedMessages(filteredMessages),
         });
     }
 
@@ -98,6 +98,29 @@ class LogsConsole extends React.Component {
 
     getDirectionIcon(direction) {
         return directionToIcon[direction];
+    }
+
+    mergeRelatedMessages(messages) {
+        const newMessages = [];
+        for (let index = 0; index < messages.length; index++) {
+            let message1 = messages[index];
+            let message2 = messages[index + 1];
+            if (message1.message.meta.headers.startsWith('DefaultHttpRequest')
+                && message2
+                && message1.message.record.thread === message2.message.record.thread
+                && (message2.message.meta.headers.startsWith('DefaultLastHttpContent')
+                    || message2.message.meta.headers.startsWith('EmptyLastHttpContent'))) {
+
+                message1.message.meta.payload = message2.message.meta.payload;
+                newMessages.push(message1);
+            } else if (message1.message.meta.headers.startsWith('DefaultLastHttpContent') ||
+            message1.message.meta.headers.startsWith('EmptyLastHttpContent')) {
+                // do nothing
+            } else {
+                newMessages.push(message1);
+            }
+        }
+        return newMessages;
     }
 
     toggleDetails(message) {

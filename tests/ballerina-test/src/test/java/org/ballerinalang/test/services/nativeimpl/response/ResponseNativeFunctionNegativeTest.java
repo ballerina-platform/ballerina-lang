@@ -38,8 +38,8 @@ import static org.ballerinalang.mime.util.Constants.BYTE_CHANNEL_STRUCT;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
+import static org.ballerinalang.mime.util.Constants.RESPONSE_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEXT_PLAIN;
 
 /**
@@ -80,7 +80,7 @@ public class ResponseNativeFunctionNegativeTest {
     public void testGetJsonPayloadWithoutPayload() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        inResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("empty JSON document"));
@@ -95,7 +95,7 @@ public class ResponseNativeFunctionNegativeTest {
         String payload = "ballerina";
         MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
         entity.addNativeData(BYTE_CHANNEL_STRUCT, EntityBodyHandler.getEntityWrapper(payload));
-        inResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
@@ -106,7 +106,7 @@ public class ResponseNativeFunctionNegativeTest {
     public void testGetStringPayloadNegative() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        inResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
@@ -118,7 +118,7 @@ public class ResponseNativeFunctionNegativeTest {
     public void testGetXmlPayloadNegative() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        inResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         BValue[] inputArg = {inResponse};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
         Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("Error occurred while retrieving " +
@@ -144,7 +144,7 @@ public class ResponseNativeFunctionNegativeTest {
         HttpHeaders httpHeaders = new DefaultHttpHeaders();
         httpHeaders.add("Expect", "100-continue");
         entity.addNativeData(ENTITY_HEADERS, httpHeaders);
-        outResponse.addNativeData(MESSAGE_ENTITY, entity);
+        outResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         BString key = new BString(range);
         BValue[] inputArg = {outResponse, key};
         BValue[] returnVals = BRunUtil.invoke(result, "testRemoveHeader", inputArg);
@@ -152,7 +152,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getRefField(RESPONSE_ENTITY_INDEX);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertNull(returnHeaders.get("range"));
     }
@@ -166,7 +166,7 @@ public class ResponseNativeFunctionNegativeTest {
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
-        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getNativeData(MESSAGE_ENTITY);
+        BStruct entityStruct = (BStruct) ((BStruct) returnVals[0]).getRefField(RESPONSE_ENTITY_INDEX);
         HttpHeaders returnHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
         Assert.assertNull(returnHeaders.get("Expect"));
     }

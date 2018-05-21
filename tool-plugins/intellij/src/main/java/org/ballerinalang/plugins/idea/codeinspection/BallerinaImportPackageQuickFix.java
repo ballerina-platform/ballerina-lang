@@ -29,13 +29,12 @@ import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleUtil;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import com.intellij.openapi.util.TextRange;
-import com.intellij.openapi.util.text.StringUtil;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiFile;
@@ -48,18 +47,20 @@ import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.PackageNameNode;
+import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
-import org.ballerinalang.plugins.idea.util.BallerinaUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.SwingConstants;
+
+import static org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil.LOCAL_PACKAGE_PLACEHOLDER;
 
 /**
  * Quick fix which adds imports.
@@ -67,8 +68,8 @@ import javax.swing.SwingConstants;
 public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionActionOnPsiElement
         implements HintAction, HighPriorityAction {
 
-    BallerinaImportPackageQuickFix(@NotNull PackageNameNode packageNameNode) {
-        super(packageNameNode);
+    BallerinaImportPackageQuickFix(@NotNull BallerinaIdentifier identifier) {
+        super(identifier);
     }
 
     @Override
@@ -105,9 +106,11 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
         if (!FileModificationService.getInstance().prepareFileForWrite(file)) {
             return;
         }
-        if (!(startElement instanceof PackageNameNode)) {
+        if (!(file instanceof BallerinaFile)) {
             return;
         }
+
+        BallerinaFile ballerinaFile = ((BallerinaFile) file);
 
         PsiReference reference = startElement.getReference();
         if (reference != null && reference.resolve() != null) {
@@ -116,25 +119,31 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
 
         List<String> importPathVariantsToImport = getImportPathVariantsToImport(startElement);
         if (importPathVariantsToImport.size() == 1) {
-            Runnable addImport = () -> BallerinaPsiImplUtil.addImport(file, importPathVariantsToImport.get(0), null);
+            Runnable addImport = () -> BallerinaFile.addImport(ballerinaFile, importPathVariantsToImport.get(0), null);
             CommandProcessor.getInstance().runUndoTransparentAction(
                     () -> ApplicationManager.getApplication().runWriteAction(addImport)
             );
         } else {
-            performImport(importPathVariantsToImport, file, editor);
+            performImport(importPathVariantsToImport, ballerinaFile, editor);
         }
     }
 
     private List<String> getImportPathVariantsToImport(@NotNull PsiElement element) {
-        List<PsiDirectory> packagesInResolvableScopes =
-                BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(element.getProject());
         List<String> results = new LinkedList<>();
-        if (element instanceof PackageNameNode) {
-            for (PsiDirectory packagesInResolvableScope : packagesInResolvableScopes) {
-                if (packagesInResolvableScope.getName().equals(element.getText())) {
-                    String importPath = BallerinaUtil.suggestPackageNameForDirectory(packagesInResolvableScope);
-                    if (StringUtil.isEmpty(importPath)) {
-                        continue;
+
+        Project project = element.getProject();
+        Module module = ModuleUtilCore.findModuleForPsiElement(element);
+
+        Map<String, List<String>> allPackages = BallerinaPsiImplUtil.getAllPackagesInResolvableScopes(project, module);
+        for (String packageName : allPackages.keySet()) {
+            if (packageName.equals(element.getText())) {
+                List<String> organizations = allPackages.get(packageName);
+                for (String organization : organizations) {
+                    String importPath;
+                    if (organization.equals(LOCAL_PACKAGE_PLACEHOLDER)) {
+                        importPath = packageName;
+                    } else {
+                        importPath = organization + "/" + packageName;
                     }
                     results.add(importPath);
                 }
@@ -142,7 +151,6 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
         }
         return results;
     }
-
 
     @Override
     public boolean isAvailable(@NotNull Project project, @NotNull PsiFile file, @NotNull PsiElement startElement,
@@ -159,14 +167,8 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
         if (!errorElements.isEmpty()) {
             return false;
         }
-        if (!(startElement instanceof PackageNameNode)) {
-            return false;
-        }
-        PsiElement nameIdentifier = ((PackageNameNode) startElement).getNameIdentifier();
-        if (nameIdentifier == null) {
-            return false;
-        }
-        PsiReference reference = nameIdentifier.getReference();
+
+        PsiReference reference = startElement.getReference();
         return file instanceof BallerinaFile && file.getManager().isInProject(file) &&
                 (reference == null || reference.resolve() == null);
     }
@@ -176,15 +178,8 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
         if (element == null || !element.isValid()) {
             return false;
         }
-        if (!(element instanceof PackageNameNode)) {
-            return false;
-        }
 
-        PsiElement nameIdentifier = ((PackageNameNode) element).getNameIdentifier();
-        if (nameIdentifier == null) {
-            return false;
-        }
-        PsiReference reference = nameIdentifier.getReference();
+        PsiReference reference = element.getReference();
         if (reference != null && reference.resolve() != null) {
             return false;
         }
@@ -194,6 +189,12 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
         }
 
         PsiFile file = element.getContainingFile();
+        if (!(file instanceof BallerinaFile)) {
+            return false;
+        }
+
+        BallerinaFile ballerinaFile = ((BallerinaFile) file);
+
         String firstPackageToImport = ContainerUtil.getFirstItem(packagesToImport);
 
         // autoimport on trying to fix
@@ -202,7 +203,7 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
                 if (!LaterInvocator.isInModalContext() && (ApplicationManager.getApplication().isUnitTestMode() ||
                         DaemonListeners.canChangeFileSilently(file))) {
                     if (reference == null || reference.resolve() == null) {
-                        performImport(file, firstPackageToImport);
+                        performImport(((BallerinaFile) file), firstPackageToImport);
                     }
                     return false;
                 }
@@ -226,8 +227,8 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
             );
             HintManager.getInstance().showQuestionHint(editor, message, referenceRange.getStartOffset(),
                     referenceRange.getEndOffset(), () -> {
-                        if (file.isValid() && !editor.isDisposed()) {
-                            performImport(packagesToImport, file, editor);
+                        if (ballerinaFile.isValid() && !editor.isDisposed()) {
+                            performImport(packagesToImport, ballerinaFile, editor);
                         }
                         return true;
                     }
@@ -237,7 +238,8 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
         return false;
     }
 
-    private void performImport(@NotNull List<String> packagesToImport, @NotNull PsiFile file, @Nullable Editor editor) {
+    private void performImport(@NotNull List<String> packagesToImport, @NotNull BallerinaFile file,
+                               @Nullable Editor editor) {
         if (packagesToImport.size() > 1 && editor != null) {
             JBList<String> list = new JBList<>(packagesToImport);
             list.installCellRenderer(o -> {
@@ -263,9 +265,9 @@ public class BallerinaImportPackageQuickFix extends LocalQuickFixAndIntentionAct
         }
     }
 
-    private void performImport(PsiFile file, String importPath) {
+    private void performImport(BallerinaFile file, String importPath) {
         // Important: Need to call runWriteAction since this is called from the swing thread.
-        Runnable addImport = () -> BallerinaPsiImplUtil.addImport(file, importPath, null);
+        Runnable addImport = () -> BallerinaFile.addImport(file, importPath, null);
         CommandProcessor.getInstance().runUndoTransparentAction(
                 () -> ApplicationManager.getApplication().runWriteAction(addImport)
         );

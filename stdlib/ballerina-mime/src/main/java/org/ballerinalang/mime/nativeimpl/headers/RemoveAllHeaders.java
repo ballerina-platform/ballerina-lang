@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.nativeimpl.headers;
 
-import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -47,7 +47,8 @@ public class RemoveAllHeaders extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
         if (entityStruct.getNativeData(ENTITY_HEADERS) != null) {
-            entityStruct.addNativeData(ENTITY_HEADERS, new DefaultHttpHeaders());
+            HttpHeaders httpHeaders = (HttpHeaders) entityStruct.getNativeData(ENTITY_HEADERS);
+            httpHeaders.clear();
         }
         context.setReturnValues();
     }

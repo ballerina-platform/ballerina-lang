@@ -88,7 +88,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
             context.setReturnValues((BValue) null);
         } catch (Throwable throwable) {
-            BStruct errorStruct = HttpUtil.getHttpConnectorError(context, throwable);
+            BStruct errorStruct = HttpUtil.getError(context, throwable);
             context.setReturnValues(errorStruct);
         }
 

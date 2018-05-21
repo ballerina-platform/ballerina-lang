@@ -95,6 +95,18 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
+    public void exitFormalParameterList(BallerinaParser.FormalParameterListContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.endFormalParameterList(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public void exitDefaultableParameter(BallerinaParser.DefaultableParameterContext ctx) {
         if (ctx.exception != null) {
             return;
@@ -2588,7 +2600,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.endWithinClause(getCurrentPos(ctx), getWS(ctx));
+        String timeScale = null;
+        String timeDurationValue = null;
+        if (ctx.timeScale() != null) {
+            timeScale = ctx.timeScale().getText();
+            timeDurationValue = ctx.DecimalIntegerLiteral().getText();
+        }
+
+        this.pkgBuilder.endWithinClause(getCurrentPos(ctx), getWS(ctx), timeDurationValue, timeScale);
     }
 
     @Override
@@ -2630,13 +2649,21 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         boolean followedByAvailable = ctx.FOLLOWED() != null && ctx.BY() != null;
         boolean enclosedInParenthesis = ctx.LEFT_PARENTHESIS() != null && ctx.RIGHT_PARENTHESIS() != null;
         boolean andWithNotAvailable = ctx.NOT() != null && ctx.AND() != null;
-        boolean forWithNotAvailable = ctx.simpleLiteral() != null;
+        boolean forWithNotAvailable = ctx.timeScale() != null;
         boolean onlyAndAvailable = ctx.AND() != null && ctx.NOT() == null && ctx.FOR() == null;
         boolean onlyOrAvailable = ctx.OR() != null && ctx.NOT() == null && ctx.FOR() == null;
         boolean commaSeparated = ctx.COMMA() != null;
+
+        String timeScale = null;
+        String timeDurationValue = null;
+        if (ctx.timeScale() != null) {
+            timeScale = ctx.timeScale().getText();
+            timeDurationValue = ctx.DecimalIntegerLiteral().getText();
+        }
+
         this.pkgBuilder.endPatternStreamingInputNode(getCurrentPos(ctx), getWS(ctx), followedByAvailable,
                 enclosedInParenthesis, andWithNotAvailable, forWithNotAvailable, onlyAndAvailable,
-                onlyOrAvailable, commaSeparated);
+                onlyOrAvailable, commaSeparated, timeDurationValue, timeScale);
     }
 
     @Override
@@ -2724,7 +2751,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         boolean isSnapshotOutputRateLimit = false;
-        boolean isEventBasedOutputRateLimit = false;
         boolean isFirst = false;
         boolean isLast = false;
         boolean isAll = false;
@@ -2732,26 +2758,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.SNAPSHOT() != null) {
             isSnapshotOutputRateLimit = true;
         } else {
-            if (ctx.EVENTS() != null) {
-                isEventBasedOutputRateLimit = true;
-
-                if (ctx.LAST() != null) {
-                    isLast = true;
-                } else if (ctx.FIRST() != null) {
-                    isFirst = true;
-                } else if (ctx.LAST() != null) {
-                    isAll = true;
-                }
+            if (ctx.LAST() != null) {
+                isLast = true;
+            } else if (ctx.FIRST() != null) {
+                isFirst = true;
+            } else if (ctx.LAST() != null) {
+                isAll = true;
             }
         }
 
-        String timescale = null;
+        String timeScale = null;
         if (ctx.timeScale() != null) {
-            timescale = ctx.FIRST().getText();
+            timeScale = ctx.timeScale().getText();
         }
 
         this.pkgBuilder.endOutputRateLimitNode(getCurrentPos(ctx), getWS(ctx), isSnapshotOutputRateLimit,
-                isEventBasedOutputRateLimit, isFirst, isLast, isAll, timescale, ctx.DecimalIntegerLiteral().getText());
+                isFirst, isLast, isAll, timeScale, ctx.DecimalIntegerLiteral().getText());
     }
 
     @Override

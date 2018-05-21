@@ -39,7 +39,7 @@ import java.util.stream.Collectors;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
- * Integration test for observability of metrics
+ * Integration test for observability of metrics.
  */
 public class MetricsTestCase {
 
