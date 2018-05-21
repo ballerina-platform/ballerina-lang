@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.test.balo;
+package org.ballerinalang.test.balo.functions;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -30,18 +30,17 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Paths;
 
 /**
  * Test function signatures and calling with optional and named params.
  */
 public class FunctionSignatureInBaloTest {
+
     CompileResult result;
 
     @BeforeClass
     public void setup() throws IOException {
-        BaloCreator.create(Paths.get("test-src", "balo", "test_project"), "foo");
-        result = BCompileUtil.compile("test-src/balo/test_balo/test_different_function_signatures.bal");
+        result = BCompileUtil.compile("test-src/balo/test_balo/functions/test_different_function_signatures.bal");
     }
 
     @Test
