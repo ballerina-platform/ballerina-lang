@@ -58,6 +58,7 @@ function registerMenuLoader() {
                         enabled:(typeof(childMenu.gen.isActive) === 'boolean')
                                 ? childMenu.gen.isActive 
                                 : true,
+                        sublabel: childMenu.gen.subLabel
                     }
                 })
             }

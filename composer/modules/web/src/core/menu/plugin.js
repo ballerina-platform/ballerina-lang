@@ -41,6 +41,7 @@ class MenuPlugin extends Plugin {
         super();
         this.menus = [];
         this.roots = [];
+        this.getLabelForCommand = this.getLabelForCommand.bind(this);
     }
 
     /**
@@ -118,31 +119,41 @@ class MenuPlugin extends Plugin {
     onAfterInitialRender() {
         if (isOnElectron()) {
             const { command: { dispatch, on } } = this.appContext;
-            const populateIsActiveOfNode = (node) => {
+            const populateNativeMenuItem = (node) => {
                 node.gen = {
                     isActive: true,
+                    subLabel: node.command ? this.getLabelForCommand(node.command) : '',
                 };
                 if (typeof node.isActive === 'function') {
                     node.gen.isActive = node.isActive();
                 }
             };
-            const populateIsActive = (roots) => {
+            const populateNativeMenu = (roots) => {
                 roots.forEach((root) => {
-                    populateIsActiveOfNode(root);
+                    populateNativeMenuItem(root);
                     root.children.forEach((child) => {
-                        populateIsActiveOfNode(child);
+                        populateNativeMenuItem(child);
                     });
                 });
                 return roots;
             };
-            ipcRenderer.send('main-menu-loaded', populateIsActive(this.roots));
+            ipcRenderer.send('main-menu-loaded', populateNativeMenu(this.roots));
             ipcRenderer.on('menu-item-clicked', (e, commandId) => {
                 dispatch(commandId);
             });
             on(LAYOUT_COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, () => {
-                ipcRenderer.send('main-menu-loaded', populateIsActive(this.roots));
+                ipcRenderer.send('main-menu-loaded', populateNativeMenu(this.roots));
             });
         }
+    }
+
+    /**
+     * Gets the shortcut for command
+     * @param {String} cmdID command ID
+     */
+    getLabelForCommand(cmdID) {
+        const cmd = this.appContext.command.findCommand(cmdID);
+        return _.get(cmd, 'shortcut.derived.label', '');
     }
 
     /**
@@ -161,10 +172,7 @@ class MenuPlugin extends Plugin {
                         return {
                             dispatch: this.appContext.command.dispatch,
                             menu: this.roots,
-                            getLabelForCommand: (cmdID) => {
-                                const cmd = this.appContext.command.findCommand(cmdID);
-                                return _.get(cmd, 'shortcut.derived.label', '');
-                            },
+                            getLabelForCommand: this.getLabelForCommand,
                         };
                     },
                     region: REGIONS.HEADER,
