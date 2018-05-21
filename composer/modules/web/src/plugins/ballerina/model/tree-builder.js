@@ -189,6 +189,11 @@ class TreeBuilder {
             if (!node.serviceTypeStruct) {
                 node.isServiceTypeUnavailable = true;
             }
+
+            if (!node.anonymousEndpointBind && node.boundEndpoints && node.boundEndpoints.length <= 0
+                && !_.find(node.ws, (ws) => ws.text === 'bind')) {
+                node.bindNotAvailable = true;
+            }
         }
 
         // Mark the first argument ad a service endpoint.
