@@ -58,7 +58,7 @@ public class FindAll extends AbstractRegexFunction {
             }
             context.setReturnValues(stringArray);
         } catch (PatternSyntaxException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 }

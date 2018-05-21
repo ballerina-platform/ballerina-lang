@@ -22,7 +22,9 @@ under the License.
 <suite name="ballerina-test-suite">
 
     <listeners>
-        <listener class-name="org.ballerinalang.test.utils.TestSuiteListener"/>
+        <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
+        <listener class-name="org.ballerinalang.launcher.util.BallerinaTestListener"/>
+        <listener class-name="org.ballerinalang.test.balo.BaloTestListener"/>
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
@@ -69,6 +71,7 @@ under the License.
             <package name="org.ballerinalang.test.record.*"/>
             <package name="org.ballerinalang.test.net.grpc"/>
             <package name="org.ballerinalang.test.runtime.*"/>
+            <package name="org.ballerinalang.test.balo.*" />
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->

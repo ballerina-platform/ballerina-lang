@@ -313,6 +313,11 @@
                 <artifactId>toml-parser</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>stdlib-compile</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
 
             <dependency>
                 <groupId>org.wso2.carbon</groupId>

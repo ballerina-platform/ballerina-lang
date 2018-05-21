@@ -72,7 +72,7 @@ public class VerifySignature extends BlockingNativeCallableUnit {
             context.setReturnValues(new BBoolean(validSignature));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            context.setReturnValues(new BBoolean(false), BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(new BBoolean(false), BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 }

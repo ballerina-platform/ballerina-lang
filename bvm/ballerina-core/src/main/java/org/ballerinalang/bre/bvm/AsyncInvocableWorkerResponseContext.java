@@ -150,7 +150,7 @@ public class AsyncInvocableWorkerResponseContext extends SyncCallableWorkerRespo
     
     private void sendAsyncCancelErrorSignal() {
         WorkerData result = BLangVMUtils.createWorkerData(this.callableUnitInfo.retWorkerIndex);
-        BStruct error = BLangVMErrors.createCallCancelledException(this.callableUnitInfo);
+        BStruct error = BLangVMErrors.createCallCancelledException(this.workerExecutionContexts.get(0));
         WorkerExecutionContext ctx = this.signal(new WorkerSignal(
                 new WorkerExecutionContext(error), SignalType.ERROR, result));
         BLangScheduler.resume(ctx);

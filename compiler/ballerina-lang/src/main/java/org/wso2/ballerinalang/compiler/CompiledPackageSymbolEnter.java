@@ -692,7 +692,7 @@ public class CompiledPackageSymbolEnter {
             invokableSymbol.params.add(varSymbol);
         }
 
-        for (int i = requiredParamCount; i < defaultableParamCount; i++) {
+        for (int i = requiredParamCount; i < requiredParamCount + defaultableParamCount; i++) {
             String varName = getVarName(localVarDataInStream);
             BVarSymbol varSymbol = new BVarSymbol(0, names.fromString(varName), this.env.pkgSymbol.pkgID,
                     funcType.paramTypes.get(i), invokableSymbol);
@@ -705,6 +705,41 @@ public class CompiledPackageSymbolEnter {
                     funcType.paramTypes.get(requiredParamCount + defaultableParamCount), invokableSymbol);
             invokableSymbol.restParam = varSymbol;
         }
+
+        byte[] paramDefaultsData = attrDataMap.get(AttributeInfo.Kind.PARAMETER_DEFAULTS_ATTRIBUTE);
+        DataInputStream paramDefaultsDataInStream = new DataInputStream(new ByteArrayInputStream(paramDefaultsData));
+        int paramDefaultsInfoCount = paramDefaultsDataInStream.readShort();
+        for (int i = 0; i < paramDefaultsInfoCount; i++) {
+            invokableSymbol.defaultableParams.get(i).defaultValue = getDefaultValue(paramDefaultsDataInStream);
+        }
+    }
+    
+    private Object getDefaultValue(DataInputStream dataInStream)
+            throws IOException {
+        String typeDesc = getUTF8CPEntryValue(dataInStream);
+
+        int valueCPIndex;
+        switch (typeDesc) {
+            case TypeDescriptor.SIG_BOOLEAN:
+                return dataInStream.readBoolean();
+            case TypeDescriptor.SIG_INT:
+                valueCPIndex = dataInStream.readInt();
+                IntegerCPEntry integerCPEntry = (IntegerCPEntry) this.env.constantPool[valueCPIndex];
+                return integerCPEntry.getValue();
+            case TypeDescriptor.SIG_FLOAT:
+                valueCPIndex = dataInStream.readInt();
+                FloatCPEntry floatCPEntry = (FloatCPEntry) this.env.constantPool[valueCPIndex];
+                return floatCPEntry.getValue();
+            case TypeDescriptor.SIG_STRING:
+                valueCPIndex = dataInStream.readInt();
+                UTF8CPEntry stringCPEntry = (UTF8CPEntry) this.env.constantPool[valueCPIndex];
+                return stringCPEntry.getValue();
+            case TypeDescriptor.SIG_NULL:
+                break;
+            default:
+                throw new RuntimeException("unknown default value type " + typeDesc);
+        }
+        return null;
     }
 
     /**

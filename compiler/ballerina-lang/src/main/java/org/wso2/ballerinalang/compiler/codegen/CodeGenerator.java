@@ -328,10 +328,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     public ProgramFile generateBALX(BLangPackage pkgNode) {
         ProgramFile programFile = new ProgramFile();
 
-        // TODO: Fix this. Added temporally for codegen. Load this from VM side.
-        programFile.packageFileMap.put(this.symTable.builtInPackageSymbol.pkgID.bvmAlias(),
-                this.symTable.builtInPackageSymbol.packageFile);
-
         // Add all the packages to the program file structure.
         addPackageInfo(pkgNode.symbol, programFile);
         programFile.entryPkgCPIndex = addPackageRefCPEntry(programFile, pkgNode.symbol.pkgID);
