@@ -22,7 +22,6 @@ import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
@@ -258,7 +257,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         this.currPkgEnv = pkgEnv;
         this.env = pkgEnv;
 
-        pkgNode.topLevelNodes.forEach(e -> { ((BLangNode) e).accept(this); this.blockedNode = null; });
+        pkgNode.topLevelNodes.forEach(e -> {
+            ((BLangNode) e).accept(this);
+            this.blockedNode = null;
+        });
 
         analyzerPhase = AnalyzerPhase.BLOCKED_NODE_ANALYSIS;
         resolveBlockedInvokable();
