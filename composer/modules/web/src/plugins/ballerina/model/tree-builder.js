@@ -254,20 +254,6 @@ class TreeBuilder {
         if (node.kind === 'Function') {
             if (node.returnTypeNode && node.returnTypeNode.typeKind !== 'nil') {
                 node.hasReturns = true;
-                if (node.ws) {
-                    for (let i = 0; i < node.ws.length; i++) {
-                        if (node.ws[i].text === ')' && node.ws[i + 1].text !== 'returns') {
-                            for (let j = 0; j < node.returnTypeNode.ws.length; j++) {
-                                if (node.returnTypeNode.ws[j].text === 'returns') {
-                                    node.ws.splice((i + 1), 0, node.returnTypeNode.ws[j]);
-                                    node.returnTypeNode.ws.splice(j, 1);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
-                }
             }
 
             if (node.defaultableParameters) {
@@ -285,7 +271,19 @@ class TreeBuilder {
             });
 
             if (node.receiver && !node.receiver.ws) {
-                node.noVisibleReceiver = true;
+
+                if (_.find(node.ws, (ws) => ws.text === '::')
+                    && node.receiver.typeNode
+                    && node.receiver.typeNode.ws
+                    && node.receiver.typeNode.ws.length > 0) {
+                    node.objectOuterFunction = true;
+                    if (node.receiver.typeNode.ws[0].text === 'function') {
+                        node.receiver.typeNode.ws.splice(0, 1);
+                    }
+                    node.objectOuterFunctionTypeName = node.receiver.typeNode.typeName;
+                } else {
+                    node.noVisibleReceiver = true;
+                }
             }
 
             if (node.restParameters && node.parameters && node.parameters.length > 0) {
@@ -473,6 +471,10 @@ class TreeBuilder {
         if (node.kind === 'FunctionType') {
             if (node.returnTypeNode && node.returnTypeNode.ws) {
                 node.hasReturn = true;
+            }
+
+            if (node.ws && node.ws[0] && node.ws[0].text === '(') {
+                node.withParantheses = true;
             }
         }
 
