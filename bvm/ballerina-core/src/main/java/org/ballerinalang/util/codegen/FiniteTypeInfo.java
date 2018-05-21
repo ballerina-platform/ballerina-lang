@@ -20,22 +20,28 @@ package org.ballerinalang.util.codegen;
 
 
 import org.ballerinalang.model.types.BFiniteType;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo;
+import org.ballerinalang.util.codegen.attributes.AttributeInfo.Kind;
 
-import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Represent serializable unit of defined type Definition item.
+ * {@code PackageInfo} Represent serializable unit of finite type Definition item.
+ *
+ * @since 0.0971.0
  */
-public class TypeDefinitionInfo extends StructureTypeInfo {
+public class FiniteTypeInfo implements TypeInfo {
     private BFiniteType finiteType;
 
 
-    public TypeDefinitionInfo(int pkgPathCPIndex, String packagePath,
-                              int nameCPIndex, String name, int flags) {
-        super(pkgPathCPIndex, packagePath, nameCPIndex, name, flags);
+    private Map<Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
+
+    public FiniteTypeInfo() {
     }
 
-    public BFiniteType getType() {
+    public BType getType() {
         return finiteType;
     }
 
@@ -44,13 +50,17 @@ public class TypeDefinitionInfo extends StructureTypeInfo {
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(pkgPathCPIndex, nameCPIndex);
+    public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
+        return attributeInfoMap.get(attributeKind);
     }
 
     @Override
-    public boolean equals(Object obj) {
-        return obj instanceof TypeDefinitionInfo && pkgPathCPIndex == (((TypeDefinitionInfo) obj).pkgPathCPIndex)
-                && nameCPIndex == (((TypeDefinitionInfo) obj).nameCPIndex);
+    public void addAttributeInfo(AttributeInfo.Kind attributeKind, AttributeInfo attributeInfo) {
+        attributeInfoMap.put(attributeKind, attributeInfo);
+    }
+
+    @Override
+    public AttributeInfo[] getAttributeInfoEntries() {
+        return attributeInfoMap.values().toArray(new AttributeInfo[0]);
     }
 }

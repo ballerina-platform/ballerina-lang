@@ -41,12 +41,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -179,23 +176,9 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         serviceNode.endpoints.forEach(endpoint -> endpoint.accept(this));
     }
 
-    public void visit(BLangStruct structNode) {
-        List<BLangAnnotationAttachment> attachmentList = structNode.getAnnotationAttachments();
-        notifyProcessors(attachmentList, (processor, list) -> processor.process(structNode, list));
-    }
-
-    public void visit(BLangObject objectNode) {
-        List<BLangAnnotationAttachment> attachmentList = objectNode.getAnnotationAttachments();
-        notifyProcessors(attachmentList, (processor, list) -> processor.process(objectNode, list));
-    }
-
-    public void visit(BLangRecord recordNode) {
-        List<BLangAnnotationAttachment> attachmentList = recordNode.getAnnotationAttachments();
-        notifyProcessors(attachmentList, (processor, list) -> processor.process(recordNode, list));
-    }
-
-    public void visit(BLangTypeDefinition typeDefinition) {
-        //TODO
+    public void visit(BLangTypeDefinition typeDefNode) {
+        List<BLangAnnotationAttachment> attachmentList = typeDefNode.getAnnotationAttachments();
+        notifyProcessors(attachmentList, (processor, list) -> processor.process(typeDefNode, list));
     }
 
     public void visit(BLangVariable varNode) {

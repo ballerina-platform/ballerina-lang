@@ -42,12 +42,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -86,6 +83,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerReceive;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangEndpointTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -406,18 +405,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         setPreviousNode(indexBasedAccess);
         if (indexBasedAccess.expr != null) {
             this.acceptNode(indexBasedAccess.expr);
-        }
-    }
-
-    public void visit(BLangStruct structNode) {
-        addTopLevelNodeToContext(structNode, structNode.name.getValue(), structNode.symbol.pkgID,
-                structNode.symbol.kind.name(), structNode.symbol.kind.name(),
-                structNode.symbol.owner.name.getValue(), structNode.symbol.owner.pkgID);
-        setPreviousNode(structNode);
-        this.addToNodeStack(structNode);
-
-        if (structNode.fields != null) {
-            structNode.fields.forEach(this::acceptNode);
         }
     }
 
@@ -856,23 +843,40 @@ public class PositionTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangObject objectNode) {
-        setPreviousNode(objectNode);
-
-        if (objectNode.fields != null) {
-            objectNode.fields.forEach(this::acceptNode);
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        BSymbol recordSymbol = recordTypeNode.symbol;
+        addTopLevelNodeToContext(recordTypeNode, recordSymbol.name.getValue(), recordSymbol.pkgID,
+                recordSymbol.kind.name(), recordSymbol.kind.name(),
+                recordSymbol.owner.name.getValue(), recordSymbol.owner.pkgID);
+        setPreviousNode(recordTypeNode);
+        if (recordTypeNode.fields != null) {
+            recordTypeNode.fields.forEach(this::acceptNode);
         }
 
-        if (objectNode.functions != null) {
-            objectNode.functions.forEach(this::acceptNode);
+        if (recordTypeNode.initFunction != null &&
+                !(recordTypeNode.initFunction.returnTypeNode.type instanceof BNilType)) {
+            this.acceptNode(recordTypeNode.initFunction);
+        }
+    }
+
+    @Override
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        setPreviousNode(objectTypeNode);
+
+        if (objectTypeNode.fields != null) {
+            objectTypeNode.fields.forEach(this::acceptNode);
         }
 
-        if (objectNode.initFunction != null) {
-            this.acceptNode(objectNode.initFunction);
+        if (objectTypeNode.functions != null) {
+            objectTypeNode.functions.forEach(this::acceptNode);
         }
 
-        if (objectNode.receiver != null) {
-            this.acceptNode(objectNode.receiver);
+        if (objectTypeNode.initFunction != null) {
+            this.acceptNode(objectTypeNode.initFunction);
+        }
+
+        if (objectTypeNode.receiver != null) {
+            this.acceptNode(objectTypeNode.receiver);
         }
     }
 
@@ -897,22 +901,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (patternClauseNode.body != null) {
             this.acceptNode(patternClauseNode.body);
-        }
-    }
-
-    @Override
-    public void visit(BLangRecord record) {
-        addTopLevelNodeToContext(record, record.name.getValue(), record.symbol.pkgID,
-                record.symbol.kind.name(), record.symbol.kind.name(),
-                record.symbol.owner.name.getValue(), record.symbol.owner.pkgID);
-        setPreviousNode(record);
-        if (record.fields != null) {
-            record.fields.forEach(this::acceptNode);
-        }
-
-        if (record.initFunction != null &&
-                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
-            this.acceptNode(record.initFunction);
         }
     }
 
@@ -974,9 +962,9 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(typeDefinition.typeNode);
         }
 
-        if (typeDefinition.valueSpace != null) {
-            typeDefinition.valueSpace.forEach(this::acceptNode);
-        }
+//        if (typeDefinition.valueSpace != null) {
+//            typeDefinition.valueSpace.forEach(this::acceptNode);
+//        }
 
     }
 

@@ -47,7 +47,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
         functionName = "setTopic",
         args = {@Argument(name = "webSubServiceName", type = TypeKind.STRING),
                 @Argument(name = "topic", type = TypeKind.STRING)},
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
         isPublic = true
 )
 public class SetTopic extends AbstractHttpNativeFunction {

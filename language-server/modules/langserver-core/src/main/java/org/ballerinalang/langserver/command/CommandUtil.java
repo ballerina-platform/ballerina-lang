@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.model.elements.Flag;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.VariableNode;
@@ -33,14 +34,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
@@ -138,8 +139,10 @@ public class CommandUtil {
             
             if (topLevelNode instanceof BLangFunction) {
                 filteredFunctions.add((BLangFunction) topLevelNode);
-            } else if (topLevelNode instanceof BLangObject) {
-                filteredFunctions.addAll(((BLangObject) topLevelNode).getFunctions());
+            } else if (topLevelNode instanceof BLangTypeDefinition
+                    && ((BLangTypeDefinition) topLevelNode).typeNode instanceof BLangObjectTypeNode) {
+                filteredFunctions
+                        .addAll(((BLangObjectTypeNode) (((BLangTypeDefinition) topLevelNode).typeNode)).getFunctions());
             }
 
             for (FunctionNode filteredFunction : filteredFunctions) {
@@ -183,14 +186,14 @@ public class CommandUtil {
      * @param line              Start line of the struct in the source
      * @return {@link DocAttachmentInfo}   Documentation attachment for the struct
      */
-    static DocAttachmentInfo getStructDocumentationByPosition(BLangPackage bLangPackage, int line) {
+    static DocAttachmentInfo getRecordOrObjectDocumentationByPosition(BLangPackage bLangPackage, int line) {
         for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
-            if (topLevelNode instanceof BLangStruct) {
-                BLangStruct structNode = (BLangStruct) topLevelNode;
-                DiagnosticPos structPos = CommonUtil.toZeroBasedPosition(structNode.getPosition());
+            if (topLevelNode instanceof BLangTypeDefinition) {
+                BLangTypeDefinition typeDefNode = (BLangTypeDefinition) topLevelNode;
+                DiagnosticPos structPos = CommonUtil.toZeroBasedPosition(typeDefNode.getPosition());
                 int structStart = structPos.getStartLine();
                 if (structStart == line) {
-                    return getStructNodeDocumentation(structNode, line);
+                    return getRecordOrObjectDocumentation(typeDefNode, line);
                 }
             }
         }
@@ -198,11 +201,17 @@ public class CommandUtil {
         return null;
     }
 
-    static DocAttachmentInfo getStructNodeDocumentation(BLangStruct bLangStruct, int replaceFrom) {
+    static DocAttachmentInfo getRecordOrObjectDocumentation(BLangTypeDefinition typeDef, int replaceFrom) {
         List<String> attributes = new ArrayList<>();
-        DiagnosticPos structPos = CommonUtil.toZeroBasedPosition(bLangStruct.getPosition());
+        List<BLangVariable> fields = new ArrayList<>();
+        DiagnosticPos structPos = CommonUtil.toZeroBasedPosition(typeDef.getPosition());
+        if (typeDef.typeNode instanceof BLangObjectTypeNode) {
+            fields.addAll(((BLangObjectTypeNode) typeDef.typeNode).fields);
+        } else if (typeDef.typeNode instanceof BLangRecordTypeNode) {
+            fields.addAll(((BLangRecordTypeNode) typeDef.typeNode).fields);
+        }
         int offset = structPos.getStartColumn();
-        bLangStruct.getFields().forEach(bLangVariable ->
+        fields.forEach(bLangVariable ->
                 attributes.add(getDocAttributeFromBLangVariable(bLangVariable, offset)));
         return new DocAttachmentInfo(getDocumentationAttachment(attributes, structPos.getStartColumn()), replaceFrom);
     }
@@ -353,7 +362,9 @@ public class CommandUtil {
         for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
             DiagnosticPos typeNodePos;
             typeNodePos = (DiagnosticPos) topLevelNode.getPosition();
-            if ((topLevelNode instanceof BLangRecord || topLevelNode instanceof BLangObject)
+            if ((topLevelNode instanceof BLangTypeDefinition &&
+                    (((BLangTypeDefinition) topLevelNode).symbol.getKind() == SymbolKind.OBJECT
+                            || ((BLangTypeDefinition) topLevelNode).symbol.getKind() == SymbolKind.RECORD))
                     && typeNodePos.getStartLine() - 1 == line) {
                 return getTypeNodeDocumentation(topLevelNode, line);
             }
@@ -367,12 +378,14 @@ public class CommandUtil {
         DiagnosticPos typeNodePos = CommonUtil.toZeroBasedPosition((DiagnosticPos) typeNode.getPosition());
         int offset = typeNodePos.getStartColumn();
         List<VariableNode> publicFields = new ArrayList<>();
-        if (typeNode instanceof BLangObject) {
-            publicFields.addAll(((BLangObject) typeNode).getFields().stream()
+        if (typeNode instanceof BLangTypeDefinition &&
+                ((BLangTypeDefinition) typeNode).symbol.getKind() == SymbolKind.OBJECT) {
+            publicFields.addAll(((BLangObjectTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields().stream()
                     .filter(field -> field.getFlags().contains(Flag.PUBLIC)).collect(Collectors.toList()));
             
-        } else if (typeNode instanceof BLangRecord) {
-            publicFields.addAll(((BLangRecord) typeNode).getFields());
+        } else if (typeNode instanceof BLangTypeDefinition &&
+                ((BLangTypeDefinition) typeNode).symbol.getKind() == SymbolKind.RECORD) {
+            publicFields.addAll(((BLangObjectTypeNode) ((BLangTypeDefinition) typeNode).typeNode).getFields());
         }
         
         publicFields.forEach(variableNode -> {

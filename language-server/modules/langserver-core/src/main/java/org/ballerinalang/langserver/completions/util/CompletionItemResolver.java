@@ -58,13 +58,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -95,7 +94,7 @@ public enum CompletionItemResolver {
             new AnnotationAttachmentResolver()),
     B_LANG_ANNOTATION_ATTACHMENT(BLangAnnotationAttachment.class,
             new AnnotationAttachmentResolver()),
-    RECORD_CONTEXT(BLangRecord.class,
+    RECORD_CONTEXT(BLangRecordTypeNode.class,
             new BLangRecordContextResolver()),
     SERVICE_CONTEXT(BLangService.class,
             new ServiceContextResolver()),
@@ -109,7 +108,7 @@ public enum CompletionItemResolver {
             new BLangEndpointContextResolver()),
     FUNCTION_DEF_CONTEXT(BLangFunction.class,
             new FunctionContextResolver()),
-    OBJECT_TYPE_CONTEXT(BLangObject.class,
+    OBJECT_TYPE_CONTEXT(BLangRecordTypeNode.class,
             new ObjectTypeContextResolver()),
     MATCH_STATEMENT_CONTEXT(BLangMatch.class,
             new BLangMatchContextResolver()),

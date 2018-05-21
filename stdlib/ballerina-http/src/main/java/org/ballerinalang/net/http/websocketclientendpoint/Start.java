@@ -55,7 +55,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSocketClient",
                              structPackage = "ballerina.http"),
         isPublic = true
 )

@@ -38,7 +38,7 @@ import java.util.regex.PatternSyntaxException;
         functionName = "string.matches",
         args = {@Argument(name = "s", type = TypeKind.STRING),
                 @Argument(name = "reg", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.BOOLEAN), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class Matches extends AbstractRegexFunction {

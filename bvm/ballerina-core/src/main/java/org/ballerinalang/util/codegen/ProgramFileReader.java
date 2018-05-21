@@ -102,5 +102,4 @@ public class ProgramFileReader {
         // FIXME
         pkgFileReader.readPackage("ballerina.builtin");
     }
-
 }

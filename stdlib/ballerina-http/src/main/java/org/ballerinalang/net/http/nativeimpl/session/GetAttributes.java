@@ -37,7 +37,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getAttributes",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
                 structPackage = "ballerina.http"),
         returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true

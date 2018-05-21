@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "removeHeader",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "PushPromise",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "PushPromise",
                 structPackage = "ballerina.http"),
         args = @Argument(name = "headerName", type = TypeKind.STRING),
         isPublic = true

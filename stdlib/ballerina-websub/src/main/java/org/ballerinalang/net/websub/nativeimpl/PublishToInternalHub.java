@@ -39,7 +39,7 @@ import org.ballerinalang.net.websub.hub.Hub;
         functionName = "publishToInternalHub",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.JSON)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
 public class PublishToInternalHub extends BlockingNativeCallableUnit {

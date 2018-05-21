@@ -20,7 +20,8 @@ package org.ballerinalang.nativeimpl.builtin.streamlib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.bre.bvm.StreamingRuntimeManager;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BRefValueArray;
@@ -67,7 +68,7 @@ public class StartForever extends BlockingNativeCallableUnit {
             BStream stream = (BStream) inputStreamReferenceArray.get(i);
             siddhiQuery = siddhiQuery.replaceFirst("\\[\\[streamName\\]\\]", stream.getStreamId());
 
-            BStructType.StructField[] structFieldArray = ((BStructType) stream.getConstraintType()).getStructFields();
+            BField[] structFieldArray = ((BStructureType) stream.getConstraintType()).getFields();
             StringBuilder streamDefinition = new StringBuilder("define stream ");
             streamDefinition.append(stream.getStreamId()).append("( ");
             generateStreamDefinition(structFieldArray, streamDefinition);
@@ -98,9 +99,9 @@ public class StartForever extends BlockingNativeCallableUnit {
         }
     }
 
-    private void generateStreamDefinition(BStructType.StructField[] structFieldArray,
+    private void generateStreamDefinition(BField[] structFieldArray,
                                           StringBuilder streamDefinition) {
-        BStructType.StructField structField = structFieldArray[0];
+        BField structField = structFieldArray[0];
         if (structField != null) {
             addTypesToStreamDefinitionQuery(streamDefinition, structField);
         }
@@ -116,7 +117,7 @@ public class StartForever extends BlockingNativeCallableUnit {
         }
     }
 
-    private void addTypesToStreamDefinitionQuery(StringBuilder streamDefinition, BStructType.StructField structField) {
+    private void addTypesToStreamDefinitionQuery(StringBuilder streamDefinition, BField structField) {
         streamDefinition.append(structField.fieldName).append(" ");
         String type = structField.fieldType.toString();
         //even though, type defined as int, actual value is a long. To handle this case in Siddhi, type is defined

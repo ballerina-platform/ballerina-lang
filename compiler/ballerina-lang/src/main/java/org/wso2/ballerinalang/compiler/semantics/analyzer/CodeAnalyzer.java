@@ -46,12 +46,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -130,6 +127,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -247,6 +246,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
+        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
+                || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+            analyzeNode(typeDefinition.typeNode, env);
+        }
         if (!Symbols.isPublic(typeDefinition.symbol) ||
                 typeDefinition.symbol.type != null && TypeKind.FINITE.equals(typeDefinition.symbol.type.getKind())) {
             return;
@@ -513,8 +516,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 } else if (exprType.tag == TypeTags.JSON &&
                         this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.STRUCT &&
-                        this.types.isAssignable(patternType, exprType)) {
+                } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
+                        && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
                 } else {
                     // TODO Support other assignable types
@@ -642,17 +645,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* not used, covered with functions */
     }
 
-    public void visit(BLangStruct structNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangObject objectNode) {
-        if (objectNode.isFieldAnalyseRequired && Symbols.isPublic(objectNode.symbol)) {
-            objectNode.fields.stream()
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        if (objectTypeNode.isFieldAnalyseRequired && Symbols.isPublic(objectTypeNode.symbol)) {
+            objectTypeNode.fields.stream()
                     .filter(field -> (Symbols.isPublic(field.symbol)))
                     .forEach(field -> analyzeNode(field, this.env));
         }
-        objectNode.functions.forEach(e -> this.analyzeNode(e, this.env));
+        objectTypeNode.functions.forEach(e -> this.analyzeNode(e, this.env));
     }
 
     private void analyseType(BType type, DiagnosticPos pos) {
@@ -665,9 +664,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangRecord record) {
-        if (record.isFieldAnalyseRequired && Symbols.isPublic(record.symbol)) {
-            record.fields.stream()
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        if (recordTypeNode.isFieldAnalyseRequired && Symbols.isPublic(recordTypeNode.symbol)) {
+            recordTypeNode.fields.stream()
                     .filter(field -> (Symbols.isPublic(field.symbol)))
                     .forEach(field -> analyzeNode(field, this.env));
         }
@@ -1133,7 +1132,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     pattern.matchedTypesIndirect.add(exprType);
                 } else if (exprType.tag == TypeTags.JSON && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.STRUCT && this.types.isAssignable(patternType, exprType)) {
+                } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
+                        && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
                 } else {
                     // TODO Support other assignable types

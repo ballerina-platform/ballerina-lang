@@ -69,7 +69,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "retrieveSubscriptionParameters",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
         returnType = {@ReturnType(type = TypeKind.ARRAY)}
 )
 public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {

@@ -15,27 +15,16 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.model.tree;
+package org.ballerinalang.util.codegen;
 
-import java.util.List;
+import org.ballerinalang.model.types.BType;
+import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 
 /**
- * @since 0.966.0
+ * {@code TypeInfo} contains metadata of a Ballerina type info entry in the program file.
+ *
+ * @since 0.971.0
  */
-public interface ObjectNode extends AnnotatableNode, DocumentableNode, TopLevelNode {
-    
-    IdentifierNode getName();
-    
-    void setName(IdentifierNode name);
-
-    List<? extends VariableNode> getFields();
-    
-    void addField(VariableNode field);
-
-    List<? extends FunctionNode> getFunctions();
-
-    void addFunction(FunctionNode function);
-
-    FunctionNode getInitFunction();
-
+public interface TypeInfo extends AttributeInfoPool {
+    BType getType();
 }

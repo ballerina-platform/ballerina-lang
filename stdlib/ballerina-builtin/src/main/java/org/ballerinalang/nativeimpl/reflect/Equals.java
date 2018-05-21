@@ -20,7 +20,7 @@ package org.ballerinalang.nativeimpl.reflect;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JsonNode;
@@ -117,9 +117,10 @@ public class Equals extends BlockingNativeCallableUnit {
                 }
                 
                 return lhsRef.value().equals(rhsRef.value());
-            case TypeTags.STRUCT_TAG:
-                BStructType lhsStructType = (BStructType) lhsValue.getType();
-                BStructType rhsStructType = (BStructType) rhsValue.getType();
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+                BStructureType lhsStructType = (BStructureType) lhsValue.getType();
+                BStructureType rhsStructType = (BStructureType) rhsValue.getType();
                 if (!Arrays.equals(lhsStructType.getFieldTypeCount(), rhsStructType.getFieldTypeCount())) {
                     return false;
                 }
@@ -161,7 +162,7 @@ public class Equals extends BlockingNativeCallableUnit {
      * @param structType Struct type.
      * @return True if deeply equals, else false.
      */
-    private boolean isEqual(BStruct lhsStruct, BStruct rhsStruct, BStructType structType) {
+    private boolean isEqual(BStruct lhsStruct, BStruct rhsStruct, BStructureType structType) {
         // Checking equality for integer fields.
         for (int i = 0; i < structType.getFieldTypeCount()[0]; i++) {
             if (lhsStruct.getIntField(i) != rhsStruct.getIntField(i)) {
