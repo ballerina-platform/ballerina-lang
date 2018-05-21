@@ -42,7 +42,8 @@ public interface ConstantPoolEntry {
         CP_ENTRY_TYPE_REF((byte) 10),
         CP_ENTRY_FORK_JOIN((byte) 11),
         CP_ENTRY_WRKR_DATA_CHNL_REF((byte) 12),
-        CP_ENTRY_TRANSFORMER_REF((byte) 13);
+        CP_ENTRY_TRANSFORMER_REF((byte) 13),
+        CP_ENTRY_BLOB((byte) 14);
 
         byte value;
 

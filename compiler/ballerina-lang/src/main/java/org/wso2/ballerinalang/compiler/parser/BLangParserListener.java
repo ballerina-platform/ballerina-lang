@@ -35,7 +35,9 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -2072,6 +2074,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.STRING, text);
         } else if (ctx.NullLiteral() != null || ctx.emptyTupleLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null);
+        } else if (ctx.blobLiteral() != null) {
+            byte[] blobValue = getBlobLiteral(ctx.blobLiteral());
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BLOB, blobValue);
         }
     }
 
@@ -3028,5 +3033,29 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     .toLowerCase().replace("0b", ""), 2);
         }
         return null;
+    }
+
+    private byte[] getBlobLiteral(BallerinaParser.BlobLiteralContext blobLiteralContext) {
+        if (blobLiteralContext.Base16BlobLiteral() != null) {
+            return hexStringToByteArray(getBlobTextValue(blobLiteralContext.getText()));
+        } else if (blobLiteralContext.Base64BlobLiteral() != null) {
+            return Base64.getDecoder().decode(getBlobTextValue(blobLiteralContext.getText()).
+                    getBytes(StandardCharsets.UTF_8));
+        }
+        return null;
+    }
+
+    private String getBlobTextValue(String blobLiteralNodeText) {
+        String nodeText = blobLiteralNodeText.replaceAll(" ", "");
+        return nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
+    }
+
+    private static byte[] hexStringToByteArray(String str) {
+        int len = str.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4) + Character.digit(str.charAt(i + 1), 16));
+        }
+        return data;
     }
 }
