@@ -20,10 +20,10 @@ package org.ballerinalang.observe.metrics.extension.micrometer;
 import io.micrometer.core.instrument.Metrics;
 import io.micrometer.prometheus.PrometheusConfig;
 import io.micrometer.prometheus.PrometheusMeterRegistry;
-import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.Summary;
 import org.ballerinalang.util.metrics.Timer;
 import org.testng.Assert;
@@ -132,7 +132,8 @@ public class MicrometerMetricProviderTest {
         Timer timer = Timer.builder("test_timer").description("Test Timer").tag("method", "record")
                 .register(metricRegistry);
         timer.record(100, TimeUnit.NANOSECONDS);
-        Assert.assertEquals(timer.count(), 1);
+        Assert.assertEquals(timer.getCount(), 1);
+        Assert.assertEquals(timer.getSum(TimeUnit.NANOSECONDS), 100.0D);
     }
 
 }

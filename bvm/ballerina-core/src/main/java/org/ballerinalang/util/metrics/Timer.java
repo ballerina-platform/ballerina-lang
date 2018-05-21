@@ -21,7 +21,6 @@ import java.time.Duration;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -135,30 +134,25 @@ public interface Timer extends Metric {
     }
 
     /**
-     * @return The number of times that record has been called since this timer was created.
-     */
-    long count();
-
-    /**
-     * @param unit The base unit of time to scale the mean to.
-     * @return The distribution average for all recorded events.
-     */
-    double mean(TimeUnit unit);
-
-    /**
-     * @param unit The base unit of time to scale the max to.
-     * @return The maximum time of a single event.
-     */
-    double max(TimeUnit unit);
-
-    /**
-     * Return a sorted map of latencies at specific percentiles. The percentile is the key, which is in the domain
-     * [0, 1]. For example, 0.5 represents the 50th percentile of the distribution. The keys will be specific to
-     * underlying implementation. These value are non-aggregable across dimensions.
+     * Returns the number of times that record has been called since this timer was created.
      *
-     * @param unit The base unit of time to scale the percentile value to.
-     * @return A map of latencies at specific percentiles.
+     * @return The number of values recorded.
      */
-    SortedMap<Double, Double> percentileValues(TimeUnit unit);
+    long getCount();
 
+    /**
+     * Returns the total time of all recorded events.
+     *
+     * @param unit The base unit of time to scale the sum to.
+     * @return The sum of all recorded durations.
+     */
+    double getSum(TimeUnit unit);
+
+    /**
+     * Returns a snapshot of the values.
+     *
+     * @param unit The base unit of time to scale the snapshot values to.
+     * @return A snapshot of all distribution statistics at a point in time.
+     */
+    Snapshot getSnapshot(TimeUnit unit);
 }

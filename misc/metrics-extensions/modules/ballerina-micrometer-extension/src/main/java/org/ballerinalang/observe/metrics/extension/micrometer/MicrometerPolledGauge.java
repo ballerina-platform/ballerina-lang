@@ -20,8 +20,8 @@ package org.ballerinalang.observe.metrics.extension.micrometer;
 import io.micrometer.core.instrument.MeterRegistry;
 import io.micrometer.core.instrument.Tag;
 import org.ballerinalang.util.metrics.AbstractMetric;
-import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.PolledGauge;
 
 import java.util.function.ToDoubleFunction;
 import java.util.stream.Collectors;

@@ -22,12 +22,12 @@ import java.util.Arrays;
 /**
  * Snapshot of all distribution statistics at a point in time.
  */
-public final class Snapshot {
+public class Snapshot {
     private static final PercentileValue[] EMPTY_PERCENTILE_VALUES = new PercentileValue[0];
 
-    public final double mean;
-    public final double max;
-    public final PercentileValue[] percentileValues;
+    private final double mean;
+    private final double max;
+    private final PercentileValue[] percentileValues;
 
     public Snapshot(double mean, double max, PercentileValue[] percentileValues) {
         this.mean = mean;
@@ -35,14 +35,25 @@ public final class Snapshot {
         this.percentileValues = percentileValues;
     }
 
+    /**
+     * @return The distribution average for all recorded events.
+     */
     public double getMean() {
         return mean;
     }
 
+    /**
+     * @return The maximum value of a single event.
+     */
     public double getMax() {
         return max;
     }
 
+    /**
+     * Return an array of {@link PercentileValue percentile values}. These value are non-aggregable across dimensions.
+     *
+     * @return An array of percentile values.
+     */
     public PercentileValue[] getPercentileValues() {
         return percentileValues != null ? Arrays.copyOf(percentileValues, percentileValues.length) :
                 EMPTY_PERCENTILE_VALUES;

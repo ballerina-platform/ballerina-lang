@@ -17,11 +17,11 @@
  */
 package org.ballerinalang.util.metrics.spi;
 
-import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
+import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.StatisticConfig;
 import org.ballerinalang.util.metrics.Summary;
 import org.ballerinalang.util.metrics.Timer;

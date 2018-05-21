@@ -30,10 +30,20 @@ public class PercentileValue {
         this.value = value;
     }
 
+    /**
+     * Get the percentile in domain [0, 1]. For example, 0.5 represents the 50th percentile of the distribution.
+     *
+     * @return The percentile
+     */
     public double getPercentile() {
         return percentile;
     }
 
+    /**
+     * Get the value at specific percentile.
+     *
+     * @return The value at specific percentile.
+     */
     public double getValue() {
         return value;
     }

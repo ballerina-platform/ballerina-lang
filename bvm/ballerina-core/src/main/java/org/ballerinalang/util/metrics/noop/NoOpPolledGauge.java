@@ -18,8 +18,8 @@
 package org.ballerinalang.util.metrics.noop;
 
 import org.ballerinalang.util.metrics.AbstractMetric;
-import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.PolledGauge;
 
 /**
  * Implementation of No-Op {@link PolledGauge}.

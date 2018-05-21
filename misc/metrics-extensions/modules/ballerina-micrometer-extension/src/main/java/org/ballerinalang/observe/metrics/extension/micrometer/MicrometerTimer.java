@@ -23,12 +23,11 @@ import io.micrometer.core.instrument.distribution.HistogramSnapshot;
 import io.micrometer.core.instrument.distribution.ValueAtPercentile;
 import org.ballerinalang.util.metrics.AbstractMetric;
 import org.ballerinalang.util.metrics.MetricId;
+import org.ballerinalang.util.metrics.PercentileValue;
+import org.ballerinalang.util.metrics.Snapshot;
 import org.ballerinalang.util.metrics.StatisticConfig;
 import org.ballerinalang.util.metrics.Timer;
 
-import java.util.Collections;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -56,27 +55,24 @@ public class MicrometerTimer extends AbstractMetric implements Timer {
     }
 
     @Override
-    public long count() {
+    public long getCount() {
         return timer.count();
     }
 
     @Override
-    public double mean(TimeUnit unit) {
-        return timer.mean(unit);
+    public double getSum(TimeUnit unit) {
+        return timer.totalTime(unit);
     }
 
     @Override
-    public double max(TimeUnit unit) {
-        return timer.max(unit);
-    }
-
-    @Override
-    public SortedMap<Double, Double> percentileValues(TimeUnit unit) {
-        SortedMap<Double, Double> result = new TreeMap<>();
-        HistogramSnapshot snapshot = timer.takeSnapshot();
-        for (ValueAtPercentile valueAtPercentile : snapshot.percentileValues()) {
-            result.put(valueAtPercentile.percentile(), valueAtPercentile.value(unit));
+    public Snapshot getSnapshot(TimeUnit unit) {
+        HistogramSnapshot histogramSnapshot = timer.takeSnapshot();
+        ValueAtPercentile[] percentileValues = histogramSnapshot.percentileValues();
+        PercentileValue[] values = new PercentileValue[percentileValues.length];
+        for (int i = 0; i < percentileValues.length; i++) {
+            ValueAtPercentile percentileValue = percentileValues[i];
+            values[i] = new PercentileValue(percentileValue.percentile(), percentileValue.value(unit));
         }
-        return Collections.unmodifiableSortedMap(result);
+        return new Snapshot(histogramSnapshot.mean(unit), histogramSnapshot.max(unit), values);
     }
 }
