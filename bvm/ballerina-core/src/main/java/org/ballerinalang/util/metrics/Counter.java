@@ -95,7 +95,7 @@ public interface Counter extends Metric {
      * Increment the counter by one.
      */
     default void increment() {
-        increment(1D);
+        increment(1L);
     }
 
     /**
@@ -103,13 +103,13 @@ public interface Counter extends Metric {
      *
      * @param amount Amount to add to the counter.
      */
-    void increment(double amount);
+    void increment(long amount);
 
     /**
      * Returns the counter's current value.
      *
      * @return the counter's current value.
      */
-    double getValue();
+    long getValue();
 
 }

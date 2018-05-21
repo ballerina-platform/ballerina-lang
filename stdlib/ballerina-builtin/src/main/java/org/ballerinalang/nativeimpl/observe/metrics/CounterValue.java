@@ -33,7 +33,7 @@ import org.ballerinalang.util.metrics.Counter;
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "value",
+        functionName = "getValue",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.COUNTER,
                 structPackage = "ballerina.observe"),
         returnType = @ReturnType(type = TypeKind.INT),
@@ -45,6 +45,6 @@ public class CounterValue extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct bCounter = (BStruct) context.getRefArgument(0);
         Counter counter = (Counter) bCounter.getNativeData(Constants.COUNTER);
-        context.setReturnValues(new BInteger((long) counter.getValue()));
+        context.setReturnValues(new BInteger(counter.getValue()));
     }
 }

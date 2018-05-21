@@ -41,12 +41,12 @@ public class MicrometerCounter extends AbstractMetric implements Counter {
     }
 
     @Override
-    public void increment(double amount) {
+    public void increment(long amount) {
         counter.increment(amount);
     }
 
     @Override
-    public double getValue() {
-        return counter.count();
+    public long getValue() {
+        return (long) counter.count();
     }
 }

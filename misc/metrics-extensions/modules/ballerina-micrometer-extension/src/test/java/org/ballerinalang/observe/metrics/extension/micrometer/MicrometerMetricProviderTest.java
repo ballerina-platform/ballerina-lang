@@ -53,35 +53,35 @@ public class MicrometerMetricProviderTest {
     @Test
     public void testCounter() {
         Counter counter = Counter.builder("test_counter").description("Test Counter").register(metricRegistry);
-        counter.increment(100D);
-        Assert.assertEquals(counter.getValue(), 100D);
+        counter.increment(100L);
+        Assert.assertEquals(counter.getValue(), 100L);
     }
 
     @Test
     public void testCounterTags() {
         Counter counter = Counter.builder("test_tags_counter").description("Test Counter Tags")
                 .tags("key", "value").register(metricRegistry);
-        counter.increment(100D);
-        Assert.assertEquals(counter.getValue(), 100D);
+        counter.increment(100L);
+        Assert.assertEquals(counter.getValue(), 100L);
     }
 
     @Test
     public void testCounterMultipleTags() {
         Counter counter = Counter.builder("test_multiple_tags_counter").description("Test Counter Multiple Tags")
                 .tags("key1", "value1", "key2", "value2").register(metricRegistry);
-        counter.increment(100D);
+        counter.increment(100L);
         counter = Counter.builder("test_multiple_tags_counter").description("Test Counter Multiple Tags")
                 .tags("key2", "value2", "key1", "value1").register(metricRegistry);
-        counter.increment(100D);
-        Assert.assertEquals(counter.getValue(), 200D);
+        counter.increment(100L);
+        Assert.assertEquals(counter.getValue(), 200L);
     }
 
     @Test
     public void testCounterDifferentMultipleTags() {
         Counter counter = Counter.builder("test_different_multiple_tags_counter")
                 .tags("key1", "value1", "key2", "value2").register(metricRegistry);
-        counter.increment(100D);
-        Assert.assertEquals(counter.getValue(), 100D);
+        counter.increment(100L);
+        Assert.assertEquals(counter.getValue(), 100L);
         try {
             Counter.builder("test_different_multiple_tags_counter")
                     .tags("key2", "value2", "key3", "value3").register(metricRegistry);
