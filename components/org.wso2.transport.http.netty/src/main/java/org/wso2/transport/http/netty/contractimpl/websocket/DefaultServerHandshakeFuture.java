@@ -19,30 +19,30 @@
 
 package org.wso2.transport.http.netty.contractimpl.websocket;
 
-import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
  * Implementation of WebSocket handshake future.
  */
-public class HandshakeFutureImpl implements HandshakeFuture {
+public class DefaultServerHandshakeFuture implements ServerHandshakeFuture {
 
     private Throwable throwable = null;
     private WebSocketConnection webSocketConnection = null;
-    private HandshakeListener handshakeListener;
+    private ServerHandshakeListener serverHandshakeListener;
 
-    public HandshakeFutureImpl() {
+    public DefaultServerHandshakeFuture() {
     }
 
     @Override
-    public HandshakeFuture setHandshakeListener(HandshakeListener handshakeListener) {
-        this.handshakeListener = handshakeListener;
+    public ServerHandshakeFuture setHandshakeListener(ServerHandshakeListener serverHandshakeListener) {
+        this.serverHandshakeListener = serverHandshakeListener;
         if (throwable != null) {
-            handshakeListener.onError(throwable);
+            serverHandshakeListener.onError(throwable);
         }
         if (webSocketConnection != null) {
-            handshakeListener.onSuccess(webSocketConnection);
+            serverHandshakeListener.onSuccess(webSocketConnection);
         }
         return this;
     }
@@ -50,19 +50,19 @@ public class HandshakeFutureImpl implements HandshakeFuture {
     @Override
     public void notifySuccess(WebSocketConnection webSocketConnection) {
         this.webSocketConnection = webSocketConnection;
-        if (handshakeListener == null || throwable != null) {
+        if (serverHandshakeListener == null || throwable != null) {
             return;
         }
-        handshakeListener.onSuccess(webSocketConnection);
+        serverHandshakeListener.onSuccess(webSocketConnection);
     }
 
     @Override
     public void notifyError(Throwable throwable) {
         this.throwable = throwable;
-        if (handshakeListener == null) {
+        if (serverHandshakeListener == null) {
             return;
         }
-        handshakeListener.onError(throwable);
+        serverHandshakeListener.onError(throwable);
     }
 
 

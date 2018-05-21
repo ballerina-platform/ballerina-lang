@@ -22,7 +22,7 @@ package org.wso2.transport.http.netty.websocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -30,6 +30,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListen
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 
 /**
  * WebSocket connector listener to identify the properties of a message.
@@ -43,14 +44,14 @@ public class WebSocketMessagePropertiesConnectorListener implements WebSocketCon
         // Assert properties
         Assert.assertFalse(initMessage.isConnectionSecured());
         Assert.assertEquals(initMessage.getTarget(), "/test");
-
+        HttpCarbonRequest request = initMessage.getHttpCarbonRequest();
         // Assert custom headers
-        String checkSubProtocol = initMessage.getHeader("check-sub-protocol");
-        Assert.assertEquals(initMessage.getHeader("message-type"), "websocket");
-        Assert.assertEquals(initMessage.getHeader("message-sender"), "wso2");
+        String checkSubProtocol = request.getHeader("check-sub-protocol");
+        Assert.assertEquals(request.getHeader("message-type"), "websocket");
+        Assert.assertEquals(request.getHeader("message-sender"), "wso2");
         if ("true".equals(checkSubProtocol)) {
             String[] subProtocols = {"xml"};
-            initMessage.handshake(subProtocols, true).setHandshakeListener(new HandshakeListener() {
+            initMessage.handshake(subProtocols, true).setHandshakeListener(new ServerHandshakeListener() {
                 @Override
                 public void onSuccess(WebSocketConnection webSocketConnection) {
                     webSocketConnection.startReadingFrames();
@@ -58,7 +59,7 @@ public class WebSocketMessagePropertiesConnectorListener implements WebSocketCon
 
                 @Override
                 public void onError(Throwable t) {
-                    Assert.assertTrue(false, t.getMessage());
+                    Assert.fail(t.getMessage());
                 }
             });
         }
@@ -71,10 +72,6 @@ public class WebSocketMessagePropertiesConnectorListener implements WebSocketCon
         Assert.assertEquals(textMessage.getSubProtocol(), "xml");
         Assert.assertFalse(textMessage.isConnectionSecured());
         Assert.assertEquals(textMessage.getTarget(), "/test");
-
-        // Assert custom headers
-        Assert.assertEquals(textMessage.getHeader("message-type"), "websocket");
-        Assert.assertEquals(textMessage.getHeader("message-sender"), "wso2");
     }
 
     @Override

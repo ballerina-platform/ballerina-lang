@@ -20,15 +20,29 @@
 package org.wso2.transport.http.netty.contract.websocket;
 
 /**
- * Client Connector for WebSocket.
+ * Future for WebSocket handshake.
  */
-public interface WebSocketClientConnector {
+public interface ServerHandshakeFuture {
 
     /**
-     * Connect to the remote server.
+     * Set the listener for WebSocket handshake.
      *
-     * @param connectorListener {@link WebSocketConnectorListener} to listen incoming messages.
-     * @return ClientHandshakeFuture for the newly created connection.
+     * @param serverHandshakeListener Listener for WebSocket handshake.
+     * @return the same handshake future.
      */
-    ClientHandshakeFuture connect(WebSocketConnectorListener connectorListener);
+    ServerHandshakeFuture setHandshakeListener(ServerHandshakeListener serverHandshakeListener);
+
+    /**
+     * Notify the success of the WebSocket handshake.
+     *
+     * @param webSocketConnection {@link WebSocketConnection} for the successful connection.
+     */
+    void notifySuccess(WebSocketConnection webSocketConnection);
+
+    /**
+     * Notify any error occurred during the handshake.
+     *
+     * @param throwable error occurred during handshake.
+     */
+    void notifyError(Throwable throwable);
 }

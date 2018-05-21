@@ -20,21 +20,21 @@
 package org.wso2.transport.http.netty.contractimpl.websocket.message;
 
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
-import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 
 /**
  * Implementation of {@link WebSocketCloseMessage}.
  */
-public class WebSocketCloseMessageImpl extends WebSocketMessageImpl implements WebSocketCloseMessage {
+public class DefaultWebSocketCloseMessage extends DefaultWebSocketMessage implements WebSocketCloseMessage {
 
     private final int closeCode;
     private final String closeReason;
 
-    public WebSocketCloseMessageImpl(int closeCode) {
+    public DefaultWebSocketCloseMessage(int closeCode) {
         this(closeCode, null);
     }
 
-    public WebSocketCloseMessageImpl(int closeCode, String closeReason) {
+    public DefaultWebSocketCloseMessage(int closeCode, String closeReason) {
         this.closeCode = closeCode;
         this.closeReason = closeReason;
     }

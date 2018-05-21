@@ -20,23 +20,23 @@
 package org.wso2.transport.http.netty.contractimpl.websocket.message;
 
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 
 
 /**
  * Implementation of {@link WebSocketTextMessage}.
  */
-public class WebSocketTextMessageImpl extends WebSocketMessageImpl implements WebSocketTextMessage {
+public class DefaultWebSocketTextMessage extends DefaultWebSocketMessage implements WebSocketTextMessage {
 
     private final String text;
     private final boolean isFinalFragment;
 
-    public WebSocketTextMessageImpl(String text) {
+    public DefaultWebSocketTextMessage(String text) {
         this.text = text;
         this.isFinalFragment = true;
     }
 
-    public WebSocketTextMessageImpl(String text, boolean isFinalFragment) {
+    public DefaultWebSocketTextMessage(String text, boolean isFinalFragment) {
         this.text = text;
         this.isFinalFragment = isFinalFragment;
     }

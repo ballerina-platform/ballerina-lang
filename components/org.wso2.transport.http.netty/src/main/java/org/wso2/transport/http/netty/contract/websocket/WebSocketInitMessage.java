@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.contract.websocket;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 
 /**
  * This Message is used to handle WebSocket handshake.
@@ -33,65 +34,73 @@ public interface WebSocketInitMessage extends WebSocketMessage {
      *
      * @return the Server session for the newly created WebSocket connection.
      */
-    HandshakeFuture handshake();
+    ServerHandshakeFuture handshake();
 
     /**
      * Complete the handshake of a given request. There will not be a idle timeout for the connection if this
      * method is used.
      *
-     * @param subProtocols Sub-Protocols which are allowed by the service.
+     * @param subProtocols    Sub-Protocols which are allowed by the service.
      * @param allowExtensions whether the extensions are allowed or not.
      * @return the Server session for the newly created WebSocket connection.
      */
-    HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions);
+    ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions);
 
     /**
      * Complete the handshake of a given request. The connection will be timed out if the connection is idle for
      * given time period.
      *
-     * @param subProtocols Sub-Protocols which are allowed by the service.
+     * @param subProtocols    Sub-Protocols which are allowed by the service.
      * @param allowExtensions whether the extensions are allowed or not.
-     * @param idleTimeout Idle timeout in milli-seconds for WebSocket connection.
+     * @param idleTimeout     Idle timeout in milli-seconds for WebSocket connection.
      * @return the handshake future.
      */
-    HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout);
+    ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout);
 
     /**
      * Complete the handshake of a given request. The connection will be timed out if the connection is idle for given
      * time period.
      *
-     * @param subProtocols Sub-Protocols which are allowed by the service.
+     * @param subProtocols    Sub-Protocols which are allowed by the service.
      * @param allowExtensions whether the extensions are allowed or not.
-     * @param idleTimeout Idle timeout in milli-seconds for WebSocket connection.
+     * @param idleTimeout     Idle timeout in milli-seconds for WebSocket connection.
      * @param responseHeaders Extra headers to add to the handshake response or {@code null} if no extra headers should
      *                        be added
      * @return the handshake future.
      */
-    HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
-                              HttpHeaders responseHeaders);
+    ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+                                    HttpHeaders responseHeaders);
 
     /**
      * Complete the handshake of a given request. The connection will be timed out if the connection is idle for given
      * time period.
      *
-     * @param subProtocols Sub-Protocols which are allowed by the service.
-     * @param allowExtensions whether the extensions are allowed or not.
-     * @param idleTimeout Idle timeout in milli-seconds for WebSocket connection.
-     * @param responseHeaders Extra headers to add to the handshake response or {@code null} if no extra headers should
-     *                        be added.
+     * @param subProtocols          Sub-Protocols which are allowed by the service.
+     * @param allowExtensions       whether the extensions are allowed or not.
+     * @param idleTimeout           Idle timeout in milli-seconds for WebSocket connection.
+     * @param responseHeaders       Extra headers to add to the handshake response or {@code null} if no extra
+     *                              headers should
+     *                              be added.
      * @param maxFramePayloadLength Maximum allowable frame payload length. Setting this value to your application's
-     *            requirement may reduce denial of service attacks using long data frames.
+     *                              requirement may reduce denial of service attacks using long data frames.
      * @return the handshake future.
      */
-    HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
-                              HttpHeaders responseHeaders, int maxFramePayloadLength);
+    ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+                                    HttpHeaders responseHeaders, int maxFramePayloadLength);
+
+    /**
+     * Get the HttpCarbonRequest received from the client to perform the handshake.
+     *
+     * @return the carbon request received to perform the handshake
+     */
+    HttpCarbonRequest getHttpCarbonRequest();
+
 
     /**
      * Cancel the handshake with HTTP response.
      *
-     * @param closeCode close code for cancelling the handshake.
+     * @param closeCode   close code for cancelling the handshake.
      * @param closeReason reason for canceling the handshake.
-     *
      * @return the ChannelPromise created after submitting response
      */
     ChannelFuture cancelHandshake(int closeCode, String closeReason);

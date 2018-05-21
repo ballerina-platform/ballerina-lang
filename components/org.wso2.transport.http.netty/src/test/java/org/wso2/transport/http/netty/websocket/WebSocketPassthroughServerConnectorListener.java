@@ -23,8 +23,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
@@ -35,6 +36,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 /**
@@ -54,11 +56,11 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
         configuration.setAutoRead(false);
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
         WebSocketConnectorListener clientConnectorListener = new WebSocketPassthroughClientConnectorListener();
-        clientConnector.connect(clientConnectorListener).setHandshakeListener(new HandshakeListener() {
+        clientConnector.connect(clientConnectorListener).setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
-            public void onSuccess(WebSocketConnection clientWebSocketConnection) {
-                HandshakeFuture serverFuture = initMessage.handshake();
-                serverFuture.setHandshakeListener(new HandshakeListener() {
+            public void onSuccess(WebSocketConnection clientWebSocketConnection, HttpCarbonResponse response) {
+                ServerHandshakeFuture serverFuture = initMessage.handshake();
+                serverFuture.setHandshakeListener(new ServerHandshakeListener() {
                     @Override
                     public void onSuccess(WebSocketConnection serverWebSocketConnection) {
                         WebSocketPassThroughTestConnectionManager.getInstance().
@@ -70,14 +72,14 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
                     @Override
                     public void onError(Throwable t) {
                         logger.error(t.getMessage());
-                        Assert.assertTrue(false, "Error: " + t.getMessage());
+                        Assert.fail("Error: " + t.getMessage());
                     }
                 });
             }
 
             @Override
-            public void onError(Throwable t) {
-                Assert.assertTrue(false, t.getMessage());
+            public void onError(Throwable t, HttpCarbonResponse response) {
+                Assert.fail(t.getMessage());
             }
         });
     }

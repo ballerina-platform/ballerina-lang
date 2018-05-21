@@ -35,23 +35,22 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultServerHandshakeFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
-import org.wso2.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
-import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.listener.WebSocketSourceHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Implementation of {@link WebSocketInitMessage}.
  */
-public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements WebSocketInitMessage {
+public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage implements WebSocketInitMessage {
 
     private final ChannelHandlerContext ctx;
     private final FullHttpRequest httpRequest;
@@ -61,16 +60,15 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
     private HttpCarbonRequest request;
 
     public DefaultWebSocketInitMessage(ChannelHandlerContext ctx, FullHttpRequest httpRequest,
-                                       WebSocketSourceHandler webSocketSourceHandler, Map<String, String> headers) {
+                                       WebSocketSourceHandler webSocketSourceHandler) {
         this.ctx = ctx;
         this.httpRequest = httpRequest;
         this.webSocketSourceHandler = webSocketSourceHandler;
-        this.headers = headers;
         this.sessionlID = WebSocketUtil.getSessionID(ctx);
     }
 
     @Override
-    public HandshakeFuture handshake() {
+    public ServerHandshakeFuture handshake() {
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), null, true);
         WebSocketServerHandshaker handshaker = wsFactory.newHandshaker(httpRequest);
@@ -78,7 +76,7 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
     }
 
     @Override
-    public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions) {
+    public ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions) {
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
                                                      allowExtensions);
@@ -87,7 +85,7 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
     }
 
     @Override
-    public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout) {
+    public ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout) {
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest),
                                                      getSubProtocolsCSV(subProtocols), allowExtensions);
@@ -96,8 +94,8 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
     }
 
     @Override
-    public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
-                                     HttpHeaders responseHeaders) {
+    public ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+                                           HttpHeaders responseHeaders) {
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest),
                                                      getSubProtocolsCSV(subProtocols), allowExtensions);
@@ -106,8 +104,8 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
     }
 
     @Override
-    public HandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
-                                     HttpHeaders responseHeaders, int maxFramePayloadLength) {
+    public ServerHandshakeFuture handshake(String[] subProtocols, boolean allowExtensions, int idleTimeout,
+                                           HttpHeaders responseHeaders, int maxFramePayloadLength) {
         WebSocketServerHandshakerFactory wsFactory =
                 new WebSocketServerHandshakerFactory(getWebSocketURL(httpRequest), getSubProtocolsCSV(subProtocols),
                                                      allowExtensions, maxFramePayloadLength);
@@ -155,9 +153,9 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
         return handshakeStarted;
     }
 
-    private HandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout,
-                                            HttpHeaders headers) {
-        HandshakeFutureImpl handshakeFuture = new HandshakeFutureImpl();
+    private ServerHandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout,
+                                                  HttpHeaders headers) {
+        DefaultServerHandshakeFuture handshakeFuture = new DefaultServerHandshakeFuture();
 
         if (cancelled) {
             Throwable e = new IllegalAccessException("Handshake is already cancelled!");
@@ -212,8 +210,7 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
         if (isConnectionSecured) {
             protocol = Constants.WEBSOCKET_PROTOCOL_SECURED;
         }
-        String url = protocol + "://" + req.headers().get("Host") + req.uri();
-        return url;
+        return protocol + "://" + req.headers().get("Host") + req.uri();
     }
 
     private String getSubProtocolsCSV(String[] subProtocols) {
