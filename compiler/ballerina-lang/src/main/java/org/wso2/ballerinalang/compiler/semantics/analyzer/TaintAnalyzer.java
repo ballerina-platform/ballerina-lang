@@ -202,6 +202,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean nonOverridingAnalysis;
     private boolean entryPointAnalysis;
     private boolean stopAnalysis;
+    private boolean blockedOnWorkerInteraction;
     private BlockedNode blockedNode;
     private List<Boolean> taintedStatusList;
     private Boolean returnTaintedStatus;
@@ -814,7 +815,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangWorkerReceive workerReceiveNode) {
         Boolean taintedStatus = workerInteractionTaintedStatusMap.get(currWorkerIdentifier);
         if (taintedStatus == null) {
-            throw new WorkerAnalysisBlockedOnInteractionException();
+            blockedOnWorkerInteraction = true;
+            stopAnalysis = true;
         } else {
             visitAssignment(workerReceiveNode.expr, getObservedTaintedStatus(), workerReceiveNode.pos);
         }
@@ -1596,16 +1598,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         while (doScan) {
             doScan = false;
             for (BLangWorker worker : workers) {
+                blockedOnWorkerInteraction = false;
                 worker.endpoints.forEach(endpoint -> endpoint.accept(this));
-                try {
-                    worker.accept(this);
-                    if (this.blockedNode != null || taintErrorSet.size() > 0) {
-                        return;
-                    }
-                } catch (WorkerAnalysisBlockedOnInteractionException e) {
+                worker.accept(this);
+                if (this.blockedNode != null || taintErrorSet.size() > 0) {
+                    return;
+                } else if (blockedOnWorkerInteraction) {
                     doScan = true;
-                }
-                if (stopAnalysis) {
+                    stopAnalysis = false;
+                } else if (stopAnalysis) {
                     return;
                 }
             }
@@ -2036,8 +2037,5 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             result = 31 * result + invokableNode.symbol.name.hashCode();
             return result;
         }
-    }
-
-    private class WorkerAnalysisBlockedOnInteractionException extends RuntimeException {
     }
 }
