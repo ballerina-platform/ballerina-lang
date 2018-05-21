@@ -25,7 +25,7 @@ public type Counter object {
     }
 
     documentation {
-        Increment the counter by one or by the given amount.
+        Increments the counter by one or by the given amount.
 
         P{{amount}} the amount by which the counter will be increased.
     }
@@ -40,14 +40,14 @@ public type Counter object {
 };
 
 documentation {
-    Get a Counter instance using name and tags.
+    Get a Counter instance.
 
     P{{name}} The name of the counter.
-    P{{tags}} Key/value pairs used to classify counter.
-    P{{description}} The description string of the metric.
-    R{{Counter}} An instance of the counter
+    P{{tags}} Tags to be associated with the metric.
+    P{{description}} The description of the metric.
+    R{{Counter}} An instance of the counter.
 }
-public native function getCounterInstance(string name, map<string>? tags = (), string description = ())
+public native function getCounterInstance(string name, map<string>? tags = (), string? description = ())
                            returns Counter|error;
 
 documentation {
