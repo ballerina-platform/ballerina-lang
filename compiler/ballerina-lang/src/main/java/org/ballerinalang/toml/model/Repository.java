@@ -18,7 +18,7 @@
 package org.ballerinalang.toml.model;
 
 /**
- * Defines dependency object fields. The same object will be used to define patches.
+ * Defines the repository object fields.
  *
  * @since 0.971
  */

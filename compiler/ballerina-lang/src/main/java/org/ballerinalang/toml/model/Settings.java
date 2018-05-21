@@ -66,16 +66,16 @@ public class Settings {
     /**
      * Get repositories.
      *
-     * @return repositories object
+     * @return repository object
      */
     public Repositories getRepos() {
         return repositories;
     }
 
     /**
-     * Set repositories object.
+     * Set repositories.
      *
-     * @param repositories repositories object
+     * @param repositories repository object
      */
     public void setRepos(Repositories repositories) {
         this.repositories = repositories;

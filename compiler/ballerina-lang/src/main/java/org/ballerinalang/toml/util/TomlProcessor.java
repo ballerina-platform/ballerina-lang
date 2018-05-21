@@ -42,7 +42,6 @@ public class TomlProcessor {
     public static ParseTree parseTomlContent(CharStream stream) {
         TomlLexer lexer = new TomlLexer(stream);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-        // Pass the tokens to the parser
         TomlParser parser = new TomlParser(tokens);
         return parser.toml();
     }

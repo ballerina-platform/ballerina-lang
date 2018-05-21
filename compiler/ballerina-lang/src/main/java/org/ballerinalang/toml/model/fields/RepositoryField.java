@@ -56,7 +56,7 @@ public enum RepositoryField {
     /**
      * Like as valueOf method, but input should be all lower case.
      *
-     * @param fieldKey Lower case string value of filed to find.
+     * @param fieldKey Lower case string value of field to find.
      * @return Matching enum.
      */
     public static RepositoryField valueOfLowerCase(String fieldKey) {

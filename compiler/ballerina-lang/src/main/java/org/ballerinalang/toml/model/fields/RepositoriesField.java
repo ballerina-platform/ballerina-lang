@@ -65,9 +65,9 @@ public enum RepositoriesField {
     }
 
     /**
-     * Set the list of strings to the repositories object.
+     * Set the list of strings to the repository object.
      *
-     * @param repositories repositories object
+     * @param repositories repository object
      * @param list     list of strings
      */
     public void setListTo(Repositories repositories, List<String> list) {
