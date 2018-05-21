@@ -34,7 +34,9 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveState;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.scope.PsiScopeProcessor;
+import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.CachedValueProvider;
 import com.intellij.psi.util.CachedValuesManager;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -105,6 +107,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaTypeConversionExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeInitExpr;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.BallerinaUnionTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReference;
@@ -1845,5 +1848,34 @@ public class BallerinaPsiImplUtil {
             }
         }
         return packageMap;
+    }
+
+    public static boolean isConstraintableType(@NotNull PsiElement type) {
+        if (!(type instanceof LeafPsiElement)) {
+            return false;
+        }
+        IElementType elementType = ((LeafPsiElement) type).getElementType();
+        return elementType == BallerinaTypes.JSON;
+    }
+
+    @Nullable
+    public static PsiElement getConstrainedType(@NotNull PsiElement element) {
+        BallerinaJsonTypeName jsonTypeName = PsiTreeUtil.getParentOfType(element, BallerinaJsonTypeName.class);
+        if (jsonTypeName == null) {
+            return null;
+        }
+        BallerinaNameReference nameReference = jsonTypeName.getNameReference();
+        if (nameReference == null) {
+            return null;
+        }
+        PsiElement identifier = nameReference.getIdentifier();
+        if (identifier == null) {
+            return null;
+        }
+        PsiReference reference = identifier.getReference();
+        if (reference == null) {
+            return null;
+        }
+        return reference.resolve();
     }
 }

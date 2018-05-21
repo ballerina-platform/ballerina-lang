@@ -161,6 +161,11 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                             processTypeDefinition(((BallerinaTypeDefinition) identifier.getParent()), identifier);
                         }
                     }
+                } else if (BallerinaPsiImplUtil.isConstraintableType(type)) {
+                    PsiElement identifier = BallerinaPsiImplUtil.getConstrainedType(type);
+                    if (identifier != null && identifier.getParent() instanceof BallerinaTypeDefinition) {
+                        processTypeDefinition(((BallerinaTypeDefinition) identifier.getParent()), identifier);
+                    }
                 }
 
                 PsiElement ballerinaTypeDefinition = type.getParent();
