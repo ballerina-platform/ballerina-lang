@@ -29,9 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
@@ -54,6 +52,8 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -391,30 +391,48 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-//    @Override
-//    public void visit(BLangObject objectNode) {
-//        if (objectNode.name.getValue()
-//                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
-//            this.context.put(NodeContextKeys.NODE_KEY, objectNode);
-//            terminateVisitor = true;
-//        }
-//
-//        if (objectNode.fields != null) {
-//            objectNode.fields.forEach(this::acceptNode);
-//        }
-//
-//        if (objectNode.functions != null) {
-//            objectNode.functions.forEach(this::acceptNode);
-//        }
-//
-//        if (objectNode.initFunction != null) {
-//            this.acceptNode(objectNode.initFunction);
-//        }
-//
-//        if (objectNode.receiver != null) {
-//            this.acceptNode(objectNode.receiver);
-//        }
-//    }
+    @Override
+    public void visit(BLangObjectTypeNode objectNode) {
+        if (objectNode.symbol.name.getValue()
+                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+            this.context.put(NodeContextKeys.NODE_KEY, objectNode);
+            terminateVisitor = true;
+        }
+
+        if (objectNode.fields != null) {
+            objectNode.fields.forEach(this::acceptNode);
+        }
+
+        if (objectNode.functions != null) {
+            objectNode.functions.forEach(this::acceptNode);
+        }
+
+        if (objectNode.initFunction != null) {
+            this.acceptNode(objectNode.initFunction);
+        }
+
+        if (objectNode.receiver != null) {
+            this.acceptNode(objectNode.receiver);
+        }
+    }
+
+    @Override
+    public void visit(BLangRecordTypeNode record) {
+        if (record.symbol.name.getValue()
+                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
+            this.context.put(NodeContextKeys.NODE_KEY, record);
+            terminateVisitor = true;
+        }
+
+        if (record.fields != null) {
+            record.fields.forEach(this::acceptNode);
+        }
+
+        if (record.initFunction != null &&
+                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
+            this.acceptNode(record.initFunction);
+        }
+    }
 
     @Override
     public void visit(BLangTypeInit connectorInitExpr) {
@@ -455,24 +473,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             this.acceptNode(patternClauseNode.body);
         }
     }
-
-//    @Override
-//    public void visit(BLangRecord record) {
-//        if (record.name.getValue()
-//                .equals(this.context.get(NodeContextKeys.VAR_NAME_OF_NODE_KEY))) {
-//            this.context.put(NodeContextKeys.NODE_KEY, record);
-//            terminateVisitor = true;
-//        }
-//
-//        if (record.fields != null) {
-//            record.fields.forEach(this::acceptNode);
-//        }
-//
-//        if (record.initFunction != null &&
-//                !(record.initFunction.returnTypeNode.type instanceof BNilType)) {
-//            this.acceptNode(record.initFunction);
-//        }
-//    }
 
     @Override
     public void visit(BLangRecordLiteral recordLiteral) {

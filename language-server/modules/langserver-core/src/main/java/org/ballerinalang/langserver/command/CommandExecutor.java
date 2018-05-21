@@ -42,8 +42,10 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.net.URI;
@@ -270,7 +272,7 @@ public class CommandExecutor {
                 docAttachmentInfo = CommandUtil.getFunctionDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.STRUCT_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getStructDocumentationByPosition(bLangPackage, line);
+                docAttachmentInfo = CommandUtil.getRecordOrObjectDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.ENUM_KEYWORD_KEY:
                 docAttachmentInfo = CommandUtil.getEnumDocumentationByPosition(bLangPackage, line);
@@ -306,10 +308,14 @@ public class CommandExecutor {
                     docAttachmentInfo = CommandUtil.getFunctionNodeDocumentation((BLangFunction) node, replaceFrom);
                 }
                 break;
-            case STRUCT:
-                if (((BLangStruct) node).docAttachments.isEmpty()) {
-                    replaceFrom = CommonUtil.toZeroBasedPosition(((BLangStruct) node).getPosition()).getStartLine();
-                    docAttachmentInfo = CommandUtil.getStructNodeDocumentation((BLangStruct) node, replaceFrom);
+            case TYPE_DEFINITION:
+                if (((BLangTypeDefinition) node).docAttachments.isEmpty()
+                        && (((BLangTypeDefinition) node).typeNode instanceof BLangRecordTypeNode
+                        || ((BLangTypeDefinition) node).typeNode instanceof BLangObjectTypeNode)) {
+                    replaceFrom = CommonUtil
+                            .toZeroBasedPosition(((BLangTypeDefinition) node).getPosition()).getStartLine();
+                    docAttachmentInfo = CommandUtil
+                            .getRecordOrObjectDocumentation((BLangTypeDefinition) node, replaceFrom);
                 }
                 break;
             case ENUM:

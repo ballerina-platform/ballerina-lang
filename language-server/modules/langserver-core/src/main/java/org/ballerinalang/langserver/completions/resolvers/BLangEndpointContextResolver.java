@@ -22,9 +22,10 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -45,13 +46,13 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
         BLangNode bLangEndpoint = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ArrayList<SymbolInfo> configurationFields = new ArrayList<>();
-        List<BObjectTypeSymbol.BAttachedFunction> attachedFunctions = new ArrayList<>();
+        List<BAttachedFunction> attachedFunctions = new ArrayList<>();
         
         if (((BLangEndpoint) bLangEndpoint).type.tsymbol instanceof BObjectTypeSymbol) {
             attachedFunctions.addAll(((BObjectTypeSymbol) ((BLangEndpoint) bLangEndpoint).type.tsymbol).attachedFuncs);
         }
 
-        BObjectTypeSymbol.BAttachedFunction initFunction = attachedFunctions.stream()
+        BAttachedFunction initFunction = attachedFunctions.stream()
                 .filter(bAttachedFunction -> bAttachedFunction.funcName.getValue().equals(INIT))
                 .findFirst()
                 .orElseGet(null);
@@ -59,8 +60,8 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
         BVarSymbol configSymbol = initFunction.symbol.getParameters().get(0);
 
         BType configSymbolType = configSymbol.getType();
-        if (configSymbolType instanceof BStructType) {
-            ((BStructType) configSymbolType).getFields().forEach(bStructField -> configurationFields.add(
+        if (configSymbolType instanceof BRecordType) {
+            ((BRecordType) configSymbolType).getFields().forEach(bStructField -> configurationFields.add(
                     new SymbolInfo(bStructField.getName().getValue(), new Scope.ScopeEntry(bStructField.symbol, null))
             ));
         }

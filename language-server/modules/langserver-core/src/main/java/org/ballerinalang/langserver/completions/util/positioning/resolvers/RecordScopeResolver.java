@@ -25,8 +25,8 @@ import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.List;
@@ -48,18 +48,18 @@ public class RecordScopeResolver extends CursorPositionResolver {
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
                                       LSServiceOperationContext completionContext) {
         Node recordNode = treeVisitor.getBlockOwnerStack().peek();
-        if (!recordNode.getKind().equals(NodeKind.RECORD)) {
+        if (!recordNode.getKind().equals(NodeKind.RECORD_TYPE)) {
             return false;
         }
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition((DiagnosticPos) node.getPosition());
+        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(node.getPosition());
         DiagnosticPos ownerPos = CommonUtil.toZeroBasedPosition((DiagnosticPos) recordNode.getPosition());
         int ownerEndLine = ownerPos.getEndLine();
         int ownerEndCol = ownerPos.getEndColumn();
         int nodeStartLine = nodePos.getStartLine();
         int nodeStartCol = nodePos.getStartColumn();
-        BLangRecord bLangRecord = (BLangRecord) recordNode;
+        BLangRecordTypeNode bLangRecord = (BLangRecordTypeNode) recordNode;
         List<BLangVariable> fields = bLangRecord.fields;
         boolean isLastField = fields.indexOf(node) == fields.size() - 1;
         boolean isCursorBefore = ((nodeStartLine > line) || (nodeStartLine == line && nodeStartCol > col)) ||
@@ -68,14 +68,14 @@ public class RecordScopeResolver extends CursorPositionResolver {
         
         if (isCursorBefore) {
             treeVisitor.setTerminateVisitor(true);
-            SymbolEnv recordEnv = createRecordEnv((BLangRecord) recordNode, treeVisitor.getSymbolEnv());
+            SymbolEnv recordEnv = createRecordEnv((BLangRecordTypeNode) recordNode, treeVisitor.getSymbolEnv());
             treeVisitor.populateSymbols(treeVisitor.resolveAllVisibleSymbols(recordEnv), recordEnv);
         }
         
         return isCursorBefore;
     }
 
-    private static SymbolEnv createRecordEnv(BLangRecord record, SymbolEnv env) {
+    private static SymbolEnv createRecordEnv(BLangRecordTypeNode record, SymbolEnv env) {
         SymbolEnv symbolEnv = new SymbolEnv(record, env.scope);
         env.copyTo(symbolEnv);
         return symbolEnv;
