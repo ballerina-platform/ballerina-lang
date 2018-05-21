@@ -119,8 +119,8 @@ service<http:Service> hello bind mockEP {
     }
     addheader (endpoint conn, http:Request req, string key, string value) {
         http:Response res = new;
-        res.addHeader(key, value);
-        string result = res.getHeader(key);
+        res.addHeader(untaint key, value);
+        string result = res.getHeader(untaint key);
         res.setJsonPayload({lang:result});
         _ = conn -> respond(res);
     }
@@ -130,8 +130,8 @@ service<http:Service> hello bind mockEP {
     }
     getHeader (endpoint conn, http:Request req, string header, string value) {
         http:Response res = new;
-        res.setHeader(header, value);
-        string result = res.getHeader(header);
+        res.setHeader(untaint header, value);
+        string result = res.getHeader(untaint header);
         res.setJsonPayload({value:result});
         _ = conn -> respond(res);
     }
@@ -194,8 +194,8 @@ service<http:Service> hello bind mockEP {
     }
     RemoveHeader (endpoint conn, http:Request req, string key, string value) {
         http:Response res = new;
-        res.setHeader(key, value);
-        res.removeHeader(key);
+        res.setHeader(untaint key, value);
+        res.removeHeader(untaint key);
         string header;
         if (!res.hasHeader(key)) {
             header = "value is null";

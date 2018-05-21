@@ -52,8 +52,7 @@ function testSetBinaryPayload (blob value) returns (http:Request) {
 
 function testSetEntityBody (string filePath, string contentType) returns (http:Request) {
     http:Request req = new;
-    file:Path path = new(filePath);
-    req.setFileAsPayload(path, contentType);
+    req.setFileAsPayload(filePath, contentType = contentType);
     return req;
 }
 
@@ -104,8 +103,8 @@ service<http:Service> hello bind mockEP {
     }
     addheader (endpoint caller, http:Request inReq, string key, string value) {
         http:Request req = new;
-        req.addHeader(key, value);
-        string result = req.getHeader(key);
+        req.addHeader(untaint key, value);
+        string result = req.getHeader(untaint key);
         http:Response res = new;
         res.setJsonPayload({lang:result});
         _ = caller -> respond(res);
@@ -287,9 +286,9 @@ service<http:Service> hello bind mockEP {
     }
     setHeader (endpoint caller, http:Request inReq, string key, string value) {
         http:Request req = new;
-        req.setHeader(key, "abc");
-        req.setHeader(key, value);
-        string result = req.getHeader(key);
+        req.setHeader(untaint key, "abc");
+        req.setHeader(untaint key, value);
+        string result = req.getHeader(untaint key);
 
         http:Response res = new;
         res.setJsonPayload({value:result});
