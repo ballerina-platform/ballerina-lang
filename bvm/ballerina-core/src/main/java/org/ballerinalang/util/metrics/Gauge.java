@@ -124,7 +124,7 @@ public interface Gauge extends Metric {
      *
      * @param value The value to set to the gauge.
      */
-    void set(double value);
+    void setValue(double value);
 
     /**
      * @return The value of the gauge.

@@ -52,7 +52,7 @@ public class MicrometerGauge extends AbstractMetric implements Gauge {
     }
 
     @Override
-    public void set(double value) {
+    public void setValue(double value) {
         synchronized (this) {
             this.value.reset();
             this.value.add(value);

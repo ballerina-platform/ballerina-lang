@@ -103,7 +103,7 @@ public class MetricsLaunchListener implements LaunchListener {
             Gauge gauge = Gauge.builder("startup_time_milliseconds")
                     .description("Startup time in milliseconds").register();
             RuntimeMXBean runtimeMXBean = ManagementFactory.getRuntimeMXBean();
-            gauge.set(System.currentTimeMillis() - runtimeMXBean.getStartTime());
+            gauge.setValue(System.currentTimeMillis() - runtimeMXBean.getStartTime());
         }
     }
 }

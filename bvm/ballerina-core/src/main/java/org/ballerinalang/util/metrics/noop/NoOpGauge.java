@@ -41,7 +41,7 @@ public class NoOpGauge extends AbstractMetric implements Gauge {
     }
 
     @Override
-    public void set(double value) {
+    public void setValue(double value) {
         // Do nothing
     }
 
