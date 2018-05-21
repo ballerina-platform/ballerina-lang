@@ -27,6 +27,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -76,13 +77,19 @@ public class HTTPCarbonMessage {
      * @param httpContent chunks of the payload.
      */
     public synchronized void addHttpContent(HttpContent httpContent) {
-        if (this.messageFuture != null) {
-            this.messageFuture.notifyMessageListener(httpContent);
-            this.contentObservable.notifyAddListener(httpContent);
-            this.contentObservable.notifyGetListener(httpContent);
+        contentObservable.notifyAddListener(httpContent);
+        if (messageFuture != null) {
+            contentObservable.notifyGetListener(httpContent);
+            blockingEntityCollector.addHttpContent(httpContent);
+            messageFuture.notifyMessageListener(blockingEntityCollector.getHttpContent());
+            // We remove the feature as the message has reached it life time. If there is a need
+            // for using the same message again, we need to set the future again and restart
+            // the life-cycle.
+            if (httpContent instanceof LastHttpContent) {
+                messageFuture = null;
+            }
         } else {
-            this.blockingEntityCollector.addHttpContent(httpContent);
-            this.contentObservable.notifyAddListener(httpContent);
+            blockingEntityCollector.addHttpContent(httpContent);
         }
     }
 
@@ -317,10 +324,6 @@ public class HTTPCarbonMessage {
 
     public EntityCollector getBlockingEntityCollector() {
         return blockingEntityCollector;
-    }
-
-    public synchronized void removeHttpContentAsyncFuture() {
-        this.messageFuture = null;
     }
 
     /**

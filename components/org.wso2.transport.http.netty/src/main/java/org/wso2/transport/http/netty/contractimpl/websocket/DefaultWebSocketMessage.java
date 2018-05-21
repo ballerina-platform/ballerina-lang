@@ -28,7 +28,7 @@ import java.util.Map;
 /**
  * Implementation of {@link WebSocketMessage}.
  */
-public class WebSocketMessageImpl implements WebSocketMessage {
+public class DefaultWebSocketMessage implements WebSocketMessage {
 
     private final Map<String, Object> properties = new HashMap<>();
     protected String subProtocol;
@@ -38,16 +38,13 @@ public class WebSocketMessageImpl implements WebSocketMessage {
     protected boolean isServerMessage;
     protected WebSocketConnection webSocketConnection;
     protected String sessionlID;
-    protected Map<String, String> headers = new HashMap<>();
 
     public void setProperty(String key, Object value) {
         properties.put(key, value);
     }
 
     public void setProperties(Map<String, Object> properties) {
-        properties.entrySet().forEach(
-                entry -> this.properties.put(entry.getKey(), entry.getValue())
-        );
+        properties.forEach(this.properties::put);
     }
 
     public Object getProperty(String key) {
@@ -95,12 +92,13 @@ public class WebSocketMessageImpl implements WebSocketMessage {
     public void setIsConnectionSecured(boolean isConnectionSecured) {
         this.isConnectionSecured = isConnectionSecured;
     }
+
     @Override
     public boolean isConnectionSecured() {
         return isConnectionSecured;
     }
 
-    public void  setIsServerMessage(boolean isServerMessage) {
+    public void setIsServerMessage(boolean isServerMessage) {
         this.isServerMessage = isServerMessage;
     }
 
@@ -116,28 +114,6 @@ public class WebSocketMessageImpl implements WebSocketMessage {
     @Override
     public WebSocketConnection getWebSocketConnection() {
         return webSocketConnection;
-    }
-
-    @Override
-    public void setHeader(String key, String value) {
-        headers.put(key, value);
-    }
-
-    @Override
-    public void setHeaders(Map<String, String> headers) {
-        headers.entrySet().forEach(
-                entry -> this.headers.put(entry.getKey(), entry.getValue())
-        );
-    }
-
-    @Override
-    public String getHeader(String key) {
-        return headers.get(key);
-    }
-
-    @Override
-    public Map<String, String> getHeaders() {
-        return headers;
     }
 
     @Override

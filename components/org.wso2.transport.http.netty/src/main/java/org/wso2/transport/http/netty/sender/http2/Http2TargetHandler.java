@@ -265,7 +265,6 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
          * This should be called after writing the {@code LastHttpContent}.
          */
         private void markWriteCompletion() {
-            httpOutboundRequest.removeHttpContentAsyncFuture();
         }
     }
 

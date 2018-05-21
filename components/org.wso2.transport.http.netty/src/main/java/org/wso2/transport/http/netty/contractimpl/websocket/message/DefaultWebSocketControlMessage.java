@@ -21,19 +21,19 @@ package org.wso2.transport.http.netty.contractimpl.websocket.message;
 
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 
 import java.nio.ByteBuffer;
 
 /**
  * Implementation of WebSocket control message.
  */
-public class WebSocketControlMessageImpl extends WebSocketMessageImpl implements WebSocketControlMessage {
+public class DefaultWebSocketControlMessage extends DefaultWebSocketMessage implements WebSocketControlMessage {
 
     private final WebSocketControlSignal controlSignal;
     private final ByteBuffer buffer;
 
-    public WebSocketControlMessageImpl(WebSocketControlSignal controlSignal, ByteBuffer buffer) {
+    public DefaultWebSocketControlMessage(WebSocketControlSignal controlSignal, ByteBuffer buffer) {
         this.controlSignal = controlSignal;
         this.buffer = buffer;
     }

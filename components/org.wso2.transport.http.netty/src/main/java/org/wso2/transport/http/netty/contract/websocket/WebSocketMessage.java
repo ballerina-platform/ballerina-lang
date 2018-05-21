@@ -19,8 +19,6 @@
 
 package org.wso2.transport.http.netty.contract.websocket;
 
-import java.util.Map;
-
 /**
  * This is the common interface for all WebSocket messages.
  * <b>Note: Use this interface in the application level only and only if the user needs only the channel details
@@ -70,36 +68,6 @@ public interface WebSocketMessage {
      * @return the session of the connection.
      */
     WebSocketConnection getWebSocketConnection();
-
-    /**
-     * Set header for the message.
-     *
-     * @param key key of the header.
-     * @param value value of the header.
-     */
-    void setHeader(String key, String value);
-
-    /**
-     * Set headers for the message.
-     *
-     * @param headers map of headers which should be added to the current headers.
-     */
-    void setHeaders(Map<String, String> headers);
-
-    /**
-     * Get the value of a header.
-     *
-     * @param key key of the header.
-     * @return the value of the header.
-     */
-    String getHeader(String key);
-
-    /**
-     * Get a map of all headers.
-     *
-     * @return a map of all headers.
-     */
-    Map<String, String> getHeaders();
 
     /**
      * Retrieve the session ID.

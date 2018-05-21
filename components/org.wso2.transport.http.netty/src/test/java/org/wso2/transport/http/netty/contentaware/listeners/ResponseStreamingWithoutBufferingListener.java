@@ -21,20 +21,25 @@ package org.wso2.transport.http.netty.contentaware.listeners;
 
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpHeaderValues;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static io.netty.handler.codec.http.HttpHeaderNames.CONNECTION;
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
+import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
+import static io.netty.handler.codec.http.HttpHeaderValues.CHUNKED;
+import static io.netty.handler.codec.http.HttpHeaderValues.KEEP_ALIVE;
+import static io.netty.handler.codec.http.HttpHeaderValues.TEXT_PLAIN;
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE;
 
 /**
  * A Message Processor which respond in streaming manner without buffering.
@@ -45,22 +50,22 @@ public class ResponseStreamingWithoutBufferingListener implements HttpConnectorL
     private ExecutorService executor = Executors.newCachedThreadPool();
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpRequestMessage) {
+    public void onMessage(HTTPCarbonMessage inboundRequest) {
         executor.execute(() -> {
-            HTTPCarbonMessage cMsg =
-                    new HTTPCarbonMessage(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
-            cMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
-            cMsg.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), HttpHeaderValues.CHUNKED.toString());
-            cMsg.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.TEXT_PLAIN.toString());
-            cMsg.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
+            HTTPCarbonMessage outboundResponse =
+                    new HTTPCarbonMessage(new DefaultHttpResponse(HTTP_1_1, OK));
+            outboundResponse.setHeader(CONNECTION.toString(), KEEP_ALIVE.toString());
+            outboundResponse.setHeader(TRANSFER_ENCODING.toString(), CHUNKED.toString());
+            outboundResponse.setHeader(CONTENT_TYPE.toString(), TEXT_PLAIN.toString());
+            outboundResponse.setProperty(HTTP_STATUS_CODE, OK.code());
             try {
-                httpRequestMessage.respond(cMsg);
+                inboundRequest.respond(outboundResponse);
             } catch (ServerConnectorException e) {
                 logger.error("Error occurred during message notification: " + e.getMessage());
             }
             while (true) {
-                HttpContent httpContent = httpRequestMessage.getHttpContent();
-                cMsg.addHttpContent(httpContent);
+                HttpContent httpContent = inboundRequest.getHttpContent();
+                outboundResponse.addHttpContent(httpContent);
                 if (httpContent instanceof LastHttpContent) {
                     break;
                 }

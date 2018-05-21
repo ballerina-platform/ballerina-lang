@@ -18,18 +18,21 @@
 
 package org.wso2.transport.http.netty.http1point0test;
 
-import io.netty.handler.codec.http.HttpHeaderNames;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
 import org.junit.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.chunkdisable.ChunkServerTemplate;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.util.TestUtil;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
+import java.net.URI;
 
+import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_LENGTH;
+import static io.netty.handler.codec.http.HttpHeaderNames.TRANSFER_ENCODING;
+import static io.netty.handler.codec.http.HttpHeaderValues.CHUNKED;
 import static org.testng.AssertJUnit.assertEquals;
 
 /**
@@ -46,18 +49,20 @@ public class ChunkAlwaysHttpOnePointZeroServerTestCase extends ChunkServerTempla
     @Test
     public void postTest() {
         try {
-            HttpURLConnection urlConn = sendEntityBody(TestUtil.largeEntity);
-            Assert.assertNull("Content-Length header present in the response.",
-                    urlConn.getHeaderField(HttpHeaderNames.CONTENT_LENGTH.toString()));
-            assertEquals(urlConn.getHeaderField(HttpHeaderNames.TRANSFER_ENCODING.toString()), Constants.CHUNKED);
+            URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
+                    .body(TestUtil.largeEntity).asString();
 
-            urlConn = sendEntityBody(TestUtil.smallEntity);
             Assert.assertNull("Content-Length header present in the response.",
-                    urlConn.getHeaderField(HttpHeaderNames.CONTENT_LENGTH.toString()));
-            assertEquals(urlConn.getHeaderField(HttpHeaderNames.TRANSFER_ENCODING.toString()), Constants.CHUNKED);
+                    response.getHeaders().getFirst(CONTENT_LENGTH.toString()));
+            assertEquals(response.getHeaders().getFirst(TRANSFER_ENCODING.toString()), CHUNKED.toString());
 
-            urlConn.disconnect();
-        } catch (IOException e) {
+            response = Unirest.post(baseURI.resolve("/").toString()).body(TestUtil.smallEntity).asString();
+
+            Assert.assertNull("Content-Length header present in the response.",
+                    response.getHeaders().getFirst(CONTENT_LENGTH.toString()));
+            assertEquals(response.getHeaders().getFirst(TRANSFER_ENCODING.toString()), CHUNKED.toString());
+        } catch (UnirestException e) {
             TestUtil.handleException("IOException occurred while running postTest", e);
         }
     }

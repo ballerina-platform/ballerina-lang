@@ -124,14 +124,14 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private void writeOutboundResponse(HTTPCarbonMessage outboundResponseMsg, boolean keepAlive,
             HttpContent httpContent) {
-        ChannelFuture outboundChannelFuture;
-        HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         ChunkConfig responseChunkConfig = outboundResponseMsg.getProperty(CHUNKING_CONFIG) != null ?
                 (ChunkConfig) outboundResponseMsg.getProperty(CHUNKING_CONFIG) : null;
         if (responseChunkConfig != null) {
             this.setChunkConfig(responseChunkConfig);
         }
 
+        ChannelFuture outboundChannelFuture;
+        HttpResponseFuture outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
         if (isLastHttpContent(httpContent)) {
             if (!headerWritten) {
                 if (chunkConfig == ChunkConfig.ALWAYS && (
@@ -155,7 +155,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtSourceResponseSending(outboundResponseMsg);
             }
-            resetState(outboundResponseMsg);
+            resetState();
         } else {
             if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (
                     isVersionCompatibleForChunking(requestDataHolder.getHttpVersion()) ||
@@ -206,8 +206,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture);
     }
 
-    private void resetState(HTTPCarbonMessage outboundResponseMsg) {
-        outboundResponseMsg.removeHttpContentAsyncFuture();
+    private void resetState() {
         contentList.clear();
         contentLength = 0;
         headerWritten = false;
