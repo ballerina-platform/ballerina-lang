@@ -353,21 +353,21 @@ public class FunctionSignatureInBaloTest {
         Assert.assertEquals(returns[0].stringValue(), "John");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testFuncWithNilDefaultParamExpr() {
         BValue[] returns = BRunUtil.invoke(result, "testFuncWithNilDefaultParamExpr");
         Assert.assertNull(returns[0]);
         Assert.assertNull(returns[1]);
     }
 
-    @Test(enabled = false)
+    @Test
     public void testAttachedFunction() {
         BValue[] returns = BRunUtil.invoke(result, "testAttachedFunction");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 110);
     }
 
-    @Test(description = "Test object function with defaultableParam", enabled = false)
+    @Test(description = "Test object function with defaultableParam")
     public void defaultValueForObjectFunctionParam() {
         BValue[] returns = BRunUtil.invoke(result, "testDefaultableParamInnerFunc");
 
@@ -379,7 +379,7 @@ public class FunctionSignatureInBaloTest {
         Assert.assertEquals(returns[1].stringValue(), "hello world");
     }
 
-    @Test(description = "Test object outer function with defaultable param", enabled = false)
+    @Test(description = "Test object outer function with defaultable param")
     public void defaultValueForObjectOuterFunctionParam() {
         BValue[] returns = BRunUtil.invoke(result, "testDefaultableParamOuterFunc");
 

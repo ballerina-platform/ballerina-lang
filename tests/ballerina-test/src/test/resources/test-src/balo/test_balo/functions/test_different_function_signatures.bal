@@ -96,24 +96,24 @@ function testFuncWithUnionTypedDefaultParam() returns json {
 
 // ------------------- Test function signature with null as default parameter value
 
-// function testFuncWithNilDefaultParamExpr() returns (any, any) {
-//    return (foo:funcWithNilDefaultParamExpr_1(), foo:funcWithNilDefaultParamExpr_2());
-// }
+function testFuncWithNilDefaultParamExpr() returns (any, any) {
+   return (foo:funcWithNilDefaultParamExpr_1(), foo:funcWithNilDefaultParamExpr_2());
+}
 
 // ------------------- Test function signature for attached functions ------------------
 
-// function testAttachedFunction() returns (int, int) {
-//     foo:Employee emp = new;
-//     return (emp.getSalary("Alex"), emp.getSalary("Alex", bonus = 10));
-// }
+function testAttachedFunction() returns (int, int) {
+    foo:Employee emp = new;
+    return (emp.getSalary("Alex"), emp.getSalary("Alex", bonus = 10));
+}
 
 
-// function testDefaultableParamInnerFunc() returns (int, string) {
-//     foo:Person p = new;
-//     return p.test1(age = 50);
-// }
+function testDefaultableParamInnerFunc() returns (int, string) {
+    foo:Person p = new;
+    return p.test1(age = 50);
+}
 
-// function testDefaultableParamOuterFunc() returns (int, string) {
-//     foo:Person p = new;
-//     return p.test2(age = 40);
-// }
+function testDefaultableParamOuterFunc() returns (int, string) {
+    foo:Person p = new;
+    return p.test2(age = 40);
+}
