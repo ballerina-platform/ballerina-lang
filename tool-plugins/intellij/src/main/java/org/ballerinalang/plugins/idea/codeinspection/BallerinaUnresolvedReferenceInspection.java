@@ -28,6 +28,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.BallerinaAssignmentStatement;
+import org.ballerinalang.plugins.idea.psi.BallerinaField;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
 import org.ballerinalang.plugins.idea.psi.BallerinaOrgName;
@@ -119,6 +120,12 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
 
             // Skip object creation.
             if (identifier.getText().equals("new")) {
+                continue;
+            }
+
+            // Skip unresolved fields.
+            BallerinaField ballerinaField = PsiTreeUtil.getParentOfType(identifier, BallerinaField.class);
+            if (ballerinaField != null) {
                 continue;
             }
 
