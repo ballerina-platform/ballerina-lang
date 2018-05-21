@@ -103,8 +103,8 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.NEW)
                                 // {message:"Notification failed for topic [" + topic + "]",  cause:httpConnectorError }
                                 && !(rawLookup == BallerinaTypes.COMMA && rawLookup2 == BallerinaTypes.ADD)
-                                && !(rawLookup == BallerinaTypes.QUESTION_MARK && rawLookup2 == BallerinaTypes
-                                .RIGHT_PARENTHESIS)
+                                && !(rawLookup == BallerinaTypes.QUESTION_MARK
+                                && rawLookup2 == BallerinaTypes.RIGHT_PARENTHESIS)
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.BIND)
                                 && !(rawLookup == BallerinaTypes.LINE_COMMENT &&
                                 rawLookup2 == BallerinaTypes.LINE_COMMENT)
@@ -167,6 +167,15 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                             ) {
                                         return true;
                                     }
+                                }
+                            } else if (rawLookup == BallerinaTypes.LINE_COMMENT &&
+                                    rawLookup2 == BallerinaTypes.LINE_COMMENT) {
+                                if (next1Element == BallerinaTypes.COLON && next3Element == BallerinaTypes.COLON) {
+                                    return false;
+                                }
+                                if (latestDoneMarker != null) {
+                                    // Todo - Add more conditions?
+                                    return true;
                                 }
                             }
                             return false;
