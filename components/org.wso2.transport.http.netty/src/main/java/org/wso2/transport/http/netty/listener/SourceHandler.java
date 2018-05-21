@@ -67,19 +67,22 @@ import java.util.concurrent.ConcurrentHashMap;
 public class SourceHandler extends ChannelInboundHandlerAdapter {
     private static Logger log = LoggerFactory.getLogger(SourceHandler.class);
 
-    private HTTPCarbonMessage sourceReqCmsg;
+    private HTTPCarbonMessage inboundRequestMsg;
     private HandlerExecutor handlerExecutor;
     private Map<String, GenericObjectPool> targetChannelPool;
-    private ServerConnectorFuture serverConnectorFuture;
     private ChunkConfig chunkConfig;
     private KeepAliveConfig keepAliveConfig;
-    private HttpResponseFuture httpOutboundRespFuture;
+
+    private final ServerConnectorFuture serverConnectorFuture;
+    private HttpResponseFuture outboundRespFuture;
+
     private String interfaceId;
     private String serverName;
     private boolean idleTimeout;
     private ChannelGroup allChannels;
     protected ChannelHandlerContext ctx;
     private SocketAddress remoteAddress;
+    private SourceHandlerErrorHandler sourceHandlerErrorHandler;
 
     public SourceHandler(ServerConnectorFuture serverConnectorFuture, String interfaceId, ChunkConfig chunkConfig,
                          KeepAliveConfig keepAliveConfig, String serverName, ChannelGroup allChannels) {
@@ -108,6 +111,34 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
         this.ctx = ctx;
         this.remoteAddress = ctx.channel().remoteAddress();
+
+        sourceHandlerErrorHandler = new
+                SourceHandlerErrorHandler(inboundRequestMsg, serverConnectorFuture, outboundRespFuture);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        // Stop the connector timer
+        ctx.close();
+        if (!idleTimeout) {
+            sourceHandlerErrorHandler.handleErrorCloseScenario();
+        }
+        closeTargetChannels();
+
+        if (handlerExecutor != null) {
+            handlerExecutor.executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
+            handlerExecutor = null;
+        }
+    }
+
+    private void closeTargetChannels() {
+        targetChannelPool.forEach((hostPortKey, genericObjectPool) -> {
+            try {
+                targetChannelPool.remove(hostPortKey).close();
+            } catch (Exception e) {
+                log.error("Couldn't close target channel socket connections", e);
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -115,74 +146,43 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
             HttpRequest httpRequest = (HttpRequest) msg;
-            sourceReqCmsg = setupCarbonMessage(httpRequest, ctx);
-            notifyRequestListener(sourceReqCmsg, ctx);
+            inboundRequestMsg = setupCarbonMessage(httpRequest, ctx);
+            notifyRequestListener(inboundRequestMsg, ctx);
 
             if (httpRequest.decoderResult().isFailure()) {
                 log.warn(httpRequest.decoderResult().cause().getMessage());
             }
+
+            sourceHandlerErrorHandler.setStateHeaderReceived();
         } else {
-            if (sourceReqCmsg != null) {
+            if (inboundRequestMsg != null) {
                 if (msg instanceof HttpContent) {
+                    sourceHandlerErrorHandler.setStateReceivingEntityBody();
+
                     HttpContent httpContent = (HttpContent) msg;
-                    sourceReqCmsg.addHttpContent(httpContent);
+                    inboundRequestMsg.addHttpContent(httpContent);
                     if (Util.isLastHttpContent(httpContent)) {
                         if (handlerExecutor != null) {
-                            handlerExecutor.executeAtSourceRequestSending(sourceReqCmsg);
+                            handlerExecutor.executeAtSourceRequestSending(inboundRequestMsg);
                         }
-                        if (isDiffered(sourceReqCmsg)) {
-                            this.serverConnectorFuture.notifyHttpListener(sourceReqCmsg);
+                        if (isDiffered(inboundRequestMsg)) {
+                            this.serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
                         }
-                        httpOutboundRespFuture = sourceReqCmsg.getHttpOutboundRespStatusFuture();
-                        sourceReqCmsg = null;
+                        outboundRespFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
+                        inboundRequestMsg = null;
+
+                        sourceHandlerErrorHandler.setStateRequestReceived();
                     }
                 }
             } else {
-                log.warn("Inconsistent state detected : sourceReqCmsg is null for channel read event");
+                log.warn("Inconsistent state detected : inboundRequestMsg is null for channel read event");
             }
         }
     }
 
-    private HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx)
-            throws URISyntaxException {
-
-        if (handlerExecutor != null) {
-            handlerExecutor.executeAtSourceRequestReceiving(sourceReqCmsg);
-        }
-
-        sourceReqCmsg = new HttpCarbonRequest((HttpRequest) httpMessage, new DefaultListener(ctx));
-        sourceReqCmsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
-
-        HttpRequest httpRequest = (HttpRequest) httpMessage;
-        sourceReqCmsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
-        sourceReqCmsg.setProperty(Constants.SRC_HANDLER, this);
-        HttpVersion protocolVersion = httpRequest.protocolVersion();
-        sourceReqCmsg.setProperty(Constants.HTTP_VERSION,
-                protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
-        sourceReqCmsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
-        InetSocketAddress localAddress = null;
-
-        //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
-        if (ctx.channel().localAddress() instanceof InetSocketAddress) {
-            localAddress = (InetSocketAddress) ctx.channel().localAddress();
-        }
-        sourceReqCmsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
-        sourceReqCmsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
-        sourceReqCmsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
-
-        boolean isSecuredConnection = false;
-        if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
-            isSecuredConnection = true;
-        }
-        sourceReqCmsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
-
-        sourceReqCmsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        sourceReqCmsg.setProperty(Constants.REMOTE_ADDRESS, remoteAddress);
-        sourceReqCmsg.setProperty(Constants.REQUEST_URL, httpRequest.uri());
-        sourceReqCmsg.setProperty(Constants.TO, httpRequest.uri());
-        //Added protocol name as a string
-
-        return sourceReqCmsg;
+    private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {
+        //Http resource stored in the HTTPCarbonMessage means execution waits till payload.
+        return sourceReqCmsg.getProperty(Constants.HTTP_RESOURCE) != null;
     }
 
     private void notifyRequestListener(HTTPCarbonMessage httpRequestMsg, ChannelHandlerContext ctx)
@@ -206,33 +206,46 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        // Stop the connector timer
-        ctx.close();
-        handleErrorCloseScenario(ctx);
-        closeTargetChannels();
-    }
+    private HTTPCarbonMessage setupCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx)
+            throws URISyntaxException {
 
-    private void handleErrorCloseScenario(ChannelHandlerContext ctx) {
         if (handlerExecutor != null) {
-            handlerExecutor.executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
-            handlerExecutor = null;
+            handlerExecutor.executeAtSourceRequestReceiving(inboundRequestMsg);
         }
 
-        if (sourceReqCmsg != null && !idleTimeout) {
-            handleIncompleteInboundRequest(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION);
-        }
-    }
+        inboundRequestMsg = new HttpCarbonRequest((HttpRequest) httpMessage, new DefaultListener(ctx));
+        inboundRequestMsg.setProperty(Constants.POOLED_BYTE_BUFFER_FACTORY, new PooledDataStreamerFactory(ctx.alloc()));
 
-    private void closeTargetChannels() {
-        targetChannelPool.forEach((hostPortKey, genericObjectPool) -> {
-            try {
-                targetChannelPool.remove(hostPortKey).close();
-            } catch (Exception e) {
-                log.error("Couldn't close target channel socket connections", e);
-            }
-        });
+        HttpRequest httpRequest = (HttpRequest) httpMessage;
+        inboundRequestMsg.setProperty(Constants.CHNL_HNDLR_CTX, this.ctx);
+        inboundRequestMsg.setProperty(Constants.SRC_HANDLER, this);
+        HttpVersion protocolVersion = httpRequest.protocolVersion();
+        inboundRequestMsg.setProperty(Constants.HTTP_VERSION,
+                protocolVersion.majorVersion() + "." + protocolVersion.minorVersion());
+        inboundRequestMsg.setProperty(Constants.HTTP_METHOD, httpRequest.method().name());
+        InetSocketAddress localAddress = null;
+
+        //This check was added because in case of netty embedded channel, this could be of type 'EmbeddedSocketAddress'.
+        if (ctx.channel().localAddress() instanceof InetSocketAddress) {
+            localAddress = (InetSocketAddress) ctx.channel().localAddress();
+        }
+        inboundRequestMsg.setProperty(Constants.LISTENER_PORT, localAddress != null ? localAddress.getPort() : null);
+        inboundRequestMsg.setProperty(Constants.LISTENER_INTERFACE_ID, interfaceId);
+        inboundRequestMsg.setProperty(Constants.PROTOCOL, Constants.HTTP_SCHEME);
+
+        boolean isSecuredConnection = false;
+        if (ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null) {
+            isSecuredConnection = true;
+        }
+        inboundRequestMsg.setProperty(Constants.IS_SECURED_CONNECTION, isSecuredConnection);
+
+        inboundRequestMsg.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
+        inboundRequestMsg.setProperty(Constants.REMOTE_ADDRESS, remoteAddress);
+        inboundRequestMsg.setProperty(Constants.REQUEST_URL, httpRequest.uri());
+        inboundRequestMsg.setProperty(Constants.TO, httpRequest.uri());
+        //Added protocol name as a string
+
+        return inboundRequestMsg;
     }
 
     @Override
@@ -240,25 +253,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (ctx != null && ctx.channel().isActive()) {
             ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
         }
-        if (sourceReqCmsg != null) {
-            handleIncompleteInboundRequest(Constants.EXCEPTION_CAUGHT_WHILE_READING_REQUEST);
-        }
-        serverConnectorFuture.notifyErrorListener(cause);
-    }
-
-    private void handleIncompleteInboundRequest(String errorMessage) {
-        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-        lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
-        sourceReqCmsg.addHttpContent(lastHttpContent);
-        log.warn(errorMessage);
-    }
-
-    public Map<String, GenericObjectPool> getTargetChannelPool() {
-        return targetChannelPool;
-    }
-
-    public ChannelHandlerContext getInboundChannelContext() {
-        return ctx;
+        sourceHandlerErrorHandler.exceptionCaught(cause);
     }
 
     @Override
@@ -266,7 +261,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeout = true;
             this.channelInactive(ctx);
-            handleIdleErrorScenario();
+            this.sourceHandlerErrorHandler.handleIdleErrorScenario();
 
             log.debug("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
         } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
@@ -285,28 +280,15 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void handleIdleErrorScenario() {
-        if (sourceReqCmsg == null) {
-            // This means we have received last http content of this particular request
-            httpOutboundRespFuture.notifyHttpListener(
-                    new ServerConnectorException(
-                            Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
-            if (httpOutboundRespFuture == null) {
-                httpOutboundRespFuture.notifyHttpListener(
-                        new ServerConnectorException(
-                                Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE));
-            }
-        } else {
-            handleIncompleteInboundRequest(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
-        }
-    }
-
-    private boolean isDiffered(HTTPCarbonMessage sourceReqCmsg) {
-        //Http resource stored in the HTTPCarbonMessage means execution waits till payload.
-        return sourceReqCmsg.getProperty(Constants.HTTP_RESOURCE) != null;
-    }
-
     public EventLoop getEventLoop() {
         return this.ctx.channel().eventLoop();
+    }
+
+    public Map<String, GenericObjectPool> getTargetChannelPool() {
+        return targetChannelPool;
+    }
+
+    public ChannelHandlerContext getInboundChannelContext() {
+        return ctx;
     }
 }
