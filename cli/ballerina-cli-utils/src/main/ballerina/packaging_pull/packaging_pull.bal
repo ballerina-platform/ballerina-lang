@@ -90,7 +90,8 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 
             io:ByteChannel destDirChannel = getFileChannel(destArchivePath, io:WRITE);
             string toAndFrom = " [central.ballerina.io -> home repo]";
-            int width = (check <int> terminalWidth) - 3;
+            int rightMargin = 3;
+            int width = (check <int> terminalWidth) - rightMargin;
             copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom, width);
                                 
             closeChannel(destDirChannel);
@@ -233,7 +234,9 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     string equals = "==========";
     string tabspaces = "          ";
     boolean completed = false;
-    int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - 5;
+    int rightMargin = 5;
+    int totalVal = 10;
+    int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - rightMargin;
     try {
         while (!completed) {
             (readContent, readCount) = readBytes(src, bytesChunk);
@@ -246,8 +249,8 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             totalCount = totalCount + readCount;
             float percentage = totalCount / pkgSize;
             noOfBytesRead = totalCount + "/" + pkgSize;
-            string bar = equals.substring(0, <int> (percentage * 10));
-            string spaces = tabspaces.substring(0, 10 - <int>(percentage * 10));   
+            string bar = equals.substring(0, <int> (percentage * totalVal));
+            string spaces = tabspaces.substring(0, totalVal - <int>(percentage * totalVal));   
             string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;            
             string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
             io:print("\r" + rightPad(msg, rightpadLength) + size);
