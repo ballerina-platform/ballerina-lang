@@ -37,10 +37,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -423,7 +424,6 @@ public class CommonUtil {
                 typeString = "[]";
                 break;
             case RECORD:
-            case STRUCT:
                 typeString = "{}";
                 break;
             case FINITE:
@@ -577,8 +577,8 @@ public class CommonUtil {
      */
     public static boolean isEndpointObject(BSymbol bSymbol) {
         if (SymbolKind.OBJECT.equals(bSymbol.kind)) {
-            List<BObjectTypeSymbol.BAttachedFunction> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs;
-            for (BObjectTypeSymbol.BAttachedFunction attachedFunction : attachedFunctions) {
+            List<BAttachedFunction> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs;
+            for (BAttachedFunction attachedFunction : attachedFunctions) {
                 if (attachedFunction.funcName.getValue().equals(UtilSymbolKeys.EP_OBJECT_IDENTIFIER)) {
                     return true;
                 }

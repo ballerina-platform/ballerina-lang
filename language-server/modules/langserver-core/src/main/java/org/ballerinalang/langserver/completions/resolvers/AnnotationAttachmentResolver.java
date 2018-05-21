@@ -34,7 +34,8 @@ import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -192,16 +193,16 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
             }
         }
 
-        if (filteredAnnotation == null || !(filteredAnnotation.typeNode.type instanceof BStructType)) {
+        if (filteredAnnotation == null || !(filteredAnnotation.typeNode.type instanceof BRecordType)) {
             return null;
         }
         
         if (!fieldStack.isEmpty()) {            
             completionItems.addAll(getFieldCompletionItems(
-                    findAllStructFields((BStructType) filteredAnnotation.typeNode.type, fieldStack.pop(), fieldStack)
+                    findAllStructFields((BRecordType) filteredAnnotation.typeNode.type, fieldStack.pop(), fieldStack)
             ));
         } else {
-            completionItems.addAll(getFieldCompletionItems(((BStructType) filteredAnnotation.typeNode.type).fields));
+            completionItems.addAll(getFieldCompletionItems(((BRecordType) filteredAnnotation.typeNode.type).fields));
         }
         
         return completionItems;
@@ -259,23 +260,23 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
 
     /**
      * Find all the struct fields from the field stack found going through the token stream.
-     * @param structType    BLang Struct
+     * @param recordType    BLang Record
      * @param fieldName     Field name to find
      * @param fieldStack    Field stack containing the field hierarchy
-     * @return {@link org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField} list of fields
+     * @return {@link org.wso2.ballerinalang.compiler.semantics.model.types.BField} list of fields
      */
-    private List<BStructType.BStructField> findAllStructFields(BStructType structType, String fieldName,
-                                                               Stack<String> fieldStack) {
-        for (BStructType.BStructField field : structType.fields) {
+    private List<BField> findAllStructFields(BRecordType recordType, String fieldName,
+                                             Stack<String> fieldStack) {
+        for (BField field : recordType.fields) {
             BType bType = field.getType();
-            if (!(bType instanceof BStructType)) {
+            if (!(bType instanceof BRecordType)) {
                 continue;
             }
             if (field.getName().getValue().equals(fieldName)) {
                 if (fieldStack.isEmpty()) {
-                    return ((BStructType) bType).fields;
+                    return ((BRecordType) bType).fields;
                 }
-                return findAllStructFields((BStructType) bType, fieldStack.pop(), fieldStack);
+                return findAllStructFields((BRecordType) bType, fieldStack.pop(), fieldStack);
             }
         }
         
@@ -284,15 +285,15 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
 
     /**
      * Get the completion items for the given set of struct fields.
-     * @param structFields              List of strut fields
+     * @param recordFields              List of record fields
      * @return {@link CompletionItem}   List of completion Items
      */
-    private List<CompletionItem> getFieldCompletionItems(List<BStructType.BStructField> structFields) {
+    private List<CompletionItem> getFieldCompletionItems(List<BField> recordFields) {
         List<CompletionItem> completionItems = new ArrayList<>();
-        structFields.forEach(bStructField -> {
+        recordFields.forEach(bStructField -> {
             StringBuilder insertText = new StringBuilder(bStructField.getName().getValue() + ": ");
-            if (bStructField.getType() instanceof BStructType) {
-                insertText.append(getStructInsertText(((BStructType) bStructField.getType()).fields));
+            if (bStructField.getType() instanceof BRecordType) {
+                insertText.append(getStructInsertText(((BRecordType) bStructField.getType()).fields));
             } else {
                 insertText.append("${1:").append(getDefaultValueForType(bStructField.getType())).append("}");
             }
@@ -313,7 +314,7 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
      * @param structFields      List of struct fields
      * @return {@link String}   Insert text
      */
-    private String getStructInsertText(List<BStructType.BStructField> structFields) {
+    private String getStructInsertText(List<BField> structFields) {
         return  "{" + LINE_SEPARATOR + "\t${1}" + LINE_SEPARATOR + "}";
         // Note: Code has been commented on purpose since the implementation can be reverted back
 
@@ -357,7 +358,7 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
         int nodeEndLine = nodePos.getEndLine();
 
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            if (keyValuePair.valueExpr.type instanceof BStructType) {
+            if (keyValuePair.valueExpr.type instanceof BRecordType) {
                 DiagnosticPos exprPos = CommonUtil.toZeroBasedPosition(keyValuePair.valueExpr.getPosition());
                 int exprStartLine = exprPos.getStartLine();
                 int exprEndLine = exprPos.getEndLine();
@@ -369,15 +370,15 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
             }
         }
         
-        if (nodeStartLine < line && nodeEndLine > line && recordLiteral.type instanceof BStructType) {
-            completionItems.addAll(getFieldCompletionItems(((BStructType) recordLiteral.type).fields));
-            completionItems.add(getFillAllOptionItem(((BStructType) recordLiteral.type).fields));
+        if (nodeStartLine < line && nodeEndLine > line && recordLiteral.type instanceof BRecordType) {
+            completionItems.addAll(getFieldCompletionItems(((BRecordType) recordLiteral.type).fields));
+            completionItems.add(getFillAllOptionItem(((BRecordType) recordLiteral.type).fields));
         }
         
         return completionItems;
     }
     
-    private CompletionItem getFillAllOptionItem(List<BStructType.BStructField> fields) {
+    private CompletionItem getFillAllOptionItem(List<BField> fields) {
         List<String> fieldEntries = new ArrayList<>();
         
         fields.forEach(bStructField -> {
