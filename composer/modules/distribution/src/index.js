@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-const { app, ipcMain } = require('electron');
+const { app, ipcMain, systemPreferences } = require('electron');
 const path = require('path');
 const os = require('os');
 const process = require('process');
@@ -27,6 +27,12 @@ const { createWindow, createSplashWindow } = require('./app');
 const { createErrorWindow } = require('./error-window');
 const { ErrorCodes } = require('./error-codes');
 const registerMenuLoader = require('./menu.js');
+
+// Disable unwanted menus in mac OSX
+if (process.platform === 'darwin') {
+    systemPreferences.setUserDefault('NSDisabledDictationMenuItem', 'boolean', true);
+    systemPreferences.setUserDefault('NSDisabledCharacterPaletteMenuItem', 'boolean', true);
+}
 
 let win,
     splashWin,
