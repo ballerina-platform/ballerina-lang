@@ -603,10 +603,9 @@ public class BallerinaPsiImplUtil {
             BallerinaTypeDefinition result = null;
             Collection<BallerinaObjectFunctionDefinition> ballerinaObjectFunctionDefinitions =
                     PsiTreeUtil.findChildrenOfType(ballerinaTypeDefinition, BallerinaObjectFunctionDefinition.class);
-            for (BallerinaObjectFunctionDefinition ballerinaObjectFunctionDefinition :
-                    ballerinaObjectFunctionDefinitions) {
+            for (BallerinaObjectFunctionDefinition functionDefinition : ballerinaObjectFunctionDefinitions) {
                 BallerinaObjectCallableUnitSignature objectCallableUnitSignature =
-                        ballerinaObjectFunctionDefinition.getObjectCallableUnitSignature();
+                        functionDefinition.getObjectCallableUnitSignature();
                 if (objectCallableUnitSignature == null) {
                     continue;
                 }
@@ -623,37 +622,55 @@ public class BallerinaPsiImplUtil {
     public static BallerinaTypeDefinition getClientFromReturnType(@NotNull BallerinaObjectCallableUnitSignature
                                                                           signature) {
         return CachedValuesManager.getCachedValue(signature, () -> {
-            BallerinaTypeDefinition result = null;
             BallerinaReturnParameter returnParameter = signature.getReturnParameter();
-            if (returnParameter != null) {
-                BallerinaReturnType returnType = returnParameter.getReturnType();
-                if (returnType != null) {
-                    BallerinaTypeName typeName = returnType.getTypeName();
-                    if (typeName instanceof BallerinaTupleTypeName) {
-                        List<BallerinaTypeName> typeNameList = ((BallerinaTupleTypeName) typeName).getTypeNameList();
-                        if (typeNameList.size() == 1) {
-                            BallerinaTypeName ballerinaTypeName = typeNameList.get(0);
-                            if (ballerinaTypeName instanceof BallerinaSimpleTypeName) {
-                                PsiElement typeFromTypeName = getTypeFromTypeName(ballerinaTypeName);
-                                if (typeFromTypeName != null) {
-                                    if ((typeFromTypeName.getParent() instanceof BallerinaTypeDefinition)) {
-                                        result = ((BallerinaTypeDefinition) typeFromTypeName.getParent());
-                                    }
-                                }
-                            }
-                        }
-                    } else if (typeName instanceof BallerinaSimpleTypeName) {
-                        PsiElement typeFromTypeName = getTypeFromTypeName(typeName);
-                        if (typeFromTypeName != null) {
-                            if ((typeFromTypeName.getParent() instanceof BallerinaTypeDefinition)) {
-                                result = ((BallerinaTypeDefinition) typeFromTypeName.getParent());
-                            }
-
-                        }
+            if (returnParameter == null) {
+                return CachedValueProvider.Result.create(null, signature);
+            }
+            BallerinaReturnType returnType = returnParameter.getReturnType();
+            if (returnType == null) {
+                return CachedValueProvider.Result.create(null, signature);
+            }
+            BallerinaTypeName typeName = returnType.getTypeName();
+            if (typeName instanceof BallerinaTupleTypeName) {
+                List<BallerinaTypeName> typeNameList = ((BallerinaTupleTypeName) typeName).getTypeNameList();
+                if (typeNameList.size() != 1) {
+                    return CachedValueProvider.Result.create(null, signature);
+                }
+                BallerinaTypeName ballerinaTypeName = typeNameList.get(0);
+                if (!(ballerinaTypeName instanceof BallerinaSimpleTypeName)) {
+                    return CachedValueProvider.Result.create(null, signature);
+                }
+                PsiElement typeFromTypeName = getTypeFromTypeName(ballerinaTypeName);
+                if (typeFromTypeName == null) {
+                    return CachedValueProvider.Result.create(null, signature);
+                }
+                if ((!(typeFromTypeName.getParent() instanceof BallerinaTypeDefinition))) {
+                    return CachedValueProvider.Result.create(null, signature);
+                }
+                BallerinaTypeDefinition result = ((BallerinaTypeDefinition) typeFromTypeName.getParent());
+                return CachedValueProvider.Result.create(result, signature);
+            } else if (typeName instanceof BallerinaSimpleTypeName) {
+                PsiElement typeFromTypeName = getTypeFromTypeName(typeName);
+                if (typeFromTypeName != null) {
+                    if ((typeFromTypeName.getParent() instanceof BallerinaTypeDefinition)) {
+                        BallerinaTypeDefinition result = ((BallerinaTypeDefinition) typeFromTypeName.getParent());
+                        return CachedValueProvider.Result.create(result, signature);
+                    }
+                    PsiReference reference = typeFromTypeName.findReferenceAt(typeFromTypeName.getTextLength());
+                    if (reference == null) {
+                        return CachedValueProvider.Result.create(null, signature);
+                    }
+                    PsiElement resolvedElement = reference.resolve();
+                    if (resolvedElement == null) {
+                        return CachedValueProvider.Result.create(null, signature);
+                    }
+                    if (resolvedElement.getParent() instanceof BallerinaTypeDefinition) {
+                        BallerinaTypeDefinition result = (BallerinaTypeDefinition) resolvedElement;
+                        return CachedValueProvider.Result.create(result, signature);
                     }
                 }
             }
-            return CachedValueProvider.Result.create(result, signature);
+            return CachedValueProvider.Result.create(null, signature);
         });
     }
 
