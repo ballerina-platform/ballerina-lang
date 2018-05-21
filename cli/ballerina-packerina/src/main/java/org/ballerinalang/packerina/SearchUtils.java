@@ -19,6 +19,7 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Proxy;
+import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -37,7 +38,8 @@ public class SearchUtils {
     public static void searchInCentral(String argument) {
         String query = "?q=" + argument;
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
-        Proxy proxy = RepoUtils.readSettings().getProxy();
+        Settings settings = RepoUtils.readSettings();
+        Proxy proxy = settings.getProxy();
         executor.execute("packaging_search/packaging_search.balx", true, RepoUtils.getRemoteRepoURL(), query,
                          proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword());
     }

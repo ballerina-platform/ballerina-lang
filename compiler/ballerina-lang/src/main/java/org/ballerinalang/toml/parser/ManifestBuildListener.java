@@ -25,8 +25,8 @@ import org.ballerinalang.toml.model.fields.DependencyField;
 import org.ballerinalang.toml.model.fields.ManifestHeader;
 import org.ballerinalang.toml.model.fields.PackageField;
 import org.ballerinalang.toml.util.SingletonStack;
+import org.ballerinalang.toml.util.TomlProcessor;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -72,23 +72,7 @@ public class ManifestBuildListener extends TomlBaseListener {
 
     @Override
     public void enterStdTable(TomlParser.StdTableContext ctx) {
-        List<String> tableHeading = new ArrayList<>();
-        TomlParser.DottedKeyContext dottedKeyContext = ctx.key().dottedKey();
-        if (dottedKeyContext != null) {
-            for (int i = 0; i < (dottedKeyContext.getChildCount() + 1) / 2; i++) {
-                TomlParser.SimpleKeyContext simpleKeyContext = dottedKeyContext.simpleKey(i);
-                TomlParser.QuotedKeyContext quotedKeyContext = simpleKeyContext.quotedKey();
-                if (quotedKeyContext != null) {
-                    tableHeading.add(quotedKeyContext.basicString().basicStringValue().getText());
-                } else {
-                    tableHeading.add(simpleKeyContext.unquotedKey().getText());
-                }
-            }
-        } else {
-            tableHeading.add(ctx.key().getText());
-        }
-
-        addHeader(tableHeading);
+        addHeader(TomlProcessor.getTableHeading(ctx));
     }
 
     @Override
@@ -141,30 +125,10 @@ public class ManifestBuildListener extends TomlBaseListener {
         if (currentKey.present() && ManifestHeader.PROJECT.stringEquals(currentHeader)) {
             PackageField packageFieldField = PackageField.valueOfLowerCase(currentKey.pop());
             if (packageFieldField != null) {
-                List<String> arrayElements = populateList(arrayValuesContext);
+                List<String> arrayElements = TomlProcessor.populateList(arrayValuesContext);
                 packageFieldField.setListTo(this.manifest, arrayElements);
             }
         }
-    }
-
-    /**
-     * Populate list values.
-     *
-     * @param arrayValuesContext array values
-     * @return list of strings
-     */
-    private List<String> populateList(TomlParser.ArrayValuesContext arrayValuesContext) {
-        List<String> arrayElements = new ArrayList<>();
-        if (arrayValuesContext != null) {
-            for (TomlParser.ArrayvalsNonEmptyContext valueContext : arrayValuesContext.arrayvalsNonEmpty()) {
-                String value = valueContext.val().getText();
-                if (valueContext.val().string() != null) {
-                    value = valueContext.val().string().basicString().basicStringValue().getText();
-                }
-                arrayElements.add(value);
-            }
-        }
-        return arrayElements;
     }
 
     /**
@@ -226,8 +190,6 @@ public class ManifestBuildListener extends TomlBaseListener {
     private void createDependencyObject(String packageName) {
         dependency = new Dependency();
         DependencyField dependencyField = DependencyField.NAME;
-        if (dependencyField != null) {
-            dependencyField.setValueTo(dependency, packageName);
-        }
+        dependencyField.setValueTo(dependency, packageName);
     }
 }

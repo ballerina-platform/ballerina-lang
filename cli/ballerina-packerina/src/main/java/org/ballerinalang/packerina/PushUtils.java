@@ -23,6 +23,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Proxy;
+import org.ballerinalang.toml.model.Repository;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
@@ -201,7 +202,7 @@ public class PushUtils {
             return Files.getLastModifiedTime(path).toMillis();
         } catch (IOException ex) {
             throw new BLangCompilerException("Error occurred when reading file for token " +
-                                             SETTINGS_TOML_FILE_PATH.toString());
+                                                     SETTINGS_TOML_FILE_PATH.toString());
         }
     }
 
@@ -255,8 +256,8 @@ public class PushUtils {
     /**
      * Read the manifest.
      *
+     * @param prjDirPath project directory path
      * @return manifest configuration object
-     * @param prjDirPath
      */
     private static Manifest readManifestConfigurations(Path prjDirPath) {
         String tomlFilePath = prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME).toString();
@@ -274,10 +275,18 @@ public class PushUtils {
      */
     private static String getAccessTokenOfCLI() {
         Settings settings = RepoUtils.readSettings();
-        if (settings.getCentral() != null) {
-            return settings.getCentral().getAccessToken();
+        String accessToken = "";
+        if (settings.getRepos() != null && settings.getRepos().getRepositoryList().size() > 0) {
+            List<Repository> repositoryList = settings.getRepos().getRepositoryList();
+            accessToken = repositoryList.stream()
+                                        .filter(repository -> repository.getName().equals("central"))
+                                        .findFirst().get().getAccessToken();
+        } else {
+            if (settings.getCentral() != null && !settings.getCentral().getAccessToken().isEmpty()) {
+                accessToken = settings.getCentral().getAccessToken();
+            }
         }
-        return "";
+        return accessToken;
     }
 
     /**
@@ -323,7 +332,7 @@ public class PushUtils {
             throw new BLangCompilerException("Package.md in the artifact is empty");
         }
 
-        Optional<String> result = Arrays.asList(mdFileContent.split("\n")).stream()
+        Optional<String> result = Arrays.stream(mdFileContent.split("\n"))
                                         .filter(line -> !line.isEmpty() && !line.startsWith("#"))
                                         .findFirst();
 

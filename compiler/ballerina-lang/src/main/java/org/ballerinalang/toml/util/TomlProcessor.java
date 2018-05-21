@@ -23,6 +23,9 @@ import org.antlr.v4.runtime.tree.ParseTree;
 import org.ballerinalang.toml.antlr4.TomlLexer;
 import org.ballerinalang.toml.antlr4.TomlParser;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Util methods for toml processor.
  *
@@ -38,12 +41,55 @@ public class TomlProcessor {
      */
     public static ParseTree parseTomlContent(CharStream stream) {
         TomlLexer lexer = new TomlLexer(stream);
-
-        // Get a list of matched tokens
         CommonTokenStream tokens = new CommonTokenStream(lexer);
-
         // Pass the tokens to the parser
         TomlParser parser = new TomlParser(tokens);
         return parser.toml();
+    }
+
+    /**
+     * Populate list values.
+     *
+     * @param arrayValuesContext array values
+     * @return list of strings
+     */
+    public static List<String> populateList(TomlParser.ArrayValuesContext arrayValuesContext) {
+        List<String> arrayElements = new ArrayList<>();
+        if (arrayValuesContext != null) {
+            for (TomlParser.ArrayvalsNonEmptyContext valueContext : arrayValuesContext.arrayvalsNonEmpty()) {
+                String value = valueContext.val().getText();
+                if (valueContext.val().string() != null) {
+                    value = valueContext.val().string().basicString().basicStringValue().getText();
+                }
+                arrayElements.add(value);
+            }
+        }
+        return arrayElements;
+    }
+
+    /**
+     * Get table heading of the standard table.
+     *
+     * @param ctx Standardtable context
+     * @return table heading as a list
+     */
+    public static List<String> getTableHeading(TomlParser.StdTableContext ctx) {
+        List<String> tableHeading = new ArrayList<>();
+        TomlParser.DottedKeyContext dottedKeyContext = ctx.key().dottedKey();
+        if (dottedKeyContext != null) {
+            for (int i = 0; i < (dottedKeyContext.getChildCount() + 1) / 2; i++) {
+                TomlParser.SimpleKeyContext simpleKeyContext = dottedKeyContext.simpleKey(i);
+                TomlParser.QuotedKeyContext quotedKeyContext = simpleKeyContext.quotedKey();
+                if (quotedKeyContext != null) {
+                    tableHeading.add(quotedKeyContext.basicString().basicStringValue().getText());
+                } else {
+                    tableHeading.add(simpleKeyContext.unquotedKey().getText());
+                }
+            }
+        } else {
+            tableHeading.add(ctx.key().getText());
+        }
+
+        return tableHeading;
     }
 }

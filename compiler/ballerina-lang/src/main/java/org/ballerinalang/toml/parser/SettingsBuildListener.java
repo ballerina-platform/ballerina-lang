@@ -21,11 +21,21 @@ import org.ballerinalang.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.toml.antlr4.TomlParser;
 import org.ballerinalang.toml.model.Central;
 import org.ballerinalang.toml.model.Proxy;
+import org.ballerinalang.toml.model.Repositories;
+import org.ballerinalang.toml.model.Repository;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.model.fields.CentralField;
 import org.ballerinalang.toml.model.fields.ProxyField;
+import org.ballerinalang.toml.model.fields.RepositoriesField;
+import org.ballerinalang.toml.model.fields.RepositoryField;
+import org.ballerinalang.toml.model.fields.RepositoryHeader;
 import org.ballerinalang.toml.model.fields.SettingHeaders;
 import org.ballerinalang.toml.util.SingletonStack;
+import org.ballerinalang.toml.util.TomlProcessor;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.StringJoiner;
 
 /**
  * Custom listener which is extended from the Toml listener with our own custom logic.
@@ -36,7 +46,9 @@ public class SettingsBuildListener extends TomlBaseListener {
     private final Settings settings;
     private final Proxy proxy = new Proxy();
     private final Central central = new Central();
+    private final Repositories repositories = new Repositories();
     private final SingletonStack<String> currentKey = new SingletonStack<>();
+    private Repository repository;
     private String currentHeader = null;
 
     /**
@@ -64,8 +76,31 @@ public class SettingsBuildListener extends TomlBaseListener {
     }
 
     @Override
+    public void enterArray(TomlParser.ArrayContext ctx) {
+        setToManifest(ctx.arrayValues());
+    }
+
+    /**
+     * Add array elements to manifest object.
+     *
+     * @param arrayValuesContext ArrayValuesContext object
+     */
+    private void setToManifest(TomlParser.ArrayValuesContext arrayValuesContext) {
+        if (currentKey.present() && RepositoryHeader.REPOSITORIES.stringEquals(currentHeader)) {
+            RepositoriesField packageFieldField = RepositoriesField.valueOfLowerCase(currentKey.pop());
+            List<String> arrayElements = Collections.singletonList("central");
+            if (packageFieldField != null) {
+                arrayElements = TomlProcessor.populateList(arrayValuesContext);
+                packageFieldField.setListTo(repositories, arrayElements);
+            } else {
+                repositories.setRepoOrder(arrayElements);
+            }
+        }
+    }
+
+    @Override
     public void enterStdTable(TomlParser.StdTableContext ctx) {
-        addHeader(ctx.key().getText());
+        addHeader(TomlProcessor.getTableHeading(ctx));
     }
 
     /**
@@ -76,6 +111,18 @@ public class SettingsBuildListener extends TomlBaseListener {
             this.settings.setCentral(central);
         } else if (SettingHeaders.PROXY.stringEquals(currentHeader)) {
             this.settings.setProxy(proxy);
+        } else if (SettingHeaders.REPOSITORIES.stringEquals(currentHeader)) {
+            setRepositories();
+            this.settings.setRepos(repositories);
+        }
+    }
+
+    /**
+     * Add the repositories to the repository object.
+     */
+    private void setRepositories() {
+        if (RepositoryHeader.REPOSITORIES.stringEquals(currentHeader)) {
+            this.repositories.addRepositories(repository);
         }
     }
 
@@ -96,6 +143,11 @@ public class SettingsBuildListener extends TomlBaseListener {
                 if (centralField != null) {
                     centralField.setValueTo(central, value);
                 }
+            } else if (SettingHeaders.REPOSITORIES.stringEquals(currentHeader)) {
+                RepositoryField centralField = RepositoryField.valueOfLowerCase(currentKey.pop());
+                if (centralField != null) {
+                    centralField.setValueTo(repository, value);
+                }
             }
         }
     }
@@ -105,7 +157,25 @@ public class SettingsBuildListener extends TomlBaseListener {
      *
      * @param key key specified in the header
      */
-    private void addHeader(String key) {
-        currentHeader = key;
+    private void addHeader(List<String> key) {
+        currentHeader = key.get(0);
+        if (key.size() > 1) {
+            StringJoiner joiner = new StringJoiner(".");
+            for (int i = 1; i < key.size(); i++) {
+                joiner.add(key.get(i));
+            }
+            createRepositoryObject(joiner.toString());
+        }
+    }
+
+    /**
+     * Create dependency object and set the name.
+     *
+     * @param packageName pkg name of the dependency
+     */
+    private void createRepositoryObject(String packageName) {
+        repository = new Repository();
+        RepositoryField repositoryField = RepositoryField.NAME;
+        repositoryField.setValueTo(repository, packageName);
     }
 }

@@ -22,10 +22,10 @@ import java.util.Locale;
 /**
  * Section headers valid in the settings toml file.
  *
- * @since 0.964
+ * @since 0.970.1
  */
-public enum SettingHeaders {
-    PROXY, CENTRAL, REPOSITORIES;
+public enum RepositoryHeader {
+    REPOSITORIES;
 
     /**
      * Check if the section header matches the toml header.
