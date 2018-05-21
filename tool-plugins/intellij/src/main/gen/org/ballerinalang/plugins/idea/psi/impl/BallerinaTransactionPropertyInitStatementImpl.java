@@ -43,14 +43,14 @@ public class BallerinaTransactionPropertyInitStatementImpl extends BallerinaComp
 
   @Override
   @Nullable
-  public BallerinaOnabortStatement getOnabortStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaOnabortStatement.class);
+  public BallerinaOnAbortStatement getOnAbortStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaOnAbortStatement.class);
   }
 
   @Override
   @Nullable
-  public BallerinaOncommitStatement getOncommitStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaOncommitStatement.class);
+  public BallerinaOnCommitStatement getOnCommitStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaOnCommitStatement.class);
   }
 
   @Override

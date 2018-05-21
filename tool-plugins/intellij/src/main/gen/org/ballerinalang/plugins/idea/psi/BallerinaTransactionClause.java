@@ -35,10 +35,10 @@ public interface BallerinaTransactionClause extends BallerinaCompositeElement {
   @Nullable
   PsiElement getRightBrace();
 
-  @Nullable
-  PsiElement getWith();
-
   @NotNull
   PsiElement getTransaction();
+
+  @Nullable
+  PsiElement getWith();
 
 }
