@@ -24,7 +24,6 @@ function registerMenuLoader() {
     Menu.setApplicationMenu(Menu.buildFromTemplate([]));
 
     ipcMain.on('main-menu-loaded', (event, menus) => {
-        
         const template = menus.map((menu) => {
             const childrenWithSeparators = menu.children.reduce((r, e) => {
                 if (e.divider) {
@@ -42,6 +41,9 @@ function registerMenuLoader() {
             }, []);
             return {
                 label: menu.label,
+                enabled: (typeof(menu.gen.isActive) === 'boolean')
+                        ? menu.gen.isActive 
+                        : true,
                 submenu: childrenWithSeparators.map((childMenu) => {
                     if (childMenu.separator) {
                         return {
@@ -52,7 +54,10 @@ function registerMenuLoader() {
                         label: childMenu.label,
                         click: () => {
                             event.sender.send('menu-item-clicked', childMenu.command);
-                        }
+                        },
+                        enabled:(typeof(childMenu.gen.isActive) === 'boolean')
+                                ? childMenu.gen.isActive 
+                                : true,
                     }
                 })
             }

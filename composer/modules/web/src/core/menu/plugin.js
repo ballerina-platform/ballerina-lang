@@ -21,7 +21,7 @@ import _ from 'lodash';
 import Plugin from './../plugin/plugin';
 import { CONTRIBUTIONS } from './../plugin/constants';
 
-import { REGIONS } from './../layout/constants';
+import { REGIONS, COMMANDS as LAYOUT_COMMANDS } from './../layout/constants';
 
 import { getCommandDefinitions } from './commands';
 import { getHandlerDefinitions } from './handlers';
@@ -110,10 +110,37 @@ class MenuPlugin extends Plugin {
     activate(appContext) {
         super.activate(appContext);
         this.generateMenuFromDefinitions();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    onAfterInitialRender() {
         if (isOnElectron()) {
-            ipcRenderer.send('main-menu-loaded', this.roots);
+            const { command: { dispatch, on } } = this.appContext;
+            const populateIsActiveOfNode = (node) => {
+                node.gen = {
+                    isActive: true,
+                };
+                if (typeof node.isActive === 'function') {
+                    node.gen.isActive = node.isActive();
+                }
+            };
+            const populateIsActive = (roots) => {
+                roots.forEach((root) => {
+                    populateIsActiveOfNode(root);
+                    root.children.forEach((child) => {
+                        populateIsActiveOfNode(child);
+                    });
+                });
+                return roots;
+            };
+            ipcRenderer.send('main-menu-loaded', populateIsActive(this.roots));
             ipcRenderer.on('menu-item-clicked', (e, commandId) => {
-                this.appContext.command.dispatch(commandId);
+                dispatch(commandId);
+            });
+            on(LAYOUT_COMMANDS.UPDATE_ALL_ACTION_TRIGGERS, () => {
+                ipcRenderer.send('main-menu-loaded', populateIsActive(this.roots));
             });
         }
     }
