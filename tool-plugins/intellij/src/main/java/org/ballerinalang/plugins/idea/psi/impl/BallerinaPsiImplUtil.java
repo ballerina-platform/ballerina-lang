@@ -109,6 +109,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
+import org.ballerinalang.plugins.idea.psi.BallerinaXmlLiteralExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaXmlTypeName;
 import org.ballerinalang.plugins.idea.psi.reference.BallerinaCompletePackageNameReferenceSet;
 import org.ballerinalang.plugins.idea.psi.reference.BallerinaPackageNameReference;
@@ -518,6 +519,9 @@ public class BallerinaPsiImplUtil {
                             return CachedValueProvider.Result.create(null, ballerinaAssignmentStatement);
                         }
                         result = returnType.getTypeName();
+                    } else if (expression instanceof BallerinaXmlLiteralExpression) {
+                        Project project = ballerinaAssignmentStatement.getProject();
+                        result = BallerinaElementFactory.createTypeFromText(project, "xml");
                     }
                     // Todo - Add more types
                 }
