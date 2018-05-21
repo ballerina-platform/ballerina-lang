@@ -133,7 +133,7 @@ public class HttpClient {
             this.responseHandler.setLatch(latch);
             this.connectedChannel.writeAndFlush(httpContent);
             try {
-                latch.await();
+                latch.await(30, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
                 log.warn("Interrupted before receiving the response.");
             }
