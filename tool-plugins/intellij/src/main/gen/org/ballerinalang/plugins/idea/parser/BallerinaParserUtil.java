@@ -177,6 +177,11 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                     // Todo - Add more conditions?
                                     return true;
                                 }
+                            } else if (rawLookup == BallerinaTypes.LINE_COMMENT &&
+                                    rawLookup2 == BallerinaTypes.RIGHT_BRACE) {
+                                if (next1Element == BallerinaTypes.COLON && next2Element == BallerinaTypes.IDENTIFIER) {
+                                    return true;
+                                }
                             }
                             return false;
                         }
