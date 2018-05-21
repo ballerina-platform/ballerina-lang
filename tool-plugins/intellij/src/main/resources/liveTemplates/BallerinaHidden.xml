@@ -116,7 +116,7 @@
     </template>
 
     <template description='Retry Statement' id='ballerina_lang_retry' name='ballerina_lang_retry'
-              toReformat='false' toShortenFQNames='true' value='abort;'>
+              toReformat='false' toShortenFQNames='true' value='retry;'>
     </template>
 
     <template description='Throw Statement' id='ballerina_lang_throw' name='ballerina_lang_throw'

@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.*;
 import org.ballerinalang.plugins.idea.psi.*;
 
-public class BallerinaOnabortStatementImpl extends BallerinaCompositeElementImpl implements BallerinaOnabortStatement {
+public class BallerinaOnAbortStatementImpl extends BallerinaCompositeElementImpl implements BallerinaOnAbortStatement {
 
-  public BallerinaOnabortStatementImpl(ASTNode node) {
+  public BallerinaOnAbortStatementImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitOnabortStatement(this);
+    visitor.visitOnAbortStatement(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {

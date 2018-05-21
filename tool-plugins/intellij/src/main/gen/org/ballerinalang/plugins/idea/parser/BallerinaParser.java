@@ -318,11 +318,11 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == OBJECT_PARAMETER_LIST) {
       r = ObjectParameterList(b, 0);
     }
-    else if (t == ONABORT_STATEMENT) {
-      r = OnabortStatement(b, 0);
+    else if (t == ON_ABORT_STATEMENT) {
+      r = OnAbortStatement(b, 0);
     }
-    else if (t == ONCOMMIT_STATEMENT) {
-      r = OncommitStatement(b, 0);
+    else if (t == ON_COMMIT_STATEMENT) {
+      r = OnCommitStatement(b, 0);
     }
     else if (t == ONRETRY_CLAUSE) {
       r = OnretryClause(b, 0);
@@ -413,6 +413,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     }
     else if (t == RETRIES_STATEMENT) {
       r = RetriesStatement(b, 0);
+    }
+    else if (t == RETRY_STATEMENT) {
+      r = RetryStatement(b, 0);
     }
     else if (t == RETURN_PARAMETER) {
       r = ReturnParameter(b, 0);
@@ -665,9 +668,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     }
     else if (t == RESOURCE_PARAMETER_LIST) {
       r = resourceParameterList(b, 0);
-    }
-    else if (t == RETRY_STATEMENT) {
-      r = retryStatement(b, 0);
     }
     else if (t == SINGLE_BACK_TICK_DEPRECATED_INLINE_CODE) {
       r = singleBackTickDeprecatedInlineCode(b, 0);
@@ -3649,11 +3649,11 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // onabort ASSIGN Expression
-  public static boolean OnabortStatement(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "OnabortStatement")) return false;
+  public static boolean OnAbortStatement(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OnAbortStatement")) return false;
     if (!nextTokenIs(b, ONABORT)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, ONABORT_STATEMENT, null);
+    Marker m = enter_section_(b, l, _NONE_, ON_ABORT_STATEMENT, null);
     r = consumeTokens(b, 1, ONABORT, ASSIGN);
     p = r; // pin = 1
     r = r && Expression(b, l + 1, -1);
@@ -3663,11 +3663,11 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
 
   /* ********************************************************** */
   // oncommit ASSIGN Expression
-  public static boolean OncommitStatement(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "OncommitStatement")) return false;
+  public static boolean OnCommitStatement(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "OnCommitStatement")) return false;
     if (!nextTokenIs(b, ONCOMMIT)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, ONCOMMIT_STATEMENT, null);
+    Marker m = enter_section_(b, l, _NONE_, ON_COMMIT_STATEMENT, null);
     r = consumeTokens(b, 1, ONCOMMIT, ASSIGN);
     p = r; // pin = 1
     r = r && Expression(b, l + 1, -1);
@@ -4528,6 +4528,19 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // retry SEMICOLON
+  public static boolean RetryStatement(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "RetryStatement")) return false;
+    if (!nextTokenIs(b, RETRY)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, RETRY_STATEMENT, null);
+    r = consumeTokens(b, 1, RETRY, SEMICOLON);
+    p = r; // pin = 1
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
   // returns ReturnType
   public static boolean ReturnParameter(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ReturnParameter")) return false;
@@ -5059,7 +5072,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   //     |   ThrowStatement
   //     |   ReturnStatement
   //     |   AbortStatement
-  //     |   retryStatement
+  //     |   RetryStatement
   //     |   LockStatement
   //     |   NamespaceDeclarationStatement
   //     |   TransactionStatement
@@ -5087,7 +5100,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = ThrowStatement(b, l + 1);
     if (!r) r = ReturnStatement(b, l + 1);
     if (!r) r = AbortStatement(b, l + 1);
-    if (!r) r = retryStatement(b, l + 1);
+    if (!r) r = RetryStatement(b, l + 1);
     if (!r) r = LockStatement(b, l + 1);
     if (!r) r = NamespaceDeclarationStatement(b, l + 1);
     if (!r) r = TransactionStatement(b, l + 1);
@@ -5107,7 +5120,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|next|break|fork|try|throw|return|abort|fail|lock|transaction|if|forever|object|check|identifier)
+  // !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|next|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|identifier)
   static boolean StatementRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover")) return false;
     boolean r;
@@ -5117,7 +5130,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|next|break|fork|try|throw|return|abort|fail|lock|transaction|if|forever|object|check|identifier
+  // BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|next|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|identifier
   private static boolean StatementRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover_0")) return false;
     boolean r;
@@ -5159,6 +5172,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, THROW);
     if (!r) r = consumeToken(b, RETURN);
     if (!r) r = consumeToken(b, ABORT);
+    if (!r) r = consumeToken(b, RETRY);
     if (!r) r = consumeToken(b, FAIL);
     if (!r) r = consumeToken(b, LOCK);
     if (!r) r = consumeToken(b, TRANSACTION);
@@ -5166,6 +5180,8 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, FOREVER);
     if (!r) r = consumeToken(b, OBJECT);
     if (!r) r = consumeToken(b, CHECK);
+    if (!r) r = consumeToken(b, FROM);
+    if (!r) r = consumeToken(b, WORKER);
     if (!r) r = consumeToken(b, IDENTIFIER);
     exit_section_(b, m, null, r);
     return r;
@@ -5710,7 +5726,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // transaction (WITH TransactionPropertyInitStatementList)? LEFT_BRACE Block RIGHT_BRACE
+  // transaction (with TransactionPropertyInitStatementList)? LEFT_BRACE Block RIGHT_BRACE
   public static boolean TransactionClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TransactionClause")) return false;
     if (!nextTokenIs(b, TRANSACTION)) return false;
@@ -5726,14 +5742,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // (WITH TransactionPropertyInitStatementList)?
+  // (with TransactionPropertyInitStatementList)?
   private static boolean TransactionClause_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TransactionClause_1")) return false;
     TransactionClause_1_0(b, l + 1);
     return true;
   }
 
-  // WITH TransactionPropertyInitStatementList
+  // with TransactionPropertyInitStatementList
   private static boolean TransactionClause_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TransactionClause_1_0")) return false;
     boolean r, p;
@@ -5746,14 +5762,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // RetriesStatement | OncommitStatement | OnabortStatement
+  // RetriesStatement | OnCommitStatement | OnAbortStatement
   public static boolean TransactionPropertyInitStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TransactionPropertyInitStatement")) return false;
     boolean r;
     Marker m = enter_section_(b, l, _NONE_, TRANSACTION_PROPERTY_INIT_STATEMENT, "<transaction property init statement>");
     r = RetriesStatement(b, l + 1);
-    if (!r) r = OncommitStatement(b, l + 1);
-    if (!r) r = OnabortStatement(b, l + 1);
+    if (!r) r = OnCommitStatement(b, l + 1);
+    if (!r) r = OnAbortStatement(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -7183,13 +7199,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   public static boolean matchStatementBody(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "matchStatementBody")) return false;
     if (!nextTokenIs(b, LEFT_BRACE)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, MATCH_STATEMENT_BODY, null);
     r = consumeToken(b, LEFT_BRACE);
-    r = r && matchStatementBody_1(b, l + 1);
-    r = r && consumeToken(b, RIGHT_BRACE);
-    exit_section_(b, m, MATCH_STATEMENT_BODY, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, matchStatementBody_1(b, l + 1));
+    r = p && consumeToken(b, RIGHT_BRACE) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // matchPatternClause+
@@ -7307,19 +7324,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = ParameterList(b, l + 1);
     exit_section_(b, l, m, r, false, null);
     return r;
-  }
-
-  /* ********************************************************** */
-  // retry SEMICOLON
-  public static boolean retryStatement(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "retryStatement")) return false;
-    if (!nextTokenIs(b, RETRY)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, RETRY_STATEMENT, null);
-    r = consumeTokens(b, 1, RETRY, SEMICOLON);
-    p = r; // pin = 1
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
   }
 
   /* ********************************************************** */
