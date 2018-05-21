@@ -85,7 +85,6 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     private List<BLangExpression> outStreamRefs;
     private List<BLangExpression> outTableRefs;
 
-    private boolean isInPatternForOrWithinClause = false;
     private boolean isSequence = false;
 
     public static SiddhiQueryBuilder getInstance(CompilerContext context) {
@@ -321,8 +320,8 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     @Override
     public void visit(BLangWithinClause withinClause) {
         patternStreamingClause.append(" within ");
-        isInPatternForOrWithinClause = true;
-        addExprToClause((BLangExpression) withinClause.getWithinTimePeriod(), patternStreamingClause, null);
+        patternStreamingClause.append(withinClause.getTimeDurationValue()).append(" ").
+                append(withinClause.getTimeScale());
     }
 
     @Override
@@ -435,12 +434,7 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
     public void visit(BLangLiteral bLangLiteral) {
         String literal = String.valueOf(bLangLiteral.value);
         if (bLangLiteral.typeTag == TypeTags.STRING) {
-            if (!isInPatternForOrWithinClause) {
-                literal = String.format("'%s'", literal);
-            } else {
-                literal = String.format("%s", literal);
-                isInPatternForOrWithinClause = false;
-            }
+            literal = String.format("'%s'", literal);
         }
         exprStack.push(literal);
     }
@@ -452,8 +446,8 @@ public class SiddhiQueryBuilder extends SqlQueryBuilder {
                 patternStreamingEdgeInputs.get(0);
         patternStreamingEdgeInput.accept(this);
         patternStreamingClause.append(" for ");
-        isInPatternForOrWithinClause = true;
-        addExprToClause((BLangExpression) patternStreamingInput.getTimeExpr(), patternStreamingClause, null);
+        patternStreamingClause.append(patternStreamingInput.getTimeDurationValue()).append(" ").
+                append(patternStreamingInput.getTimeScale());
     }
 
     private void buildPatternWithAndOr(List<PatternStreamingEdgeInputNode> patternStreamingEdgeInputs, String op) {

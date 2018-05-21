@@ -136,8 +136,9 @@ public class Constants {
 
     public static final int FIRST_ELEMENT = 0;
 
-    public static final int BYTE_LIMIT = 2097152; //2MB
+    public static final short ONE_BYTE = 1;
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
+    public static final double MAX_THRESHOLD_PERCENTAGE = 0.1;
 
     public static final String UTF_8 = "UTF-8";
     public static final String CONTENT_TRANSFER_ENCODING_7_BIT = "7bit";

@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
@@ -12,20 +28,15 @@ import org.ballerinalang.plugins.idea.psi.BallerinaEndpointDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaEndpointType;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaFormalParameterList;
-import org.ballerinalang.plugins.idea.psi.BallerinaParameter;
-import org.ballerinalang.plugins.idea.psi.BallerinaParameterWithType;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKeyValue;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordLiteralExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Responsible for resolving and completing endpoint fields.
@@ -114,28 +125,7 @@ public class BallerinaEndpointFieldProcessor extends BallerinaScopeProcessorBase
                     return true;
                 }
 
-                BallerinaFormalParameterList parameterListNode =
-                        BallerinaPsiImplUtil.getParameterFromObjectFunction(((BallerinaTypeDefinition) parent), "init");
-                if (parameterListNode == null || parameterListNode.getParameterList().isEmpty()) {
-                    return true;
-                }
-
-                BallerinaParameter firstParameter = parameterListNode.getParameterList().get(0);
-
-                List<BallerinaParameterWithType> parameterWithTypeList = firstParameter.getParameterWithTypeList();
-
-                if (parameterWithTypeList.isEmpty()) {
-                    return true;
-                }
-                BallerinaParameterWithType parameterWithType = parameterWithTypeList.get(0);
-
-                BallerinaTypeName typeName = parameterWithType.getTypeName();
-
-                PsiReference reference = typeName.findReferenceAt(typeName.getTextLength());
-                if (reference == null) {
-                    return true;
-                }
-                ownerName = reference.resolve();
+                ownerName = BallerinaPsiImplUtil.getConfigTypeDefinitionFromListener((BallerinaTypeDefinition) parent);
                 if (ownerName == null || !(ownerName.getParent() instanceof BallerinaTypeDefinition)) {
                     return true;
                 }
@@ -156,8 +146,8 @@ public class BallerinaEndpointFieldProcessor extends BallerinaScopeProcessorBase
                     // Note - Child is passed here instead of identifier because it is is top level
                     // definition.
                     myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(
-                            definitionIdentifier, ownerName, typeName, null,
-                            ColonInsertHandler.INSTANCE_WITH_AUTO_POPUP, true));
+                            definitionIdentifier, ownerName, typeName, null, ColonInsertHandler.INSTANCE_WITH_SPACE,
+                            true));
                 } else if (myElement.getText().equals(definitionIdentifier.getText())) {
                     add(definitionIdentifier);
                 }

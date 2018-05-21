@@ -28,6 +28,7 @@ import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.LaunchListener;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ProgramFileReader;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityConstants;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -320,8 +321,10 @@ public class LauncherUtils {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(
+            throw new BLangRuntimeException(
                     "failed to read the specified configuration file: " + ballerinaConfPath.toString(), e);
+        } catch (RuntimeException e) {
+            throw new BLangRuntimeException(e.getMessage(), e);
         }
     }
 }

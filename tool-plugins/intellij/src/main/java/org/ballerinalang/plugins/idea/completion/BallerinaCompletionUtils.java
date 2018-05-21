@@ -77,6 +77,8 @@ public class BallerinaCompletionUtils {
     public static final Key<String> HAS_A_RETURN_VALUE = Key.create("HAS_A_RETURN_VALUE");
     public static final Key<String> REQUIRE_PARAMETERS = Key.create("REQUIRE_PARAMETERS");
 
+    public static final Key<String> ORGANIZATION_NAME = Key.create("ORGANIZATION_NAME");
+
     public static final Key<String> PUBLIC_DEFINITIONS_ONLY = Key.create("PUBLIC_DEFINITIONS_ONLY");
 
     // File level keywords
@@ -407,10 +409,8 @@ public class BallerinaCompletionUtils {
     }
 
     static void addTopLevelDefinitionsAsLookups(@NotNull CompletionResultSet resultSet) {
+        // Note - Other top level definitions are added as live templates.
         resultSet.addElement(PrioritizedLookupElement.withPriority(ANNOTATION, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(ENDPOINT, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(FUNCTION, REFERENCE_TYPES_PRIORITY));
-        resultSet.addElement(PrioritizedLookupElement.withPriority(SERVICE, REFERENCE_TYPES_PRIORITY));
         resultSet.addElement(PrioritizedLookupElement.withPriority(TYPE, REFERENCE_TYPES_PRIORITY));
     }
 
@@ -465,6 +465,23 @@ public class BallerinaCompletionUtils {
                                                     @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.create(identifier.getText()).withTypeText("Package")
                 .withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
+        return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
+    }
+
+    public static LookupElement createUnImportedPackageLookup(@Nullable String organization,
+                                                              @NotNull String packageName,
+                                                              @NotNull PsiElement element,
+                                                              @Nullable InsertHandler<LookupElement> insertHandler) {
+        if (organization != null) {
+            element.putUserData(ORGANIZATION_NAME, organization);
+        }
+        LookupElementBuilder builder = LookupElementBuilder.create(element, packageName).withTypeText("Package")
+                .withIcon(BallerinaIcons.PACKAGE).withInsertHandler(insertHandler);
+        if (organization != null) {
+            builder = builder.withTailText("(" + organization + "/" + packageName + ")", true);
+        } else {
+            builder = builder.withTailText("(" + packageName + ")", true);
+        }
         return PrioritizedLookupElement.withPriority(builder, PACKAGE_PRIORITY);
     }
 
@@ -558,13 +575,15 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     public static LookupElement createTypeLookupElement(@NotNull BallerinaTopLevelDefinition definition) {
+        return createTypeLookupElement(definition, AddSpaceInsertHandler.INSTANCE);
+    }
+
+    @NotNull
+    public static LookupElement createTypeLookupElement(@NotNull BallerinaTopLevelDefinition definition,
+                                                        @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier()
-                .getText(), definition)
-                .withInsertHandler(AddSpaceInsertHandler.INSTANCE)
-                .withTypeText("Type").withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold();
-        // Todo - Add tail text
-        //                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element
-        // .getParent()));
+                .getText(), definition).withInsertHandler(insertHandler).withTypeText("Type")
+                .withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold();
         return PrioritizedLookupElement.withPriority(builder, TYPE_PRIORITY);
     }
 
@@ -650,7 +669,7 @@ public class BallerinaCompletionUtils {
                 BallerinaUserDefineTypeName.class);
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(identifier.getText(), identifier)
                 .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
-                .withInsertHandler(userDefineTypeName != null ? BracesInsertHandler.INSTANCE_WITH_AUTO_POPUP
+                .withInsertHandler(userDefineTypeName != null ? BracesInsertHandler.INSTANCE
                         : AddSpaceInsertHandler.INSTANCE);
         return PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY);
     }

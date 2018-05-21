@@ -23,10 +23,10 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaOncommitStatement extends BallerinaCompositeElement {
 
-  @NotNull
+  @Nullable
   BallerinaExpression getExpression();
 
-  @NotNull
+  @Nullable
   PsiElement getAssign();
 
   @NotNull

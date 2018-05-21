@@ -41,6 +41,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKeyValue;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordLiteralExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaServiceEndpointAttachments;
 import org.ballerinalang.plugins.idea.psi.BallerinaStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeInitExpr;
@@ -49,6 +50,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaActionInvocationProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaAnnotationFieldProcessor;
+import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaAnonymousServiceConfigProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaBlockProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaEndpointFieldProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaObjectFieldProcessor;
@@ -95,6 +97,17 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                     }
                     return null;
                 }
+            }
+        }
+
+        BallerinaServiceEndpointAttachments serviceEndpointAttachments = PsiTreeUtil.getParentOfType(myElement,
+                BallerinaServiceEndpointAttachments.class);
+        if (serviceEndpointAttachments != null) {
+            processor = new BallerinaAnonymousServiceConfigProcessor(null, myElement, false);
+            processResolveVariants(processor);
+            result = processor.getResult();
+            if (result != null) {
+                return result;
             }
         }
 
@@ -225,8 +238,20 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
         }
 
         ResolveState resolveState = ResolveState.initial();
+
+        BallerinaServiceEndpointAttachments serviceEndpointAttachments = PsiTreeUtil.getParentOfType(myElement,
+                BallerinaServiceEndpointAttachments.class);
+        if (serviceEndpointAttachments != null && processor instanceof BallerinaAnonymousServiceConfigProcessor) {
+            BallerinaRecordKey recordKey = PsiTreeUtil.getParentOfType(myElement, BallerinaRecordKey.class);
+            if (recordKey != null) {
+                if (!processor.execute(serviceEndpointAttachments, resolveState)) {
+                    return false;
+                }
+            }
+        }
+
         if (processor instanceof BallerinaActionInvocationProcessor) {
-            if (prevVisibleLeaf != null && prevVisibleLeaf instanceof LeafPsiElement) {
+            if (prevVisibleLeaf instanceof LeafPsiElement) {
                 if (((LeafPsiElement) prevVisibleLeaf).getElementType() == BallerinaTypes.RARROW) {
                     if (!processor.execute(containingFile, resolveState)) {
                         return false;
@@ -329,7 +354,7 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                 return false;
             }
             PsiElement resolvedElement = reference.resolve();
-            if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
+            if (!(resolvedElement instanceof PsiDirectory)) {
                 return true;
             }
             return recursivelyFindInPackage(processor, ((PsiDirectory) resolvedElement));
