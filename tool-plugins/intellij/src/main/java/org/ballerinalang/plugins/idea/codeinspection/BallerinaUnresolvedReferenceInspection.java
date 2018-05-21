@@ -124,6 +124,11 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
                 continue;
             }
 
+            // Skip self reference.
+            if (identifier.getText().equals("self")) {
+                continue;
+            }
+
             // Skip unresolved fields.
             BallerinaField ballerinaField = PsiTreeUtil.getParentOfType(identifier, BallerinaField.class);
             if (ballerinaField != null) {
