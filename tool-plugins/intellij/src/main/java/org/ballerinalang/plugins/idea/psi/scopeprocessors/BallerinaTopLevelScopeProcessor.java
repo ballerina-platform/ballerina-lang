@@ -282,6 +282,17 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                             add(identifier);
                         }
                     }
+                } else if (lastChild instanceof BallerinaServiceDefinition) {
+                    BallerinaServiceDefinition child = (BallerinaServiceDefinition) lastChild;
+                    PsiElement identifier = child.getIdentifier();
+                    if (identifier != null) {
+                        if (myResult != null) {
+                            myResult.addElement(BallerinaCompletionUtils.createServiceLookupElement(identifier));
+                            lookupElementsFound = true;
+                        } else if (myElement.getText().equals(identifier.getText())) {
+                            add(identifier);
+                        }
+                    }
                 }
                 if (!isCompletion() && getResult() != null) {
                     return false;
