@@ -121,7 +121,7 @@ public class HttpClient {
         this.connectedChannel.writeAndFlush(httpRequest);
 
         try {
-            latch.await();
+            latch.await(30, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             log.warn("Interrupted before receiving the response.");
         }
