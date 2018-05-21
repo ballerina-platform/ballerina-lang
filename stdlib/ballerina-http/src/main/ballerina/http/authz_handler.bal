@@ -23,15 +23,15 @@ import ballerina/io;
 documentation {
     Representation of Authorization Handler for HTTP
 
-    F{{authProvider}} `AuthProvider` instance
+    F{{authStoreProvider}} `AuthStoreProvider` instance
     F{{authzCache}} `Cache` instance, which is optional
 }
 public type HttpAuthzHandler object {
     public {
-        auth:AuthProvider authProvider;
+        auth:AuthStoreProvider authStoreProvider;
         cache:Cache? authzCache;
     }
-    public new (authProvider, authzCache) {
+    public new (authStoreProvider, authzCache) {
     }
 
     documentation {
@@ -92,7 +92,7 @@ function HttpAuthzHandler::handle (string username, string serviceName, string r
                 return authorized;
             } else {
                 // no scopes found for user, try to retrieve using the auth provider
-                string[] scopesFromAuthProvider = self.authProvider.getScopes(username);
+                string[] scopesFromAuthProvider = self.authStoreProvider.getScopes(username);
                 if (lengthof scopesFromAuthProvider > 0) {
                     boolean authorized = checkForScopeMatch(scopes, scopesFromAuthProvider, resourceName, method);
                     // cache authz result

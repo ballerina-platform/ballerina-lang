@@ -36,7 +36,9 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
+import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDecoder;
@@ -47,8 +49,7 @@ import org.ballerinalang.net.http.caching.RequestCacheControlStruct;
 import org.ballerinalang.net.http.caching.ResponseCacheControlStruct;
 import org.ballerinalang.net.http.session.Session;
 import org.ballerinalang.services.ErrorHandlerUtils;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
@@ -77,19 +78,17 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.netty.handler.codec.http.HttpHeaderNames.CACHE_CONTROL;
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
-import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
+import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
+import static org.ballerinalang.mime.util.Constants.ONE_BYTE;
+import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
+import static org.ballerinalang.mime.util.Constants.RESPONSE_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
-import static org.ballerinalang.mime.util.EntityBodyHandler.createNewEntity;
-import static org.ballerinalang.mime.util.EntityBodyHandler.setDiscreteMediaTypeBodyContent;
 import static org.ballerinalang.net.http.HttpConstants.ALWAYS;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_CHUNKING;
 import static org.ballerinalang.net.http.HttpConstants.ANN_CONFIG_ATTR_COMPRESSION;
@@ -99,9 +98,11 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.NEVER;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.net.http.HttpConstants.RESOLVED_REQUESTED_URI_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_REASON_PHRASE_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
@@ -161,6 +162,26 @@ public class HttpUtil {
     }
 
     /**
+     * Set new entity to in/out request/response struct.
+     *
+     * @param context           ballerina context.
+     * @param httpMessageStruct request/response struct.
+     */
+    public static BStruct createNewEntity(Context context, BStruct httpMessageStruct) {
+        BStruct entity = ConnectorUtils.createAndGetStruct(context
+                , org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME
+                , org.ballerinalang.mime.util.Constants.ENTITY);
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
+                HttpUtil.createHttpCarbonMessage(isRequestStruct(httpMessageStruct)));
+        entity.addNativeData(ENTITY_HEADERS, httpCarbonMessage.getHeaders());
+        entity.addNativeData(ENTITY_BYTE_CHANNEL, null);
+        httpMessageStruct.setRefField(isRequestStruct(httpMessageStruct) ? REQUEST_ENTITY_INDEX : RESPONSE_ENTITY_INDEX
+                , entity);
+        httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
+        return entity;
+    }
+
+    /**
      * Set the given entity to request or response message.
      *
      * @param context   Ballerina context
@@ -169,8 +190,8 @@ public class HttpUtil {
     public static void setEntity(Context context, boolean isRequest) {
         BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
 
-        HTTPCarbonMessage httpCarbonMessage = HttpUtil
-                .getCarbonMsg(httpMessageStruct, HttpUtil.createHttpCarbonMessage(isRequest));
+        HTTPCarbonMessage httpCarbonMessage = HttpUtil.getCarbonMsg(httpMessageStruct,
+                HttpUtil.createHttpCarbonMessage(isRequest));
         BStruct entity = (BStruct) context.getRefArgument(ENTITY_INDEX);
         String contentType = MimeUtil.getContentTypeWithParameters(entity);
         if (checkEntityBodyAvailability(entity)) {
@@ -180,7 +201,7 @@ public class HttpUtil {
             }
             HeaderUtil.setHeaderToEntity(entity, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
         }
-        httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
+        httpMessageStruct.setRefField(isRequest ? REQUEST_ENTITY_INDEX : RESPONSE_ENTITY_INDEX, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, checkEntityBodyAvailability(entity));
     }
 
@@ -195,7 +216,8 @@ public class HttpUtil {
     public static BValue[] getEntity(Context context, boolean isRequest, boolean isEntityBodyRequired) {
         try {
             BStruct httpMessageStruct = (BStruct) context.getRefArgument(HTTP_MESSAGE_INDEX);
-            BStruct entity = (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
+            BStruct entity = (BStruct) httpMessageStruct.getRefField(isRequest ? REQUEST_ENTITY_INDEX :
+                    RESPONSE_ENTITY_INDEX);
             boolean isByteChannelAlreadySet = false;
 
             if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
@@ -237,16 +259,28 @@ public class HttpUtil {
             try {
                 contentLength = lengthStr != null ? Long.parseLong(lengthStr) : contentLength;
                 if (contentLength == NO_CONTENT_LENGTH_FOUND) {
-                    contentLength = httpCarbonMessage.countMessageLengthTill(BYTE_LIMIT);
+                    //Read one byte to make sure the incoming stream has data
+                    contentLength = httpCarbonMessage.countMessageLengthTill(ONE_BYTE);
                 }
             } catch (NumberFormatException e) {
                 throw new BallerinaException("Invalid content length");
             }
-            setDiscreteMediaTypeBodyContent(entity, httpMessageDataStreamer.getInputStream(),
-                    contentLength);
+            if (contentLength > 0) {
+                entity.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(
+                        new EntityBodyChannel(httpMessageDataStreamer.getInputStream())));
+            }
         }
-        httpMessageStruct.addNativeData(MESSAGE_ENTITY, entity);
+        httpMessageStruct.setRefField(isRequest ? REQUEST_ENTITY_INDEX : RESPONSE_ENTITY_INDEX, entity);
         httpMessageStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
+    }
+
+    public static BStruct extractEntity(BStruct httpMessageStruct) {
+        Object isEntityBodyAvailable = httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
+        if (isEntityBodyAvailable == null || !((Boolean) isEntityBodyAvailable)) {
+            return null;
+        }
+        return (BStruct) httpMessageStruct.getRefField(isRequestStruct(httpMessageStruct) ? REQUEST_ENTITY_INDEX :
+                RESPONSE_ENTITY_INDEX);
     }
 
     public static void closeMessageOutputStream(OutputStream messageOutputStream) {
@@ -358,20 +392,26 @@ public class HttpUtil {
     }
 
     public static void handleFailure(HTTPCarbonMessage requestMessage, BallerinaConnectorException ex) {
-        Object carbonStatusCode = requestMessage.getProperty(HTTP_STATUS_CODE);
-        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = ex.getMessage();
-        log.error(errorMsg, ex);
+        int statusCode = getStatusCode(requestMessage, errorMsg);
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
     }
 
     public static void handleFailure(HTTPCarbonMessage requestMessage, BStruct error) {
-        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
-        int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = error.getStringField(0);
-        log.error(errorMsg);
+        int statusCode = getStatusCode(requestMessage, errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         sendOutboundResponse(requestMessage, createErrorMessage(errorMsg, statusCode));
+    }
+
+    private static int getStatusCode(HTTPCarbonMessage requestMessage, String errorMsg) {
+        Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
+        if (carbonStatusCode == null) {
+            //log only the internal server errors
+            log.error(errorMsg);
+            return HttpResponseStatus.INTERNAL_SERVER_ERROR.code();
+        }
+        return Integer.parseInt(carbonStatusCode.toString());
     }
 
     public static HTTPCarbonMessage createErrorMessage(String payload, int statusCode) {
@@ -404,16 +444,30 @@ public class HttpUtil {
         response.setProperty(org.wso2.transport.http.netty.common.Constants.HTTP_STATUS_CODE, statusCode);
     }
 
-    public static BStruct getHttpConnectorError(Context context, Throwable throwable) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
-        BStruct genericError = new BStruct(entityErrInfo.getType());
+    /**
+     * Get error struct.
+     *
+     * @param context Represent ballerina context
+     * @param errMsg  Error message
+     * @return Error struct
+     */
+    public static BStruct getError(Context context, String errMsg) {
+        return BLangVMErrors.createError(context, errMsg);
+    }
+
+    /**
+     * Get error struct from throwable.
+     *
+     * @param context   Represent ballerina context
+     * @param throwable Throwable representing the error.
+     * @return Error struct
+     */
+    public static BStruct getError(Context context, Throwable throwable) {
         if (throwable.getMessage() == null) {
-            genericError.setStringField(0, IO_EXCEPTION_OCCURED);
+            return BLangVMErrors.createError(context, IO_EXCEPTION_OCCURED);
         } else {
-            genericError.setStringField(0, throwable.getMessage());
+            return BLangVMErrors.createError(context, throwable.getMessage());
         }
-        return genericError;
     }
 
     public static HTTPCarbonMessage getCarbonMsg(BStruct struct, HTTPCarbonMessage defaultMsg) {
@@ -478,8 +532,7 @@ public class HttpUtil {
     }
 
     public static void populateInboundRequest(BStruct inboundRequestStruct, BStruct entity, BStruct mediaType,
-                                              HTTPCarbonMessage inboundRequestMsg,
-                                              RequestCacheControlStruct requestCacheControl) {
+                                              HTTPCarbonMessage inboundRequestMsg, ProgramFile programFile) {
         inboundRequestStruct.addNativeData(TRANSPORT_MESSAGE, inboundRequestMsg);
         inboundRequestStruct.addNativeData(REQUEST, true);
 
@@ -487,13 +540,17 @@ public class HttpUtil {
         enrichWithInboundRequestHeaders(inboundRequestStruct, inboundRequestMsg);
 
         populateEntity(entity, mediaType, inboundRequestMsg);
-        inboundRequestStruct.addNativeData(MESSAGE_ENTITY, entity);
+        inboundRequestStruct.setRefField(REQUEST_ENTITY_INDEX, entity);
         inboundRequestStruct.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
 
-        if (inboundRequestMsg.getHeader(CACHE_CONTROL.toString()) != null) {
-            requestCacheControl.populateStruct(inboundRequestMsg.getHeader(CACHE_CONTROL.toString()));
+        String cacheControlHeader = inboundRequestMsg.getHeader(CACHE_CONTROL.toString());
+        if (cacheControlHeader != null) {
+            BStruct cacheControlStruct = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP,
+                                                                             REQUEST_CACHE_CONTROL);
+            RequestCacheControlStruct requestCacheControl = new RequestCacheControlStruct(cacheControlStruct);
+            requestCacheControl.populateStruct(cacheControlHeader);
+            inboundRequestStruct.setRefField(REQUEST_CACHE_CONTROL_INDEX, requestCacheControl.getStruct());
         }
-        inboundRequestStruct.setRefField(REQUEST_CACHE_CONTROL_INDEX, requestCacheControl.getStruct());
     }
 
     private static void enrichWithInboundRequestHeaders(BStruct inboundRequestStruct,
@@ -575,13 +632,12 @@ public class HttpUtil {
      * @param inboundResponse  Ballerina struct to represent response
      * @param entity    Entity of the response
      * @param mediaType Content type of the response
-     * @param responseCacheControl  Cache control struct which holds the cache control directives related to the
-     *                              response
+     * @param programFile  Cache control struct which holds the cache control directives related to the
+*                              response
      * @param inboundResponseMsg      Represent carbon message.
      */
     public static void populateInboundResponse(BStruct inboundResponse, BStruct entity, BStruct mediaType,
-                                               ResponseCacheControlStruct responseCacheControl,
-                                               HTTPCarbonMessage inboundResponseMsg) {
+                                               ProgramFile programFile, HTTPCarbonMessage inboundResponseMsg) {
         inboundResponse.addNativeData(TRANSPORT_MESSAGE, inboundResponseMsg);
         int statusCode = (Integer) inboundResponseMsg.getProperty(HTTP_STATUS_CODE);
         inboundResponse.setIntField(RESPONSE_STATUS_CODE_INDEX, statusCode);
@@ -599,13 +655,17 @@ public class HttpUtil {
                     inboundResponseMsg.getProperty(RESOLVED_REQUESTED_URI).toString());
         }
 
-        if (inboundResponseMsg.getHeader(CACHE_CONTROL.toString()) != null) {
-            responseCacheControl.populateStruct(inboundResponseMsg.getHeader(CACHE_CONTROL.toString()));
+        String cacheControlHeader = inboundResponseMsg.getHeader(CACHE_CONTROL.toString());
+        if (cacheControlHeader != null) {
+            ResponseCacheControlStruct responseCacheControl
+                    = new ResponseCacheControlStruct(
+                            programFile.getPackageInfo(PROTOCOL_PACKAGE_HTTP).getStructInfo(RESPONSE_CACHE_CONTROL));
+            responseCacheControl.populateStruct(cacheControlHeader);
+            inboundResponse.setRefField(RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
         }
-        inboundResponse.setRefField(RESPONSE_CACHE_CONTROL_INDEX, responseCacheControl.getStruct());
 
         populateEntity(entity, mediaType, inboundResponseMsg);
-        inboundResponse.addNativeData(MESSAGE_ENTITY, entity);
+        inboundResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         inboundResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, false);
     }
 
@@ -643,7 +703,8 @@ public class HttpUtil {
 
     @SuppressWarnings("unchecked")
     private static void setHeadersToTransportMessage(HTTPCarbonMessage outboundMsg, BStruct struct) {
-        BStruct entityStruct = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
+        BStruct entityStruct = (BStruct) struct.getRefField(isRequestStruct(struct) ? REQUEST_ENTITY_INDEX :
+                RESPONSE_ENTITY_INDEX);
         HttpHeaders transportHeaders = outboundMsg.getHeaders();
         if (isRequestStruct(struct) || isResponseStruct(struct)) {
             addRemovedPropertiesBackToHeadersMap(struct, transportHeaders);
@@ -665,7 +726,7 @@ public class HttpUtil {
         }
     }
 
-    private static boolean isRequestStruct(BStruct struct) {
+    public static boolean isRequestStruct(BStruct struct) {
         return struct.getType().getName().equals(REQUEST);
     }
 
@@ -711,7 +772,8 @@ public class HttpUtil {
      * @param struct  request/response struct.
      */
     public static void checkEntityAvailability(Context context, BStruct struct) {
-        BStruct entity = (BStruct) struct.getNativeData(MESSAGE_ENTITY);
+        BStruct entity = (BStruct) struct.getRefField(isRequestStruct(struct) ? REQUEST_ENTITY_INDEX :
+                RESPONSE_ENTITY_INDEX);
         if (entity == null) {
             createNewEntity(context, struct);
         }
@@ -723,9 +785,10 @@ public class HttpUtil {
      * @param struct  request/response struct.
      * @return true if the message entity data source is available else false.
      */
-    public static boolean isEntityDataSourceAvailble(BStruct struct) {
-        return (struct.getNativeData(MESSAGE_ENTITY) != null &&
-                EntityBodyHandler.getMessageDataSource((BStruct) struct.getNativeData(MESSAGE_ENTITY)) != null);
+    public static boolean isEntityDataSourceAvailable(BStruct struct) {
+        BStruct entityStruct = (BStruct) struct.getRefField(isRequestStruct(struct) ? REQUEST_ENTITY_INDEX :
+                RESPONSE_ENTITY_INDEX);
+        return (entityStruct != null && EntityBodyHandler.getMessageDataSource(entityStruct) != null);
     }
 
     private static void setCompressionHeaders(Context context, HTTPCarbonMessage requestMsg, HTTPCarbonMessage
@@ -1062,22 +1125,6 @@ public class HttpUtil {
                     boundaryString);
         }
         return boundaryString;
-    }
-
-    /**
-     * Extract generic error message.
-     *
-     * @param context Represent ballerina context.
-     * @param errMsg  Error message.
-     * @return Generic error message.
-     */
-    public static BStruct getGenericError(Context context, String errMsg) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-
-        BStruct genericError = new BStruct(errorStructInfo.getType());
-        genericError.setStringField(0, errMsg);
-        return genericError;
     }
 
     public static HttpWsConnectorFactory createHttpWsConnectionFactory() {

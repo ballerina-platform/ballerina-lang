@@ -1,17 +1,18 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
  */
 
 package org.ballerinalang.plugins.idea.runconfig.application;
@@ -23,6 +24,11 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.process.ProcessHandler;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiFile;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.runconfig.BallerinaRunningState;
 import org.ballerinalang.plugins.idea.runconfig.RunConfigurationKind;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
@@ -30,6 +36,8 @@ import org.ballerinalang.plugins.idea.util.BallerinaExecutor;
 import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.File;
 
 /**
  * Represents Ballerina application running state.
@@ -63,17 +71,52 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
     @Override
     protected BallerinaExecutor patchExecutor(@NotNull BallerinaExecutor executor) throws ExecutionException {
         RunConfigurationKind kind = getConfiguration().getRunKind();
-        String parameters = myConfiguration.getPackage();
-        if (parameters.isEmpty()) {
-            parameters = myConfiguration.getFilePath();
+        Project project = myConfiguration.getProject();
+        VirtualFile baseDir = project.getBaseDir();
+        String filePath = myConfiguration.getPackage();
+
+        // Find the file in the project. This is needed to find the module. Otherwise if the file is in a sub-module
+        // and the SDK for the project is not set, SDK home path will be null.
+        PsiFile file = BallerinaPsiImplUtil.findFileInProject(project, myConfiguration.getFilePath());
+        Module module = null;
+        if (file != null) {
+            module = ModuleUtilCore.findModuleForPsiElement(file);
         }
-        BallerinaExecutor ballerinaExecutor = executor.withParameters("run")
-                .withBallerinaPath(BallerinaSdkService.getInstance(getConfiguration().getProject())
-                        .getSdkHomePath(null))
-                .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(parameters);
-        if (kind == RunConfigurationKind.SERVICE) {
-            ballerinaExecutor.withParameters("-s");
+        if (module == null) {
+            throw new ExecutionException("Cannot find module for the file '" + file.getVirtualFile().getPath() + "'");
         }
+        if (filePath.isEmpty()) {
+            filePath = myConfiguration.getFilePath();
+            if (baseDir != null) {
+                filePath = filePath.replace(baseDir.getPath() + File.separator, "");
+            }
+
+            //            if (filePath.contains(File.separator)) {
+            //                int index = filePath.indexOf(File.separator);
+            //                filePath = filePath.substring(0, index);
+            //            }
+        }
+
+        BallerinaExecutor ballerinaExecutor;
+        if (baseDir != null) {
+            ballerinaExecutor = executor
+                    .withParameters("run")
+                    .withParameters("--sourceroot")
+                    .withParameters(baseDir.getPath())
+                    .withBallerinaPath(BallerinaSdkService.getInstance(getConfiguration().getProject())
+                            .getSdkHomePath(module))
+                    .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(filePath);
+        } else {
+            ballerinaExecutor = executor
+                    .withParameters("run")
+                    .withBallerinaPath(BallerinaSdkService.getInstance(getConfiguration().getProject())
+                            .getSdkHomePath(module))
+                    .withParameterString(myConfiguration.getBallerinaToolParams()).withParameters(filePath);
+        }
+
+        //        if (kind == RunConfigurationKind.SERVICE) {
+        //            ballerinaExecutor.withParameters("-s");
+        //        }
 
         // If debugging mode is running, we need to add the debugging flag.
         if (isDebug()) {

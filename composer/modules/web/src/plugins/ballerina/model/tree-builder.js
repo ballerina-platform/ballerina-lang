@@ -179,6 +179,10 @@ class TreeBuilder {
                     }
                 }
             }
+
+            if (node.typeNode && node.typeNode.ws && !node.ws) {
+                node.noVisibleName = true;
+            }
         }
 
         if (node.kind === 'Service') {
@@ -189,11 +193,13 @@ class TreeBuilder {
 
         // Mark the first argument ad a service endpoint.
         if (node.kind === 'Resource' && node.parameters[0]) {
-            const endpointParam = node.parameters[0];
-            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
-            endpointParam.serviceEndpoint = true;
-            endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
-            endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
+            if (node.parameters[0].ws && _.find(node.parameters[0].ws, (ws) => ws.text === 'endpoint')) {
+                const endpointParam = node.parameters[0];
+                const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
+                endpointParam.serviceEndpoint = true;
+                endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
+                endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
+            }
         }
 
         // Add the positions for the join and timeout bodies.
@@ -208,9 +214,9 @@ class TreeBuilder {
         }
 
         // Check if sorrounded by curlies
-        if (node.kind === 'MatchPatternClause') {
-            if (!node.ws) {
-                node.withoutCurlies = true;
+        if (node.kind === 'MatchPatternClause' || node.kind === 'MatchExpressionPatternClause') {
+            if (node.ws && node.ws.length > 2) {
+                node.withCurlies = true;
             }
         }
 
@@ -219,35 +225,65 @@ class TreeBuilder {
             if (node.ws && node.ws.length > 2) {
                 node.withParantheses = true;
             }
+
+            if (node.typeKind && node.typeKind === 'nil' && node.ws) {
+                node.emptyParantheses = true;
+            }
+
+            if (node.nullable && node.ws) {
+                for (let i = 0; i < node.ws.length; i++) {
+                    if (node.ws[i].text === '?') {
+                        node.nullableOperatorAvailable = true;
+                    }
+                }
+            }
         }
 
-        if (node.kind === 'UnionTypeNode') {
-            if (node.ws && node.ws.length > 2) {
+        if (node.kind === 'UnionTypeNode' && node.ws) {
+            if (node.ws.length > 2 && _.find(node.ws, (ws) => ws.text === '(')) {
                 node.withParantheses = true;
+            }
+
+            for (let i = 0; i < node.memberTypeNodes.length; i++) {
+                if (node.memberTypeNodes[i].nullable && _.find(node.ws, (ws) => ws.text === '?')) {
+                    node.memberTypeNodes[i].nullableOperatorAvailable = true;
+                }
             }
         }
 
         if (node.kind === 'Function') {
             if (node.returnTypeNode && node.returnTypeNode.typeKind !== 'nil') {
                 node.hasReturns = true;
-                if (node.ws) {
-                    for (let i = 0; i < node.ws.length; i++) {
-                        if (node.ws[i].text === ')' && node.ws[i + 1].text !== 'returns') {
-                            for (let j = 0; j < node.returnTypeNode.ws.length; j++) {
-                                if (node.returnTypeNode.ws[j].text === 'returns') {
-                                    node.ws.splice((i + 1), 0, node.returnTypeNode.ws[j]);
-                                    node.returnTypeNode.ws.splice(j, 1);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
+            }
+
+            if (node.defaultableParameters) {
+                for (let i = 0; i < node.defaultableParameters.length; i++) {
+                    node.defaultableParameters[i].defaultable = true;
+                    node.defaultableParameters[i].variable.defaultable = true;
                 }
             }
 
+            node.allParams = _.concat(node.parameters, node.defaultableParameters);
+            node.allParams.sort((a, b) => {
+                return (((a.position.endColumn > b.position.startColumn)
+                    && (a.position.endLine === b.position.endLine))
+                    || (a.position.endLine > b.position.endLine));
+            });
+
             if (node.receiver && !node.receiver.ws) {
-                node.noVisibleReceiver = true;
+
+                if (_.find(node.ws, (ws) => ws.text === '::')
+                    && node.receiver.typeNode
+                    && node.receiver.typeNode.ws
+                    && node.receiver.typeNode.ws.length > 0) {
+                    node.objectOuterFunction = true;
+                    if (node.receiver.typeNode.ws[0].text === 'function') {
+                        node.receiver.typeNode.ws.splice(0, 1);
+                    }
+                    node.objectOuterFunctionTypeName = node.receiver.typeNode.typeName;
+                } else {
+                    node.noVisibleReceiver = true;
+                }
             }
 
             if (node.restParameters && node.parameters && node.parameters.length > 0) {
@@ -265,6 +301,10 @@ class TreeBuilder {
             let fields = node.fields;
             let privateFieldBlockVisible = false;
             let publicFieldBlockVisible = false;
+            let publicFieldsSemicolonCount = 0;
+            let privateFieldsSemicolonCount = 0;
+            let publicFieldsCommaCount = 0;
+            let privateFieldsCommaCount = 0;
 
             for (let i = 0; i < fields.length; i++) {
                 if (fields[i].public) {
@@ -283,6 +323,40 @@ class TreeBuilder {
                     if (node.ws[i].text === 'private' && node.ws[i + 1].text === '{') {
                         privateFieldBlockVisible = true;
                     }
+
+                    if (publicFieldBlockVisible) {
+                        if (node.ws[i].text === ',') {
+                            publicFieldsCommaCount += 1;
+                        } else if (node.ws[i].text === ';') {
+                            publicFieldsSemicolonCount += 1;
+                        }
+                    }
+
+                    if (privateFieldBlockVisible) {
+                        if (node.ws[i].text === ',') {
+                            privateFieldsCommaCount += 1;
+                        } else if (node.ws[i].text === ';') {
+                            privateFieldsSemicolonCount += 1;
+                        }
+                    }
+
+                }
+
+                if (publicFieldsCommaCount > 0) {
+                    node.publicCommaSeparator = true;
+                }
+
+                if (publicFieldsSemicolonCount > 1) {
+                    node.publicSemicolonSeparator = true;
+                }
+
+
+                if (privateFieldsCommaCount > 0) {
+                    node.privateCommaSeparator = true;
+                }
+
+                if (privateFieldsSemicolonCount > 1) {
+                    node.privateSemicolonSeparator = true;
                 }
             }
 
@@ -382,6 +456,33 @@ class TreeBuilder {
 
         if (node.kind === 'StreamingInput' && node.alias) {
             node.aliasAvailable = true;
+        }
+
+        if (node.kind === 'IntRangeExpr') {
+            if (node.ws && node.ws.length > 0) {
+                if (node.ws[0].text === '[') {
+                    node.isWrappedWithBracket = true;
+                } else if (node.ws[0].text === '(') {
+                    node.isWrappedWithParenthesis = true;
+                }
+            }
+        }
+
+        if (node.kind === 'FunctionType') {
+            if (node.returnTypeNode && node.returnTypeNode.ws) {
+                node.hasReturn = true;
+            }
+
+            if (node.ws && node.ws[0] && node.ws[0].text === '(') {
+                node.withParantheses = true;
+            }
+        }
+
+        if (node.kind === 'Literal') {
+            if ((node.value === 'nil' || node.value === 'null') && node.ws
+                && node.ws.length < 3 && node.ws[0].text === '(') {
+                node.emptyParantheses = true;
+            }
         }
     }
 

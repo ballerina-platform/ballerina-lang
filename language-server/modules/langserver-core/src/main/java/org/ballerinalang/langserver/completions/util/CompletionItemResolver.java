@@ -21,6 +21,7 @@ import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.resolvers.AnnotationAttachmentResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangEndpointContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangMatchContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.BLangMatchExpressionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangRecordContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BlockStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ConnectorActionContextResolver;
@@ -46,6 +47,7 @@ import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRu
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceBodyContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleServiceEndpointAttachmentContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleStatementContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleThrowStatementContext;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTriggerWorkerContext;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleTypeNameContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleVariableDefinitionStatementContextResolver;
@@ -60,6 +62,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 
@@ -110,6 +113,8 @@ public enum CompletionItemResolver {
             new ObjectTypeContextResolver()),
     MATCH_STATEMENT_CONTEXT(BLangMatch.class,
             new BLangMatchContextResolver()),
+    MATCH_EXPRESSION_CONTEXT(BLangMatchExpression.class,
+            new BLangMatchExpressionContextResolver()),
 
     PARSER_RULE_STATEMENT_CONTEXT(BallerinaParser.StatementContext.class,
             new ParserRuleStatementContextResolver()),
@@ -147,6 +152,8 @@ public enum CompletionItemResolver {
             new ParserRuleEndpointTypeContext()),
     PARSER_RULE_EP_DECLARATION_CONTEXT(BallerinaParser.EndpointDeclarationContext.class,
             new ParserRuleEndpointTypeContext()),
+    PARSER_RULE_THROW_STATEMENT_CONTEXT(BallerinaParser.ThrowStatementContext.class,
+            new ParserRuleThrowStatementContext()),
     PARSER_RULE_MATCH_STATEMENT_CONTEXT(BallerinaParser.MatchStatementContext.class,
             new ParserRuleMatchStatementContextResolver());
 

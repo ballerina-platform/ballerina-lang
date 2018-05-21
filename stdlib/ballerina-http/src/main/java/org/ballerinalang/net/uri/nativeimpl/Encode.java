@@ -52,7 +52,7 @@ public class Encode extends BlockingNativeCallableUnit {
         try {
             context.setReturnValues(new BString(encode(url, charset)));
         } catch (Throwable e) {
-            context.setReturnValues(HttpUtil.getGenericError(context, "Error occurred while encoding the url. " + e
+            context.setReturnValues(HttpUtil.getError(context, "Error occurred while encoding the url. " + e
                     .getMessage()));
         }
     }

@@ -5,14 +5,9 @@
 
 ## Building from the source
 
-1. Clone the repository using the following command.
+Run `./gradlew buildPlugin`. In the **build/distributions** directory, **ballerina-intellij-idea-plugin-[VERSION].zip** will be created.
 
-    ```
-    git clone --recursive https://github.com/ballerinalang/plugin-intellij.git
-    ```
-2. Navigate into the cloned repository and run `./gradlew buildPlugin`. In the **build/distributions** directory, **Ballerina-Plugin.zip** will be created.
-
-   **Note:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
+**Note:** On Windows, you don’t need the leading `./` in front of the `gradlew` command
 
 ## Installing the plugin to IDEA
 

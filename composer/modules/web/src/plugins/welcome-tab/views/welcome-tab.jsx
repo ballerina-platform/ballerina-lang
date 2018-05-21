@@ -144,7 +144,13 @@ class WelcomeTab extends React.Component {
                     </Grid.Column>
                     <Grid.Column>
                         <Menu className='top-nav-links' position='right'>
-                            <Menu.Item name='API Reference' />
+                            <a
+                                rel='noopener noreferrer'
+                                target='_blank'
+                                href='https://ballerina.io/learn/api-docs/ballerina/http.html'
+                            >
+                                <Menu.Item name='API Reference' />
+                            </a>
                         </Menu>
                     </Grid.Column>
                 </Grid.Row>

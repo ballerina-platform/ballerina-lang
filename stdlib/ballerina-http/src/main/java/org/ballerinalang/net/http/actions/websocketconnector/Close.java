@@ -25,9 +25,9 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
-import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
@@ -41,7 +41,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
                 @Argument(name = "statusCode", type = TypeKind.INT),
-                @Argument(name = "reason", type = TypeKind.STRING)
+                @Argument(name = "reason", type = TypeKind.STRING),
+                @Argument(name = "timeoutInSecs", type = TypeKind.INT)
         }
 )
 public class Close implements NativeCallableUnit {
@@ -52,26 +53,24 @@ public class Close implements NativeCallableUnit {
             BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
             int statusCode = (int) context.getIntArgument(0);
             String reason = context.getStringArgument(0);
+            int timeoutInSecs = (int) context.getIntArgument(1);
             WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
                     .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-            webSocketConnection.close(statusCode, reason).addListener((ChannelFutureListener) future -> {
+            webSocketConnection.initiateConnectionClosure(statusCode, reason, timeoutInSecs)
+                    .addListener((ChannelFutureListener) future -> {
                 Throwable cause = future.cause();
                 if (!future.isSuccess() && cause != null) {
-                    context.setReturnValues(
-                            WebSocketUtil.createWebSocketConnectorError(context, future.cause().getMessage()));
+                    context.setReturnValues(HttpUtil.getError(context, cause));
                 } else {
-                    if (connectionInfo.getWebSocketConnection().getSession().isOpen()) {
-                        webSocketConnection.close().sync();
-                    }
                     connectionInfo.setCloseStatusCode(statusCode);
-                    connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0);
+                    connectionInfo.getWebSocketEndpoint().setBooleanField(WebSocketConstants.LISTENER_IS_OPEN_INDEX, 0);
                     context.setReturnValues();
                 }
                 callback.notifySuccess();
             });
         } catch (Throwable throwable) {
-            context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, throwable.getMessage()));
+            context.setReturnValues(HttpUtil.getError(context, throwable));
             callback.notifySuccess();
         }
     }
