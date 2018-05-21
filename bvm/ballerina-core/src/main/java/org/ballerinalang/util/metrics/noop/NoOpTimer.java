@@ -46,7 +46,7 @@ public class NoOpTimer extends AbstractMetric implements Timer {
     }
 
     @Override
-    public double getSum(TimeUnit unit) {
+    public long getSum(TimeUnit unit) {
         return 0;
     }
 

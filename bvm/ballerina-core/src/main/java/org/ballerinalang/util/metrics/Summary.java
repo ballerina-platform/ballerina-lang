@@ -120,7 +120,7 @@ public interface Summary extends Metric {
      *
      * @param amount Amount for an event being measured.
      */
-    void record(double amount);
+    void record(long amount);
 
     /**
      * Returns the number of times that record has been called since this summary was created.
@@ -134,7 +134,7 @@ public interface Summary extends Metric {
      *
      * @return The sum of values recorded.
      */
-    double getSum();
+    long getSum();
 
     /**
      * Returns a snapshot of the values.

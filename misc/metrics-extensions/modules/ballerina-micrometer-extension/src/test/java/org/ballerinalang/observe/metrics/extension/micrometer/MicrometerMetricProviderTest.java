@@ -124,7 +124,7 @@ public class MicrometerMetricProviderTest {
         Summary summary = Summary.builder("test_summary").description("Test Summary").register(metricRegistry);
         summary.record(100);
         Assert.assertEquals(summary.getCount(), 1);
-        Assert.assertEquals(summary.getSum(), 100.0D);
+        Assert.assertEquals(summary.getSum(), 100L);
     }
 
     @Test
@@ -133,7 +133,7 @@ public class MicrometerMetricProviderTest {
                 .register(metricRegistry);
         timer.record(100, TimeUnit.NANOSECONDS);
         Assert.assertEquals(timer.getCount(), 1);
-        Assert.assertEquals(timer.getSum(TimeUnit.NANOSECONDS), 100.0D);
+        Assert.assertEquals(timer.getSum(TimeUnit.NANOSECONDS), 100L);
     }
 
 }

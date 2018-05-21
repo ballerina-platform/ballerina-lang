@@ -26,10 +26,10 @@ public class Snapshot {
     private static final PercentileValue[] EMPTY_PERCENTILE_VALUES = new PercentileValue[0];
 
     private final double mean;
-    private final double max;
+    private final long max;
     private final PercentileValue[] percentileValues;
 
-    public Snapshot(double mean, double max, PercentileValue[] percentileValues) {
+    public Snapshot(double mean, long max, PercentileValue[] percentileValues) {
         this.mean = mean;
         this.max = max;
         this.percentileValues = percentileValues;
@@ -45,7 +45,7 @@ public class Snapshot {
     /**
      * @return The maximum value of a single event.
      */
-    public double getMax() {
+    public long getMax() {
         return max;
     }
 

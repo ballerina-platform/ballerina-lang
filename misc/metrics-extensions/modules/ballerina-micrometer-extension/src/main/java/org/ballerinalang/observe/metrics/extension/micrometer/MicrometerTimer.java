@@ -60,8 +60,8 @@ public class MicrometerTimer extends AbstractMetric implements Timer {
     }
 
     @Override
-    public double getSum(TimeUnit unit) {
-        return timer.totalTime(unit);
+    public long getSum(TimeUnit unit) {
+        return (long) timer.totalTime(unit);
     }
 
     @Override
@@ -73,6 +73,6 @@ public class MicrometerTimer extends AbstractMetric implements Timer {
             ValueAtPercentile percentileValue = percentileValues[i];
             values[i] = new PercentileValue(percentileValue.percentile(), percentileValue.value(unit));
         }
-        return new Snapshot(histogramSnapshot.mean(unit), histogramSnapshot.max(unit), values);
+        return new Snapshot(histogramSnapshot.mean(unit), (long) histogramSnapshot.max(unit), values);
     }
 }

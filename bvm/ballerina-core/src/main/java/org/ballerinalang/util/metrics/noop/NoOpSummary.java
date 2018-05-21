@@ -34,7 +34,7 @@ public class NoOpSummary extends AbstractMetric implements Summary {
     }
 
     @Override
-    public void record(double amount) {
+    public void record(long amount) {
         // Do nothing
     }
 
@@ -44,7 +44,7 @@ public class NoOpSummary extends AbstractMetric implements Summary {
     }
 
     @Override
-    public double getSum() {
+    public long getSum() {
         return 0;
     }
 

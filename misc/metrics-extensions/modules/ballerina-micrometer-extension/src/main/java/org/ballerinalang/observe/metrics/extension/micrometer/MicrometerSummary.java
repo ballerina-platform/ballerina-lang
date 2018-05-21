@@ -49,7 +49,7 @@ public class MicrometerSummary extends AbstractMetric implements Summary {
     }
 
     @Override
-    public void record(double amount) {
+    public void record(long amount) {
         summary.record(amount);
     }
 
@@ -59,8 +59,8 @@ public class MicrometerSummary extends AbstractMetric implements Summary {
     }
 
     @Override
-    public double getSum() {
-        return summary.totalAmount();
+    public long getSum() {
+        return (long) summary.totalAmount();
     }
 
     @Override
@@ -72,6 +72,6 @@ public class MicrometerSummary extends AbstractMetric implements Summary {
             ValueAtPercentile percentileValue = percentileValues[i];
             values[i] = new PercentileValue(percentileValue.percentile(), percentileValue.value());
         }
-        return new Snapshot(histogramSnapshot.mean(), histogramSnapshot.max(), values);
+        return new Snapshot(histogramSnapshot.mean(), (long) histogramSnapshot.max(), values);
     }
 }

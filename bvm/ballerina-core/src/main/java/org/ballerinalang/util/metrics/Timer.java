@@ -146,7 +146,7 @@ public interface Timer extends Metric {
      * @param unit The base unit of time to scale the sum to.
      * @return The sum of all recorded durations.
      */
-    double getSum(TimeUnit unit);
+    long getSum(TimeUnit unit);
 
     /**
      * Returns a snapshot of the values.
