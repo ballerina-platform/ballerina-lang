@@ -253,7 +253,6 @@ public class ClientOutboundHandler extends ChannelOutboundHandlerAdapter {
          * This should be called after writing the {@code LastHttpContent}.
          */
         private void markWriteCompletion() {
-            httpOutboundRequest.removeHttpContentAsyncFuture();
         }
     }
 

@@ -26,8 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportProperty;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -35,18 +33,14 @@ import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 /**
  * Transform message in request and response path
@@ -58,11 +52,9 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private String responseValue;
     private String requestValue;
-    private TransportsConfiguration configuration;
 
-    public RequestResponseTransformListener(String responseValue, TransportsConfiguration configuration) {
+    public RequestResponseTransformListener(String responseValue) {
         this.responseValue = responseValue;
-        this.configuration = configuration;
     }
 
     @Override
@@ -84,21 +76,9 @@ public class RequestResponseTransformListener implements HttpConnectorListener {
                     httpRequest.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
                 }
 
-                Map<String, Object> transportProperties = new HashMap<>();
-                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
-                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-                    transportProperties = transportPropertiesSet.stream().collect(
-                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-
-                }
-
-                String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                        .getSenderConfiguration(configuration, scheme);
-
                 HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
                 HttpClientConnector clientConnector =
-                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
+                        httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), new SenderConfiguration());
                 HttpResponseFuture future = clientConnector.send(httpRequest);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override

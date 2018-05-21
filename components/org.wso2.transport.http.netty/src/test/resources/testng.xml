@@ -29,7 +29,12 @@
         <classes>
             <class name="org.wso2.transport.http.netty.passthrough.PassThroughHttpTestCase" />
             <class name="org.wso2.transport.http.netty.passthrough.PassThroughHttpsTestCase"/>
-            <class name="org.wso2.transport.http.netty.contentaware.ContentAwareMessageProcessorTestCase" />
+
+            <class name="org.wso2.transport.http.netty.contentaware.EchoServerConnectorListenerTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseCreationTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseStreamingTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseTransformTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseTransformStreamingTestCase" />
 
             <class name="org.wso2.transport.http.netty.https.HTTPSClientTestCase" />
             <class name="org.wso2.transport.http.netty.https.SSLProtocolsTest" />

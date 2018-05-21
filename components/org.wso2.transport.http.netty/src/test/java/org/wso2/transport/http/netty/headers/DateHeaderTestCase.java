@@ -18,8 +18,11 @@
 
 package org.wso2.transport.http.netty.headers;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.http.options.Options;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -41,6 +44,9 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+
+import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
+import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
 
 /**
  * Test case for ensuring that the Date header is correctly set.
@@ -67,24 +73,31 @@ public class DateHeaderTestCase {
     }
 
     @Test
-    public void testDateHeaderFormatAndExistence() throws IOException {
-        URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
-        HttpURLConnection connection = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), false);
+    public void testDateHeaderFormatAndExistence() {
+        try {
+            URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
+                    .header(CONNECTION, CLOSE.toString()).body(TestUtil.smallEntity).asString();
 
-        connection.getOutputStream().write(TestUtil.smallEntity.getBytes());
-        String date = connection.getHeaderField(HttpHeaderNames.DATE.toString());
-
-        Assert.assertEquals(connection.getResponseCode(), HttpURLConnection.HTTP_OK);
-        Assert.assertNotNull(DateTimeFormatter.RFC_1123_DATE_TIME.parse(date));
+            String date = response.getHeaders().getFirst(HttpHeaderNames.DATE.toString());
+            Assert.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
+            Assert.assertNotNull(DateTimeFormatter.RFC_1123_DATE_TIME.parse(date));
+        } catch (UnirestException e) {
+            TestUtil.handleException("Exception occurred while running postTest", e);
+        }
     }
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
         try {
+            Unirest.shutdown();
+            Options.refresh();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
+            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
+        } catch (IOException e) {
+            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

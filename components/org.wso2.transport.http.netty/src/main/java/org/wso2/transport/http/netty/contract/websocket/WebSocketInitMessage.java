@@ -19,6 +19,7 @@
 
 package org.wso2.transport.http.netty.contract.websocket;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.http.HttpHeaders;
 
 /**
@@ -90,8 +91,10 @@ public interface WebSocketInitMessage extends WebSocketMessage {
      *
      * @param closeCode close code for cancelling the handshake.
      * @param closeReason reason for canceling the handshake.
+     *
+     * @return the ChannelPromise created after submitting response
      */
-    void cancelHandShake(int closeCode, String closeReason);
+    ChannelFuture cancelHandshake(int closeCode, String closeReason);
 
     /**
      * Check whether the handshake is cancelled in someplace or not.

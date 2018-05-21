@@ -42,6 +42,7 @@ import org.wso2.transport.http.netty.contractimpl.websocket.HandshakeFutureImpl;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketMessageImpl;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.listener.WebSocketSourceHandler;
+import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
@@ -55,9 +56,9 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
     private final ChannelHandlerContext ctx;
     private final FullHttpRequest httpRequest;
     private final WebSocketSourceHandler webSocketSourceHandler;
-    private boolean isCancelled = false;
+    private boolean cancelled = false;
     private boolean handshakeStarted = false;
-    private HttpRequest request;
+    private HttpCarbonRequest request;
 
     public DefaultWebSocketInitMessage(ChannelHandlerContext ctx, FullHttpRequest httpRequest,
                                        WebSocketSourceHandler webSocketSourceHandler, Map<String, String> headers) {
@@ -115,30 +116,38 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
     }
 
     @Override
-    public void cancelHandShake(int statusCode, String closeReason) {
-        try {
-            ChannelFuture responseFuture;
-            if (closeReason != null) {
-                ByteBuf content = Unpooled.wrappedBuffer(closeReason.getBytes(StandardCharsets.UTF_8));
-                responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                                                                      HttpResponseStatus.valueOf(statusCode), content));
-            } else {
-                responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                                                                               HttpResponseStatus.valueOf(statusCode)));
-            }
-            responseFuture.addListener(future -> {
-                if (ctx.channel().isOpen()) {
-                    ctx.channel().close();
+    public ChannelFuture cancelHandshake(int statusCode, String closeReason) {
+        if (!cancelled && !handshakeStarted) {
+            try {
+                int responseStatusCode = statusCode >= 400 && statusCode < 500 ? statusCode : 400;
+                ChannelFuture responseFuture;
+                if (closeReason != null) {
+                    ByteBuf content = Unpooled.wrappedBuffer(closeReason.getBytes(StandardCharsets.UTF_8));
+                    responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                                                                                   HttpResponseStatus
+                                                                                           .valueOf(responseStatusCode),
+                                                                                   content));
+                } else {
+                    responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+                                                                                   HttpResponseStatus.valueOf(
+                                                                                           responseStatusCode)));
                 }
-            });
-        } finally {
-            isCancelled = true;
+                return responseFuture;
+            } finally {
+                cancelled = true;
+            }
+        } else {
+            if (cancelled) {
+                throw new IllegalStateException("Cannot cancel the handshake: handshake already cancelled");
+            } else {
+                throw new IllegalStateException("Cannot cancel the handshake: handshake already started");
+            }
         }
     }
 
     @Override
     public boolean isCancelled() {
-        return isCancelled;
+        return cancelled;
     }
 
     @Override
@@ -150,7 +159,7 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
                                             HttpHeaders headers) {
         HandshakeFutureImpl handshakeFuture = new HandshakeFutureImpl();
 
-        if (isCancelled) {
+        if (cancelled) {
             Throwable e = new IllegalAccessException("Handshake is already cancelled!");
             handshakeFuture.notifyError(e);
             return handshakeFuture;
@@ -220,11 +229,11 @@ public class DefaultWebSocketInitMessage extends WebSocketMessageImpl implements
         return subProtocolsStr;
     }
 
-    public HttpRequest getHttpRequest() {
+    public HttpCarbonRequest getHttpCarbonRequest() {
         return request;
     }
 
-    public void setHttpRequest(HttpRequest request) {
+    public void setHttpCarbonRequest(HttpCarbonRequest request) {
         this.request = request;
     }
 }
