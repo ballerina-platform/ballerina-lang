@@ -291,6 +291,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             httpOutboundRespFuture.notifyHttpListener(
                     new ServerConnectorException(
                             Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
+            if (httpOutboundRespFuture == null) {
+                httpOutboundRespFuture.notifyHttpListener(
+                        new ServerConnectorException(
+                                Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE));
+            }
         } else {
             handleIncompleteInboundRequest(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
         }
