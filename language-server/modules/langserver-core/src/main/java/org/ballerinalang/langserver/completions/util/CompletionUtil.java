@@ -106,8 +106,13 @@ public class CompletionUtil {
         Optional<Lock> lock = documentManager.lockFile(completionPath);
         String fileContent = documentManager.getFileContent(completionPath);
         lock.ifPresent(Lock::unlock);
-        
-        return fileContent.split(CommonUtil.LINE_SEPARATOR)[line];
+
+        String[] splitContent = fileContent.split(CommonUtil.LINE_SEPARATOR);
+        if (splitContent.length < line) {
+            return "";
+        } else {
+            return splitContent[line];
+        }
     }
 
     /**

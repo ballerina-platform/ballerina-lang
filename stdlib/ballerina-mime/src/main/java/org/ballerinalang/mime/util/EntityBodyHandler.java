@@ -39,7 +39,6 @@ import org.jvnet.mimepull.MIMEPart;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
@@ -52,7 +51,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-import static org.ballerinalang.mime.util.Constants.BALLERINA_TEMP_FILE;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
 import static org.ballerinalang.mime.util.Constants.CHARSET;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
@@ -66,29 +64,6 @@ import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
  * @since 0.963.0
  */
 public class EntityBodyHandler {
-
-    /**
-     * Handle discrete media type content. This method populates ballerina entity with a byte channel from a given
-     * inputstream. If the payload size exceeds 2MB limit, write the stream to a temp file and get a reference to
-     * a file channel. After that delete the temp file. If the size does not exceed, then wrap the inputstream with an
-     * EntityBodyChannel.
-     *
-     * @param entityStruct      Represent an 'Entity'
-     * @param inputStream       Represent input stream coming from the request/response
-     * @param numberOfBytesRead Number of bytes read
-     */
-    public static void setDiscreteMediaTypeBodyContent(BStruct entityStruct, InputStream inputStream,
-                                                       long numberOfBytesRead) {
-        if (numberOfBytesRead > 0) {
-            if (numberOfBytesRead < Constants.BYTE_LIMIT) {
-                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, new EntityWrapper(new EntityBodyChannel(inputStream)));
-            } else {
-                String temporaryFilePath = MimeUtil.writeToTemporaryFile(inputStream, BALLERINA_TEMP_FILE);
-                entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, getByteChannelForTempFile(temporaryFilePath));
-            }
-        }
-
-    }
 
     /**
      * Get a byte channel for a given text data.

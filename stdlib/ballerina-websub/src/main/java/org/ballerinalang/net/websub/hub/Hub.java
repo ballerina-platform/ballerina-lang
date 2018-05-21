@@ -24,6 +24,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -71,15 +72,14 @@ public class Hub {
         return hubUrl;
     }
 
-    public String registerTopic(String topic, String secret, boolean loadingOnStartUp) {
+    public void registerTopic(String topic, String secret, boolean loadingOnStartUp) throws BallerinaWebSubException {
         if (!hubTopicRegistrationRequired) {
-            return "";
+            throw new BallerinaWebSubException("Remote topic registration not allowed/not required at the Hub");
         }
-        String errorMessage = "";
         if (isTopicRegistered(topic)) {
-            errorMessage = "Topic registration not allowed at the Hub: topic already exists";
-        } else if (topic == null || topic.equals("")) {
-            errorMessage = "Topic unavailable/invalid for registration at Hub";
+            throw new BallerinaWebSubException("Topic registration not allowed at the Hub: topic already exists");
+        } else if (topic == null || topic.isEmpty()) {
+            throw new BallerinaWebSubException("Topic unavailable/invalid for registration at Hub");
         } else {
             topics.put(topic, secret);
             if (hubPersistenceEnabled && !loadingOnStartUp) {
@@ -88,18 +88,16 @@ public class Hub {
                                               .getFunctionInfo("changeTopicRegistrationInDatabase"), args);
             }
         }
-        return errorMessage;
     }
 
-    public String unregisterTopic(String topic, String secret) {
+    public void unregisterTopic(String topic, String secret) throws BallerinaWebSubException {
         if (!hubTopicRegistrationRequired) {
-            return "";
+            throw new BallerinaWebSubException("Remote topic unregistration not allowed/not required at the Hub");
         }
-        String errorMessage = "";
         if (topic == null || !isTopicRegistered(topic)) {
-            errorMessage = "Topic unavailable/invalid for unregistration at Hub";
+            throw new BallerinaWebSubException("Topic unavailable/invalid for unregistration at Hub");
         } else if (!topics.get(topic).equals(secret)) {
-            errorMessage = "Topic unregistration denied at Hub for incorrect secret";
+            throw new BallerinaWebSubException("Topic unregistration denied at Hub for incorrect secret");
         } else {
             topics.remove(topic);
             if (hubPersistenceEnabled) {
@@ -108,7 +106,6 @@ public class Hub {
                                               .getFunctionInfo("changeTopicRegistrationInDatabase"), args);
             }
         }
-        return errorMessage;
     }
 
     public String retrievePublisherSecret(String topic) {
@@ -128,6 +125,8 @@ public class Hub {
      */
     public void registerSubscription(String topic, String callback, BStruct subscriptionDetails) {
         if (!started) {
+            //TODO: Revisit to check if this needs to be returned as an error, currently not required since this check
+            // is performed at Ballerina level
             logger.error("Hub Service not started: subscription failed");
         } else if (!topics.containsKey(topic) && hubTopicRegistrationRequired) {
             logger.warn("Subscription request ignored for unregistered topic[" + topic + "]");
@@ -181,20 +180,18 @@ public class Hub {
      *
      * @param topic             the topic to which the update should happen
      * @param stringPayload     the update payload
+     * @throws BallerinaWebSubException if the hub service is not started or topic registration is required, but the
+     *                                  topic is not registered
      */
-    public String publish(String topic, String stringPayload) {
-        String errorMessage = "";
+    public void publish(String topic, String stringPayload) throws BallerinaWebSubException {
         if (!started) {
-            errorMessage = "Hub Service not started: publish failed";
-            logger.error(errorMessage);
+            throw new BallerinaWebSubException("Hub Service not started: publish failed");
         } else if (!topics.containsKey(topic) && hubTopicRegistrationRequired) {
-            errorMessage = "Publish call ignored for unregistered topic[" + topic + "]";
-            logger.warn(errorMessage);
+            throw new BallerinaWebSubException("Publish call ignored for unregistered topic[" + topic + "]");
         } else {
             byte[] payload = stringPayload.getBytes(StandardCharsets.UTF_8);
             BrokerUtils.publish(topic, payload);
         }
-        return errorMessage;
     }
 
     public boolean isStarted() {

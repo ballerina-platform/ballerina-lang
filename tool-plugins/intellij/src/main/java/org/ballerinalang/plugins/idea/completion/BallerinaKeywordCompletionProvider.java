@@ -13,7 +13,9 @@ import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaFiniteType;
 import org.ballerinalang.plugins.idea.psi.BallerinaForeachStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaResourceDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaParameter;
+import org.ballerinalang.plugins.idea.psi.BallerinaParameterList;
+import org.ballerinalang.plugins.idea.psi.BallerinaResourceParameterList;
 import org.ballerinalang.plugins.idea.psi.BallerinaReturnType;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaStatement;
@@ -26,6 +28,8 @@ import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
 import org.ballerinalang.plugins.idea.psi.BallerinaWhileStatement;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * Keyword completion provider.
@@ -55,18 +59,6 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
         if (foreachStatement != null) {
             result.stopHere();
             return;
-        }
-
-        BallerinaTransactionStatement transactionStatement = PsiTreeUtil.getParentOfType(position,
-                BallerinaTransactionStatement.class);
-        if (transactionStatement != null) {
-            BallerinaCompletionUtils.addTransactionKeywordsAsLookups(result);
-        }
-
-        BallerinaCompositeElement loopTypes = PsiTreeUtil.getParentOfType(position,
-                BallerinaWhileStatement.class, BallerinaForeachStatement.class);
-        if (loopTypes != null) {
-            BallerinaCompletionUtils.addLoopKeywordsAsLookups(result);
         }
 
         // Todo - Add bind
@@ -128,6 +120,19 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                             || ((LeafPsiElement) prevVisibleLeaf).getElementType() ==
                             BallerinaTypes.DECIMAL_INTEGER_LITERAL
                             || ((LeafPsiElement) prevVisibleLeaf).getElementType() == BallerinaTypes.COLON))) {
+
+                        BallerinaTransactionStatement transactionStatement = PsiTreeUtil.getParentOfType(position,
+                                BallerinaTransactionStatement.class);
+                        if (transactionStatement != null) {
+                            BallerinaCompletionUtils.addTransactionKeywordsAsLookups(result);
+                        }
+
+                        BallerinaCompositeElement loopTypes = PsiTreeUtil.getParentOfType(position,
+                                BallerinaWhileStatement.class, BallerinaForeachStatement.class);
+                        if (loopTypes != null) {
+                            BallerinaCompletionUtils.addLoopKeywordsAsLookups(result);
+                        }
+
                         BallerinaCompletionUtils.addValueTypesAsLookups(result, true);
                         BallerinaCompletionUtils.addReferenceTypesAsLookups(result, true);
                         BallerinaCompletionUtils.addVarAsLookup(result);
@@ -207,10 +212,13 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
             }
         }
 
-        if (parent instanceof BallerinaResourceDefinition) {
-            PsiElement prevVisibleLeaf = PsiTreeUtil.prevVisibleLeaf(position);
-            if (prevVisibleLeaf instanceof LeafPsiElement) {
-                if (((LeafPsiElement) prevVisibleLeaf).getElementType() == BallerinaTypes.LEFT_PARENTHESIS) {
+        BallerinaResourceParameterList resourceParameterList = PsiTreeUtil.getParentOfType(parent,
+                BallerinaResourceParameterList.class);
+        if (resourceParameterList != null) {
+            BallerinaParameterList ballerinaParameterList = resourceParameterList.getParameterList();
+            if (ballerinaParameterList != null) {
+                List<BallerinaParameter> parameterList = ballerinaParameterList.getParameterList();
+                if (parameterList.size() == 1) {
                     BallerinaCompletionUtils.addEndpointAsLookup(result);
                     return;
                 }

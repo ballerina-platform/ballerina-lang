@@ -1,6 +1,24 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
@@ -9,6 +27,7 @@ import org.ballerinalang.plugins.idea.completion.inserthandlers.ColonInsertHandl
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaImportDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -53,6 +72,14 @@ public class BallerinaPackageNameProcessor extends BallerinaScopeProcessorBase {
                     } else if (myElement.getText().equals(identifier.getText())) {
                         add(identifier);
                     }
+                }
+            }
+            // Add un-imported packages. These will be auto-imported.
+            if (myResult != null) {
+                Module module = ModuleUtilCore.findModuleForPsiElement(element);
+                if (module != null) {
+                    myResult.addAllElements(BallerinaPsiImplUtil.getAllUnImportedImports(element.getProject(), module,
+                            cachedImports));
                 }
             }
         }

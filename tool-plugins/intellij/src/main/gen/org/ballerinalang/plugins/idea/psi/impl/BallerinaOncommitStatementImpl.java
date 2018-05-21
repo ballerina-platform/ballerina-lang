@@ -42,15 +42,15 @@ public class BallerinaOncommitStatementImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getAssign() {
-    return notNullChild(findChildByType(ASSIGN));
+    return findChildByType(ASSIGN);
   }
 
   @Override
