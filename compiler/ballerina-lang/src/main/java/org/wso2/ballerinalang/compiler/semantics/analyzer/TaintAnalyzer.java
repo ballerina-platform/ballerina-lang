@@ -258,11 +258,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         this.currPkgEnv = pkgEnv;
         this.env = pkgEnv;
 
-        for (TopLevelNode e : pkgNode.topLevelNodes) {
-            ((BLangNode) e).accept(this);
-            // Ignore blocking invocations relevant to top level variable assignments
-            this.blockedNode = null;
-        }
+        pkgNode.topLevelNodes.forEach(e -> { ((BLangNode) e).accept(this); this.blockedNode = null; });
 
         analyzerPhase = AnalyzerPhase.BLOCKED_NODE_ANALYSIS;
         resolveBlockedInvokable();
@@ -945,8 +941,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         boolean typeTaintedStatus = false;
         for (BLangExpression expr : typeInit.argsExpr) {
             expr.accept(this);
-            // TODO: Improve
-            // If one value ot type init is tainted, the complete type is tainted.
+            // TODO: Improve: If one value ot type init is tainted, the complete type is tainted.
             if (getObservedTaintedStatus()) {
                 typeTaintedStatus = getObservedTaintedStatus();
             }
