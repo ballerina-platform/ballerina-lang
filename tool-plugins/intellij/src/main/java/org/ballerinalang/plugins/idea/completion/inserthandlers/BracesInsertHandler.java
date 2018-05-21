@@ -58,7 +58,7 @@ public class BracesInsertHandler implements InsertHandler<LookupElement> {
         if (project != null) {
             int completionCharOffset = getCompletionCharOffset(editor);
             if (completionCharOffset == -1) {
-                EditorModificationUtil.insertStringAtCaret(editor, " {\n    \n}", false, 7);
+                EditorModificationUtil.insertStringAtCaret(editor, " {}", false, 2);
                 PsiDocumentManager.getInstance(project).commitDocument(editor.getDocument());
             } else {
                 editor.getCaretModel().moveToOffset(editor.getCaretModel().getOffset() + completionCharOffset + 1);
