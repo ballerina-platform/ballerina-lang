@@ -595,17 +595,17 @@ ExpressionList ::= Expression (COMMA Expression)* {
 
 ExpressionStmt ::= Expression SEMICOLON {pin=1}
 
-TransactionStatement ::= TransactionClause OnretryClause?
+TransactionStatement ::= TransactionClause OnRetryClause? {pin=1}
 
-TransactionClause ::= transaction (with TransactionPropertyInitStatementList)? LEFT_BRACE Block RIGHT_BRACE {pin(".*")=1}
+TransactionClause ::= transaction (with TransactionPropertyInitStatementList)? (LEFT_BRACE (Block RIGHT_BRACE)) {pin(".*")=1}
 
-TransactionPropertyInitStatement ::= RetriesStatement | OnCommitStatement | OnAbortStatement {pin=1}
+TransactionPropertyInitStatement ::= RetriesStatement | OnCommitStatement | OnAbortStatement
 
 TransactionPropertyInitStatementList ::= TransactionPropertyInitStatement (COMMA TransactionPropertyInitStatement)* {pin(".*")=1}
 
 LockStatement ::= lock LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
-OnretryClause ::= onretry LEFT_BRACE Block RIGHT_BRACE {pin=1}
+OnRetryClause ::= onretry (LEFT_BRACE (Block RIGHT_BRACE)) {pin(".*")=1}
 
 AbortStatement ::= abort SEMICOLON {pin=1}
 
