@@ -63,6 +63,15 @@ set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
 
+set BALLERINA_CLI_HEIGHT=
+set BALLERINA_CLI_WIDTH=
+for /F "tokens=2 delims=:" %%a in ('mode con') do for %%b in (%%a) do (
+  if not defined BALLERINA_CLI_HEIGHT (
+     set "BALLERINA_CLI_HEIGHT=%%b"
+  ) else if not defined BALLERINA_CLI_WIDTH (
+     set "BALLERINA_CLI_WIDTH=%%b"
+  )
+)
 rem ----- Process the input command -------------------------------------------
 
 rem Slurp the command line arguments. This loop allows for an unlimited number
@@ -96,6 +105,21 @@ goto end
 :doneStart
 if "%OS%"=="Windows_NT" @setlocal
 if "%OS%"=="WINNT" @setlocal
+rem find the version of the jdk
+:findJdk
+
+set CMD=RUN %*
+
+:checkJdk18
+"%JAVA_HOME%\bin\java" -version 2>&1 | findstr /r "1.[8|9]" >NUL
+IF ERRORLEVEL 1 goto unknownJdk
+goto jdk18
+
+:unknownJdk
+echo Ballerina is supported only on JDK 1.8 and above
+goto end
+
+:jdk18
 goto runServer
 
 

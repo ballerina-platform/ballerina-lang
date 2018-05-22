@@ -24,6 +24,9 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaStreamingInput extends BallerinaCompositeElement {
 
   @NotNull
+  List<BallerinaFunctionInvocation> getFunctionInvocationList();
+
+  @NotNull
   BallerinaVariableReference getVariableReference();
 
   @NotNull

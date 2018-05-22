@@ -34,6 +34,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
+import org.ballerinalang.plugins.idea.psi.BallerinaMatchExpressionPatternClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaNameReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectInitializer;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
@@ -41,6 +42,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKeyValue;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordLiteralExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaServiceEndpointAttachments;
 import org.ballerinalang.plugins.idea.psi.BallerinaStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeInitExpr;
@@ -49,8 +51,10 @@ import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaActionInvocationProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaAnnotationFieldProcessor;
+import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaAnonymousServiceConfigProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaBlockProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaEndpointFieldProcessor;
+import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaExpressionProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaObjectFieldProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaPackageNameProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaScopeProcessorBase;
@@ -98,6 +102,17 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
             }
         }
 
+        BallerinaServiceEndpointAttachments serviceEndpointAttachments = PsiTreeUtil.getParentOfType(myElement,
+                BallerinaServiceEndpointAttachments.class);
+        if (serviceEndpointAttachments != null) {
+            processor = new BallerinaAnonymousServiceConfigProcessor(null, myElement, false);
+            processResolveVariants(processor);
+            result = processor.getResult();
+            if (result != null) {
+                return result;
+            }
+        }
+
         processor = new BallerinaActionInvocationProcessor(null, myElement, false);
         processResolveVariants(processor);
         result = processor.getResult();
@@ -121,6 +136,13 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
 
         BallerinaRecordKey recordKey = PsiTreeUtil.getParentOfType(myElement, BallerinaRecordKey.class);
         if (recordKey == null) {
+            processor = new BallerinaExpressionProcessor(null, myElement, false);
+            processResolveVariants(processor);
+            result = processor.getResult();
+            if (result != null) {
+                return result;
+            }
+
             processor = new BallerinaStatementProcessor(null, myElement, false);
             processResolveVariants(processor);
             result = processor.getResult();
@@ -225,8 +247,20 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
         }
 
         ResolveState resolveState = ResolveState.initial();
+
+        BallerinaServiceEndpointAttachments serviceEndpointAttachments = PsiTreeUtil.getParentOfType(myElement,
+                BallerinaServiceEndpointAttachments.class);
+        if (serviceEndpointAttachments != null && processor instanceof BallerinaAnonymousServiceConfigProcessor) {
+            BallerinaRecordKey recordKey = PsiTreeUtil.getParentOfType(myElement, BallerinaRecordKey.class);
+            if (recordKey != null) {
+                if (!processor.execute(serviceEndpointAttachments, resolveState)) {
+                    return false;
+                }
+            }
+        }
+
         if (processor instanceof BallerinaActionInvocationProcessor) {
-            if (prevVisibleLeaf != null && prevVisibleLeaf instanceof LeafPsiElement) {
+            if (prevVisibleLeaf instanceof LeafPsiElement) {
                 if (((LeafPsiElement) prevVisibleLeaf).getElementType() == BallerinaTypes.RARROW) {
                     if (!processor.execute(containingFile, resolveState)) {
                         return false;
@@ -276,6 +310,14 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
         }
 
         if (inLocalPackage) {
+            BallerinaMatchExpressionPatternClause matchExpressionPatternClause = PsiTreeUtil.getParentOfType(myElement,
+                    BallerinaMatchExpressionPatternClause.class);
+            if (matchExpressionPatternClause != null && processor instanceof BallerinaExpressionProcessor) {
+                if (!processor.execute(matchExpressionPatternClause, resolveState)) {
+                    return false;
+                }
+            }
+
             // Note - Execute BallerinaStatementProcessor first.
             BallerinaStatement ballerinaStatement = PsiTreeUtil.getParentOfType(myElement, BallerinaStatement.class);
             if (ballerinaStatement != null && processor instanceof BallerinaStatementProcessor) {
@@ -329,7 +371,7 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                 return false;
             }
             PsiElement resolvedElement = reference.resolve();
-            if (resolvedElement == null || !(resolvedElement instanceof PsiDirectory)) {
+            if (!(resolvedElement instanceof PsiDirectory)) {
                 return true;
             }
             return recursivelyFindInPackage(processor, ((PsiDirectory) resolvedElement));

@@ -1,19 +1,49 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
+import com.intellij.codeInsight.completion.AddSpaceInsertHandler;
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.codeInsight.completion.InsertHandler;
+import com.intellij.codeInsight.lookup.LookupElement;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
+import com.intellij.psi.tree.IElementType;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.completion.inserthandlers.ParenthesisInsertHandler;
+import org.ballerinalang.plugins.idea.completion.inserthandlers.SmartParenthesisInsertHandler;
 import org.ballerinalang.plugins.idea.psi.BallerinaAnnotationAttachment;
 import org.ballerinalang.plugins.idea.psi.BallerinaAnnotationDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaCompositeElement;
 import org.ballerinalang.plugins.idea.psi.BallerinaDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaNameReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaOnCommitStatement;
+import org.ballerinalang.plugins.idea.psi.BallerinaOnretryClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaServiceDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +75,7 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
 
     @Override
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(element)) {
             List<BallerinaDefinition> definitions = ((BallerinaFile) element).getDefinitions();
 
@@ -55,6 +86,7 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                     List<BallerinaAnnotationDefinition> annotationDefinitions =
                             BallerinaPsiImplUtil.suggestBuiltInAnnotations(element);
                     for (BallerinaAnnotationDefinition definition : annotationDefinitions) {
+                        ProgressManager.checkCanceled();
                         PsiElement identifier = definition.getIdentifier();
                         if (identifier != null) {
                             if (myResult != null) {
@@ -67,7 +99,11 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                     }
                 }
                 for (BallerinaDefinition definition : definitions) {
+                    ProgressManager.checkCanceled();
                     PsiElement lastChild = definition.getLastChild();
+                    if (lastChild instanceof BallerinaDefinition) {
+                        lastChild = lastChild.getLastChild();
+                    }
                     if (lastChild instanceof BallerinaAnnotationDefinition) {
                         BallerinaAnnotationDefinition child = (BallerinaAnnotationDefinition) lastChild;
                         PsiElement identifier = child.getIdentifier();
@@ -91,17 +127,30 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                     BallerinaPsiImplUtil.suggestBuiltInTypes(element);
             if (!ballerinaTypeDefinitions.isEmpty()) {
                 for (BallerinaTypeDefinition definition : ballerinaTypeDefinitions) {
+                    ProgressManager.checkCanceled();
                     PsiElement identifier = definition.getIdentifier();
                     if (identifier != null) {
                         if (myResult != null) {
+
+                            InsertHandler<LookupElement> insertHandler = AddSpaceInsertHandler.INSTANCE;
+                            BallerinaNameReference nameReference = PsiTreeUtil.getParentOfType(myElement,
+                                    BallerinaNameReference.class);
+                            if (nameReference != null) {
+                                if (nameReference.getParent() instanceof BallerinaServiceDefinition) {
+                                    insertHandler = null;
+                                }
+                            }
+
                             String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
                             if (publicFieldsOnly != null) {
                                 if (definition.isPublic()) {
-                                    myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(definition));
+                                    myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(definition,
+                                            insertHandler));
                                     lookupElementsFound = true;
                                 }
                             } else {
-                                myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(definition));
+                                myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(definition,
+                                        insertHandler));
                                 lookupElementsFound = true;
                             }
                         } else if (myElement.getText().equals(identifier.getText())) {
@@ -116,7 +165,11 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
             }
 
             for (BallerinaDefinition definition : definitions) {
+                ProgressManager.checkCanceled();
                 PsiElement lastChild = definition.getLastChild();
+                if (lastChild instanceof BallerinaDefinition) {
+                    lastChild = lastChild.getLastChild();
+                }
                 if (lastChild instanceof BallerinaFunctionDefinition) {
                     BallerinaFunctionDefinition child = (BallerinaFunctionDefinition) lastChild;
                     if (child.getAttachedObject() == null) {
@@ -127,15 +180,31 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                                 // Note - Child is passed here instead of identifier because it is is top level
                                 // definition.
                                 String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
+                                InsertHandler<LookupElement> insertHandler = SmartParenthesisInsertHandler.INSTANCE;
+                                BallerinaCompositeElement compositeElement = PsiTreeUtil.getParentOfType(myElement,
+                                        BallerinaOnCommitStatement.class, BallerinaOnretryClause.class);
+                                if (compositeElement != null) {
+                                    insertHandler = ParenthesisInsertHandler.INSTANCE;
+                                }
+                                // Todo - Fix the transaction properties grammar.
+                                PsiElement nextVisibleLeaf = PsiTreeUtil.nextVisibleLeaf(myElement);
+                                if (nextVisibleLeaf instanceof LeafPsiElement) {
+                                    IElementType elementType = ((LeafPsiElement) nextVisibleLeaf).getElementType();
+                                    if (elementType == BallerinaTypes.COMMA
+                                            || elementType == BallerinaTypes.LEFT_BRACE) {
+                                        insertHandler = ParenthesisInsertHandler.INSTANCE;
+                                    }
+                                }
                                 if (publicFieldsOnly != null) {
                                     if (child.isPublic()) {
                                         myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(child,
-                                                ParenthesisInsertHandler.INSTANCE));
+                                                insertHandler));
                                         lookupElementsFound = true;
                                     }
                                 } else {
+
                                     myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(child,
-                                            ParenthesisInsertHandler.INSTANCE));
+                                            insertHandler));
                                     lookupElementsFound = true;
                                 }
                             } else if (myElement.getText().equals(identifier.getText())) {
@@ -189,14 +258,24 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                     PsiElement identifier = child.getIdentifier();
                     if (identifier != null) {
                         if (myResult != null) {
+                            InsertHandler<LookupElement> insertHandler = AddSpaceInsertHandler.INSTANCE;
+                            BallerinaNameReference nameReference = PsiTreeUtil.getParentOfType(myElement,
+                                    BallerinaNameReference.class);
+                            if (nameReference != null) {
+                                if (nameReference.getParent() instanceof BallerinaServiceDefinition) {
+                                    insertHandler = null;
+                                }
+                            }
                             String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
                             if (publicFieldsOnly != null) {
                                 if (child.isPublic()) {
-                                    myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(child));
+                                    myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(child,
+                                            insertHandler));
                                     lookupElementsFound = true;
                                 }
                             } else {
-                                myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(child));
+                                myResult.addElement(BallerinaCompletionUtils.createTypeLookupElement(child,
+                                        insertHandler));
                                 lookupElementsFound = true;
                             }
                         } else if (myElement.getText().equals(identifier.getText())) {

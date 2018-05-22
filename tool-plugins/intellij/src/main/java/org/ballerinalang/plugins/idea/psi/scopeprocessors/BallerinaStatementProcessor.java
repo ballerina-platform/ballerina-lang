@@ -1,10 +1,28 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.psi.BallerinaCatchClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinitionList;
@@ -46,6 +64,7 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
 
     @Override
     public boolean execute(@NotNull PsiElement scopeElement, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(scopeElement)) {
             BallerinaStatement statement = (BallerinaStatement) scopeElement;
 
@@ -88,7 +107,7 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                                     myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier,
                                             resolvedElement, type,
                                             BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition),
-                                            false));
+                                            null, false));
                                 } else if (myElement.getText().equals(identifier.getText())) {
                                     add(identifier);
                                 }
@@ -141,6 +160,24 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                     return false;
                 }
                 ballerinaNamedPattern = PsiTreeUtil.getParentOfType(ballerinaNamedPattern, BallerinaNamedPattern.class);
+            }
+
+            BallerinaCatchClause ballerinaCatchClause = PsiTreeUtil.getParentOfType(statement,
+                    BallerinaCatchClause.class);
+            while (ballerinaCatchClause != null) {
+                PsiElement identifier = ballerinaCatchClause.getIdentifier();
+                if (identifier != null) {
+                    if (myResult != null) {
+                        myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
+                                BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaCatchClause.getTypeName())));
+                    } else if (myElement.getText().equals(identifier.getText())) {
+                        add(identifier);
+                    }
+                }
+                if (!isCompletion() && getResult() != null) {
+                    return false;
+                }
+                ballerinaCatchClause = PsiTreeUtil.getParentOfType(ballerinaCatchClause, BallerinaCatchClause.class);
             }
         }
         return true;

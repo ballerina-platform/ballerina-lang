@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
@@ -441,18 +440,19 @@ public abstract class AbstractItemResolver {
      */
     protected List<CompletionItem> getVariableDefinitionCompletionItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ConnectorInitExpressionItemFilter connectorInitItemFilter = new ConnectorInitExpressionItemFilter();
-        // Fill completions if user is writing a connector init
-        List<SymbolInfo> filteredConnectorInitSuggestions = connectorInitItemFilter.filterItems(completionContext);
-        if (!filteredConnectorInitSuggestions.isEmpty()) {
-            populateCompletionItemList(filteredConnectorInitSuggestions, completionItems);
-        }
 
-        // Add the create keyword
+        // Add the check keyword
         CompletionItem createKeyword = new CompletionItem();
         createKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
         createKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
         createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+        
+        // Add But keyword item
+        CompletionItem butKeyword = new CompletionItem();
+        butKeyword.setInsertText(Snippet.BUT.toString());
+        butKeyword.setLabel(ItemResolverConstants.BUT);
+        butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
+        butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
 
         List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
                 .stream()
@@ -473,6 +473,7 @@ public abstract class AbstractItemResolver {
         });
         populateCompletionItemList(filteredList, completionItems);
         completionItems.add(createKeyword);
+        completionItems.add(butKeyword);
         
         return completionItems;
     }

@@ -44,7 +44,19 @@ public type Response object {
     private {
         int receivedTime;
         int requestTime;
+        mime:Entity entity;
     }
+
+    public new() {
+        self.entity = createNewEntity();
+    }
+
+    documentation {
+        Create a new `Entity` and link it with the response.
+
+        R{{}} Newly created `Entity` that has been set to the response
+    }
+    native function createNewEntity() returns mime:Entity;
 
     documentation {
         Gets the `Entity` associated with the response.

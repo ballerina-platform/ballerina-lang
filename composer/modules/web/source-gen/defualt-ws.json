@@ -518,8 +518,12 @@
   "Literal": {
     "before unescapedValue": "",
     "after unescapedValue": "",
+    "before (": " ",
+    "after (": "",
     "before value": "",
-    "after value": ""
+    "after value": "",
+    "before )": "",
+    "after )": ""
   },
   "Lock": {
     "before lock": "",

@@ -21,7 +21,6 @@ package org.ballerinalang.net.http.nativeimpl.connection;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -39,6 +38,8 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 import java.io.OutputStream;
+
+import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 
 /**
  * {@code PushPromisedResponse} is the native function to respond back the client with Server Push response.
@@ -93,7 +94,7 @@ public class PushPromisedResponse extends ConnectionAction {
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
 
-        BStruct entityStruct = MimeUtil.extractEntity(outboundResponseStruct);
+        BStruct entityStruct = extractEntity(outboundResponseStruct);
         if (entityStruct != null) {
             MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             serializeMsgDataSource(outboundMessageSource, entityStruct, messageOutputStream);

@@ -5,7 +5,7 @@ import ballerina/http;
 // token propagation is set to false by default
 http:AuthProvider basicAuthProvider = {
     scheme:"basic",
-    authProvider:"config"
+    authStoreProvider:"config"
 };
 
 endpoint http:SecureListener listener {

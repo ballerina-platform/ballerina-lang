@@ -47,7 +47,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
+import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
@@ -489,7 +489,7 @@ public class HttpCachingClientTest {
     private void initOutboundRequest(BStruct outRequest, RequestCacheControlStruct cacheControl) {
         BStruct entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(), Constants.PROTOCOL_PACKAGE_MIME,
                                                          Constants.ENTITY);
-        outRequest.addNativeData(MESSAGE_ENTITY, entity);
+        outRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
 
         outRequest.setRefField(REQUEST_CACHE_CONTROL_INDEX, cacheControl.getStruct());
     }

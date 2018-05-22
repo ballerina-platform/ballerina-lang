@@ -47,6 +47,9 @@ public class InstallCommand implements BLauncherCmd {
     @Parameter(names = "--java.debug", hidden = true)
     private String debugPort;
 
+    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    private String sourceRoot;
+
     @Override
     public void execute() {
         if (helpFlag) {
@@ -64,7 +67,7 @@ public class InstallCommand implements BLauncherCmd {
         }
 
         String packageStr = argList.get(0);
-        PushUtils.pushPackages(packageStr, "home");
+        PushUtils.pushPackages(packageStr, sourceRoot, "home");
     }
 
     @Override

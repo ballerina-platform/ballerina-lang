@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
 import org.wso2.ballerinalang.programfile.cpentries.ActionRefCPEntry;
+import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -92,6 +93,11 @@ public class PackageInfoWriter {
                 case CP_ENTRY_STRING:
                     nameCPIndex = ((StringCPEntry) cpEntry).getStringCPIndex();
                     dataOutStream.writeInt(nameCPIndex);
+                    break;
+                case CP_ENTRY_BLOB:
+                    byte[] blobValue = ((BlobCPEntry) cpEntry).getValue();
+                    dataOutStream.writeInt(blobValue.length);
+                    dataOutStream.write(blobValue);
                     break;
                 case CP_ENTRY_PACKAGE:
                     nameCPIndex = ((PackageRefCPEntry) cpEntry).nameCPIndex;
