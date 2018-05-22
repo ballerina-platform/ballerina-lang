@@ -475,11 +475,12 @@ VariableReferenceList ::= VariableReference (COMMA VariableReference)* //{pin(".
 
 IfElseStatement ::= IfClause ElseIfClause* ElseClause? /*{pin=1}*/
 
-IfClause ::= if LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
+IfClause ::= if (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
-ElseIfClause ::= else if LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=2}
+ElseIfClause ::= else pinnedElseClause
+private pinnedElseClause ::= if (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
-ElseClause ::= else LEFT_BRACE Block RIGHT_BRACE {pin=1}
+ElseClause ::= else (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
 
 matchStatement ::= match Expression matchStatementBody {pin=1}
 matchStatementBody ::= LEFT_BRACE matchPatternClause+ RIGHT_BRACE {pin=1}

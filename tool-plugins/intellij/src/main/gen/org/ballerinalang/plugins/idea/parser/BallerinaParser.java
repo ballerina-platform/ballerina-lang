@@ -1704,13 +1704,25 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // else LEFT_BRACE Block RIGHT_BRACE
+  // else (LEFT_BRACE Block RIGHT_BRACE)
   public static boolean ElseClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ElseClause")) return false;
     if (!nextTokenIs(b, ELSE)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, ELSE_CLAUSE, null);
-    r = consumeTokens(b, 1, ELSE, LEFT_BRACE);
+    r = consumeToken(b, ELSE);
+    p = r; // pin = 1
+    r = r && ElseClause_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_BRACE Block RIGHT_BRACE
+  private static boolean ElseClause_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ElseClause_1")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_BRACE);
     p = r; // pin = 1
     r = r && report_error_(b, Block(b, l + 1));
     r = p && consumeToken(b, RIGHT_BRACE) && r;
@@ -1719,20 +1731,16 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // else if LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE
+  // else pinnedElseClause
   public static boolean ElseIfClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ElseIfClause")) return false;
     if (!nextTokenIs(b, ELSE)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, ELSE_IF_CLAUSE, null);
-    r = consumeTokens(b, 2, ELSE, IF, LEFT_PARENTHESIS);
-    p = r; // pin = 2
-    r = r && report_error_(b, Expression(b, l + 1, -1));
-    r = p && report_error_(b, consumeTokens(b, -1, RIGHT_PARENTHESIS, LEFT_BRACE)) && r;
-    r = p && report_error_(b, Block(b, l + 1)) && r;
-    r = p && consumeToken(b, RIGHT_BRACE) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, ELSE);
+    r = r && pinnedElseClause(b, l + 1);
+    exit_section_(b, m, ELSE_IF_CLAUSE, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -2570,17 +2578,41 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // if LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE
+  // if (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE))
   public static boolean IfClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "IfClause")) return false;
     if (!nextTokenIs(b, IF)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, IF_CLAUSE, null);
-    r = consumeTokens(b, 1, IF, LEFT_PARENTHESIS);
+    r = consumeToken(b, IF);
+    p = r; // pin = 1
+    r = r && IfClause_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)
+  private static boolean IfClause_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "IfClause_1")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_PARENTHESIS);
     p = r; // pin = 1
     r = r && report_error_(b, Expression(b, l + 1, -1));
-    r = p && report_error_(b, consumeTokens(b, -1, RIGHT_PARENTHESIS, LEFT_BRACE)) && r;
-    r = p && report_error_(b, Block(b, l + 1)) && r;
+    r = p && report_error_(b, consumeToken(b, RIGHT_PARENTHESIS)) && r;
+    r = p && IfClause_1_3(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_BRACE Block RIGHT_BRACE
+  private static boolean IfClause_1_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "IfClause_1_3")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_BRACE);
+    p = r; // pin = 1
+    r = r && report_error_(b, Block(b, l + 1));
     r = p && consumeToken(b, RIGHT_BRACE) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -7329,6 +7361,47 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = r && TypeName(b, l + 1, -1);
     p = r; // pin = 2
     r = r && consumeToken(b, IDENTIFIER);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
+  // if (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE))
+  static boolean pinnedElseClause(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "pinnedElseClause")) return false;
+    if (!nextTokenIs(b, IF)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, IF);
+    p = r; // pin = 1
+    r = r && pinnedElseClause_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)
+  private static boolean pinnedElseClause_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "pinnedElseClause_1")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_PARENTHESIS);
+    p = r; // pin = 1
+    r = r && report_error_(b, Expression(b, l + 1, -1));
+    r = p && report_error_(b, consumeToken(b, RIGHT_PARENTHESIS)) && r;
+    r = p && pinnedElseClause_1_3(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_BRACE Block RIGHT_BRACE
+  private static boolean pinnedElseClause_1_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "pinnedElseClause_1_3")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_BRACE);
+    p = r; // pin = 1
+    r = r && report_error_(b, Block(b, l + 1));
+    r = p && consumeToken(b, RIGHT_BRACE) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
