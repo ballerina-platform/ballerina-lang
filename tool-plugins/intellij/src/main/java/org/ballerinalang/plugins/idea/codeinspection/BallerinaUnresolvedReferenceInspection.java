@@ -26,6 +26,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.BallerinaAssignmentStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaField;
@@ -39,8 +40,11 @@ import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaResourceDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
+import org.ballerinalang.plugins.idea.psi.BallerinaXmlAttrib;
+import org.ballerinalang.plugins.idea.psi.reference.BallerinaPackageNameReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -147,6 +151,25 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
                     BallerinaObjectParameter.class);
             if (objectParameter != null) {
                 continue;
+            }
+
+            // Skip xml attributes.
+            BallerinaXmlAttrib xmlAttrib = PsiTreeUtil.getParentOfType(identifier, BallerinaXmlAttrib.class);
+            if (xmlAttrib != null) {
+                continue;
+            }
+
+            PsiElement prevSibling = PsiTreeUtil.prevVisibleLeaf(identifier);
+            if (prevSibling instanceof LeafPsiElement) {
+                if (((LeafPsiElement) prevSibling).getElementType() == BallerinaTypes.COLON) {
+                    PsiElement parent = prevSibling.getParent();
+                    if (parent instanceof BallerinaPackageReference) {
+                        PsiReference reference = parent.getReference();
+                        if (!(reference instanceof BallerinaPackageNameReference)) {
+                            continue;
+                        }
+                    }
+                }
             }
 
             PsiReference reference = identifier.getReference();
