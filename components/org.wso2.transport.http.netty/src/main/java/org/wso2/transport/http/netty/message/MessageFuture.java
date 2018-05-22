@@ -45,12 +45,14 @@ public class MessageFuture {
                 notifyMessageListener(httpContent);
                 if (httpContent instanceof LastHttpContent) {
                     this.httpCarbonMessage.removeMessageFuture();
+                    return;
                 }
             }
             while (!pendingPayload.isEmpty()) {
                 notifyMessageListener(pendingPayload.poll());
                 if (pendingPayload.poll() instanceof LastHttpContent) {
                     this.httpCarbonMessage.removeMessageFuture();
+                    return;
                 }
             }
         }
