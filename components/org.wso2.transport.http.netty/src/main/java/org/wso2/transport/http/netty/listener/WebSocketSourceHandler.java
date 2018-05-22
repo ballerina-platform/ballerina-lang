@@ -66,12 +66,12 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
     private final ChannelHandlerContext ctx;
     private final boolean isSecured;
     private final ServerConnectorFuture connectorFuture;
+    private final WebSocketFramesBlockingHandler blockingHandler;
+    private DefaultWebSocketConnection webSocketConnection;
     private final String interfaceId;
-    private String subProtocol = null;
     private HandlerExecutor handlerExecutor;
     private ChannelPromise closePromise;
     private WebSocketFrameType continuationFrameType;
-    private DefaultWebSocketConnection webSocketConnection;
     private boolean closeFrameReceived;
 
     /**
@@ -81,22 +81,15 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
      * @param ctx             {@link ChannelHandlerContext} of WebSocket connection.
      * @param interfaceId     given ID for the socket interface.
      */
-    public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, boolean isSecured, FullHttpRequest httpRequest,
+    public WebSocketSourceHandler(ServerConnectorFuture connectorFuture, WebSocketFramesBlockingHandler blockingHandler,
+                                  boolean isSecured, FullHttpRequest httpRequest,
                                   ChannelHandlerContext ctx, String interfaceId) {
         this.connectorFuture = connectorFuture;
+        this.blockingHandler = blockingHandler;
         this.isSecured = isSecured;
         this.ctx = ctx;
         this.interfaceId = interfaceId;
         this.target = httpRequest.uri();
-    }
-
-    /**
-     * Set if there is any negotiated sub protocol.
-     *
-     * @param negotiatedSubProtocol negotiated sub protocol for a given connection.
-     */
-    public void setNegotiatedSubProtocol(String negotiatedSubProtocol) {
-        this.subProtocol = negotiatedSubProtocol;
     }
 
     @Override
@@ -131,7 +124,7 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
         if (this.handlerExecutor != null) {
             this.handlerExecutor.executeAtSourceConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
-        webSocketConnection = WebSocketUtil.getWebSocketConnection(this, isSecured, target);
+        webSocketConnection = WebSocketUtil.getWebSocketConnection(ctx, this, blockingHandler, isSecured, target);
     }
 
     @Override
@@ -247,27 +240,26 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
 
     private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame) throws ServerConnectorException {
         WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
-                getWebsocketControlMessage(pingWebSocketFrame, WebSocketControlSignal.PING);
+                getWebSocketControlMessage(pingWebSocketFrame, WebSocketControlSignal.PING);
         setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage);
         connectorFuture.notifyWSListener(webSocketControlMessage);
     }
 
     private void notifyPongMessage(PongWebSocketFrame pongWebSocketFrame) throws ServerConnectorException {
         WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
-                getWebsocketControlMessage(pongWebSocketFrame, WebSocketControlSignal.PONG);
+                getWebSocketControlMessage(pongWebSocketFrame, WebSocketControlSignal.PONG);
         setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage);
         connectorFuture.notifyWSListener(webSocketControlMessage);
     }
 
     private void notifyIdleTimeout() throws ServerConnectorException {
-        DefaultWebSocketMessage websocketControlMessage = new DefaultWebSocketControlMessage(
+        DefaultWebSocketMessage webSocketControlMessage = new DefaultWebSocketControlMessage(
                 WebSocketControlSignal.IDLE_TIMEOUT, null);
-        setupCommonProperties(websocketControlMessage);
-        connectorFuture.notifyWSIdleTimeout((WebSocketControlMessage) websocketControlMessage);
+        setupCommonProperties(webSocketControlMessage);
+        connectorFuture.notifyWSIdleTimeout((WebSocketControlMessage) webSocketControlMessage);
     }
 
     private void setupCommonProperties(DefaultWebSocketMessage webSocketMessage) {
-        webSocketMessage.setSubProtocol(subProtocol);
         webSocketMessage.setTarget(target);
         webSocketMessage.setListenerInterface(interfaceId);
         webSocketMessage.setIsConnectionSecured(isSecured);

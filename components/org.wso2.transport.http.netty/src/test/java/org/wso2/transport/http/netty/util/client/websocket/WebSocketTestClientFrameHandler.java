@@ -25,6 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -42,34 +43,45 @@ import java.util.concurrent.CountDownLatch;
 /**
  * WebSocket Client Handler for Testing.
  */
-public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
+public class WebSocketTestClientFrameHandler extends SimpleChannelInboundHandler<Object> {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
     private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
-    private ChannelHandlerContext ctx;
-
-    private String textReceived = "";
-    private ByteBuffer bufferReceived = null;
-    private CloseWebSocketFrame receiveCloseFrame = null;
-    private boolean isPingReceived;
-    private boolean isPongReceived;
     private CountDownLatch latch;
 
-    public WebSocketClientHandler(WebSocketClientHandshaker handshaker, CountDownLatch latch) {
+    // Variables to store events received.
+    private String textReceived;
+    private ByteBuffer bufferReceived;
+    private CloseWebSocketFrame receiveCloseFrame;
+    private boolean isPingReceived;
+    private boolean isPongReceived;
+    private FullHttpResponse httpResponse;
+
+    public WebSocketTestClientFrameHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
-        this.latch = latch;
     }
 
     public ChannelFuture handshakeFuture() {
         return handshakeFuture;
     }
 
+    public void setCountDownLatch(CountDownLatch latch) {
+        this.latch = latch;
+    }
+
+    public HttpResponse getHttpResponse() {
+        return httpResponse;
+    }
+
+    public WebSocketClientHandshaker getHandshaker() {
+        return handshaker;
+    }
+
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
         handshakeFuture = ctx.newPromise();
-        this.ctx = ctx;
     }
 
     @Override
@@ -80,18 +92,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws InterruptedException {
         logger.debug("WebSocket Client disconnected!");
-        ctx.channel().close().addListener(future -> {
-            if (latch != null) {
-                countDownLatch();
-            }
-        });
+        countDownLatch();
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel channel = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
-            handshaker.finishHandshake(channel, (FullHttpResponse) msg);
+            httpResponse = (FullHttpResponse) msg;
+            handshaker.finishHandshake(channel, httpResponse);
             logger.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
             return;
@@ -126,7 +135,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
             receiveCloseFrame = (CloseWebSocketFrame) frame.retain();
-
         }
         countDownLatch();
     }
@@ -185,12 +193,8 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
         }
+        logger.error("Exception caught: ", cause);
         ctx.close();
-    }
-
-    public void shutDown() throws InterruptedException {
-        ctx.channel().writeAndFlush(new CloseWebSocketFrame());
-        ctx.channel().closeFuture().sync();
     }
 
     private void countDownLatch() {

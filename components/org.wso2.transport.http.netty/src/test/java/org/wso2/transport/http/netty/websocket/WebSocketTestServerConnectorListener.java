@@ -33,11 +33,8 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
 import java.nio.ByteBuffer;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -49,10 +46,30 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestServerConnectorListener.class);
 
     private static final String PING = "ping";
-    private List<WebSocketConnection> connectionList = new LinkedList<>();
-    private boolean isIdleTimeout = false;
+    private static final String CLOSE_FORCEFULLY = "close-forcefully";
+    private static final String CLOSE_AND_WAIT = "send-and-wait";
+    private CountDownLatch returnFutureLatch;
+    private CountDownLatch closeDoneLatch;
+    private ChannelFuture closeFuture;
+
+
 
     public WebSocketTestServerConnectorListener() {
+    }
+
+    public void setReturnFutureLatch(CountDownLatch returnFutureLatch) {
+        this.returnFutureLatch = returnFutureLatch;
+    }
+
+    public ChannelFuture getCloseFuture() {
+        if (closeFuture == null) {
+            throw new IllegalStateException("Cannot investigate null close future");
+        }
+        return closeFuture;
+    }
+
+    public void setCloseDoneLatch(CountDownLatch closeDoneLatch) {
+        this.closeDoneLatch = closeDoneLatch;
     }
 
     @Override
@@ -62,9 +79,6 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
-                connectionList.forEach(
-                        currentConn -> currentConn.pushText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED));
-                connectionList.add(webSocketConnection);
                 webSocketConnection.startReadingFrames();
                 countDownLatch.countDown();
             }
@@ -88,11 +102,21 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         WebSocketConnection webSocketConnection = textMessage.getWebSocketConnection();
         String receivedTextToClient = textMessage.getText();
         log.debug("text: " + receivedTextToClient);
-        if (PING.equals(receivedTextToClient)) {
-            webSocketConnection.ping(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
-            return;
+        switch (receivedTextToClient) {
+            case PING:
+                webSocketConnection.ping(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+                break;
+            case CLOSE_FORCEFULLY:
+                closeFuture = webSocketConnection.closeForcefully();
+                handleCloseFuture(returnFutureLatch, closeFuture);
+                break;
+            case CLOSE_AND_WAIT:
+                closeFuture = webSocketConnection.initiateConnectionClosure(1001, "Going away");
+                handleCloseFuture(returnFutureLatch, closeFuture);
+                break;
+            default:
+                webSocketConnection.pushText(receivedTextToClient);
         }
-        webSocketConnection.pushText(receivedTextToClient);
     }
 
     @Override
@@ -118,7 +142,6 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
-        connectionList.forEach(currentConn -> currentConn.pushText(WebSocketTestConstants.PAYLOAD_CLIENT_LEFT));
     }
 
     @Override
@@ -128,7 +151,6 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
-        this.isIdleTimeout = true;
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
         ChannelFuture channelFuture = webSocketConnection.initiateConnectionClosure(1001, "Connection timeout");
         channelFuture.addListener(future -> {
@@ -145,10 +167,25 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         log.error(throwable.getMessage());
     }
 
-    public boolean isIdleTimeout() {
-        boolean temp = isIdleTimeout;
-        isIdleTimeout = false;
-        return temp;
+    private void handleCloseFuture(CountDownLatch returnFutureLatch, ChannelFuture closeFuture) {
+        if (returnFutureLatch != null) {
+            returnFutureLatch.countDown();
+        }
+
+        closeFuture.addListener(future -> {
+            Throwable cause = future.cause();
+            if (!future.isSuccess() && cause != null) {
+                log.error("Error occurred when closing the connection" + cause.getMessage());
+            } else {
+                log.info("Closing handshake successful");
+            }
+            if (closeFuture.channel().isOpen()) {
+                closeFuture.channel().close().sync();
+            }
+            if (closeDoneLatch != null) {
+                closeDoneLatch.countDown();
+            }
+        });
     }
 
 }

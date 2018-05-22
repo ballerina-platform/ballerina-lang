@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,6 +14,7 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
+ *
  */
 
 package org.wso2.transport.http.netty.websocket;
@@ -25,26 +26,31 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.websocket.WebSocketTestClient;
 
+import java.io.IOException;
 import java.net.ProtocolException;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import javax.net.ssl.SSLException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
- * Test cases for WebSocket server connection close scenarios.
+ * Test class for WebSocket protocol.
  */
-public class WebSocketServerCloseConnectionTestCase {
+public class WebSocketServerFunctionalityTestCase {
 
     private final int latchCountDownInSecs = 10;
     private ServerConnector serverConnector;
-    private WebSocketCloseConnectionListener closeConnectionListener;
+    private final int defaultStatusCode = 1001;
+    private final String defaultCloseReason = "Going away";
+    private WebSocketTestServerConnectorListener serverConnectorListener;
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -53,10 +59,76 @@ public class WebSocketServerCloseConnectionTestCase {
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
-                                                                     listenerConfiguration);
+                listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
-        connectorFuture.setWSConnectorListener(closeConnectionListener = new WebSocketCloseConnectionListener());
+        connectorFuture.setWSConnectorListener(serverConnectorListener = new WebSocketTestServerConnectorListener());
         connectorFuture.sync();
+    }
+
+    @Test
+    public void testTextReceiveAndEchoBack() throws URISyntaxException, InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        WebSocketTestClient client = new WebSocketTestClient();
+        client.handshake();
+        client.setCountDownLatch(latch);
+        String textSent = "test";
+        client.sendText(textSent);
+        latch.await(latchCountDownInSecs, SECONDS);
+
+        Assert.assertEquals(client.getTextReceived(), textSent);
+
+        client.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
+    }
+
+    @Test
+    public void testBinaryReceiveAndEchoBack() throws URISyntaxException, InterruptedException {
+        CountDownLatch latch = new CountDownLatch(1);
+        WebSocketTestClient client = new WebSocketTestClient();
+        client.handshake();
+        client.setCountDownLatch(latch);
+        byte[] bytes = {1, 2, 3, 4, 5};
+        ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
+        client.sendBinary(bufferSent);
+        latch.await(latchCountDownInSecs, SECONDS);
+
+        Assert.assertEquals(client.getBufferReceived(), bufferSent);
+
+        client.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
+    }
+
+    @Test
+    public void testPingToTestClient() throws InterruptedException, IOException, URISyntaxException {
+        final String ping = "ping";
+        CountDownLatch pingLatch = new CountDownLatch(1);
+        WebSocketTestClient pingCheckClient = new WebSocketTestClient();
+        pingCheckClient.handshake();
+        pingCheckClient.setCountDownLatch(pingLatch);
+        pingCheckClient.sendText(ping);
+        pingLatch.await(latchCountDownInSecs, SECONDS);
+        ByteBuffer expectedBuffer = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
+
+        Assert.assertTrue(pingCheckClient.isPingReceived(), "Should receive a ping from the server");
+        Assert.assertEquals(pingCheckClient.getBufferReceived(), expectedBuffer);
+
+        pingCheckClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
+    }
+
+    @Test
+    public void testPongToTestClientForPingReceived()
+            throws InterruptedException, IOException, URISyntaxException {
+        CountDownLatch pongLatch = new CountDownLatch(1);
+        WebSocketTestClient pongCheckClient = new WebSocketTestClient();
+        pongCheckClient.handshake();
+        pongCheckClient.setCountDownLatch(pongLatch);
+        byte[] bytes = {6, 7, 8, 9, 10, 11};
+        ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
+        pongCheckClient.sendPing(bufferSent);
+        pongLatch.await(latchCountDownInSecs, SECONDS);
+
+        Assert.assertTrue(pongCheckClient.isPongReceived(), "Should receive a pong from the server");
+        Assert.assertEquals(pongCheckClient.getBufferReceived(), bufferSent);
+
+        pongCheckClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
     }
 
     @Test
@@ -64,16 +136,17 @@ public class WebSocketServerCloseConnectionTestCase {
             throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
         CountDownLatch clientLatch = new CountDownLatch(1);
         CountDownLatch serverLatch = new CountDownLatch(1);
-        closeConnectionListener.setReturnFutureLatch(serverLatch);
-        WebSocketTestClient client = new WebSocketTestClient(clientLatch);
-        client.handhshake();
+        serverConnectorListener.setReturnFutureLatch(serverLatch);
+        WebSocketTestClient client = new WebSocketTestClient();
+        client.handshake();
+        client.setCountDownLatch(clientLatch);
         client.sendText("close-forcefully");
         serverLatch.await(latchCountDownInSecs, SECONDS);
         clientLatch.await(latchCountDownInSecs, SECONDS);
 
         Assert.assertEquals(client.getReceivedCloseFrame(), null);
         Assert.assertFalse(client.isOpen());
-        Assert.assertFalse(closeConnectionListener.getCloseFuture().channel().isOpen());
+        Assert.assertFalse(serverConnectorListener.getCloseFuture().channel().isOpen());
     }
 
     @Test
@@ -83,9 +156,10 @@ public class WebSocketServerCloseConnectionTestCase {
         String expectedReason = "Going away";
         CountDownLatch clientLatch = new CountDownLatch(1);
         CountDownLatch serverLatch = new CountDownLatch(1);
-        closeConnectionListener.setReturnFutureLatch(serverLatch);
-        WebSocketTestClient client = new WebSocketTestClient(clientLatch);
-        client.handhshake();
+        serverConnectorListener.setReturnFutureLatch(serverLatch);
+        WebSocketTestClient client = new WebSocketTestClient();
+        client.handshake();
+        client.setCountDownLatch(clientLatch);
         client.sendText("send-and-wait");
         clientLatch.await(latchCountDownInSecs, SECONDS);
         serverLatch.await(latchCountDownInSecs, SECONDS);
@@ -96,16 +170,16 @@ public class WebSocketServerCloseConnectionTestCase {
         Assert.assertNotNull(closeFrame);
         Assert.assertEquals(closeFrame.statusCode(), expectedStatusCode);
         Assert.assertEquals(closeFrame.reasonText(), expectedReason);
-        Assert.assertFalse(closeConnectionListener.getCloseFuture().isDone());
+        Assert.assertFalse(serverConnectorListener.getCloseFuture().isDone());
 
         CountDownLatch closeDoneLatch = new CountDownLatch(1);
-        closeConnectionListener.setCloseDoneLatch(closeDoneLatch);
+        serverConnectorListener.setCloseDoneLatch(closeDoneLatch);
         client.sendCloseFrame(closeFrame.statusCode(), null);
         closeDoneLatch.await(latchCountDownInSecs, SECONDS);
 
         // Assert the post conditions after receiving a close frame from the server and
         // after client echoing the close frame.
-        Assert.assertTrue(closeConnectionListener.getCloseFuture().isSuccess());
+        Assert.assertTrue(serverConnectorListener.getCloseFuture().isSuccess());
 
         closeFrame.release();
     }
@@ -118,9 +192,10 @@ public class WebSocketServerCloseConnectionTestCase {
         String expectedReason = "Going away";
         CountDownLatch clientLatch = new CountDownLatch(1);
         CountDownLatch serverLatch = new CountDownLatch(1);
-        closeConnectionListener.setReturnFutureLatch(serverLatch);
-        WebSocketTestClient client = new WebSocketTestClient(clientLatch);
-        client.handhshake();
+        serverConnectorListener.setReturnFutureLatch(serverLatch);
+        WebSocketTestClient client = new WebSocketTestClient();
+        client.handshake();
+        client.setCountDownLatch(clientLatch);
         client.sendText("send-and-wait");
         clientLatch.await(latchCountDownInSecs, SECONDS);
         serverLatch.await(latchCountDownInSecs, SECONDS);
@@ -131,18 +206,18 @@ public class WebSocketServerCloseConnectionTestCase {
         Assert.assertNotNull(closeFrame);
         Assert.assertEquals(closeFrame.statusCode(), expectedStatusCode);
         Assert.assertEquals(closeFrame.reasonText(), expectedReason);
-        Assert.assertFalse(closeConnectionListener.getCloseFuture().isDone());
+        Assert.assertFalse(serverConnectorListener.getCloseFuture().isDone());
 
         CountDownLatch closeDoneLatch = new CountDownLatch(1);
-        closeConnectionListener.setCloseDoneLatch(closeDoneLatch);
+        serverConnectorListener.setCloseDoneLatch(closeDoneLatch);
         client.sendCloseFrame(closeFrame.statusCode() + 1, null);
         closeDoneLatch.await(latchCountDownInSecs, SECONDS);
-        Throwable cause = closeConnectionListener.getCloseFuture().cause();
+        Throwable cause = serverConnectorListener.getCloseFuture().cause();
 
         // Assert the post conditions after receiving a close frame from the server and
         // after client echoing the close frame.
-        Assert.assertTrue(closeConnectionListener.getCloseFuture().isDone());
-        Assert.assertFalse(closeConnectionListener.getCloseFuture().isSuccess());
+        Assert.assertTrue(serverConnectorListener.getCloseFuture().isDone());
+        Assert.assertFalse(serverConnectorListener.getCloseFuture().isSuccess());
         Assert.assertNotNull(cause);
         Assert.assertTrue(cause instanceof IllegalStateException);
         Assert.assertEquals(cause.getMessage(),
@@ -153,7 +228,7 @@ public class WebSocketServerCloseConnectionTestCase {
     }
 
     @AfterClass
-    public void cleanup() {
+    public void cleaUp() throws ServerConnectorException, InterruptedException {
         serverConnector.stop();
     }
 }

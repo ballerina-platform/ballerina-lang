@@ -73,24 +73,32 @@ public class WebSocketPassThroughTestCase {
     @Test
     public void testTextPassThrough() throws InterruptedException, SSLException, URISyntaxException, ProtocolException {
         CountDownLatch latch = new CountDownLatch(1);
-        WebSocketTestClient webSocketClient = new WebSocketTestClient(latch);
-        webSocketClient.handhshake();
+        WebSocketTestClient webSocketClient = new WebSocketTestClient();
+        webSocketClient.handshake();
+        webSocketClient.setCountDownLatch(latch);
         String text = "hello-pass-through";
         webSocketClient.sendText(text);
         latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+
         Assert.assertEquals(webSocketClient.getTextReceived(), text);
+
+        webSocketClient.sendCloseFrame(1001, "Going away");
     }
 
     @Test
     public void testBinaryPassThrough()
             throws InterruptedException, IOException, URISyntaxException {
         CountDownLatch latch = new CountDownLatch(1);
-        WebSocketTestClient webSocketClient = new WebSocketTestClient(latch);
-        webSocketClient.handhshake();
+        WebSocketTestClient webSocketClient = new WebSocketTestClient();
+        webSocketClient.handshake();
+        webSocketClient.setCountDownLatch(latch);
         ByteBuffer sentBuffer = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         webSocketClient.sendBinary(sentBuffer);
         latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+
         Assert.assertEquals(webSocketClient.getBufferReceived(), sentBuffer);
+
+        webSocketClient.sendCloseFrame(1001, "Going away");
     }
 
     @AfterClass

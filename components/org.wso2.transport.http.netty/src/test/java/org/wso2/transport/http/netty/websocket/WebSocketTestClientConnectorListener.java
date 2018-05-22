@@ -52,6 +52,9 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     private boolean isClose = false;
     private CountDownLatch latch;
 
+    public WebSocketTestClientConnectorListener() {
+    }
+
     public WebSocketTestClientConnectorListener(CountDownLatch latch) {
         this.latch = latch;
     }
@@ -80,25 +83,25 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
             }
         }
         textQueue.add(textMessage.getText());
-        latch.countDown();
+        countDownLatch();
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
         bufferQueue.add(binaryMessage.getByteBuffer());
-        latch.countDown();
+        countDownLatch();
     }
 
     @Override
     public void onMessage(WebSocketControlMessage controlMessage) {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
             isPingReceived = true;
-            latch.countDown();
+            countDownLatch();
         }
 
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
             isPongReceived = true;
-            latch.countDown();
+            countDownLatch();
         }
     }
 
@@ -106,7 +109,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketCloseMessage closeMessage) {
         isClose = true;
         this.closeMessage = closeMessage;
-        latch.countDown();
+        countDownLatch();
     }
 
     @Override
@@ -114,14 +117,14 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
         errorsQueue.add(throwable);
         log.error("Error handler received: " + throwable.getMessage());
         for (int i = 0; i < latch.getCount(); i++) {
-            latch.countDown();
+            countDownLatch();
         }
     }
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         isIdleTimeout = true;
-        latch.countDown();
+        countDownLatch();
     }
 
     /**
@@ -212,5 +215,11 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      */
     public WebSocketCloseMessage getCloseMessage() {
         return closeMessage;
+    }
+
+    private void countDownLatch() {
+        if (latch != null) {
+            latch.countDown();
+        }
     }
 }

@@ -44,7 +44,7 @@ import org.wso2.transport.http.netty.util.TestUtil;
  */
 public class WebSocketPassthroughServerConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketPassthroughServerConnectorListener.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketPassthroughServerConnectorListener.class);
 
     private final HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
 
@@ -71,7 +71,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
 
                     @Override
                     public void onError(Throwable t) {
-                        logger.error(t.getMessage());
+                        log.error(t.getMessage());
                         Assert.fail("Error: " + t.getMessage());
                     }
                 });
@@ -107,9 +107,12 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
+        int statusCode = closeMessage.getCloseCode();
+        String closeReason = closeMessage.getCloseReason();
         WebSocketConnection clientConnection = WebSocketPassThroughTestConnectionManager.getInstance()
                 .getClientConnection(closeMessage.getWebSocketConnection());
-        clientConnection.closeForcefully();
+        clientConnection.initiateConnectionClosure(statusCode, closeReason).addListener(
+                future -> closeMessage.getWebSocketConnection().finishConnectionClosure(statusCode, null));
     }
 
     @Override

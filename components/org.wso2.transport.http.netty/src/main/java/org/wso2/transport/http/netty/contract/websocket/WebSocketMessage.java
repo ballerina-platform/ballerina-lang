@@ -27,13 +27,6 @@ package org.wso2.transport.http.netty.contract.websocket;
 public interface WebSocketMessage {
 
     /**
-     * Retrieve negotiated sub-protocol.
-     *
-     * @return the negotiated sub-protocol.
-     */
-    String getSubProtocol();
-
-    /**
      * Retrieve the target of the application as a String.
      *
      * @return the target of the application.
@@ -52,7 +45,7 @@ public interface WebSocketMessage {
      *
      * @return true if the connection is secured.
      */
-    boolean isConnectionSecured();
+    boolean isSecureConnection();
 
     /**
      * Check whether the message is coming from server connector or client connector.

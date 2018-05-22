@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
  */
 public class WebSocketPassthroughClientConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketPassthroughClientConnectorListener.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketPassthroughClientConnectorListener.class);
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {

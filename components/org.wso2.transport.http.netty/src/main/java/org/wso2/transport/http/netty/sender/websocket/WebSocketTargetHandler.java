@@ -54,6 +54,7 @@ import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSo
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
+import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
@@ -71,10 +72,11 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
     private final WebSocketClientHandshaker handshaker;
+    private final WebSocketFramesBlockingHandler blockingHandler;
     private final boolean isSecure;
+    private final boolean autoRead;
     private final String requestedUri;
     private final WebSocketConnectorListener connectorListener;
-    private String actualSubProtocol = null;
     private DefaultWebSocketConnection webSocketConnection;
     private ChannelPromise handshakeFuture;
     private ChannelHandlerContext ctx;
@@ -83,10 +85,14 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     private ChannelPromise closePromise;
     private HttpCarbonResponse httpCarbonResponse;
 
-    public WebSocketTargetHandler(WebSocketClientHandshaker handshaker, boolean isSecure, String requestedUri,
+    public WebSocketTargetHandler(WebSocketClientHandshaker handshaker,
+                                  WebSocketFramesBlockingHandler framesBlockingHandler, boolean isSecure,
+                                  boolean autoRead, String requestedUri,
                                   WebSocketConnectorListener webSocketConnectorListener) {
         this.handshaker = handshaker;
+        this.blockingHandler = framesBlockingHandler;
         this.isSecure = isSecure;
+        this.autoRead = autoRead;
         this.requestedUri = requestedUri;
         this.connectorListener = webSocketConnectorListener;
         handshakeFuture = null;
@@ -94,10 +100,6 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
 
     public ChannelFuture handshakeFuture() {
         return handshakeFuture;
-    }
-
-    public void setActualSubProtocol(String actualSubProtocol) {
-        this.actualSubProtocol = actualSubProtocol;
     }
 
     @Override
@@ -171,7 +173,12 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
             httpCarbonResponse = setUpCarbonMessage(ctx, fullHttpResponse);
             handshaker.finishHandshake(ch, fullHttpResponse);
             log.debug("WebSocket Client connected!");
-            webSocketConnection = WebSocketUtil.getWebSocketConnection(this, isSecure, requestedUri);
+            webSocketConnection =
+                    WebSocketUtil.getWebSocketConnection(ctx, this, blockingHandler, isSecure, requestedUri);
+            if (!autoRead) {
+                ctx.channel().pipeline().addBefore(Constants.WEBSOCKET_FRAME_HANDLER,
+                                                   Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER, blockingHandler);
+            }
             handshakeFuture.setSuccess();
             fullHttpResponse.release();
             return;
@@ -263,14 +270,14 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
 
     private void notifyPingMessage(PingWebSocketFrame pingWebSocketFrame, ChannelHandlerContext ctx) {
         WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
-                getWebsocketControlMessage(pingWebSocketFrame, WebSocketControlSignal.PING);
+                getWebSocketControlMessage(pingWebSocketFrame, WebSocketControlSignal.PING);
         setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage, ctx);
         connectorListener.onMessage(webSocketControlMessage);
     }
 
     private void notifyPongMessage(PongWebSocketFrame pongWebSocketFrame, ChannelHandlerContext ctx) {
         WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
-                getWebsocketControlMessage(pongWebSocketFrame, WebSocketControlSignal.PONG);
+                getWebSocketControlMessage(pongWebSocketFrame, WebSocketControlSignal.PONG);
         setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage, ctx);
         connectorListener.onMessage(webSocketControlMessage);
     }
@@ -282,18 +289,17 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
         connectorListener.onIdleTimeout((WebSocketControlMessage) websocketControlMessage);
     }
 
-    private void setupCommonProperties(DefaultWebSocketMessage webSocketChannelContext,
+    private void setupCommonProperties(DefaultWebSocketMessage defaultWebSocketMessage,
                                        ChannelHandlerContext ctx) {
-        webSocketChannelContext.setSubProtocol(actualSubProtocol);
-        webSocketChannelContext.setIsConnectionSecured(isSecure);
-        webSocketChannelContext.setWebSocketConnection(webSocketConnection);
-        webSocketChannelContext.setIsServerMessage(false);
+        defaultWebSocketMessage.setIsConnectionSecured(isSecure);
+        defaultWebSocketMessage.setWebSocketConnection(webSocketConnection);
+        defaultWebSocketMessage.setIsServerMessage(false);
 
-        webSocketChannelContext.setProperty(Constants.SRC_HANDLER, this);
-        webSocketChannelContext.setProperty(Constants.LISTENER_PORT,
+        defaultWebSocketMessage.setProperty(Constants.SRC_HANDLER, this);
+        defaultWebSocketMessage.setProperty(Constants.LISTENER_PORT,
                                             ((InetSocketAddress) ctx.channel().localAddress()).getPort());
-        webSocketChannelContext.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
-        webSocketChannelContext.setProperty(
+        defaultWebSocketMessage.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
+        defaultWebSocketMessage.setProperty(
                 Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
     }
 

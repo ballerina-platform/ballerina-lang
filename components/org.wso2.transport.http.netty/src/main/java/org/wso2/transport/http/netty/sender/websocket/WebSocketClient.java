@@ -41,10 +41,12 @@ import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultClientHandshakeFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
+import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
 
 import java.net.URI;
 import java.util.Map;
@@ -119,7 +121,9 @@ public class WebSocketClient {
 
             WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                     uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
-            webSocketTargetHandler = new WebSocketTargetHandler(websocketHandshaker, ssl, url, connectorListener);
+            WebSocketFramesBlockingHandler blockingHandler = new WebSocketFramesBlockingHandler();
+            webSocketTargetHandler = new WebSocketTargetHandler(websocketHandshaker, blockingHandler, ssl, autoRead,
+                                                                url, connectorListener);
 
             Bootstrap clientBootstrap = new Bootstrap();
             clientBootstrap.group(wsClientEventLoopGroup).channel(NioSocketChannel.class).handler(
@@ -138,7 +142,7 @@ public class WebSocketClient {
                             pipeline.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
                                                            idleTimeout, TimeUnit.MILLISECONDS));
                         }
-                        pipeline.addLast(webSocketTargetHandler);
+                        pipeline.addLast(Constants.WEBSOCKET_FRAME_HANDLER, webSocketTargetHandler);
                     }
                 });
 
@@ -150,7 +154,6 @@ public class WebSocketClient {
                     channel.config().setAutoRead(autoRead);
                     DefaultWebSocketConnection webSocketConnection = webSocketTargetHandler.getWebSocketConnection();
                     String actualSubProtocol = websocketHandshaker.actualSubprotocol();
-                    webSocketTargetHandler.setActualSubProtocol(actualSubProtocol);
                     webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(actualSubProtocol);
                     handshakeFuture.notifySuccess(webSocketConnection, webSocketTargetHandler.getHttpCarbonResponse());
                 } else {

@@ -11,9 +11,11 @@ import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PongWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
 import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
+import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
 
 import java.nio.ByteBuffer;
 import javax.websocket.Session;
@@ -26,13 +28,17 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     private final WebSocketInboundFrameHandler frameHandler;
     private final ChannelHandlerContext ctx;
     private final DefaultWebSocketSession session;
+    private WebSocketFramesBlockingHandler blockingHandler;
     private WebSocketFrameType continuationFrameType;
     private boolean closeFrameSent;
     private int sentCloseStatusCode;
 
-    public DefaultWebSocketConnection(WebSocketInboundFrameHandler frameHandler, DefaultWebSocketSession session) {
+    public DefaultWebSocketConnection(ChannelHandlerContext ctx, WebSocketInboundFrameHandler frameHandler,
+                                      WebSocketFramesBlockingHandler blockingHandler,
+                                      DefaultWebSocketSession session) {
+        this.ctx = ctx;
         this.frameHandler = frameHandler;
-        this.ctx = frameHandler.getChannelHandlerContext();
+        this.blockingHandler = blockingHandler;
         this.session = session;
     }
 
@@ -48,17 +54,20 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public void readNextFrame() {
-        ctx.channel().read();
+        blockingHandler.readNextFrame();
     }
 
     @Override
     public void startReadingFrames() {
+        ctx.pipeline().remove(Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER);
         ctx.channel().config().setAutoRead(true);
     }
 
     @Override
     public void stopReadingFrames() {
         ctx.channel().config().setAutoRead(false);
+        ctx.pipeline().addBefore(Constants.WEBSOCKET_FRAME_HANDLER, Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER,
+                                 blockingHandler = new WebSocketFramesBlockingHandler());
     }
 
     @Override
