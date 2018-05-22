@@ -47,6 +47,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeInitExpr;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.BallerinaUserDefineTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaActionInvocationProcessor;
@@ -85,19 +86,25 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
 
         BallerinaTypeInitExpr typeInitExpr = PsiTreeUtil.getParentOfType(myElement, BallerinaTypeInitExpr.class);
         if (typeInitExpr != null) {
-            BallerinaVariableDefinitionStatement variableDefinitionStatement = PsiTreeUtil.getParentOfType(typeInitExpr,
-                    BallerinaVariableDefinitionStatement.class);
-            if (variableDefinitionStatement != null) {
-                if (BallerinaPsiImplUtil.isObjectInitializer(variableDefinitionStatement)) {
-                    PsiElement type = BallerinaPsiImplUtil.getType(variableDefinitionStatement);
-                    if (type != null && type.getParent() instanceof BallerinaTypeDefinition) {
-                        BallerinaObjectInitializer initializer =
-                                BallerinaPsiImplUtil.getInitializer(((BallerinaTypeDefinition) type.getParent()));
-                        if (initializer != null) {
-                            return initializer.getNew();
+            // We need to check for user defined types for cases like "Person p = new Employee();" where we are
+            // trying to resolve Employee.
+            BallerinaUserDefineTypeName userDefineTypeName = PsiTreeUtil.getChildOfType(typeInitExpr,
+                    BallerinaUserDefineTypeName.class);
+            if (userDefineTypeName == null) {
+                BallerinaVariableDefinitionStatement variableDefinitionStatement =
+                        PsiTreeUtil.getParentOfType(typeInitExpr, BallerinaVariableDefinitionStatement.class);
+                if (variableDefinitionStatement != null) {
+                    if (BallerinaPsiImplUtil.isObjectInitializer(variableDefinitionStatement)) {
+                        PsiElement type = BallerinaPsiImplUtil.getType(variableDefinitionStatement);
+                        if (type != null && type.getParent() instanceof BallerinaTypeDefinition) {
+                            BallerinaObjectInitializer initializer =
+                                    BallerinaPsiImplUtil.getInitializer(((BallerinaTypeDefinition) type.getParent()));
+                            if (initializer != null) {
+                                return initializer.getNew();
+                            }
                         }
+                        return null;
                     }
-                    return null;
                 }
             }
         }
