@@ -755,7 +755,7 @@ public class TypeChecker extends BLangNodeVisitor {
             bracedOrTupleExpr.isBracedExpr = true;
             final BType actualType = results.get(0);
             types.setImplicitCastExpr(bracedOrTupleExpr.expressions.get(0), actualType, expType);
-            resultType = actualType;
+            resultType = types.checkType(bracedOrTupleExpr.expressions.get(0), actualType, expType);
         }
     }
 

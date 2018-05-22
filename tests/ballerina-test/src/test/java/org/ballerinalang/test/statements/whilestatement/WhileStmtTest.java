@@ -101,8 +101,15 @@ public class WhileStmtTest {
 
     @Test(description = "Test while statement with incompatible types",
           dependsOnMethods = {"testWhileStmtConditionFalse", "testWhileStmtConditionTrue"})
-    public void testMapAccessWithIndex() {
+    public void testWhileBlockNegative() {
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 4);
         BAssertUtil.validateError(negativeCompileResult, 0, "incompatible types: expected 'boolean', found 'string'", 2,
                                  9);
+        BAssertUtil.validateError(negativeCompileResult, 1, "incompatible types: expected 'boolean', found 'string'", 6,
+                8);
+        BAssertUtil.validateError(negativeCompileResult, 2, "incompatible types: expected 'boolean', found 'int'", 10,
+                11);
+        BAssertUtil.validateError(negativeCompileResult, 3, "incompatible types: expected 'boolean', found " +
+                        "'(int,string)'", 14, 11);
     }
 }

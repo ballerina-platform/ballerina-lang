@@ -740,6 +740,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangIf ifNode) {
         typeChecker.checkExpr(ifNode.expr, env, symTable.booleanType);
+        BType actualType = ifNode.expr.type;
+        if (TypeTags.TUPLE == actualType.tag) {
+            dlog.error(ifNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
+        }
         analyzeStmt(ifNode.body, env);
 
         if (ifNode.elseStmt != null) {
@@ -785,6 +789,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, symTable.booleanType);
+
+        BType actualType = whileNode.expr.type;
+        if (TypeTags.TUPLE == actualType.tag) {
+            dlog.error(whileNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
+        }
+
         analyzeStmt(whileNode.body, env);
     }
 
