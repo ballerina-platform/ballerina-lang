@@ -100,6 +100,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaServiceDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaStreamTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaStringTemplateLiteralExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaTableTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaTupleDestructuringStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTupleTypeName;
@@ -526,6 +527,9 @@ public class BallerinaPsiImplUtil {
                     } else if (expression instanceof BallerinaXmlLiteralExpression) {
                         Project project = ballerinaAssignmentStatement.getProject();
                         result = BallerinaElementFactory.createTypeFromText(project, "xml");
+                    } else if (expression instanceof BallerinaStringTemplateLiteralExpression) {
+                        Project project = ballerinaAssignmentStatement.getProject();
+                        result = BallerinaElementFactory.createTypeFromText(project, "string");
                     }
                     // Todo - Add more types
                 }

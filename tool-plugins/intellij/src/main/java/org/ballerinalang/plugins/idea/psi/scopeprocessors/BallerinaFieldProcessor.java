@@ -233,6 +233,26 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                         }
                     }
                 } else if (type.getParent().getParent() instanceof BallerinaBuiltInReferenceTypeName) {
+                    // Note - Built-in functions for xml literals in var assignments are handled from here.
+                    List<BallerinaFunctionDefinition> functionDefinitions =
+                            BallerinaPsiImplUtil.suggestBuiltInFunctions(type);
+
+                    for (BallerinaFunctionDefinition functionDefinition : functionDefinitions) {
+                        PsiElement identifier = functionDefinition.getIdentifier();
+                        if (identifier != null) {
+                            if (myResult != null) {
+                                // Todo - Conside oncommit, onabort, etc and set the insert handler
+                                // Note - Child is passed here instead of identifier because it is is top level
+                                // definition.
+                                myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(
+                                        functionDefinition, SmartParenthesisInsertHandler.INSTANCE));
+                            } else if (myElement.getText().equals(identifier.getText())) {
+                                add(identifier);
+                            }
+                        }
+                    }
+                } else if (type.getParent().getParent() instanceof BallerinaSimpleTypeName) {
+                    // Note - Built-in functions for string literals in var assignments are handled from here.
                     List<BallerinaFunctionDefinition> functionDefinitions =
                             BallerinaPsiImplUtil.suggestBuiltInFunctions(type);
 
