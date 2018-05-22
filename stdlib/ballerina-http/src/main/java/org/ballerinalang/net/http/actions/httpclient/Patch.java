@@ -60,7 +60,7 @@ public class Patch extends AbstractHTTPAction {
             // Execute the operation
             executeNonBlockingAction(dataContext);
         } catch (ClientConnectorException clientConnectorException) {
-            BallerinaException exception = new BallerinaExc eption("Failed to invoke 'patch' action in " +
+            BallerinaException exception = new BallerinaException("Failed to invoke 'patch' action in " +
                     HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
             dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(context, exception));
         }

@@ -64,7 +64,7 @@ public class Head extends AbstractHTTPAction {
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'head' action in " +
                     HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
-            dataContext.notifyInboundResponseStatus(null, HttpUtil.getHttpConnectorError(context, exception));
+            dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(context, exception));
         }
     }
 

@@ -62,7 +62,7 @@ public class Post extends AbstractHTTPAction {
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'post' action in " +
                     HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
-            dataContext.notifyInboundResponseStatus(null, HttpUtil.getHttpConnectorError(context, exception));
+            dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(context, exception));
         }
     }
 

@@ -393,8 +393,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         if (entityStruct != null) {
             MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
-                messageDataSource.serializeData(messageOutputStream);
-                HttpUtil.closeMessageOutputStream(messageOutputStream);
+                try {
+                    messageDataSource.serializeData(messageOutputStream);
+                } finally {
+                    HttpUtil.closeMessageOutputStream(messageOutputStream);
+                }
             } else { //When the entity body is a byte channel and when it is not null
                 if (EntityBodyHandler.getByteChannel(entityStruct) != null) {
                     try {
@@ -424,10 +427,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
 
         @Override
-        public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+        public void onMessage(HTTPCarbonMessage inboundResponseMessage) {
             this.outboundMsgDataStreamer.setIoException(new IOException("Response message already received"));
             this.dataContext.notifyInboundResponseStatus
-                    (createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+                    (createResponseStruct(this.dataContext.context, inboundResponseMessage), null);
         }
 
         @Override

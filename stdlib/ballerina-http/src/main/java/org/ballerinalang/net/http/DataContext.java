@@ -53,9 +53,13 @@ public class DataContext {
                 BStruct entityStruct = extractEntity(requestStruct);
                 if (entityStruct != null) {
                     MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
-                    if (messageDataSource != null || EntityBodyHandler.getByteChannel(entityStruct) != null) {
+                    if (messageDataSource == null && EntityBodyHandler.getByteChannel(entityStruct) == null) {
+                        correlatedMessage.addHttpContent(new DefaultLastHttpContent());
+                    } else {
                         correlatedMessage.waitAndReleaseAllEntities();
                     }
+                } else {
+                    correlatedMessage.addHttpContent(new DefaultLastHttpContent());
                 }
             }
         }

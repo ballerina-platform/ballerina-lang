@@ -61,7 +61,7 @@ public class Delete extends AbstractHTTPAction {
         } catch (ClientConnectorException clientConnectorException) {
             BallerinaException exception = new BallerinaException("Failed to invoke 'delete' action in " +
                     HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), dataContext.context);
-            dataContext.notifyInboundResponseStatus(null, HttpUtil.getHttpConnectorError(context, exception));
+            dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(context, exception));
         }
     }
 
