@@ -32,6 +32,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaField;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
 import org.ballerinalang.plugins.idea.psi.BallerinaInvocation;
+import org.ballerinalang.plugins.idea.psi.BallerinaObjectParameter;
 import org.ballerinalang.plugins.idea.psi.BallerinaOrgName;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageName;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
@@ -138,6 +139,13 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             // Skip unresolved invocations.
             BallerinaInvocation invocation = PsiTreeUtil.getParentOfType(identifier, BallerinaInvocation.class);
             if (invocation != null) {
+                continue;
+            }
+
+            // Skip parameters in object initializer.
+            BallerinaObjectParameter objectParameter = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaObjectParameter.class);
+            if (objectParameter != null) {
                 continue;
             }
 
