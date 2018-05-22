@@ -83,6 +83,9 @@ public class SourceHandlerErrorHandler {
                 // idle timeout is triggered.
                 httpOutboundRespFuture.notifyHttpListener(new ServerConnectorException(
                         Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
+                break;
+            default:
+                log.error("Unexpected state detected ", state);
             }
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
