@@ -37,6 +37,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaNameReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaNamespaceDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaNamespaceDeclarationStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectBody;
+import org.ballerinalang.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectDefaultableParameter;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectInitializer;
@@ -268,6 +269,10 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             if (!isCompletion() && getResult() != null) {
                 return false;
             }
+            processObjectFunctionSignature(scopeElement);
+            if (!isCompletion() && getResult() != null) {
+                return false;
+            }
             processServiceBody(scopeElement);
             if (!isCompletion() && getResult() != null) {
                 return false;
@@ -412,6 +417,26 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
         //                }
         //            }
         //        }
+
+        BallerinaFormalParameterList formalParameterList = callableUnitSignature.getFormalParameterList();
+        if (formalParameterList == null) {
+            return;
+        }
+        processFormalParameterList(formalParameterList);
+    }
+
+    private void processObjectFunctionSignature(@NotNull PsiElement scopeElement) {
+        BallerinaObjectFunctionDefinition objectFunctionDefinition = PsiTreeUtil.getParentOfType(scopeElement,
+                BallerinaObjectFunctionDefinition.class);
+        if (objectFunctionDefinition == null) {
+            return;
+        }
+
+        BallerinaObjectCallableUnitSignature callableUnitSignature =
+                objectFunctionDefinition.getObjectCallableUnitSignature();
+        if (callableUnitSignature == null) {
+            return;
+        }
 
         BallerinaFormalParameterList formalParameterList = callableUnitSignature.getFormalParameterList();
         if (formalParameterList == null) {
