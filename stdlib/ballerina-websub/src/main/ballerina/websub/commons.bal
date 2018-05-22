@@ -409,7 +409,12 @@ public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:B
         return webSubError;
     }
 
-    WebSubContent content = { payload:payload };
+    WebSubContent content = {};
+
+    match(payload) {
+        io:ByteChannel byteChannel => content.payload = constructBlob(byteChannel);
+        string|xml|json|blob => content.payload = payload;
+    }
 
     match(contentType) {
         string contentType => content.contentType = contentType;
@@ -418,8 +423,7 @@ public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:B
                 string => content.contentType = mime:TEXT_PLAIN;
                 xml => content.contentType = mime:APPLICATION_XML;
                 json => content.contentType = mime:APPLICATION_JSON;
-                blob => content.contentType = mime:APPLICATION_OCTET_STREAM;
-                io:ByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
+                blob|io:ByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
             }
         }
     }

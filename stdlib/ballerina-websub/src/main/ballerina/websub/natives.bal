@@ -116,3 +116,5 @@ documentation {
     R{{}} `error` if an error occurred during publishing
 }
 native function validateAndPublishToInternalHub(string hubUrl, string topic, WebSubContent content) returns error?;
+
+native function constructBlob(io:ByteChannel byteChannel) returns blob;
