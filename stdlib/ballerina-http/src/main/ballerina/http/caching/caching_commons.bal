@@ -106,7 +106,7 @@ public type RequestCacheControl object {
     public {
         boolean noCache = false;
         boolean noStore = false;
-        boolean noTransform = true;
+        boolean noTransform = false;
         boolean onlyIfCached = false;
         int maxAge = -1;
         int maxStale = -1;
@@ -185,7 +185,7 @@ public type ResponseCacheControl object {
         boolean mustRevalidate = false;
         boolean noCache = false;
         boolean noStore = false;
-        boolean noTransform = true;
+        boolean noTransform = false;
         boolean isPrivate = false;
         boolean proxyRevalidate = false;
         int maxAge = -1;
