@@ -22,19 +22,20 @@ package org.wso2.transport.http.netty.contract.websocket;
 /**
  * Future listener for WebSocket handshake.
  */
-public interface HandshakeListener {
+public interface ServerHandshakeListener {
 
     /**
      * Notify the success of the handshake.
      *
      * @param webSocketConnection {@link WebSocketConnection} for the successful handshake.
      */
-    public void onSuccess(WebSocketConnection webSocketConnection);
+    void onSuccess(WebSocketConnection webSocketConnection);
 
     /**
      * Notify error on handshake.
+     *
      * @param t error occurred during handshake.
      */
-    public void onError(Throwable t);
+    void onError(Throwable t);
 
 }

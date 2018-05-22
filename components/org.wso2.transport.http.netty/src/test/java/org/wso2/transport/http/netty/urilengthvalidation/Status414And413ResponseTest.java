@@ -18,6 +18,10 @@
 
 package org.wso2.transport.http.netty.urilengthvalidation;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.http.options.Options;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -44,8 +48,9 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http.HttpClient;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -91,20 +96,15 @@ public class Status414And413ResponseTest {
     @Test
     public void largeUriTest() {
         try {
-            HttpURLConnection urlConn;
+            HttpResponse<String> response = sendExtraLongUri();
+            assertEquals(HttpResponseStatus.REQUEST_URI_TOO_LONG.code(), response.getStatus());
+            assertEquals(TestUtil.TEST_SERVER, response.getHeaders().getFirst(HttpHeaderNames.SERVER.toString()));
 
-            urlConn = sendExtraLongUri();
-            assertEquals(HttpResponseStatus.REQUEST_URI_TOO_LONG.code(), urlConn.getResponseCode());
-            assertEquals(TestUtil.TEST_SERVER, urlConn.getHeaderField(HttpHeaderNames.SERVER.toString()));
-
-            urlConn = sendShortUri();
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(HttpResponseStatus.OK.code(), urlConn.getResponseCode());
-            assertEquals(TestUtil.TEST_SERVER, urlConn.getHeaderField(HttpHeaderNames.SERVER.toString()));
-            assertEquals(testValue, content);
-
-            urlConn.disconnect();
-        } catch (IOException e) {
+            response = sendShortUri();
+            assertEquals(HttpResponseStatus.OK.code(), response.getStatus());
+            assertEquals(TestUtil.TEST_SERVER, response.getHeaders().getFirst(HttpHeaderNames.SERVER.toString()));
+            assertEquals(testValue, response.getBody());
+        } catch (IOException | UnirestException e) {
             TestUtil.handleException("IOException occurred while running largeUriTest", e);
         }
     }
@@ -178,21 +178,14 @@ public class Status414And413ResponseTest {
         return header.toString();
     }
 
-    private HttpURLConnection sendShortUri() throws IOException {
-        HttpURLConnection urlConn;
-        urlConn = TestUtil
-                .request(baseURI, getUriWithLengthOf(900), HttpMethod.POST.name(), true);
-        urlConn.getOutputStream().write(testValue.getBytes());
-        urlConn.getOutputStream().flush();
-        return urlConn;
+    private HttpResponse<String> sendShortUri() throws IOException, UnirestException {
+        URL url = baseURI.resolve(getUriWithLengthOf(900)).toURL();
+        return sendPostRequest(url);
     }
 
-    private HttpURLConnection sendExtraLongUri() throws IOException {
-        HttpURLConnection urlConn = TestUtil
-                .request(baseURI, getUriWithLengthOf(9000), HttpMethod.POST.name(), true);
-        urlConn.getOutputStream().write(testValue.getBytes());
-        urlConn.getOutputStream().flush();
-        return urlConn;
+    private HttpResponse<String> sendExtraLongUri() throws MalformedURLException, UnirestException {
+        URL url = baseURI.resolve(getUriWithLengthOf(9000)).toURL();
+        return sendPostRequest(url);
     }
 
     private String getUriWithLengthOf(int length) {
@@ -203,13 +196,21 @@ public class Status414And413ResponseTest {
         return uri.toString();
     }
 
+    private HttpResponse<String> sendPostRequest(URL url) throws UnirestException {
+        return Unirest.post(url.toString()).body(testValue).asString();
+    }
+
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
         try {
+            Unirest.shutdown();
+            Options.refresh();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
             log.warn("Interrupted while waiting for HttpWsFactory to close");
+        } catch (IOException e) {
+            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }

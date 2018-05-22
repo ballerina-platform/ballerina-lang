@@ -18,11 +18,14 @@
 
 package org.wso2.transport.http.netty.headers;
 
-import com.mashape.unirest.http.HttpResponse;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.http.exceptions.UnirestException;
-import com.mashape.unirest.http.options.Options;
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -30,7 +33,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.contentaware.listeners.EchoStreamingMessageListener;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -38,22 +40,15 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
+import org.wso2.transport.http.netty.util.client.http.HttpClient;
+import org.wso2.transport.http.netty.util.server.listeners.Continue100Listener;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.URI;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
+import java.util.List;
 
-import static io.netty.handler.codec.http.HttpHeaderValues.CLOSE;
-import static io.netty.handler.codec.http.HttpHeaders.Names.CONNECTION;
+public class Continue100TestCase {
 
-/**
- * Test case for ensuring that the Date header is correctly set.
- */
-public class DateHeaderTestCase {
-
-    private static final Logger log = LoggerFactory.getLogger(DateHeaderTestCase.class);
+    private static final Logger log = LoggerFactory.getLogger(Continue100TestCase.class);
 
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory httpWsConnectorFactory;
@@ -62,42 +57,51 @@ public class DateHeaderTestCase {
     public void setup() throws InterruptedException {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
-        ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
+        listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
 
+        ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+
         serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(new EchoStreamingMessageListener());
-
+        serverConnectorFuture.setHttpConnectorListener(new Continue100Listener());
         serverConnectorFuture.sync();
     }
 
     @Test
-    public void testDateHeaderFormatAndExistence() {
-        try {
-            URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
-            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString())
-                    .header(CONNECTION, CLOSE.toString()).body(TestUtil.smallEntity).asString();
+    public void test100Continue() {
+        HttpClient httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
 
-            String date = response.getHeaders().getFirst(HttpHeaderNames.DATE.toString());
-            Assert.assertEquals(response.getStatus(), HttpURLConnection.HTTP_OK);
-            Assert.assertNotNull(DateTimeFormatter.RFC_1123_DATE_TIME.parse(date));
-        } catch (UnirestException e) {
-            TestUtil.handleException("Exception occurred while running postTest", e);
-        }
+        DefaultHttpRequest reqHeaders = new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, "/");
+        DefaultLastHttpContent reqPayload = new DefaultLastHttpContent(
+                Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
+
+        reqHeaders.headers().set(HttpHeaderNames.CONTENT_LENGTH, TestUtil.largeEntity.getBytes().length);
+
+        List<FullHttpResponse> responses = httpClient.sendExpectContinueRequest(reqHeaders, reqPayload);
+
+        Assert.assertFalse(httpClient.waitForChannelClose());
+
+        // 100-continue response
+        Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.CONTINUE);
+        Assert.assertEquals(Integer.parseInt(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH)), 0);
+
+        // Actual response
+        String responsePayload = TestUtil.getEntityBodyFrom(responses.get(1));
+        Assert.assertEquals(responses.get(1).status(), HttpResponseStatus.OK);
+        Assert.assertEquals(responsePayload, TestUtil.largeEntity);
+        Assert.assertEquals(responsePayload.getBytes().length, TestUtil.largeEntity.getBytes().length);
+        Assert.assertEquals(Integer.parseInt(responses.get(1).headers().get(HttpHeaderNames.CONTENT_LENGTH)),
+                            TestUtil.largeEntity.getBytes().length);
     }
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
         try {
-            Unirest.shutdown();
-            Options.refresh();
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {
-            log.warn("Interrupted while waiting for HttpWsFactory to shutdown", e);
-        } catch (IOException e) {
-            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+            log.error("Interrupted while waiting for HttpWsFactory to shutdown", e);
         }
     }
 }

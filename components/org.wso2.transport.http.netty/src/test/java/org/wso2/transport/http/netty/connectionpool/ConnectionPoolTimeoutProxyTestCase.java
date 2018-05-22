@@ -18,7 +18,10 @@
 
 package org.wso2.transport.http.netty.connectionpool;
 
-import io.netty.handler.codec.http.HttpMethod;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.http.options.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
@@ -38,7 +41,6 @@ import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.SendChannelIDServerInitializer;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.concurrent.Callable;
@@ -104,17 +106,6 @@ public class ConnectionPoolTimeoutProxyTestCase {
         }
     }
 
-    @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-        try {
-            serverConnector.stop();
-            httpServer.shutdown();
-            httpWsConnectorFactory.shutdown();
-        } catch (Exception e) {
-            logger.warn("Interrupted while waiting for response two", e);
-        }
-    }
-
     private class ClientWorker implements Callable<String> {
 
         private String response;
@@ -123,16 +114,28 @@ public class ConnectionPoolTimeoutProxyTestCase {
         public String call() throws Exception {
             try {
                 URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
-                HttpURLConnection urlConn = TestUtil
-                        .request(baseURI, "/", HttpMethod.POST.name(), true);
-                urlConn.getOutputStream().write(TestUtil.smallEntity.getBytes());
-                response = TestUtil.getContent(urlConn);
-                urlConn.disconnect();
-            } catch (IOException e) {
+                HttpResponse<String> httpResponse = Unirest.post(baseURI.resolve("/").toString())
+                    .body(TestUtil.smallEntity).asString();
+                response = httpResponse.getBody();
+            } catch (UnirestException e) {
                 logger.error("Couldn't get the response", e);
             }
-
             return response;
+        }
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        try {
+            Unirest.shutdown();
+            Options.refresh();
+            serverConnector.stop();
+            httpServer.shutdown();
+            httpWsConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            logger.warn("Interrupted while waiting for response two", e);
+        } catch (IOException e) {
+            logger.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
         }
     }
 }
