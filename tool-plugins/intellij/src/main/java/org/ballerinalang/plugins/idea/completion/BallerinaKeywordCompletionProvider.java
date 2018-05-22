@@ -92,6 +92,9 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                                 BallerinaPsiImplUtil.getType((BallerinaVariableDefinitionStatement) superParent);
                         if (type != null) {
                             BallerinaCompletionUtils.addNewAsLookup(result, (BallerinaTypeDefinition) type.getParent());
+                            if (tempParent.getChildren().length == 1) {
+                                BallerinaCompletionUtils.addExpressionKeywordsAsLookups(result);
+                            }
                             return;
                         }
                     }
