@@ -629,7 +629,7 @@ function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) re
 function isFreshResponse(Response cachedResponse, boolean isSharedCache) returns boolean {
     int currentAge = getResponseAge(cachedResponse);
     int freshnessLifetime = getFreshnessLifetime(cachedResponse, isSharedCache);
-    return freshnessLifetime >= currentAge;
+    return freshnessLifetime > currentAge;
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
@@ -757,12 +757,14 @@ function isAStrongValidator(string etag) returns boolean {
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
 function replaceHeaders(Response cachedResponse, Response validationResponse) {
     string[] headerNames = validationResponse.getHeaderNames();
+
+    log:printDebug("Updating response headers using validation response.");
+    
     foreach headerName in headerNames {
         cachedResponse.removeHeader(headerName);
         string[] headerValues = validationResponse.getHeaders(headerName);
         foreach value in headerValues {
             cachedResponse.addHeader(headerName, value);
-            log:printInfo("Re-adding header: " + headerName + ": " + value);
         }
     }
 }
