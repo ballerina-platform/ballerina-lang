@@ -55,10 +55,10 @@ function registerMenuLoader() {
                         click: () => {
                             event.sender.send('menu-item-clicked', childMenu.command);
                         },
+                        accelerator: childMenu.gen.shortcut,
                         enabled:(typeof(childMenu.gen.isActive) === 'boolean')
                                 ? childMenu.gen.isActive 
                                 : true,
-                        sublabel: childMenu.gen.subLabel
                     }
                 })
             }

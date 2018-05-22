@@ -122,6 +122,7 @@ class MenuPlugin extends Plugin {
             const populateNativeMenuItem = (node) => {
                 node.gen = {
                     isActive: true,
+                    shortcut: node.command ? this.getShortcutForCommand(node.command) : '',
                     subLabel: node.command ? this.getLabelForCommand(node.command) : '',
                 };
                 if (typeof node.isActive === 'function') {
@@ -148,12 +149,21 @@ class MenuPlugin extends Plugin {
     }
 
     /**
-     * Gets the shortcut for command
+     * Gets the shortcut label for command
      * @param {String} cmdID command ID
      */
     getLabelForCommand(cmdID) {
         const cmd = this.appContext.command.findCommand(cmdID);
         return _.get(cmd, 'shortcut.derived.label', '');
+    }
+
+    /**
+     * Gets the shortcut for command
+     * @param {String} cmdID command ID
+     */
+    getShortcutForCommand(cmdID) {
+        const cmd = this.appContext.command.findCommand(cmdID);
+        return _.get(cmd, 'shortcut.derived.key', '');
     }
 
     /**
