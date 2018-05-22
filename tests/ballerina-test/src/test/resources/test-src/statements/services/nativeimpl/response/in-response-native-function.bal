@@ -2,80 +2,80 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-function testContentType (http:Response res, string contentTypeValue) returns (string?) {
+function testContentType(http:Response res, string contentTypeValue) returns string? {
     res.setContentType(contentTypeValue);
     return res.getContentType();
 }
 
-function testGetContentLength (http:Response res) returns (string) {
+function testGetContentLength(http:Response res) returns string {
     return res.getHeader("content-length");
 }
 
-function testAddHeader (http:Response res, string key, string value) returns (http:Response) {
+function testAddHeader(http:Response res, string key, string value) returns http:Response {
     res.addHeader(key, value);
     return res;
 }
 
-function testGetHeader (http:Response res, string key) returns (string) {
+function testGetHeader(http:Response res, string key) returns string {
     string contentType = res.getHeader(key);
     return contentType;
 }
 
-function testGetHeaders (http:Response res, string key) returns (string[]) {
+function testGetHeaders(http:Response res, string key) returns string[] {
     return res.getHeaders(key);
 }
 
-function testGetJsonPayload (http:Response res) returns (json | error) {
+function testGetJsonPayload(http:Response res) returns json|error {
     return res.getJsonPayload();
 }
 
-function testGetStringPayload (http:Response res) returns (string | error) {
+function testGetTextPayload (http:Response res) returns (string | error) {
     return res.getTextPayload();
 }
 
-function testGetBinaryPayload (http:Response res) returns (blob | error) {
+function testGetBinaryPayload(http:Response res) returns blob|error {
     return res.getBinaryPayload();
 }
 
-function testGetXmlPayload (http:Response res) returns (xml | error) {
+function testGetXmlPayload(http:Response res) returns xml|error {
     return res.getXmlPayload();
 }
 
-function testSetPayloadAndGetText ((string | xml | json | blob | io:ByteChannel) payload) returns string | error {
+function testSetPayloadAndGetText((string|xml|json|blob|io:ByteChannel) payload) returns string|error {
     http:Response res = new;
     res.setPayload(payload);
     return res.getTextPayload();
 }
 
-function testRemoveHeader (http:Response res, string key) returns (http:Response) {
+function testRemoveHeader(http:Response res, string key) returns http:Response {
     res.removeHeader(key);
     return res;
 }
 
-function testRemoveAllHeaders (http:Response res) returns (http:Response) {
+function testRemoveAllHeaders(http:Response res) returns http:Response {
     res.removeAllHeaders();
     return res;
 }
 
-function testSetHeader (string key, string value) returns (http:Response) {
+function testSetHeader(string key, string value) returns http:Response {
     http:Response res = new;
     res.setHeader(key, value);
     return res;
 }
 
-function testSetJsonPayload (json value) returns (http:Response) {
+function testSetJsonPayload(json value) returns http:Response {
     http:Response res = new;
     res.setJsonPayload(value);
     return res;
 }
 
-function testSetStringPayload (string value) returns (http:Response) {
+function testSetStringPayload(string value) returns http:Response {
     http:Response res = new;
     res.setTextPayload(value);
     return res;
 }
 
-function testSetXmlPayload (xml value) returns (http:Response) {
+function testSetXmlPayload(xml value) returns http:Response {
     http:Response res = new;
     res.setXmlPayload(value);
     return res;
@@ -157,9 +157,9 @@ service<http:Service> hello bind mockEP {
     }
 
     @http:ResourceConfig {
-        path:"/GetStringPayload/{valueStr}"
+        path:"/GetTextPayload/{valueStr}"
     }
-    GetStringPayload(endpoint conn, http:Request req, string valueStr) {
+    GetTextPayload(endpoint conn, http:Request req, string valueStr) {
         http:Response res = new;
         res.setTextPayload(valueStr);
         match res.getTextPayload() {

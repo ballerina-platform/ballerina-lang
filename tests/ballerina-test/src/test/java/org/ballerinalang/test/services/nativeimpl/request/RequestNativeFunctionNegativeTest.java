@@ -110,8 +110,8 @@ public class RequestNativeFunctionNegativeTest {
                 "since the received content-type is : text/plain\", cause:null}")));
     }
 
-    @Test(description = "Test getStringPayload method with JSON payload")
-    public void testGetStringPayloadMethodWithJsonPayloadNegative() {
+    @Test(description = "Test getTextPayload method with JSON payload")
+    public void testGetTextPayloadMethodWithJsonPayloadNegative() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
 
@@ -121,7 +121,7 @@ public class RequestNativeFunctionNegativeTest {
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0].stringValue().contains("Entity body is not text compatible since the" +
@@ -138,14 +138,14 @@ public class RequestNativeFunctionNegativeTest {
         Assert.assertNotNull(returnVals[0]);
     }
 
-    @Test(description = "Test getStringPayload method without a paylaod")
-    public void testGetStringPayloadNegative() {
+    @Test(description = "Test getTextPayload method without a paylaod")
+    public void testGetTextPayloadNegative() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         TestEntityUtils.enrichTestEntityHeaders(entity, TEXT_PLAIN);
         inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
         BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", inputArg);
         Assert.assertTrue(returnVals[0].stringValue().contains("Error occurred while retrieving text data from " +
                 "entity : String payload is null"));
     }

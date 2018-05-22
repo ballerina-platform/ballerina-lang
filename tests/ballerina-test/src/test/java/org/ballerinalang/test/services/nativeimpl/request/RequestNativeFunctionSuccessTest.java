@@ -281,7 +281,7 @@ public class RequestNativeFunctionSuccessTest {
     }
 
     @Test
-    public void testGetStringPayload() {
+    public void testGetTextPayload() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
@@ -292,16 +292,16 @@ public class RequestNativeFunctionSuccessTest {
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 
-    @Test(description = "Test GetStringPayload function within a service")
-    public void testServiceGetStringPayload() {
+    @Test(description = "Test GetTextPayload function within a service")
+    public void testServiceGetTextPayload() {
         String value = "ballerina";
-        String path = "/hello/GetStringPayload";
+        String path = "/hello/GetTextPayload";
         List<Header> headers = new ArrayList<>();
         headers.add(new Header(HttpHeaderNames.CONTENT_TYPE.toString(), TEXT_PLAIN));
         HTTPTestRequest inRequestMsg = MessageUtils

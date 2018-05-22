@@ -104,14 +104,14 @@ public class ResponseNativeFunctionNegativeTest {
                 "since the received content-type is : text/plain\", cause:null}")));
     }
 
-    @Test(description = "Test getStringPayload method without a paylaod")
-    public void testGetStringPayloadNegative() {
+    @Test(description = "Test getTextPayload method without a paylaod")
+    public void testGetTextPayloadNegative() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inRespStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         TestEntityUtils.enrichTestEntityHeaders(entity, TEXT_PLAIN);
         inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         BValue[] inputArg = {inResponse};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0].stringValue().contains("Error occurred while retrieving text" +
