@@ -36,6 +36,9 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
   BallerinaCompoundAssignmentStatement getCompoundAssignmentStatement();
 
   @Nullable
+  BallerinaDoneStatement getDoneStatement();
+
+  @Nullable
   BallerinaExpressionStmt getExpressionStmt();
 
   @Nullable
