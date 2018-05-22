@@ -88,7 +88,6 @@ public class TomlProcessor {
         } else {
             tableHeading.add(ctx.key().getText());
         }
-
         return tableHeading;
     }
 }

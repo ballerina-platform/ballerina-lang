@@ -27,7 +27,7 @@ import java.util.function.BiConsumer;
 /**
  * Repository object fields.
  *
- * @since 0.971
+ * @since 0.971.1
  */
 public enum RepositoryField {
     NAME(Repository::setName),

@@ -20,7 +20,7 @@ package org.ballerinalang.toml.model;
 /**
  * Defines the repository object fields.
  *
- * @since 0.971
+ * @since 0.971.1
  */
 public class Repository {
     private String name;

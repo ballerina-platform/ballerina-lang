@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 /**
  * Defines the repositories object which is defines the remote repositories that can be used for package management.
  *
- * @since 0.971
+ * @since 0.971.1
  */
 public class Repositories {
     private List<String> repoOrder = new ArrayList<>();

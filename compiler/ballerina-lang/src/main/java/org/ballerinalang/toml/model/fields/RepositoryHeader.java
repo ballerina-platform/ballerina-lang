@@ -22,7 +22,7 @@ import java.util.Locale;
 /**
  * Section headers valid in the settings toml file.
  *
- * @since 0.970.1
+ * @since 0.971.1
  */
 public enum RepositoryHeader {
     REPOSITORIES;

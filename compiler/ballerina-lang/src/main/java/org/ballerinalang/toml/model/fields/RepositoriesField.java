@@ -29,7 +29,7 @@ import java.util.function.BiConsumer;
 /**
  * Fields defined in the "repositories" header.
  *
- * @since 0.970.1
+ * @since 0.971.1
  */
 public enum RepositoriesField {
     DEFAULT(Repositories::setRepoOrder);
