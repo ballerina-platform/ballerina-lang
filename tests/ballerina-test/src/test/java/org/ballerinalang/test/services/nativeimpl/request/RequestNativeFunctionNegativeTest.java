@@ -24,13 +24,12 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.test.services.testutils.EntityUtils;
+import org.ballerinalang.test.services.testutils.TestEntityUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -87,9 +86,7 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetJsonPayloadWithoutPayload() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        MimeUtil.setContentType(mediaType, entity, APPLICATION_JSON);
-        EntityUtils.enrichTestEntityHeaders(entity, APPLICATION_JSON);
+        TestEntityUtils.enrichTestEntityHeaders(entity, APPLICATION_JSON);
         inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
@@ -100,19 +97,35 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetJsonPayloadWithStringPayload() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
         String payload = "ballerina";
-        EntityUtils.enrichTestEntityWithDifferentHeaderAndByteChannel(entity, mediaType, TEXT_PLAIN,
-                APPLICATION_JSON, payload);
+        TestEntityUtils.enrichTestEntity(entity, TEXT_PLAIN, payload);
         inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
         Assert.assertNotNull(returnVals[0]);
-        Assert.assertTrue(((BStruct) returnVals[0]).getStringField(0).contains("Error occurred while" +
-                " extracting json data from entity: failed to create json: unrecognized token 'ballerina'"));
+        Assert.assertTrue((returnVals[0].stringValue().contains("{message:\"Entity body is not json compatible " +
+                "since the received content-type is : text/plain\", cause:null}")));
+    }
+
+    @Test(description = "Test getStringPayload method with JSON payload")
+    public void testGetStringPayloadMethodWithJsonPayloadNegative() {
+        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
+        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
+
+        String payload = "{\"code\":\"123\"}";
+        TestEntityUtils.enrichTestEntity(entity, APPLICATION_JSON, payload);
+        inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
+        inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
+
+        BValue[] inputArg = {inRequest};
+        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
+        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
+                "Invalid Return Values.");
+        Assert.assertTrue(returnVals[0].stringValue().contains("Entity body is not text compatible since the" +
+                " received content-type is : application/json"), payload);
     }
 
     @Test(description = "Test getEntity method on a outRequest without a entity")
@@ -129,9 +142,7 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetStringPayloadNegative() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        MimeUtil.setContentType(mediaType, entity, TEXT_PLAIN);
-        EntityUtils.enrichTestEntityHeaders(entity, TEXT_PLAIN);
+        TestEntityUtils.enrichTestEntityHeaders(entity, TEXT_PLAIN);
         inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
@@ -143,9 +154,7 @@ public class RequestNativeFunctionNegativeTest {
     public void testGetXmlPayloadNegative() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-        MimeUtil.setContentType(mediaType, entity, APPLICATION_XML);
-        EntityUtils.enrichTestEntityHeaders(entity, APPLICATION_XML);
+        TestEntityUtils.enrichTestEntityHeaders(entity, APPLICATION_XML);
         inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
         BValue[] inputArg = {inRequest};
         BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);

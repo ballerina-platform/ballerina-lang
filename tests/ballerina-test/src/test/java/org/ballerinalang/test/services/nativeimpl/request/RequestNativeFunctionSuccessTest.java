@@ -40,10 +40,10 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
-import org.ballerinalang.test.services.testutils.EntityUtils;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.services.testutils.TestEntityUtils;
 import org.ballerinalang.test.utils.ResponseReader;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -253,10 +253,9 @@ public class RequestNativeFunctionSuccessTest {
     public void testGetJsonPayload() {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
         String payload = "{'code':'123'}";
-        EntityUtils.enrichTestEntity(entity, mediaType, APPLICATION_JSON, payload);
+        TestEntityUtils.enrichTestEntity(entity, APPLICATION_JSON, payload);
         inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inRequest};
@@ -288,7 +287,7 @@ public class RequestNativeFunctionSuccessTest {
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
         String payload = "ballerina";
-        EntityUtils.enrichTestEntity(entity, mediaType, TEXT_PLAIN, payload);
+        TestEntityUtils.enrichTestEntity(entity, TEXT_PLAIN, payload);
         inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -319,7 +318,7 @@ public class RequestNativeFunctionSuccessTest {
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
         String payload = "<name>ballerina</name>";
-        EntityUtils.enrichTestEntity(entity, mediaType, APPLICATION_XML, payload);
+        TestEntityUtils.enrichTestEntity(entity, APPLICATION_XML, payload);
         inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
@@ -365,25 +364,6 @@ public class RequestNativeFunctionSuccessTest {
         Assert.assertNotNull(response, "Response message not found");
         Assert.assertEquals(
                 StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream()), path);
-    }
-
-    @Test(description = "Test getStringPayload method with JSON payload")
-    public void testGetStringPayloadMethodWithJsonPayload() {
-        BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
-        BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
-
-        String payload = "{\"code\":\"123\"}";
-        EntityUtils.enrichTestEntityWithDifferentHeaderAndByteChannel(entity, mediaType, APPLICATION_JSON,
-                TEXT_PLAIN, payload);
-        inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
-        inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
-
-        BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetStringPayload", inputArg);
-        Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
-                "Invalid Return Values.");
-        Assert.assertEquals(returnVals[0].stringValue(), payload);
     }
 
     @Test(description = "Test GetByteChannel function within a service. Send a json content as a request " +

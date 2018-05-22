@@ -36,10 +36,10 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.test.services.testutils.EntityUtils;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
+import org.ballerinalang.test.services.testutils.TestEntityUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -226,10 +226,9 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetJsonPayload() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
         String payload = "{'code':'123'}";
-        EntityUtils.enrichTestEntity(entity, mediaType, APPLICATION_JSON, payload);
+        TestEntityUtils.enrichTestEntity(entity, APPLICATION_JSON, payload);
         inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
@@ -256,10 +255,9 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetStringPayload() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
         String payload = "ballerina";
-        EntityUtils.enrichTestEntity(entity, mediaType, TEXT_PLAIN, payload);
+        TestEntityUtils.enrichTestEntity(entity, TEXT_PLAIN, payload);
         inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
@@ -286,10 +284,9 @@ public class ResponseNativeFunctionSuccessTest {
     public void testGetXmlPayload() {
         BStruct inResponse = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, inResStruct);
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
 
         String payload = "<name>ballerina</name>";
-        EntityUtils.enrichTestEntity(entity, mediaType, APPLICATION_XML, payload);
+        TestEntityUtils.enrichTestEntity(entity, APPLICATION_XML, payload);
         inResponse.setRefField(RESPONSE_ENTITY_INDEX, entity);
         inResponse.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inResponse};
