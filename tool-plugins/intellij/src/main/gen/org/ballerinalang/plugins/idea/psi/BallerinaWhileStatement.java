@@ -23,16 +23,16 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaWhileStatement extends BallerinaCompositeElement {
 
-  @NotNull
+  @Nullable
   BallerinaExpression getExpression();
 
-  @NotNull
+  @Nullable
   BallerinaWhileStatementBody getWhileStatementBody();
 
-  @NotNull
+  @Nullable
   PsiElement getLeftParenthesis();
 
-  @NotNull
+  @Nullable
   PsiElement getRightParenthesis();
 
   @NotNull

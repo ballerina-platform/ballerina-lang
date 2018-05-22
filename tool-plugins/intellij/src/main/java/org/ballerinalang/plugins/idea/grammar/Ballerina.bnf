@@ -497,9 +497,9 @@ private openRange ::= Expression RANGE Expression {pin=2}
 private closedRange ::= (LEFT_BRACKET|LEFT_PARENTHESIS) Expression RANGE Expression (RIGHT_BRACKET|RIGHT_PARENTHESIS) {pin=3}
 
 // Todo - pin 1?
-WhileStatement ::= while LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS WhileStatementBody
+WhileStatement ::= while (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS WhileStatementBody) {pin(".*")=1}
 
-WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE
+WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 NextStatement ::= next SEMICOLON {pin=1}
 
