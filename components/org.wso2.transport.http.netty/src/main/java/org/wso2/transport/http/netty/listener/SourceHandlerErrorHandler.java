@@ -38,7 +38,7 @@ public class SourceHandlerErrorHandler {
 
     private static Logger log = LoggerFactory.getLogger(SourceHandlerErrorHandler.class);
 
-    private enum INBOUND_STATE {
+    private enum InboundState {
         CONNECTED,
         HEADERS_RECEIVED,
         RECEIVING_ENTITY_BODY, ENTITY_BODY_RECEIVED
@@ -47,18 +47,18 @@ public class SourceHandlerErrorHandler {
     private HTTPCarbonMessage inboundRequestMsg;
     private final ServerConnectorFuture serverConnectorFuture;
     private final HttpResponseFuture httpOutboundRespFuture;
-    private INBOUND_STATE state;
+    private InboundState state;
 
     public SourceHandlerErrorHandler(HTTPCarbonMessage inboundRequestMsg, ServerConnectorFuture serverConnectorFuture,
             HttpResponseFuture httpOutboundRespFuture) {
         this.inboundRequestMsg = inboundRequestMsg;
         this.serverConnectorFuture = serverConnectorFuture;
         this.httpOutboundRespFuture = httpOutboundRespFuture;
-        this.state = INBOUND_STATE.CONNECTED;
+        this.state = InboundState.CONNECTED;
     }
 
     void handleErrorCloseScenario() {
-        if (state == INBOUND_STATE.RECEIVING_ENTITY_BODY) {
+        if (state == InboundState.RECEIVING_ENTITY_BODY) {
             handleIncompleteInboundRequest(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION);
         }
     }
@@ -67,7 +67,8 @@ public class SourceHandlerErrorHandler {
         try {
             switch (state) {
             case CONNECTED:
-                serverConnectorFuture.notifyErrorListener(new ServerConnectorException(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE));
+                serverConnectorFuture.notifyErrorListener(
+                        new ServerConnectorException(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE));
                 break;
             case RECEIVING_ENTITY_BODY:
                 handleIncompleteInboundRequest(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
@@ -96,7 +97,7 @@ public class SourceHandlerErrorHandler {
     }
 
     public void exceptionCaught(Throwable cause) {
-        if (state != INBOUND_STATE.RECEIVING_ENTITY_BODY) {
+        if (state != InboundState.RECEIVING_ENTITY_BODY) {
             handleIncompleteInboundRequest(Constants.EXCEPTION_CAUGHT_WHILE_READING_REQUEST);
         }
         try {
@@ -107,18 +108,18 @@ public class SourceHandlerErrorHandler {
     }
 
     public void setStateConnected() {
-        state = INBOUND_STATE.CONNECTED;
+        state = InboundState.CONNECTED;
     }
 
     public void setStateHeaderReceived() {
-        state = INBOUND_STATE.HEADERS_RECEIVED;
+        state = InboundState.HEADERS_RECEIVED;
     }
 
     public void setStateReceivingEntityBody() {
-        state = INBOUND_STATE.RECEIVING_ENTITY_BODY;
+        state = InboundState.RECEIVING_ENTITY_BODY;
     }
 
     public void setStateRequestReceived() {
-        state = INBOUND_STATE.ENTITY_BODY_RECEIVED;
+        state = InboundState.ENTITY_BODY_RECEIVED;
     }
 }
