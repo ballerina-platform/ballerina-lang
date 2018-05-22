@@ -673,8 +673,7 @@ function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Respo
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest(CallerActions httpClient, string path, Response cachedResponse)
-                                                                                returns Response|error {
+function sendValidationRequest(CallerActions httpClient, string path, Response cachedResponse) returns Response|error {
     Request validationRequest = new;
 
     if (cachedResponse.hasHeader(ETAG)) {
