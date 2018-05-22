@@ -23,13 +23,13 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaTimeoutClauseBody extends BallerinaCompositeElement {
 
-  @NotNull
+  @Nullable
   BallerinaBlock getBlock();
 
   @NotNull
   PsiElement getLeftBrace();
 
-  @NotNull
+  @Nullable
   PsiElement getRightBrace();
 
 }

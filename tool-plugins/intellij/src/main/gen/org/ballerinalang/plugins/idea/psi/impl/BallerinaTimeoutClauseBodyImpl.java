@@ -42,9 +42,9 @@ public class BallerinaTimeoutClauseBodyImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaBlock getBlock() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaBlock.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
   }
 
   @Override
@@ -54,9 +54,9 @@ public class BallerinaTimeoutClauseBodyImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getRightBrace() {
-    return notNullChild(findChildByType(RIGHT_BRACE));
+    return findChildByType(RIGHT_BRACE);
   }
 
 }

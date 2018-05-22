@@ -506,22 +506,25 @@ NextStatement ::= next SEMICOLON {pin=1}
 BreakStatement ::= break SEMICOLON {pin=1}
 
 // typeName is only message
-ForkJoinStatement ::= fork LEFT_BRACE ForkStatementBody RIGHT_BRACE JoinClause? TimeoutClause? {pin=1}
+ForkJoinStatement ::= fork (LEFT_BRACE ForkStatementBody RIGHT_BRACE JoinClause? TimeoutClause?) {pin(".*")=1}
 
 ForkStatementBody ::= WorkerDefinition*
 
 // below typeName is only 'message[]'
-JoinClause ::= join (LEFT_PARENTHESIS JoinConditions RIGHT_PARENTHESIS)? LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS JoinClauseBody {pin=1}
+JoinClause ::= join (LEFT_PARENTHESIS JoinConditions RIGHT_PARENTHESIS)? (LEFT_PARENTHESIS TypeName identifier (RIGHT_PARENTHESIS JoinClauseBody)) {pin(".*")=1}
 
-JoinClauseBody ::= LEFT_BRACE Block RIGHT_BRACE
+JoinClauseBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 // Todo - Needs reorder?
-JoinConditions ::= (some IntegerLiteral | all) (identifier (COMMA identifier)*)? {pin=1}
+JoinConditions ::= (some IntegerLiteral | all) (identifier (COMMA identifier)*)? {pin(".*")=1 recoverWhile=JoinConditionRecover}
+
+// Todo - Add more tokens. Eg - int
+private JoinConditionRecover ::= !(')'|'}')
 
 // below typeName is only 'message[]'
-TimeoutClause ::= timeout LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS TimeoutClauseBody {pin=1}
+TimeoutClause ::= timeout (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS TimeoutClauseBody)) {pin(".*")=1}
 
-TimeoutClauseBody ::= LEFT_BRACE Block RIGHT_BRACE
+TimeoutClauseBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 TryCatchStatement ::= try LEFT_BRACE Block RIGHT_BRACE CatchClauses {pin=1}
 
