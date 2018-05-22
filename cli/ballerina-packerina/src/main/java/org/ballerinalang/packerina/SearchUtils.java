@@ -39,6 +39,7 @@ public class SearchUtils {
         EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
         Proxy proxy = RepoUtils.readSettings().getProxy();
         executor.execute("packaging_search/packaging_search.balx", true, RepoUtils.getRemoteRepoURL(), query,
-                         proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword());
+                         proxy.getHost(), proxy.getPort(), proxy.getUserName(), proxy.getPassword(),
+                         RepoUtils.getTerminalWidth());
     }
 }

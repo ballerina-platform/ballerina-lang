@@ -55,10 +55,12 @@ public type Connection object {
     documentation {
         Cancels the handshake.
 
-        P{{status}} Status code for closing the connection
-        P{{reason}} Reason for closing the connection
+        P{{status}} Error Status code for cancelling the upgrade and closing the connection.
+        This error status code need to be 4xx or 5xx else the default status code would be 400.
+        P{{reason}} Reason for cancelling the upgrade
+        R{{}} An `error` if an error occurs during cancelling the upgrade or nil
     }
-    public native function cancelWebSocketUpgrade(int status, string reason);
+    public native function cancelWebSocketUpgrade(int status, string reason) returns error|();
 
     documentation {
         Sends a `100-continue` response to the caller.
@@ -84,7 +86,7 @@ public type Connection object {
 documentation {
     Defines the HTTP redirect codes as a type.
 }
-public type RedirectCode 300 | 301 | 302 | 303 | 304 | 305 | 307 | 308;
+public type RedirectCode 300|301|302|303|304|305|307|308;
 
 documentation { Represents the HTTP redirect status code `300 - Multiple Choices`. }
 @final public RedirectCode REDIRECT_MULTIPLE_CHOICES_300 = 300;

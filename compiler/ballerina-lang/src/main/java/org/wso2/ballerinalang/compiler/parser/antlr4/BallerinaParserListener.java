@@ -1834,6 +1834,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitEmptyTupleLiteral(BallerinaParser.EmptyTupleLiteralContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#blobLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void enterBlobLiteral(BallerinaParser.BlobLiteralContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#blobLiteral}.
+	 * @param ctx the parse tree
+	 */
+	void exitBlobLiteral(BallerinaParser.BlobLiteralContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#namedArgs}.
 	 * @param ctx the parse tree
 	 */

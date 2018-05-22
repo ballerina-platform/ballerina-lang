@@ -6,6 +6,23 @@ type Person {
     boolean married,
 };
 
+table<Person> tGlobal;
+
+function testTableDefaultValueForLocalVariable() returns (int) {
+    table<Person> t1;
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    _ = t1.add(p1);
+    int count = t1.count();
+    return count;
+}
+
+function testTableDefaultValueForGlobalVariable() returns (int) {
+    Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };
+    _ = tGlobal.add(p1);
+    int count = tGlobal.count();
+    return count;
+}
+
 function testTableAddOnUnconstrainedTable() returns (int) {
     table<Person> t1 = table {};
     Person p1 = { id: 1, age: 30, salary: 300.50, name: "jane", married: true };

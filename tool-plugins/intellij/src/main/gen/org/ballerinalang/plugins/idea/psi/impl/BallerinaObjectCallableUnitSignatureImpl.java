@@ -60,15 +60,15 @@ public class BallerinaObjectCallableUnitSignatureImpl extends BallerinaComposite
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getLeftParenthesis() {
-    return notNullChild(findChildByType(LEFT_PARENTHESIS));
+    return findChildByType(LEFT_PARENTHESIS);
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getRightParenthesis() {
-    return notNullChild(findChildByType(RIGHT_PARENTHESIS));
+    return findChildByType(RIGHT_PARENTHESIS);
   }
 
 }

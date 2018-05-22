@@ -1,6 +1,23 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
@@ -68,6 +85,7 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
 
     @Override
     public boolean execute(@NotNull PsiElement scopeElement, @NotNull ResolveState state) {
+        ProgressManager.checkCanceled();
         if (accept(scopeElement)) {
             BallerinaBlock block = (BallerinaBlock) scopeElement;
 
@@ -141,25 +159,11 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
                             }
 
                             BallerinaVariableReference ballerinaVariableReference = referenceList.get(i);
-
-
-                            //                            BallerinaSimpleVariableReference simpleVariableReference =
-                            //                                    PsiTreeUtil.getParentOfType(myElement,
-                            // BallerinaSimpleVariableReference.class);
-                            // We need to ignore invoking in the first variable.
-                            //                            if (simpleVariableReference == null
-                            //                                    || !simpleVariableReference.equals
-                            // (ballerinaVariableReference)) {
-                            //                                continue;
-                            //                            }
-
                             if (ballerinaVariableReference instanceof BallerinaSimpleVariableReference) {
-
                                 PsiElement ballerinaVariableReferenceType = ballerinaVariableReference.getType();
                                 if (ballerinaVariableReferenceType != null) {
                                     type = ballerinaVariableReferenceType.getText();
                                 }
-
 
                                 BallerinaNameReference nameReference = ((BallerinaSimpleVariableReference)
                                         ballerinaVariableReference).getNameReference();
@@ -278,28 +282,6 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
                 add(result);
             }
         }
-
-
-        //        BallerinaObjectFunctions ballerinaObjectFunctions = PsiTreeUtil.getParentOfType(scopeElement,
-        //                BallerinaObjectFunctions.class);
-        //        if (ballerinaObjectFunctions != null) {
-        //            List<BallerinaObjectFunctionDefinition> objectFunctionDefinitionList =
-        //                    ballerinaObjectFunctions.getObjectFunctionDefinitionList();
-        //            for (BallerinaObjectFunctionDefinition ballerinaObjectFunctionDefinition :
-        // objectFunctionDefinitionList) {
-        //                BallerinaObjectCallableUnitSignature objectCallableUnitSignature =
-        //                        ballerinaObjectFunctionDefinition.getObjectCallableUnitSignature();
-        //                if (objectCallableUnitSignature != null) {
-        //                    PsiElement identifier = objectCallableUnitSignature.getIdentifier();
-        //                    if (myResult != null) {
-        //                        myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(identifier,
-        //                                ParenthesisInsertHandler.INSTANCE_WITH_AUTO_POPUP));
-        //                    } else if (myElement.getText().equals(identifier.getText())) {
-        //                        add(identifier);
-        //                    }
-        //                }
-        //            }
-        //        }
     }
 
     private void processObjectInitializer(@NotNull PsiElement scopeElement) {
@@ -376,9 +358,12 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
         }
     }
 
-    private void processObjectFields(@NotNull PsiElement typeName,
+    private void processObjectFields(@Nullable PsiElement typeName,
                                      @NotNull List<BallerinaFieldDefinition> fieldDefinitionList,
                                      boolean isPublic) {
+        if (typeName == null) {
+            return;
+        }
         for (BallerinaFieldDefinition ballerinaFieldDefinition : fieldDefinitionList) {
             PsiElement identifier = ballerinaFieldDefinition.getIdentifier();
             if (myResult != null) {
@@ -439,6 +424,9 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
                     .getParameterWithTypeList();
             for (BallerinaParameterWithType ballerinaParameterWithType : parameterWithTypeList) {
                 PsiElement identifier = ballerinaParameterWithType.getIdentifier();
+                if (identifier == null) {
+                    continue;
+                }
                 if (myResult != null) {
                     myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier, null, null));
                 } else if (myElement.getText().equals(identifier.getText())) {
@@ -450,10 +438,12 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
         BallerinaRestParameter restParameter = formalParameterList.getRestParameter();
         if (restParameter != null) {
             PsiElement identifier = restParameter.getIdentifier();
-            if (myResult != null) {
-                myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier, null, null));
-            } else if (myElement.getText().equals(identifier.getText())) {
-                add(identifier);
+            if (identifier != null) {
+                if (myResult != null) {
+                    myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier, null, null));
+                } else if (myElement.getText().equals(identifier.getText())) {
+                    add(identifier);
+                }
             }
         }
     }
@@ -463,6 +453,9 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             List<BallerinaParameterWithType> parameterWithTypeList = parameter.getParameterWithTypeList();
             for (BallerinaParameterWithType ballerinaParameterWithType : parameterWithTypeList) {
                 PsiElement identifier = ballerinaParameterWithType.getIdentifier();
+                if (identifier == null) {
+                    continue;
+                }
                 if (myResult != null) {
                     myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier,
                             BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaParameterWithType.getTypeName()),

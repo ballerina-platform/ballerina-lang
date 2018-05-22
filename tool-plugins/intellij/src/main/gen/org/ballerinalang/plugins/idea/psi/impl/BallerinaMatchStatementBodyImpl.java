@@ -54,9 +54,9 @@ public class BallerinaMatchStatementBodyImpl extends BallerinaCompositeElementIm
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getRightBrace() {
-    return notNullChild(findChildByType(RIGHT_BRACE));
+    return findChildByType(RIGHT_BRACE);
   }
 
 }

@@ -40,6 +40,7 @@ public class CircuitBreakerTest {
     private static final int CB_CLIENT_SECOND_ERROR_INDEX = 4;
     private static final int CB_CLIENT_TOP_MOST_SUCCESS_INDEX = 2;
     private static final int CB_CLIENT_FAILURE_CASE_ERROR_INDEX = 5;
+    private static final int CB_CLIENT_FORCE_OPEN_INDEX = 4;
 
     private CompileResult compileResult;
 
@@ -137,21 +138,67 @@ public class CircuitBreakerTest {
 
         BRefValueArray responses = (BRefValueArray) returnVals[0];
         BRefValueArray errs = (BRefValueArray) returnVals[1];
+        validateCBResponses(responses, errs, CB_CLIENT_TOP_MOST_SUCCESS_INDEX, expectedStatusCodes);
+    }
 
+    /**
+     * Test case scenario:
+     * - Initially the circuit is healthy and functioning normally.
+     * - during the middle of execution circuit will be force fully opened.
+     * - Afterward requests should immediately fail.
+     */
+    @Test(description = "Verify the functionality of circuit breaker force open implementation")
+    public void testCBForceOpenScenario() {
+        // Expected HTTP status codes from circuit breaker responses.
+        int[] expectedStatusCodes = new int[] { 200, 200, 200, 200, 503, 503, 503, 503 };
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testForceOpenScenario");
+
+        Assert.assertEquals(returnVals.length, 2);
+
+        BRefValueArray responses = (BRefValueArray) returnVals[0];
+        BRefValueArray errs = (BRefValueArray) returnVals[1];
+        validateCBResponses(responses, errs, CB_CLIENT_FORCE_OPEN_INDEX, expectedStatusCodes);
+    }
+
+    /**
+     * Test case scenario:
+     * - Initially the circuit is healthy and functioning normally.
+     * - Backend service becomes unavailable and eventually, the failure threshold is exceeded.
+     * - After that circuit will be force fully closed.
+     * - Afterward success responses should received.
+     */
+    @Test(description = "Verify the functionality of circuit breaker force close implementation")
+    public void testCBForceCloseScenario() {
+        // Expected HTTP status codes from circuit breaker responses.
+        int[] expectedStatusCodes = new int[] { 200, 200, 500, 200, 200, 200, 200, 200 };
+        BValue[] returnVals = BRunUtil.invoke(compileResult, "testForceCloseScenario");
+
+        Assert.assertEquals(returnVals.length, 2);
+
+        BRefValueArray responses = (BRefValueArray) returnVals[0];
+        for (int i = 0; i < responses.size(); i++) {
+            BStruct res = (BStruct) responses.get(i);
+            long statusCode = res.getIntField(0);
+            Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
+        }
+    }
+
+    private void validateCBResponses(BRefValueArray responses, BRefValueArray errors,
+                                     int index, int[] expectedStatusCodes) {
         for (int i = 0; i < responses.size(); i++) {
             long statusCode;
             // With this check flow will direct to the else condition for Http Client Errors. The avoided response
             // indexes are consisted with the HttpClientError Responses.
-            if (i < CB_CLIENT_TOP_MOST_SUCCESS_INDEX) {
+            if (i < CB_CLIENT_FORCE_OPEN_INDEX) {
                 BStruct res = (BStruct) responses.get(i);
                 statusCode = res.getIntField(0);
 
                 Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
             } else {
-                Assert.assertNotNull(errs.get(i)); // the request which resulted in an error
-                BStruct err = (BStruct) errs.get(i);
-
+                Assert.assertNotNull(errors.get(i)); // the request which resulted in an error
+                BStruct err = (BStruct) errors.get(i);
                 String msg = err.getStringField(0);
+
                 Assert.assertTrue(msg != null && msg.startsWith(CB_ERROR_MSG),
                         "Invalid error message from circuit breaker.");
             }

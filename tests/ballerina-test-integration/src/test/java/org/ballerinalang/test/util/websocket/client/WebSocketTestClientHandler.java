@@ -51,10 +51,10 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
 
     private String textReceived = null;
     private ByteBuffer bufferReceived = null;
-    private boolean isOpen;
     private boolean isPong;
     private boolean isPing;
     private CountDownLatch countDownLatch = null;
+    private ChannelHandlerContext ctx;
 
     public WebSocketTestClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
@@ -71,17 +71,16 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
         handshakeFuture = ctx.newPromise();
+        this.ctx = ctx;
     }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        isOpen = true;
         handshaker.handshake(ctx.channel());
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        isOpen = false;
         logger.info("WebSocket Client disconnected!");
     }
 
@@ -92,7 +91,6 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
             handshaker.finishHandshake(ch, (FullHttpResponse) msg);
             logger.info("WebSocket Client connected!");
             handshakeFuture.setSuccess();
-            isOpen = true;
             return;
         }
 
@@ -104,10 +102,6 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
         }
 
         if (msg instanceof WebSocketFrame) {
-            if (countDownLatch == null) {
-                throw new IllegalStateException("Cannot handle a WebSocket frame without a countdown latch.");
-            }
-
             WebSocketFrame frame = (WebSocketFrame) msg;
             if (frame instanceof TextWebSocketFrame) {
                 TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
@@ -132,13 +126,15 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
                         }
                     }).sync();
                 }
-                isOpen = false;
             }
-
-            countDownLatch.countDown();
-            countDownLatch = null;
+            if (countDownLatch != null) {
+                countDownLatch.countDown();
+                countDownLatch = null;
+            }
         }
     }
+
+
 
     /**
      * @return the text received from the server.
@@ -164,9 +160,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
      * @return true if the connection is open.
      */
     public boolean isOpen() {
-        boolean temp = isOpen;
-        isOpen = false;
-        return temp;
+        return ctx.channel().isOpen();
     }
 
     /**
@@ -197,6 +191,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
             logger.error("Handshake failed : " + cause.getMessage(), cause);
             handshakeFuture.setFailure(cause);
         }
+        logger.error("Error occurred: " + cause.getMessage(), cause);
         ctx.close();
     }
 

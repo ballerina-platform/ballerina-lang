@@ -23,9 +23,6 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaDefinition extends BallerinaCompositeElement {
 
-  @NotNull
-  List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
-
   @Nullable
   BallerinaAnnotationDefinition getAnnotationDefinition();
 
@@ -43,11 +40,5 @@ public interface BallerinaDefinition extends BallerinaCompositeElement {
 
   @Nullable
   BallerinaTypeDefinition getTypeDefinition();
-
-  @Nullable
-  BallerinaDeprecatedAttachment getDeprecatedAttachment();
-
-  @Nullable
-  BallerinaDocumentationAttachment getDocumentationAttachment();
 
 }

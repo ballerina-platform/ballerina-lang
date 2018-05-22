@@ -123,6 +123,7 @@ import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.QUOTED_STRING_LI
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.RARROW;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.RESOURCE;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.RETRIES;
+import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.RETRY;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.RETURN;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.RETURNS;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.RIGHT;
@@ -172,13 +173,12 @@ public class BallerinaParserDefinition implements ParserDefinition {
             OCTAL_INTEGER_LITERAL, BINARY_INTEGER_LITERAL, FLOATING_POINT_LITERAL);
 
     // Todo - Annotate ReservedWord in the runtime to prevent highlighting as keywords.
-    public static final TokenSet KEYWORDS = TokenSet.create(ABORT, ALL, ANNOTATION, ANY, AS, AWAIT, BIND,
-            BLOB, BOOLEAN, BREAK, BUT, CATCH, CHECK, DEPRECATED, ELSE, ENDPOINT, ENUM, FAIL,
-            FINALLY, FLOAT, FOREACH, FORK, FUNCTION, FUTURE, IF, IMPORT, IN, INT, JOIN, JSON, LENGTHOF, LOCK, MAP,
-            MATCH, NATIVE, NEW, NEXT, OBJECT, ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PRIVATE, PUBLIC, RESOURCE,
-            RETRIES, RETURN, RETURNS, SERVICE, SOME, START, STREAM, STRING, TABLE, TIMEOUT, TRANSACTION, TRY, TYPE,
-            TYPEDESC, THROW, UNTAINT, WHILE, WITH, WORKER, VAR, VERSION, XML, XMLNS, BOOLEAN_LITERAL,
-            NULL_LITERAL,
+    public static final TokenSet KEYWORDS = TokenSet.create(ABORT, ALL, ANNOTATION, ANY, AS, AWAIT, BIND, BLOB,
+            BOOLEAN, BREAK, BUT, CATCH, CHECK, DEPRECATED, ELSE, ENDPOINT, ENUM, FAIL, FINALLY, FLOAT, FOREACH, FORK,
+            FUNCTION, FUTURE, IF, IMPORT, IN, INT, JOIN, JSON, LENGTHOF, LOCK, MAP, MATCH, NATIVE, NEW, NEXT, OBJECT,
+            ONABORT, ONCOMMIT, ONRETRY, PARAMETER, PRIVATE, PUBLIC, RESOURCE, RETRIES, RETRY, RETURN, RETURNS,
+            SERVICE, SOME, START, STREAM, STRING, TABLE, TIMEOUT, TRANSACTION, TRY, TYPE, TYPEDESC, THROW, UNTAINT,
+            WHILE, WITH, WORKER, VAR, VERSION, XML, XMLNS, BOOLEAN_LITERAL, NULL_LITERAL,
 
             FROM, ON, SELECT, GROUP, BY, HAVING, ORDER, WHERE, FOLLOWED, SET, FOR, WINDOW, EVENTS, EVERY, WITHIN,
             LAST, FIRST, SNAPSHOT, OUTPUT, INNER, OUTER, RIGHT, LEFT, FULL, UNIDIRECTIONAL, SECOND, SECONDS, MINUTE,

@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.*;
 import org.ballerinalang.plugins.idea.psi.*;
 
-public class BallerinaOncommitStatementImpl extends BallerinaCompositeElementImpl implements BallerinaOncommitStatement {
+public class BallerinaOnCommitStatementImpl extends BallerinaCompositeElementImpl implements BallerinaOnCommitStatement {
 
-  public BallerinaOncommitStatementImpl(ASTNode node) {
+  public BallerinaOnCommitStatementImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitOncommitStatement(this);
+    visitor.visitOnCommitStatement(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -42,15 +42,15 @@ public class BallerinaOncommitStatementImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getAssign() {
-    return notNullChild(findChildByType(ASSIGN));
+    return findChildByType(ASSIGN);
   }
 
   @Override

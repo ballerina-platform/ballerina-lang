@@ -74,6 +74,30 @@ type NillableDataTypes {
     time:Time? timestamp_type,
 };
 
+type ResultMapNonNillableTypeNillableElements {
+    int?[] INT_ARRAY;
+    int?[] LONG_ARRAY;
+    float?[] FLOAT_ARRAY;
+    boolean?[] BOOLEAN_ARRAY;
+    string?[] STRING_ARRAY;
+};
+
+type ResultMapNillable {
+    int?[]? INT_ARRAY;
+    int?[]? LONG_ARRAY;
+    float?[]? FLOAT_ARRAY;
+    boolean?[]? BOOLEAN_ARRAY;
+    string?[]? STRING_ARRAY;
+};
+
+type ResultMapNillableTypeNonNillableElements {
+    int[]? INT_ARRAY;
+    int[]? LONG_ARRAY;
+    float[]? FLOAT_ARRAY;
+    boolean[]? BOOLEAN_ARRAY;
+    string[]? STRING_ARRAY;
+};
+
 function testMappingToNillableTypeFields() returns (int?, int?, float?, float?, boolean?, string?, float?, float?,
         float?, int?, int?, string?, blob?, blob?) {
     endpoint jdbc:Client testDB {
@@ -306,4 +330,235 @@ function testMappingNullToNillableTypes() returns (int?, int?, float?, float?, b
     return (int_type, long_type, float_type, double_type, boolean_type, string_type, numeric_type, decimal_type,
     real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type, date_type, time_type, datetime_type,
     timestamp_type);
+}
+
+function testMapArrayToNonNillableTypeWithNillableElementType() returns (int?[], int?[], float?[], string?[],
+            boolean?[]) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+              string_array from ArrayTypes where row_id = 1", ResultMapNonNillableTypeNillableElements);
+
+    int?[] int_arr;
+    int?[] long_arr;
+    float?[] float_arr;
+    string?[] string_arr;
+    boolean?[] boolean_arr;
+
+    while (dt.hasNext()) {
+        ResultMapNonNillableTypeNillableElements rs = check <ResultMapNonNillableTypeNillableElements>dt.getNext();
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
+    }
+    testDB.stop();
+    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+}
+
+function testMapArrayToNillableTypeWithNillableElementType() returns (int?[]?, int?[]?, float?[]?, string?[]?,
+            boolean?[]?) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+              string_array from ArrayTypes where row_id = 1", ResultMapNillable);
+
+    int?[]? int_arr;
+    int?[]? long_arr;
+    float?[]? float_arr;
+    string?[]? string_arr;
+    boolean?[]? boolean_arr;
+
+    while (dt.hasNext()) {
+        ResultMapNillable rs = check <ResultMapNillable>dt.getNext();
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
+    }
+    testDB.stop();
+    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+}
+
+function testMapArrayToNillableTypeWithNonNillableElementType() returns (int[]?, int[]?, float[]?, string[]?,
+            boolean[]?) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+              string_array from ArrayTypes where row_id = 1", ResultMapNillableTypeNonNillableElements);
+
+    int[]? int_arr;
+    int[]? long_arr;
+    float[]? float_arr;
+    string[]? string_arr;
+    boolean[]? boolean_arr;
+
+    while (dt.hasNext()) {
+        ResultMapNillableTypeNonNillableElements rs = check <ResultMapNillableTypeNonNillableElements>dt.getNext();
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
+    }
+    testDB.stop();
+    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+}
+
+function testMapNillIncludedArrayNonNillableTypeWithNillableElementType() returns (int?[], int?[], float?[], string?[],
+            boolean?[]) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+              string_array from ArrayTypes where row_id = 2", ResultMapNonNillableTypeNillableElements);
+
+    int?[] int_arr;
+    int?[] long_arr;
+    float?[] float_arr;
+    string?[] string_arr;
+    boolean?[] boolean_arr;
+
+    while (dt.hasNext()) {
+        ResultMapNonNillableTypeNillableElements rs = check <ResultMapNonNillableTypeNillableElements>dt.getNext();
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
+    }
+    testDB.stop();
+    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+}
+
+function testMapNillIncludedArrayNillableTypeWithNillableElementType() returns (int?[]?, int?[]?, float?[]?, string?[]?,
+            boolean?[]?) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+              string_array from ArrayTypes where row_id = 2", ResultMapNillable);
+
+    int?[]? int_arr;
+    int?[]? long_arr;
+    float?[]? float_arr;
+    string?[]? string_arr;
+    boolean?[]? boolean_arr;
+
+    while (dt.hasNext()) {
+        ResultMapNillable rs = check <ResultMapNillable>dt.getNext();
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
+    }
+    testDB.stop();
+    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+}
+
+function testMapNilArrayToNillableTypeWithNonNillableElementTypes() returns (int[]?, int[]?, float[]?, string[]?,
+            boolean[]?) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+              string_array from ArrayTypes where row_id = 3", ResultMapNillableTypeNonNillableElements);
+
+    int[]? int_arr;
+    int[]? long_arr;
+    float[]? float_arr;
+    string[]? string_arr;
+    boolean[]? boolean_arr;
+
+    while (dt.hasNext()) {
+        ResultMapNillableTypeNonNillableElements rs = check <ResultMapNillableTypeNonNillableElements>dt.getNext();
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
+    }
+    testDB.stop();
+    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+}
+
+function testMapNilArrayToNillableTypeWithNillableElementTypes() returns (int?[]?, int?[]?, float?[]?, string?[]?,
+            boolean?[]?) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+              string_array from ArrayTypes where row_id = 3", ResultMapNillable);
+
+    int?[]? int_arr;
+    int?[]? long_arr;
+    float?[]? float_arr;
+    string?[]? string_arr;
+    boolean?[]? boolean_arr;
+
+    while (dt.hasNext()) {
+        ResultMapNillable rs = check <ResultMapNillable>dt.getNext();
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
+    }
+    testDB.stop();
+    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
+}
+
+function testMapNillElementsOnlyArray() returns (int?[], int?[], float?[], string?[], boolean?[]) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+              string_array from ArrayTypes where row_id = 5", ResultMapNonNillableTypeNillableElements);
+
+    int?[] int_arr;
+    int?[] long_arr;
+    float?[] float_arr;
+    string?[] string_arr;
+    boolean?[] boolean_arr;
+
+    while (dt.hasNext()) {
+        ResultMapNonNillableTypeNillableElements rs = check <ResultMapNonNillableTypeNillableElements>dt.getNext();
+        int_arr = rs.INT_ARRAY;
+        long_arr = rs.LONG_ARRAY;
+        float_arr = rs.FLOAT_ARRAY;
+        boolean_arr = rs.BOOLEAN_ARRAY;
+        string_arr = rs.STRING_ARRAY;
+    }
+    testDB.stop();
+    return (int_arr, long_arr, float_arr, string_arr, boolean_arr);
 }
