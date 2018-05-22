@@ -161,6 +161,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                             || tokenType == BallerinaTypes.OBJECT_CALLABLE_UNIT_SIGNATURE
                                             || tokenType == BallerinaTypes.WORKER_DEFINITION
                                             || tokenType == BallerinaTypes.UNARY_EXPRESSION
+                                            || tokenType == BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION
                                             ) {
                                         return true;
                                     }

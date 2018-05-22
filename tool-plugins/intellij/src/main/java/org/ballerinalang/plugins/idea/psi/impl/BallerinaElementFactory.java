@@ -21,11 +21,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.PsiParserFacadeImpl;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaImportDeclaration;
+import org.ballerinalang.plugins.idea.psi.BallerinaSimpleTypeName;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,5 +67,13 @@ public class BallerinaElementFactory {
         BallerinaFile file = createFileFromText(project, "import " + importString +
                 (alias != null ? " as " + alias : "") + ";");
         return PsiTreeUtil.findChildOfType(file, BallerinaImportDeclaration.class);
+    }
+
+    @NotNull
+    public static PsiElement createTypeFromText(@NotNull Project project, @NotNull String type) {
+        BallerinaFile file = createFileFromText(project, "function f(){ " + type + " t; }");
+        BallerinaSimpleTypeName simpleTypeName = PsiTreeUtil.findChildOfType(file,
+                BallerinaSimpleTypeName.class);
+        return PsiTreeUtil.findChildOfType(simpleTypeName, LeafPsiElement.class);
     }
 }

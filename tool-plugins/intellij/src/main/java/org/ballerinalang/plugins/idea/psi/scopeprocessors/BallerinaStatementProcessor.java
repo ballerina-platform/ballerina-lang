@@ -22,6 +22,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import org.ballerinalang.plugins.idea.psi.BallerinaCatchClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinitionList;
@@ -159,6 +160,24 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                     return false;
                 }
                 ballerinaNamedPattern = PsiTreeUtil.getParentOfType(ballerinaNamedPattern, BallerinaNamedPattern.class);
+            }
+
+            BallerinaCatchClause ballerinaCatchClause = PsiTreeUtil.getParentOfType(statement,
+                    BallerinaCatchClause.class);
+            while (ballerinaCatchClause != null) {
+                PsiElement identifier = ballerinaCatchClause.getIdentifier();
+                if (identifier != null) {
+                    if (myResult != null) {
+                        myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
+                                BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaCatchClause.getTypeName())));
+                    } else if (myElement.getText().equals(identifier.getText())) {
+                        add(identifier);
+                    }
+                }
+                if (!isCompletion() && getResult() != null) {
+                    return false;
+                }
+                ballerinaCatchClause = PsiTreeUtil.getParentOfType(ballerinaCatchClause, BallerinaCatchClause.class);
             }
         }
         return true;

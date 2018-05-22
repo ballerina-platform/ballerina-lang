@@ -89,6 +89,7 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -256,6 +257,11 @@ public class CPU {
                     case InstructionCodes.RCONST_NULL:
                         i = operands[0];
                         sf.refRegs[i] = null;
+                        break;
+                    case InstructionCodes.LCONST:
+                        cpIndex = operands[0];
+                        i = operands[1];
+                        sf.byteRegs[i] = ((BlobCPEntry) ctx.constPool[cpIndex]).getValue();
                         break;
     
                     case InstructionCodes.IMOVE:
@@ -3846,6 +3852,8 @@ public class CPU {
                         blobRegIndex++;
                         if (containsField && mapVal != null) {
                             bStruct.setBlobField(blobRegIndex, ((BBlob) mapVal).blobValue());
+                        } else if (defaultValAttrInfo != null) {
+                            bStruct.setBlobField(blobRegIndex, defaultValAttrInfo.getDefaultValue().getBlobValue());
                         }
                         break;
                     default:
