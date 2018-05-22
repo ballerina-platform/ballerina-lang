@@ -236,21 +236,22 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     boolean completed = false;
     int rightMargin = 5;
     int totalVal = 10;
+    int startVal = 0;
     int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - rightMargin;
     try {
         while (!completed) {
             (readContent, readCount) = readBytes(src, bytesChunk);
-            if (readCount <= 0) {
+            if (readCount <= startVal) {
                 completed = true;
             }
             if (dest != null) {
-                numberOfBytesWritten = writeBytes(dest, readContent, 0);
+                numberOfBytesWritten = writeBytes(dest, readContent, startVal);
             }
             totalCount = totalCount + readCount;
             float percentage = totalCount / pkgSize;
             noOfBytesRead = totalCount + "/" + pkgSize;
-            string bar = equals.substring(0, <int> (percentage * totalVal));
-            string spaces = tabspaces.substring(0, totalVal - <int>(percentage * totalVal));   
+            string bar = equals.substring(startVal, <int> (percentage * totalVal));
+            string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));   
             string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;            
             string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
             io:print("\r" + rightPad(msg, rightpadLength) + size);

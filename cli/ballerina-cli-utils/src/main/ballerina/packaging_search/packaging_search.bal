@@ -38,23 +38,24 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
         if (artifacts == null || lengthof artifacts > 0) {
             int artifactsLength = lengthof artifacts;
             printTitle("Ballerina Central");
-
-            int width = (check <int> terminalWidth) - 3;
+            
+            int rightMargin = 3;
+            int width = (check <int> terminalWidth) - rightMargin;
         
             int dateColWidth = 15;
             int versionColWidth = 8;
             int authorsColWidth = 15;
             float nameColFactor = 9;
             float descColFactor = 16;
-
-            float remainingWidth = width - (dateColWidth + versionColWidth + 7);  
+            int additionalSpace = 7;
+            float remainingWidth = width - (dateColWidth + versionColWidth + additionalSpace);  
             
             int nameColWidth = math:round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
             int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));  
             
             printInCLI("|NAME", nameColWidth);
-
-            if (descColWidth >= 60) {
+            int minDescColWidth = 60;
+            if (descColWidth >= minDescColWidth) {
                 printInCLI("DESCRIPTION", descColWidth - authorsColWidth);
                 printInCLI("AUTHOR", authorsColWidth);
             } else {
@@ -68,7 +69,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
 
             printCharacter("|-", nameColWidth, "-");
             
-            if (descColWidth >= 60) {
+            if (descColWidth >= minDescColWidth) {
                 printCharacter("-", descColWidth - authorsColWidth, "-");
                 printCharacter("-", authorsColWidth, "-");
             } else {
@@ -89,7 +90,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                 
                 string summary = jsonElement.summary.toString();
                                 
-                if (descColWidth >= 60) {
+                if (descColWidth >= minDescColWidth) {
                     printInCLI(summary, descColWidth - authorsColWidth);
                     string authors = "";
                     json authorsArr = jsonElement.authors;
@@ -176,7 +177,8 @@ documentation {
 function printInCLI(string element, int charactersAllowed) {
     int lengthOfElement = element.length();
     if (lengthOfElement > charactersAllowed || lengthOfElement == charactersAllowed) {
-        string trimmedElement = element.substring(0, charactersAllowed - 3) + "...";
+        int margin = 3;
+        string trimmedElement = element.substring(0, charactersAllowed - margin) + "...";
         io:print(trimmedElement + "| ");
     } else {
         printCharacter(element, charactersAllowed, " ");
