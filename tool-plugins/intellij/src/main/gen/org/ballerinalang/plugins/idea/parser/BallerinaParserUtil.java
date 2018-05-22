@@ -105,6 +105,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.COMMA && rawLookup2 == BallerinaTypes.ADD)
                                 && !(rawLookup == BallerinaTypes.QUESTION_MARK && rawLookup2 == BallerinaTypes
                                 .RIGHT_PARENTHESIS)
+                                && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.BIND)
                                 ) {
                             return true;
                         } else {
@@ -160,6 +161,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                             || tokenType == BallerinaTypes.OBJECT_CALLABLE_UNIT_SIGNATURE
                                             || tokenType == BallerinaTypes.WORKER_DEFINITION
                                             || tokenType == BallerinaTypes.UNARY_EXPRESSION
+                                            || tokenType == BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION
                                             ) {
                                         return true;
                                     }
@@ -197,7 +199,13 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
         }
         return false;
     }
-
+    public static boolean isNotARestParameter(PsiBuilder builder, int level) {
+        IElementType lookAhead = builder.lookAhead(1);
+        if (lookAhead == BallerinaTypes.ELLIPSIS) {
+            return false;
+        }
+        return true;
+    }
     private static boolean isWhiteSpaceOrComment(IElementType rawLookup) {
         return rawLookup == TokenType.WHITE_SPACE || rawLookup == BallerinaTypes.COMMENT;
     }
