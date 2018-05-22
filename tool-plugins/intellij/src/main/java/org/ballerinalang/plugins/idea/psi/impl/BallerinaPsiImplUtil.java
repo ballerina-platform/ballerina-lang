@@ -82,6 +82,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaJsonTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaMapTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaNameReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaNamedPattern;
+import org.ballerinalang.plugins.idea.psi.BallerinaNamespaceDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaNullableTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectCallableUnitSignature;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectFunctionDefinition;
@@ -117,6 +118,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
 import org.ballerinalang.plugins.idea.psi.BallerinaXmlLiteralExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaXmlTypeName;
 import org.ballerinalang.plugins.idea.psi.reference.BallerinaCompletePackageNameReferenceSet;
+import org.ballerinalang.plugins.idea.psi.reference.BallerinaNameReferenceReference;
 import org.ballerinalang.plugins.idea.psi.reference.BallerinaPackageNameReference;
 import org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
@@ -1374,9 +1376,26 @@ public class BallerinaPsiImplUtil {
     @Nullable
     public static PsiReference getReference(@NotNull BallerinaPackageReference ballerinaPackageReference) {
         BallerinaFile containingFile = ballerinaPackageReference.getContainingFile();
+
+        List<BallerinaNamespaceDeclaration> namespaceDeclarations =
+                PsiTreeUtil.getChildrenOfTypeAsList(containingFile, BallerinaNamespaceDeclaration.class);
+
+        PsiElement identifier = ballerinaPackageReference.getIdentifier();
+        for (PsiElement definition : namespaceDeclarations) {
+            if (definition instanceof BallerinaNamespaceDeclaration) {
+                PsiElement namespaceIdentifier = ((BallerinaNamespaceDeclaration) definition).getIdentifier();
+                if (namespaceIdentifier == null) {
+                    continue;
+                }
+                if (identifier.getText().equals(namespaceIdentifier.getText())) {
+                    return new BallerinaNameReferenceReference(((BallerinaIdentifier) identifier));
+                }
+            }
+        }
+
         MultiMap<String, BallerinaImportDeclaration> importMap = containingFile.getImportMap();
 
-        String packageName = ballerinaPackageReference.getIdentifier().getText();
+        String packageName = identifier.getText();
         Collection<BallerinaImportDeclaration> ballerinaImportDeclarations = importMap.get(packageName);
         if (ballerinaImportDeclarations.isEmpty()) {
             return null;
@@ -1402,7 +1421,7 @@ public class BallerinaPsiImplUtil {
             return null;
         }
         return new BallerinaPackageNameReference((BallerinaIdentifier)
-                ballerinaPackageReference.getIdentifier(), ArrayUtil.getFirstElement(references));
+                identifier, ArrayUtil.getFirstElement(references));
     }
 
     @Nullable
