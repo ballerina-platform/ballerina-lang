@@ -31,6 +31,7 @@ import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.BallerinaAssignmentStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaField;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.BallerinaForeverStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
 import org.ballerinalang.plugins.idea.psi.BallerinaInvocation;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectParameter;
@@ -40,6 +41,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaResourceDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaTableQueryExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
@@ -158,7 +160,7 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             if (xmlAttrib != null) {
                 continue;
             }
-
+            // Skip namespaces.
             PsiElement prevSibling = PsiTreeUtil.prevVisibleLeaf(identifier);
             if (prevSibling instanceof LeafPsiElement) {
                 if (((LeafPsiElement) prevSibling).getElementType() == BallerinaTypes.COLON) {
@@ -170,6 +172,19 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
                         }
                     }
                 }
+            }
+
+            // Todo - Remove after completion support is added.
+            BallerinaForeverStatement ballerinaForeverStatement = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaForeverStatement.class);
+            if (ballerinaForeverStatement != null) {
+                continue;
+            }
+
+            BallerinaTableQueryExpression tableQueryExpression = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaTableQueryExpression.class);
+            if (tableQueryExpression != null) {
+                continue;
             }
 
             PsiReference reference = identifier.getReference();
