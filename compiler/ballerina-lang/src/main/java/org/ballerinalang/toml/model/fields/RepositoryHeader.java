@@ -17,23 +17,64 @@
  */
 package org.ballerinalang.toml.model.fields;
 
+
+import org.ballerinalang.toml.model.Repositories;
+
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.function.BiConsumer;
 
 /**
- * Section headers valid in the settings toml file.
+ * Fields defined in the "repositories" header.
  *
  * @since 0.971.1
  */
 public enum RepositoryHeader {
-    REPOSITORIES;
+    DEFAULT(Repositories::setRepoOrder);
+
+    private static final Map<String, RepositoryHeader> LOOKUP = new HashMap<>();
+
+    static {
+        for (RepositoryHeader packageFieldField : RepositoryHeader.values()) {
+            LOOKUP.put(packageFieldField.name().toLowerCase(Locale.ENGLISH).replace('_', '-'),
+                       packageFieldField);
+        }
+    }
+
+    private BiConsumer<Repositories, List<String>> listSetter;
 
     /**
-     * Check if the section header matches the toml header.
+     * Constructor which sets a list of strings.
      *
-     * @param match section header in the toml file
-     * @return if it matches or not
+     * @param listSetter   list of strings
      */
-    public boolean stringEquals(String match) {
-        return toString().toLowerCase(Locale.ENGLISH).equals(match);
+    RepositoryHeader(BiConsumer<Repositories, List<String>> listSetter) {
+        this.listSetter = listSetter;
+    }
+
+    /**
+     * Like as valueOf method, but input should be all lower case.
+     *
+     * @param fieldKey Lower case string value of filed to find.
+     * @return Matching enum.
+     */
+    public static RepositoryHeader valueOfLowerCase(String fieldKey) {
+        return LOOKUP.get(fieldKey);
+    }
+
+    /**
+     * Set the list of strings to the repository object.
+     *
+     * @param repositories repository object
+     * @param list     list of strings
+     */
+    public void setListTo(Repositories repositories, List<String> list) {
+        if (listSetter != null) {
+            listSetter.accept(repositories, list);
+        } else {
+            throw new IllegalStateException(this + " field can't have list value " + list.toString());
+        }
     }
 }

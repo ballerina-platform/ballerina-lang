@@ -26,7 +26,6 @@ import org.ballerinalang.toml.model.Repository;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.model.fields.CentralField;
 import org.ballerinalang.toml.model.fields.ProxyField;
-import org.ballerinalang.toml.model.fields.RepositoriesField;
 import org.ballerinalang.toml.model.fields.RepositoryField;
 import org.ballerinalang.toml.model.fields.RepositoryHeader;
 import org.ballerinalang.toml.model.fields.SettingHeaders;
@@ -86,8 +85,8 @@ public class SettingsBuildListener extends TomlBaseListener {
      * @param arrayValuesContext ArrayValuesContext object
      */
     private void setToManifest(TomlParser.ArrayValuesContext arrayValuesContext) {
-        if (currentKey.present() && RepositoryHeader.REPOSITORIES.stringEquals(currentHeader)) {
-            RepositoriesField packageFieldField = RepositoriesField.valueOfLowerCase(currentKey.pop());
+        if (currentKey.present() && SettingHeaders.REPOSITORIES.stringEquals(currentHeader)) {
+            RepositoryHeader packageFieldField = RepositoryHeader.valueOfLowerCase(currentKey.pop());
             List<String> arrayElements = Collections.singletonList("central");
             if (packageFieldField != null) {
                 arrayElements = TomlProcessor.populateList(arrayValuesContext);
@@ -112,17 +111,8 @@ public class SettingsBuildListener extends TomlBaseListener {
         } else if (SettingHeaders.PROXY.stringEquals(currentHeader)) {
             this.settings.setProxy(proxy);
         } else if (SettingHeaders.REPOSITORIES.stringEquals(currentHeader)) {
-            setRepositories();
-            this.settings.setRepos(repositories);
-        }
-    }
-
-    /**
-     * Add the repositories to the repository object.
-     */
-    private void setRepositories() {
-        if (RepositoryHeader.REPOSITORIES.stringEquals(currentHeader)) {
             this.repositories.addRepositories(repository);
+            this.settings.setRepos(repositories);
         }
     }
 
