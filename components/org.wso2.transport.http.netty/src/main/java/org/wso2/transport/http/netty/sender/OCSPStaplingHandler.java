@@ -35,6 +35,9 @@ import java.math.BigInteger;
 import javax.net.ssl.SSLSession;
 import javax.security.cert.X509Certificate;
 
+import static org.wso2.transport.http.netty.common.certificatevalidation.Constants.CACHE_DEFAULT_ALLOCATED_SIZE;
+import static org.wso2.transport.http.netty.common.certificatevalidation.Constants.CACHE_DEFAULT_DELAY_MINS;
+
 /**
  * A handler for OCSP stapling.
  */
@@ -46,7 +49,8 @@ public class OCSPStaplingHandler extends OcspClientHandler {
         super(engine);
     }
 
-    @Override protected boolean verify(ChannelHandlerContext ctx, ReferenceCountedOpenSslEngine engine)
+    @Override
+    protected boolean verify(ChannelHandlerContext ctx, ReferenceCountedOpenSslEngine engine)
             throws Exception {
         //Get the stapled ocsp response from the ssl engine.
         byte[] staple = engine.getOcspResponse();
@@ -54,8 +58,8 @@ public class OCSPStaplingHandler extends OcspClientHandler {
             // If the response came from the server does not contain the OCSP staple, client attempts to validate
             // the certificate by directly calling OCSP access location and if that also fails, finally
             // do the CRL validation.
-            int cacheSize = 50;
-            int cacheDelay = 15;
+            int cacheSize = CACHE_DEFAULT_ALLOCATED_SIZE;
+            int cacheDelay = CACHE_DEFAULT_DELAY_MINS;
             RevocationVerificationManager revocationVerifier = new RevocationVerificationManager(cacheSize, cacheDelay);
             return revocationVerifier.verifyRevocationStatus(engine.getSession().getPeerCertificateChain());
         }
