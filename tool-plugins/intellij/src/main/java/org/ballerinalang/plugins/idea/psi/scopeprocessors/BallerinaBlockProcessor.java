@@ -322,6 +322,20 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             }
         }
 
+        BallerinaRestParameter restParameter = PsiTreeUtil.findChildOfType(ballerinaObjectInitializer,
+                BallerinaRestParameter.class);
+        if (restParameter != null) {
+            PsiElement identifier = restParameter.getIdentifier();
+            if (identifier != null) {
+                if (myResult != null) {
+                    myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier,
+                            BallerinaPsiImplUtil.formatBallerinaTypeName(restParameter.getTypeName()), null));
+                } else if (myElement.getText().equals(identifier.getText())) {
+                    add(identifier);
+                }
+            }
+        }
+
         BallerinaObjectBody ballerinaObjectBody = PsiTreeUtil.getParentOfType(ballerinaObjectInitializer,
                 BallerinaObjectBody.class);
         if (ballerinaObjectBody == null) {
