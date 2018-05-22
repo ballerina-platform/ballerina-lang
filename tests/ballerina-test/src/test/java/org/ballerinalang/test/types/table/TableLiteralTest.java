@@ -16,6 +16,7 @@
  */
 package org.ballerinalang.test.types.table;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -49,11 +50,13 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class TableLiteralTest {
 
     private CompileResult result;
+    private CompileResult resultNegative;
     private CompileResult resultHelper;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/types/table/table_literal.bal");
+        resultNegative = BCompileUtil.compile("test-src/types/table/table_literal_negative.bal");
         resultHelper = BCompileUtil.compile("test-src/types/table/table_test_helper.bal");
     }
 
@@ -342,13 +345,37 @@ public class TableLiteralTest {
     @Test(priority = 1, description = "Test add data with  mismatched types")
     public void testTableAddInvalid() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
-        Assert.assertEquals((returns[0]).stringValue(), "incompatible types: struct of type:Company cannot be added "
+        Assert.assertEquals((returns[0]).stringValue(), "incompatible types: record of type:Company cannot be added "
                 + "to a table with type:Person");
+    }
+
+    @Test(priority = 1, description = "Test remove data with mismatched record types")
+    public void testRemoveWithInvalidRecordType() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidRecordType");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "incompatible types: function with record type:Company cannot be used to remove records"
+                        + " from a table with type:Person");
+    }
+
+    @Test(priority = 1, description = "Test remove data with mismatched input parameter types")
+    public void testRemoveWithInvalidParamType() {
+        BValue[] returns = BRunUtil.invoke(result, "testRemoveWithInvalidParamType");
+        Assert.assertEquals((returns[0]).stringValue(),
+                "incompatible types: function with record type:int cannot be used to remove records from a "
+                        + "table with type:Person");
     }
 
     @Test(priority = 3, enabled = false) //Issue #5106
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test(description = "Test table remove with function pointer of invalid return type")
+    public void testTableReturnNegativeCases() {
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resultNegative, 0,
+           "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
+           20, 33);
     }
 }

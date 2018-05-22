@@ -309,6 +309,22 @@
                             <goal>run</goal>
                         </goals>
                     </execution>
+                    <execution>
+                        <id>set-npm-executable</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <target>
+                                <!-- set executable names based on OS family -->
+                                <condition property="npm.executable" value="npm.cmd" else="npm">
+                                    <os family="windows"/>
+                                </condition>
+                            </target>
+                            <exportAntProperties>true</exportAntProperties>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>

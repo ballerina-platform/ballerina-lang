@@ -216,7 +216,7 @@ public class BTable implements BRefType<Object>, BCollection {
 
     public void addData(BStruct data, Context context) {
         if (data.getType() != this.constraintType) {
-            throw new BallerinaException("incompatible types: struct of type:" + data.getType().getName()
+            throw new BallerinaException("incompatible types: record of type:" + data.getType().getName()
                     + " cannot be added to a table with type:" + this.constraintType.getName());
         }
         tableProvider.insertData(tableName, data);
@@ -235,6 +235,12 @@ public class BTable implements BRefType<Object>, BCollection {
      */
     public void performRemoveOperation(Context context, BFunctionPointer lambdaFunction) {
         try {
+            BType functionInputType = lambdaFunction.funcRefCPEntry.getFunctionInfo().getParamTypes()[0];
+            if (functionInputType != this.constraintType) {
+                throw new BallerinaException("incompatible types: function with record type:"
+                        + functionInputType.getName() + " cannot be used to remove records from a table with type:"
+                        + this.constraintType.getName());
+            }
             int deletedCount = 0;
             while (this.hasNext(false)) {
                 BStruct data = this.getNext();

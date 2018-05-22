@@ -88,10 +88,12 @@ import org.ballerinalang.plugins.idea.psi.BallerinaOrgName;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageName;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageVersion;
+import org.ballerinalang.plugins.idea.psi.BallerinaParameter;
 import org.ballerinalang.plugins.idea.psi.BallerinaParameterWithType;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaReturnParameter;
 import org.ballerinalang.plugins.idea.psi.BallerinaReturnType;
+import org.ballerinalang.plugins.idea.psi.BallerinaServiceDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaStreamTypeName;
@@ -107,6 +109,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
+import org.ballerinalang.plugins.idea.psi.BallerinaXmlLiteralExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaXmlTypeName;
 import org.ballerinalang.plugins.idea.psi.reference.BallerinaCompletePackageNameReferenceSet;
 import org.ballerinalang.plugins.idea.psi.reference.BallerinaPackageNameReference;
@@ -123,6 +126,7 @@ import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Util class which contains methods related to PSI manipulation.
@@ -145,6 +149,8 @@ public class BallerinaPsiImplUtil {
         BUILTIN_VARIABLE_TYPES.add("table");
         BUILTIN_VARIABLE_TYPES.add("xml");
     }
+
+    public static final String LOCAL_PACKAGE_PLACEHOLDER = "$LOCAL_PROJECT$";
 
     @Nullable
     public static String getName(@NotNull BallerinaPackageName ballerinaPackageName) {
@@ -513,6 +519,9 @@ public class BallerinaPsiImplUtil {
                             return CachedValueProvider.Result.create(null, ballerinaAssignmentStatement);
                         }
                         result = returnType.getTypeName();
+                    } else if (expression instanceof BallerinaXmlLiteralExpression) {
+                        Project project = ballerinaAssignmentStatement.getProject();
+                        result = BallerinaElementFactory.createTypeFromText(project, "xml");
                     }
                     // Todo - Add more types
                 }
@@ -1208,6 +1217,72 @@ public class BallerinaPsiImplUtil {
         });
     }
 
+    @Nullable
+    public static PsiElement getConfigTypeDefinitionFromServiceType(@NotNull BallerinaTypeDefinition serviceType) {
+        return CachedValuesManager.getCachedValue(serviceType, () -> {
+            BallerinaTypeDefinition listenerType = BallerinaPsiImplUtil.getReturnTypeFromObjectFunction(serviceType,
+                    "getEndpoint");
+            if (listenerType == null) {
+                return CachedValueProvider.Result.create(null, serviceType);
+            }
+            return CachedValueProvider.Result.create(getConfigTypeDefinitionFromListener(listenerType), serviceType);
+        });
+    }
+
+    @Nullable
+    public static PsiElement getConfigTypeDefinitionFromListener(@NotNull BallerinaTypeDefinition listenerType) {
+        return CachedValuesManager.getCachedValue(listenerType, () -> {
+            BallerinaFormalParameterList parameterListNode =
+                    BallerinaPsiImplUtil.getParameterFromObjectFunction(listenerType, "init");
+            if (parameterListNode == null || parameterListNode.getParameterList().isEmpty()) {
+                return CachedValueProvider.Result.create(null, listenerType);
+            }
+
+            BallerinaParameter firstParameter = parameterListNode.getParameterList().get(0);
+            List<BallerinaParameterWithType> parameterWithTypeList = firstParameter.getParameterWithTypeList();
+            if (parameterWithTypeList.isEmpty()) {
+                return CachedValueProvider.Result.create(null, listenerType);
+            }
+
+            BallerinaParameterWithType parameterWithType = parameterWithTypeList.get(0);
+            BallerinaTypeName typeName = parameterWithType.getTypeName();
+            PsiReference reference = typeName.findReferenceAt(typeName.getTextLength());
+            if (reference == null) {
+                return CachedValueProvider.Result.create(null, listenerType);
+            }
+            return CachedValueProvider.Result.create(reference.resolve(), listenerType);
+        });
+    }
+
+    @NotNull
+    public static List<BallerinaFieldDefinition> resolveConfig(@NotNull PsiElement element) {
+        return CachedValuesManager.getCachedValue(element, () -> {
+            BallerinaServiceDefinition ballerinaServiceDefinition =
+                    PsiTreeUtil.getParentOfType(element, BallerinaServiceDefinition.class);
+            if (ballerinaServiceDefinition == null) {
+                return CachedValueProvider.Result.create(ContainerUtil.newArrayList(), element);
+            }
+            BallerinaNameReference nameReference = ballerinaServiceDefinition.getNameReference();
+            if (nameReference == null) {
+                return CachedValueProvider.Result.create(ContainerUtil.newArrayList(), element);
+            }
+            PsiElement typeDefinition = BallerinaPsiImplUtil.getCachedType(nameReference);
+            if (typeDefinition instanceof BallerinaTypeDefinition) {
+                BallerinaTypeDefinition typeName = (BallerinaTypeDefinition) typeDefinition;
+                PsiElement ownerName = getConfigTypeDefinitionFromServiceType(typeName);
+                if (ownerName == null || !(ownerName.getParent() instanceof BallerinaTypeDefinition)) {
+                    return CachedValueProvider.Result.create(ContainerUtil.newArrayList(), element);
+                }
+                PsiElement configType = ownerName.getParent();
+                LinkedList<BallerinaFieldDefinition> results =
+                        new LinkedList<>(PsiTreeUtil.findChildrenOfType(configType, BallerinaFieldDefinition.class));
+                return CachedValueProvider.Result.create(results, element);
+
+            }
+            return CachedValueProvider.Result.create(ContainerUtil.newArrayList(), element);
+        });
+    }
+
     @NotNull
     public static BallerinaTypeName getTypeNameFromNillableType(@NotNull BallerinaNullableTypeName ballerinaTypeName) {
         return ballerinaTypeName.getTypeName();
@@ -1592,7 +1667,8 @@ public class BallerinaPsiImplUtil {
         VirtualFile projectBaseDir = project.getBaseDir();
         VirtualFile[] children = projectBaseDir.getChildren();
         for (VirtualFile child : children) {
-            if (!child.isDirectory() && child.getName().startsWith(".")) {
+            // If the child is not a directory or the name starts with ".", we ignore it.
+            if (!child.isDirectory() || child.getName().startsWith(".")) {
                 continue;
             }
             packages.add(child);
@@ -1620,7 +1696,7 @@ public class BallerinaPsiImplUtil {
                                                               @NotNull List<BallerinaImportDeclaration>
                                                                       allImportedPackages) {
         List<LookupElement> imports = new LinkedList<>();
-        // From local project
+        // From local project.
         List<VirtualFile> packages = getPackagesFromProject(project);
         for (VirtualFile aPackage : packages) {
             PsiDirectory directory = PsiManager.getInstance(project).findDirectory(aPackage);
@@ -1673,5 +1749,58 @@ public class BallerinaPsiImplUtil {
             }
         }
         return imports;
+    }
+
+    @NotNull
+    public static Map<String, List<String>> getAllPackagesInResolvableScopes(@NotNull Project project,
+                                                                             @Nullable Module module) {
+        Map<String, List<String>> packageMap = ContainerUtil.newHashMap();
+
+        // From local project.
+        List<VirtualFile> packages = getPackagesFromProject(project);
+        // This is used to identify that the package is in the local project.
+        String organizationName = LOCAL_PACKAGE_PLACEHOLDER;
+        for (VirtualFile aPackage : packages) {
+            String name = aPackage.getName();
+            if (packageMap.containsKey(name)) {
+                packageMap.get(name).add(organizationName);
+            } else {
+                List<String> list = ContainerUtil.newArrayList();
+                list.add(organizationName);
+                packageMap.put(name, list);
+            }
+        }
+
+        // Get packages from SDK.
+        packages = getPackagesFromSDK(project, module);
+        organizationName = "ballerina";
+        for (VirtualFile aPackage : packages) {
+            String name = aPackage.getName();
+            if (packageMap.containsKey(name)) {
+                packageMap.get(name).add(organizationName);
+            } else {
+                List<String> list = ContainerUtil.newArrayList();
+                list.add(organizationName);
+                packageMap.put(name, list);
+            }
+        }
+
+        // Get packages from user repository.
+        List<VirtualFile> organizations = BallerinaPathModificationTracker.getAllOrganizationsInUserRepo();
+        for (VirtualFile organization : organizations) {
+            organizationName = organization.getName();
+            packages = BallerinaPathModificationTracker.getPackagesFromOrganization(organizationName);
+            for (VirtualFile aPackage : packages) {
+                String name = aPackage.getName();
+                if (packageMap.containsKey(name)) {
+                    packageMap.get(name).add(organizationName);
+                } else {
+                    List<String> list = ContainerUtil.newArrayList();
+                    list.add(organizationName);
+                    packageMap.put(name, list);
+                }
+            }
+        }
+        return packageMap;
     }
 }

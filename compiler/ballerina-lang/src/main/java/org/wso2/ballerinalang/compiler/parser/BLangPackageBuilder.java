@@ -729,7 +729,8 @@ public class BLangPackageBuilder {
         if (retParamsAvail) {
             BLangVariable varNode = (BLangVariable) this.varStack.pop();
             returnTypeNode = varNode.getTypeNode();
-            returnTypeNode.addWS(varNode.getWS());
+            // set returns keyword to invocation node.
+            invNode.addWS(varNode.getWS());
             varNode.getAnnotationAttachments().forEach(invNode::addReturnTypeAnnotationAttachment);
         } else {
             BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -1641,6 +1642,7 @@ public class BLangPackageBuilder {
         endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
+        function.addWS(invocationWsStack.pop());
 
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
@@ -1664,7 +1666,6 @@ public class BLangPackageBuilder {
 
         IdentifierNode name = createIdentifier(Names.SELF.getValue());
         receiver.setName(name);
-        receiver.addWS(ws);
 
         receiver.docTag = DocTag.RECEIVER;
         receiver.setTypeNode(objectType);
@@ -2269,17 +2270,18 @@ public class BLangPackageBuilder {
         BLangMatchStmtPatternClause patternClause =
                 (BLangMatchStmtPatternClause) TreeBuilder.createMatchStatementPattern();
         patternClause.pos = pos;
-
-        Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
         patternClause.addWS(ws);
 
         // Create a variable node
-        identifier = identifier == null ? Names.IGNORE.value : identifier;
+        String patternIdentifier = identifier == null ? Names.IGNORE.value : identifier;
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
-        var.setName(this.createIdentifier(identifier));
+        var.setName(this.createIdentifier(patternIdentifier));
         var.setTypeNode(this.typeNodeStack.pop());
-        var.addWS(varDefWS);
+        if (identifier != null) {
+            Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
+            var.addWS(varDefWS);
+        }
         patternClause.variable = var;
         patternClause.body = (BLangBlockStmt) blockNodeStack.pop();
         patternClause.body.pos = pos;
@@ -3118,6 +3120,9 @@ public class BLangPackageBuilder {
         StreamActionNode streamActionNode = this.streamActionNodeStack.peek();
         ((BLangStreamAction) streamActionNode).pos = pos;
         streamActionNode.addWS(ws);
+        this.varListStack.push(new ArrayList<>());
+        this.varListStack.peek().add(this.varStack.pop());
+        this.commaWsStack.push(ws);
         this.addLambdaFunctionDef(pos, ws, true, false, false);
         streamActionNode.setInvokableBody((BLangLambdaFunction) this.exprNodeStack.pop());
     }
@@ -3156,7 +3161,8 @@ public class BLangPackageBuilder {
     public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
                                              boolean enclosedInParenthesis, boolean andWithNotAvailable,
                                              boolean forWithNotAvailable, boolean onlyAndAvailable,
-                                             boolean onlyOrAvailable, boolean commaSeparated) {
+                                             boolean onlyOrAvailable, boolean commaSeparated,
+                                             String timeDurationValue, String timeScale) {
         if (!this.patternStreamingInputStack.empty()) {
             PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
@@ -3184,7 +3190,7 @@ public class BLangPackageBuilder {
             }
 
             if (forWithNotAvailable) {
-                processNegationPatternWithTimeDuration(patternStreamingInputNode);
+                processNegationPatternWithTimeDuration(patternStreamingInputNode, timeDurationValue, timeScale);
             }
 
             if (commaSeparated) {
@@ -3211,10 +3217,12 @@ public class BLangPackageBuilder {
         this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
-    private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode) {
+    private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode,
+                                                        String timeDurationValue, String timeScale) {
         patternStreamingInputNode.setForWithNot(true);
         patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
-        patternStreamingInputNode.setTimeExpr(this.exprNodeStack.pop());
+        patternStreamingInputNode.setTimeDurationValue(timeDurationValue);
+        patternStreamingInputNode.setTimeScale(timeScale);
         this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
@@ -3314,11 +3322,12 @@ public class BLangPackageBuilder {
         this.withinClauseStack.push(withinClause);
     }
 
-    public void endWithinClause(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void endWithinClause(DiagnosticPos pos, Set<Whitespace> ws, String timeDurationValue, String timeScale) {
         WithinClause withinClause = this.withinClauseStack.peek();
         ((BLangWithinClause) withinClause).pos = pos;
         withinClause.addWS(ws);
-        withinClause.setWithinTimePeriod(exprNodeStack.pop());
+        withinClause.setTimeDurationValue(timeDurationValue);
+        withinClause.setTimeScale(timeScale);
     }
 
     public void startPatternClause(DiagnosticPos pos) {
@@ -3372,13 +3381,15 @@ public class BLangPackageBuilder {
         pattern.pos = pos;
         pattern.addWS(ws);
 
-        identifier = identifier == null ? Names.IGNORE.value : identifier;
+        String patternIdentifier = identifier == null ? Names.IGNORE.value : identifier;
         BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
         var.pos = pos;
-        var.setName(this.createIdentifier(identifier));
+        var.setName(this.createIdentifier(patternIdentifier));
         var.setTypeNode(this.typeNodeStack.pop());
-        Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
-        var.addWS(varDefWS);
+        if (identifier != null) {
+            Set<Whitespace> varDefWS = removeNthFromStart(ws, 0);
+            var.addWS(varDefWS);
+        }
         pattern.variable = var;
 
         this.matchExprPatternNodeListStack.peek().add(pattern);

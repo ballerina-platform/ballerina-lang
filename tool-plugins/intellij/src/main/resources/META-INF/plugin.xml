@@ -11,7 +11,11 @@
     <change-notes><![CDATA[
       <ul>
         <li>Supports Ballerina v0.970.2-SNAPSHOT grammar.</li>
-        <li>Improved Ballerina user repository support.</li>
+        <li>Ballerina user repository support.</li>
+        <li>Auto import support.</li>
+        <li>Code completion improvements.</li>
+        <li>New live templates.</li>
+        <li>New code inspections.</li>
       </ul>
     ]]>
     </change-notes>
@@ -187,6 +191,16 @@
 
         <applicationService
                 serviceImplementation="org.ballerinalang.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings"/>
+
+        <!--import optimizer-->
+        <lang.importOptimizer language="Ballerina"
+                              implementationClass="org.ballerinalang.plugins.idea.lang.BallerinaImportOptimizer"/>
+
+        <!--inspections-->
+        <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
+                         groupName="General" enabledByDefault="true" level="ERROR"
+                         shortName="BallerinaUnresolvedReference"
+                         implementationClass="org.ballerinalang.plugins.idea.codeinspection.BallerinaUnresolvedReferenceInspection"/>
 
     </extensions>
     <actions>

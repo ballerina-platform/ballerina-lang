@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.tree.clauses;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.clauses.WithinClause;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
@@ -31,16 +30,27 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangWithinClause extends BLangNode implements WithinClause {
 
-    private ExpressionNode withinExpr;
+    private String timeScale;
+    private String timeDurationValue;
 
     @Override
-    public void setWithinTimePeriod(ExpressionNode expr) {
-        withinExpr = expr;
+    public String getTimeScale() {
+        return timeScale;
     }
 
     @Override
-    public ExpressionNode getWithinTimePeriod() {
-        return withinExpr;
+    public void setTimeScale(String timeScale) {
+        this.timeScale = timeScale;
+    }
+
+    @Override
+    public String getTimeDurationValue() {
+        return timeDurationValue;
+    }
+
+    @Override
+    public void setTimeDurationValue(String timeDurationValue) {
+        this.timeDurationValue = timeDurationValue;
     }
 
     @Override

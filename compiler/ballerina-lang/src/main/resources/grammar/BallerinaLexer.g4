@@ -48,14 +48,14 @@ INTO        : 'into' ;
 UPDATE      : {inSiddhi}? 'update' { inSiddhi = false; } ;
 DELETE      : {inSiddhi}? 'delete' { inSiddhi = false; } ;
 SET         : 'set' ;
-FOR         : 'for' ;
+FOR         : 'for' { inSiddhiTimeScaleQuery = true; } ;
 WINDOW      : 'window' ;
 QUERY       : 'query' ;
 EXPIRED     : 'expired' ;
 CURRENT     : 'current' ;
 EVENTS      : {inSiddhiInsertQuery}? 'events' { inSiddhiInsertQuery = false; } ;
 EVERY       : 'every' ;
-WITHIN      : 'within' ;
+WITHIN      : 'within' { inSiddhiTimeScaleQuery = true; } ;
 LAST        : {inSiddhiOutputRateLimit}? 'last' { inSiddhiOutputRateLimit = false; } ;
 FIRST       : {inSiddhiOutputRateLimit}? 'first' { inSiddhiOutputRateLimit = false; } ;
 SNAPSHOT    : 'snapshot' ;
@@ -425,6 +425,40 @@ fragment
 ZeroToThree
     :   [0-3]
     ;
+
+// Blob Literal
+
+Base16BlobLiteral
+    : 'base16' WS* BACKTICK HexGroup* WS* BACKTICK
+    ;
+
+fragment
+HexGroup
+    : WS* HexDigit WS* HexDigit
+    ;
+
+Base64BlobLiteral
+    : 'base64' WS* BACKTICK Base64Group* PaddedBase64Group? WS* BACKTICK
+    ;
+
+fragment
+Base64Group
+    : WS* Base64Char WS* Base64Char WS* Base64Char WS* Base64Char
+    ;
+
+fragment
+PaddedBase64Group
+    : WS* Base64Char WS* Base64Char WS* Base64Char WS* PaddingChar
+    | WS* Base64Char WS* Base64Char WS* PaddingChar WS* PaddingChar
+    ;
+
+fragment
+Base64Char
+    : [a-zA-Z0-9+/]
+    ;
+
+fragment
+PaddingChar : '=';
 
 // §3.10.7 The Null Literal
 

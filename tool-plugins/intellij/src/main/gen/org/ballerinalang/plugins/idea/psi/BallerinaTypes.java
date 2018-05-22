@@ -160,9 +160,9 @@ public interface BallerinaTypes {
   IElementType OBJECT_PARAMETER = new BallerinaCompositeElementType("OBJECT_PARAMETER");
   IElementType OBJECT_PARAMETER_LIST = new BallerinaCompositeElementType("OBJECT_PARAMETER_LIST");
   IElementType OBJECT_TYPE_NAME = new BallerinaCompositeElementType("OBJECT_TYPE_NAME");
-  IElementType ONABORT_STATEMENT = new BallerinaCompositeElementType("ONABORT_STATEMENT");
-  IElementType ONCOMMIT_STATEMENT = new BallerinaCompositeElementType("ONCOMMIT_STATEMENT");
   IElementType ONRETRY_CLAUSE = new BallerinaCompositeElementType("ONRETRY_CLAUSE");
+  IElementType ON_ABORT_STATEMENT = new BallerinaCompositeElementType("ON_ABORT_STATEMENT");
+  IElementType ON_COMMIT_STATEMENT = new BallerinaCompositeElementType("ON_COMMIT_STATEMENT");
   IElementType ORDER_BY_CLAUSE = new BallerinaCompositeElementType("ORDER_BY_CLAUSE");
   IElementType ORDER_BY_TYPE = new BallerinaCompositeElementType("ORDER_BY_TYPE");
   IElementType ORDER_BY_VARIABLE = new BallerinaCompositeElementType("ORDER_BY_VARIABLE");
@@ -475,7 +475,7 @@ public interface BallerinaTypes {
   IElementType WHERE = new BallerinaTokenType("where");
   IElementType WHILE = new BallerinaTokenType("while");
   IElementType WINDOW = new BallerinaTokenType("window");
-  IElementType WITH = new BallerinaTokenType("WITH");
+  IElementType WITH = new BallerinaTokenType("with");
   IElementType WITHIN = new BallerinaTokenType("within");
   IElementType WORKER = new BallerinaTokenType("worker");
   IElementType XML = new BallerinaTokenType("xml");
@@ -911,14 +911,14 @@ public interface BallerinaTypes {
       else if (type == OBJECT_TYPE_NAME) {
         return new BallerinaObjectTypeNameImpl(node);
       }
-      else if (type == ONABORT_STATEMENT) {
-        return new BallerinaOnabortStatementImpl(node);
-      }
-      else if (type == ONCOMMIT_STATEMENT) {
-        return new BallerinaOncommitStatementImpl(node);
-      }
       else if (type == ONRETRY_CLAUSE) {
         return new BallerinaOnretryClauseImpl(node);
+      }
+      else if (type == ON_ABORT_STATEMENT) {
+        return new BallerinaOnAbortStatementImpl(node);
+      }
+      else if (type == ON_COMMIT_STATEMENT) {
+        return new BallerinaOnCommitStatementImpl(node);
       }
       else if (type == ORDER_BY_CLAUSE) {
         return new BallerinaOrderByClauseImpl(node);

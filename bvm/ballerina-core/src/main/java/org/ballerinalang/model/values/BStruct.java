@@ -71,6 +71,7 @@ public final class BStruct implements BRefType, LockableStructureType {
         refFields = new BRefType[fieldCount[5]];
 
         Arrays.fill(stringFields, BLangConstants.STRING_EMPTY_VALUE);
+        Arrays.fill(byteFields, BLangConstants.BLOB_EMPTY_VALUE);
     }
 
     /**

@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.2-SNAPSHOT</version>
+    <version>0.971.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -1219,18 +1219,6 @@
                 <skipBenchmarks>true</skipBenchmarks>
             </properties>
         </profile>
-        <profile>
-            <id>platform-windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <!-- Override the executable names for Windows -->
-                <npm.executable>npm.cmd</npm.executable>
-            </properties>
-        </profile>
     </profiles>
 
     <build>
@@ -1529,8 +1517,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.2-SNAPSHOT</ballerina.version>
-        <npm.executable>npm</npm.executable>
+        <ballerina.version>0.971.1-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
