@@ -28,6 +28,7 @@ import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.SingleResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerificationManager;
 
 import java.math.BigInteger;
 
@@ -40,6 +41,7 @@ import javax.security.cert.X509Certificate;
 public class OCSPStaplingHandler extends OcspClientHandler {
 
     private static final Logger log = LoggerFactory.getLogger(OCSPStaplingHandler.class);
+
     protected OCSPStaplingHandler(ReferenceCountedOpenSslEngine engine) {
         super(engine);
     }
@@ -50,33 +52,40 @@ public class OCSPStaplingHandler extends OcspClientHandler {
         //Get the stapled ocsp response from the ssl engine.
         byte[] staple = engine.getOcspResponse();
         if (staple == null) {
-            throw new IllegalStateException("Server didn't provide an OCSP staple!");
+            // If the response came from the server does not contain the OCSP staple, client attempts to validate
+            // the certificate by directly calling OCSP access location and if that also fails, finally
+            // do the CRL validation.
+            int cacheSize = 50;
+            int cacheDelay = 15;
+            RevocationVerificationManager revocationVerifier = new RevocationVerificationManager(cacheSize, cacheDelay);
+            return revocationVerifier.verifyRevocationStatus(engine.getSession().getPeerCertificateChain());
+        } else {
+
+            OCSPResp response = new OCSPResp(staple);
+            if (response.getStatus() != OCSPResponseStatus.SUCCESSFUL) {
+                return false;
+            }
+
+            SSLSession session = engine.getSession();
+            X509Certificate[] chain = session.getPeerCertificateChain();
+            BigInteger certSerial = chain[0].getSerialNumber();
+
+            BasicOCSPResp basicResponse = (BasicOCSPResp) response.getResponseObject();
+            SingleResp singleResp = basicResponse.getResponses()[0];
+
+            CertificateStatus status = singleResp.getCertStatus();
+            BigInteger ocspSerial = singleResp.getCertID().getSerialNumber();
+            if (log.isDebugEnabled()) {
+                String message = new StringBuilder().append("OCSP status of ").append(ctx.channel().remoteAddress())
+                        .append("\n  Status: ").append(status == CertificateStatus.GOOD ? "Good" : status)
+                        .append("\n  This Update: ").append(singleResp.getThisUpdate()).append("\n  Next Update: ")
+                        .append(singleResp.getNextUpdate()).append("\n  Cert Serial: ").append(certSerial)
+                        .append("\n  OCSP Serial: ").append(ocspSerial).toString();
+                log.debug(message);
+            }
+            //For an OCSP response to be valid, certificate serial number should be equal to the ocsp serial number.
+            return status == CertificateStatus.GOOD && certSerial.equals(ocspSerial);
         }
-
-        OCSPResp response = new OCSPResp(staple);
-        if (response.getStatus() != OCSPResponseStatus.SUCCESSFUL) {
-            return false;
-        }
-
-        SSLSession session = engine.getSession();
-        X509Certificate[] chain = session.getPeerCertificateChain();
-        BigInteger certSerial = chain[0].getSerialNumber();
-
-        BasicOCSPResp basicResponse = (BasicOCSPResp) response.getResponseObject();
-        SingleResp singleResp = basicResponse.getResponses()[0];
-
-        CertificateStatus status = singleResp.getCertStatus();
-        BigInteger ocspSerial = singleResp.getCertID().getSerialNumber();
-        if (log.isDebugEnabled()) {
-            String message = new StringBuilder().append("OCSP status of ").append(ctx.channel().remoteAddress())
-                    .append("\n  Status: ").append(status == CertificateStatus.GOOD ? "Good" : status)
-                    .append("\n  This Update: ").append(singleResp.getThisUpdate()).append("\n  Next Update: ")
-                    .append(singleResp.getNextUpdate()).append("\n  Cert Serial: ").append(certSerial)
-                    .append("\n  OCSP Serial: ").append(ocspSerial).toString();
-            log.debug(message);
-        }
-        //For a OCSP response to be valid, certificate serial number should be equal to the ocsp serial number.
-        return status == CertificateStatus.GOOD && certSerial.equals(ocspSerial);
     }
 }
 
