@@ -63,6 +63,15 @@ set BALLERINA_CLASSPATH="%JAVA_HOME%\lib\tools.jar";%BALLERINA_CLASSPATH%;
 
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
 
+set BALLERINA_CLI_HEIGHT=
+set BALLERINA_CLI_WIDTH=
+for /F "tokens=2 delims=:" %%a in ('mode con') do for %%b in (%%a) do (
+  if not defined BALLERINA_CLI_HEIGHT (
+     set "BALLERINA_CLI_HEIGHT=%%b"
+  ) else if not defined BALLERINA_CLI_WIDTH (
+     set "BALLERINA_CLI_WIDTH=%%b"
+  )
+)
 rem ----- Process the input command -------------------------------------------
 
 rem Slurp the command line arguments. This loop allows for an unlimited number
