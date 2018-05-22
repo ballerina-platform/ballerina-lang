@@ -19,6 +19,7 @@
 package org.wso2.transport.http.netty.message;
 
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.LastHttpContent;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -36,24 +37,28 @@ public class MessageFuture {
         this.pendingPayload = new ConcurrentLinkedQueue<>();
     }
 
-    public synchronized void setMessageListener(MessageListener messageListener) {
-        this.messageListener = messageListener;
+    public void setMessageListener(MessageListener messageListener) {
         synchronized (httpCarbonMessage) {
+            this.messageListener = messageListener;
             while (!httpCarbonMessage.isEmpty()) {
                 HttpContent httpContent = httpCarbonMessage.getHttpContent();
                 notifyMessageListener(httpContent);
+                if (httpContent instanceof LastHttpContent) {
+                    this.httpCarbonMessage.removeMessageFuture();
+                    return;
+                }
             }
             while (!pendingPayload.isEmpty()) {
                 notifyMessageListener(pendingPayload.poll());
+                if (pendingPayload.poll() instanceof LastHttpContent) {
+                    this.httpCarbonMessage.removeMessageFuture();
+                    return;
+                }
             }
         }
     }
 
-    public synchronized void removeMessageListener() {
-        this.messageListener = null;
-    }
-
-    public synchronized void notifyMessageListener(HttpContent httpContent) {
+    void notifyMessageListener(HttpContent httpContent) {
         if (this.messageListener != null) {
             this.messageListener.onMessage(httpContent);
         } else {

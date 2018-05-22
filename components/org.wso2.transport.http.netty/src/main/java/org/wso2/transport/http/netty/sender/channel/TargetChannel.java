@@ -196,6 +196,8 @@ public class TargetChannel {
             handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
         }
 
+        resetTargetChannelState();
+
         httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent ->
                 this.channel.eventLoop().execute(() -> {
                     try {
@@ -227,8 +229,6 @@ public class TargetChannel {
             }
 
             writeOutboundRequestBody(httpContent);
-
-            resetState();
 
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
@@ -274,7 +274,7 @@ public class TargetChannel {
         });
     }
 
-    public void resetState() {
+    public void resetTargetChannelState() {
         contentList.clear();
         contentLength = 0;
     }
