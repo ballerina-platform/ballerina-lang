@@ -305,39 +305,6 @@ public class CompiledPackageSymbolEnter {
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
     }
 
-    private void defineObject(DataInputStream dataInStream) throws IOException {
-//        String objectName = getUTF8CPEntryValue(dataInStream);
-//        int flags = dataInStream.readInt();
-//
-//        BObjectTypeSymbol symbol;
-//
-//        if (Symbols.isFlagOn(flags, Flags.RECORD)) {
-//            symbol = (BObjectTypeSymbol) Symbols.createRecordSymbol(flags, names.fromString(objectName),
-//                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
-//        } else {
-//            symbol = (BObjectTypeSymbol) Symbols.createObjectSymbol(flags, names.fromString(objectName),
-//                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
-//        }
-//
-//        symbol.scope = new Scope(symbol);
-//        BStructureType type = new BStructureType(symbol);
-//        symbol.type = type;
-//        this.env.pkgSymbol.scope.define(symbol.name, symbol);
-//
-//        // Define Object Fields
-//        defineSymbols(dataInStream, rethrow(dataInputStream ->
-//                defineObjectField(dataInStream, symbol, type)));
-//
-//        // Define attached functions.
-//        // TODO define attached functions..
-//        // Define Object Fields
-//        defineSymbols(dataInStream, rethrow(dataInputStream ->
-//                defineObjectAttachedFunction(dataInStream)));
-//
-//        // Read and ignore attributes
-//        readAttributes(dataInStream);
-    }
-
     private void defineFunction(DataInputStream dataInStream) throws IOException {
         // Consider attached functions.. remove the first variable
         String funcName = getUTF8CPEntryValue(dataInStream);
@@ -366,11 +333,13 @@ public class CompiledPackageSymbolEnter {
                 params.remove(0);
                 funcType.paramTypes = params;
                 scopeToDefine = bType.tsymbol.scope;
-
-                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
-                    ((BObjectTypeSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
-                            invokableSymbol, funcType);
-                }
+            }
+            if (bType.tag == TypeTags.OBJECT && Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
+                ((BObjectTypeSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
+                        invokableSymbol, funcType);
+            } else if (bType.tag == TypeTags.RECORD && Names.INIT_FUNCTION_SUFFIX.value.equals(funcName)) {
+                ((BRecordTypeSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
+                        invokableSymbol, funcType);
             }
         }
 

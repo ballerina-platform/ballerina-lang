@@ -19,9 +19,7 @@ package org.wso2.ballerinalang.compiler.tree.types;
 
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.ObjectTypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -30,36 +28,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * {@code BLangObjectTypeNode} represents a object type node in Ballerina
+ * {@code BLangObjectTypeNode} represents a object type node in Ballerina.
  * <p>
  * e.g. object { public { int a; } private { string name; }};
  *
  * @since 0.971.0
  */
-public class BLangObjectTypeNode extends BLangType implements ObjectTypeNode {
+public class BLangObjectTypeNode extends BLangStructureTypeNode implements ObjectTypeNode {
 
-    public List<BLangVariable> fields;
     public List<BLangFunction> functions;
     public BLangFunction initFunction;
     public BLangVariable receiver;
-    public boolean isAnonymous;
-    public boolean isFieldAnalyseRequired;
-
-    public BSymbol symbol;
 
     public BLangObjectTypeNode() {
-        this.fields = new ArrayList<>();
         this.functions = new ArrayList<>();
-    }
-
-    @Override
-    public List<BLangVariable> getFields() {
-        return fields;
-    }
-
-    @Override
-    public void addField(VariableNode var) {
-        this.getFields().add((BLangVariable) var);
     }
 
     @Override

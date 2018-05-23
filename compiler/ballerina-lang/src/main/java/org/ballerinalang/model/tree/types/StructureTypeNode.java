@@ -17,23 +17,19 @@
 */
 package org.ballerinalang.model.tree.types;
 
-import org.ballerinalang.model.tree.FunctionNode;
+import org.ballerinalang.model.tree.VariableNode;
 
 import java.util.List;
 
 /**
- * {@code ObjectTypeNode} represents a object type node in Ballerina
- * <p>
- * e.g. object { public { int a; } private { string name; }};
+ * {@code StructureTypeNode} represents a structure type node in Ballerina.
  *
  * @since 0.971.0
  */
-public interface ObjectTypeNode extends StructureTypeNode {
+public interface StructureTypeNode extends ReferenceTypeNode {
+    
+    List<? extends VariableNode> getFields();
 
-    List<? extends FunctionNode> getFunctions();
-
-    void addFunction(FunctionNode function);
-
-    FunctionNode getInitFunction();
-
+    void addField(VariableNode field);
+    
 }
