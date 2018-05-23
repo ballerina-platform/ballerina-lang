@@ -453,7 +453,7 @@ TableInitialization ::= RecordLiteral
 
 ArrayLiteral ::= LEFT_BRACKET ExpressionList? RIGHT_BRACKET
 
-TypeInitExpr ::= new UserDefineTypeName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS | new (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)? {pin=1}
+TypeInitExpr ::= new (UserDefineTypeName (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS) | (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)?) {pin(".*")=1}
 
 AssignmentStatement ::= withVar | withoutVar
 
