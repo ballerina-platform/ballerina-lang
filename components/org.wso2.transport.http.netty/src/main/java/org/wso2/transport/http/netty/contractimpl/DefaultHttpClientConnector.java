@@ -19,11 +19,16 @@
 
 package org.wso2.transport.http.netty.contractimpl;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
+import io.netty.handler.codec.base64.Base64;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2CodecUtil;
+import io.netty.util.AsciiString;
+import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
@@ -50,6 +55,9 @@ import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import java.util.NoSuchElementException;
+
+import static org.wso2.transport.http.netty.common.Constants.COLON;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 
 /**
  * Implementation of the client connector.
@@ -195,6 +203,10 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                         // Response for the upgrade request will arrive in stream 1,
                         // so use 1 as the stream id.
                         prepareTargetChannelForHttp(channelFuture);
+                        if (protocol.equalsIgnoreCase(Constants.HTTP_SCHEME) &&
+                                senderConfiguration.getProxyServerConfiguration() != null) {
+                            httpOutboundRequest.setProperty(Constants.IS_PROXY_ENABLED, true);
+                        }
                         targetChannel.writeContent(httpOutboundRequest);
                     }
                 }
@@ -332,5 +344,23 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
                 httpOutboundRequest.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
                 break;
         }
+        // Add proxy-authorization header if proxy is enabled and scheme is http
+        if (senderConfiguration.getScheme().equals(HTTP_SCHEME) &&
+                senderConfiguration.getProxyServerConfiguration() != null &&
+                senderConfiguration.getProxyServerConfiguration().getProxyUsername() != null &&
+                senderConfiguration.getProxyServerConfiguration().getProxyPassword() != null) {
+            setProxyAuthorizationHeader(httpOutboundRequest);
+        }
+    }
+
+    private void setProxyAuthorizationHeader(HTTPCarbonMessage httpOutboundRequest) {
+        ByteBuf authz = Unpooled.copiedBuffer(
+                senderConfiguration.getProxyServerConfiguration().getProxyUsername() + COLON
+                        + senderConfiguration.getProxyServerConfiguration().getProxyPassword(), CharsetUtil.UTF_8);
+        ByteBuf authzBase64 = Base64.encode(authz, false);
+        CharSequence authorization = new AsciiString("Basic " + authzBase64.toString(CharsetUtil.US_ASCII));
+        httpOutboundRequest.setHeader(HttpHeaderNames.PROXY_AUTHORIZATION.toString(), authorization);
+        authz.release();
+        authzBase64.release();
     }
 }

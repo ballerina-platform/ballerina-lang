@@ -181,6 +181,16 @@ public class HTTPCarbonMessage {
     }
 
     /**
+     * Set the header value for the given name.
+     *
+     * @param key header name.
+     * @param value header value as object.
+     */
+    public void setHeader(String key, Object value) {
+        this.httpMessage.headers().set(key, value);
+    }
+
+    /**
      * Let you set a set of headers.
      *
      * @param httpHeaders set of headers that needs to be set.
