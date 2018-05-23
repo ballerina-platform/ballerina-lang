@@ -511,6 +511,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangVariable varNode) {
+        // This will prevent cases Eg:- int _ = 100;
+        // We have prevented '_' from registering variable symbol at SymbolEnter, Hence this validation added.
+        Name varName = names.fromIdNode(varNode.name);
+        if (varName == Names.IGNORE) {
+            dlog.error(varNode.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+            return;
+        }
+
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // This is a variable declared in a function, an action or a resource
@@ -1589,7 +1597,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
                 return;
             }
+        } else {
+            dlog.error(simpleVarRef.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+            return;
         }
+
         // Define the new variable
         BVarSymbol varSymbol = this.symbolEnter.defineVarSymbol(simpleVarRef.pos,
                 Collections.emptySet(), rhsType, varName, env);

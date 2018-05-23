@@ -16,7 +16,7 @@ function main (string... args) {
     check m.setFloatProperty("floatProp", 10.5);
     check m.setStringProperty("stringProp", "TestString");
     // Send the Ballerina message to the JMS provider.
-    var _ = queueSender -> send(m);
+    _ = queueSender -> send(m);
 
     io:println("Message successfully sent by jms:SimpleQueueSender");
 }
