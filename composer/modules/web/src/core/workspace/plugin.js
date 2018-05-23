@@ -327,8 +327,9 @@ class WorkspacePlugin extends Plugin {
         if (this.config && this.config.startupFile) {
             this.openFile(this.config.startupFile);
         }
-        if (isOnElectron) {
-            require('electron').ipcRenderer.on('open-file', (e, filePath) => {
+        if (isOnElectron()) {
+            const { ipcRenderer } = require('electron');
+            ipcRenderer.on('open-file', (e, filePath) => {
                 this.openFile(filePath);
             });
         }

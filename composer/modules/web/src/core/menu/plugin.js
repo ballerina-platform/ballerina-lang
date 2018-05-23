@@ -15,7 +15,6 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { ipcRenderer } from 'electron';
 import log from 'log';
 import _ from 'lodash';
 import Plugin from './../plugin/plugin';
@@ -118,6 +117,7 @@ class MenuPlugin extends Plugin {
      */
     onAfterInitialRender() {
         if (isOnElectron()) {
+            const { ipcRenderer } = require('electron');
             const { command: { dispatch, on } } = this.appContext;
             const populateNativeMenuItem = (node) => {
                 node.gen = {

@@ -16,7 +16,6 @@
  * under the License.
  *
  */
-import { ipcRenderer } from 'electron';
 import _ from 'lodash';
 import log from 'log';
 import { COMMANDS, DIALOGS, EVENTS } from './constants';
@@ -99,6 +98,7 @@ export function getHandlerDefinitions(workspaceManager) {
                 // File is not yet persisted - show save as dialog
                 if (!targetFile.isPersisted) {
                     if (isOnElectron()) {
+                        const { ipcRenderer } = require('electron');
                         ipcRenderer.send('show-file-save-dialog');
                         ipcRenderer.once('file-save-wizard-closed', (e, filePath) => {
                             if (!filePath) {
@@ -145,6 +145,7 @@ export function getHandlerDefinitions(workspaceManager) {
                 const activeEditor = editor.getActiveEditor();
                 if (activeEditor && activeEditor.file) {
                     if (isOnElectron()) {
+                        const { ipcRenderer } = require('electron');
                         ipcRenderer.send('show-file-save-dialog');
                         ipcRenderer.once('file-save-wizard-closed', (e, filePath) => {
                             saveFile(activeEditor.file, filePath, workspaceManager.appContext);
@@ -166,6 +167,7 @@ export function getHandlerDefinitions(workspaceManager) {
             handler: () => {
                 const { command: { dispatch } } = workspaceManager.appContext;
                 if (isOnElectron()) {
+                    const { ipcRenderer } = require('electron');
                     ipcRenderer.send('show-file-open-dialog');
                     ipcRenderer.once('file-open-wizard-closed', (e, file) => {
                         if (file) {
@@ -185,6 +187,7 @@ export function getHandlerDefinitions(workspaceManager) {
             handler: () => {
                 const { command: { dispatch } } = workspaceManager.appContext;
                 if (isOnElectron()) {
+                    const { ipcRenderer } = require('electron');
                     ipcRenderer.send('show-folder-open-dialog');
                     ipcRenderer.once('folder-open-wizard-closed', (e, folder) => {
                         if (folder) {

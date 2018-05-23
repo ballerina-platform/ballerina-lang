@@ -32,7 +32,10 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 
-const isProductionBuild = process.env.NODE_ENV === 'production';
+const { env: { NODE_ENV }} = process;
+const isElectronBuild = NODE_ENV === 'electron' || NODE_ENV === 'electron-dev';
+const isProductionBuild = NODE_ENV === 'production' || NODE_ENV === 'electron';
+const target = isElectronBuild ? 'electron-renderer' : 'web';
 
 const extractThemes = new ExtractTextPlugin({ filename: './[name].css', allChunks: true });
 const extractCSSBundle = new ExtractTextPlugin({ filename: './bundle-[name]-[hash].css', allChunks: true });
@@ -43,7 +46,7 @@ let exportConfig = {};
 const codepoints = {}
 
 const config = [{
-    target: 'electron-renderer',
+    target,
     entry: {
         tree: './src/plugins/ballerina/model/tree-builder.js',
         bundle: './src/index.js',
@@ -276,6 +279,10 @@ const config = [{
     devtool: 'source-map',
 }];
 exportConfig = config;
+if (target === 'web') {
+    config[0].node = { module: 'empty', net: 'empty', fs: 'empty' };
+    config[0].plugins.push(new webpack.IgnorePlugin(/electron/));
+}
 if (process.env.NODE_ENV === 'production') {
     config[0].plugins.push(new webpack.DefinePlugin({
         PRODUCTION: JSON.stringify(true),
@@ -321,14 +328,6 @@ if (process.env.NODE_ENV === 'test') {
         }),
     ];
     exportConfig = testConfig;
-} else if (process.env.NODE_ENV === 'electron-dev' || process.env.NODE_ENV === 'electron') {
-    // we run tests on nodejs. So compile for nodejs
-    config[0].target = 'electron-renderer';
-
-    // reassign entry so it uses the entry point for the electron app
-    config[0].entry = {
-        bundle: './src-electron/electron-index.js',
-    };
 }
 
 /* eslint-enable */

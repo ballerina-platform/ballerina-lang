@@ -224,7 +224,8 @@ class Application {
         });
         if (isOnElectron()) {
             setTimeout(() => {
-                require('electron').ipcRenderer.send('composer-rendered');
+                const { ipcRenderer } = require('electron');
+                ipcRenderer.send('composer-rendered');
             }, 200);
         }
     }
