@@ -80,7 +80,7 @@ public class GetResponse extends AbstractHTTPAction {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            dataContext.notifyReply(
+            dataContext.notifyInboundResponseStatus(
                     createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
         }
 
@@ -88,7 +88,7 @@ public class GetResponse extends AbstractHTTPAction {
             BStruct httpConnectorError = createStruct(
                     dataContext.context, HttpConstants.STRUCT_GENERIC_ERROR, HttpConstants.PACKAGE_BALLERINA_BUILTIN);
             httpConnectorError.setStringField(0, throwable.getMessage());
-            dataContext.notifyReply(null, httpConnectorError);
+            dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }
 }

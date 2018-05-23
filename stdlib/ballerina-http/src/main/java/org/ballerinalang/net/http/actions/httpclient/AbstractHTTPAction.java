@@ -271,11 +271,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         try {
             send(dataContext, outboundRequestMsg, async);
         } catch (BallerinaConnectorException e) {
-            dataContext.notifyReply(null, HttpUtil.getError(dataContext.context, e));
+            dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(dataContext.context, e));
         } catch (Exception e) {
             BallerinaException exception = new BallerinaException("Failed to send outboundRequestMsg to the backend",
                                                                   e, dataContext.context);
-            dataContext.notifyReply(null, HttpUtil.getError(dataContext.context, exception));
+            dataContext.notifyInboundResponseStatus(null, HttpUtil.getError(dataContext.context, exception));
         }
     }
 
@@ -393,8 +393,11 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         if (entityStruct != null) {
             MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
-                messageDataSource.serializeData(messageOutputStream);
-                HttpUtil.closeMessageOutputStream(messageOutputStream);
+                try {
+                    messageDataSource.serializeData(messageOutputStream);
+                } finally {
+                    HttpUtil.closeMessageOutputStream(messageOutputStream);
+                }
             } else { //When the entity body is a byte channel and when it is not null
                 if (EntityBodyHandler.getByteChannel(entityStruct) != null) {
                     try {
@@ -424,9 +427,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
 
         @Override
-        public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+        public void onMessage(HTTPCarbonMessage inboundResponseMessage) {
             this.outboundMsgDataStreamer.setIoException(new IOException("Response message already received"));
-            this.dataContext.notifyReply(createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+            this.dataContext.notifyInboundResponseStatus
+                    (createResponseStruct(this.dataContext.context, inboundResponseMessage), null);
         }
 
         @Override
@@ -434,7 +438,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             BStruct httpFuture = createStruct(this.dataContext.context, HttpConstants.HTTP_FUTURE,
                                               HttpConstants.PROTOCOL_PACKAGE_HTTP);
             httpFuture.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
-            this.dataContext.notifyReply(httpFuture, null);
+            this.dataContext.notifyInboundResponseStatus(httpFuture, null);
         }
 
         @Override
@@ -451,7 +455,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             }
             httpConnectorError.setStringField(0, throwable.getMessage());
-            this.dataContext.notifyReply(null, httpConnectorError);
+            this.dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }
 

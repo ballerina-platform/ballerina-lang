@@ -24,7 +24,7 @@ function main(string... args) {
     map message = { "a": 1, "b": "abc", "c": true, "d": 1.2, "e": blobValue };
     jms:Message m = check jmsSession.createMapMessage(message);
     // Send the Ballerina message to the JMS provider.
-    var _ = publisher->send(m);
+    _ = publisher->send(m);
 
     io:println("Message successfully sent by TopicPublisher");
 }

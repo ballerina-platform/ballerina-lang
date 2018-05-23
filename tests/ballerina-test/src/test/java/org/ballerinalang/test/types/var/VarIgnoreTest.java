@@ -16,6 +16,7 @@
 
 package org.ballerinalang.test.types.var;
 
+import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -42,5 +43,13 @@ public class VarIgnoreTest {
         BValue[] returns = BRunUtil.invoke(result, "m", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 3);
+    }
+
+    @Test(description = "Test var ignore negative cases.")
+    public void testVarIgnoreNegative() {
+        CompileResult res = BCompileUtil.compile("test-src/types/var/var-ignore-negative.bal");
+        Assert.assertEquals(res.getErrorCount(), 2);
+        BAssertUtil.validateError(res, 0, "underscore is not allowed here", 2, 5);
+        BAssertUtil.validateError(res, 1, "underscore is not allowed here", 3, 9);
     }
 }
