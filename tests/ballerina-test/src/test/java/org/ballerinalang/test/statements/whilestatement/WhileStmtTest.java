@@ -108,8 +108,8 @@ public class WhileStmtTest {
         BAssertUtil.validateError(negativeCompileResult, 1, "incompatible types: expected 'boolean', found 'string'", 6,
                 8);
         BAssertUtil.validateError(negativeCompileResult, 2, "incompatible types: expected 'boolean', found 'int'", 10,
-                11);
+                8);
         BAssertUtil.validateError(negativeCompileResult, 3, "incompatible types: expected 'boolean', found " +
-                        "'(int,string)'", 14, 11);
+                        "'(int,string)'", 14, 8);
     }
 }
