@@ -103,7 +103,8 @@ public class CompiledPackageSymbolEnter {
     private final SymbolTable symTable;
     private final Names names;
     private final BLangDiagnosticLog dlog;
-
+    private TypeSignatureReader<BType> typeSigReader;
+    
     private CompiledPackageSymbolEnv env;
 
     private static final CompilerContext.Key<CompiledPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
@@ -125,6 +126,7 @@ public class CompiledPackageSymbolEnter {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
+        this.typeSigReader = new TypeSignatureReader<>(new RuntimeTypeCreater());
     }
 
     public BPackageSymbol definePackage(PackageID packageId,
@@ -835,243 +837,8 @@ public class CompiledPackageSymbolEnter {
     private BInvokableType createInvokableType(String sig) {
         char[] chars = sig.toCharArray();
         Stack<BType> typeStack = new Stack<>();
-        createInvokableType(chars, 0, typeStack);
+        this.typeSigReader.createFunctionType(chars, 0, typeStack);
         return (BInvokableType) typeStack.pop();
-    }
-
-    private int createInvokableType(char[] chars, int index, Stack<BType> typeStack) {
-        // Skip the first parenthesis
-        index++;
-
-        // Read function parameters
-        Stack<BType> funcParamsStack = new Stack<>();
-        while (chars[index] != ')' || chars[index + 1] != '(') {
-            index = createBTypeFromSig(chars, index, funcParamsStack);
-        }
-        BType[] paramTypes = funcParamsStack.toArray(new BType[funcParamsStack.size()]);
-
-        // Read function return type.
-        // Skip the two parenthesis ')(', which separate params and return params
-        index += 2;
-        BType retType;
-        if (chars[index] == ')') {
-            retType = this.symTable.nilType;
-        } else {
-            index = createBTypeFromSig(chars, index, funcParamsStack);
-            retType = funcParamsStack.pop();
-        }
-
-        typeStack.push(new BInvokableType(Arrays.asList(paramTypes), retType, null));
-        return index;
-    }
-
-    private int createBTypeFromSig(char[] chars, int index, Stack<BType> typeStack) {
-        int nameIndex;
-        char ch = chars[index];
-        switch (ch) {
-            case 'I':
-                typeStack.push(this.symTable.intType);
-                return index + 1;
-            case 'F':
-                typeStack.push(this.symTable.floatType);
-                return index + 1;
-            case 'S':
-                typeStack.push(this.symTable.stringType);
-                return index + 1;
-            case 'B':
-                typeStack.push(this.symTable.booleanType);
-                return index + 1;
-            case 'L':
-                typeStack.push(this.symTable.blobType);
-                return index + 1;
-            case 'Y':
-                typeStack.push(this.symTable.typeDesc);
-                return index + 1;
-            case 'A':
-                typeStack.push(this.symTable.anyType);
-                return index + 1;
-            case 'R':
-                index++;
-                nameIndex = index;
-                while (chars[nameIndex] != ';') {
-                    nameIndex++;
-                }
-                String typeName = new String(Arrays.copyOfRange(chars, index, nameIndex));
-                typeStack.push(getBuiltinRefTypeFromName(typeName));
-                return nameIndex + 1;
-            case '[':
-                index = createBTypeFromSig(chars, index + 1, typeStack);
-                BType elemType = typeStack.pop();
-                BArrayType arrayType = new BArrayType(elemType);
-                typeStack.push(arrayType);
-                return index;
-            case 'J':
-            case 'T':
-            case 'D':
-            case 'G':
-                char typeChar = chars[index];
-                index++;
-                nameIndex = index;
-                int colonIndex = -1;
-                while (chars[nameIndex] != ';') {
-                    if (chars[nameIndex] == ':') {
-                        colonIndex = nameIndex;
-                    }
-                    nameIndex++;
-                }
-
-                String pkgPath;
-                String name;
-                BPackageSymbol pkgSymbol;
-                if (colonIndex != -1) {
-                    pkgPath = new String(Arrays.copyOfRange(chars, index, colonIndex));
-                    name = new String(Arrays.copyOfRange(chars, colonIndex + 1, nameIndex));
-                    pkgSymbol = lookupPackageSymbol(names.fromString(pkgPath));
-                } else {
-                    name = new String(Arrays.copyOfRange(chars, index, nameIndex));
-                    // Setting the current package;
-                    pkgSymbol = this.env.pkgSymbol;
-                }
-
-                if (typeChar == 'J') {
-                    if (name.isEmpty()) {
-                        typeStack.push(this.symTable.jsonType);
-                    } else {
-                        typeStack.push(new BJSONType(TypeTags.JSON, lookupUserDefinedType(pkgSymbol, name), null));
-                    }
-                } else if (typeChar == 'D') {
-                    if (name.isEmpty()) {
-                        typeStack.push(this.symTable.tableType);
-                    } else {
-                        typeStack.push(new BTableType(TypeTags.TABLE, lookupUserDefinedType(pkgSymbol, name), null));
-                    }
-                } else if (typeChar == 'G' || typeChar == 'T') {
-                    typeStack.push(lookupUserDefinedType(pkgSymbol, name));
-                }
-
-                return nameIndex + 1;
-            case 'M':
-                index = createBTypeFromSig(chars, index + 1, typeStack);
-                BType constrainedType = typeStack.pop();
-                BType mapType;
-                if (constrainedType == this.symTable.anyType) {
-                    mapType = this.symTable.mapType;
-                } else {
-                    mapType = new BMapType(TypeTags.MAP, constrainedType, null);
-                }
-                typeStack.push(mapType);
-                return index;
-            case 'H':
-                index = createBTypeFromSig(chars, index + 1, typeStack);
-                BType streamConstraintType = typeStack.pop();
-                typeStack.push(new BStreamType(TypeTags.STREAM, streamConstraintType, null));
-                return index;
-            case 'U':
-                index++;
-                index = createInvokableType(chars, index, typeStack);
-                return index + 1;
-            case 'O':
-            case 'P':
-                typeChar = chars[index];
-                index++;
-                nameIndex = index;
-                while (chars[nameIndex] != ';') {
-                    nameIndex++;
-                }
-                List<BType> memberTypes = new ArrayList<>();
-                int memberCount = Integer.parseInt(new String(Arrays.copyOfRange(chars, index, nameIndex)));
-                index = nameIndex;
-                for (int i = 0; i < memberCount; i++) {
-                    index = createBTypeFromSig(chars, index + 1, typeStack) - 1;
-                    memberTypes.add(typeStack.pop());
-                }
-                if (typeChar == 'O') {
-                    typeStack.push(new BUnionType(null, new LinkedHashSet<>(memberTypes),
-                            memberTypes.contains(this.symTable.nilType)));
-                } else if (typeChar == 'P') {
-                    typeStack.push(new BTupleType(memberTypes));
-                }
-                return index + 1;
-            case 'N':
-                typeStack.push(this.symTable.nilType);
-                return index + 1;
-            default:
-                throw new BLangCompilerException("unsupported base type char: " + ch);
-        }
-    }
-
-    private BType getBTypeFromDescriptor(String sig) {
-        char ch = sig.charAt(0);
-        switch (ch) {
-            case 'I':
-                return this.symTable.intType;
-            case 'F':
-                return this.symTable.floatType;
-            case 'S':
-                return this.symTable.stringType;
-            case 'B':
-                return this.symTable.booleanType;
-            case 'Y':
-                return this.symTable.typeDesc;
-            case 'L':
-                return this.symTable.blobType;
-            case 'A':
-                return this.symTable.anyType;
-            case 'N':
-                return this.symTable.nilType;
-            case 'R':
-                return getBuiltinRefTypeFromName(sig.substring(1, sig.length() - 1));
-            case 'M':
-                BType constrainedType = getBTypeFromDescriptor(sig.substring(1));
-                if (constrainedType == this.symTable.anyType) {
-                    return this.symTable.mapType;
-                } else {
-                    return new BMapType(TypeTags.MAP, constrainedType, null);
-                }
-            case 'J':
-            case 'T':
-            case 'D':
-            case 'G':
-            case 'H':
-                return new BStreamType(TypeTags.STREAM, getBTypeFromDescriptor(sig.substring(1)), null);
-            case 'X':
-                String typeName = sig.substring(1, sig.length() - 1);
-                String[] parts = typeName.split(":");
-
-                if (parts.length == 1) {
-                    if (ch == 'J') {
-                        return this.symTable.jsonType;
-                    } else if (ch == 'D') {
-                        return this.symTable.tableType;
-                    } else if (ch == 'H') { //TODO:CHECK
-                        return this.symTable.streamType;
-                    }
-                }
-
-                String pkgPath = parts[0];
-                String name = parts[1];
-                BPackageSymbol pkgSymbol = lookupPackageSymbol(names.fromString(pkgPath));
-                if (ch == 'J') {
-                    return new BJSONType(TypeTags.JSON, lookupUserDefinedType(pkgSymbol, name), null);
-                } else if (ch == 'X') {
-                    return lookupUserDefinedType(pkgSymbol, name);
-                } else if (ch == 'D') {
-                    return new BTableType(TypeTags.TABLE, lookupUserDefinedType(pkgSymbol, name), null);
-                } else {
-                    return lookupUserDefinedType(pkgSymbol, name);
-                }
-            case '[':
-                BType elemType = getBTypeFromDescriptor(sig.substring(1));
-                return new BArrayType(elemType);
-            case 'U':
-            case 'O':
-            case 'P':
-                Stack<BType> typeStack = new Stack<BType>();
-                createBTypeFromSig(sig.toCharArray(), 0, typeStack);
-                return typeStack.pop();
-            default:
-                throw new BLangCompilerException("Unknown type signature: " + sig);
-        }
     }
 
     private BPackageSymbol lookupPackageSymbol(Name packageName) {
@@ -1144,6 +911,10 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
+    private BType getBTypeFromDescriptor(String typeSig) {
+        return this.typeSigReader.getBTypeFromDescriptor(typeSig);
+    }
+
     /**
      * This class holds compiled package specific information during the symbol enter phase of the compiled package.
      *
@@ -1168,6 +939,113 @@ public class CompiledPackageSymbolEnter {
         UnresolvedType(String typeSig, Consumer<BType> completer) {
             this.typeSig = typeSig;
             this.completer = completer;
+        }
+    }
+
+    /**
+     * Create types for compiler phases.
+     * 
+     * @since 0.975.0
+     */
+    private class RuntimeTypeCreater implements TypeCreater<BType> {
+        
+        @Override
+        public BType getBasicType(char typeChar) {
+            switch (typeChar) {
+                case 'I':
+                    return symTable.intType;
+                case 'F':
+                    return symTable.floatType;
+                case 'S':
+                    return symTable.stringType;
+                case 'B':
+                    return symTable.booleanType;
+                case 'L':
+                    return symTable.blobType;
+                case 'Y':
+                    return symTable.typeDesc;
+                case 'A':
+                    return symTable.anyType;
+                case 'N':
+                    return symTable.nilType;
+                default:
+                    throw new IllegalArgumentException("unsupported basic type char: " + typeChar);
+            }
+        }
+
+        @Override
+        public BType getBuiltinRefType(String typeName) {
+            return getBuiltinRefTypeFromName(typeName);
+        }
+
+        @Override
+        public BType getRefType(char typeChar, String pkgId, String typeName) {
+            if (typeName.isEmpty()) {
+                return null;
+            }
+
+            BPackageSymbol pkgSymbol;
+            if (pkgId != null) {
+                pkgSymbol = lookupPackageSymbol(names.fromString(pkgId));
+            } else {
+                pkgSymbol = env.pkgSymbol;
+            }
+
+            return lookupUserDefinedType(pkgSymbol, typeName);
+        }
+
+        @Override
+        public BType getConstrainedType(char typeChar, BType constraint) {
+            switch (typeChar) {
+                case 'J':
+                    if (constraint == null) {
+                        return symTable.jsonType;
+                    }
+                    return new BJSONType(TypeTags.JSON, constraint, null);
+                case 'D':
+                    if (constraint == null) {
+                        return symTable.tableType;
+                    }
+                    return new BTableType(TypeTags.TABLE, constraint, null);
+                case 'M':
+                    if (constraint == null || constraint == symTable.anyType) {
+                        return symTable.mapType;
+                    }
+                    return new BMapType(TypeTags.MAP, constraint, null);
+                case 'H':
+                    return new BStreamType(TypeTags.STREAM, constraint, null);
+                case 'G':
+                case 'T':
+                default:
+                    return constraint;
+            }
+        }
+
+        @Override
+        public BType getArrayType(BType elementType) {
+            return new BArrayType(elementType);
+        }
+
+        @Override
+        public BType getCollenctionType(char typeChar, List<BType> memberTypes) {
+            
+            switch (typeChar) {
+                case 'O':
+                    return new BUnionType(null, new LinkedHashSet<>(memberTypes),
+                            memberTypes.contains(symTable.nilType));
+                case 'P':
+                    return new BTupleType(memberTypes);
+                default:
+                    throw new IllegalArgumentException("unsupported collection type char: " + typeChar);
+            }
+        }
+
+        @Override
+        public BType getFunctionType(List<BType> funcParams, BType retType) {
+            if (retType == null) {
+                retType = symTable.nilType;
+            }
+            return new BInvokableType(funcParams, retType, null);
         }
     }
 }
