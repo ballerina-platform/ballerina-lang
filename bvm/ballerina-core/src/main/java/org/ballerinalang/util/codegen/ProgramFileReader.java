@@ -90,7 +90,7 @@ public class ProgramFileReader {
         entryPkg.setProgramFile(programFile);
 
         // Read program level attributes
-        pkgInfoReader.readAttributeInfoEntries(programFile, programFile);
+        pkgInfoReader.readAttributeInfoEntries(entryPkg, programFile, programFile);
 
         // TODO This needs to be moved out of this class
         programFile.initializeGlobalMemArea();

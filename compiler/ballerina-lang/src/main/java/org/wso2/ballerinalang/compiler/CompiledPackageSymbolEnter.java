@@ -126,7 +126,7 @@ public class CompiledPackageSymbolEnter {
         this.symTable = SymbolTable.getInstance(context);
         this.names = Names.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
-        this.typeSigReader = new TypeSignatureReader<>(new RuntimeTypeCreater());
+        this.typeSigReader = new TypeSignatureReader<>();
     }
 
     public BPackageSymbol definePackage(PackageID packageId,
@@ -837,7 +837,7 @@ public class CompiledPackageSymbolEnter {
     private BInvokableType createInvokableType(String sig) {
         char[] chars = sig.toCharArray();
         Stack<BType> typeStack = new Stack<>();
-        this.typeSigReader.createFunctionType(chars, 0, typeStack);
+        this.typeSigReader.createFunctionType(new CompilerTypeCreater(), chars, 0, typeStack);
         return (BInvokableType) typeStack.pop();
     }
 
@@ -912,7 +912,7 @@ public class CompiledPackageSymbolEnter {
     }
 
     private BType getBTypeFromDescriptor(String typeSig) {
-        return this.typeSigReader.getBTypeFromDescriptor(typeSig);
+        return this.typeSigReader.getBTypeFromDescriptor(new CompilerTypeCreater(), typeSig);
     }
 
     /**
@@ -947,8 +947,8 @@ public class CompiledPackageSymbolEnter {
      * 
      * @since 0.975.0
      */
-    private class RuntimeTypeCreater implements TypeCreater<BType> {
-        
+    private class CompilerTypeCreater implements TypeCreater<BType> {
+
         @Override
         public BType getBasicType(char typeChar) {
             switch (typeChar) {
