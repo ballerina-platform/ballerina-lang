@@ -84,7 +84,7 @@ public class GetNextPromise extends AbstractHTTPAction {
             BStruct pushPromiseStruct =
                     createStruct(dataContext.context, HttpConstants.PUSH_PROMISE, HttpConstants.PROTOCOL_PACKAGE_HTTP);
             HttpUtil.populatePushPromiseStruct(pushPromiseStruct, pushPromise);
-            dataContext.notifyReply(pushPromiseStruct, null);
+            dataContext.notifyInboundResponseStatus(pushPromiseStruct, null);
         }
     }
 }
