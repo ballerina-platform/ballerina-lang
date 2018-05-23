@@ -42,7 +42,7 @@ import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 /**
- * An initializer class for HTTP Server
+ * An initializer class for HTTP Server.
  */
 public class SendChannelIDServerInitializer extends HTTPServerInitializer {
 
@@ -70,12 +70,7 @@ public class SendChannelIDServerInitializer extends HTTPServerInitializer {
                 boolean keepAlive = HttpUtil.isKeepAlive(req);
                 int responseStatusCode = 200;
 
-                HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
-                        HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
-                ByteBuf content =  Unpooled.wrappedBuffer(ctx.channel().id().asLongText().getBytes());
-                FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
-                response.headers().set(CONTENT_TYPE, "plain/text");
-                response.headers().set(CONTENT_LENGTH, content.readableBytes());
+                FullHttpResponse response = createFullHttpResponse(ctx, responseStatusCode);
 
                 if (!keepAlive) {
                     ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
@@ -92,6 +87,22 @@ public class SendChannelIDServerInitializer extends HTTPServerInitializer {
                     logger.debug("Writing response with data to client-connector");
                 }
             }
+        }
+
+        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+            ctx.close();
+            logger.debug("Channel has become inactive hence closing the connection");
+        }
+
+
+        private FullHttpResponse createFullHttpResponse(ChannelHandlerContext ctx, int responseStatusCode) {
+            HttpResponseStatus httpResponseStatus = new HttpResponseStatus(responseStatusCode,
+                    HttpResponseStatus.valueOf(responseStatusCode).reasonPhrase());
+            ByteBuf content =  Unpooled.wrappedBuffer(ctx.channel().id().asLongText().getBytes());
+            FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, httpResponseStatus, content);
+            response.headers().set(CONTENT_TYPE, "plain/text");
+            response.headers().set(CONTENT_LENGTH, content.readableBytes());
+            return response;
         }
     }
 }

@@ -19,21 +19,26 @@
 
 package org.wso2.transport.http.netty.contentaware.listeners;
 
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * A Message processor which echos the incoming message
+ * A Message processor which echos the incoming message.
  */
 public class EchoMessageListener implements HttpConnectorListener {
     private static final Logger logger = LoggerFactory.getLogger(EchoMessageListener.class);
@@ -44,10 +49,20 @@ public class EchoMessageListener implements HttpConnectorListener {
     public void onMessage(HTTPCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
-                HTTPCarbonMessage httpResponse = httpRequest.cloneCarbonMessageWithData();
+                HTTPCarbonMessage httpResponse =
+                        new HttpCarbonResponse(new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
                 httpResponse.setHeader(HttpHeaderNames.CONNECTION.toString(), HttpHeaderValues.KEEP_ALIVE.toString());
                 httpResponse.setHeader(HttpHeaderNames.CONTENT_TYPE.toString(), Constants.TEXT_PLAIN);
                 httpResponse.setProperty(Constants.HTTP_STATUS_CODE, HttpResponseStatus.OK.code());
+
+                do {
+                    HttpContent httpContent = httpRequest.getHttpContent();
+                    httpResponse.addHttpContent(httpContent);
+                    if (httpContent instanceof LastHttpContent) {
+                        break;
+                    }
+                } while (true);
+
                 httpRequest.respond(httpResponse);
             } catch (ServerConnectorException e) {
                 logger.error("Error occurred during message notification: " + e.getMessage());

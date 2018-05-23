@@ -23,10 +23,10 @@ package org.wso2.transport.http.netty.common.certificatevalidation.cache;
  */
 public interface ManageableCache {
 
-    public ManageableCacheValue getNextCacheValue();
+    ManageableCacheValue getNextCacheValue();
 
-    public int getCacheSize();
+    int getCacheSize();
 
-    public void resetIterator();
+    void resetIterator();
 }
 

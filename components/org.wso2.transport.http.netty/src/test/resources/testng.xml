@@ -28,7 +28,13 @@
     <test name="Transport test">
         <classes>
             <class name="org.wso2.transport.http.netty.passthrough.PassThroughHttpTestCase" />
-            <class name="org.wso2.transport.http.netty.contentaware.ContentAwareMessageProcessorTestCase" />
+            <class name="org.wso2.transport.http.netty.passthrough.PassThroughHttpsTestCase"/>
+
+            <class name="org.wso2.transport.http.netty.contentaware.EchoServerConnectorListenerTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseCreationTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseStreamingTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseTransformTestCase" />
+            <class name="org.wso2.transport.http.netty.contentaware.RequestResponseTransformStreamingTestCase" />
 
             <class name="org.wso2.transport.http.netty.https.HTTPSClientTestCase" />
             <class name="org.wso2.transport.http.netty.https.SSLProtocolsTest" />
@@ -43,7 +49,8 @@
 
             <class name="org.wso2.transport.http.netty.proxyserver.ProxyServerTestCase" />
 
-            <class name="org.wso2.transport.http.netty.redirect.HTTPClientRedirectTestCase" />
+            <class name="org.wso2.transport.http.netty.hostnameverfication.HostnameVerificationTest" />
+            <class name="org.wso2.transport.http.netty.redirect.HttpClientRedirectTestCase" />
 
             <class name="org.wso2.transport.http.netty.ClientConnectorTimeoutTestCase" />
             <class name="org.wso2.transport.http.netty.ClientConnectorConnectionRefusedTestCase" />
@@ -56,15 +63,20 @@
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkEnableClientTestCase" />
             <class name="org.wso2.transport.http.netty.chunkdisable.ChunkDisableClientTestCase" />
 
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolProxyTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
-            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
+            <class name="org.wso2.transport.http.netty.headers.Continue100TestCase" />
+            <class name="org.wso2.transport.http.netty.headers.DateHeaderTestCase" />
 
             <class name="org.wso2.transport.http.netty.unitfunction.CommonUtilTestCase" />
             <class name="org.wso2.transport.http.netty.unitfunction.HttpCarbonMessageTestCase" />
+            <class name="org.wso2.transport.http.netty.unitfunction.ForwardedTestCase" />
 
-            <!--<class name="org.wso2.carbon.transport.http.netty.http2.HTTP2RequestResponseTestCase" />-->
+            <class name="org.wso2.transport.http.netty.http2.Http2ClientConnectorBasicTestCase" />
+            <class name="org.wso2.transport.http.netty.http2.Http2ServerConnectorBasicTestCase" />
+            <class name="org.wso2.transport.http.netty.http2.Http2ServerPushTestCase" />
+            <class name="org.wso2.transport.http.netty.http2.Http2ClientTimeoutTestCase" />
+            <class name="org.wso2.transport.http.netty.http2.Http2WithPriorKnowledgeTestCase" />
+            <class name="org.wso2.transport.http.netty.http2.TestHttp2WithALPN" />
+            <class name="org.wso2.transport.http.netty.ocspstapling.OCSPStaplingTest" />
             <class name="org.wso2.transport.http.netty.encoding.ContentEncodingTestCase"/>
             <class name="org.wso2.transport.http.netty.urilengthvalidation.Status414And413ResponseTest"/>
             <class name="org.wso2.transport.http.netty.http1point0test.HttpOnePointZeroServerConnectorTestCase"/>
@@ -72,11 +84,26 @@
             <class name="org.wso2.transport.http.netty.http1point0test.ChunkAutoHttpOnePointZeroClientTestCase"/>
             <class name="org.wso2.transport.http.netty.http1point0test.ChunkAlwaysHttpOnePointZeroClientTestCase"/>
 
+            <class name="org.wso2.transport.http.netty.compression.ServerRespCompressionTestCase"/>
+            <class name="org.wso2.transport.http.netty.compression.ClientRespDecompressionTestCase"/>
+
             <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketClientTestCase"/>
-            <!--<class name="org.wso2.transport.http.netty.websocket.WebSocketPassThroughTestCase"/>-->
+            <class name="org.wso2.transport.http.netty.websocket.WebSocketPassThroughTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.WebSocketMessagePropertiesTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.HttpToWsProtocolSwitchTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.HttpToWebSocketProtocolSwitchTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.HttpToWebSocketProtocolSwitchMultiThreadTestCase"/>
+
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolProxyTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolEvictionTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMaxConnTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolTimeoutProxyTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolMainTestCase" />
+            <class name="org.wso2.transport.http.netty.connectionpool.ConnectionPoolWaitingTimeoutTestCase" />
+
+            <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedEnableTestCase" />
+            <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedTransitionTestCase" />
+            <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedDisableTestCase" />
         </classes>
     </test>
 </suite>

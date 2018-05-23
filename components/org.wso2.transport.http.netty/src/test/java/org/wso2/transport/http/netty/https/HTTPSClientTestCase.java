@@ -23,15 +23,14 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
-import org.wso2.transport.http.netty.http2.HTTP2MessageProcessor;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
@@ -56,10 +55,11 @@ import static org.testng.AssertJUnit.assertNotNull;
  */
 public class HTTPSClientTestCase {
 
-    private static Logger logger = LoggerFactory.getLogger(HTTP2MessageProcessor.class);
+    private static Logger logger = LoggerFactory.getLogger(HTTPSClientTestCase.class);
 
     private HttpsServer httpsServer;
     private HttpClientConnector httpClientConnector;
+    private HttpWsConnectorFactory connectorFactory;
     private String testValue = "Test Message";
 
     @BeforeClass
@@ -75,7 +75,7 @@ public class HTTPSClientTestCase {
 
         httpsServer = TestUtil.startHttpsServer(TestUtil.HTTPS_SERVER_PORT,
                 new MockServerInitializer(testValue, "text/plain", 200));
-        HttpWsConnectorFactory connectorFactory = new HttpWsConnectorFactoryImpl();
+        connectorFactory = new DefaultHttpWsConnectorFactory();
         httpClientConnector = connectorFactory.createHttpClientConnector(
                 HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                 HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
@@ -109,6 +109,7 @@ public class HTTPSClientTestCase {
     public void cleanUp() throws ServerConnectorException {
         try {
             httpsServer.shutdown();
+            connectorFactory.shutdown();
         } catch (InterruptedException e) {
             logger.error("Failed to shutdown the test server");
         }

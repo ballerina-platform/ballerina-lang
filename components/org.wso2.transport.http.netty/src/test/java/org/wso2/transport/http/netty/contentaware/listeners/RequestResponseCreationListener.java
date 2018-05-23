@@ -21,31 +21,26 @@ package org.wso2.transport.http.netty.contentaware.listeners;
 
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportProperty;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 /**
  * A Message Processor which creates Request and Response
@@ -54,64 +49,43 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
     private Logger logger = LoggerFactory.getLogger(RequestResponseCreationListener.class);
 
     private String responseValue;
-    private TransportsConfiguration configuration;
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
-    public RequestResponseCreationListener(String responseValue, TransportsConfiguration configuration) {
+    public RequestResponseCreationListener(String responseValue) {
         this.responseValue = responseValue;
-        this.configuration = configuration;
     }
 
     @Override
     public void onMessage(HTTPCarbonMessage httpRequest) {
         executor.execute(() -> {
             try {
-                int length = httpRequest.getFullMessageLength();
-                List<ByteBuffer> byteBufferList = httpRequest.getFullMessageBody();
-                ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                byteBufferList.forEach(byteBuffer::put);
-                String requestValue = new String(byteBuffer.array());
+                String requestValue = TestUtil
+                        .getStringFromInputStream(new HttpMessageDataStreamer(httpRequest).getInputStream());
                 byte[] arry = responseValue.getBytes("UTF-8");
 
                 HTTPCarbonMessage newMsg = httpRequest.cloneCarbonMessageWithOutData();
-                if (newMsg.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                    newMsg.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(arry.length));
+                if (newMsg.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
+                    newMsg.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(arry.length));
                 }
                 ByteBuffer byteBuffer1 = ByteBuffer.allocate(arry.length);
                 byteBuffer1.put(arry);
                 byteBuffer1.flip();
                 newMsg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer1)));
-                newMsg.setProperty(Constants.HOST, TestUtil.TEST_HOST);
-                newMsg.setProperty(Constants.PORT, TestUtil.HTTP_SERVER_PORT);
+                newMsg.setProperty(Constants.HTTP_HOST, TestUtil.TEST_HOST);
+                newMsg.setProperty(Constants.HTTP_PORT, TestUtil.HTTP_SERVER_PORT);
 
-                Map<String, Object> transportProperties = new HashMap<>();
-                Set<TransportProperty> transportPropertiesSet = configuration.getTransportProperties();
-                if (transportPropertiesSet != null && !transportPropertiesSet.isEmpty()) {
-                    transportProperties = transportPropertiesSet.stream().collect(
-                            Collectors.toMap(TransportProperty::getName, TransportProperty::getValue));
-
-                }
-
-                String scheme = (String) httpRequest.getProperty(Constants.PROTOCOL);
-                SenderConfiguration senderConfiguration = HTTPConnectorUtil
-                        .getSenderConfiguration(configuration, scheme);
-
-                HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+                HttpWsConnectorFactory httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
                 HttpClientConnector clientConnector =
-                        httpWsConnectorFactory.createHttpClientConnector(transportProperties, senderConfiguration);
+                        httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), new SenderConfiguration());
 
                 HttpResponseFuture future = clientConnector.send(newMsg);
                 future.setHttpConnectorListener(new HttpConnectorListener() {
                     @Override
                     public void onMessage(HTTPCarbonMessage httpResponse) {
                         executor.execute(() -> {
-                            int length = httpResponse.getFullMessageLength();
-                            List<ByteBuffer> byteBufferList = httpResponse.getFullMessageBody();
-
-                            ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-                            byteBufferList.forEach(byteBuffer::put);
-
-                            String responseStringValue = new String(byteBuffer.array()) + ":" + requestValue;
+                            String responseValue = TestUtil.getStringFromInputStream(
+                                    new HttpMessageDataStreamer(httpResponse).getInputStream());
+                            String responseStringValue = responseValue + ":" + requestValue;
 
                             byte[] responseByteValues = null;
                             try {
@@ -124,8 +98,8 @@ public class RequestResponseCreationListener implements HttpConnectorListener {
 
                             HTTPCarbonMessage httpCarbonMessage = httpResponse
                                     .cloneCarbonMessageWithOutData();
-                            if (httpCarbonMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-                                httpCarbonMessage.setHeader(Constants.HTTP_CONTENT_LENGTH,
+                            if (httpCarbonMessage.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
+                                httpCarbonMessage.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(),
                                         String.valueOf(responseByteValues.length));
                             }
                             httpCarbonMessage.addHttpContent(

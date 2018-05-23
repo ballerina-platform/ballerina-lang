@@ -22,10 +22,11 @@ package org.wso2.transport.http.netty.websocket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
@@ -33,12 +34,11 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.util.client.websocket.WebSocketTestConstants;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.List;
-import javax.websocket.CloseReason;
-import javax.websocket.Session;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * WebSocket test class for WebSocket Connector Listener.
@@ -48,7 +48,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestServerConnectorListener.class);
 
     private static final String PING = "ping";
-    private List<Session> sessionList = new LinkedList<>();
+    private List<WebSocketConnection> connectionList = new LinkedList<>();
     private boolean isIdleTimeout = false;
 
     public WebSocketTestServerConnectorListener() {
@@ -56,88 +56,68 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        HandshakeFuture future = initMessage.handshake(null, true, 3000);
-        future.setHandshakeListener(new HandshakeListener() {
+        ServerHandshakeFuture future = initMessage.handshake(null, true, 3000);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                sessionList.forEach(
-                        currentSession -> {
-                            try {
-                                currentSession.getBasicRemote().
-                                        sendText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED);
-                            } catch (IOException e) {
-                                log.error("IO exception when sending data : " + e.getMessage(), e);
-                            }
-                        }
-                );
-                sessionList.add(session);
+            public void onSuccess(WebSocketConnection webSocketConnection) {
+                connectionList.forEach(
+                        currentConn -> currentConn.pushText(WebSocketTestConstants.PAYLOAD_NEW_CLIENT_CONNECTED));
+                connectionList.add(webSocketConnection);
+                webSocketConnection.startReadingFrames();
+                countDownLatch.countDown();
             }
 
             @Override
-            public void onError(Throwable t) {
-                log.error(t.getMessage());
-                Assert.assertTrue(false, "Error: " + t.getMessage());
+            public void onError(Throwable throwable) {
+                log.error(throwable.getMessage());
+                Assert.fail("Error: " + throwable.getMessage());
+                countDownLatch.countDown();
             }
         });
+        try {
+            countDownLatch.await(10, TimeUnit.SECONDS);
+        } catch (InterruptedException err) {
+            log.error(err.getMessage(), err);
+        }
     }
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        Session session = textMessage.getChannelSession();
+        WebSocketConnection webSocketConnection = textMessage.getWebSocketConnection();
         String receivedTextToClient = textMessage.getText();
         log.debug("text: " + receivedTextToClient);
-        try {
-            if (PING.equals(receivedTextToClient)) {
-                session.getBasicRemote().sendPing(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
-                return;
-            }
-            session.getBasicRemote().sendText(receivedTextToClient);
-        } catch (IOException e) {
-            handleError(e);
+        if (PING.equals(receivedTextToClient)) {
+            webSocketConnection.ping(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
+            return;
         }
+        webSocketConnection.pushText(receivedTextToClient);
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        Session session = binaryMessage.getChannelSession();
+        WebSocketConnection webSocketConnection = binaryMessage.getWebSocketConnection();
         ByteBuffer receivedByteBufferToClient = binaryMessage.getByteBuffer();
         log.debug("ByteBuffer: " + receivedByteBufferToClient);
-        try {
-            session.getBasicRemote().sendBinary(receivedByteBufferToClient);
-        } catch (IOException e) {
-            handleError(e);
-        }
+        webSocketConnection.pushBinary(receivedByteBufferToClient);
     }
 
     @Override
     public void onMessage(WebSocketControlMessage controlMessage) {
-        if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
-            boolean isPongReceived = true;
-            return;
-        }
-
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
-            Session session = controlMessage.getChannelSession();
-            try {
-                session.getBasicRemote().sendPong(controlMessage.getPayload());
-            } catch (IOException e) {
-                Assert.assertTrue(false, "Could not send the message.");
-            }
+            WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
+            webSocketConnection.pong(controlMessage.getPayload()).addListener(future -> {
+                if (!future.isSuccess()) {
+                    Assert.fail("Could not send the message. "
+                                        + future.cause().getMessage());
+                }
+            });
         }
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
-        sessionList.forEach(
-                currentSession -> {
-                    try {
-                        currentSession.getBasicRemote().
-                                sendText(WebSocketTestConstants.PAYLOAD_CLIENT_LEFT);
-                    } catch (IOException e) {
-                        log.error("IO exception when sending data : " + e.getMessage(), e);
-                    }
-                }
-        );
+        connectionList.forEach(currentConn -> currentConn.pushText(WebSocketTestConstants.PAYLOAD_CLIENT_LEFT));
     }
 
     @Override
@@ -148,12 +128,12 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         this.isIdleTimeout = true;
-        try {
-            Session session = controlMessage.getChannelSession();
-            session.close(new CloseReason(() -> 1001, "Connection timeout"));
-        } catch (IOException e) {
-            log.error("Error occurred while closing the connection: " + e.getMessage());
-        }
+        WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
+        webSocketConnection.initiateConnectionClosure(1001, "Connection timeout", -1).addListener(future -> {
+           if (!future.isSuccess()) {
+               log.error("Error occurred while closing the connection: " + future.cause().getMessage());
+           }
+        });
     }
 
     private void handleError(Throwable throwable) {

@@ -18,17 +18,13 @@
 
 package org.wso2.transport.http.netty.http1point0test;
 
-import org.testng.annotations.AfterClass;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.chunkdisable.ChunkClientTemplate;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
-
-import java.util.Collections;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -48,18 +44,13 @@ public class ChunkAutoHttpOnePointZeroClientTestCase extends ChunkClientTemplate
     public void postTest() {
         try {
             HTTPCarbonMessage response = sendRequest(TestUtil.largeEntity);
-            assertEquals(response.getHeader(Constants.HTTP_CONTENT_LENGTH), "9342");
+            assertEquals(response.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()), "9342");
 
             response = sendRequest(TestUtil.smallEntity);
-            assertEquals(response.getHeader(Constants.HTTP_CONTENT_LENGTH), "70");
+            assertEquals(response.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()), "70");
 
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running postTest", e);
         }
-    }
-
-    @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(Collections.EMPTY_LIST , httpServer);
     }
 }

@@ -35,7 +35,7 @@ import javax.net.ssl.SSLEngine;
  */
 public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel> {
 
-    private static final Logger log = LoggerFactory.getLogger(HTTPClientInitializer.class);
+    private static final Logger log = LoggerFactory.getLogger(HttpClientChannelInitializer.class);
 
     private SSLEngine sslEngine; //Add SSL support to channel
     private boolean httpTraceLogEnabled; //Will be used, if enabled, to log events
@@ -70,7 +70,7 @@ public class RedirectChannelInitializer extends ChannelInitializer<SocketChannel
         ch.pipeline().addLast("encoder", new HttpRequestEncoder());
         if (httpTraceLogEnabled) {
             ch.pipeline().addLast(Constants.HTTP_TRACE_LOG_HANDLER,
-                                  new HTTPTraceLoggingHandler("tracelog.http.upstream"));
+                                  new HTTPTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
         }
         RedirectHandler redirectHandler = new RedirectHandler(sslEngine, httpTraceLogEnabled, maxRedirectCount
                 , originalChannelContext, isIdleHandlerOfTargetChannelRemoved, connectionManager);

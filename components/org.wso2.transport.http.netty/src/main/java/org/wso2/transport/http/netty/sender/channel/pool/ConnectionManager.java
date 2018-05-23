@@ -17,16 +17,16 @@ package org.wso2.transport.http.netty.sender.channel.pool;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import org.apache.commons.pool.impl.GenericObjectPool;
-import org.wso2.transport.http.netty.common.Constants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.HttpRoute;
-import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
+import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -36,23 +36,26 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConnectionManager {
 
+    private static final Logger log = LoggerFactory.getLogger(ConnectionManager.class);
+
     private EventLoopGroup clientEventGroup;
     private PoolConfiguration poolConfiguration;
     private PoolManagementPolicy poolManagementPolicy;
     private BootstrapConfiguration bootstrapConfig;
     private final Map<String, GenericObjectPool> connGlobalPool;
+    private Http2ConnectionManager http2ConnectionManager;
 
-    public ConnectionManager(PoolConfiguration poolConfiguration, Map<String, Object> transportProperties,
-            BootstrapConfiguration bootstrapConfiguration) {
-        this.poolConfiguration = poolConfiguration;
+    public ConnectionManager(SenderConfiguration senderConfig, BootstrapConfiguration bootstrapConfiguration,
+                             EventLoopGroup clientEventGroup) {
+        this.poolConfiguration = senderConfig.getPoolConfiguration();
         if (poolConfiguration.getNumberOfPools() == 1) {
             this.poolManagementPolicy = PoolManagementPolicy.LOCK_DEFAULT_POOLING;
         }
         connGlobalPool = new ConcurrentHashMap<>();
-        clientEventGroup = new NioEventLoopGroup(
-                Util.getIntProperty(transportProperties, Constants.CLIENT_BOOTSTRAP_WORKER_GROUP_SIZE, 4));
+        this.clientEventGroup = clientEventGroup;
 
         this.bootstrapConfig = bootstrapConfiguration;
+        this.http2ConnectionManager = new Http2ConnectionManager(senderConfig);
     }
 
     private GenericObjectPool createPoolForRoute(PoolableTargetChannelFactory poolableTargetChannelFactory) {
@@ -65,8 +68,8 @@ public class ConnectionManager {
     }
 
     /**
-     * @param httpRoute           BE address
-     * @param sourceHandler       Incoming channel
+     * @param httpRoute BE address
+     * @param sourceHandler Incoming channel
      * @param senderConfig The sender configuration instance
      * @return the target channel which is requested for given parameters.
      * @throws Exception to notify any errors occur during retrieving the target channel
@@ -79,7 +82,7 @@ public class ConnectionManager {
             EventLoopGroup group;
             ChannelHandlerContext ctx = sourceHandler.getInboundChannelContext();
             group = ctx.channel().eventLoop();
-            Class cl = ctx.channel().getClass();
+            Class eventLoopClass = ctx.channel().getClass();
 
             if (poolManagementPolicy == PoolManagementPolicy.LOCK_DEFAULT_POOLING) {
                 // This is faster than the above one (about 2k difference)
@@ -87,7 +90,7 @@ public class ConnectionManager {
                 trgHlrConnPool = srcHlrConnPool.get(httpRoute.toString());
                 if (trgHlrConnPool == null) {
                     PoolableTargetChannelFactory poolableTargetChannelFactory =
-                            new PoolableTargetChannelFactory(group, cl, httpRoute, senderConfig,
+                            new PoolableTargetChannelFactory(group, eventLoopClass, httpRoute, senderConfig,
                                     bootstrapConfig, this);
                     trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                     srcHlrConnPool.put(httpRoute.toString(), trgHlrConnPool);
@@ -100,7 +103,7 @@ public class ConnectionManager {
                         if (!this.connGlobalPool.containsKey(httpRoute.toString())) {
                             PoolableTargetChannelFactory poolableTargetChannelFactory =
                                     new PoolableTargetChannelFactory(group,
-                                            cl, httpRoute, senderConfig, bootstrapConfig, this);
+                                            eventLoopClass, httpRoute, senderConfig, bootstrapConfig, this);
                             trgHlrConnPool = createPoolForRoute(poolableTargetChannelFactory);
                             this.connGlobalPool.put(httpRoute.toString(), trgHlrConnPool);
                         }
@@ -131,9 +134,8 @@ public class ConnectionManager {
         return targetChannel;
     }
 
-    //Add connection to Pool back
     public void returnChannel(TargetChannel targetChannel) throws Exception {
-        targetChannel.setRequestWritten(false);
+        targetChannel.setRequestHeaderWritten(false);
         if (targetChannel.getCorrelatedSource() != null) {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             releaseChannelToPool(targetChannel, objectPoolMap.get(targetChannel.getHttpRoute().toString()));
@@ -144,22 +146,33 @@ public class ConnectionManager {
 
     private void releaseChannelToPool(TargetChannel targetChannel, GenericObjectPool pool) throws Exception {
         try {
-            if (targetChannel.getChannel().isActive()) {
+            String channelID = targetChannel.getChannel().id().asShortText();
+            if (targetChannel.getChannel().isActive() && pool != null) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Returning connection {} to the pool", channelID);
+                }
                 pool.returnObject(targetChannel);
+            } else {
+                log.debug("Channel {} is inactive hence not returning to connection pool", channelID);
             }
         } catch (Exception e) {
-            throw new Exception("Cannot return channel to pool", e);
+            throw new Exception("Couldn't return channel {} to pool", e);
         }
     }
 
     public void invalidateTargetChannel(TargetChannel targetChannel) throws Exception {
-        targetChannel.setRequestWritten(false);
+        targetChannel.setRequestHeaderWritten(false);
         if (targetChannel.getCorrelatedSource() != null) {
             Map<String, GenericObjectPool> objectPoolMap = targetChannel.getCorrelatedSource().getTargetChannelPool();
             try {
                 // Need a null check because SourceHandler side could timeout before TargetHandler side.
-                if (objectPoolMap.get(targetChannel.getHttpRoute().toString()) != null) {
-                    objectPoolMap.get(targetChannel.getHttpRoute().toString()).invalidateObject(targetChannel);
+                String httpRoute = targetChannel.getHttpRoute().toString();
+                if (objectPoolMap.get(httpRoute) != null) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("Invalidating connection {} to the pool",
+                                targetChannel.getChannel().id().asShortText());
+                    }
+                    objectPoolMap.get(httpRoute).invalidateObject(targetChannel);
                 }
             } catch (Exception e) {
                 throw new Exception("Cannot invalidate channel from pool", e);
@@ -184,9 +197,15 @@ public class ConnectionManager {
         config.timeBetweenEvictionRunsMillis = poolConfiguration.getTimeBetweenEvictionRuns();
         config.minEvictableIdleTimeMillis = poolConfiguration.getMinEvictableIdleTime();
         config.whenExhaustedAction = poolConfiguration.getExhaustedAction();
-        config.maxWait = poolConfiguration.getMaxWait();
+        config.maxWait = poolConfiguration.getMaxWaitTime();
 
+        if (log.isDebugEnabled()) {
+            log.debug("Creating a pool with {}", config.toString());
+        }
         return config;
     }
 
+    public Http2ConnectionManager getHttp2ConnectionManager() {
+        return http2ConnectionManager;
+    }
 }

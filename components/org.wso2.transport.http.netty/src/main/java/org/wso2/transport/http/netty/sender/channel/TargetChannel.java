@@ -27,17 +27,23 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.ForwardedExtensionConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.listener.SourceHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.sender.HTTPClientInitializer;
+import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
+import org.wso2.transport.http.netty.sender.ForwardedHeaderUpdater;
+import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.TargetHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
+import org.wso2.transport.http.netty.sender.http2.RedirectHandler;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,24 +59,43 @@ public class TargetChannel {
 
     private Channel channel;
     private TargetHandler targetHandler;
-    private HTTPClientInitializer httpClientInitializer;
+    private HttpClientChannelInitializer httpClientChannelInitializer;
     private HttpRoute httpRoute;
     private SourceHandler correlatedSource;
     private ChannelFuture channelFuture;
     private ConnectionManager connectionManager;
-    private boolean isRequestWritten = false;
+    private boolean requestHeaderWritten = false;
     private String httpVersion;
     private ChunkConfig chunkConfig;
     private HttpResponseFuture httpInboundResponseFuture;
     private HandlerExecutor handlerExecutor;
+    private Http2ClientChannel http2ClientChannel;
 
     private List<HttpContent> contentList = new ArrayList<>();
-    private int contentLength = 0;
+    private long contentLength = 0;
+    private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
 
-    public TargetChannel(HTTPClientInitializer httpClientInitializer, ChannelFuture channelFuture) {
-        this.httpClientInitializer = httpClientInitializer;
+    public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
+                         HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
+        this.httpClientChannelInitializer = httpClientChannelInitializer;
         this.channelFuture = channelFuture;
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
+        this.httpRoute = httpRoute;
+        if (httpClientChannelInitializer != null) {
+            http2ClientChannel =
+                    new Http2ClientChannel(httpClientChannelInitializer.getHttp2ConnectionManager(),
+                                           httpClientChannelInitializer.getConnection(),
+                                           httpRoute, channelFuture.channel());
+            if (httpClientChannelInitializer.isFollowRedirect()) {
+                http2ClientChannel.addDataEventListener(Constants.REDIRECT_HANDLER,
+                        new RedirectHandler(http2ClientChannel, httpClientChannelInitializer.getMaxRedirectCount()));
+            }
+        }
+        this.connectionAvailabilityFuture = connectionAvailabilityFuture;
+    }
+
+    public ConnectionAvailabilityFuture getConnenctionReadyFuture() {
+        return connectionAvailabilityFuture;
     }
 
     public Channel getChannel() {
@@ -82,16 +107,16 @@ public class TargetChannel {
         return this;
     }
 
-    public TargetHandler getTargetHandler() {
+    private TargetHandler getTargetHandler() {
         return targetHandler;
     }
 
-    public void setTargetHandler(TargetHandler targetHandler) {
+    private void setTargetHandler(TargetHandler targetHandler) {
         this.targetHandler = targetHandler;
     }
 
-    public HTTPClientInitializer getHttpClientInitializer() {
-        return httpClientInitializer;
+    private HttpClientChannelInitializer getHttpClientChannelInitializer() {
+        return httpClientChannelInitializer;
     }
 
     public HttpRoute getHttpRoute() {
@@ -110,12 +135,12 @@ public class TargetChannel {
         this.correlatedSource = correlatedSource;
     }
 
-    public boolean isRequestWritten() {
-        return isRequestWritten;
+    public boolean isRequestHeaderWritten() {
+        return requestHeaderWritten;
     }
 
-    public void setRequestWritten(boolean isRequestWritten) {
-        this.isRequestWritten = isRequestWritten;
+    public void setRequestHeaderWritten(boolean isRequestWritten) {
+        this.requestHeaderWritten = isRequestWritten;
     }
 
     public void setHttpVersion(String httpVersion) {
@@ -127,11 +152,11 @@ public class TargetChannel {
     }
 
     public void configTargetHandler(HTTPCarbonMessage httpCarbonMessage, HttpResponseFuture httpInboundResponseFuture) {
-        this.setTargetHandler(this.getHttpClientInitializer().getTargetHandler());
+        this.setTargetHandler(this.getHttpClientChannelInitializer().getTargetHandler());
         TargetHandler targetHandler = this.getTargetHandler();
         targetHandler.setHttpResponseFuture(httpInboundResponseFuture);
-        targetHandler.setIncomingMsg(httpCarbonMessage);
-        this.getTargetHandler().setConnectionManager(connectionManager);
+        targetHandler.setOutboundRequestMsg(httpCarbonMessage);
+        targetHandler.setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
 
         this.httpInboundResponseFuture = httpInboundResponseFuture;
@@ -141,16 +166,16 @@ public class TargetChannel {
         this.getChannel().pipeline().addBefore((followRedirect ? Constants.REDIRECT_HANDLER : Constants.TARGET_HANDLER),
                 Constants.IDLE_STATE_HANDLER, new IdleStateHandler(socketIdleTimeout, socketIdleTimeout, 0,
                         TimeUnit.MILLISECONDS));
+        http2ClientChannel.setSocketIdleTimeout(socketIdleTimeout);
     }
 
     public void setCorrelationIdForLogging() {
         ChannelPipeline pipeline = this.getChannel().pipeline();
         SourceHandler srcHandler = this.getCorrelatedSource();
         if (srcHandler != null && pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER) != null) {
-            HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler) pipeline.get(
-                    Constants.HTTP_TRACE_LOG_HANDLER);
-            loggingHandler.setCorrelatedSourceId(
-                    srcHandler.getInboundChannelContext().channel().id().asShortText());
+            HTTPTraceLoggingHandler loggingHandler = (HTTPTraceLoggingHandler)
+                    pipeline.get(Constants.HTTP_TRACE_LOG_HANDLER);
+            loggingHandler.setCorrelatedSourceId(srcHandler.getInboundChannelContext().channel().id().asShortText());
         }
     }
 
@@ -162,10 +187,16 @@ public class TargetChannel {
         return channelFuture;
     }
 
+    public Http2ClientChannel getHttp2ClientChannel() {
+        return http2ClientChannel;
+    }
+
     public void writeContent(HTTPCarbonMessage httpOutboundRequest) {
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetRequestReceiving(httpOutboundRequest);
         }
+
+        resetTargetChannelState();
 
         httpOutboundRequest.getHttpContentAsync().setMessageListener((httpContent ->
                 this.channel.eventLoop().execute(() -> {
@@ -182,11 +213,12 @@ public class TargetChannel {
 
     private void writeOutboundRequest(HTTPCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
         if (Util.isLastHttpContent(httpContent)) {
-            if (!this.isRequestWritten) {
+            if (!this.requestHeaderWritten) {
                 // this means we need to send an empty payload
                 // depending on the http verb
                 if (Util.isEntityBodyAllowed(getHttpMethod(httpOutboundRequest))) {
-                    if (chunkConfig == ChunkConfig.ALWAYS && Util.isVersionCompatibleForChunking(httpVersion)) {
+                    if (chunkConfig == ChunkConfig.ALWAYS && (Util.isVersionCompatibleForChunking(httpVersion)) || Util
+                            .shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion)) {
                         Util.setupChunkedRequest(httpOutboundRequest);
                     } else {
                         contentLength += httpContent.content().readableBytes();
@@ -198,15 +230,14 @@ public class TargetChannel {
 
             writeOutboundRequestBody(httpContent);
 
-            resetState(httpOutboundRequest);
-
             if (handlerExecutor != null) {
                 handlerExecutor.executeAtTargetRequestSending(httpOutboundRequest);
             }
         } else {
-            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO)
-                    && Util.isVersionCompatibleForChunking(httpVersion)) {
-                if (!this.isRequestWritten) {
+            if ((chunkConfig == ChunkConfig.ALWAYS || chunkConfig == ChunkConfig.AUTO) && (Util
+                    .isVersionCompatibleForChunking(httpVersion)) || Util
+                    .shouldEnforceChunkingforHttpOneZero(chunkConfig, httpVersion)) {
+                if (!this.requestHeaderWritten) {
                     Util.setupChunkedRequest(httpOutboundRequest);
                     writeOutboundRequestHeaders(httpOutboundRequest);
                 }
@@ -243,8 +274,7 @@ public class TargetChannel {
         });
     }
 
-    private void resetState(HTTPCarbonMessage httpOutboundRequest) {
-        httpOutboundRequest.removeHttpContentAsyncFuture();
+    public void resetTargetChannelState() {
         contentList.clear();
         contentLength = 0;
     }
@@ -260,11 +290,39 @@ public class TargetChannel {
     private void writeOutboundRequestHeaders(HTTPCarbonMessage httpOutboundRequest) {
         this.setHttpVersionProperty(httpOutboundRequest);
         HttpRequest httpRequest = Util.createHttpRequest(httpOutboundRequest);
-        this.setRequestWritten(true);
-        this.getChannel().write(httpRequest);
+        this.setRequestHeaderWritten(true);
+        ChannelFuture outboundHeaderFuture = this.getChannel().write(httpRequest);
+        notifyIfFailure(outboundHeaderFuture);
     }
 
     private void setHttpVersionProperty(HTTPCarbonMessage httpOutboundRequest) {
-        httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
+        if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
+            // Upgrade request of HTTP/2 should be a HTTP/1.1 request
+            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, Constants.HTTP_1_1);
+        } else {
+            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
+        }
+    }
+
+    public void setForwardedExtension(ForwardedExtensionConfig forwardedConfig, HTTPCarbonMessage httpOutboundRequest) {
+        if (forwardedConfig == ForwardedExtensionConfig.DISABLE) {
+            return;
+        }
+        String localAddress = ((InetSocketAddress) this.getChannel().localAddress()).getAddress().getHostAddress();
+        ForwardedHeaderUpdater headerUpdater = new ForwardedHeaderUpdater(httpOutboundRequest, localAddress);
+        if (headerUpdater.isForwardedHeaderRequired()) {
+            headerUpdater.setForwardedHeader();
+            return;
+        }
+        if (headerUpdater.isXForwardedHeaderRequired()) {
+            if (forwardedConfig == ForwardedExtensionConfig.ENABLE) {
+                headerUpdater.setDefactoForwardedHeaders();
+                return;
+            }
+            headerUpdater.transformAndSetForwardedHeader();
+            return;
+        }
+        log.warn("Both Forwarded and X-Forwarded-- headers are present. Hence updating only the forwarded header");
+        headerUpdater.setForwardedHeader();
     }
 }

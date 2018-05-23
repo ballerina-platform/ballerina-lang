@@ -18,12 +18,43 @@
 
 package org.wso2.transport.http.netty.exception;
 
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
+
 /**
  * A class that represent EndpointTimeout Exception.
  */
-public class EndpointTimeOutException extends Exception {
+public class EndpointTimeOutException extends ClientConnectorException {
 
-    public EndpointTimeOutException(String message) {
-        super(message);
+    /**
+     * Constructs a new EndpointTimeOutException with the specified outboundChannelID and detail message.
+     *
+     * @param outboundChannelID  the unique identifier of out bound channel.
+     * @param message the detail message.
+     */
+    public EndpointTimeOutException(String outboundChannelID, String message) {
+        super(outboundChannelID, message);
     }
+
+    /**
+     * Constructs a new EndpointTimeOutException with the specified detail message and HTTP Status code.
+     *
+     * @param message the detail message.
+     * @param httpStatusCode HTTP status code to be set to the EndpointTimeOutException.
+     */
+    public EndpointTimeOutException(String message, int httpStatusCode) {
+        super(message, httpStatusCode);
+    }
+
+    /**
+     * Constructs a new EndpointTimeOutException with the specified outboundChannelID and detail message and
+     * HTTP Status code.
+     *
+     * @param outboundChannelID the unique identifier of out bound channel.
+     * @param message the detail message.
+     * @param httpStatusCode HTTP status code to be set to the EndpointTimeOutException.
+     */
+    public EndpointTimeOutException(String outboundChannelID, String message, int httpStatusCode) {
+        super(outboundChannelID, message, httpStatusCode);
+    }
+
 }

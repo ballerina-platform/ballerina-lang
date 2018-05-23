@@ -22,6 +22,7 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
+import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
 import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerifier;
 
 import java.security.Security;
@@ -41,18 +42,18 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Used to validate the revocation status of a certificate chain acquired from the peer. A revocation verifier
+ * Used to validate the revocation status of a certificate chain obtained from the peer. A revocation verifier
  * (OCSP or CRL) should be given. Must be used only once when validating certificate chain for an SSLSession.
  * Create a new instance if need to be reused because the path validation process is state-full.
- * Not thread safe
+ * Not thread safe.
  */
 public class CertificatePathValidator {
     private PathChecker pathChecker;
 
     // Certificate Chain with Root CA certificate (eg: peer cert, issuer cert, root cert)
-    List<X509Certificate> fullCertChain;
+    private List<X509Certificate> fullCertChain;
     // Certificate Chain without Root CA certificate. (eg: peer cert, issuer cert)
-    List<X509Certificate> certChain;
+    private List<X509Certificate> certChain;
     private static final Logger log = LoggerFactory.getLogger(CertificatePathValidator.class);
 
     public CertificatePathValidator(X509Certificate[] certChainArray, RevocationVerifier verifier) {
@@ -82,17 +83,19 @@ public class CertificatePathValidator {
         Security.addProvider(new BouncyCastleProvider());
         CollectionCertStoreParameters params = new CollectionCertStoreParameters(fullCertChain);
         try {
-            CertStore store = CertStore.getInstance("Collection", params, "BC");
+            CertStore store = CertStore.getInstance("Collection", params, Constants.BOUNCY_CASTLE_PROVIDER);
 
             // create certificate path
-            CertificateFactory fact = CertificateFactory.getInstance("X.509", "BC");
+            CertificateFactory fact = CertificateFactory
+                    .getInstance(Constants.X_509, Constants.BOUNCY_CASTLE_PROVIDER);
 
             CertPath certPath = fact.generateCertPath(certChain);
             TrustAnchor trustAnchor = new TrustAnchor(fullCertChain.get(fullCertChain.size() - 1), null);
             Set<TrustAnchor> trust = Collections.singleton(trustAnchor);
 
             // perform validation
-            CertPathValidator validator = CertPathValidator.getInstance("PKIX", "BC");
+            CertPathValidator validator = CertPathValidator
+                    .getInstance(Constants.ALGORITHM, Constants.BOUNCY_CASTLE_PROVIDER);
             PKIXParameters param = new PKIXParameters(trust);
 
             param.addCertPathChecker(pathChecker);
@@ -101,14 +104,16 @@ public class CertificatePathValidator {
             param.setDate(new Date());
 
             validator.validate(certPath, param);
-
-            log.info("Certificate path validated");
+            if (log.isInfoEnabled()) {
+                log.info("Certificate path validated");
+            }
         } catch (CertPathValidatorException e) {
             throw new CertificateVerificationException(
-                    "Certificate Path Validation failed on certificate number " + e.getIndex() + ", details: " + e
+                    "Certificate path validation failed on certificate number " + e.getIndex() + ", details: " + e
                             .getMessage(), e);
         } catch (Exception e) {
-            throw new CertificateVerificationException("Certificate Path Validation failed", e);
+            throw new CertificateVerificationException("Certificate path validation failed", e);
         }
     }
 }
+

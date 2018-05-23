@@ -35,3 +35,4 @@ public class CertificateVerificationException extends Exception {
         super(message, throwable);
     }
 }
+

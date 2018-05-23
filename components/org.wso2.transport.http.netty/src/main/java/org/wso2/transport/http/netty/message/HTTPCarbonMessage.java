@@ -27,7 +27,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
-import org.wso2.carbon.messaging.MessageUtil;
+import io.netty.handler.codec.http.LastHttpContent;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -39,7 +39,6 @@ import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * HTTP based representation for HTTPCarbonMessage.
@@ -53,15 +52,23 @@ public class HTTPCarbonMessage {
     private MessageFuture messageFuture;
     private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
+    private final Observable contentObservable = new DefaultObservable();
+
+    public HTTPCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
+        this.httpMessage = httpMessage;
+        setBlockingEntityCollector(new BlockingEntityCollector(Constants.ENDPOINT_TIMEOUT));
+        this.contentObservable.setListener(contentListener);
+    }
+
+    public HTTPCarbonMessage(HttpMessage httpMessage, int maxWaitTime, Listener contentListener) {
+        this.httpMessage = httpMessage;
+        setBlockingEntityCollector(new BlockingEntityCollector(maxWaitTime));
+        this.contentObservable.setListener(contentListener);
+    }
 
     public HTTPCarbonMessage(HttpMessage httpMessage) {
         this.httpMessage = httpMessage;
         setBlockingEntityCollector(new BlockingEntityCollector(Constants.ENDPOINT_TIMEOUT));
-    }
-
-    public HTTPCarbonMessage(HttpMessage httpMessage, int maxWaitTime) {
-        this.httpMessage = httpMessage;
-        setBlockingEntityCollector(new BlockingEntityCollector(maxWaitTime));
     }
 
     /**
@@ -70,10 +77,19 @@ public class HTTPCarbonMessage {
      * @param httpContent chunks of the payload.
      */
     public synchronized void addHttpContent(HttpContent httpContent) {
-        if (this.messageFuture != null) {
-            this.messageFuture.notifyMessageListener(httpContent);
+        contentObservable.notifyAddListener(httpContent);
+        if (messageFuture != null) {
+            contentObservable.notifyGetListener(httpContent);
+            blockingEntityCollector.addHttpContent(httpContent);
+            messageFuture.notifyMessageListener(blockingEntityCollector.getHttpContent());
+            // We remove the feature as the message has reached it life time. If there is a need
+            // for using the same message again, we need to set the future again and restart
+            // the life-cycle.
+            if (httpContent instanceof LastHttpContent) {
+                this.removeMessageFuture();
+            }
         } else {
-            this.blockingEntityCollector.addHttpContent(httpContent);
+            blockingEntityCollector.addHttpContent(httpContent);
         }
     }
 
@@ -83,7 +99,9 @@ public class HTTPCarbonMessage {
      * @return HttpContent.
      */
     public HttpContent getHttpContent() {
-        return this.blockingEntityCollector.getHttpContent();
+        HttpContent httpContent = this.blockingEntityCollector.getHttpContent();
+        this.contentObservable.notifyGetListener(httpContent);
+        return httpContent;
     }
 
     public synchronized MessageFuture getHttpContentAsync() {
@@ -97,15 +115,6 @@ public class HTTPCarbonMessage {
     }
 
     /**
-     * Returns the full content of HttpCarbonMessage. This is a blocking method.
-     *
-     * @return entire payload.
-     */
-    public List<ByteBuffer> getFullMessageBody() {
-        return blockingEntityCollector.getFullMessageBody();
-    }
-
-    /**
      * Check if the payload empty.
      *
      * @return true or false.
@@ -115,16 +124,22 @@ public class HTTPCarbonMessage {
     }
 
     /**
+     * Count the message length till the given message length and returns.
+     * If the message length is shorter than the given length it returns with the
+     * available message size. This method is blocking function. Hence, use with care.
+     * @param maxLength is the maximum length to count
+     * @return counted length
+     */
+    public long countMessageLengthTill(long maxLength) {
+        return this.blockingEntityCollector.countMessageLengthTill(maxLength);
+    }
+
+    /**
      * Return the length of entire payload. This is a blocking method.
      * @return the length.
      */
-    public int getFullMessageLength() {
+    public long getFullMessageLength() {
         return blockingEntityCollector.getFullMessageLength();
-    }
-
-    @Deprecated
-    public boolean isEndOfMsgAdded() {
-        return blockingEntityCollector.isEndOfMsgAdded();
     }
 
     @Deprecated
@@ -132,13 +147,8 @@ public class HTTPCarbonMessage {
         blockingEntityCollector.addMessageBody(msgBody);
     }
 
-    private void markMessageEnd() {
-        blockingEntityCollector.markMessageEnd();
-    }
-
-    @Deprecated
-    public void setEndOfMsgAdded(boolean endOfMsgAdded) {
-        blockingEntityCollector.setEndOfMsgAdded(endOfMsgAdded);
+    public void completeMessage() {
+        blockingEntityCollector.completeMessage();
     }
 
     /**
@@ -171,6 +181,16 @@ public class HTTPCarbonMessage {
     }
 
     /**
+     * Set the header value for the given name.
+     *
+     * @param key header name.
+     * @param value header value as object.
+     */
+    public void setHeader(String key, Object value) {
+        this.httpMessage.headers().set(key, value);
+    }
+
+    /**
      * Let you set a set of headers.
      *
      * @param httpHeaders set of headers that needs to be set.
@@ -196,6 +216,10 @@ public class HTTPCarbonMessage {
         }
     }
 
+    public synchronized void removeMessageFuture() {
+        this.messageFuture = null;
+    }
+
     public Map<String, Object> getProperties() {
         return properties;
     }
@@ -210,11 +234,6 @@ public class HTTPCarbonMessage {
 
     private void setBlockingEntityCollector(BlockingEntityCollector blockingEntityCollector) {
         this.blockingEntityCollector = blockingEntityCollector;
-    }
-
-    @Deprecated
-    public void release() {
-        blockingEntityCollector.release();
     }
 
     /**
@@ -237,6 +256,33 @@ public class HTTPCarbonMessage {
 
     public HttpResponseFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
         httpOutboundRespFuture.notifyHttpListener(httpCarbonMessage);
+        return httpOutboundRespStatusFuture;
+    }
+
+    /**
+     * Sends a push response message back to the client.
+     *
+     * @param httpCarbonMessage the push response message
+     * @param pushPromise       the push promise associated with the push response message
+     * @return HttpResponseFuture which gives the status of the operation
+     * @throws ServerConnectorException if there is an error occurs while doing the operation
+     */
+    public HttpResponseFuture pushResponse(HTTPCarbonMessage httpCarbonMessage, Http2PushPromise pushPromise)
+            throws ServerConnectorException {
+        httpOutboundRespFuture.notifyHttpListener(httpCarbonMessage, pushPromise);
+        return httpOutboundRespStatusFuture;
+    }
+
+    /**
+     * Sends a push promise message back to the client.
+     *
+     * @param pushPromise the push promise message
+     * @return HttpResponseFuture which gives the status of the operation
+     * @throws ServerConnectorException if there is an error occurs while doing the operation
+     */
+    public HttpResponseFuture pushPromise(Http2PushPromise pushPromise)
+            throws ServerConnectorException {
+        httpOutboundRespFuture.notifyHttpListener(pushPromise);
         return httpOutboundRespStatusFuture;
     }
 
@@ -283,31 +329,6 @@ public class HTTPCarbonMessage {
     }
 
     /**
-     * Copy the Full carbon message with data.
-     *
-     * @return carbonMessage.
-     */
-    public HTTPCarbonMessage cloneCarbonMessageWithData() {
-        HTTPCarbonMessage httpCarbonMessage = getNewHttpCarbonMessage();
-
-        Map<String, Object> propertiesMap = this.getProperties();
-        propertiesMap.forEach(httpCarbonMessage::setProperty);
-
-        this.getCopyOfFullMessageBody().forEach(httpCarbonMessage::addMessageBody);
-        httpCarbonMessage.setEndOfMsgAdded(true);
-        return httpCarbonMessage;
-    }
-
-    private List<ByteBuffer> getCopyOfFullMessageBody() {
-        List<ByteBuffer> fullMessageBody = getFullMessageBody();
-        List<ByteBuffer> newCopy = fullMessageBody.stream().map(MessageUtil::deepCopy)
-                .collect(Collectors.toList());
-        fullMessageBody.forEach(this::addMessageBody);
-        markMessageEnd();
-        return newCopy;
-    }
-
-    /**
      * Wait till the entire payload is received. This is important to avoid data corruption.
      * Before a set a new set of payload, we need remove the existing ones.
      */
@@ -317,10 +338,6 @@ public class HTTPCarbonMessage {
 
     public EntityCollector getBlockingEntityCollector() {
         return blockingEntityCollector;
-    }
-
-    public synchronized void removeHttpContentAsyncFuture() {
-        this.messageFuture = null;
     }
 
     /**

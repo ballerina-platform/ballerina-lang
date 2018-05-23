@@ -58,4 +58,10 @@ public interface HttpWsConnectorFactory {
      * @return WebSocketClientConnector.
      */
     WebSocketClientConnector createWsClientConnector(WsClientConnectorConfig clientConnectorConfig);
+
+    /**
+     * Shutdown all the server channels and the accepted channels. It also shutdown all the eventloop groups.
+     * @throws InterruptedException when interrupted by some other event
+     */
+    void shutdown() throws InterruptedException;
 }

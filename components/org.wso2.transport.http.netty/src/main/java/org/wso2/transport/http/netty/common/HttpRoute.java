@@ -22,7 +22,6 @@ public class HttpRoute {
     private String host;
     private int port;
 
-
     public HttpRoute(String host, int port) {
         this.host = host;
         this.port = port;

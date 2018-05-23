@@ -18,23 +18,31 @@
 
 package org.wso2.transport.http.netty.passthrough;
 
-import io.netty.handler.codec.http.HttpMethod;
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.http.options.Options;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
-import org.wso2.transport.http.netty.config.YAMLTransportConfigurationBuilder;
+import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.HttpServer;
 import org.wso2.transport.http.netty.util.server.initializers.MockServerInitializer;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URI;
-import java.util.List;
+import java.util.HashMap;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -43,18 +51,32 @@ import static org.testng.AssertJUnit.assertEquals;
  */
 public class PassThroughHttpTestCase {
 
-    private List<ServerConnector> serverConnectors;
+    private static final Logger logger = LoggerFactory.getLogger(PassThroughHttpTestCase.class);
+
     private static final String testValue = "Test Message";
     private HttpServer httpServer;
+    private HttpWsConnectorFactory httpWsConnectorFactory;
+    private ServerConnector serverConnector;
 
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
 
     @BeforeClass
     public void setUp() {
-        TransportsConfiguration configuration = YAMLTransportConfigurationBuilder
-                .build(TestUtil.getAbsolutePath("/simple-test-config/netty-transports.yml"));
-        serverConnectors = TestUtil.startConnectors(
-                configuration, new PassthroughMessageProcessorListener(configuration));
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
+
+        ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
+        listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
+        serverConnector = httpWsConnectorFactory
+                .createServerConnector(new ServerBootstrapConfiguration(new HashMap<>()), listenerConfiguration);
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        serverConnectorFuture.setHttpConnectorListener(
+                new PassthroughMessageProcessorListener(new SenderConfiguration()));
+        try {
+            serverConnectorFuture.sync();
+        } catch (InterruptedException e) {
+            logger.warn("Interrupted while waiting for server connector to start");
+        }
+
         httpServer = TestUtil.startHTTPServer(TestUtil.HTTP_SERVER_PORT,
                 new MockServerInitializer(testValue, Constants.TEXT_PLAIN, 200));
     }
@@ -62,11 +84,9 @@ public class PassThroughHttpTestCase {
     @Test
     public void passthroughGetTest() {
         try {
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.GET.name(), true);
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(testValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
+            HttpResponse<String> response = Unirest.get(baseURI.resolve("/").toString()).asString();
+            assertEquals(testValue, response.getBody());
+        } catch (UnirestException e) {
             TestUtil.handleException("IOException occurred while running passthroughGetTest", e);
         }
     }
@@ -74,17 +94,25 @@ public class PassThroughHttpTestCase {
     @Test
     public void passthroughPostTest() {
         try {
-            HttpURLConnection urlConn = TestUtil.request(baseURI, "/", HttpMethod.POST.name(), true);
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(testValue, content);
-            urlConn.disconnect();
-        } catch (IOException e) {
+            HttpResponse<String> response = Unirest.post(baseURI.resolve("/").toString()).asString();
+            assertEquals(testValue, response.getBody());
+        } catch (UnirestException e) {
             TestUtil.handleException("IOException occurred while running passthroughPostTest", e);
         }
     }
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(serverConnectors, httpServer);
+        try {
+            Unirest.shutdown();
+            Options.refresh();
+            serverConnector.stop();
+            httpServer.shutdown();
+            httpWsConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            logger.warn("Interrupted while waiting for clean up");
+        } catch (IOException e) {
+            logger.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+        }
     }
 }

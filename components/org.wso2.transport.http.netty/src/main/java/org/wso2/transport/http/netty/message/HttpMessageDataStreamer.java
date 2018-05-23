@@ -26,6 +26,7 @@ import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,6 +36,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
@@ -47,11 +50,14 @@ public class HttpMessageDataStreamer {
 
     private HTTPCarbonMessage httpCarbonMessage;
 
-    private int contentBufferSize = 8192;
+    private final int contentBufferSize = 8192;
     private ByteBufAllocator pooledByteBufAllocator;
     private HttpMessageDataStreamer.ByteBufferInputStream byteBufferInputStream;
     private HttpMessageDataStreamer.ByteBufferOutputStream byteBufferOutputStream;
     private IOException ioException;
+
+    // Lock to synchronize  byte stream write operation
+    private Lock byteStreamWriteLock = new ReentrantLock();
 
     public HttpMessageDataStreamer(HTTPCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
@@ -123,8 +129,13 @@ public class HttpMessageDataStreamer {
 
         @Override
         public void write(int b) throws IOException, EncoderException {
-            if (ioException != null) {
-                throw new EncoderException(ioException.getMessage());
+            byteStreamWriteLock.lock();
+            try {
+                if (ioException != null) {
+                    throw new EncoderException(ioException.getMessage());
+                }
+            } finally {
+                byteStreamWriteLock.unlock();
             }
             if (dataHolder == null) {
                 dataHolder = getBuffer();
@@ -141,18 +152,18 @@ public class HttpMessageDataStreamer {
 
         @Override
         public void flush() throws IOException, EncoderException {
-            if (dataHolder != null && dataHolder.readableBytes() > 0) {
-                httpCarbonMessage.addHttpContent(new DefaultHttpContent(dataHolder));
-                dataHolder = getBuffer();
-            }
+            // We don't have to support flush
         }
 
         @Override
         public void close() {
             try {
-                httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(dataHolder));
-                super.close();
-            } catch (IOException e) {
+                if (dataHolder != null && dataHolder.isReadable()) {
+                    httpCarbonMessage.addHttpContent(new DefaultLastHttpContent(dataHolder));
+                } else {
+                    httpCarbonMessage.addHttpContent(LastHttpContent.EMPTY_LAST_CONTENT);
+                }
+            } catch (Exception e) {
                 log.error("Error while closing output stream but underlying resources are reset", e);
             } finally {
                 byteBufferOutputStream = null;
@@ -175,18 +186,18 @@ public class HttpMessageDataStreamer {
     }
 
     public InputStream getInputStream() {
-        String contentEncodingHeader = httpCarbonMessage.getHeader(Constants.CONTENT_ENCODING);
+        String contentEncodingHeader = httpCarbonMessage.getHeader(HttpHeaderNames.CONTENT_ENCODING.toString());
         if (contentEncodingHeader != null) {
             // removing the header because, we are handling the decoded content and we need to send out
             // as encoded one. so once this header is removed, transport will encode again by looking the
             // accept-encoding request header
-            httpCarbonMessage.removeHeader(Constants.CONTENT_ENCODING);
+            httpCarbonMessage.removeHeader(HttpHeaderNames.CONTENT_ENCODING.toString());
             try {
                 if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_GZIP)) {
                     return new GZIPInputStream(createInputStreamIfNull());
                 } else if (contentEncodingHeader.equalsIgnoreCase(Constants.ENCODING_DEFLATE)) {
                     return new InflaterInputStream(createInputStreamIfNull());
-                } else {
+                } else if (!contentEncodingHeader.equalsIgnoreCase(Constants.HTTP_TRANSFER_ENCODING_IDENTITY)) {
                     log.warn("Unknown Content-Encoding: " + contentEncodingHeader);
                 }
             } catch (IOException e) {
@@ -205,6 +216,11 @@ public class HttpMessageDataStreamer {
     }
 
     public void setIoException(IOException ioException) {
-        this.ioException = ioException;
+        byteStreamWriteLock.lock();
+        try {
+            this.ioException = ioException;
+        } finally {
+            byteStreamWriteLock.unlock();
+        }
     }
 }

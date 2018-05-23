@@ -15,29 +15,53 @@
 
 package org.wso2.transport.http.netty.common;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMessage;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.codec.http2.Http2Exception;
+import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Listener;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static org.wso2.transport.http.netty.common.Constants.COLON;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_HOST;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_PORT;
+import static org.wso2.transport.http.netty.common.Constants.IS_PROXY_ENABLED;
+import static org.wso2.transport.http.netty.common.Constants.PROTOCOL;
+import static org.wso2.transport.http.netty.common.Constants.TO;
+import static org.wso2.transport.http.netty.common.Constants.URL_AUTHORITY;
 
 /**
  * Includes utility methods for creating http requests and responses and their related properties.
@@ -72,24 +96,49 @@ public class Util {
         HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
         HttpResponse outboundNettyResponse = new DefaultHttpResponse(httpVersion, httpResponseStatus, false);
 
-        if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= Constants.HTTP_1_1)) {
-            outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
-        } else if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < Constants.HTTP_1_1)) {
-            outboundResponseMsg.setHeader(Constants.HTTP_CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
-        } else {
-            outboundResponseMsg.removeHeader(Constants.HTTP_CONNECTION);
-        }
-
-        if (outboundResponseMsg.getHeader(Constants.HTTP_SERVER_HEADER) == null) {
-            outboundResponseMsg.setHeader(Constants.HTTP_SERVER_HEADER, serverName);
-        }
-
-        outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
+        setOutboundRespHeaders(outboundResponseMsg, inboundReqHttpVersion, serverName, keepAlive,
+                outboundNettyResponse);
 
         return outboundNettyResponse;
     }
 
-    private static HttpResponseStatus getHttpResponseStatus(HTTPCarbonMessage msg) {
+    public static HttpResponse createFullHttpResponse(HTTPCarbonMessage outboundResponseMsg,
+            String inboundReqHttpVersion, String serverName, boolean keepAlive, ByteBuf fullContent) {
+
+        HttpVersion httpVersion = new HttpVersion(Constants.HTTP_VERSION_PREFIX + inboundReqHttpVersion, true);
+        HttpResponseStatus httpResponseStatus = getHttpResponseStatus(outboundResponseMsg);
+        HttpResponse outboundNettyResponse =
+                new DefaultFullHttpResponse(httpVersion, httpResponseStatus, fullContent, false);
+
+        setOutboundRespHeaders(outboundResponseMsg, inboundReqHttpVersion, serverName, keepAlive,
+                outboundNettyResponse);
+
+        return outboundNettyResponse;
+    }
+
+    private static void setOutboundRespHeaders(HTTPCarbonMessage outboundResponseMsg, String inboundReqHttpVersion,
+            String serverName, boolean keepAlive, HttpResponse outboundNettyResponse) {
+        if (!keepAlive && (Float.valueOf(inboundReqHttpVersion) >= Constants.HTTP_1_1)) {
+            outboundResponseMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
+        } else if (keepAlive && (Float.valueOf(inboundReqHttpVersion) < Constants.HTTP_1_1)) {
+            outboundResponseMsg.setHeader(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_KEEP_ALIVE);
+        } else {
+            outboundResponseMsg.removeHeader(HttpHeaderNames.CONNECTION.toString());
+        }
+
+        if (outboundResponseMsg.getHeader(HttpHeaderNames.SERVER.toString()) == null) {
+            outboundResponseMsg.setHeader(HttpHeaderNames.SERVER.toString(), serverName);
+        }
+
+        if (outboundResponseMsg.getHeader(HttpHeaderNames.DATE.toString()) == null) {
+            outboundResponseMsg.setHeader(HttpHeaderNames.DATE.toString(),
+                                          ZonedDateTime.now().format(DateTimeFormatter.RFC_1123_DATE_TIME));
+        }
+
+        outboundNettyResponse.headers().add(outboundResponseMsg.getHeaders());
+    }
+
+    public static HttpResponseStatus getHttpResponseStatus(HTTPCarbonMessage msg) {
         int statusCode = Util.getIntValue(msg, Constants.HTTP_STATUS_CODE, 200);
         String reasonPhrase = Util.getStringValue(msg, Constants.HTTP_REASON_PHRASE,
                 HttpResponseStatus.valueOf(statusCode).reasonPhrase());
@@ -101,23 +150,29 @@ public class Util {
         HttpMethod httpMethod = getHttpMethod(outboundRequestMsg);
         HttpVersion httpVersion = getHttpVersion(outboundRequestMsg);
         String requestPath = getRequestPath(outboundRequestMsg);
-
         HttpRequest outboundNettyRequest = new DefaultHttpRequest(httpVersion, httpMethod,
-                (String) outboundRequestMsg.getProperty(Constants.TO), false);
+                (String) outboundRequestMsg.getProperty(TO), false);
         outboundNettyRequest.setMethod(httpMethod);
         outboundNettyRequest.setProtocolVersion(httpVersion);
         outboundNettyRequest.setUri(requestPath);
-
         outboundNettyRequest.headers().add(outboundRequestMsg.getHeaders());
 
         return outboundNettyRequest;
     }
 
     private static String getRequestPath(HTTPCarbonMessage outboundRequestMsg) {
-        if (outboundRequestMsg.getProperty(Constants.TO) == null) {
-            outboundRequestMsg.setProperty(Constants.TO, "");
+        if (outboundRequestMsg.getProperty(TO) == null) {
+            outboundRequestMsg.setProperty(TO, "");
         }
-        return (String) outboundRequestMsg.getProperty(Constants.TO);
+        // Return absolute url if proxy is enabled
+        if (outboundRequestMsg.getProperty(IS_PROXY_ENABLED) != null &&
+                (boolean) outboundRequestMsg.getProperty(IS_PROXY_ENABLED)) {
+            return outboundRequestMsg.getProperty(PROTOCOL) + URL_AUTHORITY
+                    + outboundRequestMsg.getProperty(HTTP_HOST) + COLON
+                    + outboundRequestMsg.getProperty(HTTP_PORT)
+                    + outboundRequestMsg.getProperty(TO);
+        }
+        return (String) outboundRequestMsg.getProperty(TO);
     }
 
     private static HttpVersion getHttpVersion(HTTPCarbonMessage outboundRequestMsg) {
@@ -142,26 +197,58 @@ public class Util {
     }
 
     public static void setupChunkedRequest(HTTPCarbonMessage httpOutboundRequest) {
-        httpOutboundRequest.removeHeader(Constants.HTTP_CONTENT_LENGTH);
+        httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         setTransferEncodingHeader(httpOutboundRequest);
     }
 
-    public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, int contentLength) {
-        httpOutboundRequest.removeHeader(Constants.HTTP_TRANSFER_ENCODING);
-        if (httpOutboundRequest.getHeader(Constants.HTTP_CONTENT_LENGTH) == null) {
-            httpOutboundRequest.setHeader(Constants.HTTP_CONTENT_LENGTH, String.valueOf(contentLength));
+    /**
+     * Creates a {@link HttpRequest} using a {@link Http2Headers} received over a particular HTTP/2 stream.
+     *
+     * @param http2Headers the Http2Headers received over a HTTP/2 stream
+     * @param streamId     the stream id
+     * @return the HttpRequest formed using the HttpHeaders
+     * @throws Http2Exception if an error occurs while converting headers from HTTP/2 to HTTP
+     */
+    public static HttpRequest createHttpRequestFromHttp2Headers(Http2Headers http2Headers, int streamId)
+            throws Http2Exception {
+        String method = Constants.HTTP_GET_METHOD;
+        if (http2Headers.method() != null) {
+            method = http2Headers.getAndRemove(Constants.HTTP2_METHOD).toString();
+        }
+        String path = Constants.DEFAULT_BASE_PATH;
+        if (http2Headers.path() != null) {
+            path = http2Headers.getAndRemove(Constants.HTTP2_PATH).toString();
+        }
+        // Remove PseudoHeaderNames from headers
+        http2Headers.getAndRemove(Constants.HTTP2_AUTHORITY);
+        http2Headers.getAndRemove(Constants.HTTP2_SCHEME);
+        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+
+        // Construct new HTTP Carbon Request
+        HttpRequest httpRequest = new DefaultHttpRequest(version, HttpMethod.valueOf(method), path);
+        // Convert Http2Headers to HttpHeaders
+        HttpConversionUtil.addHttp2ToHttpHeaders(
+                streamId, http2Headers, httpRequest.headers(), version, false, true);
+        return httpRequest;
+    }
+
+    public static void setupContentLengthRequest(HTTPCarbonMessage httpOutboundRequest, long contentLength) {
+        httpOutboundRequest.removeHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
+        httpOutboundRequest.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
+        if (httpOutboundRequest.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString()) == null) {
+            httpOutboundRequest.setHeader(HttpHeaderNames.CONTENT_LENGTH.toString(), String.valueOf(contentLength));
         }
     }
 
     private static void setTransferEncodingHeader(HTTPCarbonMessage httpOutboundRequest) {
-        if (httpOutboundRequest.getHeader(Constants.HTTP_TRANSFER_ENCODING) == null) {
-            httpOutboundRequest.setHeader(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
+        if (httpOutboundRequest.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString()) == null) {
+            httpOutboundRequest.setHeader(HttpHeaderNames.TRANSFER_ENCODING.toString(), Constants.CHUNKED);
         }
     }
 
     public static boolean isEntityBodyAllowed(String method) {
         return method.equals(Constants.HTTP_POST_METHOD) || method.equals(Constants.HTTP_PUT_METHOD)
-                || method.equals(Constants.HTTP_PATCH_METHOD);
+                || method.equals(Constants.HTTP_PATCH_METHOD) || method.equals(Constants.HTTP_DELETE_METHOD);
     }
 
     /**
@@ -172,6 +259,20 @@ public class Util {
      */
     public static boolean isVersionCompatibleForChunking(String httpVersion) {
         return Float.valueOf(httpVersion) >= Constants.HTTP_1_1;
+    }
+
+    /**
+     * Returns whether to enforce chunking on HTTP 1.0 requests.
+     *
+     * @param chunkConfig Chunking configuration.
+     * @param httpVersion http version string.
+     * @return true if chunking should be enforced else false.
+     */
+    public static boolean shouldEnforceChunkingforHttpOneZero(ChunkConfig chunkConfig, String httpVersion) {
+        if (chunkConfig == ChunkConfig.ALWAYS && Float.valueOf(httpVersion) >= Constants.HTTP_1_0) {
+            return true;
+        }
+        return false;
     }
 
     public static SSLConfig getSSLConfigForListener(String certPass, String keyStorePass, String keyStoreFilePath,
@@ -252,7 +353,6 @@ public class Util {
         File trustStore = new File(substituteVariables(trustStoreFilePath));
 
         sslConfig.setTrustStore(trustStore).setTrustStorePass(trustStorePass);
-        sslConfig.setClientMode(true);
         sslProtocol = sslProtocol != null ? sslProtocol : "TLS";
         sslConfig.setSSLProtocol(sslProtocol);
         tlsStoreType = tlsStoreType != null ? tlsStoreType : "JKS";
@@ -463,6 +563,7 @@ public class Util {
         ctx.channel().attr(Constants.RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL).set(null);
         ctx.channel().attr(Constants.ORIGINAL_REQUEST).set(null);
         ctx.channel().attr(Constants.REDIRECT_COUNT).set(null);
+        ctx.channel().attr(Constants.RESOLVED_REQUESTED_URI_ATTR).set(null);
         ctx.channel().attr(Constants.ORIGINAL_CHANNEL_START_TIME).set(null);
         ctx.channel().attr(Constants.ORIGINAL_CHANNEL_TIMEOUT).set(null);
     }
@@ -489,12 +590,83 @@ public class Util {
     public static void sendAndCloseNoEntityBodyResp(ChannelHandlerContext ctx, HttpResponseStatus status,
             HttpVersion httpVersion, String serverName) {
         HttpResponse outboundResponse = new DefaultHttpResponse(httpVersion, status);
-        outboundResponse.headers().set(Constants.HTTP_CONTENT_LENGTH, 0);
-        outboundResponse.headers().set(Constants.HTTP_CONNECTION, Constants.CONNECTION_CLOSE);
-        outboundResponse.headers().set(Constants.HTTP_SERVER_HEADER, serverName);
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, 0);
+        outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
+        outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), serverName);
         ChannelFuture outboundRespFuture = ctx.channel().writeAndFlush(outboundResponse);
         outboundRespFuture.addListener(
                 (ChannelFutureListener) channelFuture -> log.warn("Failed to send " + status.reasonPhrase()));
         ctx.channel().close();
+    }
+
+    /**
+     * Checks for status of the response write operation.
+     *
+     * @param inboundRequestMsg        request message received from the client
+     * @param outboundRespStatusFuture the future of outbound response write operation
+     * @param channelFuture            the channel future related to response write operation
+     */
+    public static void checkForResponseWriteStatus(HTTPCarbonMessage inboundRequestMsg,
+                                           HttpResponseFuture outboundRespStatusFuture, ChannelFuture channelFuture) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                }
+                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            } else {
+                outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
+            }
+        });
+    }
+
+    /**
+     * Adds a listener to notify the outbound response future if an error occurs while writing the response message.
+     *
+     * @param outboundRespStatusFuture the future of outbound response write operation
+     * @param channelFuture            the channel future related to response write operation
+     */
+    public static void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
+                                                       ChannelFuture channelFuture) {
+        channelFuture.addListener(writeOperationPromise -> {
+            Throwable throwable = writeOperationPromise.cause();
+            if (throwable != null) {
+                if (throwable instanceof ClosedChannelException) {
+                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                }
+                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
+                outboundRespStatusFuture.notifyHttpListener(throwable);
+            }
+        });
+    }
+
+    /**
+     * Creates HTTP carbon message
+     *
+     * @param httpMessage HTTP message
+     * @param ctx Channel handler context
+     * @return HttpCarbonMessage
+     */
+    public static HTTPCarbonMessage createHTTPCarbonMessage(HttpMessage httpMessage, ChannelHandlerContext ctx) {
+        Listener contentListener = new DefaultListener(ctx);
+        return new HTTPCarbonMessage(httpMessage, contentListener);
+    }
+
+    /**
+     * Removes handlers from the pipeline if they are present.
+     *
+     * @param pipeline     the channel pipeline
+     * @param handlerNames names of the handlers to be removed
+     */
+    public static void safelyRemoveHandlers(ChannelPipeline pipeline, String... handlerNames) {
+        for (String name : handlerNames) {
+            if (pipeline.get(name) != null) {
+                pipeline.remove(name);
+            } else {
+                log.debug("Trying to remove not engaged {} handler from the pipeline", name);
+            }
+        }
     }
 }

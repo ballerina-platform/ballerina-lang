@@ -31,7 +31,7 @@ public class PoolableTargetChannelFactoryPerSrcHndlr implements PoolableObjectFa
 
     private final GenericObjectPool genericObjectPool;
 
-    public PoolableTargetChannelFactoryPerSrcHndlr(GenericObjectPool genericObjectPool) {
+    PoolableTargetChannelFactoryPerSrcHndlr(GenericObjectPool genericObjectPool) {
         this.genericObjectPool = genericObjectPool;
     }
 

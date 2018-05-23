@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.internal.websocket;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -31,13 +32,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.nio.ByteBuffer;
-import javax.websocket.EncodeException;
 import javax.websocket.RemoteEndpoint;
 
 /**
  * This is {@link Basic} implementation for WebSocket Connection.
  */
-
 public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     private final ChannelHandlerContext ctx;
@@ -48,24 +47,40 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     @Override
     public void sendText(String text) throws IOException {
-        ctx.channel().writeAndFlush(new TextWebSocketFrame(text));
+        try {
+            handleIOException(ctx.channel().writeAndFlush(new TextWebSocketFrame(text)).sync());
+        } catch (InterruptedException err) {
+            throw new IOException(err.getMessage(), err);
+        }
     }
 
     @Override
     public void sendBinary(ByteBuffer data) throws IOException {
-        ByteBuf byteBuf = Unpooled.wrappedBuffer(data);
-        ctx.channel().writeAndFlush(new BinaryWebSocketFrame(byteBuf));
+        try {
+            ByteBuf byteBuf = Unpooled.wrappedBuffer(data);
+            handleIOException(ctx.channel().writeAndFlush(new BinaryWebSocketFrame(byteBuf)).sync());
+        } catch (InterruptedException err) {
+            throw new IOException(err.getMessage(), err);
+        }
     }
 
     @Override
-    public void sendText(String partialMessage, boolean isLast) throws IOException {
-        throw new UnsupportedOperationException("Method is not supported");
+    public void sendText(String text, boolean isFinal) throws IOException {
+        try {
+            handleIOException(ctx.channel().writeAndFlush(new TextWebSocketFrame(isFinal, 0, text)).sync());
+        } catch (InterruptedException err) {
+            throw new IOException(err.getMessage(), err);
+        }
     }
 
     @Override
-    public void sendBinary(ByteBuffer partialByte, boolean isLast) throws IOException {
-        ByteBuf partialByteBuf = Unpooled.wrappedBuffer(partialByte);
-        ctx.channel().writeAndFlush(new BinaryWebSocketFrame(isLast, 0, partialByteBuf));
+    public void sendBinary(ByteBuffer data, boolean isFinal) throws IOException {
+        try {
+            ByteBuf byteBuf = Unpooled.wrappedBuffer(data);
+            handleIOException(ctx.channel().writeAndFlush(new BinaryWebSocketFrame(isFinal, 0, byteBuf)).sync());
+        } catch (InterruptedException err) {
+            throw new IOException(err.getMessage(), err);
+        }
     }
 
     @Override
@@ -79,7 +94,7 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
     }
 
     @Override
-    public void sendObject(Object data) throws IOException, EncodeException {
+    public void sendObject(Object data) throws IOException {
         throw new UnsupportedOperationException("Method is not supported");
     }
 
@@ -101,13 +116,36 @@ public class WebSocketBasicRemoteEndpoint implements RemoteEndpoint.Basic {
 
     @Override
     public void sendPing(ByteBuffer applicationData) throws IOException, IllegalArgumentException {
-        ByteBuf applicationDataBuf = Unpooled.wrappedBuffer(applicationData);
-        ctx.channel().writeAndFlush(new PingWebSocketFrame(applicationDataBuf));
+        try {
+            handleIllegalArgumentException(applicationData);
+            ByteBuf applicationDataBuf = Unpooled.wrappedBuffer(applicationData);
+            handleIOException(ctx.channel().writeAndFlush(new PingWebSocketFrame(applicationDataBuf)).sync());
+        } catch (InterruptedException err) {
+            throw new IOException(err.getMessage(), err);
+        }
     }
 
     @Override
     public void sendPong(ByteBuffer applicationData) throws IOException, IllegalArgumentException {
-        ByteBuf applicationDataBuf = Unpooled.wrappedBuffer(applicationData);
-        ctx.channel().writeAndFlush(new PongWebSocketFrame(applicationDataBuf));
+        try {
+            handleIllegalArgumentException(applicationData);
+            ByteBuf applicationDataBuf = Unpooled.wrappedBuffer(applicationData);
+            handleIOException(ctx.channel().writeAndFlush(new PongWebSocketFrame(applicationDataBuf)).sync());
+        } catch (InterruptedException err) {
+            throw new IOException(err.getMessage(), err);
+        }
+    }
+
+    private void handleIOException(ChannelFuture future) throws IOException {
+        Throwable cause = future.cause();
+        if (cause != null) {
+            throw new IOException(cause.getMessage(), cause);
+        }
+    }
+
+    private void handleIllegalArgumentException(ByteBuffer buffer) {
+        if (buffer.capacity() > 125) {
+            throw new IllegalArgumentException("Exceeds 125 bytes.");
+        }
     }
 }

@@ -26,15 +26,22 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpClientCodec;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 
 import java.net.InetSocketAddress;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -77,12 +84,12 @@ public class HttpClient {
     }
 
     public FullHttpResponse sendChunkRequest(FullHttpRequest httpRequest) {
-        httpRequest.headers().set(Constants.HTTP_TRANSFER_ENCODING, Constants.CHUNKED);
+        httpRequest.headers().set(HttpHeaderNames.TRANSFER_ENCODING, Constants.CHUNKED);
         return send(httpRequest);
     }
 
     public FullHttpResponse sendRequest(FullHttpRequest httpRequest) {
-        httpRequest.headers().set(Constants.HTTP_CONTENT_LENGTH, httpRequest.content().readableBytes());
+        httpRequest.headers().set(HttpHeaderNames.CONTENT_LENGTH, httpRequest.content().readableBytes());
         return send(httpRequest);
     }
 
@@ -92,7 +99,7 @@ public class HttpClient {
         this.responseHandler.setLatch(latch);
         this.responseHandler.setWaitForConnectionClosureLatch(this.waitForConnectionClosureLatch);
 
-        httpRequest.headers().set(Constants.HOST, host + ":" + port);
+        httpRequest.headers().set(HttpHeaderNames.HOST, host + ":" + port);
         this.connectedChannel.writeAndFlush(httpRequest);
         try {
             latch.await();
@@ -100,6 +107,57 @@ public class HttpClient {
             log.warn("Operation go interrupted before receiving the response");
         }
         return this.responseHandler.getHttpFullResponse();
+    }
+
+    public List<FullHttpResponse> sendExpectContinueRequest(DefaultHttpRequest httpRequest,
+                                                            DefaultLastHttpContent httpContent) {
+        CountDownLatch latch = new CountDownLatch(1);
+        this.waitForConnectionClosureLatch = new CountDownLatch(1);
+        this.responseHandler.setLatch(latch);
+        this.responseHandler.setWaitForConnectionClosureLatch(this.waitForConnectionClosureLatch);
+
+        httpRequest.headers().set(HttpHeaderNames.HOST, host + ":" + port);
+        httpRequest.headers().set(HttpHeaderNames.EXPECT, HttpHeaderValues.CONTINUE);
+        this.connectedChannel.writeAndFlush(httpRequest);
+
+        try {
+            latch.await(30, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.warn("Interrupted before receiving the response.");
+        }
+
+        FullHttpResponse response100Continue = this.responseHandler.getHttpFullResponse();
+
+        if (response100Continue.status().equals(HttpResponseStatus.CONTINUE)) {
+            latch = new CountDownLatch(1);
+            this.responseHandler.setLatch(latch);
+            this.connectedChannel.writeAndFlush(httpContent);
+            try {
+                latch.await(30, TimeUnit.SECONDS);
+            } catch (InterruptedException e) {
+                log.warn("Interrupted before receiving the response.");
+            }
+        }
+
+        return responseHandler.getHttpFullResponses();
+    }
+
+    public LinkedList<FullHttpResponse> sendTwoInPipeline(FullHttpRequest httpRequest) {
+        CountDownLatch latch = new CountDownLatch(2);
+        this.waitForConnectionClosureLatch = new CountDownLatch(2);
+        this.responseHandler.setLatch(latch);
+        this.responseHandler.setWaitForConnectionClosureLatch(this.waitForConnectionClosureLatch);
+
+        httpRequest.headers().set(HttpHeaderNames.HOST, host + ":" + port);
+        this.connectedChannel.writeAndFlush(httpRequest.copy());
+
+        this.connectedChannel.writeAndFlush(httpRequest);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            log.warn("Operation go interrupted before receiving the response");
+        }
+        return this.responseHandler.getHttpFullResponses();
     }
 
     public boolean waitForChannelClose() {

@@ -25,17 +25,10 @@ package org.wso2.transport.http.netty.contract;
 public class ClientConnectorException extends Exception {
 
     private int httpStatusCode = -1;
+    private String outboundChannelID = null;
 
-    public ClientConnectorException(String message) {
+    public ClientConnectorException(String outboundChannelID, String message) {
         super(message);
-    }
-
-    public ClientConnectorException(Exception e) {
-        super(e);
-    }
-
-    public ClientConnectorException(String message, Exception e) {
-        super(message, e);
     }
 
     public ClientConnectorException(String message, int httpStatusCode) {
@@ -43,12 +36,17 @@ public class ClientConnectorException extends Exception {
         this.httpStatusCode = httpStatusCode;
     }
 
-    public ClientConnectorException(String message, int httpStatusCode, Exception e) {
-        super(message, e);
+    public ClientConnectorException(String outboundChannelID, String message, int httpStatusCode) {
+        super(message);
         this.httpStatusCode = httpStatusCode;
+        this.outboundChannelID = outboundChannelID;
     }
 
     public int getHttpStatusCode() {
         return httpStatusCode;
+    }
+
+    public String getOutboundChannelID() {
+        return outboundChannelID;
     }
 }

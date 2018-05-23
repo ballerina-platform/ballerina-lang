@@ -22,6 +22,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpVersion;
 import org.slf4j.Logger;
@@ -29,14 +30,14 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoStreamingMessageListener;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http.HttpClient;
@@ -57,6 +58,7 @@ public class HttpOnePointZeroServerConnectorTestCase {
 
     protected ServerConnector serverConnector;
     protected ListenerConfiguration listenerConfiguration;
+    protected HttpWsConnectorFactory httpWsConnectorFactory;
 
     HttpOnePointZeroServerConnectorTestCase() {
         this.listenerConfiguration = new ListenerConfiguration();
@@ -68,7 +70,7 @@ public class HttpOnePointZeroServerConnectorTestCase {
         listenerConfiguration.setServerHeader(TestUtil.TEST_SERVER);
 
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
-        HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
 
         serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
@@ -91,7 +93,7 @@ public class HttpOnePointZeroServerConnectorTestCase {
 
             assertTrue(httpClient.waitForChannelClose());
             assertEquals(TestUtil.largeEntity, TestUtil.getEntityBodyFrom(httpResponse));
-            assertNotNull(httpResponse.headers().get(Constants.HTTP_CONTENT_LENGTH));
+            assertNotNull(httpResponse.headers().get(HttpHeaderNames.CONTENT_LENGTH));
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running largeHeaderTest", e);
         }
@@ -104,13 +106,13 @@ public class HttpOnePointZeroServerConnectorTestCase {
 
             FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_0,
                     HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
-            httpRequest.headers().set(Constants.HTTP_CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
+            httpRequest.headers().set(HttpHeaderNames.CONNECTION, Constants.CONNECTION_KEEP_ALIVE);
             FullHttpResponse httpResponse = httpClient.sendRequest(httpRequest);
 
             assertFalse(httpClient.waitForChannelClose());
             assertEquals(TestUtil.largeEntity, TestUtil.getEntityBodyFrom(httpResponse));
-            assertEquals(Constants.CONNECTION_KEEP_ALIVE, httpResponse.headers().get(Constants.CONNECTION));
-            assertNotNull(httpResponse.headers().get(Constants.HTTP_CONTENT_LENGTH));
+            assertEquals(Constants.CONNECTION_KEEP_ALIVE, httpResponse.headers().get(HttpHeaderNames.CONNECTION));
+            assertNotNull(httpResponse.headers().get(HttpHeaderNames.CONTENT_LENGTH));
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running largeHeaderTest", e);
         }
@@ -119,5 +121,10 @@ public class HttpOnePointZeroServerConnectorTestCase {
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
+        try {
+            httpWsConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            log.warn("Interrupted while waiting for HttpWsFactory to close");
+        }
     }
 }

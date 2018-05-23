@@ -24,7 +24,12 @@ import org.slf4j.LoggerFactory;
 import java.lang.management.ManagementFactory;
 import java.util.Set;
 
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanRegistrationException;
 import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
 import javax.management.ObjectName;
 
 /**
@@ -47,17 +52,18 @@ public class MBeanRegistrar {
         assertNull(category, "MBean instance category is null");
         assertNull(id, "MBean instance name is null");
         try {
-            MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-            ObjectName name = new ObjectName(getObjectName(category, id));
-            Set set = mbs.queryNames(name, null);
+            MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+            ObjectName objectName = new ObjectName(getObjectName(category, id));
+            Set set = mBeanServer.queryNames(objectName, null);
             if (set != null && set.isEmpty()) {
-                mbs.registerMBean(mBeanInstance, name);
+                mBeanServer.registerMBean(mBeanInstance, objectName);
             } else {
-                mbs.unregisterMBean(name);
-                mbs.registerMBean(mBeanInstance, name);
+                mBeanServer.unregisterMBean(objectName);
+                mBeanServer.registerMBean(mBeanInstance, objectName);
             }
             return true;
-        } catch (Exception e) {
+        } catch (MalformedObjectNameException | NotCompliantMBeanException | MBeanRegistrationException
+                | InstanceNotFoundException | InstanceAlreadyExistsException e) {
             log.warn("Error registering a MBean with name ' " + id + " ' and category name ' " + category
                     + "' for JMX management", e);
             return false;
@@ -66,8 +72,8 @@ public class MBeanRegistrar {
 
     private String getObjectName(String category, String id) {
 
-        String jmxAgentName = System.getProperty("jmx.agent.name");
-        if (jmxAgentName == null || "".equals(jmxAgentName)) {
+        String jmxAgentName = System.getProperty(Constants.JMX_AGENT_NAME);
+        if (jmxAgentName == null || jmxAgentName.isEmpty()) {
             jmxAgentName = "ballerina";
         }
         return jmxAgentName + ":Type=" + category + ",Name=" + id;
@@ -82,5 +88,5 @@ public class MBeanRegistrar {
     private static void handleException(String msg) {
         log.error(msg);
     }
-
 }
+

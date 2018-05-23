@@ -41,12 +41,12 @@ public class MaxEntityBodyValidator extends ChannelInboundHandlerAdapter {
     private static final Logger log = LoggerFactory.getLogger(MaxEntityBodyValidator.class);
 
     private String serverName;
-    private int maxEntityBodySize;
-    private int currentSize;
+    private long maxEntityBodySize;
+    private long currentSize;
     private HttpRequest inboundRequest;
     private LinkedList<HttpContent> fullContent;
 
-    MaxEntityBodyValidator(String serverName, int maxEntityBodySize) {
+    MaxEntityBodyValidator(String serverName, long maxEntityBodySize) {
         this.serverName = serverName;
         this.maxEntityBodySize = maxEntityBodySize;
         this.fullContent = new LinkedList<>();
@@ -60,6 +60,7 @@ public class MaxEntityBodyValidator extends ChannelInboundHandlerAdapter {
                 if (isContentLengthInvalid(inboundRequest, maxEntityBodySize)) {
                     sendEntityTooLargeResponse(ctx);
                 }
+                ctx.channel().read();
             } else {
                 HttpContent inboundContent = (HttpContent) msg;
                 this.currentSize += inboundContent.content().readableBytes();
@@ -72,6 +73,8 @@ public class MaxEntityBodyValidator extends ChannelInboundHandlerAdapter {
                         while (!this.fullContent.isEmpty()) {
                             super.channelRead(ctx, this.fullContent.pop());
                         }
+                    } else {
+                        ctx.channel().read();
                     }
                 }
             }
@@ -88,9 +91,9 @@ public class MaxEntityBodyValidator extends ChannelInboundHandlerAdapter {
         log.warn("Inbound request URI length exceeds the max uri length allowed for a request");
     }
 
-    private boolean isContentLengthInvalid(HttpMessage start, int maxContentLength) {
+    private boolean isContentLengthInvalid(HttpMessage start, long maxContentLength) {
         try {
-            return HttpUtil.getContentLength(start, -1L) > (long) maxContentLength;
+            return HttpUtil.getContentLength(start, -1L) > maxContentLength;
         } catch (NumberFormatException var4) {
             return false;
         }

@@ -23,13 +23,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-
-import java.io.IOException;
-import javax.websocket.Session;
 
 /**
  * Client connector Listener to check WebSocket pass-through scenarios.
@@ -45,24 +43,18 @@ public class WebSocketPassthroughClientConnectorListener implements WebSocketCon
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
-        try {
-            Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
-                    getServerSession(textMessage.getChannelSession());
-            serverSession.getBasicRemote().sendText(textMessage.getText());
-        } catch (IOException e) {
-            logger.error("IO error when sending message: " + e.getMessage());
-        }
+        WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(textMessage.getWebSocketConnection());
+        serverConnection.pushText(textMessage.getText());
+        serverConnection.readNextFrame();
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        try {
-            Session serverSession = WebSocketPassThroughTestSessionManager.getInstance().
-                    getServerSession(binaryMessage.getChannelSession());
-            serverSession.getBasicRemote().sendBinary(binaryMessage.getByteBuffer());
-        } catch (IOException e) {
-            logger.error("IO error when sending message: " + e.getMessage());
-        }
+        WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(binaryMessage.getWebSocketConnection());
+        serverConnection.pushBinary(binaryMessage.getByteBuffer());
+        serverConnection.readNextFrame();
     }
 
     @Override

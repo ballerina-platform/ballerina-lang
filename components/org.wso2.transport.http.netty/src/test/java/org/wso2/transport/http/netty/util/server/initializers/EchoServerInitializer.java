@@ -23,6 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultHttpResponse;
 import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponse;
@@ -58,7 +59,7 @@ public class EchoServerInitializer extends HTTPServerInitializer {
         private HttpResponse httpResponse;
         private int responseStatusCode = 200;
         private boolean chunked = true;
-        private int contentLength = 0;
+        private long contentLength = 0;
         private boolean keepAlive = false;
         private BlockingQueue<HttpContent> content = new LinkedBlockingQueue<>();
 
@@ -76,6 +77,7 @@ public class EchoServerInitializer extends HTTPServerInitializer {
                 checkAndSetEncodingHeader(req);
                 setConnectionKeepAliveHeader(req);
                 keepAlive = HttpUtil.isKeepAlive(req);
+                setForwardedHeader(req);
 
                 if (chunked) {
                     ctx.writeAndFlush(httpResponse);
@@ -116,7 +118,7 @@ public class EchoServerInitializer extends HTTPServerInitializer {
 
         private void writeHeadersAndEntity(ChannelHandlerContext ctx, HttpContent lastHttpContent) {
             contentLength += lastHttpContent.content().readableBytes();
-            httpResponse.headers().set(Constants.HTTP_CONTENT_LENGTH, contentLength);
+            httpResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, contentLength);
             ctx.write(httpResponse);
 
             while (!content.isEmpty()) {
@@ -132,7 +134,7 @@ public class EchoServerInitializer extends HTTPServerInitializer {
         }
 
         private void checkAndSetEncodingHeader(HttpRequest req) {
-            if (req.headers().get(Constants.HTTP_CONTENT_LENGTH) != null) {
+            if (req.headers().get(HttpHeaderNames.CONTENT_LENGTH) != null) {
                 chunked = false;
             } else {
                 httpResponse.headers().set(TRANSFER_ENCODING, "chunked");
@@ -159,5 +161,24 @@ public class EchoServerInitializer extends HTTPServerInitializer {
                 logger.debug("Setting connection keep-alive header");
             }
         }
+
+        private void setForwardedHeader(HttpRequest req) {
+            if (req.headers().get(Constants.FORWARDED) != null) {
+                httpResponse.headers().set(Constants.FORWARDED, req.headers().get(Constants.FORWARDED));
+            }
+            if (req.headers().get(Constants.X_FORWARDED_FOR) != null) {
+                httpResponse.headers().set(Constants.X_FORWARDED_FOR, req.headers().get(Constants.X_FORWARDED_FOR));
+            }
+            if (req.headers().get(Constants.X_FORWARDED_BY) != null) {
+                httpResponse.headers().set(Constants.X_FORWARDED_BY, req.headers().get(Constants.X_FORWARDED_BY));
+            }
+            if (req.headers().get(Constants.X_FORWARDED_HOST) != null) {
+                httpResponse.headers().set(Constants.X_FORWARDED_HOST, req.headers().get(Constants.X_FORWARDED_HOST));
+            }
+            if (req.headers().get(Constants.X_FORWARDED_PROTO) != null) {
+                httpResponse.headers().set(Constants.X_FORWARDED_PROTO, req.headers().get(Constants.X_FORWARDED_PROTO));
+            }
+        }
+
     }
 }

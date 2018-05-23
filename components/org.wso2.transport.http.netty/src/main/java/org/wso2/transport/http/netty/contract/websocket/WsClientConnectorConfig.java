@@ -31,20 +31,23 @@ public class WsClientConnectorConfig {
 
     private final String remoteAddress;
     private List<String> subProtocols;
-    private String target = null;
-    private int idleTimeoutInSeconds = -1;
+    private int idleTimeoutInSeconds;
+    private boolean autoRead;
     private final Map<String, String> headers = new HashMap<>();
 
     public WsClientConnectorConfig(String remoteAddress) {
         this.remoteAddress = remoteAddress;
+        this.idleTimeoutInSeconds = -1;
+        this.autoRead = true;
+
     }
 
-    public WsClientConnectorConfig(String remoteAddress, String target, List<String> subProtocols,
-                                   int idleTimeoutInSeconds) {
+    public WsClientConnectorConfig(String remoteAddress, List<String> subProtocols,
+                                   int idleTimeoutInSeconds, boolean autoRead) {
         this.remoteAddress = remoteAddress;
-        this.target = target;
         this.subProtocols = subProtocols;
         this.idleTimeoutInSeconds = idleTimeoutInSeconds;
+        this.autoRead = autoRead;
     }
 
     /**
@@ -91,6 +94,14 @@ public class WsClientConnectorConfig {
         this.subProtocols = subProtocols;
     }
 
+    public boolean isAutoRead() {
+        return autoRead;
+    }
+
+    public void setAutoRead(boolean autoRead) {
+        this.autoRead = autoRead;
+    }
+
     /**
      * Get sub protocols as a String array.
      *
@@ -107,24 +118,6 @@ public class WsClientConnectorConfig {
      */
     public String getRemoteAddress() {
         return remoteAddress;
-    }
-
-    /**
-     * Get the target of the WebSocket incoming messages.
-     *
-     * @return the target of the WebSocket incoming messages.
-     */
-    public String getTarget() {
-        return target;
-    }
-
-    /**
-     * Set the target of the WebSocket incoming messages.
-     *
-     * @param target the target of the WebSocket incoming messages.
-     */
-    public void setTarget(String target) {
-        this.target = target;
     }
 
     /**

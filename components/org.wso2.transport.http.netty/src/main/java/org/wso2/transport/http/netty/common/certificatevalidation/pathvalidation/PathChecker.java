@@ -38,8 +38,8 @@ import java.util.Set;
  */
 public class PathChecker extends PKIXCertPathChecker {
 
-    X509Certificate[] certChainArray;
-    RevocationVerifier verifier;
+    private X509Certificate[] certChainArray;
+    private RevocationVerifier verifier;
     private int position;
     private static final Logger log = LoggerFactory.getLogger(PathChecker.class);
 
@@ -50,7 +50,8 @@ public class PathChecker extends PKIXCertPathChecker {
         this.verifier = verifier;
     }
 
-    @Override public void init(boolean forward) throws CertPathValidatorException {
+    @Override
+    public void init(boolean forward) throws CertPathValidatorException {
         if (forward) {
             throw new CertPathValidatorException("Forward checking is not supported");
         }
@@ -61,27 +62,32 @@ public class PathChecker extends PKIXCertPathChecker {
      * to the target certificate. This is the default implementation of the Path validator used
      * CertPathValidator.getInstance("PKIX", "BC") in CertificatePathValidator;
      */
-    @Override public boolean isForwardCheckingSupported() {
+    @Override
+    public boolean isForwardCheckingSupported() {
         return false;
     }
 
-    @Override public Set<String> getSupportedExtensions() {
+    @Override
+    public Set<String> getSupportedExtensions() {
         return null;
     }
 
     /**
      * Used by CertPathValidator to pass the certificates one by one from the certificate chain.
      *
-     * @param cert               the certificate passed to be checked.
+     * @param cert the certificate passed to be checked.
      * @param unresolvedCritExts not used in this method.
-     * @throws CertPathValidatorException
+     * @throws CertPathValidatorException if any error occurs while verifying the status given by CA.
      */
-    @Override public void check(Certificate cert, Collection<String> unresolvedCritExts)
+    @Override
+    public void check(Certificate cert, Collection<String> unresolvedCritExts)
             throws CertPathValidatorException {
         RevocationStatus status;
         try {
             status = verifier.checkRevocationStatus((X509Certificate) cert, nextIssuer());
-            log.info("Certificate status is: " + status.getMessage());
+            if (log.isInfoEnabled()) {
+                log.info("Certificate status is: " + status.getMessage());
+        }
             if (status != RevocationStatus.GOOD) {
                 throw new CertPathValidatorException("Revocation Status is Not Good");
             }
@@ -95,7 +101,7 @@ public class PathChecker extends PKIXCertPathChecker {
      * by the position variable
      */
     private X509Certificate nextIssuer() {
-        //get immediate issuer
+        //get immediate issuer.
         if (position > 0) {
             return certChainArray[position--];
         } else {
@@ -103,3 +109,4 @@ public class PathChecker extends PKIXCertPathChecker {
         }
     }
 }
+

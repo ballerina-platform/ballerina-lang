@@ -23,6 +23,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.FullHttpResponse;
 
+import java.util.LinkedList;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -32,18 +33,22 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
 
     private CountDownLatch latch;
     private CountDownLatch waitForConnectionClosureLatch;
-    private FullHttpResponse fullHttpResponse;
+    private LinkedList<FullHttpResponse> fullHttpResponses = new LinkedList<>();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof FullHttpResponse) {
-            this.fullHttpResponse = (FullHttpResponse) msg;
+            this.fullHttpResponses.add((FullHttpResponse) msg);
             latch.countDown();
         }
     }
 
-    public FullHttpResponse getHttpFullResponse() {
-        return this.fullHttpResponse;
+    FullHttpResponse getHttpFullResponse() {
+        return this.fullHttpResponses.getFirst();
+    }
+
+    LinkedList<FullHttpResponse> getHttpFullResponses() {
+        return this.fullHttpResponses;
     }
 
     @Override
@@ -65,7 +70,7 @@ public class ResponseHandler extends ChannelInboundHandlerAdapter {
         this.latch = latch;
     }
 
-    public void setWaitForConnectionClosureLatch(CountDownLatch waitForConnectionClosureLatch) {
+    void setWaitForConnectionClosureLatch(CountDownLatch waitForConnectionClosureLatch) {
         this.waitForConnectionClosureLatch = waitForConnectionClosureLatch;
     }
 }

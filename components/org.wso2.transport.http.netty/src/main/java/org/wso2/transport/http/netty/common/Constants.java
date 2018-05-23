@@ -17,6 +17,7 @@ package org.wso2.transport.http.netty.common;
 
 import io.netty.util.AttributeKey;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpClientConnector;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
@@ -39,7 +40,7 @@ public final class Constants {
     public static final String SSL_HANDLER = "ssl";
     public static final String CLIENT_SUPPORT_CIPHERS = "ciphers";
     public static final String CLIENT_SUPPORT_SSL_PROTOCOLS = "sslEnabledProtocols";
-    public static final String CLIENT_ENABLE_SESSION_CREATION = "client.enable.session.creation";
+    public static final String CLIENT_ENABLE_SESSION_CREATION = "sessionCreation";
 
     // Server Bootstrap related
     public static final String SERVER_BOOTSTRAP_TCP_NO_DELY = "server.bootstrap.nodelay";
@@ -63,7 +64,7 @@ public final class Constants {
     //Server side SSL Parameters
     public static final String SERVER_SUPPORT_CIPHERS = "ciphers";
     public static final String SERVER_SUPPORT_SSL_PROTOCOLS = "sslEnabledProtocols";
-    public static final String SERVER_ENABLE_SESSION_CREATION = "server.enable.session.creation";
+    public static final String SERVER_ENABLE_SESSION_CREATION = "sessionCreation";
     public static final String SERVER_SUPPORTED_SERVER_NAMES = "server.suported.server.names";
     public static final String SERVER_SUPPORTED_SNIMATCHERS = "server.supported.snimatchers";
     public static final String SSL_VERIFY_CLIENT = "sslVerifyClient";
@@ -91,10 +92,10 @@ public final class Constants {
     public static final String TRUSTSTOREFILE = "trustStoreFile";
     public static final String TRUSTSTOREPASS = "trustStorePass";
 
-    public static final String PORT = "PORT";
 
     public static final int DEFAULT_HTTP_PORT = 80;
     public static final int DEFAULT_HTTPS_PORT = 443;
+    public static final String DEFAULT_BASE_PATH = "/";
 
     public static final String TO = "TO";
     public static final String PROTOCOL = "PROTOCOL";
@@ -109,24 +110,22 @@ public final class Constants {
     public static final String ENCODING_DEFLATE = "deflate";
     public static final String HTTP_TRANSFER_ENCODING_IDENTITY = "identity";
 
-    public static final String HTTP_CONNECTION = "Connection";
+    // TODO: Move string constants for HTTP headers and header values to their own class
+    public static final String HTTP_X_FORWARDED_FOR = "x-forwarded-for";
     public static final String CONNECTION_KEEP_ALIVE = "keep-alive";
     public static final String CONNECTION_CLOSE = "close";
-    public static final String ACCEPT_ENCODING = "Accept-Encoding";
-    public static final String CONTENT_ENCODING = "Content-Encoding";
-    public static final String HTTP_CONTENT_TYPE = "Content-Type";
-    public static final String HTTP_CONTENT_LENGTH = "Content-Length";
-    public static final String HTTP_TRANSFER_ENCODING = "Transfer-Encoding";
-    public static final String HOST = "Host";
-    public static final String HTTP_SERVER_HEADER = "Server";
-
-    public static final String LOCATION = "Location";
+    public static final String FORWARDED = "forwarded";
+    public static final String X_FORWARDED_FOR = "x-forwarded-for";
+    public static final String X_FORWARDED_BY = "x-forwarded-by";
+    public static final String X_FORWARDED_HOST = "x-forwarded-host";
+    public static final String X_FORWARDED_PROTO = "x-forwarded-proto";
 
     public static final String HTTP_GET_METHOD = "GET";
     public static final String HTTP_POST_METHOD = "POST";
     public static final String HTTP_HEAD_METHOD = "HEAD";
     public static final String HTTP_PUT_METHOD = "PUT";
     public static final String HTTP_PATCH_METHOD = "PATCH";
+    public static final String HTTP_DELETE_METHOD = "DELETE";
 
     //HTTP server connector creation parameters
     public static final String HTTP_HOST = "host";
@@ -142,6 +141,7 @@ public final class Constants {
     public static final String TLS_STORE_TYPE = "tlsStoreType";
 
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
+    public static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
 
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
 
@@ -152,6 +152,7 @@ public final class Constants {
     public static final String DEFAULT_VERSION_HTTP_1_1 = "HTTP/1.1";
     public static final float HTTP_1_1 = 1.1f;
     public static final float HTTP_1_0 = 1.0f;
+    public static final float HTTP_2_0 = 2.0f;
     public static final String HTTP_VERSION_PREFIX = "HTTP/";
 
     //Server Connection Related Parameters
@@ -162,6 +163,7 @@ public final class Constants {
     public static final String REMOTE_HOST = "REMOTE_HOST";
     public static final String REMOTE_PORT = "REMOTE_PORT";
     public static final String REQUEST_URL = "REQUEST_URL";
+    public static final String ORIGIN_HOST = "ORIGIN_HOST";
 
     public static final String CHANNEL_ID = "CHANNEL_ID";
 
@@ -169,33 +171,32 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
-    public static final String CONNECTION = "Connection";
-    public static final String UPGRADE = "Upgrade";
 
-    public static final String WEBSOCKET_SERVER_SESSION = "WEBSOCKET_SERVER_SESSION";
-    public static final String WEBSOCKET_CLIENT_SESSION = "WEBSOCKET_CLIENT_SESSION";
-    public static final String WEBSOCKET_CLIENT_SESSIONS_LIST = "WEBSOCKET_CLIENT_SESSIONS_LIST";
     public static final String WEBSOCKET_PROTOCOL = "ws";
     public static final String WEBSOCKET_PROTOCOL_SECURED = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";
-    public static final String WEBSOCKET_CLIENT_ID = "WEBSOCKET_CLIENT_ID";
-    public static final String IS_WEBSOCKET_SERVER = "IS_WEBSOCKET_SERVER";
-    public static final String WEBSOCKET_SUBPROTOCOLS = "WEBSOCKET_SUBPROTOCOLS";
-    public static final String WEBSOCKET_ALLOW_EXTENSIONS = "WEBSOCKET_ALLOW_EXTENSIONS";
-    public static final String WEBSOCKET_CLOSE_CODE = "WEBSOCKET_CLOSE_CODE";
-    public static final String WEBSOCKET_CLOSE_REASON = "WEBSOCKET_CLOSE_REASON";
-    public static final String WEBSOCKET_TARGET = "WEBSOCKET_TARGET";
-    public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
-    public static final String WEBSOCKET_HEADER_SUBPROTOCOL = "Sec-WebSocket-Protocol";
+    public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
+    public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
+    public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
+    public static final int WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE = 1006;
 
     // Callback related parameters
     public static final String HTTP_CONNECTION_CLOSE = "close";
 
+    // Message direction related parameters
+    public static final String DIRECTION = "DIRECTION";
+    public static final String DIRECTION_REQUEST = "DIRECTION_REQUEST";
+    public static final String DIRECTION_RESPONSE = "DIRECTION_RESPONSE";
+
+    // Proxy related parameters
+    public static final String IS_PROXY_ENABLED = "IS_PROXY_ENABLED";
+
     // HTTP2 Related Parameters
     public static final String UPGRADE_RESPONSE_HEADER = "http-to-http2-upgrade";
     public static final String HTTP_VERSION_2_0 = "HTTP/2.0";
-    public static final String STREAM_ID = "STREAM_ID";
-//    public static final String SCHEME = "SCHEME";
+    public static final String HTTP2_VERSION = "2.0";
+    public static final String HTTP2_CLEARTEXT_PROTOCOL = "h2c";
+    public static final String HTTP2_TLS_PROTOCOL = "h2";
     public static final String AUTHORITY = "AUTHORITY";
     public static final String HTTP2_METHOD = ":method";
     public static final String HTTP2_PATH = ":path";
@@ -203,29 +204,45 @@ public final class Constants {
     public static final String HTTP2_SCHEME = ":scheme";
 
     public static final String HTTP_SOURCE_HANDLER = "SourceHandler";
-    public static final String WEBSOCKET_SOURCE_HANDLER = "ws_handler";
+    public static final String HTTP_ENCODER = "encoder";
+    public static final String HTTP_COMPRESSOR = "compressor";
+    public static final String HTTP_CHUNK_WRITER = "chunkWriter";
+    public static final String HTTP_DECODER = "decoder";
+    public static final String HTTP_CLIENT_CODEC = "codec";
+    public static final String HTTP_SERVER_CODEC = "ServerCodec";
+    public static final String HTTP2_SOURCE_HANDLER = "Http2SourceHandler";
+    public static final String HTTP2_ALPN_HANDLER = "Http2ALPNHandler";
+    public static final String PROXY_HANDLER = "proxyServerHandler";
+    public static final String SSL_COMPLETION_HANDLER = "sslHandshakeCompletionHandler";
+    public static final String HTTP_CERT_VALIDATION_HANDLER = "certificateValidation";
+    public static final String CONNECTION_HANDLER = "connectionHandler";
+    public static final String OUTBOUND_HANDLER = "outboundHandler";
     public static final String TARGET_HANDLER = "targetHandler";
+    public static final String HTTP2_TIMEOUT_HANDLER = "Http2TimeoutHandler";
+    public static final String HTTP2_UPGRADE_HANDLER = "Http2UpgradeHandler";
+    public static final String HTTP2_TO_HTTP_FALLBACK_HANDLER = "Http2ToHttpFallbackHandler";
     public static final String REDIRECT_HANDLER = "redirectHandler";
+    public static final String DECOMPRESSOR_HANDLER = "deCompressor";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
+    public static final String HTTP_ACCESS_LOG_HANDLER = "http-access-logger";
     public static final String WEBSOCKET_SERVER_HANDSHAKE_HANDLER = "websocket-server-handshake-handler";
 
-    public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf
-            ("REDIRECT_COUNT");
-    public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.valueOf
-            ("ORIGINAL_REQUEST");
+    public static final AttributeKey<Integer> REDIRECT_COUNT = AttributeKey.valueOf("REDIRECT_COUNT");
+    public static final AttributeKey<String> RESOLVED_REQUESTED_URI_ATTR = AttributeKey
+            .valueOf("RESOLVED_REQUESTED_URI_ATTR");
+    public static final AttributeKey<HTTPCarbonMessage> ORIGINAL_REQUEST = AttributeKey.valueOf("ORIGINAL_REQUEST");
     public static final AttributeKey<HttpResponseFuture> RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL = AttributeKey
-            .valueOf
-            ("RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL");
+            .valueOf("RESPONSE_FUTURE_OF_ORIGINAL_CHANNEL");
     public static final AttributeKey<Long> ORIGINAL_CHANNEL_START_TIME = AttributeKey
-            .valueOf
-                    ("ORIGINAL_CHANNEL_START_TIME");
+            .valueOf("ORIGINAL_CHANNEL_START_TIME");
     public static final AttributeKey<Integer> ORIGINAL_CHANNEL_TIMEOUT = AttributeKey
-            .valueOf
-                    ("ORIGINAL_CHANNEL_TIMEOUT");
+            .valueOf("ORIGINAL_CHANNEL_TIMEOUT");
     public static final AttributeKey<TargetChannel> TARGET_CHANNEL_REFERENCE = AttributeKey
-            .valueOf
-                    ("TARGET_CHANNEL_REFERENCE");
+            .valueOf("TARGET_CHANNEL_REFERENCE");
+    public static final AttributeKey<DefaultHttpClientConnector> CLIENT_CONNECTOR = AttributeKey
+            .valueOf("CLIENT_CONNECTOR");
+    public static final int REDIRECT_SEE_OTHER_303 = 303;
 
     public static final String UTF8 = "UTF-8";
     public static final String URL_AUTHORITY = "://";
@@ -236,6 +253,16 @@ public final class Constants {
     public static final int ENDPOINT_TIMEOUT = 5 * 60000;
     public static final String ENDPOINT_TIMEOUT_MSG = "Endpoint timed out";
     public static final String CHUNKED = "chunked";
+    public static final String CHUNKING_CONFIG = "chunking_config";
+
+    // Trace Logger related parameters
+    public static final String TRACE_LOG_UPSTREAM = "http.tracelog.upstream";
+    public static final String TRACE_LOG_DOWNSTREAM = "http.tracelog.downstream";
+
+    // Access Logger related parameters
+    public static final String ACCESS_LOG = "http.accesslog";
+    public static final String ACCESS_LOG_FORMAT =
+            "%1$s - - [%2$td/%2$tb/%2$tY:%2$tT %2$tz] \"%3$s %4$s %5$s\" %6$d %7$d \"%8$s\" \"%9$s\"";
 
     public static final String LISTENER_PORT = "LISTENER_PORT";
 
@@ -268,6 +295,15 @@ public final class Constants {
 
     public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
             = "Remote host closed the connection without sending inbound response";
+
+    public static final String PROMISED_STREAM_REJECTED_ERROR
+            = "Promised stream is already rejected or stream is no longer valid";
+
+    public static final String MAXIMUM_WAIT_TIME_EXCEED = "Could not obtain a connection within maximum wait time";
+
+    public static final String JMX_AGENT_NAME = "jmx.agent.name";
+
+    public static final String HTTP_RESOURCE = "httpResource";
 
     private Constants() {
     }

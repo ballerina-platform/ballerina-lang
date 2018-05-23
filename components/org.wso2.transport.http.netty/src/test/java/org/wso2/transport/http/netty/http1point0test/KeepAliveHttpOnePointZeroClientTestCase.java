@@ -18,17 +18,15 @@
 
 package org.wso2.transport.http.netty.http1point0test;
 
-import org.testng.annotations.AfterClass;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.chunkdisable.ChunkClientTemplate;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.util.TestUtil;
-
-import java.util.Collections;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -41,7 +39,7 @@ public class KeepAliveHttpOnePointZeroClientTestCase extends ChunkClientTemplate
     public void setUp() {
         senderConfiguration.setChunkingConfig(ChunkConfig.AUTO);
         senderConfiguration.setHttpVersion("1.0");
-        senderConfiguration.setKeepAlive(true);
+        senderConfiguration.setKeepAliveConfig(KeepAliveConfig.ALWAYS);
         super.setUp();
     }
 
@@ -49,14 +47,9 @@ public class KeepAliveHttpOnePointZeroClientTestCase extends ChunkClientTemplate
     public void postTest() {
         try {
             HTTPCarbonMessage response = sendRequest(TestUtil.largeEntity);
-            assertEquals(response.getHeader(Constants.HTTP_CONNECTION), Constants.CONNECTION_KEEP_ALIVE);
+            assertEquals(response.getHeader(HttpHeaderNames.CONNECTION.toString()), Constants.CONNECTION_KEEP_ALIVE);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running postTest", e);
         }
-    }
-
-    @AfterClass
-    public void cleanUp() throws ServerConnectorException {
-        TestUtil.cleanUp(Collections.EMPTY_LIST , httpServer);
     }
 }

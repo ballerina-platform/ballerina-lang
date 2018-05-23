@@ -23,15 +23,13 @@ import org.apache.commons.pool.PoolableObjectFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.HttpRoute;
-import org.wso2.transport.http.netty.common.ssl.SSLConfig;
-import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.sender.HTTPClientInitializer;
+import org.wso2.transport.http.netty.sender.ConnectionAvailabilityFuture;
+import org.wso2.transport.http.netty.sender.HttpClientChannelInitializer;
 import org.wso2.transport.http.netty.sender.channel.BootstrapConfiguration;
 import org.wso2.transport.http.netty.sender.channel.TargetChannel;
 
 import java.net.InetSocketAddress;
-import javax.net.ssl.SSLEngine;
 
 /**
  * A class which creates a TargetChannel pool for each route.
@@ -47,7 +45,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     private BootstrapConfiguration bootstrapConfiguration;
     private ConnectionManager connectionManager;
 
-    public PoolableTargetChannelFactory(EventLoopGroup eventLoopGroup, Class eventLoopClass, HttpRoute httpRoute,
+    PoolableTargetChannelFactory(EventLoopGroup eventLoopGroup, Class eventLoopClass, HttpRoute httpRoute,
                                         SenderConfiguration senderConfiguration,
                                         BootstrapConfiguration bootstrapConfiguration,
                                         ConnectionManager connectionManager) {
@@ -64,26 +62,41 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
     public Object makeObject() throws Exception {
         Bootstrap clientBootstrap = instantiateAndConfigBootStrap(eventLoopGroup,
                 eventLoopClass, bootstrapConfiguration);
-        SSLEngine clientSslEngine = instantiateAndConfigSSL(senderConfiguration.getSSLConfig());
-        HTTPClientInitializer httpClientInitializer = instantiateAndConfigClientInitializer(senderConfiguration,
-                clientBootstrap, clientSslEngine, connectionManager);
-        clientBootstrap.handler(httpClientInitializer);
-        ChannelFuture channelFuture = clientBootstrap
-                .connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
-        TargetChannel targetChannel = new TargetChannel(httpClientInitializer, channelFuture);
-        targetChannel.setHttpRoute(httpRoute);
+        ConnectionAvailabilityFuture connectionAvailabilityFuture = new ConnectionAvailabilityFuture();
+
+        HttpClientChannelInitializer httpClientChannelInitializer = instantiateAndConfigClientInitializer(
+                senderConfiguration, clientBootstrap, httpRoute, connectionManager, connectionAvailabilityFuture);
+        clientBootstrap.handler(httpClientChannelInitializer);
+
+        // Connect to proxy server if proxy is enabled
+        ChannelFuture channelFuture;
+        if (senderConfiguration.getProxyServerConfiguration() != null) {
+            channelFuture = clientBootstrap.connect(new InetSocketAddress(
+                    senderConfiguration.getProxyServerConfiguration().getProxyHost(),
+                    senderConfiguration.getProxyServerConfiguration().getProxyPort()
+            ));
+        } else {
+            channelFuture = clientBootstrap.connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
+        }
+        connectionAvailabilityFuture.setSocketAvailabilityFuture(channelFuture);
+        connectionAvailabilityFuture.setForceHttp2(senderConfiguration.isForceHttp2());
+
+        TargetChannel targetChannel =
+                new TargetChannel(httpClientChannelInitializer, channelFuture, httpRoute, connectionAvailabilityFuture);
+        httpClientChannelInitializer.setHttp2ClientChannel(targetChannel.getHttp2ClientChannel());
+
         log.debug("Created channel: {}", httpRoute);
+
         return targetChannel;
     }
 
     @Override
     public void destroyObject(Object o) throws Exception {
         TargetChannel targetChannel = (TargetChannel) o;
-        log.debug("Destroying channel: {}", o);
+        if (log.isDebugEnabled()) {
+            log.debug("Destroying channel: {}", targetChannel.getChannel().id());
+        }
         if (targetChannel.getChannel().isOpen()) {
-            if (log.isDebugEnabled()) {
-                log.debug("And channel id is : " + targetChannel.getChannel().id());
-            }
             targetChannel.getChannel().close();
         }
     }
@@ -93,7 +106,7 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         TargetChannel targetChannel = (TargetChannel) o;
         if (targetChannel.getChannel() != null) {
             boolean answer = targetChannel.getChannel().isActive();
-            log.debug("Validating channel: {} -> {}", o, answer);
+            log.debug("Validating channel: {} -> {}", targetChannel.getChannel().id(), answer);
             return answer;
         }
         return true;
@@ -122,30 +135,15 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
         return clientBootstrap;
     }
 
-    // TODO: Maybe we can move this to the client initializer?
-    private SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig) {
-        // set the pipeline factory, which creates the pipeline for each newly created channels
-        SSLEngine sslEngine = null;
-        if (sslConfig != null) {
-            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-            sslEngine = sslHandlerFactory.build();
-            sslEngine.setUseClientMode(true);
-            sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
-        }
-
-        return sslEngine;
-    }
-
-    private HTTPClientInitializer instantiateAndConfigClientInitializer(SenderConfiguration senderConfiguration,
-                                                                        Bootstrap clientBootstrap,
-                                                                        SSLEngine sslEngine,
-                                                                        ConnectionManager connectionManager) {
-        HTTPClientInitializer httpClientInitializer =
-                new HTTPClientInitializer(senderConfiguration, sslEngine, connectionManager);
+    private HttpClientChannelInitializer instantiateAndConfigClientInitializer(SenderConfiguration senderConfiguration,
+            Bootstrap clientBootstrap, HttpRoute httpRoute, ConnectionManager connectionManager,
+            ConnectionAvailabilityFuture connectionAvailabilityFuture) {
+        HttpClientChannelInitializer httpClientChannelInitializer = new HttpClientChannelInitializer(
+                senderConfiguration, httpRoute, connectionManager, connectionAvailabilityFuture);
         if (log.isDebugEnabled()) {
             log.debug("Created new TCP client bootstrap connecting to {}:{} with options: {}", httpRoute.getHost(),
                     httpRoute.getPort(), clientBootstrap);
         }
-        return httpClientInitializer;
+        return httpClientChannelInitializer;
     }
 }

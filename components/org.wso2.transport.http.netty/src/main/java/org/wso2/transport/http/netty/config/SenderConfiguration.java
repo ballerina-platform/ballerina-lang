@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.config;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
+import org.wso2.transport.http.netty.sender.channel.pool.PoolConfiguration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,7 +39,7 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 @XmlAccessorType(XmlAccessType.FIELD)
 public class SenderConfiguration {
 
-    public static final String DEFAULT_KEY = "netty";
+    private static final String DEFAULT_KEY = "netty";
 
     @Deprecated
     public static SenderConfiguration getDefault() {
@@ -89,21 +90,29 @@ public class SenderConfiguration {
     @XmlAttribute
     private int maxRedirectCount;
 
+    private KeepAliveConfig keepAliveConfig = KeepAliveConfig.AUTO;
+
     @XmlAttribute
-    private boolean isKeepAlive = true;
+    private boolean forceHttp2 = false;
 
     private String tlsStoreType;
     private String httpVersion = "1.1";
     private ProxyServerConfiguration proxyServerConfiguration;
-    private boolean certificateRevocationVerifier;
-    private int cacheSize;
-    private int cacheDelay;
+    private PoolConfiguration poolConfiguration;
+    private boolean validateCertEnabled;
+    private int cacheSize = 50;
+    private int cacheValidityPeriod = 15;
+    private boolean hostNameVerificationEnabled = true;
+    private ForwardedExtensionConfig forwardedExtensionConfig;
+    private boolean ocspStaplingEnabled = false;
 
     public SenderConfiguration() {
+        this.poolConfiguration = new PoolConfiguration();
     }
 
     public SenderConfiguration(String id) {
         this.id = id;
+        this.poolConfiguration = new PoolConfiguration();
     }
 
     public void setSSLProtocol(String sslProtocol) {
@@ -240,12 +249,12 @@ public class SenderConfiguration {
         this.maxRedirectCount = maxRedirectCount;
     }
 
-    public boolean isKeepAlive() {
-        return isKeepAlive;
+    public KeepAliveConfig getKeepAliveConfig() {
+        return keepAliveConfig;
     }
 
-    public void setKeepAlive(boolean keepAlive) {
-        isKeepAlive = keepAlive;
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+        this.keepAliveConfig = keepAliveConfig;
     }
 
     public void setProxyServerConfiguration(ProxyServerConfiguration proxyServerConfiguration) {
@@ -266,27 +275,67 @@ public class SenderConfiguration {
         }
     }
 
-    public void setCertificateRevocationVerifier(boolean certificateRevocationVerifier) {
-        this.certificateRevocationVerifier = certificateRevocationVerifier;
+    public boolean isForceHttp2() {
+        return forceHttp2;
+    }
+
+    public void setForceHttp2(boolean forceHttp2) {
+        this.forceHttp2 = forceHttp2;
+    }
+
+    public void setValidateCertEnabled(boolean validateCertEnabled) {
+        this.validateCertEnabled = validateCertEnabled;
     }
 
     public void setCacheSize(int cacheSize) {
         this.cacheSize = cacheSize;
     }
 
-    public void setCacheDelay(int cacheDelay) {
-        this.cacheDelay = cacheDelay;
+    public void setCacheValidityPeriod(int cacheValidityPeriod) {
+        this.cacheValidityPeriod = cacheValidityPeriod;
     }
 
-    public boolean getCertificateRevocationVerifier() {
-        return certificateRevocationVerifier;
+    public boolean validateCertEnabled() {
+        return validateCertEnabled;
     }
 
     public int getCacheSize() {
         return cacheSize;
     }
 
-    public int getCacheDelay() {
-        return cacheDelay;
+    public void setHostNameVerificationEnabled(boolean hostNameVerificationEnabled) {
+        this.hostNameVerificationEnabled = hostNameVerificationEnabled;
+    }
+
+    public boolean hostNameVerificationEnabled() {
+        return hostNameVerificationEnabled;
+    }
+
+    public int getCacheValidityPeriod() {
+        return cacheValidityPeriod;
+    }
+
+    public void setOcspStaplingEnabled(boolean ocspStaplingEnabled) {
+        this.ocspStaplingEnabled = ocspStaplingEnabled;
+    }
+
+    public boolean isOcspStaplingEnabled() {
+        return ocspStaplingEnabled;
+    }
+
+    public PoolConfiguration getPoolConfiguration() {
+        return poolConfiguration;
+    }
+
+    public void setPoolConfiguration(PoolConfiguration poolConfiguration) {
+        this.poolConfiguration = poolConfiguration;
+    }
+
+    public ForwardedExtensionConfig getForwardedExtensionConfig() {
+        return forwardedExtensionConfig;
+    }
+
+    public void setForwardedExtensionConfig(ForwardedExtensionConfig forwardedExtensionEnabled) {
+        this.forwardedExtensionConfig = forwardedExtensionEnabled;
     }
 }

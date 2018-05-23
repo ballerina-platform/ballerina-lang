@@ -54,9 +54,11 @@ public class ListenerConfiguration {
     private String host = "0.0.0.0";
 
     @XmlAttribute(required = true)
-    private int port = 8080;
+    private int port = 9090;
 
     private ChunkConfig chunkingConfig = ChunkConfig.AUTO;
+
+    private KeepAliveConfig keepAliveConfig = KeepAliveConfig.AUTO;
 
     @XmlAttribute
     private boolean bindOnStartup = false;
@@ -65,7 +67,7 @@ public class ListenerConfiguration {
     private String scheme = "http";
 
     @XmlAttribute
-    private boolean http2 = false;
+    private String version = "1.1";
 
     @XmlAttribute
     private String keyStoreFile;
@@ -92,6 +94,9 @@ public class ListenerConfiguration {
     private boolean httpTraceLogEnabled;
 
     @XmlAttribute
+    private boolean httpAccessLogEnabled;
+
+    @XmlAttribute
     private String verifyClient;
 
     @XmlAttribute
@@ -101,19 +106,19 @@ public class ListenerConfiguration {
     private String tlsStoreType;
 
     @XmlAttribute
-    private boolean keepAlive = true;
-
-    @XmlAttribute
     private String serverHeader = "wso2-http-transport";
 
     @XmlAttribute
-    private boolean certificateRevocationVerifier;
+    private boolean validateCertEnabled;
 
     @XmlAttribute
-    private int cacheSize;
+    private int cacheSize = 50;
 
     @XmlAttribute
-    private int cacheDelay;
+    private int cacheValidityPeriod = 15;
+
+    @XmlAttribute
+    private boolean ocspStaplingEnabled = false;
 
     @XmlElementWrapper(name = "parameters")
     @XmlElement(name = "parameter")
@@ -210,12 +215,12 @@ public class ListenerConfiguration {
         return sslProtocol;
     }
 
-    public boolean isCertificateRevocationVerifier() {
-        return certificateRevocationVerifier;
+    public boolean validateCertEnabled() {
+        return validateCertEnabled;
     }
 
-    public void setCertificateRevocationVerifier(boolean certificateRevocationVerifier) {
-        this.certificateRevocationVerifier = certificateRevocationVerifier;
+    public void setValidateCertEnabled(boolean validateCertEnabled) {
+        this.validateCertEnabled = validateCertEnabled;
     }
 
     public int getCacheSize() {
@@ -226,12 +231,12 @@ public class ListenerConfiguration {
         this.cacheSize = cacheSize;
     }
 
-    public int getCacheDelay() {
-        return cacheDelay;
+    public int getCacheValidityPeriod() {
+        return cacheValidityPeriod;
     }
 
-    public void setCacheDelay(int cacheDelay) {
-        this.cacheDelay = cacheDelay;
+    public void setCacheValidityPeriod(int cacheValidityPeriod) {
+        this.cacheValidityPeriod = cacheValidityPeriod;
     }
 
     public int getPort() {
@@ -258,12 +263,12 @@ public class ListenerConfiguration {
         this.scheme = scheme;
     }
 
-    public boolean isHttp2() {
-        return http2;
+    public String getVersion() {
+        return version;
     }
 
-    public void setHttp2(boolean http2) {
-        this.http2 = http2;
+    public void setVersion(String version) {
+        this.version = version;
     }
 
     public List<Parameter> getParameters() {
@@ -316,20 +321,20 @@ public class ListenerConfiguration {
         this.httpTraceLogEnabled = httpTraceLogEnabled;
     }
 
+    public boolean isHttpAccessLogEnabled() {
+        return httpAccessLogEnabled;
+    }
+
+    public void setHttpAccessLogEnabled(boolean httpAccessLogEnabled) {
+        this.httpAccessLogEnabled = httpAccessLogEnabled;
+    }
+
     public RequestSizeValidationConfig getRequestSizeValidationConfig() {
         return requestSizeValidationConfig;
     }
 
     public void setRequestSizeValidationConfig(RequestSizeValidationConfig requestSizeValidationConfig) {
         this.requestSizeValidationConfig = requestSizeValidationConfig;
-    }
-
-    public boolean isKeepAlive() {
-        return keepAlive;
-    }
-
-    public void setKeepAlive(boolean keepAlive) {
-        this.keepAlive = keepAlive;
     }
 
     public ChunkConfig getChunkConfig() {
@@ -340,11 +345,27 @@ public class ListenerConfiguration {
         this.chunkingConfig = chunkConfig;
     }
 
+    public KeepAliveConfig getKeepAliveConfig() {
+        return keepAliveConfig;
+    }
+
+    public void setKeepAliveConfig(KeepAliveConfig keepAliveConfig) {
+        this.keepAliveConfig = keepAliveConfig;
+    }
+
     public String getServerHeader() {
         return serverHeader;
     }
 
     public void setServerHeader(String serverHeader) {
         this.serverHeader = serverHeader;
+    }
+
+    public void setOcspStaplingEnabled(boolean ocspStaplingEnabled) {
+        this.ocspStaplingEnabled = ocspStaplingEnabled;
+    }
+
+    public boolean isOcspStaplingEnabled () {
+        return ocspStaplingEnabled;
     }
 }

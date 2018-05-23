@@ -18,10 +18,15 @@
 
 package org.wso2.transport.http.netty.urilengthvalidation;
 
+import com.mashape.unirest.http.HttpResponse;
+import com.mashape.unirest.http.Unirest;
+import com.mashape.unirest.http.exceptions.UnirestException;
+import com.mashape.unirest.http.options.Options;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpRequest;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -30,21 +35,22 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoStreamingMessageListener;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.http.HttpClient;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.util.HashMap;
 
 import static org.testng.AssertJUnit.assertEquals;
@@ -58,6 +64,7 @@ public class Status414And413ResponseTest {
 
     protected ServerConnector serverConnector;
     protected ListenerConfiguration listenerConfiguration;
+    private HttpWsConnectorFactory httpWsConnectorFactory;
     private static final String testValue = "Test Message";
     private URI baseURI = URI.create(String.format("http://%s:%d", "localhost", TestUtil.SERVER_CONNECTOR_PORT));
 
@@ -74,7 +81,7 @@ public class Status414And413ResponseTest {
         listenerConfiguration.getRequestSizeValidationConfig().setMaxEntityBodySize(1024);
 
         ServerBootstrapConfiguration serverBootstrapConfig = new ServerBootstrapConfiguration(new HashMap<>());
-        HttpWsConnectorFactory httpWsConnectorFactory = new HttpWsConnectorFactoryImpl();
+        httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
 
         serverConnector = httpWsConnectorFactory.createServerConnector(serverBootstrapConfig, listenerConfiguration);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
@@ -89,20 +96,15 @@ public class Status414And413ResponseTest {
     @Test
     public void largeUriTest() {
         try {
-            HttpURLConnection urlConn;
+            HttpResponse<String> response = sendExtraLongUri();
+            assertEquals(HttpResponseStatus.REQUEST_URI_TOO_LONG.code(), response.getStatus());
+            assertEquals(TestUtil.TEST_SERVER, response.getHeaders().getFirst(HttpHeaderNames.SERVER.toString()));
 
-            urlConn = sendExtraLongUri();
-            assertEquals(HttpResponseStatus.REQUEST_URI_TOO_LONG.code(), urlConn.getResponseCode());
-            assertEquals(TestUtil.TEST_SERVER, urlConn.getHeaderField(Constants.HTTP_SERVER_HEADER));
-
-            urlConn = sendShortUri();
-            String content = TestUtil.getContent(urlConn);
-            assertEquals(HttpResponseStatus.OK.code(), urlConn.getResponseCode());
-            assertEquals(TestUtil.TEST_SERVER, urlConn.getHeaderField(Constants.HTTP_SERVER_HEADER));
-            assertEquals(testValue, content);
-
-            urlConn.disconnect();
-        } catch (IOException e) {
+            response = sendShortUri();
+            assertEquals(HttpResponseStatus.OK.code(), response.getStatus());
+            assertEquals(TestUtil.TEST_SERVER, response.getHeaders().getFirst(HttpHeaderNames.SERVER.toString()));
+            assertEquals(testValue, response.getBody());
+        } catch (IOException | UnirestException e) {
             TestUtil.handleException("IOException occurred while running largeUriTest", e);
         }
     }
@@ -127,7 +129,7 @@ public class Status414And413ResponseTest {
 
             assertEquals(testValue, payload);
             assertEquals(HttpResponseStatus.OK.code(), httpResponse.status().code());
-            assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(Constants.HTTP_SERVER_HEADER));
+            assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(HttpHeaderNames.SERVER.toString()));
 
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running largeHeaderTest", e);
@@ -155,7 +157,7 @@ public class Status414And413ResponseTest {
                     HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.smallEntity.getBytes()));
             httpResponse = httpClient.sendRequest(httpRequest);
             assertEquals(HttpResponseStatus.OK.code(), httpResponse.status().code());
-            assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(Constants.HTTP_SERVER_HEADER));
+            assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(HttpHeaderNames.SERVER));
 
         } catch (Exception e) {
             TestUtil.handleException("IOException occurred while running largeEntityBodyTest", e);
@@ -164,8 +166,8 @@ public class Status414And413ResponseTest {
 
     private void assertEntityTooLargeResponse(FullHttpResponse httpResponse) {
         assertEquals(HttpResponseStatus.REQUEST_ENTITY_TOO_LARGE.code(), httpResponse.status().code());
-        assertEquals(Constants.CONNECTION_CLOSE, httpResponse.headers().get(Constants.HTTP_CONNECTION));
-        assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(Constants.HTTP_SERVER_HEADER));
+        assertEquals(Constants.CONNECTION_CLOSE, httpResponse.headers().get(HttpHeaderNames.CONNECTION.toString()));
+        assertEquals(TestUtil.TEST_SERVER, httpResponse.headers().get(HttpHeaderNames.SERVER));
     }
 
     private String getLargeHeader() {
@@ -176,21 +178,14 @@ public class Status414And413ResponseTest {
         return header.toString();
     }
 
-    private HttpURLConnection sendShortUri() throws IOException {
-        HttpURLConnection urlConn;
-        urlConn = TestUtil
-                .request(baseURI, getUriWithLengthOf(900), HttpMethod.POST.name(), true);
-        urlConn.getOutputStream().write(testValue.getBytes());
-        urlConn.getOutputStream().flush();
-        return urlConn;
+    private HttpResponse<String> sendShortUri() throws IOException, UnirestException {
+        URL url = baseURI.resolve(getUriWithLengthOf(900)).toURL();
+        return sendPostRequest(url);
     }
 
-    private HttpURLConnection sendExtraLongUri() throws IOException {
-        HttpURLConnection urlConn = TestUtil
-                .request(baseURI, getUriWithLengthOf(9000), HttpMethod.POST.name(), true);
-        urlConn.getOutputStream().write(testValue.getBytes());
-        urlConn.getOutputStream().flush();
-        return urlConn;
+    private HttpResponse<String> sendExtraLongUri() throws MalformedURLException, UnirestException {
+        URL url = baseURI.resolve(getUriWithLengthOf(9000)).toURL();
+        return sendPostRequest(url);
     }
 
     private String getUriWithLengthOf(int length) {
@@ -201,8 +196,21 @@ public class Status414And413ResponseTest {
         return uri.toString();
     }
 
+    private HttpResponse<String> sendPostRequest(URL url) throws UnirestException {
+        return Unirest.post(url.toString()).body(testValue).asString();
+    }
+
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
+        try {
+            Unirest.shutdown();
+            Options.refresh();
+            httpWsConnectorFactory.shutdown();
+        } catch (InterruptedException e) {
+            log.warn("Interrupted while waiting for HttpWsFactory to close");
+        } catch (IOException e) {
+            log.warn("IOException occurred while waiting for Unirest connection to shutdown", e);
+        }
     }
 }

@@ -22,12 +22,14 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
 import io.netty.channel.EventLoopGroup;
+import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.config.ChunkConfig;
+import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -48,16 +50,19 @@ public class ServerConnectorBootstrap {
     private static final Logger log = LoggerFactory.getLogger(ServerConnectorBootstrap.class);
 
     private ServerBootstrap serverBootstrap;
-    private HTTPServerChannelInitializer httpServerChannelInitializer;
+    private HttpServerChannelInitializer httpServerChannelInitializer;
     private boolean initialized = false;
     private boolean isHttps = false;
+    private ChannelGroup allChannels;
 
-    public ServerConnectorBootstrap() {
+    public ServerConnectorBootstrap(ChannelGroup allChannels) {
         serverBootstrap = new ServerBootstrap();
-        httpServerChannelInitializer = new HTTPServerChannelInitializer();
+        httpServerChannelInitializer = new HttpServerChannelInitializer();
+        httpServerChannelInitializer.setAllChannels(allChannels);
         serverBootstrap.childHandler(httpServerChannelInitializer);
         HTTPTransportContextHolder.getInstance().setHandlerExecutor(new HandlerExecutor());
         initialized = true;
+        this.allChannels = allChannels;
     }
 
     private ChannelFuture bindInterface(HTTPServerConnector serverConnector) {
@@ -69,22 +74,9 @@ public class ServerConnectorBootstrap {
 
         return serverBootstrap
                 .bind(new InetSocketAddress(serverConnector.getHost(), serverConnector.getPort()));
-
-        // TODO: Fix this with HTTP2
-//            ListenerConfiguration listenerConfiguration = serverConnector.getListenerConfiguration();
-//            SslContext http2sslContext = null;
-//            // Create HTTP/2 ssl context during interface binding.
-//            if (listenerConfiguration.isHttp2() && listenerConfiguration.getSSLConfig() != null) {
-//                http2sslContext = new SSLHandlerFactory(listenerConfiguration.getSSLConfig())
-//                        .createHttp2TLSContext();
-//            }
-
-//            httpServerChannelInitializer.registerListenerConfig(listenerConfiguration, http2sslContext);
-//            httpServerChannelInitializer.setSslContext(http2sslContext);
-//            httpServerChannelInitializer.setServerConnectorFuture(serverConnector.getServerConnectorFuture());
     }
 
-    public boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
+    private boolean unBindInterface(HTTPServerConnector serverConnector) throws InterruptedException {
         if (!initialized) {
             log.error("ServerConnectorBootstrap is not initialized");
             return false;
@@ -117,11 +109,16 @@ public class ServerConnectorBootstrap {
         serverBootstrap.childOption(ChannelOption.SO_RCVBUF, serverBootstrapConfiguration.getReceiveBufferSize());
         serverBootstrap.childOption(ChannelOption.SO_SNDBUF, serverBootstrapConfiguration.getSendBufferSize());
 
-        log.debug("Netty Server Socket BACKLOG " + serverBootstrapConfiguration.getSoBackLog());
-        log.debug("Netty Server Socket TCP_NODELAY " + serverBootstrapConfiguration.isTcpNoDelay());
-        log.debug("Netty Server Socket CONNECT_TIMEOUT_MILLIS " + serverBootstrapConfiguration.getConnectTimeOut());
-        log.debug("Netty Server Socket SO_RCVBUF " + serverBootstrapConfiguration.getReceiveBufferSize());
-        log.debug("Netty Server Socket SO_SNDBUF " + serverBootstrapConfiguration.getSendBufferSize());
+        if (log.isDebugEnabled()) {
+            log.debug(String.format("Netty Server Socket BACKLOG %d", serverBootstrapConfiguration.getSoBackLog()));
+            log.debug(String.format("Netty Server Socket TCP_NODELAY %s", serverBootstrapConfiguration.isTcpNoDelay()));
+            log.debug(String.format("Netty Server Socket CONNECT_TIMEOUT_MILLIS %d",
+                                    serverBootstrapConfiguration.getConnectTimeOut()));
+            log.debug(String.format("Netty Server Socket SO_RCVBUF %d",
+                                    serverBootstrapConfiguration.getReceiveBufferSize()));
+            log.debug(String.format("Netty Server Socket SO_SNDBUF %d",
+                                    serverBootstrapConfiguration.getSendBufferSize()));
+        }
     }
 
     public void addSecurity(SSLConfig sslConfig) {
@@ -135,6 +132,10 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setIdleTimeout(socketIdleTimeout);
     }
 
+    public void setHttp2Enabled(boolean isHttp2Enabled) {
+        httpServerChannelInitializer.setHttp2Enabled(isHttp2Enabled);
+    }
+
     public void addThreadPools(EventLoopGroup bossGroup, EventLoopGroup workerGroup) {
         serverBootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class);
     }
@@ -143,12 +144,15 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setHttpTraceLogEnabled(isHttpTraceLogEnabled);
     }
 
+    public void addHttpAccessLogHandler(Boolean isHttpAccessLogEnabled) {
+        httpServerChannelInitializer.setHttpAccessLogEnabled(isHttpAccessLogEnabled);
+    }
     public void addHeaderAndEntitySizeValidation(RequestSizeValidationConfig requestSizeValidationConfig) {
         httpServerChannelInitializer.setReqSizeValidationConfig(requestSizeValidationConfig);
     }
 
-    public void addcertificateRevocationVerifier(Boolean isCertificateRevocationverifierEnabled) {
-        httpServerChannelInitializer.setCertificateRevocationVerifier(isCertificateRevocationverifierEnabled);
+    public void addcertificateRevocationVerifier(Boolean validateCertEnabled) {
+        httpServerChannelInitializer.setValidateCertEnabled(validateCertEnabled);
     }
 
     public void addCacheDelay(int cacheDelay) {
@@ -159,8 +163,16 @@ public class ServerConnectorBootstrap {
         httpServerChannelInitializer.setCacheSize(cacheSize);
     }
 
+    public void addOcspStapling(boolean ocspStapling) {
+        httpServerChannelInitializer.setOcspStaplingEnabled(ocspStapling);
+    }
+
     public void addChunkingBehaviour(ChunkConfig chunkConfig) {
         httpServerChannelInitializer.setChunkingConfig(chunkConfig);
+    }
+
+    public void addKeepAliveBehaviour(KeepAliveConfig keepAliveConfig) {
+        httpServerChannelInitializer.setKeepAliveConfig(keepAliveConfig);
     }
 
     public void addServerHeader(String serverName) {
@@ -189,7 +201,7 @@ public class ServerConnectorBootstrap {
         @Override
         public ServerConnectorFuture start() {
             channelFuture = bindInterface(this);
-            serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture);
+            serverConnectorFuture = new HttpWsServerConnectorFuture(channelFuture, allChannels);
             channelFuture.addListener(channelFuture -> {
                 if (channelFuture.isSuccess()) {
                     log.info("HTTP(S) Interface starting on host " + this.getHost() + " and port " + this.getPort());

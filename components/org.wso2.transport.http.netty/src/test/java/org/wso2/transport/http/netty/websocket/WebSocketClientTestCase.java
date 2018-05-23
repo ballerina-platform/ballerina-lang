@@ -25,23 +25,24 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
-import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.websocket.CloseReason;
-import javax.websocket.Session;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Test cases for the WebSocket Client implementation.
@@ -50,7 +51,7 @@ public class WebSocketClientTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientTestCase.class);
 
-    private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
+    private DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
     private final String url = String.format("ws://%s:%d/%s", "localhost",
                                              TestUtil.REMOTE_WS_SERVER_PORT, "websocket");
     private static final String PING = "ping";
@@ -61,32 +62,27 @@ public class WebSocketClientTestCase {
                                                                            "xml, json");
 
     @BeforeClass
-    public void setup() throws InterruptedException, ClientConnectorException {
+    public void setup() throws InterruptedException {
         remoteServer.run();
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
     }
 
-    @Test(priority = 1, description = "Test the WebSocket handshake and sending and receiving text messages.")
+    @Test(description = "Test the WebSocket handshake and sending and receiving text messages.")
     public void testTextReceived() throws Throwable {
         CountDownLatch latch = new CountDownLatch(1);
         String textSent = "testText";
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
-        HandshakeFuture handshakeFuture = handshake(connectorListener);
-        handshakeFuture.setHandshakeListener(new HandshakeListener() {
+        ClientHandshakeFuture handshakeFuture = handshake(connectorListener);
+        handshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                try {
-                    session.getBasicRemote().sendText(textSent);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
-                }
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                webSocketConnection.pushText(textSent);
             }
 
             @Override
-            public void onError(Throwable t) {
+            public void onError(Throwable t, HttpCarbonResponse response) {
                 log.error(t.getMessage());
-                Assert.assertTrue(false, t.getMessage());
+                Assert.fail(t.getMessage());
             }
         });
 
@@ -95,28 +91,23 @@ public class WebSocketClientTestCase {
         Assert.assertEquals(textReceived, textSent);
     }
 
-    @Test(priority = 2, description = "Test binary message sending and receiving.")
+    @Test(description = "Test binary message sending and receiving.")
     public void testBinaryReceived() throws Throwable {
         CountDownLatch latch = new CountDownLatch(1);
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
-        HandshakeFuture handshakeFuture = handshake(connectorListener);
-        handshakeFuture.setHandshakeListener(new HandshakeListener() {
+        ClientHandshakeFuture handshakeFuture = handshake(connectorListener);
+        handshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                try {
-                    session.getBasicRemote().sendBinary(bufferSent);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
-                }
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                webSocketConnection.pushBinary(bufferSent);
             }
 
             @Override
-            public void onError(Throwable t) {
+            public void onError(Throwable t, HttpCarbonResponse response) {
                 log.error(t.getMessage());
-                Assert.assertTrue(false, t.getMessage());
+                Assert.fail(t.getMessage());
             }
         });
 
@@ -125,28 +116,23 @@ public class WebSocketClientTestCase {
         Assert.assertEquals(bufferReceived, bufferSent);
     }
 
-    @Test(priority = 3, description = "Test PING pong messaging.")
+    @Test(description = "Test PING pong messaging.")
     public void testPingPong() throws Throwable {
         // Request PING from remote and test receive.
         CountDownLatch pingLatch = new CountDownLatch(1);
         WebSocketTestClientConnectorListener pingConnectorListener =
                 new WebSocketTestClientConnectorListener(pingLatch);
-        HandshakeFuture pingHandshakeFuture = handshake(pingConnectorListener);
-        pingHandshakeFuture.setHandshakeListener(new HandshakeListener() {
+        ClientHandshakeFuture pingHandshakeFuture = handshake(pingConnectorListener);
+        pingHandshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                try {
-                    session.getBasicRemote().sendText(PING);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
-                }
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                webSocketConnection.pushText(PING);
             }
 
             @Override
-            public void onError(Throwable t) {
+            public void onError(Throwable t, HttpCarbonResponse response) {
                 log.error(t.getMessage());
-                Assert.assertTrue(false, t.getMessage());
+                Assert.fail(t.getMessage());
             }
         });
         pingLatch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
@@ -156,51 +142,41 @@ public class WebSocketClientTestCase {
         CountDownLatch pongLatch = new CountDownLatch(1);
         WebSocketTestClientConnectorListener pongConnectorListener =
                 new WebSocketTestClientConnectorListener(pongLatch);
-        HandshakeFuture pongHandshakeFuture = handshake(pongConnectorListener);
-        pongHandshakeFuture.setHandshakeListener(new HandshakeListener() {
+        ClientHandshakeFuture pongHandshakeFuture = handshake(pongConnectorListener);
+        pongHandshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                try {
-                    byte[] bytes = {1, 2, 3, 4, 5};
-                    ByteBuffer buffer = ByteBuffer.wrap(bytes);
-                    session.getBasicRemote().sendPing(buffer);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
-                }
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                byte[] bytes = {1, 2, 3, 4, 5};
+                ByteBuffer buffer = ByteBuffer.wrap(bytes);
+                webSocketConnection.ping(buffer);
             }
 
             @Override
-            public void onError(Throwable t) {
+            public void onError(Throwable t, HttpCarbonResponse response) {
                 log.error(t.getMessage());
-                Assert.assertTrue(false, t.getMessage());
+                Assert.fail(t.getMessage());
             }
         });
         pongLatch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
         Assert.assertTrue(pongConnectorListener.isPongReceived(), "Pong message should be received");
     }
 
-    @Test(priority = 4, description = "Test multiple clients handling, sending and receiving text messages for them.")
+    @Test(description = "Test multiple clients handling, sending and receiving text messages for them.")
     public void testMultipleClients() throws Throwable {
         CountDownLatch latch1 = new CountDownLatch(1);
         WebSocketTestClientConnectorListener connectorListener1 = new WebSocketTestClientConnectorListener(latch1);
         String[] textsSent = {"testText1", "testText2"};
-        HandshakeFuture handshakeFuture1 = handshake(connectorListener1);
-        handshakeFuture1.setHandshakeListener(new HandshakeListener() {
+        ClientHandshakeFuture handshakeFuture1 = handshake(connectorListener1);
+        handshakeFuture1.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                try {
-                    session.getBasicRemote().sendText(textsSent[0]);
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
-                }
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                webSocketConnection.pushText(textsSent[0]);
             }
 
             @Override
-            public void onError(Throwable t) {
+            public void onError(Throwable t, HttpCarbonResponse response) {
                 log.error(t.getMessage());
-                Assert.assertTrue(false, t.getMessage());
+                Assert.fail(t.getMessage());
             }
         });
 
@@ -209,50 +185,45 @@ public class WebSocketClientTestCase {
 
         CountDownLatch latch2 = new CountDownLatch(2);
         WebSocketTestClientConnectorListener connectorListener2 = new WebSocketTestClientConnectorListener(latch2);
-        HandshakeFuture handshakeFuture2 = handshake(connectorListener2);
-        handshakeFuture2.setHandshakeListener(new HandshakeListener() {
+        ClientHandshakeFuture handshakeFuture2 = handshake(connectorListener2);
+        handshakeFuture2.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                try {
-                    for (int i = 0; i < textsSent.length; i++) {
-                        session.getBasicRemote().sendText(textsSent[i]);
-                    }
-                } catch (IOException e) {
-                    log.error(e.getMessage());
-                    Assert.assertTrue(false, e.getMessage());
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                for (String aTextsSent : textsSent) {
+                    webSocketConnection.pushText(aTextsSent);
                 }
             }
 
             @Override
-            public void onError(Throwable t) {
+            public void onError(Throwable t, HttpCarbonResponse response) {
                 log.error(t.getMessage());
-                Assert.assertTrue(false, t.getMessage());
+                Assert.fail(t.getMessage());
             }
         });
 
         latch2.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
 
-        for (int i = 0; i < textsSent.length; i++) {
-            Assert.assertEquals(connectorListener2.getReceivedTextToClient(), textsSent[i]);
+        for (String aTextsSent : textsSent) {
+            Assert.assertEquals(connectorListener2.getReceivedTextToClient(), aTextsSent);
         }
     }
 
-    @Test(priority = 5, description = "Test the idle timeout for WebSocket")
+    @Test(description = "Test the idle timeout for WebSocket")
     public void testIdleTimeout() throws Throwable {
         configuration.setIdleTimeoutInMillis(1000);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
         CountDownLatch latch = new CountDownLatch(1);
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
-        HandshakeFuture handshakeFuture = handshake(connectorListener);
-        handshakeFuture.setHandshakeListener(new HandshakeListener() {
+        ClientHandshakeFuture handshakeFuture = handshake(connectorListener);
+        handshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
             }
 
             @Override
-            public void onError(Throwable t) {
+            public void onError(Throwable t, HttpCarbonResponse response) {
                 log.error(t.getMessage());
-                Assert.assertTrue(false, t.getMessage());
+                Assert.fail(t.getMessage());
             }
         });
 
@@ -260,50 +231,50 @@ public class WebSocketClientTestCase {
         Assert.assertTrue(connectorListener.isIdleTimeout(), "Should reach idle timeout");
     }
 
-    @Test(priority = 6, description = "Test the sub protocol negotiation with the remote server")
-    public void testSubProtocolNegotiation() throws InterruptedException {
-
-        // Try with a matching sub protocol.
+    @Test(description = "Test the sub protocol negotiation with the remote server")
+    public void testSubProtocolNegotiationSuccessful() throws InterruptedException {
         String[] subProtocolsSuccess = {"xmlx", "json"};
         configuration.setSubProtocols(subProtocolsSuccess);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
         CountDownLatch latchSuccess = new CountDownLatch(1);
         WebSocketTestClientConnectorListener connectorListenerSuccess =
                 new WebSocketTestClientConnectorListener(latchSuccess);
-        HandshakeFuture handshakeFutureSuccess = handshake(connectorListenerSuccess);
-        handshakeFutureSuccess.setHandshakeListener(new HandshakeListener() {
+        ClientHandshakeFuture handshakeFutureSuccess = handshake(connectorListenerSuccess);
+        handshakeFutureSuccess.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                Assert.assertEquals(session.getNegotiatedSubprotocol(), "json");
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                Assert.assertEquals(webSocketConnection.getSession().getNegotiatedSubprotocol(), "json");
                 latchSuccess.countDown();
             }
 
             @Override
-            public void onError(Throwable t) {
+            public void onError(Throwable t, HttpCarbonResponse response) {
                 log.error(t.getMessage());
-                Assert.assertTrue(false, "Handshake failed: " + t.getMessage());
+                Assert.fail("Handshake failed: " + t.getMessage());
                 latchSuccess.countDown();
             }
         });
         latchSuccess.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+    }
 
-        // Try with unmatching sub protocol
+    @Test(description = "Test the sub protocol negotiation with the remote server")
+    public void testSubProtocolNegotiationFail() throws InterruptedException {
         String[] subProtocolsFail = {"xmlx", "jsonx"};
         configuration.setSubProtocols(subProtocolsFail);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
         CountDownLatch latchFail = new CountDownLatch(1);
         WebSocketTestClientConnectorListener connectorListenerFail =
                 new WebSocketTestClientConnectorListener(latchFail);
-        HandshakeFuture handshakeFutureFail = handshake(connectorListenerFail);
-        handshakeFutureFail.setHandshakeListener(new HandshakeListener() {
+        ClientHandshakeFuture handshakeFutureFail = handshake(connectorListenerFail);
+        handshakeFutureFail.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
-            public void onSuccess(Session session) {
-                Assert.assertFalse(true, "Should not negotiate");
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                Assert.fail("Should not negotiate");
                 latchFail.countDown();
             }
 
             @Override
-            public void onError(Throwable t) {
+            public void onError(Throwable t, HttpCarbonResponse response) {
                 log.error(t.getMessage());
                 Assert.assertTrue(true, "Handshake failed: " + t.getMessage());
                 latchFail.countDown();
@@ -312,19 +283,105 @@ public class WebSocketClientTestCase {
         latchFail.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
     }
 
+    @Test
+    public void testConnectionClosureFromServerSide() throws Throwable {
+        CountDownLatch latch = new CountDownLatch(1);
+        String closeText = "close";
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
+        ClientHandshakeFuture handshakeFuture = handshake(connectorListener);
+        handshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
+            @Override
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                webSocketConnection.pushText(closeText);
+            }
+
+            @Override
+            public void onError(Throwable t, HttpCarbonResponse response) {
+                log.error(t.getMessage());
+                Assert.fail(t.getMessage());
+            }
+        });
+
+        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        Assert.assertTrue(connectorListener.isClosed());
+        WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
+        Assert.assertEquals(closeMessage.getCloseCode(), 1000);
+        Assert.assertEquals(closeMessage.getCloseReason(), "Close on request");
+    }
+
+    @Test
+    public void testConnectionClosureFromServerSideWithoutCloseFrame() throws Throwable {
+        CountDownLatch latch = new CountDownLatch(1);
+        String closeText = "close-without-frame";
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
+        ClientHandshakeFuture handshakeFuture = handshake(connectorListener);
+        handshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
+            @Override
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                webSocketConnection.pushText(closeText);
+            }
+
+            @Override
+            public void onError(Throwable t, HttpCarbonResponse response) {
+                log.error(t.getMessage());
+                Assert.fail(t.getMessage());
+            }
+        });
+
+        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        WebSocketCloseMessage closeMessage = connectorListener.getCloseMessage();
+        Assert.assertEquals(closeMessage.getCloseCode(), 1006);
+        Assert.assertNull(closeMessage.getCloseReason());
+        Assert.assertTrue(connectorListener.isClosed());
+    }
+
+    @Test(priority = 7, description = "Test the behavior of client connector when auto read is false.")
+    public void autoReadFalseTest() throws Throwable {
+        CountDownLatch latch = new CountDownLatch(1);
+        String textSent = "testText";
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
+        configuration = new WsClientConnectorConfig(url);
+        configuration.setAutoRead(false);
+        clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
+        ClientHandshakeFuture handshakeFuture = handshake(connectorListener);
+        AtomicReference<WebSocketConnection> wsConnection = new AtomicReference<>();
+        handshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
+            @Override
+            public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
+                webSocketConnection.pushText(textSent);
+                wsConnection.set(webSocketConnection);
+            }
+
+            @Override
+            public void onError(Throwable t, HttpCarbonResponse response) {
+                log.error(t.getMessage());
+                Assert.fail(t.getMessage());
+            }
+        });
+
+        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        String textReceived = null;
+        try {
+            textReceived = connectorListener.getReceivedTextToClient();
+            Assert.fail("Expected exception");
+        } catch (NoSuchElementException ex) {
+            Assert.assertTrue(true, "Expected exception thrown");
+        }
+        Assert.assertNull(textReceived);
+        latch = new CountDownLatch(1);
+        connectorListener.setCountDownLatch(latch);
+        wsConnection.get().readNextFrame();
+        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        textReceived = connectorListener.getReceivedTextToClient();
+        Assert.assertEquals(textReceived, textSent);
+    }
+
     @AfterClass
     public void cleanUp() throws ServerConnectorException, InterruptedException {
         remoteServer.stop();
     }
 
-    private HandshakeFuture handshake(WebSocketConnectorListener connectorListener) {
+    private ClientHandshakeFuture handshake(WebSocketConnectorListener connectorListener) {
         return clientConnector.connect(connectorListener);
-    }
-
-    private void shutDownClient(Session session) throws IOException {
-        session.close(new CloseReason(
-                () -> 1000,
-                "Normal Closure"
-        ));
     }
 }

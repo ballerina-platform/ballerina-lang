@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.listener;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -36,11 +37,11 @@ public class RequestDataHolder {
     private String httpVersion;
 
     public RequestDataHolder(HTTPCarbonMessage requestMessage) {
-        acceptEncodingHeaderValue = requestMessage.getHeader(Constants.ACCEPT_ENCODING);
-        connectionHeaderValue = requestMessage.getHeader(Constants.HTTP_CONNECTION);
-        contentTypeHeaderValue = requestMessage.getHeader(Constants.HTTP_CONTENT_TYPE);
-        transferEncodingHeaderValue = requestMessage.getHeader(Constants.HTTP_TRANSFER_ENCODING);
-        contentLengthHeaderValue = requestMessage.getHeader(Constants.HTTP_CONTENT_LENGTH);
+        acceptEncodingHeaderValue = requestMessage.getHeader(HttpHeaderNames.ACCEPT_ENCODING.toString());
+        connectionHeaderValue = requestMessage.getHeader(HttpHeaderNames.CONNECTION.toString());
+        contentTypeHeaderValue = requestMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
+        transferEncodingHeaderValue = requestMessage.getHeader(HttpHeaderNames.TRANSFER_ENCODING.toString());
+        contentLengthHeaderValue = requestMessage.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         httpMethod = (String) requestMessage.getProperty(Constants.HTTP_METHOD);
         httpVersion = (String) requestMessage.getProperty(Constants.HTTP_VERSION);
     }

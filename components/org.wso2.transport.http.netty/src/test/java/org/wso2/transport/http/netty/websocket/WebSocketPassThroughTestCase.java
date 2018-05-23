@@ -25,18 +25,20 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.carbon.messaging.exceptions.ClientConnectorException;
-import org.wso2.carbon.messaging.exceptions.ServerConnectorException;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
-import org.wso2.transport.http.netty.contractimpl.HttpWsConnectorFactoryImpl;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.websocket.WebSocketTestClient;
 import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
+import java.io.IOException;
 import java.net.ProtocolException;
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import javax.net.ssl.SSLException;
@@ -50,7 +52,7 @@ public class WebSocketPassThroughTestCase {
 
     private final int latchCountDownInSecs = 10;
 
-    private HttpWsConnectorFactoryImpl httpConnectorFactory = new HttpWsConnectorFactoryImpl();
+    private DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
     private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.REMOTE_WS_SERVER_PORT);
 
     private ServerConnector serverConnector;
@@ -77,6 +79,18 @@ public class WebSocketPassThroughTestCase {
         webSocketClient.sendText(text);
         latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
         Assert.assertEquals(webSocketClient.getTextReceived(), text);
+    }
+
+    @Test
+    public void testBinaryPassThrough()
+            throws InterruptedException, IOException, URISyntaxException {
+        CountDownLatch latch = new CountDownLatch(1);
+        WebSocketTestClient webSocketClient = new WebSocketTestClient(latch);
+        webSocketClient.handhshake();
+        ByteBuffer sentBuffer = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
+        webSocketClient.sendBinary(sentBuffer);
+        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        Assert.assertEquals(webSocketClient.getBufferReceived(), sentBuffer);
     }
 
     @AfterClass

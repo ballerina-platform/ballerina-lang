@@ -20,6 +20,7 @@
 package org.wso2.transport.http.netty.contractimpl;
 
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.group.ChannelGroup;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.contract.PortBindingEventListener;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -31,6 +32,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2PushPromise;
 
 /**
  * Server connector future implementation
@@ -41,7 +43,8 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     private WebSocketConnectorListener wsConnectorListener;
     private PortBindingEventListener portBindingEventListener;
 
-    private ChannelFuture nettyChannelFuture;
+    private ChannelFuture nettyBindFuture;
+    private ChannelGroup allChannels;
 
     private String openingServerConnectorId;
     private boolean isOpeningSCHttps;
@@ -52,8 +55,13 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     public HttpWsServerConnectorFuture() {
     }
 
-    public HttpWsServerConnectorFuture(ChannelFuture nettyChannelFuture) {
-        this.nettyChannelFuture = nettyChannelFuture;
+    public HttpWsServerConnectorFuture(ChannelFuture nettyBindFuture) {
+        this.nettyBindFuture = nettyBindFuture;
+    }
+
+    public HttpWsServerConnectorFuture(ChannelFuture nettyBindFuture, ChannelGroup allChannels) {
+        this.nettyBindFuture = nettyBindFuture;
+        this.allChannels = allChannels;
     }
 
     @Override
@@ -67,6 +75,23 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
             throw new ServerConnectorException("HTTP connector listener is not set");
         }
         httpConnectorListener.onMessage(httpMessage);
+    }
+
+    @Override
+    public void notifyHttpListener(HTTPCarbonMessage httpMessage, Http2PushPromise pushPromise)
+            throws ServerConnectorException {
+        if (httpConnectorListener == null) {
+            throw new ServerConnectorException("HTTP connector listener is not set");
+        }
+        httpConnectorListener.onPushResponse(pushPromise.getPromisedStreamId(), httpMessage);
+    }
+
+    @Override
+    public void notifyHttpListener(Http2PushPromise pushPromise) throws ServerConnectorException {
+        if (httpConnectorListener == null) {
+            throw new ServerConnectorException("HTTP connector listener is not set");
+        }
+        httpConnectorListener.onPushPromise(pushPromise);
     }
 
     @Override
@@ -132,7 +157,10 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
 
     @Override
     public void sync() throws InterruptedException {
-        nettyChannelFuture.sync();
+        ChannelFuture bindFuture = nettyBindFuture.sync();
+        if (this.allChannels != null && bindFuture.channel() != null) {
+            this.allChannels.add(bindFuture.channel());
+        }
     }
 
     @Override

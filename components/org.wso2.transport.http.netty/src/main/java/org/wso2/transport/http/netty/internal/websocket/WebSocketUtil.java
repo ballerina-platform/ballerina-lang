@@ -19,12 +19,20 @@
 
 package org.wso2.transport.http.netty.internal.websocket;
 
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpRequest;
-import org.wso2.transport.http.netty.common.Constants;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketBinaryMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
+import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketTextMessage;
 
 import java.net.URISyntaxException;
+import java.nio.ByteBuffer;
 
 /**
  * Utility class for WebSocket client connector.
@@ -35,16 +43,47 @@ public class WebSocketUtil {
         return ctx.channel().id().asLongText();
     }
 
-    public static WebSocketSessionImpl getSession(ChannelHandlerContext ctx,
-                                                  boolean isSecured, String uri) throws URISyntaxException {
-        return new WebSocketSessionImpl(ctx, isSecured, uri, getSessionID(ctx));
+    public static DefaultWebSocketConnection getWebSocketConnection(WebSocketInboundFrameHandler frameHandler,
+                                                                    boolean isSecured,
+                                                                    String uri) throws URISyntaxException {
+        ChannelHandlerContext ctx = frameHandler.getChannelHandlerContext();
+        DefaultWebSocketSession session = new DefaultWebSocketSession(ctx, isSecured, uri, getSessionID(ctx));
+        return new DefaultWebSocketConnection(frameHandler, session);
     }
 
-    public static String getSubProtocol(HttpRequest request) {
-        HttpHeaders headers = request.headers();
-        if (headers.contains(Constants.WEBSOCKET_HEADER_SUBPROTOCOL)) {
-            return headers.get(Constants.WEBSOCKET_HEADER_SUBPROTOCOL);
-        }
-        return null;
+    public static WebSocketControlMessage getWebsocketControlMessage(WebSocketFrame webSocketFrame,
+                                                                     WebSocketControlSignal controlSignal) {
+        ByteBuf content = webSocketFrame.content();
+        ByteBuffer clonedContent = getClonedByteBuf(content);
+        WebSocketControlMessage webSocketControlMessage = new DefaultWebSocketControlMessage(controlSignal,
+                                                                                             clonedContent);
+        webSocketFrame.release();
+        return webSocketControlMessage;
+    }
+
+    public static DefaultWebSocketMessage getWebSocketMessage(WebSocketFrame frame, String text,
+                                                              boolean isFinalFragment) {
+        DefaultWebSocketMessage webSocketTextMessage = new DefaultWebSocketTextMessage(text, isFinalFragment);
+        frame.release();
+        return webSocketTextMessage;
+    }
+
+    public static DefaultWebSocketMessage getWebSocketMessage(WebSocketFrame webSocketFrame, ByteBuf content,
+                                                              boolean finalFragment) {
+        ByteBuffer clonedContent = getClonedByteBuf(content);
+        DefaultWebSocketMessage webSocketBinaryMessage = new DefaultWebSocketBinaryMessage(clonedContent,
+                                                                                           finalFragment);
+        webSocketFrame.release();
+        return webSocketBinaryMessage;
+    }
+
+    private static ByteBuffer getClonedByteBuf(ByteBuf buf) {
+        ByteBuffer originalContent = buf.nioBuffer();
+        ByteBuffer clonedContent = ByteBuffer.allocate(originalContent.capacity());
+        originalContent.rewind();
+        clonedContent.put(originalContent);
+        originalContent.rewind();
+        clonedContent.flip();
+        return clonedContent;
     }
 }

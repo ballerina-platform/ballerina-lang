@@ -27,6 +27,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListen
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
+import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 
 /**
  * WebSocket connector listener for  the Protocol switch from HTTP to WebSocket test case.
@@ -37,7 +38,12 @@ public class HttpToWsProtocolSwitchWebSocketListener implements WebSocketConnect
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        initMessage.handshake();
+        HttpCarbonRequest request = initMessage.getHttpCarbonRequest();
+        if ("handshake".equals(request.getHeader("Command"))) {
+            initMessage.handshake();
+        } else if ("fail".equals(request.getHeader("Command"))) {
+            initMessage.cancelHandshake(404, "Not Found");
+        }
     }
 
     @Override

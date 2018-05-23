@@ -28,7 +28,7 @@ public interface WebSocketClientConnector {
      * Connect to the remote server.
      *
      * @param connectorListener {@link WebSocketConnectorListener} to listen incoming messages.
-     * @return HandshakeFuture for the newly created connection.
+     * @return ClientHandshakeFuture for the newly created connection.
      */
-    HandshakeFuture connect(WebSocketConnectorListener connectorListener);
+    ClientHandshakeFuture connect(WebSocketConnectorListener connectorListener);
 }
