@@ -1064,7 +1064,7 @@
                 <module>stdlib/grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/websub</module>
-                <module>stdlib/ballerina-jms</module>
+                <module>stdlib/jms</module>
                 <module>stdlib/database</module>
                 <module>stdlib/strip-bouncycastle</module>
 
@@ -1120,7 +1120,7 @@
                 <module>stdlib/grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/websub</module>
-                <module>stdlib/ballerina-jms</module>
+                <module>stdlib/jms</module>
                 <module>stdlib/database</module>
                 <module>stdlib/strip-bouncycastle</module>
 
@@ -1172,7 +1172,7 @@
                 <module>stdlib/grpc</module>
                 <module>stdlib/ballerina-mime</module>
                 <module>stdlib/websub</module>
-                <module>stdlib/ballerina-jms</module>
+                <module>stdlib/jms</module>
                 <module>stdlib/database</module>
                 <module>stdlib/strip-bouncycastle</module>
 
