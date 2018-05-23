@@ -1066,7 +1066,6 @@
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/database</module>
-                <module>stdlib/strip-bouncycastle</module>
 
                 <module>stdlib/stdlib-compile</module>
 
@@ -1091,6 +1090,7 @@
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
+                <module>misc/strip-bouncycastle</module>
 
                 <module>composer</module>
                 <module>distribution/zip/ballerina</module>
@@ -1122,7 +1122,6 @@
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/database</module>
-                <module>stdlib/strip-bouncycastle</module>
 
                 <module>stdlib/stdlib-compile</module>
 
@@ -1144,6 +1143,7 @@
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
+                <module>misc/strip-bouncycastle</module>
 
                 <module>distribution/zip/ballerina</module>
 
@@ -1174,7 +1174,6 @@
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/database</module>
-                <module>stdlib/strip-bouncycastle</module>
 
                 <module>stdlib/stdlib-compile</module>
 
@@ -1200,6 +1199,7 @@
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
+                <module>misc/strip-bouncycastle</module>
 
                 <module>composer</module>
 
