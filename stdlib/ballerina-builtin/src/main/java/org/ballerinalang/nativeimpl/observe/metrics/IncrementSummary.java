@@ -24,46 +24,38 @@ import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.metrics.Counter;
+import org.ballerinalang.util.metrics.Gauge;
+import org.ballerinalang.util.metrics.Summary;
+import org.ballerinalang.util.metrics.Tag;
+
+import java.util.Set;
 
 /**
- * Get a Counter instance.
+ * Increment the summary by the given amount.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "getCounterInstance",
+        functionName = "increment",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SUMMARY,
+                structPackage = Constants.OBSERVE_PACKAGE_PATH),
         args = {
-                @Argument(name = "name", type = TypeKind.STRING),
-                @Argument(name = "description", type = TypeKind.STRING),
-                @Argument(name = "tags", type = TypeKind.MAP),
+                @Argument(name = "amount", type = TypeKind.INT)
         },
-        returnType = @ReturnType(type = TypeKind.STRUCT),
+        returnType = @ReturnType(type = TypeKind.VOID),
         isPublic = true
 )
-public class GetCounterInstance extends BlockingNativeCallableUnit {
+public class IncrementSummary extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        String name = context.getStringArgument(0);
-        String description = context.getNullableStringArgument(0);
-        if (description == null) {
-            // Make description optional
-            description = "";
-        }
-        BMap tags = (BMap) context.getNullableRefArgument(1);
-        try {
-            Counter.Builder builder = Counter.builder(name).description(description);
-            if (tags != null) {
-                builder.tags(Utils.toTags(tags));
-            }
-            Counter counter = builder.register();
-            BStruct bCounter = Utils.createMetricsStruct(context, Constants.COUNTER);
-            bCounter.addNativeData(Constants.COUNTER, counter);
-            context.setReturnValues(bCounter);
-        } catch (RuntimeException e) {
-            context.setReturnValues(Utils.createErrorStruct(context, e.getMessage()));
-        }
+        BStruct bSummary = (BStruct) context.getRefArgument(0);
+        Gauge gauge = (Gauge) bSummary.getNativeData(Constants.GAUGE);
+        Summary summary = (Summary) bSummary.getNativeData(Constants.SUMMARY);
+        long amount = context.getIntArgument(0);
+        gauge.increment(amount);
+        summary.record((long) gauge.getValue());
     }
 }

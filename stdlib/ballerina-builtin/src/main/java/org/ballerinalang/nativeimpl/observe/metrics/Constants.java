@@ -26,6 +26,14 @@ public final class Constants {
     }
 
     public static final String OBSERVE_PACKAGE_PATH = "ballerina.observe";
+    public static final String GAUGE = "Gauge";
     public static final String COUNTER = "Counter";
+    public static final String SUMMARY = "Summary";
+    public static final String SNAPSHOT = "Snapshot";
+    public static final String PERCENTILE_VALUE = "PercentileValue";
+
+
+    public static final String GAUGE_VALUE_SUFFIX = "_value";
+
 
 }

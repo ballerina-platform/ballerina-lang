@@ -26,14 +26,19 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.Counter;
+import org.ballerinalang.util.metrics.Gauge;
+import org.ballerinalang.util.metrics.Summary;
+import org.ballerinalang.util.metrics.Tag;
+
+import java.util.Set;
 
 /**
- * Get a Counter instance.
+ * Get a Summary instance.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "getCounterInstance",
+        functionName = "getSummaryInstance",
         args = {
                 @Argument(name = "name", type = TypeKind.STRING),
                 @Argument(name = "description", type = TypeKind.STRING),
@@ -42,7 +47,7 @@ import org.ballerinalang.util.metrics.Counter;
         returnType = @ReturnType(type = TypeKind.STRUCT),
         isPublic = true
 )
-public class GetCounterInstance extends BlockingNativeCallableUnit {
+public class GetSummaryInstance extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
@@ -54,14 +59,20 @@ public class GetCounterInstance extends BlockingNativeCallableUnit {
         }
         BMap tags = (BMap) context.getNullableRefArgument(1);
         try {
-            Counter.Builder builder = Counter.builder(name).description(description);
+            Summary.Builder builder = Summary.builder(name).description(description);
+            Gauge.Builder gaugeBuilder = Gauge.builder(name + Constants.GAUGE_VALUE_SUFFIX)
+                    .description(description);
             if (tags != null) {
-                builder.tags(Utils.toTags(tags));
+                Set<Tag> metricTags = Utils.toTags(tags);
+                builder.tags(metricTags);
+                gaugeBuilder.tags(metricTags);
             }
-            Counter counter = builder.register();
-            BStruct bCounter = Utils.createMetricsStruct(context, Constants.COUNTER);
-            bCounter.addNativeData(Constants.COUNTER, counter);
-            context.setReturnValues(bCounter);
+            Summary summary = builder.register();
+            Gauge gauge = gaugeBuilder.register();
+            BStruct bSummary = Utils.createMetricsStruct(context, Constants.SUMMARY);
+            bSummary.addNativeData(Constants.SUMMARY, summary);
+            bSummary.addNativeData(Constants.GAUGE, gauge);
+            context.setReturnValues(bSummary);
         } catch (RuntimeException e) {
             context.setReturnValues(Utils.createErrorStruct(context, e.getMessage()));
         }
