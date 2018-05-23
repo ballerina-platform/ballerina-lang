@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpres
 import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
+import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -43,10 +44,13 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         ArrayList<SymbolInfo> filteredSymbols = new ArrayList<>();
 
+        Class itemSorterClass;
         if (isInvocationOrFieldAccess(completionContext)) {
+            itemSorterClass = ActionAndFieldAccessContextItemSorter.class;
             filteredSymbols.addAll(SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
                     .filterItems(completionContext));
         } else {
+            itemSorterClass = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
             filteredSymbols.addAll(SymbolFilters.getFilterByClass(ConnectorInitExpressionItemFilter.class)
                     .filterItems(completionContext));
             filteredSymbols.addAll(this.removeInvalidStatementScopeSymbols(completionContext
@@ -72,8 +76,7 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
         
         // Now we need to sort the completion items and populate the completion items specific to the scope owner
         // as an example, resource, action, function scopes are different from the if-else, while, and etc
-        Class itemSorter = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
-        ItemSorters.getSorterByClass(itemSorter).sortItems(completionContext, completionItems);
+        ItemSorters.getSorterByClass(itemSorterClass).sortItems(completionContext, completionItems);
 
         return completionItems;
     }

@@ -52,7 +52,9 @@ public enum ItemSorters {
     CONDITIONAL_STMT_CONTEXT_ITEM_SORTER(ConditionalStatementItemSorter.class,
             new ConditionalStatementItemSorter()),
     MATCH_STMT_CONTEXT_ITEM_SORTER(MatchContextItemSorter.class,
-            new MatchContextItemSorter());
+                                   new MatchContextItemSorter()),
+    ACTION_AND_FIELD_ITEM_SORTER(ActionAndFieldAccessContextItemSorter.class,
+                                 new ActionAndFieldAccessContextItemSorter());
     
     private final Class context;
     private final CompletionItemSorter itemSorter;
