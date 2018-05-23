@@ -41,7 +41,7 @@
 
     <template description='Service Definition' name='service'
               value="&#10;$ANNOTATION$&#10;service&lt;$NOTATION$&gt; $NAME$ bind { $PROPERTIES$ } {&#10;    $END$&#10;}"
-              toReformat="true" toShortenFQNames="false">
+              toReformat="false" toShortenFQNames="false">
 
         <variable name="NOTATION" expression="" defaultValue="" alwaysStopAt="true"/>
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
@@ -66,7 +66,7 @@
     </template>
 
     <template description='Resource Declaration' name="resource"
-              value="&#10;$ANNOTATION$&#10;$NAME$($PARAM$) {&#10;    $END$&#10;}"
+              value="$ANNOTATION$&#10;$NAME$($PARAM$) {&#10;    $END$&#10;}"
               toReformat="false" toShortenFQNames="false">
 
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>

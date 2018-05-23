@@ -196,6 +196,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitDoneStatement(@NotNull BallerinaDoneStatement o) {
+    visitCompositeElement(o);
+  }
+
   public void visitElement(@NotNull BallerinaElement o) {
     visitCompositeElement(o);
   }

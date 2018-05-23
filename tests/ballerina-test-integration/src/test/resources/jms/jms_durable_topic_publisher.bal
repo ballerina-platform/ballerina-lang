@@ -21,7 +21,7 @@ function main (string... args) {
     // Create a Text message.
     jms:Message m = check jmsSession.createTextMessage("Test Text");
     // Send the Ballerina message to the JMS provider.
-    var _ = publisher -> send(m);
+    _ = publisher -> send(m);
 
     io:println("Message successfully sent by DurableTopicPublisher");
 }
