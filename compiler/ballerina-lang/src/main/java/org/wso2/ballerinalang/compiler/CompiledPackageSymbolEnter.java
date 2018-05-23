@@ -997,13 +997,13 @@ public class CompiledPackageSymbolEnter {
                 } else {
                     return new BMapType(TypeTags.MAP, constrainedType, null);
                 }
+            case 'H':
+                return new BStreamType(TypeTags.STREAM, getBTypeFromDescriptor(sig.substring(1)), null);
+            case 'X':
             case 'J':
             case 'T':
             case 'D':
             case 'G':
-            case 'H':
-                return new BStreamType(TypeTags.STREAM, getBTypeFromDescriptor(sig.substring(1)), null);
-            case 'X':
                 String typeName = sig.substring(1, sig.length() - 1);
                 String[] parts = typeName.split(":");
 

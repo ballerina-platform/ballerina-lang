@@ -99,7 +99,7 @@ public class ProgramFileReader {
 
     private void loadBuiltinPackage() throws IOException {
         PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
-        // FIXME
+        // TODO
         pkgFileReader.readPackage("ballerina.builtin");
     }
 }

@@ -52,7 +52,7 @@ public class BallerinaTestListener implements ISuiteListener {
         cleanupStandardLibs();
     }
 
-    // FIXME
+    // TODO
     private void copyStandardLibs() {
         try {
             cleanupStandardLibs();
