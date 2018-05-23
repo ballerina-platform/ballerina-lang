@@ -878,7 +878,6 @@ public class CompiledPackageSymbolEnter {
             case 'T':
             case 'D':
             case 'G':
-            case 'H':
                 char typeChar = chars[index];
                 index++;
                 nameIndex = index;
@@ -915,12 +914,6 @@ public class CompiledPackageSymbolEnter {
                     } else {
                         typeStack.push(new BTableType(TypeTags.TABLE, lookupUserDefinedType(pkgSymbol, name), null));
                     }
-                } else if (typeChar == 'H') {
-                    if (name.isEmpty()) {
-                        typeStack.push(this.symTable.streamType);
-                    } else {
-                        typeStack.push(new BStreamType(TypeTags.STREAM, lookupUserDefinedType(pkgSymbol, name), null));
-                    }
                 } else if (typeChar == 'G' || typeChar == 'T') {
                     typeStack.push(lookupUserDefinedType(pkgSymbol, name));
                 }
@@ -936,6 +929,11 @@ public class CompiledPackageSymbolEnter {
                     mapType = new BMapType(TypeTags.MAP, constrainedType, null);
                 }
                 typeStack.push(mapType);
+                return index;
+            case 'H':
+                index = createBTypeFromSig(chars, index + 1, typeStack);
+                BType streamConstraintType = typeStack.pop();
+                typeStack.push(new BStreamType(TypeTags.STREAM, streamConstraintType, null));
                 return index;
             case 'U':
                 index++;
@@ -1004,6 +1002,7 @@ public class CompiledPackageSymbolEnter {
             case 'D':
             case 'G':
             case 'H':
+                return new BStreamType(TypeTags.STREAM, getBTypeFromDescriptor(sig.substring(1)), null);
             case 'X':
                 String typeName = sig.substring(1, sig.length() - 1);
                 String[] parts = typeName.split(":");
@@ -1027,8 +1026,6 @@ public class CompiledPackageSymbolEnter {
                     return lookupUserDefinedType(pkgSymbol, name);
                 } else if (ch == 'D') {
                     return new BTableType(TypeTags.TABLE, lookupUserDefinedType(pkgSymbol, name), null);
-                } else if (ch == 'H') {
-                    return new BStreamType(TypeTags.STREAM, lookupUserDefinedType(pkgSymbol, name), null);
                 } else {
                     return lookupUserDefinedType(pkgSymbol, name);
                 }
