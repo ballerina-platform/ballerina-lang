@@ -416,15 +416,15 @@ function getCachedResponse(HttpCache cache, CallerActions httpClient, Request re
         // Based on https://tools.ietf.org/html/rfc7234#section-4
         log:printDebug("Cached response found for: '" + httpMethod + " " + path + "'");
 
+        updateResponseTimestamps(cachedResponse, currentT.time, currentT.time);
+        setAgeHeader(cachedResponse);
+
         if (isFreshResponse(cachedResponse, isShared)) {
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
             if (!(req.cacheControl.noCache ?: false) && !(cachedResponse.cacheControl.noCache ?: false)
                                                                                         && !req.hasHeader(PRAGMA)) {
-                updateResponseTimestamps(cachedResponse, currentT.time, currentT.time);
-                setAgeHeader(cachedResponse);
-                log:printDebug("Serving a cached fresh response without validating with the origin server: " + io:
-                        sprintf("%r", cachedResponse));
+                log:printDebug("Serving a cached fresh response without validating with the origin server");
                 return cachedResponse;
             } else {
                 log:printDebug("Serving a cached fresh response after validating with the origin server");
@@ -441,8 +441,6 @@ function getCachedResponse(HttpCache cache, CallerActions httpClient, Request re
             if (!(req.cacheControl.noCache ?: false) && ! (cachedResponse.cacheControl.noCache ?: false)
                                                                                             && !req.hasHeader(PRAGMA)) {
                 log:printDebug("Serving cached stale response without validating with the origin server");
-                updateResponseTimestamps(cachedResponse, currentT.time, currentT.time);
-                setAgeHeader(cachedResponse);
                 cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
                 return cachedResponse;
             }

@@ -29,6 +29,7 @@ public type WebSocketClient object {
         @readonly string negotiatedSubProtocol;
         @readonly boolean isSecure;
         @readonly boolean isOpen;
+        @readonly Response response;
         @readonly map attributes;
     }
 

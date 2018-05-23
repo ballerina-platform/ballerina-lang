@@ -25,9 +25,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -55,14 +52,8 @@ public class Delete extends AbstractHTTPAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
-        try {
-            // Execute the operation
-            executeNonBlockingAction(dataContext);
-        } catch (ClientConnectorException clientConnectorException) {
-            BallerinaException exception = new BallerinaException("Failed to invoke 'delete' action in " +
-                    HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), dataContext.context);
-            dataContext.notifyReply(null, HttpUtil.getError(context, exception));
-        }
+        // Execute the operation
+        executeNonBlockingAction(dataContext, false);
     }
 
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {

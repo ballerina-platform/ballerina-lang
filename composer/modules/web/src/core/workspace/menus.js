@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-
+import _ from 'lodash';
 import { MENUS, COMMANDS, LABELS } from './constants';
 import { MENU_DEF_TYPES } from './../menu/constants';
 
@@ -95,7 +95,7 @@ export function getMenuDefinitions(workspaceManager) {
             isActive: () => {
                 const { editor } = workspaceManager.appContext;
                 const activeTab = editor.getActiveEditor();
-                return activeTab && activeTab.isDirty;
+                return !_.isNil(activeTab) && !_.isNil(activeTab.file) && activeTab.isDirty;
             },
             command: COMMANDS.SAVE_FILE,
             icon: 'save',
@@ -108,7 +108,7 @@ export function getMenuDefinitions(workspaceManager) {
             isActive: () => {
                 const { editor } = workspaceManager.appContext;
                 const activeTab = editor.getActiveEditor();
-                return activeTab && activeTab.file;
+                return !_.isNil(activeTab) && !_.isNil(activeTab.file);
             },
             command: COMMANDS.SAVE_FILE_AS,
             icon: 'folder-open',
