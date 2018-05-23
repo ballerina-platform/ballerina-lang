@@ -57,7 +57,7 @@ public class PackageCache {
     }
 
     public BLangPackage get(PackageID packageID) {
-        return packageMap.get(bvmAlias(packageID));
+        return packageMap.get(getCacheID(packageID));
     }
 
     public BLangPackage get(String pkgPath) {
@@ -68,10 +68,10 @@ public class PackageCache {
         if (bLangPackage != null) {
             bLangPackage.packageID = packageID;
         }
-        packageMap.put(bvmAlias(packageID), bLangPackage);
+        packageMap.put(getCacheID(packageID), bLangPackage);
     }
 
-    private String bvmAlias(PackageID packageID) {
+    public static String getCacheID(PackageID packageID) {
         String bvmAlias = packageID.bvmAlias();
         if (packageID.sourceFileName != null) {
             bvmAlias = bvmAlias + "-" + packageID.sourceFileName.getValue();
