@@ -7,6 +7,7 @@ import ballerina/http;
 //=====================================
 public type {{cut info.title " "}}ClientConfig {
     string serviceUrl,
+    http:ClientEndpointConfig clientConfig,
 };
 
 //=======================================
@@ -20,7 +21,9 @@ public type {{cut info.title " "}}ClientEp object {
 
     public function init({{cut info.title " "}}ClientConfig config) {
         endpoint http:Client httpEp {
-            url: config.serviceUrl
+            url: config.serviceUrl,
+            auth: config.clientConfig.auth,
+            cache: config.clientConfig.cache
         };
 
         self.client = httpEp;
