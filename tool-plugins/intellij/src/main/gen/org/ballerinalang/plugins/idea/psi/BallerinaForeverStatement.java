@@ -26,7 +26,7 @@ public interface BallerinaForeverStatement extends BallerinaCompositeElement {
   @Nullable
   BallerinaForeverStatementBody getForeverStatementBody();
 
-  @NotNull
+  @Nullable
   PsiElement getLeftBrace();
 
   @Nullable

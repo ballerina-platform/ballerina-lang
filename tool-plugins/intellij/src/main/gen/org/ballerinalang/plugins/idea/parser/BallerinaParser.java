@@ -2165,14 +2165,26 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // forever LEFT_BRACE ForeverStatementBody RIGHT_BRACE
+  // forever (LEFT_BRACE ForeverStatementBody RIGHT_BRACE)
   public static boolean ForeverStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ForeverStatement")) return false;
     if (!nextTokenIs(b, FOREVER)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, FOREVER_STATEMENT, null);
-    r = consumeTokens(b, 2, FOREVER, LEFT_BRACE);
-    p = r; // pin = 2
+    r = consumeToken(b, FOREVER);
+    p = r; // pin = 1
+    r = r && ForeverStatement_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_BRACE ForeverStatementBody RIGHT_BRACE
+  private static boolean ForeverStatement_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ForeverStatement_1")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_BRACE);
+    p = r; // pin = 1
     r = r && report_error_(b, ForeverStatementBody(b, l + 1));
     r = p && consumeToken(b, RIGHT_BRACE) && r;
     exit_section_(b, l, m, r, p, null);

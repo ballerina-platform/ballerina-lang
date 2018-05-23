@@ -822,7 +822,7 @@ AggregationQuery ::= from StreamingInput SelectClause? OrderByClause?
 DoneStatement ::= done SEMICOLON {pin=1}
 
 // Note - Pinning 1 does not seem to work.
-ForeverStatement ::= forever LEFT_BRACE ForeverStatementBody RIGHT_BRACE {pin=2}
+ForeverStatement ::= forever (LEFT_BRACE ForeverStatementBody RIGHT_BRACE) {pin(".*")=1}
 ForeverStatementBody ::= StreamingQueryStatement+
 
 StreamingQueryStatement ::= from (StreamingInput (JoinStreamingInput)? | PatternClause)
