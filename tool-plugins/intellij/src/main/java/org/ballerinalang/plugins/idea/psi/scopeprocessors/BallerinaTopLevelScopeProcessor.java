@@ -38,6 +38,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaNameReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaNamespaceDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaOnCommitStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaOnretryClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
@@ -77,7 +78,8 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
         ProgressManager.checkCanceled();
         if (accept(element)) {
-            List<BallerinaDefinition> definitions = ((BallerinaFile) element).getDefinitions();
+            BallerinaFile file = (BallerinaFile) element;
+            List<BallerinaDefinition> definitions = file.getDefinitions();
 
             PsiElement parent = myElement.getParent();
             PsiElement superParent = parent.getParent();
@@ -282,9 +284,37 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                             add(identifier);
                         }
                     }
+                } else if (lastChild instanceof BallerinaServiceDefinition) {
+                    BallerinaServiceDefinition child = (BallerinaServiceDefinition) lastChild;
+                    PsiElement identifier = child.getIdentifier();
+                    if (identifier != null) {
+                        if (myResult != null) {
+                            myResult.addElement(BallerinaCompletionUtils.createServiceLookupElement(identifier));
+                            lookupElementsFound = true;
+                        } else if (myElement.getText().equals(identifier.getText())) {
+                            add(identifier);
+                        }
+                    }
                 }
                 if (!isCompletion() && getResult() != null) {
                     return false;
+                }
+            }
+
+            // Check in global namespace declarations.
+            List<BallerinaNamespaceDeclaration> namespaceDeclarations =
+                    PsiTreeUtil.getChildrenOfTypeAsList(file, BallerinaNamespaceDeclaration.class);
+            for (PsiElement definition : namespaceDeclarations) {
+                if (definition instanceof BallerinaNamespaceDeclaration) {
+                    PsiElement identifier = ((BallerinaNamespaceDeclaration) definition).getIdentifier();
+                    if (identifier != null) {
+                        if (myResult != null) {
+                            myResult.addElement(BallerinaCompletionUtils.createNamespaceLookupElement(identifier));
+                            lookupElementsFound = true;
+                        } else if (myElement.getText().equals(identifier.getText())) {
+                            add(identifier);
+                        }
+                    }
                 }
             }
         }
