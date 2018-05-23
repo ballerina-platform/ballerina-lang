@@ -1063,7 +1063,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
-                <module>stdlib/ballerina-websub</module>
+                <module>stdlib/websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/database</module>
                 <module>stdlib/strip-bouncycastle</module>
@@ -1119,7 +1119,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
-                <module>stdlib/ballerina-websub</module>
+                <module>stdlib/websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/database</module>
                 <module>stdlib/strip-bouncycastle</module>
@@ -1171,7 +1171,7 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
-                <module>stdlib/ballerina-websub</module>
+                <module>stdlib/websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/database</module>
                 <module>stdlib/strip-bouncycastle</module>
