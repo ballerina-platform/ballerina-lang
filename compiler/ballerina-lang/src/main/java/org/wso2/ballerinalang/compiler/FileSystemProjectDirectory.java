@@ -36,6 +36,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -188,14 +189,21 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
     private void addCompilerOutputEntry(FileSystem fs, CompilerOutputEntry outputEntry) throws IOException {
         String rootDirName = getTopLevelDirNameInPackage(outputEntry.getEntryKind(), fs);
         Path rootDirPath = fs.getPath(rootDirName);
-        Path destPath = rootDirPath.resolve(outputEntry.getEntryName());
+        String entryName = outputEntry.getEntryName();
+        Path destPath = rootDirPath.resolve(entryName);
 
         Path parent = destPath.getParent();
         if (Files.notExists(parent)) {
             Files.createDirectories(parent);
         }
-
-        Files.copy(outputEntry.getInputStream(), destPath, StandardCopyOption.REPLACE_EXISTING);
+        InputStream inputStream;
+        if (!entryName.endsWith(ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT) &&
+                !Files.exists(Paths.get(entryName))) {
+            inputStream = Files.newInputStream(this.projectDirPath.resolve(entryName));
+        } else {
+            inputStream = outputEntry.getInputStream();
+        }
+        Files.copy(inputStream, destPath, StandardCopyOption.REPLACE_EXISTING);
     }
 
     private String getTopLevelDirNameInPackage(Kind kind, FileSystem fs) {
