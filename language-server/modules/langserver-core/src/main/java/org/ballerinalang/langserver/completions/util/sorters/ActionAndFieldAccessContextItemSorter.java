@@ -25,7 +25,7 @@ import org.eclipse.lsp4j.CompletionItem;
 import java.util.List;
 
 /**
- * Item Sorter for the Variable Definition context.
+ * Item Sorter for the actions and field access items.
  */
 public class ActionAndFieldAccessContextItemSorter extends CompletionItemSorter {
     /**
