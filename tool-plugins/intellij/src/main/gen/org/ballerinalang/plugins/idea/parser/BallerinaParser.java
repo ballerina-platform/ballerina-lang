@@ -2119,7 +2119,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // foreach LEFT_PARENTHESIS? VariableReferenceList in (IntRangeExpression | Expression) RIGHT_PARENTHESIS? LEFT_BRACE Block RIGHT_BRACE
+  // foreach (LEFT_PARENTHESIS? VariableReferenceList in (IntRangeExpression | Expression) RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE))
   public static boolean ForeachStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ForeachStatement")) return false;
     if (!nextTokenIs(b, FOREACH)) return false;
@@ -2127,28 +2127,37 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, FOREACH_STATEMENT, null);
     r = consumeToken(b, FOREACH);
     p = r; // pin = 1
-    r = r && report_error_(b, ForeachStatement_1(b, l + 1));
-    r = p && report_error_(b, VariableReferenceList(b, l + 1)) && r;
+    r = r && ForeachStatement_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_PARENTHESIS? VariableReferenceList in (IntRangeExpression | Expression) RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE)
+  private static boolean ForeachStatement_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ForeachStatement_1")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = ForeachStatement_1_0(b, l + 1);
+    p = r; // pin = 1
+    r = r && report_error_(b, VariableReferenceList(b, l + 1));
     r = p && report_error_(b, consumeToken(b, IN)) && r;
-    r = p && report_error_(b, ForeachStatement_4(b, l + 1)) && r;
-    r = p && report_error_(b, ForeachStatement_5(b, l + 1)) && r;
-    r = p && report_error_(b, consumeToken(b, LEFT_BRACE)) && r;
-    r = p && report_error_(b, Block(b, l + 1)) && r;
-    r = p && consumeToken(b, RIGHT_BRACE) && r;
+    r = p && report_error_(b, ForeachStatement_1_3(b, l + 1)) && r;
+    r = p && report_error_(b, ForeachStatement_1_4(b, l + 1)) && r;
+    r = p && ForeachStatement_1_5(b, l + 1) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   // LEFT_PARENTHESIS?
-  private static boolean ForeachStatement_1(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ForeachStatement_1")) return false;
+  private static boolean ForeachStatement_1_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ForeachStatement_1_0")) return false;
     consumeToken(b, LEFT_PARENTHESIS);
     return true;
   }
 
   // IntRangeExpression | Expression
-  private static boolean ForeachStatement_4(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ForeachStatement_4")) return false;
+  private static boolean ForeachStatement_1_3(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ForeachStatement_1_3")) return false;
     boolean r;
     Marker m = enter_section_(b);
     r = IntRangeExpression(b, l + 1);
@@ -2158,10 +2167,23 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   // RIGHT_PARENTHESIS?
-  private static boolean ForeachStatement_5(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "ForeachStatement_5")) return false;
+  private static boolean ForeachStatement_1_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ForeachStatement_1_4")) return false;
     consumeToken(b, RIGHT_PARENTHESIS);
     return true;
+  }
+
+  // LEFT_BRACE Block RIGHT_BRACE
+  private static boolean ForeachStatement_1_5(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ForeachStatement_1_5")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_BRACE);
+    p = r; // pin = 1
+    r = r && report_error_(b, Block(b, l + 1));
+    r = p && consumeToken(b, RIGHT_BRACE) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
@@ -6359,12 +6381,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // VariableReference (COMMA VariableReference)*
   public static boolean VariableReferenceList(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "VariableReferenceList")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, VARIABLE_REFERENCE_LIST, "<variable reference list>");
     r = VariableReference(b, l + 1, -1);
+    p = r; // pin = 1
     r = r && VariableReferenceList_1(b, l + 1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // (COMMA VariableReference)*
@@ -6382,12 +6405,13 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // COMMA VariableReference
   private static boolean VariableReferenceList_1_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "VariableReferenceList_1_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, COMMA);
+    p = r; // pin = 1
     r = r && VariableReference(b, l + 1, -1);
-    exit_section_(b, m, null, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */

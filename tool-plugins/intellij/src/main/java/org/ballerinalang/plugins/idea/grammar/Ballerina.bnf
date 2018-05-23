@@ -471,7 +471,7 @@ PostIncrementStatement ::= VariableReference PostArithmeticOperator SEMICOLON
 
 PostArithmeticOperator ::= INCREMENT | DECREMENT
 
-VariableReferenceList ::= VariableReference (COMMA VariableReference)* //{pin(".*")=1}
+VariableReferenceList ::= VariableReference (COMMA VariableReference)* {pin(".*")=1}
 
 IfElseStatement ::= IfClause ElseIfClause* ElseClause? /*{pin=1}*/
 
@@ -490,7 +490,7 @@ matchPatternClause ::= namedPattern | unnamedPattern
 unnamedPattern ::= TypeName EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
 namedPattern ::= TypeName identifier EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=3}
 
-ForeachStatement ::= foreach LEFT_PARENTHESIS? VariableReferenceList in (IntRangeExpression | Expression) RIGHT_PARENTHESIS? LEFT_BRACE Block RIGHT_BRACE {pin=1}
+ForeachStatement ::= foreach (LEFT_PARENTHESIS? VariableReferenceList in (IntRangeExpression | Expression) RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
 IntRangeExpression ::= openRange | closedRange
 private openRange ::= Expression RANGE Expression {pin=2}
