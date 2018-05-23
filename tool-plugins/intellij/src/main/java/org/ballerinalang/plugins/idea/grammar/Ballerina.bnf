@@ -526,13 +526,13 @@ TimeoutClause ::= timeout (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_P
 
 TimeoutClauseBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
-TryCatchStatement ::= try LEFT_BRACE Block RIGHT_BRACE CatchClauses {pin=1}
+TryCatchStatement ::= try (LEFT_BRACE Block RIGHT_BRACE CatchClauses) {pin(".*")=1}
 
 CatchClauses ::= CatchClause+ FinallyClause? | FinallyClause
 
-CatchClause ::= catch LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
+CatchClause ::= catch (LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
-FinallyClause ::= finally LEFT_BRACE Block RIGHT_BRACE {pin=1}
+FinallyClause ::= finally {LEFT_BRACE Block RIGHT_BRACE} {pin(".*")=1}
 
 ThrowStatement ::= throw Expression SEMICOLON {pin=1}
 

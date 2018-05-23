@@ -1224,17 +1224,41 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // catch LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE
+  // catch (LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE))
   public static boolean CatchClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "CatchClause")) return false;
     if (!nextTokenIs(b, CATCH)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, CATCH_CLAUSE, null);
-    r = consumeTokens(b, 1, CATCH, LEFT_PARENTHESIS);
+    r = consumeToken(b, CATCH);
+    p = r; // pin = 1
+    r = r && CatchClause_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)
+  private static boolean CatchClause_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "CatchClause_1")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_PARENTHESIS);
     p = r; // pin = 1
     r = r && report_error_(b, TypeName(b, l + 1, -1));
-    r = p && report_error_(b, consumeTokens(b, -1, IDENTIFIER, RIGHT_PARENTHESIS, LEFT_BRACE)) && r;
-    r = p && report_error_(b, Block(b, l + 1)) && r;
+    r = p && report_error_(b, consumeTokens(b, -1, IDENTIFIER, RIGHT_PARENTHESIS)) && r;
+    r = p && CatchClause_1_4(b, l + 1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_BRACE Block RIGHT_BRACE
+  private static boolean CatchClause_1_4(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "CatchClause_1_4")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_BRACE);
+    p = r; // pin = 1
+    r = r && report_error_(b, Block(b, l + 1));
     r = p && consumeToken(b, RIGHT_BRACE) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
@@ -2021,13 +2045,25 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // finally LEFT_BRACE Block RIGHT_BRACE
+  // finally {LEFT_BRACE Block RIGHT_BRACE}
   public static boolean FinallyClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FinallyClause")) return false;
     if (!nextTokenIs(b, FINALLY)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, FINALLY_CLAUSE, null);
-    r = consumeTokens(b, 1, FINALLY, LEFT_BRACE);
+    r = consumeToken(b, FINALLY);
+    p = r; // pin = 1
+    r = r && FinallyClause_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_BRACE Block RIGHT_BRACE
+  private static boolean FinallyClause_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "FinallyClause_1")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_BRACE);
     p = r; // pin = 1
     r = r && report_error_(b, Block(b, l + 1));
     r = p && consumeToken(b, RIGHT_BRACE) && r;
@@ -6040,13 +6076,25 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // try LEFT_BRACE Block RIGHT_BRACE CatchClauses
+  // try (LEFT_BRACE Block RIGHT_BRACE CatchClauses)
   public static boolean TryCatchStatement(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "TryCatchStatement")) return false;
     if (!nextTokenIs(b, TRY)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, TRY_CATCH_STATEMENT, null);
-    r = consumeTokens(b, 1, TRY, LEFT_BRACE);
+    r = consumeToken(b, TRY);
+    p = r; // pin = 1
+    r = r && TryCatchStatement_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_BRACE Block RIGHT_BRACE CatchClauses
+  private static boolean TryCatchStatement_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "TryCatchStatement_1")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_BRACE);
     p = r; // pin = 1
     r = r && report_error_(b, Block(b, l + 1));
     r = p && report_error_(b, consumeToken(b, RIGHT_BRACE)) && r;
