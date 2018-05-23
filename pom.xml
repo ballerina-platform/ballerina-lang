@@ -1059,7 +1059,7 @@
 
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
-                <module>stdlib/ballerina-http</module>
+                <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
@@ -1115,7 +1115,7 @@
 
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
-                <module>stdlib/ballerina-http</module>
+                <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
@@ -1167,7 +1167,7 @@
 
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
-                <module>stdlib/ballerina-http</module>
+                <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
