@@ -27,14 +27,15 @@ import ToolBar from './Toolbar';
 import DetailView from './DetailView';
 import './index.scss';
 
-const loggerToIcon = {
-    'tracelog.http.downstream': 'fw fw-down-arrow',
-    'tracelog.http.upstream': 'fw fw-up-arrow',
-};
-
 const directionToIcon = {
-    INBOUND: 'fw fw-right-arrow',
-    OUTBOUND: 'fw fw-left-arrow',
+    INBOUND: {
+        'http.tracelog.downstream': 'fw fw-downstream-inbound direction-icon',
+        'http.tracelog.upstream': 'fw fw-upstream-inbound direction-icon',
+    },
+    OUTBOUND: {
+        'http.tracelog.downstream': 'fw fw-downstream-outbound direction-icon',
+        'http.tracelog.upstream': 'fw fw-upstream-outbound direction-icon',
+    },
 };
 
 /**
@@ -92,12 +93,9 @@ class LogsConsole extends React.Component {
         });
     }
 
-    getLoggerIcon(logger) {
-        return loggerToIcon[logger];
-    }
-
-    getDirectionIcon(direction) {
-        return directionToIcon[direction];
+    getDirectionIcon(logger, direction) {
+        directionToIcon[direction] = directionToIcon[direction] || {};
+        return directionToIcon[direction][logger];
     }
 
     mergeRelatedMessages(messages) {
@@ -196,11 +194,8 @@ class LogsConsole extends React.Component {
                                                             className='wrap-text summary'
                                                         >
                                                             <Icon
-                                                                name={this.getLoggerIcon(message.message.record.logger)}
-                                                                title={message.message.record.logger}
-                                                            />
-                                                            <Icon
-                                                                name={this.getDirectionIcon(message.message.meta.direction)}
+                                                                name={this.getDirectionIcon(message.message.record.logger,
+                                                                    message.message.meta.direction)}
                                                                 title={message.message.meta.direction}
                                                             />
                                                         </Grid.Column>
