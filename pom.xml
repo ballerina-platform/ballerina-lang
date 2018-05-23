@@ -1062,7 +1062,7 @@
                 <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
-                <module>stdlib/ballerina-mime</module>
+                <module>stdlib/mime</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/database</module>
@@ -1118,7 +1118,7 @@
                 <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
-                <module>stdlib/ballerina-mime</module>
+                <module>stdlib/mime</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/database</module>
@@ -1170,7 +1170,7 @@
                 <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
-                <module>stdlib/ballerina-mime</module>
+                <module>stdlib/mime</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/database</module>
