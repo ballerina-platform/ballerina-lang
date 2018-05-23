@@ -47,7 +47,8 @@
             <class name="org.wso2.transport.http.netty.certificatevalidation.CRLVerifierTest" />
             <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPVerifierTest" />
 
-            <class name="org.wso2.transport.http.netty.proxyserver.ProxyServerTestCase" />
+            <class name="org.wso2.transport.http.netty.proxyserver.HttpsProxyServerTestCase" />
+            <class name="org.wso2.transport.http.netty.proxyserver.HttpProxyServerTestCase" />
 
             <class name="org.wso2.transport.http.netty.hostnameverfication.HostnameVerificationTest" />
             <class name="org.wso2.transport.http.netty.redirect.HttpClientRedirectTestCase" />
