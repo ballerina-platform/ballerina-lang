@@ -22,6 +22,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -47,6 +48,16 @@ public class CounterTest extends MetricTest {
     public void testCounterIncrement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCounterIncrement");
         Assert.assertEquals(returns[0], new BInteger(5));
+    }
+
+    @Test
+    public void testCounterError() {
+        try {
+            BRunUtil.invoke(compileResult, "testCounterError");
+            Assert.fail("Counter with extra_tag should not be registered");
+        } catch (BLangRuntimeException e) {
+            Assert.assertTrue(e.getMessage().contains("extra_tag"), "Unexpected Ballerina Error");
+        }
     }
 
     @Test
