@@ -102,13 +102,6 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
     switch (node.kind) {
         case 'CompilationUnit':
             return join(node.topLevelNodes, pretty, replaceLambda, l, w) + w();
-        case 'ArrayType':
-            if (node.isRestParam) {
-                return getSourceOf(node.elementType, pretty, l, replaceLambda);
-            } else {
-                return getSourceOf(node.elementType, pretty, l, replaceLambda) +
-                    times(node.dimensions, () => w() + '[' + w() + ']');
-            }
         /* eslint-disable max-len */
         // auto gen start
 
@@ -195,6 +188,19 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'ArrayLiteralExpr':
             return w() + '['
                  + join(node.expressions, pretty, replaceLambda, l, w, '', ',') + w() + ']';
+        case 'ArrayType':
+            if (node.isRestParam && node.grouped && node.elementType) {
+                return w() + '('
+                 + getSourceOf(node.elementType, pretty, l, replaceLambda) + w() + ')';
+            } else if (node.isRestParam && node.elementType) {
+                return getSourceOf(node.elementType, pretty, l, replaceLambda);
+            } else if (node.grouped && node.elementType && node.dimensionAsString) {
+                return w() + '('
+                 + getSourceOf(node.elementType, pretty, l, replaceLambda) + w() + node.dimensionAsString + w() + ')';
+            } else {
+                return getSourceOf(node.elementType, pretty, l, replaceLambda) + w()
+                 + node.dimensionAsString;
+            }
         case 'Assignment':
             return dent() + (node.declaredWithVar ? w() + 'var' + a(' ') : '')
                  + getSourceOf(node.variable, pretty, l, replaceLambda) + w(' ') + '='
