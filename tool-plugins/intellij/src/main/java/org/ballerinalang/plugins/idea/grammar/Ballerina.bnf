@@ -575,7 +575,7 @@ Index ::= LEFT_BRACKET Expression RIGHT_BRACKET /*{pin=1}*/
 XmlAttrib ::= AT (LEFT_BRACKET Expression RIGHT_BRACKET)? /*{pin=1}*/
 
 // Todo - Need to pin?
-FunctionInvocation ::= functionNameReference LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
+FunctionInvocation ::= functionNameReference LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=2}
 
 // Todo - Adding pin will mess function invocation.
 Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS /*{pin=1}*/

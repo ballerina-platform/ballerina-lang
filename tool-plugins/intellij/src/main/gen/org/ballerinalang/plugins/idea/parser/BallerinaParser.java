@@ -2420,14 +2420,15 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // functionNameReference LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
   public static boolean FunctionInvocation(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionInvocation")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, FUNCTION_INVOCATION, "<function invocation>");
     r = functionNameReference(b, l + 1);
     r = r && consumeToken(b, LEFT_PARENTHESIS);
-    r = r && FunctionInvocation_2(b, l + 1);
-    r = r && consumeToken(b, RIGHT_PARENTHESIS);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    p = r; // pin = 2
+    r = r && report_error_(b, FunctionInvocation_2(b, l + 1));
+    r = p && consumeToken(b, RIGHT_PARENTHESIS) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // InvocationArgList?
