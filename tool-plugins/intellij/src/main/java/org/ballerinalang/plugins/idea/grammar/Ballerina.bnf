@@ -208,7 +208,7 @@ ServiceEndpointAttachments ::= bind (NameReference (COMMA NameReference)* | Reco
 ServiceBody ::= LEFT_BRACE (/*ResourceDefinition+ | EndpointDefinition+ ResourceDefinition* |*/ EndpointDefinition* (VariableDefinitionStatementInService | NamespaceDeclarationStatement)* ResourceDefinition*) RIGHT_BRACE /*{pin=1}*/
 
 // Note - Always sync with VariableDefinitionStatement
-VariableDefinitionStatementInService ::= /*<<isNotAResourceDefinition>> VariableDefinitionStatement*/ TypeName identifier VariableAssignment? SEMICOLON {elementType=VariableDefinitionStatement}
+VariableDefinitionStatementInService ::= /*<<isNotAResourceDefinition>> VariableDefinitionStatement*/ TypeName identifier (VariableAssignment? SEMICOLON) {pin(".*")=1 elementType=VariableDefinitionStatement}
 ResourceDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
 resourceParameterList ::= endpointParameter | ParameterList
 endpointParameter ::= endpoint identifier (COMMA ParameterList)? {pin(".*")=1}
