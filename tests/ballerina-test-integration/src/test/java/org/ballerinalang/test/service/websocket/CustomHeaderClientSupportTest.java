@@ -26,56 +26,53 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test case to test simple WebSocket pass through scenarios.
+ * This Class tests receiving and sending of custom headers by Ballerina WebSocket client.
  */
-public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
+public class CustomHeaderClientSupportTest extends WebSocketIntegrationTest {
 
     private WebSocketRemoteServer remoteServer;
-    private static final String URL = "ws://localhost:9090/proxy/ws";
+    private WebSocketTestClient client;
+    private static final String URL = "ws://localhost:9090/pingpong/ws";
+    private static final String RECEIVED_TEXT = "some-header-value";
 
-    @BeforeClass(description = "Initializes Ballerina")
-    public void setup() throws InterruptedException, BallerinaTestException {
+    @BeforeClass(description = "Initializes the Ballerina server with the custom_header_client.bal file")
+    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
         remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
         remoteServer.run();
-        initBallerinaServer("simple_proxy_server.bal");
+
+        initBallerinaServer("custom_header_client.bal");
+
+        client = new WebSocketTestClient(URL);
+        client.handshake();
     }
 
-    @Test(priority = 1, description = "Tests sending and receiving of text frames in WebSockets")
-    public void testSendText() throws URISyntaxException, InterruptedException {
-        WebSocketTestClient client = new WebSocketTestClient(URL);
-        client.handshake();
-        String textSent = "hi all";
+    @Test(description = "Tests when the client sends custom headers to the server")
+    public void testClientSentCustomHeader() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
-        client.sendText(textSent);
+        client.sendText("custom-headers");
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        Assert.assertEquals(client.getTextReceived(), textSent);
-        client.shutDown();
+        Assert.assertEquals(client.getTextReceived(), RECEIVED_TEXT);
     }
 
-    @Test(priority = 2, description = "Tests sending and receiving of binary frames in WebSockets")
-    public void testSendBinary() throws URISyntaxException, InterruptedException, IOException {
-        WebSocketTestClient client = new WebSocketTestClient(URL);
-        client.handshake();
+    @Test(description = "Tests the client receiving custom headers from the server")
+    public void testClientReceivedCustomHeader() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
-        ByteBuffer bufferSent = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
-        client.sendBinary(bufferSent);
-        countDownLatch.await(1000, TimeUnit.SECONDS);
-        Assert.assertEquals(client.getBufferReceived(), bufferSent);
-        client.shutDown();
+        client.sendText("server-headers");
+        countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
+        Assert.assertEquals(client.getTextReceived(), "server-header-value");
     }
 
-    @AfterClass(description = "Stops Ballerina")
-    public void cleanup() throws BallerinaTestException {
+    @AfterClass(description = "Stops the Ballerina server")
+    public void cleanup() throws BallerinaTestException, InterruptedException {
         stopBallerinaServerInstance();
+        client.shutDown();
         remoteServer.stop();
     }
 }
