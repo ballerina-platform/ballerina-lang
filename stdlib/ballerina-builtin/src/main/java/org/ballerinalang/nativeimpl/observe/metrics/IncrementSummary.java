@@ -20,7 +20,6 @@ package org.ballerinalang.nativeimpl.observe.metrics;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -28,9 +27,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.Summary;
-import org.ballerinalang.util.metrics.Tag;
-
-import java.util.Set;
 
 /**
  * Increment the summary by the given amount.
