@@ -274,7 +274,8 @@ public class TargetChannel {
         });
     }
 
-    public void resetTargetChannelState() {
+    private void resetTargetChannelState() {
+        requestHeaderWritten = false;
         contentList.clear();
         contentLength = 0;
     }
