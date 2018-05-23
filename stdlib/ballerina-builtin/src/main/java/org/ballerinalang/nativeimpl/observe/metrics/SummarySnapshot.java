@@ -50,7 +50,7 @@ public class SummarySnapshot extends BlockingNativeCallableUnit {
         Gauge gauge = (Gauge) bSummary.getNativeData(Constants.GAUGE);
         Summary summary = (Summary) bSummary.getNativeData(Constants.SUMMARY);
         Snapshot snapshot = summary.getSnapshot();
-        double value = gauge.getValue();
+        long value = (long) gauge.getValue();
         PercentileValue[] percentileValues = snapshot.getPercentileValues();
         BArray<BStruct> bPercentileValues = new BArray<>(BStruct.class);
         for (int i = 0; i < percentileValues.length; i++) {
