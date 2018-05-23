@@ -115,7 +115,7 @@ public class LSPackageCache {
 
         public void remove(PackageID packageID) {
             if (packageID != null) {
-                this.packageMap.remove(packageID.bvmAlias());
+                this.packageMap.remove(PackageCache.getCacheID(packageID));
             }
         }
         
