@@ -6371,34 +6371,23 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // TypeName identifier (VariableAssignment? SEMICOLON)
+  // TypeName identifier VariableAssignment? SEMICOLON
   public static boolean VariableDefinitionStatementInService(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "VariableDefinitionStatementInService")) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, VARIABLE_DEFINITION_STATEMENT, "<variable definition statement in service>");
     r = TypeName(b, l + 1, -1);
-    p = r; // pin = 1
-    r = r && report_error_(b, consumeToken(b, IDENTIFIER));
-    r = p && VariableDefinitionStatementInService_2(b, l + 1) && r;
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
-  }
-
-  // VariableAssignment? SEMICOLON
-  private static boolean VariableDefinitionStatementInService_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "VariableDefinitionStatementInService_2")) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_);
-    r = VariableDefinitionStatementInService_2_0(b, l + 1);
-    p = r; // pin = 1
-    r = r && consumeToken(b, SEMICOLON);
+    r = r && consumeToken(b, IDENTIFIER);
+    p = r; // pin = 2
+    r = r && report_error_(b, VariableDefinitionStatementInService_2(b, l + 1));
+    r = p && consumeToken(b, SEMICOLON) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   // VariableAssignment?
-  private static boolean VariableDefinitionStatementInService_2_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "VariableDefinitionStatementInService_2_0")) return false;
+  private static boolean VariableDefinitionStatementInService_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "VariableDefinitionStatementInService_2")) return false;
     VariableAssignment(b, l + 1);
     return true;
   }

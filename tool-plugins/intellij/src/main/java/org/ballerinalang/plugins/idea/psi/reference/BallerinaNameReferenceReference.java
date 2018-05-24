@@ -332,6 +332,16 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                     return false;
                 }
             }
+
+            // Need to consider this situation for variable definitions in service body.
+            BallerinaVariableDefinitionStatement variableDefinitionStatement =
+                    PsiTreeUtil.getParentOfType(myElement, BallerinaVariableDefinitionStatement.class);
+            if (variableDefinitionStatement != null && processor instanceof BallerinaStatementProcessor) {
+                if (!processor.execute(variableDefinitionStatement, resolveState)) {
+                    return false;
+                }
+            }
+
             BallerinaBlock ballerinaBlock = PsiTreeUtil.getParentOfType(myElement, BallerinaBlock.class);
             if (ballerinaBlock != null && processor instanceof BallerinaBlockProcessor) {
                 if (!processor.execute(ballerinaBlock, resolveState)) {

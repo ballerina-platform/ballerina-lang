@@ -32,6 +32,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordKeyValue;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordLiteralExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaServiceBody;
 import org.ballerinalang.plugins.idea.psi.BallerinaStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
@@ -60,64 +61,85 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
     }
 
     protected boolean accept(@NotNull PsiElement element) {
-        return element instanceof BallerinaStatement;
+        return element instanceof BallerinaStatement || element instanceof BallerinaVariableDefinitionStatement;
     }
 
     @Override
     public boolean execute(@NotNull PsiElement scopeElement, @NotNull ResolveState state) {
         ProgressManager.checkCanceled();
         if (accept(scopeElement)) {
-            BallerinaStatement statement = (BallerinaStatement) scopeElement;
+            if (scopeElement instanceof BallerinaStatement) {
+                BallerinaStatement statement = (BallerinaStatement) scopeElement;
 
-            // This is to suggest fields in when the caret is in a record literal.
-            BallerinaRecordKey ballerinaRecordKey = PsiTreeUtil.getParentOfType(myElement, BallerinaRecordKey.class);
-            // Todo - Check for record literal expression to find other types.
-            if (ballerinaRecordKey != null) {
+                // This is to suggest fields in when the caret is in a record literal.
+                BallerinaRecordKey ballerinaRecordKey = PsiTreeUtil.getParentOfType(myElement,
+                        BallerinaRecordKey.class);
 
-                BallerinaRecordLiteralExpression literalExpression = PsiTreeUtil.getParentOfType(ballerinaRecordKey,
-                        BallerinaRecordLiteralExpression.class);
-                if (literalExpression != null && literalExpression.getParent() instanceof BallerinaRecordKeyValue) {
+                // Todo - Check for record literal expression to find other types.
+                if (ballerinaRecordKey != null) {
+                    BallerinaRecordLiteralExpression literalExpression = PsiTreeUtil.getParentOfType(ballerinaRecordKey,
+                            BallerinaRecordLiteralExpression.class);
+                    if (literalExpression != null && literalExpression.getParent() instanceof BallerinaRecordKeyValue) {
 
-                    BallerinaRecordKeyValue expressionParent = (BallerinaRecordKeyValue) literalExpression.getParent();
-                    BallerinaRecordKey parentRecordKey = expressionParent.getRecordKey();
-
-
-                    BallerinaExpression expression = parentRecordKey.getExpression();
-                    if (expression == null) {
-                        return true;
-                    }
-                    PsiElement resolvedElement = BallerinaPsiImplUtil.getBallerinaTypeFromExpression(expression);
-                    if (resolvedElement != null) {
-                        PsiElement parent = resolvedElement.getParent();
-                        if (resolvedElement instanceof BallerinaRecordTypeName) {
-                            BallerinaFieldDefinitionList fieldDefinitionList = PsiTreeUtil.findChildOfType(parent,
-                                    BallerinaFieldDefinitionList.class);
-                            List<BallerinaFieldDefinition> fieldDefinitions =
-                                    PsiTreeUtil.getChildrenOfTypeAsList(fieldDefinitionList,
-                                            BallerinaFieldDefinition.class);
-                            for (BallerinaFieldDefinition ballerinaFieldDefinition : fieldDefinitions) {
-                                PsiElement identifier = ballerinaFieldDefinition.getIdentifier();
-                                if (myResult != null) {
-                                    BallerinaTypeName fieldTypeName = ballerinaFieldDefinition.getTypeName();
-                                    String type;
-                                    if (fieldTypeName instanceof BallerinaRecordTypeName) {
-                                        type = "record {}";
-                                    } else {
-                                        type = fieldTypeName.getText();
+                        BallerinaRecordKeyValue expressionParent =
+                                (BallerinaRecordKeyValue) literalExpression.getParent();
+                        BallerinaRecordKey parentRecordKey = expressionParent.getRecordKey();
+                        BallerinaExpression expression = parentRecordKey.getExpression();
+                        if (expression == null) {
+                            return true;
+                        }
+                        PsiElement resolvedElement = BallerinaPsiImplUtil.getBallerinaTypeFromExpression(expression);
+                        if (resolvedElement != null) {
+                            PsiElement parent = resolvedElement.getParent();
+                            if (resolvedElement instanceof BallerinaRecordTypeName) {
+                                BallerinaFieldDefinitionList fieldDefinitionList = PsiTreeUtil.findChildOfType(parent,
+                                        BallerinaFieldDefinitionList.class);
+                                List<BallerinaFieldDefinition> fieldDefinitions =
+                                        PsiTreeUtil.getChildrenOfTypeAsList(fieldDefinitionList,
+                                                BallerinaFieldDefinition.class);
+                                for (BallerinaFieldDefinition ballerinaFieldDefinition : fieldDefinitions) {
+                                    PsiElement identifier = ballerinaFieldDefinition.getIdentifier();
+                                    if (myResult != null) {
+                                        BallerinaTypeName fieldTypeName = ballerinaFieldDefinition.getTypeName();
+                                        String type;
+                                        if (fieldTypeName instanceof BallerinaRecordTypeName) {
+                                            type = "record {}";
+                                        } else {
+                                            type = fieldTypeName.getText();
+                                        }
+                                        myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement
+                                                (identifier, resolvedElement, type,
+                                                        BallerinaPsiImplUtil.getObjectFieldDefaultValue
+                                                                (ballerinaFieldDefinition),
+                                                        null, false));
+                                    } else if (myElement.getText().equals(identifier.getText())) {
+                                        add(identifier);
                                     }
-                                    myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier,
-                                            resolvedElement, type,
-                                            BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition),
-                                            null, false));
-                                } else if (myElement.getText().equals(identifier.getText())) {
-                                    add(identifier);
+                                }
+
+                            } else if (parent instanceof BallerinaTypeDefinition) {
+                                BallerinaObjectFieldProcessor ballerinaFieldProcessor = new
+                                        BallerinaObjectFieldProcessor
+                                        (myResult, myElement, isCompletion());
+                                ballerinaFieldProcessor.execute(parent, ResolveState.initial());
+                                PsiElement result = ballerinaFieldProcessor.getResult();
+                                if (!isCompletion() && result != null) {
+                                    add(result);
+                                    return false;
                                 }
                             }
+                        }
+                        return false;
 
-                        } else if (parent instanceof BallerinaTypeDefinition) {
+                    }
+
+                    if (statement.getFirstChild() instanceof BallerinaVariableDefinitionStatement) {
+                        PsiElement resolvedElement = BallerinaPsiImplUtil.resolveBallerinaType((
+                                (BallerinaVariableDefinitionStatement) statement.getFirstChild()));
+                        if (resolvedElement != null && resolvedElement.getParent() instanceof BallerinaTypeDefinition) {
                             BallerinaObjectFieldProcessor ballerinaFieldProcessor = new BallerinaObjectFieldProcessor
                                     (myResult, myElement, isCompletion());
-                            ballerinaFieldProcessor.execute(parent, ResolveState.initial());
+                            ballerinaFieldProcessor.execute(resolvedElement.getParent(), ResolveState.initial());
                             PsiElement result = ballerinaFieldProcessor.getResult();
                             if (!isCompletion() && result != null) {
                                 add(result);
@@ -125,79 +147,90 @@ public class BallerinaStatementProcessor extends BallerinaScopeProcessorBase {
                             }
                         }
                     }
+                    // We don't want to suggest any other completion since we are currently at the key of a record
+                    // literal.
                     return false;
-
                 }
 
-                if (statement.getFirstChild() instanceof BallerinaVariableDefinitionStatement) {
-                    PsiElement resolvedElement = BallerinaPsiImplUtil.resolveBallerinaType((
-                            (BallerinaVariableDefinitionStatement) statement.getFirstChild()));
-                    if (resolvedElement != null && resolvedElement.getParent() instanceof BallerinaTypeDefinition) {
-                        BallerinaObjectFieldProcessor ballerinaFieldProcessor = new BallerinaObjectFieldProcessor
-                                (myResult, myElement, isCompletion());
-                        ballerinaFieldProcessor.execute(resolvedElement.getParent(), ResolveState.initial());
-                        PsiElement result = ballerinaFieldProcessor.getResult();
-                        if (!isCompletion() && result != null) {
-                            add(result);
-                            return false;
+                BallerinaNamedPattern ballerinaNamedPattern = PsiTreeUtil.getParentOfType(statement,
+                        BallerinaNamedPattern.class);
+                while (ballerinaNamedPattern != null) {
+                    PsiElement identifier = ballerinaNamedPattern.getIdentifier();
+                    if (myResult != null) {
+                        myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
+                                BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaNamedPattern.getTypeName())));
+                    } else if (myElement.getText().equals(identifier.getText())) {
+                        add(identifier);
+                    }
+                    if (!isCompletion() && getResult() != null) {
+                        return false;
+                    }
+                    ballerinaNamedPattern = PsiTreeUtil.getParentOfType(ballerinaNamedPattern,
+                            BallerinaNamedPattern.class);
+                }
+
+                // Process catch clause variable.
+                BallerinaCatchClause ballerinaCatchClause = PsiTreeUtil.getParentOfType(statement,
+                        BallerinaCatchClause.class);
+                while (ballerinaCatchClause != null) {
+                    PsiElement identifier = ballerinaCatchClause.getIdentifier();
+                    if (identifier != null) {
+                        if (myResult != null) {
+                            myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
+                                    BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaCatchClause.getTypeName())));
+                        } else if (myElement.getText().equals(identifier.getText())) {
+                            add(identifier);
+                        }
+                    }
+                    if (!isCompletion() && getResult() != null) {
+                        return false;
+                    }
+                    ballerinaCatchClause = PsiTreeUtil.getParentOfType(ballerinaCatchClause,
+                            BallerinaCatchClause.class);
+                }
+
+                // Process join clause variable.
+                BallerinaJoinClause ballerinaJoinClause = PsiTreeUtil.getParentOfType(statement,
+                        BallerinaJoinClause.class);
+                while (ballerinaJoinClause != null) {
+                    PsiElement identifier = ballerinaJoinClause.getIdentifier();
+                    if (identifier != null) {
+                        if (myResult != null) {
+                            myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
+                                    BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaJoinClause.getTypeName())));
+                        } else if (myElement.getText().equals(identifier.getText())) {
+                            add(identifier);
+                        }
+                    }
+                    if (!isCompletion() && getResult() != null) {
+                        return false;
+                    }
+                    ballerinaJoinClause = PsiTreeUtil.getParentOfType(ballerinaJoinClause, BallerinaJoinClause.class);
+                }
+            } else if (scopeElement instanceof BallerinaVariableDefinitionStatement) {
+                BallerinaVariableDefinitionStatement statement = (BallerinaVariableDefinitionStatement) scopeElement;
+                BallerinaServiceBody ballerinaServiceBody = PsiTreeUtil.getParentOfType(myElement,
+                        BallerinaServiceBody.class);
+                if (ballerinaServiceBody != null) {
+                    List<BallerinaVariableDefinitionStatement> definitionStatements =
+                            ballerinaServiceBody.getVariableDefinitionStatementList();
+                    for (BallerinaVariableDefinitionStatement definitionStatement : definitionStatements) {
+                        PsiElement identifier = definitionStatement.getIdentifier();
+                        if (identifier != null) {
+                            int statementEndOffset = definitionStatement.getTextRange().getEndOffset();
+                            if (statementEndOffset >= statement.getTextRange().getEndOffset()) {
+                                continue;
+                            }
+                            if (myResult != null) {
+                                myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
+                                        BallerinaPsiImplUtil.formatBallerinaTypeName(definitionStatement.getTypeName
+                                                ())));
+                            } else if (myElement.getText().equals(identifier.getText())) {
+                                add(identifier);
+                            }
                         }
                     }
                 }
-                // We don't want to suggest any other completion since we are currently at the key of a record literal.
-                return false;
-            }
-
-            BallerinaNamedPattern ballerinaNamedPattern = PsiTreeUtil.getParentOfType(statement,
-                    BallerinaNamedPattern.class);
-            while (ballerinaNamedPattern != null) {
-                PsiElement identifier = ballerinaNamedPattern.getIdentifier();
-                if (myResult != null) {
-                    myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
-                            BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaNamedPattern.getTypeName())));
-                } else if (myElement.getText().equals(identifier.getText())) {
-                    add(identifier);
-                }
-                if (!isCompletion() && getResult() != null) {
-                    return false;
-                }
-                ballerinaNamedPattern = PsiTreeUtil.getParentOfType(ballerinaNamedPattern, BallerinaNamedPattern.class);
-            }
-
-            // Process catch clause variable.
-            BallerinaCatchClause ballerinaCatchClause = PsiTreeUtil.getParentOfType(statement,
-                    BallerinaCatchClause.class);
-            while (ballerinaCatchClause != null) {
-                PsiElement identifier = ballerinaCatchClause.getIdentifier();
-                if (identifier != null) {
-                    if (myResult != null) {
-                        myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
-                                BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaCatchClause.getTypeName())));
-                    } else if (myElement.getText().equals(identifier.getText())) {
-                        add(identifier);
-                    }
-                }
-                if (!isCompletion() && getResult() != null) {
-                    return false;
-                }
-                ballerinaCatchClause = PsiTreeUtil.getParentOfType(ballerinaCatchClause, BallerinaCatchClause.class);
-            }
-
-            // Process join clause variable.
-            BallerinaJoinClause ballerinaJoinClause = PsiTreeUtil.getParentOfType(statement, BallerinaJoinClause.class);
-            while (ballerinaJoinClause != null) {
-                PsiElement identifier = ballerinaJoinClause.getIdentifier();
-                if (identifier != null) {
-                    if (myResult != null) {
-                        myResult.addElement(BallerinaCompletionUtils.createVariableLookupElement(identifier,
-                                BallerinaPsiImplUtil.formatBallerinaTypeName(ballerinaJoinClause.getTypeName())));
-                    } else if (myElement.getText().equals(identifier.getText())) {
-                        add(identifier);
-                    }
-                }
-                if (!isCompletion() && getResult() != null) {
-                    return false;
-                }
-                ballerinaJoinClause = PsiTreeUtil.getParentOfType(ballerinaJoinClause, BallerinaJoinClause.class);
             }
         }
         return true;
