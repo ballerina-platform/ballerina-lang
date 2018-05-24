@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.*;
 import org.ballerinalang.plugins.idea.psi.*;
 
-public class BallerinaOnretryClauseImpl extends BallerinaCompositeElementImpl implements BallerinaOnretryClause {
+public class BallerinaOnRetryClauseImpl extends BallerinaCompositeElementImpl implements BallerinaOnRetryClause {
 
-  public BallerinaOnretryClauseImpl(ASTNode node) {
+  public BallerinaOnRetryClauseImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitOnretryClause(this);
+    visitor.visitOnRetryClause(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {

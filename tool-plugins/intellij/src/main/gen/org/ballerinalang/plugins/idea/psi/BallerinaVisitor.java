@@ -513,7 +513,7 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitOnretryClause(@NotNull BallerinaOnretryClause o) {
+  public void visitOnRetryClause(@NotNull BallerinaOnRetryClause o) {
     visitCompositeElement(o);
   }
 

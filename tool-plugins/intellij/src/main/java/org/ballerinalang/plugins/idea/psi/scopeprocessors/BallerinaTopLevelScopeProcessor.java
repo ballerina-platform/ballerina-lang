@@ -40,7 +40,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaNameReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaNamespaceDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaOnCommitStatement;
-import org.ballerinalang.plugins.idea.psi.BallerinaOnretryClause;
+import org.ballerinalang.plugins.idea.psi.BallerinaOnRetryClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaServiceDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
@@ -184,7 +184,7 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                                 String publicFieldsOnly = state.get(BallerinaCompletionUtils.PUBLIC_DEFINITIONS_ONLY);
                                 InsertHandler<LookupElement> insertHandler = SmartParenthesisInsertHandler.INSTANCE;
                                 BallerinaCompositeElement compositeElement = PsiTreeUtil.getParentOfType(myElement,
-                                        BallerinaOnCommitStatement.class, BallerinaOnretryClause.class);
+                                        BallerinaOnCommitStatement.class, BallerinaOnRetryClause.class);
                                 if (compositeElement != null) {
                                     insertHandler = ParenthesisInsertHandler.INSTANCE;
                                 }
