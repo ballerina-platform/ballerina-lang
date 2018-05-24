@@ -151,6 +151,11 @@
         <dependencies>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-auth</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-config</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1057,6 +1062,7 @@
             <modules>
                 <module>compiler/ballerina-lang</module>
 
+                <module>stdlib/auth</module>
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/http</module>
@@ -1113,6 +1119,7 @@
             <modules>
                 <module>compiler/ballerina-lang</module>
 
+                <module>stdlib/auth</module>
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/http</module>
@@ -1165,6 +1172,7 @@
             <modules>
                 <module>compiler/ballerina-lang</module>
 
+                <module>stdlib/auth</module>
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/http</module>

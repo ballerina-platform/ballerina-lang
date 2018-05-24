@@ -50,6 +50,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-auth</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
         </dependency>
         <dependency>
@@ -277,6 +281,7 @@
                         </goals>
                         <configuration>
                             <includeArtifactIds>
+                                ballerina-auth,
                                 ballerina-builtin,
                                 ballerina-database,
                                 ballerina-grpc,

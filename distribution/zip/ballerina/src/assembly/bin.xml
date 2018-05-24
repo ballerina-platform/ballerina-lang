@@ -40,6 +40,12 @@
 
         <fileSet>
             <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-auth-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-builtin-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
@@ -126,6 +132,7 @@
             <outputDirectory>bre/lib</outputDirectory>
             <scope>runtime</scope>
             <includes>
+                <include>org.ballerinalang:ballerina-auth:jar</include>
                 <include>org.ballerinalang:ballerina-config:jar</include>
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
