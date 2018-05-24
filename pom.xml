@@ -23,6 +23,9 @@
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
     <version>0.971.1-SNAPSHOT</version>
+    <modules>
+        <module>stdlib/cache</module>
+    </modules>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -157,6 +160,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-config</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-cache</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
@@ -1065,6 +1073,7 @@
                 <module>stdlib/auth</module>
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
+                <module>stdlib/cache</module>
                 <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
@@ -1122,6 +1131,7 @@
                 <module>stdlib/auth</module>
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
+                <module>stdlib/cache</module>
                 <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
@@ -1175,6 +1185,7 @@
                 <module>stdlib/auth</module>
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
+                <module>stdlib/cache</module>
                 <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>

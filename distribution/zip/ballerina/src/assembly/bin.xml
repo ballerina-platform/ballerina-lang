@@ -52,6 +52,12 @@
         </fileSet>
         <fileSet>
             <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-cache-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
@@ -133,6 +139,7 @@
             <scope>runtime</scope>
             <includes>
                 <include>org.ballerinalang:ballerina-auth:jar</include>
+                <include>org.ballerinalang:ballerina-cache:jar</include>
                 <include>org.ballerinalang:ballerina-config:jar</include>
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
