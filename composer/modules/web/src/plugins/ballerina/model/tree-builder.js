@@ -524,8 +524,23 @@ class TreeBuilder {
         }
 
         if (node.kind === 'UserDefinedType') {
-            if (node.ws && node.nullable && _.find(node.ws, (ws)=>ws.text === '?')) {
+            if (node.ws && node.nullable && _.find(node.ws, (ws) => ws.text === '?')) {
                 node.nullableOperatorAvailable = true;
+            }
+        }
+
+        if (node.kind === 'ArrayType') {
+            if (node.dimensions > 0 && node.ws) {
+                node.dimensionAsString = "";
+                for (let j = 0; j < node.ws.length; j++) {
+                    if (node.ws[j].text === '[') {
+                        let startingBracket = node.ws[j];
+                        let endingBracket = node.ws[j + 1];
+
+                        node.dimensionAsString += startingBracket.ws + startingBracket.text +
+                            endingBracket.ws + endingBracket.text;
+                    }
+                }
             }
         }
     }
