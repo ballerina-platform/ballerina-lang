@@ -185,7 +185,7 @@ public class CommandExecutor {
         if (docAttachmentInfo != null) {
             String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                     .getFileContent(Paths.get(URI.create(documentUri)));
-            String[] contentComponents = fileContent.split(System.lineSeparator());
+            String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
             int replaceEndCol = contentComponents[line - 1].length();
             String replaceText = String.join(System.lineSeparator(),
                     Arrays.asList(Arrays.copyOfRange(contentComponents, 0, line)))
@@ -219,7 +219,7 @@ public class CommandExecutor {
 
         String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                 .getFileContent(Paths.get(URI.create(documentUri)));
-        String[] contentComponents = fileContent.split(System.lineSeparator());
+        String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
         List<TextEdit> textEdits = new ArrayList<>();
         bLangPackage.topLevelNodes.forEach(topLevelNode -> {
             CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNode(topLevelNode);

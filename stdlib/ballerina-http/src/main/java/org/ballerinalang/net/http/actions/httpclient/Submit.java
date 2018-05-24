@@ -25,8 +25,6 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 
 /**
  * {@code Submit} action can be used to invoke a http call with any httpVerb in asynchronous manner.
@@ -54,12 +52,7 @@ public class Submit extends Execute {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
-        try {
-            // Execute the operation
-            executeNonBlockingAction(dataContext, true);
-        } catch (ClientConnectorException clientConnectorException) {
-            throw new BallerinaException("Failed to invoke 'executeAsync' action in " + HttpConstants.CALLER_ACTIONS
-                    + ". " + clientConnectorException.getMessage(), context);
-        }
+        // Execute the operation
+        executeNonBlockingAction(dataContext, true);
     }
 }
