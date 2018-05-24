@@ -3036,7 +3036,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     private byte[] getBlobLiteral(BallerinaParser.BlobLiteralContext blobLiteralContext) {
-        byte[] blobLiteralValue = null;
+        byte[] blobLiteralValue = new byte[0];
         if (blobLiteralContext.Base16BlobLiteral() != null) {
             blobLiteralValue = hexStringToByteArray(getBlobTextValue(blobLiteralContext.getText()));
         } else if (blobLiteralContext.Base64BlobLiteral() != null) {
