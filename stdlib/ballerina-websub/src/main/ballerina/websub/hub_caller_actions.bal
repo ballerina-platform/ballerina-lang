@@ -177,6 +177,11 @@ public function CallerActions::publishUpdate(string topic, string|xml|json|blob|
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
     request.setPayload(payload);
 
+    match(contentType) {
+        string specifiedContentType => request.setContentType(specifiedContentType);
+        () => {}
+    }
+
     match (secret) {
         string specifiedSecret => {
             string stringPayload = request.getPayloadAsString() but { error => "" };

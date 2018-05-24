@@ -252,8 +252,8 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
     match (request.getPayloadAsString()) {
         string payloadAsString => { stringPayload = payloadAsString; }
         error entityError => {
-            error webSubError = {message:"Error extracting notification payload as string for signature validation",
-                                 cause:entityError};
+            error webSubError = {message:"Error extracting notification payload as string for signature validation: "
+                                            + entityError.message, cause: entityError};
             return webSubError;
         }
     }

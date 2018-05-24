@@ -588,7 +588,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
         var contentDistributionRequest = callbackEp->post("", request = request);
         match (contentDistributionRequest) {
-            http:Response response => { return; }
+            http:Response response => { return; } //TODO: Handle based on response code
             error err => { log:printError("Error delievering content to: " + callback); }
         }
     }
