@@ -249,9 +249,16 @@ public class CompiledPackageSymbolEnter {
         UTF8CPEntry utf8CPEntry;
         switch (cpEntryType) {
             case CP_ENTRY_UTF8:
-                // Discard the length of bytes for now.
-                dataInStream.readShort();
-                return new UTF8CPEntry(dataInStream.readUTF());
+                short length = dataInStream.readShort();
+                String strValue = null;
+
+                // If the length of the bytes is -1, that means no UTF value has been written.
+                // i.e: string value represented by the UTF should be null.
+                // Therefore we read the UTF value only if the length >= 0.
+                if (length >= 0) {
+                    strValue = dataInStream.readUTF();
+                }
+                return new UTF8CPEntry(strValue);
             case CP_ENTRY_INTEGER:
                 return new IntegerCPEntry(dataInStream.readLong());
             case CP_ENTRY_FLOAT:
