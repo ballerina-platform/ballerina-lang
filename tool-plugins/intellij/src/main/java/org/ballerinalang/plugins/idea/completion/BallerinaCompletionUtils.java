@@ -640,6 +640,20 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
+    public static LookupElement createNamespaceLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Namespace").withIcon(BallerinaIcons.NAMESPACE);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static LookupElement createServiceLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Service").withIcon(BallerinaIcons.SERVICE);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
     public static LookupElement createFieldLookupElement(@NotNull PsiElement fieldName,
                                                          @NotNull PsiElement ownerName,
                                                          @NotNull String type, @Nullable String defaultValue,

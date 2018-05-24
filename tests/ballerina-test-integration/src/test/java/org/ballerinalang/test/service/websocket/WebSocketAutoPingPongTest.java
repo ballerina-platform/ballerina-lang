@@ -19,16 +19,12 @@
 package org.ballerinalang.test.service.websocket;
 
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
-import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
-import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
@@ -39,28 +35,19 @@ import java.util.concurrent.TimeUnit;
  */
 public class WebSocketAutoPingPongTest extends WebSocketIntegrationTest {
 
-    private WebSocketRemoteServer remoteServer;
-    private ServerInstance ballerinaServerInstance;
     private WebSocketTestClient client;
     private static final String URL = "ws://localhost:9090/test/without/ping/resource";
     private static final ByteBuffer SENDING_BYTE_BUFFER = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
 
     @BeforeClass(description = "Initializes Ballerina with the simple_server_without_ping_resource.bal file")
     public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
-        remoteServer.run();
-
-        String balPath = new File("src/test/resources/websocket/simple_server_without_ping_resource.bal")
-                .getAbsolutePath();
-        ballerinaServerInstance = ServerInstance.initBallerinaServer();
-        ballerinaServerInstance.startBallerinaServer(balPath);
-
+        initBallerinaServer("simple_server_without_ping_resource.bal");
         client = new WebSocketTestClient(URL);
         client.handshake();
     }
 
     @Test(description = "Tests the auto ping pong support in Ballerina if there is no onPing resource")
-    public void testAutoPingPongSupport() throws IOException, InterruptedException {
+    public void testAutoPingPongSupport() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendPing(SENDING_BYTE_BUFFER);
@@ -72,7 +59,6 @@ public class WebSocketAutoPingPongTest extends WebSocketIntegrationTest {
     @AfterClass(description = "Stops Ballerina")
     public void cleanup() throws BallerinaTestException, InterruptedException {
         client.shutDown();
-        ballerinaServerInstance.stopServer();
-        remoteServer.stop();
+        stopBallerinaServerInstance();
     }
 }

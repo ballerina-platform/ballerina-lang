@@ -26,6 +26,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaUserDefineTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
 import org.ballerinalang.plugins.idea.psi.BallerinaWhileStatement;
+import org.ballerinalang.plugins.idea.psi.BallerinaXmlAttrib;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -91,10 +92,17 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                                 BallerinaPsiImplUtil.getType((BallerinaVariableDefinitionStatement) superParent);
                         if (type != null) {
                             BallerinaCompletionUtils.addNewAsLookup(result, (BallerinaTypeDefinition) type.getParent());
+                            if (tempParent.getChildren().length == 1) {
+                                BallerinaCompletionUtils.addExpressionKeywordsAsLookups(result);
+                            }
                             return;
                         }
                     }
-                    BallerinaCompletionUtils.addExpressionKeywordsAsLookups(result);
+                    // If we are in a xml attribute, we don't need to suggest keywords.
+                    BallerinaXmlAttrib xmlAttrib = PsiTreeUtil.getParentOfType(position, BallerinaXmlAttrib.class);
+                    if (xmlAttrib == null) {
+                        BallerinaCompletionUtils.addExpressionKeywordsAsLookups(result);
+                    }
                     return;
                 }
             }

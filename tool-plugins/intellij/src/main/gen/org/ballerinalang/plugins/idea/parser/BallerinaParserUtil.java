@@ -66,7 +66,7 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                 // Left brace is to check in record key literals. Comma and other token is checked for situations like -
                 // {name:"Child", parent:parent}
                 if (rawLookup == BallerinaTypes.QUESTION_MARK || rawLookup == BallerinaTypes.LEFT_BRACE
-                        || (rawLookup == BallerinaTypes.COMMA
+                        || rawLookup == BallerinaTypes.LINE_COMMENT || (rawLookup == BallerinaTypes.COMMA
                         && (next3Element == BallerinaTypes.RIGHT_BRACE || next3Element == BallerinaTypes.COMMA
                         || next3Element == BallerinaTypes.DOT)
                 )) {
@@ -103,9 +103,11 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.NEW)
                                 // {message:"Notification failed for topic [" + topic + "]",  cause:httpConnectorError }
                                 && !(rawLookup == BallerinaTypes.COMMA && rawLookup2 == BallerinaTypes.ADD)
-                                && !(rawLookup == BallerinaTypes.QUESTION_MARK && rawLookup2 == BallerinaTypes
-                                .RIGHT_PARENTHESIS)
+                                && !(rawLookup == BallerinaTypes.QUESTION_MARK
+                                && rawLookup2 == BallerinaTypes.RIGHT_PARENTHESIS)
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.BIND)
+                                && !(rawLookup == BallerinaTypes.LINE_COMMENT &&
+                                rawLookup2 == BallerinaTypes.LINE_COMMENT)
                                 ) {
                             return true;
                         } else {
@@ -166,6 +168,20 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                         return true;
                                     }
                                 }
+                            } else if (rawLookup == BallerinaTypes.LINE_COMMENT &&
+                                    rawLookup2 == BallerinaTypes.LINE_COMMENT) {
+                                if (next1Element == BallerinaTypes.COLON && next3Element == BallerinaTypes.COLON) {
+                                    return false;
+                                }
+                                if (latestDoneMarker != null) {
+                                    // Todo - Add more conditions?
+                                    return true;
+                                }
+                            } else if (rawLookup == BallerinaTypes.LINE_COMMENT &&
+                                    rawLookup2 == BallerinaTypes.RIGHT_BRACE) {
+                                if (next1Element == BallerinaTypes.COLON && next2Element == BallerinaTypes.IDENTIFIER) {
+                                    return true;
+                                }
                             }
                             return false;
                         }
@@ -199,13 +215,21 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
         }
         return false;
     }
+
     public static boolean isNotARestParameter(PsiBuilder builder, int level) {
         IElementType lookAhead = builder.lookAhead(1);
         if (lookAhead == BallerinaTypes.ELLIPSIS) {
             return false;
         }
+        if (lookAhead == BallerinaTypes.LEFT_BRACKET) {
+            IElementType lookAhead3 = builder.lookAhead(3);
+            if (lookAhead3 == BallerinaTypes.ELLIPSIS) {
+                return false;
+            }
+        }
         return true;
     }
+
     private static boolean isWhiteSpaceOrComment(IElementType rawLookup) {
         return rawLookup == TokenType.WHITE_SPACE || rawLookup == BallerinaTypes.COMMENT;
     }

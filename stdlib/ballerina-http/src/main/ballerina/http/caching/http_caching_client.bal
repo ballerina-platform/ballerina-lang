@@ -416,14 +416,15 @@ function getCachedResponse(HttpCache cache, CallerActions httpClient, Request re
         // Based on https://tools.ietf.org/html/rfc7234#section-4
         log:printDebug("Cached response found for: '" + httpMethod + " " + path + "'");
 
+        updateResponseTimestamps(cachedResponse, currentT.time, currentT.time);
+        setAgeHeader(cachedResponse);
+
         if (isFreshResponse(cachedResponse, isShared)) {
             // If the no-cache directive is not set, responses can be served straight from the cache, without
             // validating with the origin server.
             if (!(req.cacheControl.noCache ?: false) && !(cachedResponse.cacheControl.noCache ?: false)
                                                                                         && !req.hasHeader(PRAGMA)) {
-                setAgeHeader(cachedResponse);
-                log:printDebug("Serving a cached fresh response without validating with the origin server: " + io:
-                        sprintf("%r", cachedResponse));
+                log:printDebug("Serving a cached fresh response without validating with the origin server");
                 return cachedResponse;
             } else {
                 log:printDebug("Serving a cached fresh response after validating with the origin server");
@@ -440,14 +441,21 @@ function getCachedResponse(HttpCache cache, CallerActions httpClient, Request re
             if (!(req.cacheControl.noCache ?: false) && ! (cachedResponse.cacheControl.noCache ?: false)
                                                                                             && !req.hasHeader(PRAGMA)) {
                 log:printDebug("Serving cached stale response without validating with the origin server");
-                setAgeHeader(cachedResponse);
                 cachedResponse.setHeader(WARNING, WARNING_110_RESPONSE_IS_STALE);
                 return cachedResponse;
             }
         }
 
         log:printDebug("Validating a stale response for '" + path + "' with the origin server.");
-        return getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, false);
+        match getValidationResponse(httpClient, req, cachedResponse, cache, currentT, path, httpMethod, false) {
+            Response validatedResponse => {
+                updateResponseTimestamps(validatedResponse, currentT.time, time:currentTime().time);
+                setAgeHeader(validatedResponse);
+                return validatedResponse;
+            }
+
+            error err => return err;
+        }
     } else {
         log:printDebug("Cached response not found for: '" + httpMethod + " " + path + "'");
     }
@@ -487,7 +495,9 @@ function getValidationResponse(CallerActions httpClient, Request req, Response c
             // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
             // This behaviour is based on the fact that currently error structs are returned only
             // if the connection is refused or the connection times out.
-            // TODO: Verify that this behaviour is valid: returning a fresh response when 'no-cache' is present and origin server couldn't be reached.
+            // TODO: Verify that this behaviour is valid: returning a fresh response when 'no-cache' is present and
+            // origin server couldn't be reached.
+            updateResponseTimestamps(cachedResponse, currentT.time, time:currentTime().time);
             setAgeHeader(cachedResponse);
             if (!isFreshResponse) {
                 // If the origin server cannot be reached and a fresh response is unavailable, serve a stale
@@ -525,8 +535,6 @@ function getValidationResponse(CallerActions httpClient, Request req, Response c
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
 function handle304Response(Response validationResponse, Response cachedResponse, HttpCache cache, string path,
                            string httpMethod) returns Response|error {
-    log:printDebug("304 response received");
-
     if (validationResponse.hasHeader(ETAG)) {
         string etag = validationResponse.getHeader(ETAG);
 
@@ -537,7 +545,7 @@ function handle304Response(Response validationResponse, Response cachedResponse,
             foreach resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
             }
-            log:printDebug("304 response received. Strong validator. Response(s) updated");
+            log:printDebug("304 response received, with a strong validator. Response(s) updated");
             return cachedResponse;
         } else if (hasAWeakValidator(validationResponse, etag)) {
             // The weak validator should be either an ETag or a last modified date. Precedence given to ETag
@@ -546,17 +554,20 @@ function handle304Response(Response validationResponse, Response cachedResponse,
             foreach resp in matchingCachedResponses {
                 updateResponse(resp, validationResponse);
             }
-            log:printDebug("304 response received. Weak validator. Response(s) updated");
+            log:printDebug("304 response received, with a weak validator. Response(s) updated");
             return cachedResponse;
-
-            // TODO: check if last modified date can be used here as a weak validator
         }
     }
 
-    if (!cachedResponse.hasHeader(ETAG) && !cachedResponse.hasHeader(LAST_MODIFIED)) {
+    // Not checking the ETag in validation since it's already checked above.
+    // TODO: Need to check whether cachedResponse is the only matching response
+    if (!cachedResponse.hasHeader(ETAG) && !cachedResponse.hasHeader(LAST_MODIFIED) &&
+                                                        !validationResponse.hasHeader(LAST_MODIFIED)) {
+        log:printDebug("304 response received and stored response do not have validators. Updating the stored response.");
         updateResponse(cachedResponse, validationResponse);
     }
-    log:printDebug("304 response received. No validators. Returning cached response");
+
+    log:printDebug("304 response received, but stored responses were not updated.");
     // TODO: Check if this behaviour is the expected one
     return cachedResponse;
 }
@@ -616,7 +627,7 @@ function getFreshnessLifetime(Response cachedResponse, boolean isSharedCache) re
 function isFreshResponse(Response cachedResponse, boolean isSharedCache) returns boolean {
     int currentAge = getResponseAge(cachedResponse);
     int freshnessLifetime = getFreshnessLifetime(cachedResponse, isSharedCache);
-    return freshnessLifetime >= currentAge;
+    return freshnessLifetime > currentAge;
 }
 
 // Based on https://tools.ietf.org/html/rfc7234#section-4.2.4
@@ -660,8 +671,7 @@ function isStaleResponseAccepted(RequestCacheControl? requestCacheControl, Respo
 }
 
 // Based https://tools.ietf.org/html/rfc7234#section-4.3.1
-function sendValidationRequest(CallerActions httpClient, string path, Response cachedResponse)
-                                                                                returns Response|error {
+function sendValidationRequest(CallerActions httpClient, string path, Response cachedResponse) returns Response|error {
     Request validationRequest = new;
 
     if (cachedResponse.hasHeader(ETAG)) {
@@ -744,13 +754,14 @@ function isAStrongValidator(string etag) returns boolean {
 // Based on https://tools.ietf.org/html/rfc7234#section-4.3.4
 function replaceHeaders(Response cachedResponse, Response validationResponse) {
     string[] headerNames = validationResponse.getHeaderNames();
+
+    log:printDebug("Updating response headers using validation response.");
+    
     foreach headerName in headerNames {
         cachedResponse.removeHeader(headerName);
-        if (validationResponse.hasHeader(headerName)) {
-            string[] headerValues = validationResponse.getHeaders(headerName);
-            foreach value in headerValues {
-                cachedResponse.addHeader(headerName, value);
-            }
+        string[] headerValues = validationResponse.getHeaders(headerName);
+        foreach value in headerValues {
+            cachedResponse.addHeader(headerName, value);
         }
     }
 }
@@ -779,6 +790,11 @@ function getResponseAge(Response cachedResponse) returns int {
         int ageValue => return ageValue;
         error => return 0;
     }
+}
+
+function updateResponseTimestamps(Response response, int requestedTime, int receivedTime) {
+    response.requestTime = requestedTime;
+    response.receivedTime = receivedTime;
 }
 
 function getDateValue(Response inboundResponse) returns int {
