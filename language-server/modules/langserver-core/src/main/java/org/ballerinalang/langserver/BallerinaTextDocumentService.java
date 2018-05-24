@@ -83,7 +83,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -188,11 +187,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
     @Override
     public CompletableFuture<SignatureHelp> signatureHelp(TextDocumentPositionParams position) {
         return CompletableFuture.supplyAsync(() -> {
-            Path sigFilePath = CommonUtil.getPath(new LSDocument(position.getTextDocument().getUri()));
+            String uri = position.getTextDocument().getUri();
+            Path sigFilePath = CommonUtil.getPath(new LSDocument(uri));
             Optional<Lock> lock = documentManager.lockFile(sigFilePath);
             try {
-                String uri = position.getTextDocument().getUri();
-                String fileContent = this.documentManager.getFileContent(Paths.get(URI.create(uri)));
+                String fileContent = this.documentManager.getFileContent(sigFilePath);
                 LSServiceOperationContext signatureContext = new LSServiceOperationContext();
                 SignatureHelpUtil.captureCallableItemInfo(position.getPosition(), fileContent, signatureContext);
                 signatureContext.put(DocumentServiceKeys.POSITION_KEY, position);
@@ -330,6 +329,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<List<? extends Command>> codeAction(CodeActionParams params) {
         return CompletableFuture.supplyAsync(() -> {
             List<Command> commands = new ArrayList<>();
+            LSDocument lsDocument = new LSDocument(params.getTextDocument().getUri());
             try {
                 Position start = params.getRange().getStart();
                 String topLevelNodeType = CommonUtil
@@ -342,7 +342,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
                 if (!params.getContext().getDiagnostics().isEmpty()) {
                     LSContextManager lsContextManager = LSContextManager.getInstance();
-                    String sourceRoot = LSCompiler.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
+                    String sourceRoot = LSCompiler.getSourceRoot(CommonUtil.getPath(lsDocument));
                     CompilerContext compilerContext = lsContextManager.getCompilerContext(sourceRoot);
                     LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
                     params.getContext().getDiagnostics().forEach(diagnostic -> {
@@ -440,7 +440,7 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                       bLangPackage.symbol.getName().getValue());
 
                     LSContextManager lsContextManager = LSContextManager.getInstance();
-                    String sourceRoot = LSCompiler.getSourceRoot(Paths.get(params.getTextDocument().getUri()));
+                    String sourceRoot = LSCompiler.getSourceRoot(renameFilePath);
                     CompilerContext context = lsContextManager.getCompilerContext(bLangPackage.packageID, sourceRoot);
                     LSPackageCache.getInstance(context).put(bLangPackage.packageID, bLangPackage);
 
