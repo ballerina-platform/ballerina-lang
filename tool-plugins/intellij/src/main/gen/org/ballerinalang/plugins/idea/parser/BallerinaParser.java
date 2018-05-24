@@ -78,6 +78,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == ATTRIBUTE) {
       r = Attribute(b, 0);
     }
+    else if (t == BLOB_LITERAL) {
+      r = BlobLiteral(b, 0);
+    }
     else if (t == BLOCK) {
       r = Block(b, 0);
     }
@@ -1014,6 +1017,19 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = XmlQualifiedName(b, l + 1);
     r = r && consumeToken(b, EQUALS);
     r = r && XmlQuotedString(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  /* ********************************************************** */
+  // BASE_16_BLOB_LITERAL | BASE_64_BLOB_LITERAL
+  public static boolean BlobLiteral(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "BlobLiteral")) return false;
+    if (!nextTokenIs(b, "<blob literal>", BASE_16_BLOB_LITERAL, BASE_64_BLOB_LITERAL)) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NONE_, BLOB_LITERAL, "<blob literal>");
+    r = consumeToken(b, BASE_16_BLOB_LITERAL);
+    if (!r) r = consumeToken(b, BASE_64_BLOB_LITERAL);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -5139,6 +5155,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   //                   | QUOTED_STRING_LITERAL
   //                   | BOOLEAN_LITERAL
   //                   | EmptyTupleLiteral
+  //                   | BlobLiteral
   //                   | NULL_LITERAL
   public static boolean SimpleLiteral(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "SimpleLiteral")) return false;
@@ -5149,6 +5166,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, QUOTED_STRING_LITERAL);
     if (!r) r = consumeToken(b, BOOLEAN_LITERAL);
     if (!r) r = EmptyTupleLiteral(b, l + 1);
+    if (!r) r = BlobLiteral(b, l + 1);
     if (!r) r = consumeToken(b, NULL_LITERAL);
     exit_section_(b, l, m, r, false, null);
     return r;

@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.*;
 import org.ballerinalang.plugins.idea.psi.*;
 
-public class BallerinaSimpleLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaSimpleLiteral {
+public class BallerinaBlobLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaBlobLiteral {
 
-  public BallerinaSimpleLiteralImpl(ASTNode node) {
+  public BallerinaBlobLiteralImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitSimpleLiteral(this);
+    visitor.visitBlobLiteral(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,56 +43,14 @@ public class BallerinaSimpleLiteralImpl extends BallerinaCompositeElementImpl im
 
   @Override
   @Nullable
-  public BallerinaBlobLiteral getBlobLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlobLiteral.class);
+  public PsiElement getBase16BlobLiteral() {
+    return findChildByType(BASE_16_BLOB_LITERAL);
   }
 
   @Override
   @Nullable
-  public BallerinaEmptyTupleLiteral getEmptyTupleLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaEmptyTupleLiteral.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaIntegerLiteral getIntegerLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaIntegerLiteral.class);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getAdd() {
-    return findChildByType(ADD);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getBooleanLiteral() {
-    return findChildByType(BOOLEAN_LITERAL);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getFloatingPointLiteral() {
-    return findChildByType(FLOATING_POINT_LITERAL);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getNullLiteral() {
-    return findChildByType(NULL_LITERAL);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getQuotedStringLiteral() {
-    return findChildByType(QUOTED_STRING_LITERAL);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getSub() {
-    return findChildByType(SUB);
+  public PsiElement getBase64BlobLiteral() {
+    return findChildByType(BASE_64_BLOB_LITERAL);
   }
 
 }

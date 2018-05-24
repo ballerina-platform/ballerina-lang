@@ -754,12 +754,15 @@ SimpleLiteral ::= (ADD|SUB)? IntegerLiteral
                   | QUOTED_STRING_LITERAL
                   | BOOLEAN_LITERAL
                   | EmptyTupleLiteral
+                  | BlobLiteral
                   | NULL_LITERAL
 
 // §3.10.1 Integer Literals
 IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL | OCTAL_INTEGER_LITERAL | BINARY_INTEGER_LITERAL
 
 EmptyTupleLiteral ::= LEFT_PARENTHESIS RIGHT_PARENTHESIS
+
+BlobLiteral ::= BASE_16_BLOB_LITERAL | BASE_64_BLOB_LITERAL
 
 NamedArgs ::= identifier ASSIGN Expression {pin=2}
 

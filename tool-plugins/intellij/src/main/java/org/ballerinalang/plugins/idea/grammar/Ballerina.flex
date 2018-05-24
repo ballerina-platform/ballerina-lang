@@ -80,66 +80,32 @@ import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.*;
 %type IElementType
 %unicode
 
-//ESCAPE_SEQUENCE = "\\" [btnfr\"'\\]
-//STRING_CHARACTER = ~[\"\\] | {ESCAPE_SEQUENCE}
-//STRING_CHARACTERS = {STRING_CHARACTER}+
-//QUOTED_STRING_LITERAL = "\"" {STRING_CHARACTERS}? "\""
-
-//QUOTED_STRING_LITERAL ='\"' ((~[\"\\] | '\\' [btnfr\"'\\])+)? '\"'
-
-
-
-//STR = "\""
-//QUOTED_STRING_LITERAL = {STR} ( [^\"\\\n\r] | "\\" ("\\" | {STR} | {ESCAPES} | [0-8xuU] ) )* {STR}?
-//ESCAPES = [abfnrtv]
-
-//QUOTED_STRING_LITERAL = \" [^\"]* \"
-
-
 DECIMAL_INTEGER_LITERAL = {DecimalNumeral} {IntegerTypeSuffix}?
-
 HEX_INTEGER_LITERAL = {HexNumeral} {IntegerTypeSuffix}?
-
 OCTAL_INTEGER_LITERAL = {OctalNumeral} {IntegerTypeSuffix}?
-
 BINARY_INTEGER_LITERAL = {BinaryNumeral} {IntegerTypeSuffix}?
 
 IntegerTypeSuffix = [lL]
-
 DecimalNumeral = 0 | {NonZeroDigit} ({Digits}? | {Underscores} {Digits})
-
 Digits = {Digit} ({DigitOrUnderscore}* {Digit})?
-
 Digit = 0 | {NonZeroDigit}
-
 NonZeroDigit = [1-9]
-
 DigitOrUnderscore = {Digit} | "_"
-
 Underscores = "_"+
 
 HexNumeral = 0 [xX] {HexDigits}
-
 HexDigits = {HexDigit} ({HexDigitOrUnderscore}* {HexDigit})?
-
 HexDigit = [0-9a-fA-F]
-
 HexDigitOrUnderscore = HexDigit | '_'
 
 OctalNumeral = 0 {Underscores}? {OctalDigits}
-
 OctalDigits = {OctalDigit} ({OctalDigitOrUnderscore}* {OctalDigit})?
-
 OctalDigit = [0-7]
-
 OctalDigitOrUnderscore = {OctalDigit} | '_'
 
 BinaryNumeral = 0 [bB] {BinaryDigits}
-
 BinaryDigits = {BinaryDigit} ({BinaryDigitOrUnderscore}* {BinaryDigit})?
-
 BinaryDigit = [01]
-
 BinaryDigitOrUnderscore = {BinaryDigit} | '_'
 
 // §3.10.2 Floating-Point Literals
@@ -150,29 +116,20 @@ DecimalFloatingPointLiteral = {Digits} "." ({Digits} {ExponentPart}? {FloatTypeS
     | "." {Digits} {ExponentPart}? {FloatTypeSuffix}?
     | {Digits} {ExponentPart} {FloatTypeSuffix}?
     | {Digits} {FloatTypeSuffix}
-
 ExponentPart = {ExponentIndicator} {SignedInteger}
-
 ExponentIndicator = [eE]
-
 SignedInteger = {Sign}? {Digits}
-
 Sign = [+-]
-
 FloatTypeSuffix = [fFdD]
 
 HexadecimalFloatingPointLiteral = {HexSignificand} {BinaryExponent} {FloatTypeSuffix}?
-
 HexSignificand = {HexNumeral} "."? | '0' [xX] {HexDigits}? "." {HexDigits}
-
 BinaryExponent = {BinaryExponentIndicator} {SignedInteger}
-
 BinaryExponentIndicator = [pP]
 
 // §3.10.3 Boolean Literals
 
 BOOLEAN_LITERAL = "true" | "false"
-
 
 // Note - Invalid escaped characters should be annotated at runtime.
 // This is done becuase otherwise the string wont be identified correctly.
@@ -182,25 +139,27 @@ STRING_CHARACTER =  [^\"] | {ESCAPE_SEQUENCE}
 STRING_CHARACTERS = {STRING_CHARACTER}+
 QUOTED_STRING_LITERAL = \" {STRING_CHARACTERS}? \"?
 
-NULL_LITERAL = null
+// Blob Literal
 
-//DIGIT = [0-9]
-//DIGITS = {DIGIT}+
-//DECIMAL_INTEGER_LITERAL = {DIGITS}
-//INTIGER_LITERAL = {DECIMAL_INTEGER_LITERAL}
+BASE_16_BLOB_LITERAL = "base16" {WHITE_SPACE}* {BACKTICK} {HEX_GROUP}* {WHITE_SPACE}* {BACKTICK}
+HEX_GROUP = {WHITE_SPACE}* {HexDigit} {WHITE_SPACE}* {HexDigit}
+
+BASE_64_BLOB_LITERAL = "base64" {WHITE_SPACE}* {BACKTICK} {BASE_64_GROUP}* {PADDED_BASE_64_GROUP}? {WHITE_SPACE}* {BACKTICK}
+BASE_64_GROUP = {WHITE_SPACE}* {BASE_64_CHAR} {WHITE_SPACE}* {BASE_64_CHAR} {WHITE_SPACE}* {BASE_64_CHAR} {WHITE_SPACE}* {BASE_64_CHAR}
+PADDED_BASE_64_GROUP = {WHITE_SPACE}* {BASE_64_CHAR} {WHITE_SPACE}* {BASE_64_CHAR} {WHITE_SPACE}* {BASE_64_CHAR} {WHITE_SPACE}* {PADDING_CHAR} | {WHITE_SPACE}* {BASE_64_CHAR} {WHITE_SPACE}* {BASE_64_CHAR} {WHITE_SPACE}* {PADDING_CHAR} {WHITE_SPACE}* {PADDING_CHAR}
+BASE_64_CHAR = [a-zA-Z0-9+/]
+PADDING_CHAR = =
+
+NULL_LITERAL = null
 
 LETTER = [a-zA-Z_] | [^\u0000-\u007F\uD800-\uDBFF] | [\uD800-\uDBFF] [\uDC00-\uDFFF]
 DIGIT = [0-9]
 LETTER_OR_DIGIT = [a-zA-Z0-9_] | [^\u0000-\u007F\uD800-\uDBFF] | [\uD800-\uDBFF] [\uDC00-\uDFFF]
 
 IDENTIFIER = {LETTER} {LETTER_OR_DIGIT}* | {IdentifierLiteral}
-
 IdentifierLiteral = \^ \" {IdentifierLiteralChar}+ \"
-
 IdentifierLiteralChar = [^|\"\\\b\f\n\r\t] | {IdentifierLiteralEscapeSequence}
-
 IdentifierLiteralEscapeSequence = \\ [|\"\\\/] | \\\\ [btnfr] | {UnicodeEscape}
-
 UnicodeEscape = "\\u" {HexDigit} {HexDigit} {HexDigit} {HexDigit}
 
 WHITE_SPACE=\s+
@@ -231,7 +190,6 @@ EXPRESSION_END = "}}"
 
 HEX_DIGITS = {HEX_DIGIT} ({HEX_DIGIT_OR_UNDERSCORE}* {HEX_DIGIT})?
 HEX_DIGIT_OR_UNDERSCORE = {HEX_DIGIT} | "_"
-
 
 // XML
 XML_COMMENT_START = "<!--"
@@ -550,6 +508,9 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     {BINARY_INTEGER_LITERAL}                    { return BINARY_INTEGER_LITERAL; }
     {FLOATING_POINT_LITERAL}                    { return FLOATING_POINT_LITERAL; }
     {QUOTED_STRING_LITERAL}                     { return QUOTED_STRING_LITERAL; }
+
+    {BASE_16_BLOB_LITERAL}                      { return BASE_16_BLOB_LITERAL; }
+    {BASE_64_BLOB_LITERAL}                      { return BASE_64_BLOB_LITERAL; }
 
     {IDENTIFIER}                                { return IDENTIFIER; }
     {LINE_COMMENT}                              { return LINE_COMMENT; }

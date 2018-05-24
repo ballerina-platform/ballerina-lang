@@ -49,6 +49,7 @@ public interface BallerinaTypes {
   IElementType BINARY_EQUAL_EXPRESSION = new BallerinaCompositeElementType("BINARY_EQUAL_EXPRESSION");
   IElementType BINARY_OR_EXPRESSION = new BallerinaCompositeElementType("BINARY_OR_EXPRESSION");
   IElementType BINARY_POW_EXPRESSION = new BallerinaCompositeElementType("BINARY_POW_EXPRESSION");
+  IElementType BLOB_LITERAL = new BallerinaCompositeElementType("BLOB_LITERAL");
   IElementType BLOCK = new BallerinaCompositeElementType("BLOCK");
   IElementType BRACED_OR_TUPLE_EXPRESSION = new BallerinaCompositeElementType("BRACED_OR_TUPLE_EXPRESSION");
   IElementType BREAK_STATEMENT = new BallerinaCompositeElementType("BREAK_STATEMENT");
@@ -298,6 +299,8 @@ public interface BallerinaTypes {
   IElementType AT = new BallerinaTokenType("@");
   IElementType AWAIT = new BallerinaTokenType("await");
   IElementType BACKTICK = new BallerinaTokenType("`");
+  IElementType BASE_16_BLOB_LITERAL = new BallerinaTokenType("BASE_16_BLOB_LITERAL");
+  IElementType BASE_64_BLOB_LITERAL = new BallerinaTokenType("BASE_64_BLOB_LITERAL");
   IElementType BINARY_INTEGER_LITERAL = new BallerinaTokenType("BINARY_INTEGER_LITERAL");
   IElementType BIND = new BallerinaTokenType("bind");
   IElementType BLOB = new BallerinaTokenType("blob");
@@ -579,6 +582,9 @@ public interface BallerinaTypes {
       }
       else if (type == BINARY_POW_EXPRESSION) {
         return new BallerinaBinaryPowExpressionImpl(node);
+      }
+      else if (type == BLOB_LITERAL) {
+        return new BallerinaBlobLiteralImpl(node);
       }
       else if (type == BLOCK) {
         return new BallerinaBlockImpl(node);
