@@ -310,8 +310,8 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
             BallerinaNameReference nameReference = (BallerinaNameReference) parent;
             inLocalPackage = nameReference.isInLocalPackage();
         } else if (parent instanceof BallerinaAnyIdentifierName) {
-            PsiElement prevSibling = parent.getPrevSibling();
-            if (prevSibling instanceof BallerinaPackageReference) {
+            PsiElement prevSibling = PsiTreeUtil.prevVisibleLeaf(parent);
+            if (prevSibling != null && prevSibling.getParent() instanceof BallerinaPackageReference) {
                 inLocalPackage = false;
             }
         }
@@ -372,9 +372,9 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
             BallerinaPackageReference packageReference = null;
 
             if (parent instanceof BallerinaAnyIdentifierName) {
-                PsiElement prevSibling = parent.getPrevSibling();
-                if (prevSibling instanceof BallerinaPackageReference) {
-                    packageReference = ((BallerinaPackageReference) prevSibling);
+                PsiElement prevSibling = PsiTreeUtil.prevVisibleLeaf(parent);
+                if (prevSibling != null && prevSibling.getParent() instanceof BallerinaPackageReference) {
+                    packageReference = ((BallerinaPackageReference) prevSibling.getParent());
                 }
             } else if (parent instanceof BallerinaNameReference) {
                 packageReference = ((BallerinaNameReference) parent).getPackageReference();
