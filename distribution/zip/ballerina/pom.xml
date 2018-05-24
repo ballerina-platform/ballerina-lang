@@ -62,6 +62,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-file</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
         </dependency>
         <dependency>
@@ -294,6 +298,7 @@
                                 ballerina-cache,
                                 ballerina-crypto,
                                 ballerina-database,
+                                ballerina-file,
                                 ballerina-grpc,
                                 ballerina-http,
                                 ballerina-jms,

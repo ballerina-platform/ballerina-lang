@@ -171,6 +171,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-file</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1077,6 +1082,7 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/crypto</module>
+                <module>stdlib/file</module>
                 <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
@@ -1136,6 +1142,7 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/crypto</module>
+                <module>stdlib/file</module>
                 <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
@@ -1191,6 +1198,7 @@
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/crypto</module>
+                <module>stdlib/file</module>
                 <module>stdlib/http</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>

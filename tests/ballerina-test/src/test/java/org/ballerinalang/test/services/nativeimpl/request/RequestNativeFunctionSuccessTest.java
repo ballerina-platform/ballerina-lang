@@ -90,8 +90,8 @@ public class RequestNativeFunctionSuccessTest {
     @BeforeClass
     public void setup() {
         String resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
-        Path sourceRoot = Paths.get(resourceRoot, "test-src", "statements", "services", "nativeimpl",
-                "request");
+        Path sourceRoot = Paths.get(resourceRoot, "test-src", "statements", "META-INF/services", "nativeimpl",
+                                    "request");
         result = BCompileUtil.compile(sourceRoot.resolve("in-request-native-function.bal").toString());
         serviceResult = BServiceUtil.setupProgramFile(this, sourceRoot.resolve("in-request-native-function.bal")
                 .toString());

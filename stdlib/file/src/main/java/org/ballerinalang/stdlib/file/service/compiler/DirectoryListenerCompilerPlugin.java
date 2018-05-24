@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.file.service.compiler;
+package org.ballerinalang.stdlib.file.service.compiler;
 
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
@@ -37,11 +37,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 
 import java.util.List;
 
-import static org.ballerinalang.nativeimpl.file.service.DirectoryListenerConstants.ANNOTATION_PATH;
-import static org.ballerinalang.nativeimpl.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
-import static org.ballerinalang.nativeimpl.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE;
-import static org.ballerinalang.nativeimpl.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE;
-import static org.ballerinalang.nativeimpl.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY;
+import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.ANNOTATION_PATH;
+import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
+import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_CREATE;
+import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_DELETE;
+import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.RESOURCE_NAME_ON_MODIFY;
 import static org.ballerinalang.util.diagnostic.Diagnostic.Kind.ERROR;
 
 /**

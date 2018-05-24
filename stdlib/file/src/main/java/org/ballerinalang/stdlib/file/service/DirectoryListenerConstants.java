@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.file.service;
+package org.ballerinalang.stdlib.file.service;
 
 import org.wso2.transport.localfilesystem.server.util.Constants;
 

@@ -44,6 +44,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-file</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-logging</artifactId>
         </dependency>
         <dependency>
@@ -77,10 +81,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-config</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.transport.file</groupId>
-            <artifactId>org.wso2.transport.local-file-system</artifactId>
         </dependency>
     </dependencies>
     

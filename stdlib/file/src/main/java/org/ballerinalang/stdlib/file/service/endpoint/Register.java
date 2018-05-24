@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.file.service.endpoint;
+package org.ballerinalang.stdlib.file.service.endpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -29,11 +29,11 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.nativeimpl.file.service.DirectoryListenerConstants;
-import org.ballerinalang.nativeimpl.file.service.FSListener;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
+import org.ballerinalang.stdlib.file.service.FSListener;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemConnectorFactory;
@@ -46,8 +46,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.nativeimpl.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
-import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_PACKAGE;
+import static org.ballerinalang.stdlib.file.service.DirectoryListenerConstants.FILE_SYSTEM_EVENT;
+import static org.ballerinalang.stdlib.file.utils.Constants.FILE_PACKAGE;
 
 /**
  * Register file listener service.

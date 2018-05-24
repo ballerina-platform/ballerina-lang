@@ -23,7 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
+import org.ballerinalang.nativeimpl.internal.utils.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

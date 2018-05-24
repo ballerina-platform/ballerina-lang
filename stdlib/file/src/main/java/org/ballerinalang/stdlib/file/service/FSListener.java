@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.file.service;
+package org.ballerinalang.stdlib.file.service;
 
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;

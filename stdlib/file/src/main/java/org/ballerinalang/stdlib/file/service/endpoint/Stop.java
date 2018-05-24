@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.file.service.endpoint;
+package org.ballerinalang.stdlib.file.service.endpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -24,7 +24,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.nativeimpl.file.service.DirectoryListenerConstants;
+import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemServerConnector;
