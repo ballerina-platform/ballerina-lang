@@ -6528,27 +6528,49 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   public static boolean WorkerBody(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "WorkerBody")) return false;
     if (!nextTokenIs(b, LEFT_BRACE)) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, WORKER_BODY, null);
     r = consumeToken(b, LEFT_BRACE);
-    r = r && Block(b, l + 1);
-    r = r && consumeToken(b, RIGHT_BRACE);
-    exit_section_(b, m, WORKER_BODY, r);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, Block(b, l + 1));
+    r = p && consumeToken(b, RIGHT_BRACE) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */
   // worker identifier WorkerBody
   public static boolean WorkerDefinition(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "WorkerDefinition")) return false;
-    if (!nextTokenIs(b, WORKER)) return false;
     boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, WORKER_DEFINITION, null);
+    Marker m = enter_section_(b, l, _NONE_, WORKER_DEFINITION, "<worker definition>");
     r = consumeTokens(b, 1, WORKER, IDENTIFIER);
     p = r; // pin = 1
     r = r && WorkerBody(b, l + 1);
-    exit_section_(b, l, m, r, p, null);
+    exit_section_(b, l, m, r, p, WorkerDefinitionRecover_parser_);
     return r || p;
+  }
+
+  /* ********************************************************** */
+  // !(worker|'}')
+  static boolean WorkerDefinitionRecover(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "WorkerDefinitionRecover")) return false;
+    boolean r;
+    Marker m = enter_section_(b, l, _NOT_);
+    r = !WorkerDefinitionRecover_0(b, l + 1);
+    exit_section_(b, l, m, r, false, null);
+    return r;
+  }
+
+  // worker|'}'
+  private static boolean WorkerDefinitionRecover_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "WorkerDefinitionRecover_0")) return false;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeToken(b, WORKER);
+    if (!r) r = consumeToken(b, RIGHT_BRACE);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -8616,6 +8638,11 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   final static Parser TopLevelDefinitionRecover_parser_ = new Parser() {
     public boolean parse(PsiBuilder b, int l) {
       return TopLevelDefinitionRecover(b, l + 1);
+    }
+  };
+  final static Parser WorkerDefinitionRecover_parser_ = new Parser() {
+    public boolean parse(PsiBuilder b, int l) {
+      return WorkerDefinitionRecover(b, l + 1);
     }
   };
 }

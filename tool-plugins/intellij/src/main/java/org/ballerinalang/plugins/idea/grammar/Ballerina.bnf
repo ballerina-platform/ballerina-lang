@@ -299,9 +299,12 @@ AttachmentPoint ::= service | resource | function | object | type | endpoint | T
 WorkerDefinition ::= worker identifier WorkerBody {
     pin=1
     stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaWorkerDefinitionStub"
+    recoverWhile=WorkerDefinitionRecover
 }
 
-WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE
+private WorkerDefinitionRecover ::= !(worker|'}')
+
+WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 GlobalEndpointDefinition ::= public? EndpointDefinition {
     pin=2
