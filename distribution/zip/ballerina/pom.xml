@@ -67,6 +67,10 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-math</artifactId>
+        </dependency
+        ><dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-reflect</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -308,6 +312,7 @@
                                 ballerina-jms,
                                 ballerina-math,
                                 ballerina-mime,
+                                ballerina-reflect,
                                 ballerina-transactions,
                                 ballerina-websub,
                                 strip-bouncycastle,
