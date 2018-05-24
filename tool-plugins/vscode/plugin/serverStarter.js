@@ -99,7 +99,7 @@ function startServices() {
             log(`Listening for Ballerina Language Server on: ${LSPort}`);
             server.removeListener('error', onLSError);
 
-            const args = ['-cp', getClassPath()]
+            const args = ['-cp', getClassPath()];
 
             if (process.env.LSDEBUG === "true") {
                 log('LSDEBUG is set to "true". Services will run on debug mode');
@@ -109,9 +109,13 @@ function startServices() {
             const balHomePath = workspace.getConfiguration('ballerina').get('home');
             const balHomeSysProp = `-Dballerina.home=${balHomePath}`;
 
+            const balDebugLog = workspace.getConfiguration('ballerina').get('debugLog');
+            const balDebugLogSysProp = `-Dballerina.debugLog=${balDebugLog}`;
+
             log(`Starting parser service on: ${parserPort}`);
 
-            serverProcess = spawn(getExcecutable(), [balHomeSysProp, ...args, main, LSPort, parserPort]);
+            serverProcess = spawn(getExcecutable(), [balHomeSysProp, balDebugLogSysProp, ...args, main, LSPort,
+                                                     parserPort]);
 
             serverProcess.on('error', (e) => {
                 log(`Could not start services ${e}\n`, true);
