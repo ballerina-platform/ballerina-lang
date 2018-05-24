@@ -55,6 +55,13 @@
         <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
     </template>
 
+    <template description='Endpoint Declaration' id='ballerina_lang_endpoint' name='ballerina_lang_endpoint'
+              toReformat='false' toShortenFQNames='true'
+              value="endpoint $TYPE$ $NAME$ {&#10;    $END$&#10;};">
+        <variable name="TYPE" expression="" defaultValue="" alwaysStopAt="true"/>
+        <variable name="NAME" expression="" defaultValue="" alwaysStopAt="true"/>
+    </template>
+
     <template description='Transaction clause' id='ballerina_lang_transaction' name='ballerina_lang_transaction'
               toReformat='false' toShortenFQNames='true'
               value='transaction with retries = $RETRIES$, oncommit = $ON_COMMIT$, onabort = $ON_ABORT$ {&#10;    $END$&#10;}'>

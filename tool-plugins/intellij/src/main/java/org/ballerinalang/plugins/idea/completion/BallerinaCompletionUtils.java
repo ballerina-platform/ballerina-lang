@@ -84,6 +84,7 @@ public class BallerinaCompletionUtils {
     // File level keywords
     private static final LookupElementBuilder ANNOTATION;
     private static final LookupElementBuilder ENDPOINT;
+    private static final LookupElementBuilder ENDPOINT_WITHOUT_TEMPLATE;
     private static final LookupElementBuilder FUNCTION;
     private static final LookupElementBuilder IMPORT;
     private static final LookupElementBuilder PUBLIC;
@@ -158,6 +159,7 @@ public class BallerinaCompletionUtils {
     static {
         ANNOTATION = createKeywordLookupElement("annotation");
         ENDPOINT = createKeywordLookupElement("endpoint");
+        ENDPOINT_WITHOUT_TEMPLATE = createKeywordLookupElementWithoutTemplate("endpoint");
         FUNCTION = createKeywordLookupElement("function");
         IMPORT = createKeywordLookupElement("import");
         PUBLIC = createKeywordLookupElement("public");
@@ -269,6 +271,11 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
+    public static LookupElementBuilder createKeywordLookupElementWithoutTemplate(@NotNull String name) {
+        return createLookupElement(name, createTemplateBasedInsertHandler("no_template", " "));
+    }
+
+    @NotNull
     private static LookupElementBuilder createKeywordLookupElement(@NotNull String name,
                                                                    @Nullable String traileringString) {
 
@@ -334,6 +341,10 @@ public class BallerinaCompletionUtils {
 
     static void addEndpointAsLookup(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(ENDPOINT, KEYWORDS_PRIORITY));
+    }
+
+    static void addEndpointWithoutTemplateAsLookup(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(ENDPOINT_WITHOUT_TEMPLATE, KEYWORDS_PRIORITY));
     }
 
     static void addEObjectAsLookup(@NotNull CompletionResultSet resultSet) {
@@ -432,6 +443,14 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(BREAK, KEYWORDS_PRIORITY));
     }
 
+    static void addEndpointKeywordsAsLookups(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(ENDPOINT, KEYWORDS_PRIORITY));
+    }
+
+    static void addWorkerKeywordsAsLookups(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(WORKER, KEYWORDS_PRIORITY));
+    }
+
     private static LookupElement createKeywordAsLookup(@NotNull LookupElement lookupElement) {
         return PrioritizedLookupElement.withPriority(lookupElement, KEYWORDS_PRIORITY);
     }
@@ -441,7 +460,6 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(createKeywordAsLookup(MATCH));
         resultSet.addElement(createKeywordAsLookup(FOREACH));
         resultSet.addElement(createKeywordAsLookup(WHILE));
-        resultSet.addElement(createKeywordAsLookup(WORKER));
 
         resultSet.addElement(createKeywordAsLookup(TRANSACTION));
 
