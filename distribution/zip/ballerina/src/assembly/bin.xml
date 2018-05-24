@@ -58,6 +58,12 @@
         </fileSet>
         <fileSet>
             <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-crypto-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-http-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
@@ -141,6 +147,7 @@
                 <include>org.ballerinalang:ballerina-auth:jar</include>
                 <include>org.ballerinalang:ballerina-cache:jar</include>
                 <include>org.ballerinalang:ballerina-config:jar</include>
+                <include>org.ballerinalang:ballerina-crypto:jar</include>
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
                 <include>org.ballerinalang:ballerina-launcher:jar</include>
