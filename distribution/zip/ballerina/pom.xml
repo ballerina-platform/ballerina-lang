@@ -66,6 +66,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-math</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
         </dependency>
         <dependency>
@@ -302,6 +306,7 @@
                                 ballerina-grpc,
                                 ballerina-http,
                                 ballerina-jms,
+                                ballerina-math,
                                 ballerina-mime,
                                 ballerina-transactions,
                                 ballerina-websub,
