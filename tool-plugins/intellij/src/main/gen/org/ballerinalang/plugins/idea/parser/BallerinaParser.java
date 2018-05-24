@@ -4366,12 +4366,11 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // as identifier
   private static boolean PatternStreamingEdgeInput_3_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "PatternStreamingEdgeInput_3_0")) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_);
-    r = consumeTokens(b, 1, AS, IDENTIFIER);
-    p = r; // pin = 1
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, AS, IDENTIFIER);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */
@@ -5523,12 +5522,11 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // as identifier
   private static boolean StreamingInput_6_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StreamingInput_6_0")) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_);
-    r = consumeTokens(b, 1, AS, IDENTIFIER);
-    p = r; // pin = 1
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
+    boolean r;
+    Marker m = enter_section_(b);
+    r = consumeTokens(b, 0, AS, IDENTIFIER);
+    exit_section_(b, m, null, r);
+    return r;
   }
 
   /* ********************************************************** */

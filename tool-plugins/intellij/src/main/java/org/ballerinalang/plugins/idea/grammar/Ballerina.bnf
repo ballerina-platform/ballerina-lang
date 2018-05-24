@@ -857,7 +857,7 @@ SetClause ::= set SetAssignmentClause (COMMA SetAssignmentClause)* {pin=1}
 
 SetAssignmentClause ::= VariableReference ASSIGN Expression
 
-StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin(".*")=1}
+StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin=1}
 
 JoinStreamingInput ::= (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput on Expression
 
@@ -878,7 +878,7 @@ private Pattern4 ::= NOT PatternStreamingEdgeInput (AND PatternStreamingEdgeInpu
 private Pattern3 ::= foreach PatternStreamingInput {pin=1}
 private Pattern5 ::= PatternStreamingEdgeInput (AND | OR) PatternStreamingEdgeInput {pin=2}
 
-PatternStreamingEdgeInput ::= VariableReference WhereClause? IntRangeExpression? (as identifier)? {pin(".*")=1}
+PatternStreamingEdgeInput ::= VariableReference WhereClause? IntRangeExpression? (as identifier)? {pin=1}
 
 WhereClause ::= where Expression {pin=1}
 
