@@ -4226,7 +4226,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // NOT PatternStreamingEdgeInput (AND PatternStreamingEdgeInput | for SimpleLiteral)
+  // NOT PatternStreamingEdgeInput (AND PatternStreamingEdgeInput | for DECIMAL_INTEGER_LITERAL TimeScale)
   static boolean Pattern4(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Pattern4")) return false;
     if (!nextTokenIs(b, NOT)) return false;
@@ -4240,7 +4240,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // AND PatternStreamingEdgeInput | for SimpleLiteral
+  // AND PatternStreamingEdgeInput | for DECIMAL_INTEGER_LITERAL TimeScale
   private static boolean Pattern4_2(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Pattern4_2")) return false;
     boolean r;
@@ -4263,14 +4263,14 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // for SimpleLiteral
+  // for DECIMAL_INTEGER_LITERAL TimeScale
   private static boolean Pattern4_2_1(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "Pattern4_2_1")) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_);
-    r = consumeToken(b, FOR);
+    r = consumeTokens(b, 1, FOR, DECIMAL_INTEGER_LITERAL);
     p = r; // pin = 1
-    r = r && SimpleLiteral(b, l + 1);
+    r = r && TimeScale(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
@@ -5426,7 +5426,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // EQUAL_GT LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE
+  // EQUAL_GT LEFT_PARENTHESIS Parameter RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE
   public static boolean StreamingAction(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StreamingAction")) return false;
     if (!nextTokenIs(b, EQUAL_GT)) return false;
@@ -5434,19 +5434,12 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, STREAMING_ACTION, null);
     r = consumeTokens(b, 1, EQUAL_GT, LEFT_PARENTHESIS);
     p = r; // pin = 1
-    r = r && report_error_(b, StreamingAction_2(b, l + 1));
+    r = r && report_error_(b, Parameter(b, l + 1));
     r = p && report_error_(b, consumeTokens(b, -1, RIGHT_PARENTHESIS, LEFT_BRACE)) && r;
     r = p && report_error_(b, Block(b, l + 1)) && r;
     r = p && consumeToken(b, RIGHT_BRACE) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
-  }
-
-  // FormalParameterList?
-  private static boolean StreamingAction_2(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "StreamingAction_2")) return false;
-    FormalParameterList(b, l + 1);
-    return true;
   }
 
   /* ********************************************************** */
@@ -6499,15 +6492,15 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // within Expression
+  // within DECIMAL_INTEGER_LITERAL TimeScale
   public static boolean WithinClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "WithinClause")) return false;
     if (!nextTokenIs(b, WITHIN)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, WITHIN_CLAUSE, null);
-    r = consumeToken(b, WITHIN);
+    r = consumeTokens(b, 1, WITHIN, DECIMAL_INTEGER_LITERAL);
     p = r; // pin = 1
-    r = r && Expression(b, l + 1, -1);
+    r = r && TimeScale(b, l + 1);
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }

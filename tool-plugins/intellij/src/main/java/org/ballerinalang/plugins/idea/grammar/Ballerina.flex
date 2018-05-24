@@ -511,11 +511,11 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "where"                                     { return WHERE; }
     "followed"                                  { return FOLLOWED; }
     "set"                                       { return SET; }
-    "for"                                       { return FOR; }
+    "for"                                       { inSiddhiTimeScaleQuery = true; return FOR; }
     "window"                                    { return WINDOW; }
     "events"                                    { if(inSiddhiInsertQuery) { inSiddhiInsertQuery = false; return EVENTS; } return IDENTIFIER; }
     "every"                                     { return EVERY; }
-    "within"                                    { return WITHIN; }
+    "within"                                    { inSiddhiTimeScaleQuery = true; return WITHIN; }
     "last"                                      { if(inSiddhiOutputRateLimit) { inSiddhiOutputRateLimit = false; return LAST; } return IDENTIFIER; }
     "first"                                     { if(inSiddhiOutputRateLimit) { inSiddhiOutputRateLimit = false; return FIRST; } return IDENTIFIER; }
     "snapshot"                                  { return SNAPSHOT; }

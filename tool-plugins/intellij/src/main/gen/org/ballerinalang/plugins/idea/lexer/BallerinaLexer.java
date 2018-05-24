@@ -2731,7 +2731,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 330: break;
           case 107: 
-            { return FOR;
+            { inSiddhiTimeScaleQuery = true; return FOR;
             } 
             // fall through
           case 331: break;
@@ -3126,7 +3126,7 @@ public class BallerinaLexer implements FlexLexer {
             // fall through
           case 409: break;
           case 186: 
-            { return WITHIN;
+            { inSiddhiTimeScaleQuery = true; return WITHIN;
             } 
             // fall through
           case 410: break;
