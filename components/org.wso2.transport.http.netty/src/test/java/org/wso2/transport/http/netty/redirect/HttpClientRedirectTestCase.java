@@ -56,7 +56,6 @@ import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.initializers.RedirectServerInitializer;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.InvocationTargetException;
@@ -101,8 +100,7 @@ public class HttpClientRedirectTestCase {
 
     @BeforeClass
     public void setup() {
-        transportsConfiguration = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
+        transportsConfiguration = new TransportsConfiguration();
 
         connectorFactory = new DefaultHttpWsConnectorFactory();
 
@@ -122,19 +120,17 @@ public class HttpClientRedirectTestCase {
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
                         senderConfiguration);
 
-        TransportsConfiguration transportsConfigurationForHttps = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
+        TransportsConfiguration transportsConfigurationForHttps = new TransportsConfiguration();
         Set<SenderConfiguration> senderConfig = transportsConfigurationForHttps.getSenderConfigurations();
         senderConfig.forEach(config -> {
-            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
-                config.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-                config.setFollowRedirect(true);
-            }
+            config.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
+            config.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+            config.setFollowRedirect(true);
+            config.setScheme(HTTPS_SCHEME);
         });
         httpsClientConnector = connectorFactory.createHttpClientConnector(HTTPConnectorUtil
                 .getTransportProperties(transportsConfigurationForHttps), HTTPConnectorUtil
-                .getSenderConfiguration(transportsConfigurationForHttps, Constants.HTTPS_SCHEME));
+                .getSenderConfiguration(transportsConfigurationForHttps, HTTPS_SCHEME));
     }
 
     /**

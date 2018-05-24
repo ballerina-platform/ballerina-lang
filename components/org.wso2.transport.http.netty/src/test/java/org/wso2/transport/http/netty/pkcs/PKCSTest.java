@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.config.TransportsConfiguration;
@@ -39,15 +38,15 @@ import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 
 /**
  * Test case for testing PKCS12 keystore and truststore.
@@ -57,28 +56,21 @@ public class PKCSTest {
     private static Logger log = LoggerFactory.getLogger(PKCSTest.class);
 
     private static HttpClientConnector httpClientConnector;
-    private String trustStoreFile = "/simple-test-config/client-truststore.p12";
     private String password = "ballerina";
     private String tlsStoreType = "PKCS12";
     private static int serverPort = 5431;
     private HttpWsConnectorFactory httpConnectorFactory;
     private ServerConnector serverConnector;
+    private SenderConfiguration senderConfiguration;
 
     @BeforeClass
     public void setup() throws InterruptedException {
 
-        TransportsConfiguration transportsConfiguration = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-
-        Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
+        senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
+        setSenderConfigs();
         //set PKCS12 truststore to ballerina client.
-        senderConfig.forEach(config -> {
-            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFile));
-                config.setTrustStorePass(password);
-                config.setTLSStoreType(tlsStoreType);
-            }
-        });
+        setSenderConfigs();
 
         httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
@@ -91,7 +83,7 @@ public class PKCSTest {
 
         httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+                        senderConfiguration);
     }
 
     private ListenerConfiguration getListenerConfiguration() {
@@ -102,10 +94,17 @@ public class PKCSTest {
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStoreFile));
         listenerConfiguration.setKeyStorePass(password);
         listenerConfiguration.setCertPass(password);
-        String scheme = "https";
-        listenerConfiguration.setScheme(scheme);
+        listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setTLSStoreType(tlsStoreType);
         return listenerConfiguration;
+    }
+
+    private void setSenderConfigs() {
+        String trustStoreFile = "/simple-test-config/client-truststore.p12";
+        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFile));
+        senderConfiguration.setTrustStorePass(password);
+        senderConfiguration.setTLSStoreType(tlsStoreType);
+        senderConfiguration.setScheme(HTTPS_SCHEME);
     }
 
     @Test

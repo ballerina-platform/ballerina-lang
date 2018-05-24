@@ -46,7 +46,6 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.certificatevalidation.TestConstants;
 import org.wso2.transport.http.netty.certificatevalidation.Utils;
 import org.wso2.transport.http.netty.common.certificatevalidation.CertificateVerificationException;
-import org.wso2.transport.http.netty.common.certificatevalidation.Constants;
 import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPCache;
 import org.wso2.transport.http.netty.common.certificatevalidation.ocsp.OCSPVerifier;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
@@ -85,13 +84,15 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
+import static org.wso2.transport.http.netty.common.certificatevalidation.Constants.BOUNCY_CASTLE_PROVIDER;
 
 /**
  * A test case for testing OCSP stapling.
@@ -99,23 +100,20 @@ import static org.testng.AssertJUnit.assertNotNull;
 public class OCSPStaplingTest {
 
     private static final Logger log = LoggerFactory.getLogger(OCSPStaplingTest.class);
-    private String trustStoreFilePath = "/simple-test-config/cacerts.p12";
-    private String trustStorePassword = "cacertspassword";
     private HttpClientConnector httpClientConnector;
     private String tlsStoreType = "PKCS12";
-    private String httpsScheme = "https";
     private int port = 7777;
     private List<String> ocspUrlList = new ArrayList<String>();
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory factory;
+    private SenderConfiguration senderConfiguration;
 
     @BeforeClass
     public void setUp() throws Exception {
         createMockOCSPResponse();
-        TransportsConfiguration transportsConfiguration = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-        Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
-        setSenderConfigs(senderConfig);
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
+        senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
+        setSenderConfigs();
         factory = new DefaultHttpWsConnectorFactory();
 
         String keyStoreFilePath = "/simple-test-config/localcrt.p12";
@@ -128,20 +126,19 @@ public class OCSPStaplingTest {
 
         httpClientConnector = factory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, httpsScheme));
+                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, HTTPS_SCHEME));
 
     }
 
-    private void setSenderConfigs(Set<SenderConfiguration> senderConfig) {
-        senderConfig.forEach(config -> {
-            if (config.getId().contains(httpsScheme)) {
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
-                config.setTrustStorePass(trustStorePassword);
-                config.setTLSStoreType(tlsStoreType);
-                config.setHostNameVerificationEnabled(false);
-                config.setOcspStaplingEnabled(true);
-            }
-        });
+    private void setSenderConfigs() {
+        String trustStoreFilePath = "/simple-test-config/cacerts.p12";
+        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
+        String trustStorePassword = "cacertspassword";
+        senderConfiguration.setTrustStorePass(trustStorePassword);
+        senderConfiguration.setTLSStoreType(tlsStoreType);
+        senderConfiguration.setHostNameVerificationEnabled(false);
+        senderConfiguration.setOcspStaplingEnabled(true);
+        senderConfiguration.setScheme(HTTPS_SCHEME);
     }
 
     @Test (description = "Tests with ocsp stapling enabled client and a server.")
@@ -199,7 +196,7 @@ public class OCSPStaplingTest {
         listenerConfiguration.setPort(port);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStore));
         listenerConfiguration.setKeyStorePass(keyStorePassword);
-        listenerConfiguration.setScheme(httpsScheme);
+        listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setTLSStoreType(tlsStoreType);
         listenerConfiguration.setOcspStaplingEnabled(true);
         return listenerConfiguration;
@@ -237,7 +234,7 @@ public class OCSPStaplingTest {
         }
 
         X509CertificateHolder[] chain = { certificateHolder };
-        ContentSigner signer = new JcaContentSignerBuilder("SHA1withRSA").setProvider(Constants.BOUNCY_CASTLE_PROVIDER)
+        ContentSigner signer = new JcaContentSignerBuilder("SHA1withRSA").setProvider(BOUNCY_CASTLE_PROVIDER)
                 .build(caPrivateKey);
         BasicOCSPResp basicResp = basicOCSPRespBuilder.build(signer, chain, new Date());
         OCSPRespBuilder builder = new OCSPRespBuilder();

@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
@@ -42,11 +41,9 @@ import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -54,6 +51,8 @@ import java.util.stream.Collectors;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 
 /**
  * Tests for SSL protocols.
@@ -65,6 +64,8 @@ public class SSLProtocolsTest {
     private static HttpClientConnector httpClientConnector;
     private static HttpWsConnectorFactory httpWsConnectorFactory;
     private static ServerConnector serverConnector;
+    private SenderConfiguration senderConfiguration;
+    private List<Parameter> clientParams;
 
     @DataProvider(name = "protocols")
 
@@ -88,24 +89,16 @@ public class SSLProtocolsTest {
             throws InterruptedException {
 
         Parameter clientprotocols = new Parameter("sslEnabledProtocols", clientProtocol);
-        List<Parameter> clientParams = new ArrayList<>();
+        clientParams = new ArrayList<>();
         clientParams.add(clientprotocols);
 
         Parameter serverProtocols = new Parameter("sslEnabledProtocols", serverProtocol);
         List<Parameter> severParams = new ArrayList<>();
         severParams.add(serverProtocols);
 
-        TransportsConfiguration transportsConfiguration = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-        Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
-        senderConfig.forEach(config -> {
-            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
-                config.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
-                config.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
-                config.setParameters(clientParams);
-            }
-        });
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
+        senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
+        setSenderConfigs();
 
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         ListenerConfiguration listenerConfiguration = getListenerConfiguration(serverPort, severParams);
@@ -118,7 +111,7 @@ public class SSLProtocolsTest {
 
         httpClientConnector = httpWsConnectorFactory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+                        senderConfiguration);
 
         testSSLProtocols(hasException, serverPort);
     }
@@ -132,9 +125,18 @@ public class SSLProtocolsTest {
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
+        listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setParameters(severParams);
         return listenerConfiguration;
+    }
+
+    private void setSenderConfigs() {
+        senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
+        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setParameters(clientParams);
+        senderConfiguration.setScheme(HTTPS_SCHEME);
     }
 
     private void testSSLProtocols(boolean hasException, int serverPort) {

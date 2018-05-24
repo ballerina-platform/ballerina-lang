@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
@@ -50,12 +49,10 @@ import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -63,6 +60,9 @@ import java.util.stream.Collectors;
 import static org.mockserver.integration.ClientAndProxy.startClientAndProxy;
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_METHOD;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 
 /**
  * Tests for proxy server
@@ -74,13 +74,14 @@ public class ProxyServerTestCase {
     private static ServerConnector serverConnector;
     private ClientAndProxy proxy;
     private HttpWsConnectorFactory httpWsConnectorFactory;
+    private SenderConfiguration senderConfiguration;
+    private ProxyServerConfiguration proxyServerConfiguration;
 
     @BeforeClass
     public void setup() throws InterruptedException {
         //Start proxy server.
         int proxyPort = 15427;
         proxy = startClientAndProxy(proxyPort);
-        ProxyServerConfiguration proxyServerConfiguration = null;
 
         try {
             proxyServerConfiguration = new ProxyServerConfiguration("localhost", proxyPort);
@@ -88,17 +89,9 @@ public class ProxyServerTestCase {
             TestUtil.handleException("Failed to resolve host", e);
         }
 
-        TransportsConfiguration transportsConfiguration = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-
-        //set proxy server configuration to client connector.
-        Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
-        for (SenderConfiguration config : senderConfig) {
-            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
-            }
-            config.setProxyServerConfiguration(proxyServerConfiguration);
-        }
+        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
+        senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
+        setSenderConfigs();
 
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         ListenerConfiguration listenerConfiguration = getListenerConfiguration();
@@ -110,18 +103,24 @@ public class ProxyServerTestCase {
 
         httpClientConnector = httpWsConnectorFactory
                 .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+                        senderConfiguration);
     }
 
     private ListenerConfiguration getListenerConfiguration() {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
         int serverPort = 8081;
         listenerConfiguration.setPort(serverPort);
-        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
+        listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        String password = "wso2carbon";
-        listenerConfiguration.setKeyStorePass(password);
+        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
         return listenerConfiguration;
+    }
+
+    private void setSenderConfigs() {
+        senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
+        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setScheme(HTTPS_SCHEME);
     }
 
     @Test
@@ -132,7 +131,7 @@ public class ProxyServerTestCase {
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
             HTTPCarbonMessage msg = new HttpCarbonRequest(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "https://localhost:8081"));
-            msg.setProperty(Constants.HTTP_METHOD, HttpMethod.POST.toString());
+            msg.setProperty(HTTP_METHOD, HttpMethod.POST.toString());
             msg.setHeader("Host", "localhost:8081");
             msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
 
