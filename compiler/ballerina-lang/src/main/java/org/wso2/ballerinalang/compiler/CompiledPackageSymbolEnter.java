@@ -513,6 +513,7 @@ public class CompiledPackageSymbolEnter {
         String fieldName = getUTF8CPEntryValue(dataInStream);
         String typeSig = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
+        int memIndex = dataInStream.readInt();
 
         BVarSymbol varSymbol = new BVarSymbol(flags, names.fromString(fieldName),
                 objectSymbol.pkgID, null, objectSymbol.scope.owner);
@@ -524,6 +525,7 @@ public class CompiledPackageSymbolEnter {
         // The object field type cannot be resolved now. Hence add it to the unresolved type list.
         UnresolvedType unresolvedFieldType = new UnresolvedType(typeSig, type -> {
             varSymbol.type = type;
+            varSymbol.varIndex = new RegIndex(memIndex, type.tag);
             BField structField = new BField(varSymbol.name,
                     varSymbol, varSymbol.defaultValue != null);
             objectType.fields.add(structField);

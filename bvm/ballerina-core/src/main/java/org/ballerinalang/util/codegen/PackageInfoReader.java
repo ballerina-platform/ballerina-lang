@@ -412,6 +412,9 @@ public class PackageInfoReader {
 
             int fieldFlags = dataInStream.readInt();
 
+            //read and ignore varindex
+            dataInStream.readInt();
+
             StructFieldInfo fieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldNameUTF8Entry.getValue(),
                     fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), fieldFlags);
             objectInfo.addFieldInfo(fieldInfo);
@@ -469,6 +472,9 @@ public class PackageInfoReader {
             UTF8CPEntry fieldTypeSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(fieldTypeSigCPIndex);
 
             int fieldFlags = dataInStream.readInt();
+
+            //read and ignore varindex
+            dataInStream.readInt();
 
             StructFieldInfo fieldInfo = new StructFieldInfo(fieldNameCPIndex, fieldNameUTF8Entry.getValue(),
                     fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), fieldFlags);

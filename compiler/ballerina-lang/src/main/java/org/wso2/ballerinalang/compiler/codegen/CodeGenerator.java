@@ -1814,8 +1814,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, objField.name.value);
                 int sigCPIndex = addUTF8CPEntry(currentPkgInfo, objField.type.getDesc());
 
+                objField.symbol.varIndex = getFieldIndex(objField.symbol.type.tag);
                 StructFieldInfo objFieldInfo = new StructFieldInfo(fieldNameCPIndex,
-                        sigCPIndex, objField.symbol.flags);
+                        sigCPIndex, objField.symbol.flags, objField.symbol.varIndex.value);
                 objFieldInfo.fieldType = objField.type;
 
                 // Populate default values
@@ -1825,7 +1826,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 }
 
                 objInfo.fieldInfoEntries.add(objFieldInfo);
-                objField.symbol.varIndex = getFieldIndex(objField.symbol.type.tag);
 
                 // Add documentation attributes
                 addDocumentAttachmentAttrInfo(objField.docAttachments, objFieldInfo);
@@ -1868,8 +1868,9 @@ public class CodeGenerator extends BLangNodeVisitor {
                 int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.name.value);
                 int sigCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.type.getDesc());
 
+                recordField.symbol.varIndex = getFieldIndex(recordField.symbol.type.tag);
                 StructFieldInfo recordFieldInfo = new StructFieldInfo(fieldNameCPIndex,
-                        sigCPIndex, recordField.symbol.flags);
+                        sigCPIndex, recordField.symbol.flags, recordField.symbol.varIndex.value);
                 recordFieldInfo.fieldType = recordField.type;
 
                 // Populate default values
@@ -1880,7 +1881,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 }
 
                 recordInfo.fieldInfoEntries.add(recordFieldInfo);
-                recordField.symbol.varIndex = getFieldIndex(recordField.symbol.type.tag);
 
                 // Add documentation attributes
                 addDocumentAttachmentAttrInfo(recordField.docAttachments, recordFieldInfo);

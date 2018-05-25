@@ -557,13 +557,11 @@ public class PackageInfoWriter {
     private static byte[] writeInstructions(Instruction[] instructions) throws IOException {
         ByteArrayOutputStream byteAOS = new ByteArrayOutputStream();
         DataOutputStream dataOutStream = new DataOutputStream(byteAOS);
-        int count = 0;
         for (Instruction instruction : instructions) {
             dataOutStream.write(instruction.opcode);
             for (Operand operand : instruction.ops) {
                 dataOutStream.writeInt(operand.value);
             }
-            count++;
         }
         return byteAOS.toByteArray();
     }
@@ -573,6 +571,7 @@ public class PackageInfoWriter {
         dataOutStream.writeInt(structFieldInfo.nameCPIndex);
         dataOutStream.writeInt(structFieldInfo.signatureCPIndex);
         dataOutStream.writeInt(structFieldInfo.flags);
+        dataOutStream.writeInt(structFieldInfo.varIndex);
 
         // Write attribute info
         writeAttributeInfoEntries(dataOutStream, structFieldInfo.getAttributeInfoEntries());
