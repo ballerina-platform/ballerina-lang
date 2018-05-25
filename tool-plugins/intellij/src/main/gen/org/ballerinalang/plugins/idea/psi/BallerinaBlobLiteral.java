@@ -21,15 +21,12 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaWorkerBody extends BallerinaCompositeElement {
+public interface BallerinaBlobLiteral extends BallerinaCompositeElement {
 
   @Nullable
-  BallerinaBlock getBlock();
-
-  @NotNull
-  PsiElement getLeftBrace();
+  PsiElement getBase16BlobLiteral();
 
   @Nullable
-  PsiElement getRightBrace();
+  PsiElement getBase64BlobLiteral();
 
 }

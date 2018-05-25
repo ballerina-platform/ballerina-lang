@@ -43,8 +43,14 @@ public class BallerinaWithinClauseImpl extends BallerinaCompositeElementImpl imp
 
   @Override
   @Nullable
-  public BallerinaExpression getExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
+  public BallerinaTimeScale getTimeScale() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTimeScale.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getDecimalIntegerLiteral() {
+    return findChildByType(DECIMAL_INTEGER_LITERAL);
   }
 
   @Override

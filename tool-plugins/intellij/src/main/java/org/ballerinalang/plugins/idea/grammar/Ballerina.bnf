@@ -299,9 +299,12 @@ AttachmentPoint ::= service | resource | function | object | type | endpoint | T
 WorkerDefinition ::= worker identifier WorkerBody {
     pin=1
     stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaWorkerDefinitionStub"
+    recoverWhile=WorkerDefinitionRecover
 }
 
-WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE
+private WorkerDefinitionRecover ::= !(worker|'}')
+
+WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 GlobalEndpointDefinition ::= public? EndpointDefinition {
     pin=2
@@ -754,12 +757,15 @@ SimpleLiteral ::= (ADD|SUB)? IntegerLiteral
                   | QUOTED_STRING_LITERAL
                   | BOOLEAN_LITERAL
                   | EmptyTupleLiteral
+                  | BlobLiteral
                   | NULL_LITERAL
 
 // §3.10.1 Integer Literals
 IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL | OCTAL_INTEGER_LITERAL | BINARY_INTEGER_LITERAL
 
 EmptyTupleLiteral ::= LEFT_PARENTHESIS RIGHT_PARENTHESIS
+
+BlobLiteral ::= BASE_16_BLOB_LITERAL | BASE_64_BLOB_LITERAL
 
 NamedArgs ::= identifier ASSIGN Expression {pin=2}
 
@@ -833,7 +839,7 @@ StreamingQueryStatement ::= from (StreamingInput (JoinStreamingInput)? | Pattern
 
 PatternClause ::= every? PatternStreamingInput WithinClause?
 
-WithinClause ::= within Expression {pin=1}
+WithinClause ::= within DECIMAL_INTEGER_LITERAL TimeScale {pin=1}
 
 OrderByClause ::= order by OrderByVariable (COMMA OrderByVariable)* {pin=1}
 
@@ -851,7 +857,7 @@ GroupByClause ::= group by VariableReferenceList {pin=1}
 
 HavingClause ::= having Expression {pin=1}
 
-StreamingAction ::= EQUAL_GT LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
+StreamingAction ::= EQUAL_GT LEFT_PARENTHESIS Parameter RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 SetClause ::= set SetAssignmentClause (COMMA SetAssignmentClause)* {pin=1}
 
@@ -874,7 +880,7 @@ PatternStreamingInput ::=
 
 private Pattern1 ::= PatternStreamingEdgeInput (followed by | COMMA) PatternStreamingInput {pin=2}
 private Pattern2 ::= LEFT_PARENTHESIS PatternStreamingInput RIGHT_PARENTHESIS
-private Pattern4 ::= NOT PatternStreamingEdgeInput (AND PatternStreamingEdgeInput | for SimpleLiteral) {pin(".*")=1}
+private Pattern4 ::= NOT PatternStreamingEdgeInput (AND PatternStreamingEdgeInput | for DECIMAL_INTEGER_LITERAL TimeScale) {pin(".*")=1}
 private Pattern3 ::= foreach PatternStreamingInput {pin=1}
 private Pattern5 ::= PatternStreamingEdgeInput (AND | OR) PatternStreamingEdgeInput {pin=2}
 

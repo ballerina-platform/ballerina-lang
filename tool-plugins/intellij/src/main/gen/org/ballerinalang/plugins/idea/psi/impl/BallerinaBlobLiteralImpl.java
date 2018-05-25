@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.*;
 import org.ballerinalang.plugins.idea.psi.*;
 
-public class BallerinaStreamingActionImpl extends BallerinaCompositeElementImpl implements BallerinaStreamingAction {
+public class BallerinaBlobLiteralImpl extends BallerinaCompositeElementImpl implements BallerinaBlobLiteral {
 
-  public BallerinaStreamingActionImpl(ASTNode node) {
+  public BallerinaBlobLiteralImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitStreamingAction(this);
+    visitor.visitBlobLiteral(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,44 +43,14 @@ public class BallerinaStreamingActionImpl extends BallerinaCompositeElementImpl 
 
   @Override
   @Nullable
-  public BallerinaBlock getBlock() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaBlock.class);
+  public PsiElement getBase16BlobLiteral() {
+    return findChildByType(BASE_16_BLOB_LITERAL);
   }
 
   @Override
   @Nullable
-  public BallerinaParameter getParameter() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaParameter.class);
-  }
-
-  @Override
-  @NotNull
-  public PsiElement getEqualGt() {
-    return notNullChild(findChildByType(EQUAL_GT));
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftBrace() {
-    return findChildByType(LEFT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLeftParenthesis() {
-    return findChildByType(LEFT_PARENTHESIS);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightBrace() {
-    return findChildByType(RIGHT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightParenthesis() {
-    return findChildByType(RIGHT_PARENTHESIS);
+  public PsiElement getBase64BlobLiteral() {
+    return findChildByType(BASE_64_BLOB_LITERAL);
   }
 
 }

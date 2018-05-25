@@ -30,13 +30,16 @@ public interface BallerinaPatternStreamingInput extends BallerinaCompositeElemen
   BallerinaPatternStreamingInput getPatternStreamingInput();
 
   @Nullable
-  BallerinaSimpleLiteral getSimpleLiteral();
+  BallerinaTimeScale getTimeScale();
 
   @Nullable
   PsiElement getAnd();
 
   @Nullable
   PsiElement getComma();
+
+  @Nullable
+  PsiElement getDecimalIntegerLiteral();
 
   @Nullable
   PsiElement getLeftParenthesis();
