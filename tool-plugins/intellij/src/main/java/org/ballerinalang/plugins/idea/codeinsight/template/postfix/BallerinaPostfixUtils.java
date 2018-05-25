@@ -12,7 +12,9 @@ import com.intellij.util.Function;
 import com.intellij.util.containers.ContainerUtil;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpressionStmt;
+import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
 import org.ballerinalang.plugins.idea.psi.BallerinaNullableTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaUnionTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceExpression;
 import org.jetbrains.annotations.NotNull;
@@ -55,6 +57,10 @@ public class BallerinaPostfixUtils {
     }
 
     public static final Condition<PsiElement> IS_ITERABLE_OR_ARRAY = element -> {
+        // The topmost expression can be an identifier in some cases. See the comment in getTopmostExpression method.
+        if (element instanceof BallerinaIdentifier) {
+            return true;
+        }
         PsiElement type = getType(element);
         return type instanceof BallerinaUnionTypeName || type instanceof BallerinaNullableTypeName;
     };
@@ -71,10 +77,19 @@ public class BallerinaPostfixUtils {
     }
 
     @Nullable
-    public static BallerinaExpression getTopmostExpression(PsiElement context) {
+    public static PsiElement getTopmostExpression(PsiElement context) {
         BallerinaExpressionStmt statement = PsiTreeUtil.getNonStrictParentOfType(context,
                 BallerinaExpressionStmt.class);
-        return statement != null ? statement.getExpression() : null;
+        if (statement != null) {
+            return statement.getExpression();
+        }
+        // Sometimes while the typing, the code can be interpreted as a variable definition statement if there are
+        // content after the caret. In that case, we return the context as the topmost expression.
+        BallerinaTypeName ballerinaTypeName = PsiTreeUtil.getNonStrictParentOfType(context, BallerinaTypeName.class);
+        if (ballerinaTypeName != null) {
+            return context;
+        }
+        return null;
     }
 
     /**

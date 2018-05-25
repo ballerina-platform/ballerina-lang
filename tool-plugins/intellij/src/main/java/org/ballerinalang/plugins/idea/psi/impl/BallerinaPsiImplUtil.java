@@ -1037,6 +1037,30 @@ public class BallerinaPsiImplUtil {
         });
     }
 
+    public static PsiElement getType(@NotNull BallerinaIdentifier identifierreachStatement) {
+        return CachedValuesManager.getCachedValue(identifierreachStatement, () -> {
+            PsiReference reference = identifierreachStatement.getReference();
+            if (reference == null) {
+                return CachedValueProvider.Result.create(null, identifierreachStatement);
+            }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null) {
+                return CachedValueProvider.Result.create(null, identifierreachStatement);
+            }
+            BallerinaAssignmentStatement assignmentStatement = PsiTreeUtil.getParentOfType(resolvedElement,
+                    BallerinaAssignmentStatement.class);
+            if (assignmentStatement != null) {
+                return CachedValueProvider.Result.create(getType(assignmentStatement), identifierreachStatement);
+            }
+            BallerinaVariableDefinitionStatement definitionStatement = PsiTreeUtil.getParentOfType(resolvedElement,
+                    BallerinaVariableDefinitionStatement.class);
+            if (definitionStatement != null) {
+                return CachedValueProvider.Result.create(getType(definitionStatement), identifierreachStatement);
+            }
+            return CachedValueProvider.Result.create(null, identifierreachStatement);
+        });
+    }
+
     @Nullable
     private static PsiElement getBallerinaTypeFromVariableReference(@NotNull BallerinaVariableReference
                                                                             variableReference) {
