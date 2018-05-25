@@ -71,7 +71,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
 
-    private class PushResponseListener implements HttpClientConnectorListener {
+    private static class PushResponseListener implements HttpClientConnectorListener {
 
         private DataContext dataContext;
 
@@ -82,14 +82,12 @@ public class GetPromisedResponse extends AbstractHTTPAction {
         @Override
         public void onPushResponse(int promisedId, HTTPCarbonMessage httpCarbonMessage) {
             dataContext.notifyInboundResponseStatus(
-                    createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+                    HttpUtil.createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
         }
 
         @Override
         public void onError(Throwable throwable) {
-            BStruct httpConnectorError = createStruct(
-                    dataContext.context, HttpConstants.STRUCT_GENERIC_ERROR, HttpConstants.PACKAGE_BALLERINA_BUILTIN);
-            httpConnectorError.setStringField(0, throwable.getMessage());
+            BStruct httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

@@ -62,3 +62,11 @@ export function isClientOnMacOS() {
 export function isClientOnWindows() {
     return getClientOS() === WINDOWS;
 }
+
+/**
+ * Indicates whether the composer is running inside electron
+ */
+export function isOnElectron() {
+    const userAgent = navigator.userAgent.toLowerCase();
+    return userAgent.indexOf(' electron/') > -1;
+}

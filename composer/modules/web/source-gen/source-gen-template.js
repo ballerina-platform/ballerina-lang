@@ -102,13 +102,6 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
     switch (node.kind) {
         case 'CompilationUnit':
             return join(node.topLevelNodes, pretty, replaceLambda, l, w) + w();
-        case 'ArrayType':
-            if (node.isRestParam) {
-                return getSourceOf(node.elementType, pretty, l, replaceLambda);
-            } else {
-                return getSourceOf(node.elementType, pretty, l, replaceLambda) +
-                    times(node.dimensions, () => w() + '[' + w() + ']');
-            }
         /* eslint-disable max-len */
         // auto gen start
 // auto-gen-code

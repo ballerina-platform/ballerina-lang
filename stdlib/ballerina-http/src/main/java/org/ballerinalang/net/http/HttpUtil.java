@@ -82,10 +82,12 @@ import static org.ballerinalang.mime.util.Constants.BOUNDARY;
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
+import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.OCTET_STREAM;
 import static org.ballerinalang.mime.util.Constants.ONE_BYTE;
+import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.Constants.RESPONSE_ENTITY_INDEX;
 import static org.ballerinalang.mime.util.EntityBodyHandler.checkEntityBodyAvailability;
@@ -605,7 +607,7 @@ public class HttpUtil {
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.LOCAL);
 
         Object remoteSocketAddress = inboundMsg.getProperty(HttpConstants.REMOTE_ADDRESS);
-        if (remoteSocketAddress != null && remoteSocketAddress instanceof InetSocketAddress) {
+        if (remoteSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) remoteSocketAddress;
             String remoteHost = inetSocketAddress.getHostName();
             long remotePort = inetSocketAddress.getPort();
@@ -615,7 +617,7 @@ public class HttpUtil {
         serviceEndpoint.setRefField(HttpConstants.REMOTE_STRUCT_INDEX, remote);
 
         Object localSocketAddress = inboundMsg.getProperty(HttpConstants.LOCAL_ADDRESS);
-        if (localSocketAddress != null && localSocketAddress instanceof InetSocketAddress) {
+        if (localSocketAddress instanceof InetSocketAddress) {
             InetSocketAddress inetSocketAddress = (InetSocketAddress) localSocketAddress;
             String localHost = inetSocketAddress.getHostName();
             long localPort = inetSocketAddress.getPort();
@@ -1090,8 +1092,7 @@ public class HttpUtil {
     }
 
     public static String getContentTypeFromTransportMessage(HTTPCarbonMessage transportMessage) {
-        return transportMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()) != null ?
-                transportMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString()) : null;
+        return transportMessage.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
     }
 
     /**
@@ -1166,5 +1167,23 @@ public class HttpUtil {
         if (transferValue != null) {
             outboundResponseMsg.setProperty(CHUNKING_CONFIG, getChunkConfig(transferValue));
         }
+    }
+
+    /**
+     * Creates InResponse using the native {@code HTTPCarbonMessage}.
+     *
+     * @param context           ballerina context
+     * @param httpCarbonMessage the HTTPCarbonMessage
+     * @return the Response struct
+     */
+    public static BStruct createResponseStruct(Context context, HTTPCarbonMessage httpCarbonMessage) {
+        BStruct responseStruct = BLangConnectorSPIUtil.createBStruct(context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                                     HttpConstants.RESPONSE);
+        BStruct entity = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_MIME, HttpConstants.ENTITY);
+        BStruct mediaType = BLangConnectorSPIUtil.createBStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+
+        HttpUtil.populateInboundResponse(responseStruct, entity, mediaType, context.getProgramFile(),
+                                         httpCarbonMessage);
+        return responseStruct;
     }
 }

@@ -78,6 +78,8 @@ import org.eclipse.lsp4j.TextEdit;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.eclipse.lsp4j.services.TextDocumentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -101,6 +103,8 @@ import java.util.stream.Stream;
  * Text document service implementation for ballerina.
  */
 class BallerinaTextDocumentService implements TextDocumentService {
+    private static final Logger logger = LoggerFactory.getLogger(BallerinaTextDocumentService.class);
+
     // indicates the frequency to send diagnostics to server upon document did change
     private static final int DIAG_PUSH_DEBOUNCE_DELAY = 500;
     private final BallerinaLanguageServer ballerinaLanguageServer;
@@ -140,6 +144,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                       bLangPackage.symbol.getName().getValue());
                 CompletionUtil.resolveSymbols(completionContext, bLangPackage);
             } catch (Exception | AssertionError e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while resolving symbols" + ((msg != null) ? ": " + msg : ""), e);
+                }
                 // Fallback procedure in an exception. Currently supports the match statement only
                 CompletionUtil.resolveSymbols(completionContext, null);
             } finally {
@@ -174,6 +182,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                  currentBLangPackage.symbol.getName().getValue());
                 hover = HoverUtil.getHoverContent(hoverContext, currentBLangPackage);
             } catch (Exception | AssertionError e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while retrieving hover content" + ((msg != null) ? ": " + msg : ""), e);
+                }
                 hover = new Hover();
                 List<Either<String, MarkedString>> contents = new ArrayList<>();
                 contents.add(Either.forLeft(""));
@@ -208,6 +220,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 signatureHelp = SignatureHelpUtil.getFunctionSignatureHelp(signatureContext);
                 return signatureHelp;
             } catch (Exception | AssertionError e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while retrieving signature help" + ((msg != null) ? ": " + msg : ""), e);
+                }
                 return new SignatureHelp();
             } finally {
                 lock.ifPresent(Lock::unlock);
@@ -236,6 +252,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 currentBLangPackage.accept(positionTreeVisitor);
                 contents = DefinitionUtil.getDefinitionPosition(definitionContext);
             } catch (Exception e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while retrieving definition" + ((msg != null) ? ": " + msg : ""), e);
+                }
                 contents = new ArrayList<>();
             } finally {
                 lock.ifPresent(Lock::unlock);
@@ -278,6 +298,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 return contents;
             } catch (Exception e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while retrieving references" + ((msg != null) ? ": " + msg : ""), e);
+                }
                 return contents;
             } finally {
                 lock.ifPresent(Lock::unlock);
@@ -319,6 +343,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
 
                 return symbols;
             } catch (Exception e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while retrieving document symbols" + ((msg != null) ? ": " + msg : ""), e);
+                }
                 return symbols;
             } finally {
                 lock.ifPresent(Lock::unlock);
@@ -354,6 +382,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
                 return commands;
             } catch (Exception e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while retrieving code actions" + ((msg != null) ? ": " + msg : ""), e);
+                }
                 return commands;
             }
         });
@@ -452,7 +484,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                              params.getNewName(),
                                                                              replaceableSymbolName));
                 return workspaceEdit;
-            } catch (Exception a) {
+            } catch (Exception e) {
+                if (CommonUtil.LS_DEBUG_ENABLED) {
+                    String msg = e.getMessage();
+                    logger.error("Error while renaming" + ((msg != null) ? ": " + msg : ""), e);
+                }
                 return workspaceEdit;
             } finally {
                 lock.ifPresent(Lock::unlock);

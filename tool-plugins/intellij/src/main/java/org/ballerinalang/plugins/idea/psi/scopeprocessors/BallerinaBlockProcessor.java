@@ -465,7 +465,8 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             return;
         }
 
-        List<BallerinaVariableDefinitionStatement> definitions = serviceBody.getVariableDefinitionStatementList();
+        List<BallerinaVariableDefinitionStatement> definitions =
+                serviceBody.getVariableDefinitionStatementList();
         for (BallerinaVariableDefinitionStatement definition : definitions) {
             PsiElement identifier = definition.getIdentifier();
             if (identifier == null) {

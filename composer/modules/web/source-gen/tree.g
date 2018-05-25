@@ -38,6 +38,13 @@ ArrayLiteralExpr
    : [ <expressions-joined-by,>* ]
    ;
 
+ArrayType
+   : <isRestParam?> <grouped?> ( <elementType.source> )
+   | <isRestParam?>              <elementType.source>
+   |                <grouped?> ( <elementType.source> <dimensionAsString> )
+   |                             <elementType.source> <dimensionAsString>
+   ;
+
 Assignment
    : <declaredWithVar?var> <variable.source> = <expression.source> ;
    ;
@@ -123,7 +130,8 @@ ElvisExpr
 
 Endpoint
    :  <skipSourceGen?>
-   |                   <annotationAttachments>* endpoint <endPointType.source> <name.value> <configurationExpression.source> ;
+   |  <isConfigAssignment?> <annotationAttachments>* endpoint <endPointType.source> <name.value> = <configurationExpression.source> ;
+   |                        <annotationAttachments>* endpoint <endPointType.source> <name.value>   <configurationExpression.source> ;
    ;
 
 EndpointType
@@ -139,7 +147,8 @@ FieldBasedAccessExpr
    ;
 
 Foreach
-   : foreach <variables-joined-by,>* in <collection.source> { <body.source> }
+   : <withParantheses?> foreach ( <variables-joined-by,>* in <collection.source> ) { <body.source> }
+   |                    foreach   <variables-joined-by,>* in <collection.source>   { <body.source> }
    ;
 
 Forever
@@ -303,12 +312,13 @@ PostIncrement
    ;
 
 Record
-   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> { <fields-suffixed-by-;>* };
+   : <separateWithComma?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> { <fields-suffixed-by-,>* };
+   | <separateWithSemicolon?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> type <name.value> { <fields-suffixed-by-;>* };
    ;
 
 RecordLiteralExpr
    : { <keyValuePairs-joined-by,>* }
-   | { }
+   | {                             }
    ;
 
 RecordLiteralKeyValue
@@ -316,7 +326,7 @@ RecordLiteralKeyValue
    ;
 
 Resource
-   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <name.value> ( <parameters-joined-by,>* ) { <body.source> <workers>* }
+   : <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <name.value> ( <parameters-joined-by,>* ) { <endpointNodes>* <body.source> <workers>* }
    ;
 
 RestArgsExpr
@@ -513,11 +523,14 @@ UnionTypeNode
 
 UserDefinedType
    : <anonStruct.source>
-   | <nullableOperatorAvailable?> <packageAlias.value> : <typeName.value> ?
-   | <nullableOperatorAvailable?>                        <typeName.value> ?
-   |                              <packageAlias.value> : <typeName.value>
-   |                                                     <typeName.value>
-   |
+   | <nullableOperatorAvailable?> <grouped?> ( <packageAlias.value> : <typeName.value> ? )
+   | <nullableOperatorAvailable?>              <packageAlias.value> : <typeName.value> ?
+   | <nullableOperatorAvailable?> <grouped?> (                        <typeName.value> ? )
+   | <nullableOperatorAvailable?>                                     <typeName.value> ?
+   |                              <grouped?> ( <packageAlias.value> : <typeName.value>   )
+   |                                           <packageAlias.value> : <typeName.value>
+   |                              <grouped?> (                        <typeName.value>   )
+   |                                                                  <typeName.value>
    ;
 
 ValueType

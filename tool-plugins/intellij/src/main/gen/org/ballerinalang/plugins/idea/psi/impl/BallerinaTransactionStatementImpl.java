@@ -43,8 +43,8 @@ public class BallerinaTransactionStatementImpl extends BallerinaCompositeElement
 
   @Override
   @Nullable
-  public BallerinaOnretryClause getOnretryClause() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaOnretryClause.class);
+  public BallerinaOnRetryClause getOnRetryClause() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaOnRetryClause.class);
   }
 
   @Override

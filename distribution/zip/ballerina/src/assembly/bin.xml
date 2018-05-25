@@ -80,6 +80,12 @@
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
+        <fileSet>
+            <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-transactions-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
     </fileSets>
 
     <files>
@@ -114,7 +120,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>README</source>
+            <source>README.md</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
