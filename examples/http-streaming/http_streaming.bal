@@ -56,7 +56,7 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
 
         //Get the payload as a byte channel.
         match clientRequest.getByteChannel() {
-            io:ByteChannel byteChannel => {
+            io:ByteChannel sourceChannel => {
                 //Write the incoming stream to a file. First get the destination
                 //channel by providing the file name the content should be
                 //written to.
@@ -64,14 +64,14 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
                     getFileChannel("./files/ReceivedFile.pdf", io:WRITE);
                 try {
                     //Copy the incoming stream to the destination channel.
-                    copy(byteChannel, destinationChannel);
+                    copy(sourceChannel, destinationChannel);
                     response.setTextPayload("File Received!");
                 } catch (error err) {
                     log:printError("error occurred while saving file : "
                             + err.message);
                 } finally {
-                    byteChannel.close() but {
-                        error e => log:printError("Error closing byteChannel ",
+                    sourceChannel.close() but {
+                        error e => log:printError("Error closing sourceChannel ",
                             err = e) };
                     destinationChannel.close() but {
                         error e =>
