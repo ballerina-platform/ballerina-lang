@@ -28,9 +28,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ballerina-cache</artifactId>
+    <artifactId>ballerina-task</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina - Cache</name>
+    <name>Ballerina - Task</name>
     <url>http://ballerina.io</url>
 
     <dependencies>
@@ -40,11 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-system</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-task</artifactId>
+            <artifactId>ballerina-core</artifactId>
         </dependency>
     </dependencies>
 

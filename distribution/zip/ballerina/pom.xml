@@ -79,7 +79,10 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-system</artifactId>
-            <version>0.971.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-task</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -324,6 +327,7 @@
                                 ballerina-reflect,
                                 ballerina-runtime,
                                 ballerina-system,
+                                ballerina-task,
                                 ballerina-transactions,
                                 ballerina-websub,
                                 strip-bouncycastle,

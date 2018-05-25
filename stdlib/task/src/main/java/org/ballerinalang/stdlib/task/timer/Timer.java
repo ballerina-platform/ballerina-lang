@@ -16,14 +16,14 @@
  *  under the License.
  *
  */
-package org.ballerinalang.nativeimpl.task.timer;
+package org.ballerinalang.stdlib.task.timer;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.nativeimpl.task.SchedulingException;
-import org.ballerinalang.nativeimpl.task.TaskExecutor;
-import org.ballerinalang.nativeimpl.task.TaskIdGenerator;
-import org.ballerinalang.nativeimpl.task.TaskRegistry;
+import org.ballerinalang.stdlib.task.SchedulingException;
+import org.ballerinalang.stdlib.task.TaskExecutor;
+import org.ballerinalang.stdlib.task.TaskIdGenerator;
+import org.ballerinalang.stdlib.task.TaskRegistry;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 

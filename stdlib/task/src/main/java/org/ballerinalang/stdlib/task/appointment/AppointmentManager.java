@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.nativeimpl.task.appointment;
+package org.ballerinalang.stdlib.task.appointment;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.NativeCallableUnit;

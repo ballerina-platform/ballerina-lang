@@ -16,11 +16,11 @@
  *  under the License.
  *
  */
-package org.ballerinalang.nativeimpl.task.appointment;
+package org.ballerinalang.stdlib.task.appointment;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.nativeimpl.task.TaskExecutor;
+import org.ballerinalang.stdlib.task.TaskExecutor;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.quartz.Job;

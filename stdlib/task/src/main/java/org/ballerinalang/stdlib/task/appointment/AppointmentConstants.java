@@ -16,16 +16,14 @@
  *  under the License.
  *
  */
-package org.ballerinalang.nativeimpl.task;
-
-import java.util.UUID;
+package org.ballerinalang.stdlib.task.appointment;
 
 /**
- * Generates unique task IDs.
+ * Constants related appointments.
  */
-public class TaskIdGenerator {
-
-    public static String generate() {
-        return UUID.randomUUID().toString();
-    }
+public class AppointmentConstants {
+    public static final String BALLERINA_FUNCTION = "ballerina.function";
+    public static final String BALLERINA_PARENT_CONTEXT = "ballerina.parent.context";
+    public static final String BALLERINA_ON_TRIGGER_FUNCTION = "ballerina.onTriggerFunction";
+    public static final String BALLERINA_ON_ERROR_FUNCTION = "ballerina.onErrorFunction";
 }
