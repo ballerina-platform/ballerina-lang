@@ -106,6 +106,12 @@
         </fileSet>
         <fileSet>
             <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-time-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
@@ -190,6 +196,7 @@
                 <include>org.ballerinalang:ballerina-runtime:jar</include>
                 <include>org.ballerinalang:ballerina-system:jar</include>
                 <include>org.ballerinalang:ballerina-task:jar</include>
+                <include>org.ballerinalang:ballerina-time:jar</include>
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
                 <include>org.ballerinalang:ballerina-launcher:jar</include>

@@ -201,6 +201,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-time</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-core</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1117,6 +1122,7 @@
                 <module>stdlib/runtime</module>
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
+                <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/database</module>
@@ -1182,6 +1188,7 @@
                 <module>stdlib/runtime</module>
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
+                <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/database</module>
@@ -1243,6 +1250,7 @@
                 <module>stdlib/runtime</module>
                 <module>stdlib/system</module>
                 <module>stdlib/task</module>
+                <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
                 <module>stdlib/database</module>

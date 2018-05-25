@@ -1,26 +1,26 @@
 /*
-*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-* Unless required by applicable law or agreed to in writing,
-* software distributed under the License is distributed on an
-* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-* KIND, either express or implied.  See the License for the
-* specific language governing permissions and limitations
-* under the License.
-*/
-package org.ballerinalang.nativeimpl.time;
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * WSO2 Inc. licenses this file to you under the Apache License,
+ * Version 2.0 (the "License"); you may not use this file except
+ * in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied. See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
+package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.Utils;
+import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -47,8 +47,8 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
     BStruct createCurrentTime(Context context) {
         long currentTime = Instant.now().toEpochMilli();
-        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), currentTime,
-                ZoneId.systemDefault().toString());
+        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), currentTime,
+                                          ZoneId.systemDefault().toString());
     }
 
     BStruct createDateTime(Context context, int year, int month, int day, int hour, int minute, int second,
@@ -63,7 +63,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         }
         ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
         long timeValue = zonedDateTime.toInstant().toEpochMilli();
-        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue, zoneIDStr);
+        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue, zoneIDStr);
     }
 
     BStruct parseTime(Context context, String dateValue, String pattern) {
@@ -109,7 +109,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
             ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
             long timeValue = zonedDateTime.toInstant().toEpochMilli();
-            return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue,
+            return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue,
                     zoneId.toString());
 
         } catch (DateTimeParseException e) {
@@ -145,7 +145,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         BStruct zoneData = (BStruct) timeStruct.getRefField(0);
         String zoneIdName = zoneData.getStringField(0);
         long mSec = dateTime.toInstant().toEpochMilli();
-        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
+        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
     }
 
     BStruct subtractDuration(Context context, BStruct timeStruct, long years, long months, long days, long hours,
@@ -157,11 +157,11 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         BStruct zoneData = (BStruct) timeStruct.getRefField(0);
         String zoneIdName = zoneData.getStringField(0);
         long mSec = dateTime.toInstant().toEpochMilli();
-        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
+        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
     }
 
     BStruct changeTimezone(Context context, BStruct timeStruct, String zoneId) {
-        BStruct timezone = Utils.createTimeZone(Utils.getTimeZoneStructInfo(context), zoneId);
+        BStruct timezone = TimeUtils.createTimeZone(TimeUtils.getTimeZoneStructInfo(context), zoneId);
         timeStruct.setRefField(0, timezone);
         clearStructCache(timeStruct);
         return timeStruct;
@@ -237,14 +237,14 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
     private StructInfo getTimeZoneStructInfo(Context context) {
         if (zoneStructInfo == null) {
-            zoneStructInfo = Utils.getTimeZoneStructInfo(context);
+            zoneStructInfo = TimeUtils.getTimeZoneStructInfo(context);
         }
         return zoneStructInfo;
     }
 
     private StructInfo getTimeStructInfo(Context context) {
         if (timeStructInfo == null) {
-            timeStructInfo = Utils.getTimeStructInfo(context);
+            timeStructInfo = TimeUtils.getTimeStructInfo(context);
         }
         return timeStructInfo;
     }

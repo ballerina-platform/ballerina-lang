@@ -86,6 +86,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-time</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-launcher</artifactId>
         </dependency>
         <dependency>
@@ -328,6 +332,7 @@
                                 ballerina-runtime,
                                 ballerina-system,
                                 ballerina-task,
+                                ballerina-time,
                                 ballerina-transactions,
                                 ballerina-websub,
                                 strip-bouncycastle,

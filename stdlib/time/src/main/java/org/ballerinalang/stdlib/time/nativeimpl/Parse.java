@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.time;
+package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -67,8 +67,8 @@ public class Parse extends AbstractTimeFunction {
     }
 
     private BStruct getTimeStruct(TemporalAccessor dateTime, Context context, String dateString, String pattern) {
-        StructInfo timeZoneStructInfo = Utils.getTimeZoneStructInfo(context);
-        StructInfo timeStructInfo = Utils.getTimeStructInfo(context);
+        StructInfo timeZoneStructInfo = TimeUtils.getTimeZoneStructInfo(context);
+        StructInfo timeStructInfo = TimeUtils.getTimeStructInfo(context);
         long epochTime = -1;
         String zoneId;
         try {
@@ -81,6 +81,6 @@ public class Parse extends AbstractTimeFunction {
             }
             zoneId = ZoneId.systemDefault().toString();
         }
-        return Utils.createTimeStruct(timeZoneStructInfo, timeStructInfo, epochTime, zoneId);
+        return TimeUtils.createTimeStruct(timeZoneStructInfo, timeStructInfo, epochTime, zoneId);
     }
 }
