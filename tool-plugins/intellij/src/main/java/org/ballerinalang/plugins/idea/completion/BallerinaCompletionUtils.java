@@ -151,6 +151,7 @@ public class BallerinaCompletionUtils {
     private static final LookupElementBuilder IN;
     private static final LookupElementBuilder LOCK;
     private static final LookupElementBuilder FOREVER;
+    private static final LookupElementBuilder BUT;
 
     private static final LookupElementBuilder TRUE;
     private static final LookupElementBuilder FALSE;
@@ -221,6 +222,7 @@ public class BallerinaCompletionUtils {
         IN = createKeywordLookupElement("in");
         LOCK = createKeywordLookupElement("lock");
         FOREVER = createKeywordLookupElement("forever");
+        BUT = createKeywordLookupElement("but");
 
         BIND = createKeywordLookupElement("bind");
 
@@ -443,12 +445,12 @@ public class BallerinaCompletionUtils {
         resultSet.addElement(PrioritizedLookupElement.withPriority(BREAK, KEYWORDS_PRIORITY));
     }
 
-    static void addEndpointKeywordsAsLookups(@NotNull CompletionResultSet resultSet) {
-        resultSet.addElement(PrioritizedLookupElement.withPriority(ENDPOINT, KEYWORDS_PRIORITY));
-    }
-
     static void addWorkerKeywordsAsLookups(@NotNull CompletionResultSet resultSet) {
         resultSet.addElement(PrioritizedLookupElement.withPriority(WORKER, KEYWORDS_PRIORITY));
+    }
+
+    static void addButKeywordsAsLookups(@NotNull CompletionResultSet resultSet) {
+        resultSet.addElement(PrioritizedLookupElement.withPriority(BUT, KEYWORDS_PRIORITY));
     }
 
     private static LookupElement createKeywordAsLookup(@NotNull LookupElement lookupElement) {

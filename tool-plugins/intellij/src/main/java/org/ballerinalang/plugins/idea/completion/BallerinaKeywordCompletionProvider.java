@@ -7,11 +7,13 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
+import org.ballerinalang.plugins.idea.psi.BallerinaAssignmentStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaBlock;
 import org.ballerinalang.plugins.idea.psi.BallerinaCompositeElement;
 import org.ballerinalang.plugins.idea.psi.BallerinaDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaEndpointDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
+import org.ballerinalang.plugins.idea.psi.BallerinaExpressionStmt;
 import org.ballerinalang.plugins.idea.psi.BallerinaFiniteType;
 import org.ballerinalang.plugins.idea.psi.BallerinaForeachStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
@@ -171,6 +173,34 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                             BallerinaCompletionUtils.addWorkerKeywordsAsLookups(result);
                         }
 
+                        // Handle "but" keyword completion.
+                        BallerinaStatement prevStatement = PsiTreeUtil.getPrevSiblingOfType(statement,
+                                BallerinaStatement.class);
+                        if (prevStatement != null) {
+                            BallerinaExpressionStmt expressionStmt = prevStatement.getExpressionStmt();
+                            if (expressionStmt != null) {
+                                PsiElement semicolon = expressionStmt.getSemicolon();
+                                if (semicolon == null) {
+                                    BallerinaCompletionUtils.addButKeywordsAsLookups(result);
+                                }
+                            }
+                            BallerinaAssignmentStatement assignmentStatement = prevStatement.getAssignmentStatement();
+                            if (assignmentStatement != null) {
+                                PsiElement semicolon = assignmentStatement.getSemicolon();
+                                if (semicolon == null) {
+                                    BallerinaCompletionUtils.addButKeywordsAsLookups(result);
+                                }
+                            }
+                            BallerinaVariableDefinitionStatement variableDefinitionStatement =
+                                    prevStatement.getVariableDefinitionStatement();
+                            if (variableDefinitionStatement != null) {
+                                PsiElement semicolon = variableDefinitionStatement.getSemicolon();
+                                if (semicolon == null) {
+                                    BallerinaCompletionUtils.addButKeywordsAsLookups(result);
+                                }
+                            }
+                        }
+
                         // Add other keywords.
                         BallerinaCompletionUtils.addValueTypesAsLookups(result, true);
                         BallerinaCompletionUtils.addReferenceTypesAsLookups(result, true);
@@ -179,6 +209,18 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                         BallerinaCompletionUtils.addLockAsLookup(result);
                         BallerinaCompletionUtils.addCommonKeywords(result);
                         return;
+                    }
+                }
+            }
+            // Handle "but" keyword completion.
+            BallerinaStatement prevStatement = PsiTreeUtil.getPrevSiblingOfType(statement, BallerinaStatement.class);
+            if (prevStatement != null) {
+                BallerinaVariableDefinitionStatement variableDefinitionStatement =
+                        prevStatement.getVariableDefinitionStatement();
+                if (variableDefinitionStatement != null) {
+                    PsiElement semicolon = variableDefinitionStatement.getSemicolon();
+                    if (semicolon == null) {
+                        BallerinaCompletionUtils.addButKeywordsAsLookups(result);
                     }
                 }
             }

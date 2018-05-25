@@ -141,4 +141,8 @@
         <variable name="ALIAS" expression="" defaultValue="" alwaysStopAt="true"/>
     </template>
 
+    <template description='But Expression' id='ballerina_lang_but' name='ballerina_lang_but'
+              toReformat='true' toShortenFQNames='true' value='but {&#10;    $END$&#10;};'>
+    </template>
+
 </templateSet>
