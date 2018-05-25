@@ -28,9 +28,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ballerina-auth</artifactId>
+    <artifactId>ballerina-system</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina - Auth</name>
+    <name>Ballerina - System</name>
     <url>http://ballerina.io</url>
 
     <dependencies>
@@ -40,11 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-system</artifactId>
+            <artifactId>ballerina-core</artifactId>
         </dependency>
     </dependencies>
 
