@@ -146,6 +146,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
@@ -683,7 +684,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangVariable varNode) {
         analyzeExpr(varNode.expr);
 
-        if (!Symbols.isPublic(varNode.symbol)) {
+        if (Objects.isNull(varNode.symbol) || !Symbols.isPublic(varNode.symbol)) {
             return;
         }
 

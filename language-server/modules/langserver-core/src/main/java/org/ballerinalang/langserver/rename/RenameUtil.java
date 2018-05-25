@@ -75,10 +75,11 @@ public class RenameUtil {
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
 
             for (Location location : locations) {
-                int line = location.getRange().getStart().getLine();
+                Position start = location.getRange().getStart();
+                int line = start.getLine();
                 StringBuilder lineComponent = new StringBuilder(contentComponents[line]);
 
-                int index = lineComponent.indexOf(replaceSymbolName);
+                int index = lineComponent.indexOf(replaceSymbolName, start.getCharacter());
                 while (index >= 0) {
                     char previousChar = lineComponent.charAt(index - 1);
                     if (Character.isLetterOrDigit(previousChar) || String.valueOf(previousChar).equals("_")) {

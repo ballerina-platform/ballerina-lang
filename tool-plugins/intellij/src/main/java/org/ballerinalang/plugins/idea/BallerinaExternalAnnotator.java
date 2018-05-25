@@ -37,6 +37,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.PathUtil;
+import org.ballerinalang.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.util.diagnostic.Diagnostic;
@@ -65,18 +66,37 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaExternalAnnotator.class);
 
+    private static String lastFileContent;
+    private static Data lastData;
+
     /**
      * This is called first to collect information.
      */
     @Override
     @Nullable
     public Data collectInformation(@NotNull PsiFile file, @NotNull Editor editor, boolean hasErrors) {
+        if (!BallerinaSemanticAnalyzerSettings.getInstance().useSemanticAnalyzer()) {
+            return null;
+        }
+        // Get the file content and cleanup newlines and spaces.
+        String content = file.getText().replaceAll("\n", "").replaceAll("\\s+", " ");
+        // If the contents are equal, that means that the user pressed enter or added some spaces. In that case, we
+        // don't need to call semantic analyzer again.
+        if (content.equals(lastFileContent)) {
+            return lastData;
+        }
         this.editor = editor;
+        // Update the last file content.
+        lastFileContent = content;
+
         VirtualFile virtualFile = file.getVirtualFile();
         String packageNameNode = getPackageName(file);
         // If method is not null, that means we have already loaded jars.
+        Data data = new Data(editor, file, packageNameNode);
+        lastData = data;
+
         if (method != null) {
-            return new Data(editor, file, packageNameNode);
+            return data;
         }
         Module module = ModuleUtilCore.findModuleForFile(virtualFile, file.getProject());
         if (module == null) {
@@ -110,7 +130,7 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
         } catch (MalformedURLException | NoSuchMethodException | ClassNotFoundException e) {
             LOGGER.debug(e.getMessage(), e);
         }
-        return new Data(editor, file, packageNameNode);
+        return data;
     }
 
     /**
@@ -119,6 +139,9 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
     @Nullable
     @Override
     public List<Diagnostic> doAnnotate(final Data data) {
+        if (!BallerinaSemanticAnalyzerSettings.getInstance().useSemanticAnalyzer()) {
+            return null;
+        }
         if (method != null) {
             // We need to save all documents before getting diagnostics. Otherwise diagnostic will be incorrect.
             ApplicationManager.getApplication().invokeAndWait(() -> {
@@ -187,6 +210,10 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
      */
     @Override
     public void apply(@NotNull PsiFile file, List<Diagnostic> diagnostics, @NotNull AnnotationHolder holder) {
+        if (!BallerinaSemanticAnalyzerSettings.getInstance().useSemanticAnalyzer()) {
+            return;
+        }
+
         String packageName = getPackageName(file);
         String fileName = file.getVirtualFile().getName();
 
@@ -237,11 +264,11 @@ public class BallerinaExternalAnnotator extends ExternalAnnotator<BallerinaExter
 
                 // Highlight the range according to the diagnostic kind.
                 if (diagnostic.getKind() == Diagnostic.Kind.ERROR) {
-                    holder.createErrorAnnotation(textRange, diagnostic.getMessage());
+                    holder.createErrorAnnotation(textRange, "Compiler: " + diagnostic.getMessage());
                 } else if (diagnostic.getKind() == Diagnostic.Kind.WARNING) {
-                    holder.createWarningAnnotation(textRange, diagnostic.getMessage());
+                    holder.createWarningAnnotation(textRange, "Compiler: " + diagnostic.getMessage());
                 } else if (diagnostic.getKind() == Diagnostic.Kind.NOTE) {
-                    holder.createInfoAnnotation(textRange, diagnostic.getMessage());
+                    holder.createInfoAnnotation(textRange, "Compiler: " + diagnostic.getMessage());
                 }
             }
         } catch (ClassCastException e) {

@@ -37,8 +37,6 @@ import org.ballerinalang.plugins.idea.util.BallerinaHistoryProcessListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-
 /**
  * Represents Ballerina application running state.
  */
@@ -88,7 +86,8 @@ public class BallerinaApplicationRunningState extends BallerinaRunningState<Ball
         if (filePath.isEmpty()) {
             filePath = myConfiguration.getFilePath();
             if (baseDir != null) {
-                filePath = filePath.replace(baseDir.getPath() + File.separator, "");
+                // Note File.separator will not work here since filepath contains "/" regardless of the OS.
+                filePath = filePath.replace(baseDir.getPath() + "/", "");
             }
 
             //            if (filePath.contains(File.separator)) {

@@ -38,6 +38,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.BallerinaXmlItem;
+import org.ballerinalang.plugins.idea.psi.reference.BallerinaPackageNameReference;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -159,7 +160,9 @@ public class BallerinaAnnotator implements Annotator {
                 }
             }
         } else if (element instanceof BallerinaPackageReference) {
-            if (!(element.getParent().getParent() instanceof BallerinaAnnotationAttachment)) {
+            PsiReference reference = element.getReference();
+            if (!(element.getParent().getParent() instanceof BallerinaAnnotationAttachment)
+                    && reference instanceof BallerinaPackageNameReference) {
                 Annotation annotation = holder.createInfoAnnotation(element, null);
                 annotation.setTextAttributes(BallerinaSyntaxHighlightingColors.PACKAGE);
             }

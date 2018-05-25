@@ -169,6 +169,8 @@ public class BallerinaParameterInfoHandler implements ParameterInfoHandlerWithTa
         if (ballerinaInvocation != null) {
             return ballerinaInvocation;
         }
+
+        // Todo - Add support for Object initializer. Eg - Person p1 = new Employee(50, "John", "street1");
         return null;
     }
 

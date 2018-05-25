@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-
+import _ from 'lodash';
 import { MENUS as TOOLS_MENUS } from './../tools/constants';
 import { MENU_DEF_TYPES } from 'core/menu/constants';
 import { MENUS, COMMANDS, LABELS } from './constants';
@@ -35,7 +35,7 @@ export function getMenuDefinitions(plugin) {
             isActive: () => {
                 const { editor } = plugin.appContext;
                 const activeTab = editor.getActiveEditor();
-                return activeTab && activeTab.file;
+                return !_.isNil(activeTab) && !_.isNil(activeTab.file) && activeTab.file.extension === 'bal';
             },
             icon: 'import',
             order: 1,

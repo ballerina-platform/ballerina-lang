@@ -71,8 +71,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        HTTPCarbonMessage msg = new HTTPCarbonMessage(
-                ((DefaultWebSocketInitMessage) webSocketInitMessage).getHttpRequest());
+        HTTPCarbonMessage msg = ((DefaultWebSocketInitMessage) webSocketInitMessage).getHttpCarbonRequest();
         Map<String, String> pathParams = new HashMap<>();
         WebSocketService wsService =
                 WebSocketDispatcher.findService(servicesRegistry, pathParams, webSocketInitMessage, msg);
@@ -124,15 +123,22 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                                                       null);
                         // TODO: Change this to readNextFrame
                     } else {
-                        Resource onOpenResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_OPEN);
-                        WebSocketOpenConnectionInfo connectionInfo =
-                                connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
-                        WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-                        if (onOpenResource != null) {
+                        if (!webSocketInitMessage.isCancelled()) {
+                            Resource onOpenResource = wsService.getResourceByName(
+                                    WebSocketConstants.RESOURCE_NAME_ON_OPEN);
+                            WebSocketOpenConnectionInfo connectionInfo =
+                                    connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
+                            WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
                             BStruct webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
-                            WebSocketUtil.executeOnOpenResource(onOpenResource, webSocketEndpoint, webSocketConnection);
-                        } else {
-                            connectionInfo.getWebSocketConnection().readNextFrame();
+                            BStruct webSocketConnector =
+                                    (BStruct) webSocketEndpoint.getRefField(
+                                            WebSocketConstants.LISTENER_CONNECTOR_INDEX);
+                            if (onOpenResource != null) {
+                                WebSocketUtil.executeOnOpenResource(onOpenResource, webSocketEndpoint,
+                                                                    webSocketConnection);
+                            } else {
+                                WebSocketUtil.readFirstFrame(webSocketConnection, webSocketConnector);
+                            }
                         }
                     }
                 }

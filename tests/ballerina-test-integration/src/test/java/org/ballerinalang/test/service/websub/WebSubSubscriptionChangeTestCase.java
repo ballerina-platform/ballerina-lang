@@ -120,7 +120,7 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
 
     @Test
     public void testSubscriptionAndIntentVerification() throws BallerinaTestException, InterruptedException {
-        subscriptionIntentVerificationLogLeecher.waitForText(10000);
+        subscriptionIntentVerificationLogLeecher.waitForText(30000);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
@@ -134,7 +134,7 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
             + File.separator + "websub" + File.separator + "websub_test_unsubscription_client.bal").getAbsolutePath()};
         ballerinaWebSubSubscriptionChangeClient.runMain(clientArgs);
         ballerinaWebSubSubscriptionChangeClient.addLogLeecher(logAbsenceTestLogLeecher);
-        unsubscriptionIntentVerificationLogLeecher.waitForText(10000);
+        unsubscriptionIntentVerificationLogLeecher.waitForText(30000);
     }
 
     @Test(dependsOnMethods = "testUnsubscriptionIntentVerification",
