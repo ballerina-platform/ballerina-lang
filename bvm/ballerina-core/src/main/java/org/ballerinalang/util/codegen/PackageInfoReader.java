@@ -80,12 +80,13 @@ import org.ballerinalang.util.codegen.cpentries.UTF8CPEntry;
 import org.ballerinalang.util.codegen.cpentries.WorkerDataChannelRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
+import org.wso2.ballerinalang.compiler.TypeCreater;
+import org.wso2.ballerinalang.compiler.TypeSignatureReader;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Stack;
@@ -105,10 +106,12 @@ public class PackageInfoReader {
     private ProgramFile programFile;
     private DataInputStream dataInStream;
     private List<ConstantPoolEntry> unresolvedCPEntries = new ArrayList<>();
-    
+    private TypeSignatureReader<BType> typeSigReader;
+
     public PackageInfoReader(DataInputStream dataInStream, ProgramFile programFile) {
         this.dataInStream = dataInStream;
         this.programFile = programFile;
+        this.typeSigReader = new TypeSignatureReader<>();
     }
 
     // This is used to assign a number to a package.
@@ -314,7 +317,7 @@ public class PackageInfoReader {
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read import package entries
-        readImportPackageInfoEntries(packageInfo);
+        readImportPackageInfoEntries();
 
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
@@ -338,10 +341,10 @@ public class PackageInfoReader {
         // TODO Read annotation info entries
 
         // Resolve unresolved CP entries.
-        resolveCPEntries();
+        resolveCPEntries(packageInfo);
 
         // Read attribute info entries
-        readAttributeInfoEntries(packageInfo, packageInfo);
+        readAttributeInfoEntries(packageInfo, packageInfo, packageInfo);
 
         // Read instructions
         readInstructions(packageInfo);
@@ -349,7 +352,7 @@ public class PackageInfoReader {
         packageInfo.complete();
     }
 
-    private void readImportPackageInfoEntries(PackageInfo packageInfo) throws IOException {
+    private void readImportPackageInfoEntries() throws IOException {
         int impPkgCount = dataInStream.readShort();
         for (int i = 0; i < impPkgCount; i++) {
             // TODO populate import package info structure
@@ -388,8 +391,7 @@ public class PackageInfoReader {
 
     }
 
-    private void readObjectInfoEntry(PackageInfo packageInfo,
-                                     TypeDefInfo typeDefInfo) throws IOException {
+    private void readObjectInfoEntry(PackageInfo packageInfo, TypeDefInfo typeDefInfo) throws IOException {
         ObjectTypeInfo objectInfo = new ObjectTypeInfo();
 
         // Set struct type
@@ -414,7 +416,7 @@ public class PackageInfoReader {
                     fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), fieldFlags);
             objectInfo.addFieldInfo(fieldInfo);
 
-            readAttributeInfoEntries(packageInfo, fieldInfo);
+            readAttributeInfoEntries(packageInfo, packageInfo, fieldInfo);
         }
 
         String objectInit = CONSTRUCTOR_FUNCTION_SUFFIX;
@@ -443,7 +445,7 @@ public class PackageInfoReader {
         }
 
         // Read attributes of the struct info
-        readAttributeInfoEntries(packageInfo, objectInfo);
+        readAttributeInfoEntries(packageInfo, packageInfo, objectInfo);
         typeDefInfo.typeInfo = objectInfo;
     }
 
@@ -472,7 +474,7 @@ public class PackageInfoReader {
                     fieldTypeSigCPIndex, fieldTypeSigUTF8Entry.getValue(), fieldFlags);
             recordInfo.addFieldInfo(fieldInfo);
 
-            readAttributeInfoEntries(packageInfo, fieldInfo);
+            readAttributeInfoEntries(packageInfo, packageInfo, fieldInfo);
         }
 
         String defaultInit = typeDefInfo.name + INIT_FUNCTION_SUFFIX;
@@ -502,7 +504,7 @@ public class PackageInfoReader {
         }
 
         // Read attributes of the struct info
-        readAttributeInfoEntries(packageInfo, recordInfo);
+        readAttributeInfoEntries(packageInfo, packageInfo, recordInfo);
         typeDefInfo.typeInfo = recordInfo;
     }
 
@@ -517,7 +519,7 @@ public class PackageInfoReader {
             finiteType.valueSpace.add(getDefaultValueToBValue(getDefaultValue(packageInfo)));
         }
 
-        readAttributeInfoEntries(packageInfo, typeDefInfo);
+        readAttributeInfoEntries(packageInfo, packageInfo, typeDefInfo);
 
         typeDefInfo.typeInfo = typeInfo;
     }
@@ -565,7 +567,7 @@ public class PackageInfoReader {
                 UTF8CPEntry resSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(resSigCPIndex);
                 String resSig = resSigUTF8Entry.getValue();
                 resourceInfo.setSignature(resSig);
-                setCallableUnitSignature(resourceInfo, resSig, packageInfo);
+                setCallableUnitSignature(packageInfo, resourceInfo, resSig);
 
                 // Read parameter names
                 // TODO Find a better alternative. Storing just param names is like a hack.
@@ -592,18 +594,18 @@ public class PackageInfoReader {
                 readWorkerInfoEntries(packageInfo, resourceInfo);
 
                 // Read attributes of the struct info
-                readAttributeInfoEntries(packageInfo, resourceInfo);
+                readAttributeInfoEntries(packageInfo, packageInfo, resourceInfo);
             }
 
             // Read attributes of the struct info
-            readAttributeInfoEntries(packageInfo, serviceInfo);
+            readAttributeInfoEntries(packageInfo, packageInfo, serviceInfo);
         }
     }
 
     private void readConstantInfoEntries(PackageInfo packageInfo) throws IOException {
         int constCount = dataInStream.readShort();
         for (int i = 0; i < constCount; i++) {
-            PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo);
+            PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
             packageInfo.addConstantInfo(packageVarInfo.getName(), packageVarInfo);
         }
     }
@@ -611,12 +613,12 @@ public class PackageInfoReader {
     private void readGlobalVarInfoEntries(PackageInfo packageInfo) throws IOException {
         int globalVarCount = dataInStream.readShort();
         for (int i = 0; i < globalVarCount; i++) {
-            PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo);
+            PackageVarInfo packageVarInfo = getGlobalVarInfo(packageInfo, packageInfo);
             packageInfo.addPackageVarInfo(packageVarInfo.getName(), packageVarInfo);
         }
     }
 
-    private PackageVarInfo getGlobalVarInfo(ConstantPool constantPool) throws IOException {
+    private PackageVarInfo getGlobalVarInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
         // Read variable name;
         int nameCPIndex = dataInStream.readInt();
         UTF8CPEntry nameUTF8CPEntry = (UTF8CPEntry) constantPool.getCPEntry(nameCPIndex);
@@ -634,7 +636,7 @@ public class PackageInfoReader {
                 sigCPIndex, sigUTF8CPEntry.getValue(), globalMemIndex);
 
         // Read attributes
-        readAttributeInfoEntries(constantPool, packageVarInfo);
+        readAttributeInfoEntries(packageInfo, constantPool, packageVarInfo);
         return packageVarInfo;
     }
 
@@ -667,7 +669,7 @@ public class PackageInfoReader {
 
         int funcSigCPIndex = dataInStream.readInt();
         UTF8CPEntry funcSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(funcSigCPIndex);
-        setCallableUnitSignature(functionInfo, funcSigUTF8Entry.getValue(), packageInfo);
+        setCallableUnitSignature(packageInfo, functionInfo, funcSigUTF8Entry.getValue());
 
         int flags = dataInStream.readInt();
         boolean nativeFunc = Flags.isFlagOn(flags, Flags.NATIVE);
@@ -721,7 +723,7 @@ public class PackageInfoReader {
         }
 
         // Read attributes
-        readAttributeInfoEntries(packageInfo, functionInfo);
+        readAttributeInfoEntries(packageInfo, packageInfo, functionInfo);
     }
 
     private void readTransformerInfoEntries(PackageInfo packageInfo) throws IOException {
@@ -741,7 +743,7 @@ public class PackageInfoReader {
 
         int transformerSigCPIndex = dataInStream.readInt();
         UTF8CPEntry transformerSigUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(transformerSigCPIndex);
-        setCallableUnitSignature(transformerInfo, transformerSigUTF8Entry.getValue(), packageInfo);
+        setCallableUnitSignature(packageInfo, transformerInfo, transformerSigUTF8Entry.getValue());
 
         boolean nativeFunc = Flags.isFlagOn(dataInStream.readInt(), Flags.NATIVE);
         transformerInfo.setNative(nativeFunc);
@@ -755,11 +757,10 @@ public class PackageInfoReader {
         readWorkerInfoEntries(packageInfo, transformerInfo);
 
         // Read attributes
-        readAttributeInfoEntries(packageInfo, transformerInfo);
+        readAttributeInfoEntries(packageInfo, packageInfo, transformerInfo);
     }
 
-    public void readWorkerDataChannelEntries(PackageInfo packageInfo,
-                                             CallableUnitInfo callableUnitInfo) throws IOException {
+    public void readWorkerDataChannelEntries(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {
         int sourceCPIndex = dataInStream.readInt();
         int targetCPIndex = dataInStream.readInt();
 
@@ -776,278 +777,31 @@ public class PackageInfoReader {
         callableUnitInfo.addWorkerDataChannelInfo(workerDataChannelInfo);
     }
 
-    private void setCallableUnitSignature(CallableUnitInfo callableUnitInfo, String sig, PackageInfo packageInfo) {
-        BFunctionType funcType = getFunctionType(sig, packageInfo);
+    private void setCallableUnitSignature(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo, String sig) {
+        BFunctionType funcType = getFunctionType(packageInfo, sig);
         callableUnitInfo.setParamTypes(funcType.paramTypes);
         callableUnitInfo.setRetParamTypes(funcType.retParamTypes);
     }
 
-    private BFunctionType getFunctionType(String sig, PackageInfo packageInfo) {
+    private BFunctionType getFunctionType(PackageInfo packageInfo, String sig) {
         char[] chars = sig.toCharArray();
         Stack<BType> typeStack = new Stack<>();
-        createFunctionType(chars, 0, typeStack, packageInfo);
+        this.typeSigReader.createFunctionType(new RuntimeTypeCreater(packageInfo), chars, 0, typeStack);
         return (BFunctionType) typeStack.pop();
     }
 
-    private int createFunctionType(char[] chars, int index, Stack<BType> typeStack, PackageInfo packageInfo) {
-        // Skip the first parenthesis
-        index++;
-
-        // Read function parameters
-        Stack<BType> funcParamsStack = new Stack<>();
-        while (chars[index] != ')' || chars[index + 1] != '(') {
-            index = createBTypeFromSig(chars, index, funcParamsStack, packageInfo);
-        }
-        BType[] paramTypes = funcParamsStack.toArray(new BType[funcParamsStack.size()]);
-
-        // Read function return type.
-        // Skip the two parenthesis ')(', which separate params and return params
-        index += 2;
-        BType[] retType;
-        if (chars[index] == ')') {
-            retType = new BType[] {};
-        } else {
-            index = createBTypeFromSig(chars, index, funcParamsStack, packageInfo);
-            retType = new BType[] { funcParamsStack.pop() };
-        }
-
-        typeStack.push(new BFunctionType(paramTypes, retType));
-        return index;
-    }
-
-    private BType[] getParamTypes(String signature, PackageInfo packageInfo) {
+    private BType[] getParamTypes(PackageInfo packageInfo, String signature) {
         int index = 0;
         Stack<BType> typeStack = new Stack<>();
         char[] chars = signature.toCharArray();
         while (index < chars.length) {
-            index = createBTypeFromSig(chars, index, typeStack, packageInfo);
+            index = this.typeSigReader.createBTypeFromSig(new RuntimeTypeCreater(packageInfo), chars, index, typeStack);
         }
 
         return typeStack.toArray(new BType[0]);
     }
 
-    private int createBTypeFromSig(char[] chars, int index, Stack<BType> typeStack, PackageInfo packageInfo) {
-        int nameIndex;
-        char ch = chars[index];
-        switch (ch) {
-            case 'I':
-                typeStack.push(BTypes.typeInt);
-                return index + 1;
-            case 'F':
-                typeStack.push(BTypes.typeFloat);
-                return index + 1;
-            case 'S':
-                typeStack.push(BTypes.typeString);
-                return index + 1;
-            case 'B':
-                typeStack.push(BTypes.typeBoolean);
-                return index + 1;
-            case 'L':
-                typeStack.push(BTypes.typeBlob);
-                return index + 1;
-            case 'Y':
-                typeStack.push(BTypes.typeDesc);
-                return index + 1;
-            case 'A':
-                typeStack.push(BTypes.typeAny);
-                return index + 1;
-            case 'R':
-                // TODO Improve this logic
-                index++;
-                nameIndex = index;
-                while (chars[nameIndex] != ';') {
-                    nameIndex++;
-                }
-                String typeName = new String(Arrays.copyOfRange(chars, index, nameIndex));
-                typeStack.push(BTypes.getTypeFromName(typeName));
-                return nameIndex + 1;
-            case 'C':
-            case 'J':
-            case 'T':
-            case 'E':
-            case 'D':
-            case 'G':
-            case 'Z':
-                char typeChar = chars[index];
-                // TODO Improve this logic
-                index++;
-                nameIndex = index;
-                int colonIndex = -1;
-                while (chars[nameIndex] != ';') {
-                    if (chars[nameIndex] == ':') {
-                        colonIndex = nameIndex;
-                    }
-                    nameIndex++;
-                }
-
-                String pkgPath;
-                String name;
-                PackageInfo packageInfoOfType;
-                if (colonIndex != -1) {
-                    pkgPath = new String(Arrays.copyOfRange(chars, index, colonIndex));
-                    name = new String(Arrays.copyOfRange(chars, colonIndex + 1, nameIndex));
-                    packageInfoOfType = getPackageInfo(pkgPath);
-                } else {
-                    name = new String(Arrays.copyOfRange(chars, index, nameIndex));
-                    // Setting the current package;
-                    packageInfoOfType = packageInfo;
-                }
-
-                if (typeChar == 'J') {
-                    if (name.isEmpty()) {
-                        typeStack.push(BTypes.typeJSON);
-                    } else {
-                        typeStack.push(new BJSONType(packageInfoOfType.getStructInfo(name).getType()));
-                    }
-                } else if (typeChar == 'D') {
-                    if (name.isEmpty()) {
-                        typeStack.push(BTypes.typeTable);
-                    } else {
-                        typeStack.push(new BTableType(packageInfoOfType.getStructInfo(name).getType()));
-                    }
-                } else if (typeChar == 'G') {
-                    typeStack.push(packageInfoOfType.getTypeDefInfo(name).typeInfo.getType());
-                } else {
-                    // This is a struct type
-                    typeStack.push(packageInfoOfType.getStructInfo(name).getType());
-                }
-
-                return nameIndex + 1;
-            case '[':
-                index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
-                BType elemType = typeStack.pop();
-                BArrayType arrayType = new BArrayType(elemType);
-                typeStack.push(arrayType);
-                return index;
-            case 'M':
-                index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
-                BType constrainedType = typeStack.pop();
-                BType mapType;
-                if (constrainedType == BTypes.typeAny) {
-                    mapType = BTypes.typeMap;
-                } else {
-                    mapType = new BMapType(constrainedType);
-                }
-                typeStack.push(mapType);
-                return index;
-            case 'H':
-                index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo);
-                BType streamConstraintType = typeStack.pop();
-                typeStack.push(new BStreamType(streamConstraintType));
-                return index;
-            case 'U':
-                index++;
-                index = createFunctionType(chars, index, typeStack, packageInfo);
-                return index + 1;
-            case 'O':
-            case 'P':
-                typeChar = chars[index];
-                index++;
-                nameIndex = index;
-                while (chars[nameIndex] != ';') {
-                    nameIndex++;
-                }
-                List<BType> memberTypes = new ArrayList<>();
-                int memberCount = Integer.parseInt(new String(Arrays.copyOfRange(chars, index, nameIndex)));
-                index = nameIndex;
-                for (int i = 0; i < memberCount; i++) {
-                    index = createBTypeFromSig(chars, index + 1, typeStack, packageInfo) - 1;
-                    memberTypes.add(typeStack.pop());
-                }
-                if (typeChar == 'O') {
-                    typeStack.push(new BUnionType(memberTypes));
-                } else if (typeChar == 'P') {
-                    typeStack.push(new BTupleType(memberTypes));
-                }
-                return index + 1;
-            case 'N':
-                typeStack.push(BTypes.typeNull);
-                return index + 1;
-            default:
-                throw new ProgramFileFormatException("unsupported base type char: " + ch);
-        }
-    }
-
-    private BType getBTypeFromDescriptor(String desc) {
-        char ch = desc.charAt(0);
-        switch (ch) {
-            case 'I':
-                return BTypes.typeInt;
-            case 'F':
-                return BTypes.typeFloat;
-            case 'S':
-                return BTypes.typeString;
-            case 'B':
-                return BTypes.typeBoolean;
-            case 'Y':
-                return BTypes.typeDesc;
-            case 'L':
-                return BTypes.typeBlob;
-            case 'A':
-                return BTypes.typeAny;
-            case 'R':
-                return BTypes.getTypeFromName(desc.substring(1, desc.length() - 1));
-            case 'M':
-                BType constrainedType = getBTypeFromDescriptor(desc.substring(1));
-                if (constrainedType == BTypes.typeAny) {
-                    return BTypes.typeMap;
-                } else {
-                    return new BMapType(constrainedType);
-                }
-            case 'H':
-                return new BStreamType(getBTypeFromDescriptor(desc.substring(1)));
-            case 'C':
-            case 'X':
-            case 'J':
-            case 'T':
-            case 'E':
-            case 'Z':
-            case 'G':
-            case 'D':
-                String typeName = desc.substring(1, desc.length() - 1);
-                String[] parts = typeName.split(":");
-
-                if (parts.length == 1) {
-                    if (ch == 'J') {
-                        return BTypes.typeJSON;
-                    } else if (ch == 'D') {
-                        return BTypes.typeTable;
-                    }
-                }
-
-                String pkgPath = parts[0];
-                String name = parts[1];
-                PackageInfo packageInfoOfType = programFile.getPackageInfo(pkgPath);
-                if (ch == 'J') {
-                    return new BJSONType(packageInfoOfType.getStructInfo(name).getType());
-                } else if (ch == 'X') {
-                    return packageInfoOfType.getServiceInfo(name).getType();
-                } else if (ch == 'D') {
-                    return new BTableType(packageInfoOfType.getStructInfo(name).getType());
-                } else if (ch == 'G') {
-                    return (packageInfoOfType.getTypeDefInfo(name).typeInfo.getType());
-                } else {
-                    return packageInfoOfType.getStructInfo(name).getType();
-                }
-            case '[':
-                BType elemType = getBTypeFromDescriptor(desc.substring(1));
-                return new BArrayType(elemType);
-            case 'U':
-            case 'O':
-            case 'P':
-                Stack<BType> typeStack = new Stack<BType>();
-                createBTypeFromSig(desc.toCharArray(), 0, typeStack, null);
-                return typeStack.pop();
-            case 'N':
-                return BTypes.typeNull;
-            default:
-                throw new ProgramFileFormatException("unsupported base type char: " + ch);
-        }
-    }
-
-
-    private void readWorkerInfoEntries(PackageInfo packageInfo,
-                                       CallableUnitInfo callableUnitInfo) throws IOException {
+    private void readWorkerInfoEntries(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {
 
         int workerCount = dataInStream.readShort();
         // First worker is always the default worker.
@@ -1077,7 +831,7 @@ public class PackageInfoReader {
 
         readForkJoinInfo(packageInfo, workerInfo);
         // Read attributes
-        readAttributeInfoEntries(packageInfo, workerInfo);
+        readAttributeInfoEntries(packageInfo, packageInfo, workerInfo);
         CodeAttributeInfo codeAttribute = (CodeAttributeInfo) workerInfo.getAttributeInfo(
                 AttributeInfo.Kind.CODE_ATTRIBUTE);
         workerInfo.setCodeAttributeInfo(codeAttribute);
@@ -1142,18 +896,18 @@ public class PackageInfoReader {
     }
 
 
-    public void readAttributeInfoEntries(ConstantPool constantPool,
+    public void readAttributeInfoEntries(PackageInfo packageInfo, ConstantPool constantPool,
                                           AttributeInfoPool attributeInfoPool) throws IOException {
         int attributesCount = dataInStream.readShort();
         for (int k = 0; k < attributesCount; k++) {
-            AttributeInfo attributeInfo = getAttributeInfo(constantPool);
+            AttributeInfo attributeInfo = getAttributeInfo(packageInfo, constantPool);
             if (attributeInfo != null) {
                 attributeInfoPool.addAttributeInfo(attributeInfo.getKind(), attributeInfo);
             }
         }
     }
 
-    private AttributeInfo getAttributeInfo(ConstantPool constantPool) throws IOException {
+    private AttributeInfo getAttributeInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
         int attribNameCPIndex = dataInStream.readInt();
         UTF8CPEntry attribNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(attribNameCPIndex);
         AttributeInfo.Kind attribKind = AttributeInfo.Kind.fromString(attribNameCPEntry.getValue());
@@ -1221,7 +975,7 @@ public class PackageInfoReader {
                 LocalVariableAttributeInfo localVarAttrInfo = new LocalVariableAttributeInfo(attribNameCPIndex);
                 int localVarInfoCount = dataInStream.readShort();
                 for (int i = 0; i < localVarInfoCount; i++) {
-                    LocalVariableInfo localVariableInfo = getLocalVariableInfo(constantPool);
+                    LocalVariableInfo localVariableInfo = getLocalVariableInfo(packageInfo, constantPool);
                     localVarAttrInfo.addLocalVarInfo(localVariableInfo);
                 }
                 return localVarAttrInfo;
@@ -1299,7 +1053,7 @@ public class PackageInfoReader {
         return docAttrInfo;
     }
 
-    private LocalVariableInfo getLocalVariableInfo(ConstantPool constantPool) throws IOException {
+    private LocalVariableInfo getLocalVariableInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
         int varNameCPIndex = dataInStream.readInt();
         UTF8CPEntry varNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(varNameCPIndex);
         int variableIndex = dataInStream.readInt();
@@ -1308,7 +1062,7 @@ public class PackageInfoReader {
 
         UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) constantPool.getCPEntry(typeSigCPIndex);
 
-        BType type = getBTypeFromDescriptor(typeSigCPEntry.getValue());
+        BType type = getBTypeFromDescriptor(packageInfo, typeSigCPEntry.getValue());
         LocalVariableInfo localVariableInfo = new LocalVariableInfo(varNameCPEntry.getValue(), varNameCPIndex,
                 variableIndex, typeSigCPIndex, type);
         int attchmntIndexesLength = dataInStream.readShort();
@@ -1657,7 +1411,7 @@ public class PackageInfoReader {
                             packageInfo.getCPEntry(channelRefCPIndex);
                     int sigCPIndex = codeStream.readInt();
                     UTF8CPEntry sigCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(sigCPIndex);
-                    BType bType = getParamTypes(sigCPEntry.getValue(), packageInfo)[0];
+                    BType bType = getParamTypes(packageInfo, sigCPEntry.getValue())[0];
                     packageInfo.addInstruction(new InstructionWRKSendReceive(opcode, channelRefCPIndex,
                             channelRefCPEntry.getWorkerDataChannelInfo(), sigCPIndex, bType, codeStream.readInt()));
                     break;
@@ -1707,7 +1461,7 @@ public class PackageInfoReader {
         }
     }
 
-    private void resolveCPEntries() {
+    private void resolveCPEntries(PackageInfo currentPackageInfo) {
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
             PackageInfo packageInfo;
             StructureRefCPEntry structureRefCPEntry;
@@ -1733,7 +1487,7 @@ public class PackageInfoReader {
                 case CP_ENTRY_TYPE_REF:
                     TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
                     String typeSig = typeRefCPEntry.getTypeSig();
-                    BType bType = getBTypeFromDescriptor(typeSig);
+                    BType bType = getBTypeFromDescriptor(currentPackageInfo, typeSig);
                     typeRefCPEntry.setType(bType);
                     break;
                 case CP_ENTRY_TRANSFORMER_REF:
@@ -1765,7 +1519,7 @@ public class PackageInfoReader {
                 // Get the BType from the type descriptor
                 StructFieldInfo fieldInfo = fieldInfoEntries[i];
                 String typeDesc = fieldInfo.getTypeDescriptor();
-                BType fieldType = getBTypeFromDescriptor(typeDesc);
+                BType fieldType = getBTypeFromDescriptor(packageInfo, typeDesc);
                 fieldInfo.setFieldType(fieldType);
 
                 // Create the StructField in the BStructType. This is required for the type equivalence algorithm
@@ -1786,7 +1540,7 @@ public class PackageInfoReader {
                 BAttachedFunction[] attachedFunctions = new BAttachedFunction[attachedFuncCount];
                 int count = 0;
                 for (AttachedFunctionInfo attachedFuncInfo : structureTypeInfo.funcInfoEntries.values()) {
-                    BFunctionType funcType = getFunctionType(attachedFuncInfo.typeSignature, packageInfo);
+                    BFunctionType funcType = getFunctionType(packageInfo, attachedFuncInfo.typeSignature);
 
                     BAttachedFunction attachedFunction = new BAttachedFunction(
                             attachedFuncInfo.name, funcType, attachedFuncInfo.flags);
@@ -1804,7 +1558,7 @@ public class PackageInfoReader {
                 case CP_ENTRY_TYPE_REF:
                     TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) cpEntry;
                     String typeSig = typeRefCPEntry.getTypeSig();
-                    BType bType = getBTypeFromDescriptor(typeSig);
+                    BType bType = getBTypeFromDescriptor(packageInfo, typeSig);
                     typeRefCPEntry.setType(bType);
                     break;
                 default:
@@ -1907,5 +1661,127 @@ public class PackageInfoReader {
         }
 
         return pkgInfo;
+    }
+
+    private BType getBTypeFromDescriptor(PackageInfo packageInfo, String desc) {
+        return this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo), desc);
+    }
+
+    /**
+     * Create types for compiler phases.
+     * 
+     * @since 0.975.0
+     */
+    private class RuntimeTypeCreater implements TypeCreater<BType> {
+
+        PackageInfo packageInfo;
+
+        public RuntimeTypeCreater(PackageInfo packageInfo) {
+            this.packageInfo = packageInfo;
+        }
+        
+        @Override
+        public BType getBasicType(char typeChar) {
+            switch (typeChar) {
+                case 'I':
+                    return BTypes.typeInt;
+                case 'F':
+                    return BTypes.typeFloat;
+                case 'S':
+                    return BTypes.typeString;
+                case 'B':
+                    return BTypes.typeBoolean;
+                case 'L':
+                    return BTypes.typeBlob;
+                case 'Y':
+                    return BTypes.typeDesc;
+                case 'A':
+                    return BTypes.typeAny;
+                case 'N':
+                    return BTypes.typeNull;
+                default:
+                    throw new IllegalArgumentException("unsupported basic type char: " + typeChar);
+            }
+        }
+
+        @Override
+        public BType getBuiltinRefType(String typeName) {
+            return BTypes.getTypeFromName(typeName);
+        }
+
+        @Override
+        public BType getRefType(char typeChar, String pkgId, String typeName) {
+            if (typeName.isEmpty()) {
+                return null;
+            }
+
+            PackageInfo packageInfoOfType;
+            if (pkgId != null) {
+                packageInfoOfType = getPackageInfo(pkgId);
+            } else {
+                packageInfoOfType = packageInfo;
+            }
+            switch (typeChar) {
+                case 'X':
+                    return packageInfoOfType.getServiceInfo(typeName).getType();
+                default:
+                    return packageInfoOfType.getTypeDefInfo(typeName).typeInfo.getType();
+            }
+        }
+
+        @Override
+        public BType getConstrainedType(char typeChar, BType constraint) {
+            switch (typeChar) {
+                case 'J':
+                    if (constraint == null) {
+                        return BTypes.typeJSON;
+                    }
+                    return new BJSONType(constraint);
+                case 'D':
+                    if (constraint == null) {
+                        return BTypes.typeTable;
+                    }
+                    return new BTableType(constraint);
+                case 'M':
+                    if (constraint == null || constraint == BTypes.typeAny) {
+                        return BTypes.typeMap;
+                    }
+                    return new BMapType(constraint);
+                case 'H':
+                    return new BStreamType(constraint);
+                case 'G':
+                case 'T':
+                default:
+                    return constraint;
+            }
+        }
+
+        @Override
+        public BType getArrayType(BType elementType) {
+            return new BArrayType(elementType);
+        }
+
+        @Override
+        public BType getCollenctionType(char typeChar, List<BType> memberTypes) {
+            switch (typeChar) {
+                case 'O':
+                    return new BUnionType(memberTypes);
+                case 'P':
+                    return new BTupleType(memberTypes);
+                default:
+                    throw new IllegalArgumentException("unsupported collection type char: " + typeChar);
+            }
+        }
+
+        @Override
+        public BType getFunctionType(List<BType> funcParams, BType retType) {
+            BType[] returnTypes;
+            if (retType == null) {
+                returnTypes = new BType[0];
+            } else {
+                returnTypes = new BType[] { retType };
+            }
+            return new BFunctionType(funcParams.toArray(new BType[funcParams.size()]), returnTypes);
+        }
     }
 }

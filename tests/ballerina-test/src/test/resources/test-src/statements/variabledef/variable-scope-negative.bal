@@ -48,12 +48,12 @@ service<DummyService> myService {
     }
 }
 
-type DummyEndpoint {};
+type DummyEndpoint object {};
 
 function <DummyEndpoint s> init ({} conf)  {
 }
 
-type DummyService {};
+type DummyService object {};
 
 function <DummyService s> getEndpoint() returns (DummyEndpoint) {
     return null;
