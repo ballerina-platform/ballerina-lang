@@ -1,4 +1,3 @@
-import ballerina/crypto;
 import ballerina/io;
 
 public function benchmarkStringContains() {
@@ -104,7 +103,7 @@ public function benchmarkXmlValueOf() {
 }
 
 public function benchmarkStringJsonValueOf() {
-    json testJson = {"Hello":"World"};
+    json testJson = { "Hello": "World" };
     string str = testJson.toString();
 }
 

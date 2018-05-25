@@ -7,6 +7,7 @@ chmod +x ${BAL_HOME}/bin/ballerina
 export PATH=${BAL_HOME}/bin:$PATH
 resultsFolderName=results
 resultsFileName=${resultsFolderName}/$4.csv
+gcViewerLocation=target/gcviewer-$6.jar
 NA=NA
 
 echo "Running Performance benchmarks ..."
@@ -26,11 +27,11 @@ for functionName in $(<benchmarkFunctions.txt)
           unset _JAVA_OPTIONS
 
           ## check whether there are any GC events.
-          if  ((3 < "$(wc -l < target/gc_${functionName}.log)")); then
+          if  (( "$(wc -l < target/gc_${functionName}.log)" > 3)); then
 
              ###### Analyze GC Logs ######
              gcSummaryFile=target/gc_summarry_${functionName}.csv
-             java -jar target/gcviewer-$6.jar target/gc_${functionName}.log ${gcSummaryFile}
+             java -jar ${gcViewerLocation} target/gc_${functionName}.log ${gcSummaryFile}
 
               # GC throughput
               GC_throughput=$(awk -F "\"*;\"*" '{print $2}' ${gcSummaryFile} | awk NR==37 )

@@ -7,8 +7,12 @@ public function benchmarkTypeAnyJSONCasting() {
 
 function extractFieldValue(json fieldValue) returns (string) {
     match fieldValue {
-        string s => { return s; }
-        json j => { return "Error"; }
+        string s => {
+            return s;
+        }
+        json j => {
+            return "Error";
+        }
     }
 }
 
@@ -23,7 +27,7 @@ public function benchmarkPrintlnAnyVal() {
 }
 
 function jsonReturnFunction() returns (json) {
-    json val = {PropertyName:"Value"};
+    json val = { PropertyName: "Value" };
     return val;
 }
 
