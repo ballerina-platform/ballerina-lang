@@ -7,10 +7,15 @@ import com.intellij.codeInsight.template.macro.IterableComponentTypeMacro;
 import com.intellij.codeInsight.template.macro.SuggestVariableNameMacro;
 import com.intellij.codeInsight.template.postfix.templates.StringBasedPostfixTemplate;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.util.PsiTreeUtil;
 import org.ballerinalang.plugins.idea.psi.BallerinaNullableTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaUnionTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaUserDefineTypeName;
+import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
@@ -33,20 +38,26 @@ public class MatchPostfixTemplate extends StringBasedPostfixTemplate {
         MacroCallNode node = new MacroCallNode(new IterableComponentTypeMacro());
         MacroCallNode name = new MacroCallNode(new SuggestVariableNameMacro());
         node.addParameter(new VariableNode("expr", null));
-        //        template.addVariable("type", type, type, false);
+        // Get the element type.
         PsiElement type = getType(element);
         if (type != null) {
+            // If the element type is either union type or nullable type, we can expand the template.
             if (type instanceof BallerinaUnionTypeName) {
+                // Get type list from the union type.
                 BallerinaUnionTypeName ballerinaUnionTypeName = (BallerinaUnionTypeName) type;
                 List<BallerinaTypeName> typeNameList = ballerinaUnionTypeName.getTypeNameList();
+                // Add new variable for each type. This is used to enter the variable name for the type in the match
+                // pattern.
                 for (int i = 0; i < typeNameList.size(); i++) {
                     template.addVariable("name" + i, name, name, true);
                     template.addVariable("value" + i, name, name, true);
                 }
             } else if (type instanceof BallerinaNullableTypeName) {
+                // Get the sub-type name from the nullable type.
                 BallerinaNullableTypeName ballerinaNullableTypeName = (BallerinaNullableTypeName) type;
                 BallerinaTypeName typeName = ballerinaNullableTypeName.getTypeName();
-
+                // If it is a simple type name, it means we have only one type. But we need to complete the match
+                // pattern for null as well. So we add two variables.
                 if (typeName instanceof BallerinaSimpleTypeName) {
                     // Add extra variable for nullable pattern.
                     for (int i = 0; i < 2; i++) {
@@ -54,8 +65,10 @@ public class MatchPostfixTemplate extends StringBasedPostfixTemplate {
                         template.addVariable("value" + i, name, name, true);
                     }
                 } else if (typeName instanceof BallerinaUnionTypeName) {
+                    // Get type list from the union type.
                     List<BallerinaTypeName> typeNameList = ((BallerinaUnionTypeName) typeName).getTypeNameList();
                     int size = typeNameList.size();
+                    // Add new variable for each type.
                     for (int i = 0; i < size; i++) {
                         template.addVariable("name" + i, name, name, true);
                         template.addVariable("value" + i, name, name, true);
@@ -74,12 +87,16 @@ public class MatchPostfixTemplate extends StringBasedPostfixTemplate {
         PsiElement type = getType(element);
         if (type != null) {
             if (type instanceof BallerinaUnionTypeName) {
-                // Todo - Consider package as well.
                 BallerinaUnionTypeName ballerinaUnionTypeName = (BallerinaUnionTypeName) type;
                 List<BallerinaTypeName> typeNameList = ballerinaUnionTypeName.getTypeNameList();
                 for (int i = 0; i < typeNameList.size(); i++) {
-                    template.append("    ").append(typeNameList.get(i).getText()).append(" $name").append(i)
-                            .append("$ => {\n").append("$value").append(i).append("$").append("\n}");
+                    BallerinaTypeName ballerinaTypeName = typeNameList.get(i);
+
+                    // Get the suggested package for the type if any. Otherwise it will be an empty string.
+                    String packageName = getPackageName(element, ballerinaTypeName);
+
+                    template.append("    ").append(packageName).append(ballerinaTypeName.getText()).append(" $name")
+                            .append(i).append("$ => {\n").append("$value").append(i).append("$").append("\n}");
                     if (i != typeNameList.size() - 1) {
                         template.append("\n");
                     }
@@ -89,7 +106,11 @@ public class MatchPostfixTemplate extends StringBasedPostfixTemplate {
                 BallerinaTypeName typeName = ballerinaNullableTypeName.getTypeName();
                 // Todo - Consider package as well.
                 if (typeName instanceof BallerinaSimpleTypeName) {
-                    template.append("    ").append(typeName.getText()).append(" $name").append(0)
+
+                    // Get the suggested package for the type if any. Otherwise it will be an empty string.
+                    String packageName = getPackageName(element, typeName);
+
+                    template.append("    ").append(packageName).append(typeName.getText()).append(" $name").append(0)
                             .append("$ => {\n").append("$value").append(0).append("$").append("\n}").append("\n")
                             .append("    ").append("()").append(" $name").append(1)
                             .append("$ => {\n").append("$value").append(1).append("$").append("\n}");
@@ -98,8 +119,12 @@ public class MatchPostfixTemplate extends StringBasedPostfixTemplate {
                     List<BallerinaTypeName> typeNameList = ballerinaUnionTypeName.getTypeNameList();
                     int size = typeNameList.size();
                     for (int i = 0; i < size; i++) {
-                        template.append("    ").append(typeNameList.get(i).getText()).append(" $name").append(i)
-                                .append("$ => {\n").append("$value").append(i).append("$").append("\n}").append("\n");
+                        BallerinaTypeName ballerinaTypeName = typeNameList.get(i);
+                        // Get the suggested package for the type if any. Otherwise it will be an empty string.
+                        String packageName = getPackageName(element, ballerinaTypeName);
+                        template.append("    ").append(packageName).append(ballerinaTypeName.getText())
+                                .append(" $name").append(i).append("$ => {\n").append("$value").append(i)
+                                .append("$").append("\n}").append("\n");
                     }
                     template.append("    ").append("()").append(" $name").append(size)
                             .append("$ => {\n").append("$value").append(size).append("$").append("\n}");
@@ -109,5 +134,43 @@ public class MatchPostfixTemplate extends StringBasedPostfixTemplate {
             template.append("$END$");
         }
         return template.append("    \n}\n$END$").toString();
+    }
+
+    private String getPackageName(@NotNull PsiElement element, @NotNull PsiElement ballerinaTypeName) {
+        // Check whether type already contains a package name. In that case we don't need to suggest a package name.
+        BallerinaPackageReference ballerinaPackageReference = PsiTreeUtil.findChildOfType(ballerinaTypeName,
+                BallerinaPackageReference.class);
+        if (ballerinaPackageReference != null) {
+            return "";
+        }
+        // Get the built-in type definitions. We don't need to suggest package name for these types.
+        List<BallerinaTypeDefinition> ballerinaTypeDefinitions =
+                BallerinaPsiImplUtil.suggestBuiltInTypes(ballerinaTypeName);
+        for (BallerinaTypeDefinition ballerinaTypeDefinition : ballerinaTypeDefinitions) {
+            PsiElement identifier = ballerinaTypeDefinition.getIdentifier();
+            if (identifier == null) {
+                continue;
+            }
+            if (identifier.getText().equals(ballerinaTypeName.getText())) {
+                return "";
+            }
+        }
+
+        // We only need to suggest package names for the user defined type names. Suggesting package names for other
+        // type names like "string" is not valid.
+        BallerinaUserDefineTypeName ballerinaUserDefineTypeName =
+                PsiTreeUtil.findChildOfType(ballerinaTypeName, BallerinaUserDefineTypeName.class);
+        if (ballerinaUserDefineTypeName != null) {
+            // Suggest the package name for the current element.
+            String packageNameForElement = BallerinaPsiImplUtil.suggestPackage(element);
+            // Suggest the package name for the type. This
+            String packageNameForType = BallerinaPsiImplUtil.suggestPackage(ballerinaTypeName);
+            if (packageNameForElement != null && packageNameForType != null &&
+                    !packageNameForElement.equals(packageNameForType)) {
+
+                return packageNameForType + ":";
+            }
+        }
+        return "";
     }
 }

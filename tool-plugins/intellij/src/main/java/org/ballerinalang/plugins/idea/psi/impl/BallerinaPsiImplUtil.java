@@ -1889,6 +1889,50 @@ public class BallerinaPsiImplUtil {
         return packageMap;
     }
 
+    @Nullable
+    public static String suggestPackage(@NotNull PsiElement element) {
+        PsiFile containingFile = element.getContainingFile();
+        String filePath = containingFile.getVirtualFile().getPath();
+
+        Project project = element.getProject();
+
+        // From local project.
+        List<VirtualFile> packages = getPackagesFromProject(project);
+        // This is used to identify that the package is in the local project.
+        for (VirtualFile aPackage : packages) {
+            String packagePath = aPackage.getPath();
+            if (filePath.contains(packagePath)) {
+                return aPackage.getName();
+            }
+        }
+
+        // Get the module for the element.
+        Module module = ModuleUtilCore.findModuleForPsiElement(element);
+
+        // Get packages from SDK.
+        packages = getPackagesFromSDK(project, module);
+        for (VirtualFile aPackage : packages) {
+            String packagePath = aPackage.getPath();
+            if (filePath.contains(packagePath)) {
+                return aPackage.getName();
+            }
+        }
+
+        // Get packages from user repository.
+        List<VirtualFile> organizations = BallerinaPathModificationTracker.getAllOrganizationsInUserRepo();
+        for (VirtualFile organization : organizations) {
+            String organizationName = organization.getName();
+            packages = BallerinaPathModificationTracker.getPackagesFromOrganization(organizationName);
+            for (VirtualFile aPackage : packages) {
+                String packagePath = aPackage.getPath();
+                if (filePath.contains(packagePath)) {
+                    return aPackage.getName();
+                }
+            }
+        }
+        return null;
+    }
+
     public static boolean isConstraintableType(@NotNull PsiElement type) {
         if (!(type instanceof LeafPsiElement)) {
             return false;
