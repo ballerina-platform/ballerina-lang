@@ -516,6 +516,15 @@ public class BallerinaCompletionUtils {
     @NotNull
     public static LookupElement createFunctionLookupElement(@NotNull BallerinaTopLevelDefinition definition,
                                                             @Nullable InsertHandler<LookupElement> insertHandler) {
+        return createFunctionLookupElementWithSemicolon(definition, insertHandler, true);
+    }
+
+    @NotNull
+    public static LookupElement createFunctionLookupElementWithSemicolon(@NotNull BallerinaTopLevelDefinition
+                                                                                 definition,
+                                                                         @Nullable InsertHandler<LookupElement>
+                                                                                 insertHandler,
+                                                                         boolean withSemicolon) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier()
                 .getText(), definition).withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold()
                 .withInsertHandler(insertHandler);
@@ -533,7 +542,9 @@ public class BallerinaCompletionUtils {
                     }
                 } else {
                     builder = builder.withTypeText("nil");
-                    definition.putUserData(HAS_A_RETURN_VALUE, "nil");
+                    if (withSemicolon) {
+                        definition.putUserData(HAS_A_RETURN_VALUE, "nil");
+                    }
                 }
                 // Add return type.
                 BallerinaFormalParameterList formalParameterList = callableUnitSignature.getFormalParameterList();
