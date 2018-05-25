@@ -27,13 +27,13 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.TempFileIOChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
 import org.ballerinalang.runtime.message.StringDataSource;
+import org.ballerinalang.stdlib.io.channels.TempFileIOChannel;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.MIMEPart;
 

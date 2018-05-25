@@ -18,7 +18,7 @@
 
 package org.ballerinalang.mime.util;
 
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.jvnet.mimepull.MIMEPart;
 
 import java.io.IOException;

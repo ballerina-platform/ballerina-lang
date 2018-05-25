@@ -25,10 +25,10 @@ import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.io.utils.Utils;
 
 /**
  * Native function ballerina.internal:parseJson.

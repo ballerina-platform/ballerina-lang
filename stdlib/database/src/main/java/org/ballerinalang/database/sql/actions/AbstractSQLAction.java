@@ -49,7 +49,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.Utils;
+import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -902,7 +902,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructType structType,
             boolean loadSQLTableToMemory, List<ColumnDefinition> columnDefinitions) throws SQLException {
         return new BCursorTable(new SQLDataIterator(rm, rs, utcCalendar, columnDefinitions, structType,
-                Utils.getTimeStructInfo(context), Utils.getTimeZoneStructInfo(context)), loadSQLTableToMemory);
+                TimeUtils.getTimeStructInfo(context), TimeUtils.getTimeZoneStructInfo(context)), loadSQLTableToMemory);
     }
 
     private BTable constructTable(TableResourceManager rm, Context context, ResultSet rs, BStructType structType)
@@ -913,8 +913,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
 
     private BMirrorTable constructTable(Context context, BStructType structType, SQLDatasource dataSource,
             String tableName) throws SQLException {
-        return new BMirrorTable(dataSource, tableName, structType, Utils.getTimeStructInfo(context),
-                Utils.getTimeZoneStructInfo(context), utcCalendar);
+        return new BMirrorTable(dataSource, tableName, structType, TimeUtils.getTimeStructInfo(context),
+                                TimeUtils.getTimeZoneStructInfo(context), utcCalendar);
     }
 
     private String getSQLType(BStruct parameter) {

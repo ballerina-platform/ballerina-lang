@@ -22,9 +22,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.nativeimpl.internal.utils.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,8 +34,8 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.ZonedDateTime;
 
-import static org.ballerinalang.nativeimpl.Utils.getTimeStructInfo;
-import static org.ballerinalang.nativeimpl.Utils.getTimeZoneStructInfo;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeStructInfo;
+import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeZoneStructInfo;
 
 /**
  * Retrieves the last modified time of the specified file.
@@ -59,8 +59,9 @@ public class GetModifiedTime extends BlockingNativeCallableUnit {
         try {
             FileTime lastModified = Files.getLastModifiedTime(path);
             ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
-            lastModifiedStruct = Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context),
-                    lastModified.toMillis(), zonedDateTime.getZone().toString());
+            lastModifiedStruct = TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context),
+                                                            lastModified.toMillis(),
+                                                            zonedDateTime.getZone().toString());
             context.setReturnValues(lastModifiedStruct);
         } catch (IOException | SecurityException e) {
             String msg;
