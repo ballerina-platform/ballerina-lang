@@ -45,10 +45,14 @@ public class StatisticConfig {
         try {
             String configPercentiles = configRegistry.getAsString(METRICS_STATISTIC_PERCENTILES);
             if (configPercentiles != null) {
-                percentiles = Arrays.stream(configPercentiles.split(","))
-                        .map(s -> s.trim())
-                        .mapToDouble(Double::parseDouble)
-                        .toArray();
+                if (configPercentiles.contains(",")) {
+                    percentiles = Arrays.stream(configPercentiles.split(","))
+                            .map(s -> s.trim())
+                            .mapToDouble(Double::parseDouble)
+                            .toArray();
+                } else {
+                    percentiles = new double[]{Double.parseDouble(configPercentiles.trim())};
+                }
             }
         } catch (RuntimeException e) {
             consoleErr.println("ballerina: error parsing percentiles for Metrics statistic configuration");
