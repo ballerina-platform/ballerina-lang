@@ -10,7 +10,7 @@ R{{successful}} boolean `true` or `false`}
 deprecated {
   This function is deprecated use `openFile(string accessMode){}` instead.
 }
-public function <File file> open (string accessMode) returns boolean {
+public function File::open (string accessMode) returns boolean {
     return true;
 }
 
@@ -19,8 +19,12 @@ F{{path}} struct `field path` documentation}
 deprecated {
   This Struct is deprecated use `File2` instead.
 }
-public type File {
-    string path;
+public type File object {
+    public {
+        string path;
+    }
+
+    function open (string accessMode) returns (boolean);
 };
 
 documentation { PizzaService HTTP Service }
