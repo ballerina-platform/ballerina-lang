@@ -40,6 +40,7 @@ import org.wso2.transport.http.netty.util.TestUtil;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -103,9 +104,8 @@ public class ProxyServerUtil {
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = httpWsConnectorFactory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, scheme));
+        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(),
+                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, scheme));
     }
 
     static void shutDown() {

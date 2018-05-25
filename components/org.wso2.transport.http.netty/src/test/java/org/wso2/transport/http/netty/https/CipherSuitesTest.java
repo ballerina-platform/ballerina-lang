@@ -23,7 +23,6 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -32,13 +31,13 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -48,7 +47,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 
 /**
  * Tests for different cipher suites provided by client and server.
@@ -56,7 +54,6 @@ import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 public class CipherSuitesTest {
 
     private static HttpClientConnector httpClientConnector;
-    private SenderConfiguration senderConfiguration;
     private List<Parameter> clientParams;
 
     @DataProvider(name = "ciphers")
@@ -92,10 +89,6 @@ public class CipherSuitesTest {
         List<Parameter> serverParams = new ArrayList<>();
         serverParams.add(paramServerCiphers);
 
-        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
-        setSenderConfigs();
-
         HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
         ServerConnector serverConnector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                 getListenerConfiguration(serverPort, serverParams));
@@ -103,9 +96,7 @@ public class CipherSuitesTest {
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = factory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        senderConfiguration);
+        httpClientConnector = factory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
 
         testCiphersuites(hasException, serverPort);
         serverConnector.stop();
@@ -160,12 +151,14 @@ public class CipherSuitesTest {
         return listenerConfiguration;
     }
 
-    private void setSenderConfigs() {
+    private SenderConfiguration getSenderConfigs() {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
         senderConfiguration.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setScheme(HTTPS_SCHEME);
         senderConfiguration.setParameters(clientParams);
+        return senderConfiguration;
     }
  }
