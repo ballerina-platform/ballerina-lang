@@ -349,32 +349,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         return this.lookupSymbolInPackage(pos, env, pkgAlias, annotationName, SymTag.ANNOTATION);
     }
 
-    public BSymbol resolveConnector(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
-                                    Name pkgAlias, Name connectorName) {
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            return pkgSymbol;
-        }
-        BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, connectorName, SymTag.CONNECTOR);
-//        if (symbol == symTable.notFoundSymbol) {
-//            dlog.error(pos, code, connectorName);
-//        }
-        return symbol;
-    }
-
-    public BSymbol resolveObject(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
-                                    Name pkgAlias, Name objectName) {
-        BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
-        if (pkgSymbol == symTable.notFoundSymbol) {
-            return pkgSymbol;
-        }
-        BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, objectName, SymTag.OBJECT);
-        if (symbol == symTable.notFoundSymbol) {
-            dlog.error(pos, code, objectName);
-        }
-        return symbol;
-    }
-
     public BSymbol resolveStructField(DiagnosticPos pos, SymbolEnv env, Name fieldName, BTypeSymbol structSymbol) {
         return lookupMemberSymbol(pos, structSymbol.scope, env, fieldName, SymTag.VARIABLE);
     }
@@ -608,6 +582,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
                 Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
 
+        if (memberTypes.contains(symTable.noType)) {
+            resultType = symTable.noType;
+            return;
+        }
+
         BUnionType unionType = new BUnionType(unionTypeSymbol, memberTypes,
                 memberTypes.contains(symTable.nilType));
         unionTypeSymbol.type = unionType;
@@ -723,7 +702,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     this.env, typeName, SymTag.VARIABLE_NAME);
         }
 
-        if (symbol == symTable.notFoundSymbol) {
+        if (this.env.logErrors && symbol == symTable.notFoundSymbol) {
             dlog.error(userDefinedTypeNode.pos, diagCode, typeName);
             resultType = symTable.errType;
             return;

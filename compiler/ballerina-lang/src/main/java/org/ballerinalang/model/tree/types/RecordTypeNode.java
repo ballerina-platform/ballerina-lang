@@ -17,10 +17,6 @@
 */
 package org.ballerinalang.model.tree.types;
 
-import org.ballerinalang.model.tree.VariableNode;
-
-import java.util.List;
-
 /**
  * {@code BLangRecordTypeNode} represents a record type node in Ballerina
  * <p>
@@ -28,10 +24,6 @@ import java.util.List;
  *
  * @since 0.971.0
  */
-public interface RecordTypeNode extends ReferenceTypeNode {
-    
-    List<? extends VariableNode> getFields();
-
-    void addField(VariableNode field);
+public interface RecordTypeNode extends StructureTypeNode {
     
 }

@@ -61,6 +61,8 @@ public class SymbolEnv {
 
     public SymbolEnv enclEnv;
 
+    public boolean logErrors;
+
     public SymbolEnv(BLangNode node, Scope scope) {
         this.scope = scope;
         this.node = node;
@@ -72,6 +74,7 @@ public class SymbolEnv {
         this.forkJoin = null;
         this.enclEnv = null;
         this.enclVarSym = null;
+        this.logErrors = true;
     }
 
     public void copyTo(SymbolEnv target) {
@@ -83,6 +86,7 @@ public class SymbolEnv {
         target.enclInvokable = this.enclInvokable;
         target.forkJoin = this.forkJoin;
         target.enclVarSym = this.enclVarSym;
+        target.logErrors = this.logErrors;
         target.enclEnv = this;
     }
 
@@ -90,6 +94,7 @@ public class SymbolEnv {
         SymbolEnv env = new SymbolEnv(node, scope);
         env.enclPkg = node;
         env.enclEnv = builtinEnv;
+        env.logErrors = false;
         return env;
     }
 

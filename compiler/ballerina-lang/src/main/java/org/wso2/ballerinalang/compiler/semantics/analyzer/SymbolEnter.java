@@ -57,9 +57,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -100,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -111,6 +112,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -135,6 +137,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final BLangDiagnosticLog dlog;
     private final EndpointSPIAnalyzer endpointSPIAnalyzer;
     private final Types types;
+    private List<BLangTypeDefinition> unresolvedTypes;
 
     private SymbolEnv env;
 
@@ -194,29 +197,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
 
-        // Define struct nodes.
-        pkgNode.enums.forEach(enumNode -> defineNode(enumNode, pkgEnv));
-
-        // Define connector nodes.
-        pkgNode.connectors.forEach(con -> defineNode(con, pkgEnv));
-
-        // Define connector params and type.
-        defineConnectorParams(pkgNode.connectors, pkgEnv);
-
-        // Define transformer nodes.
-        pkgNode.transformers.forEach(tansformer -> defineNode(tansformer, pkgEnv));
-
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
 
-        // Define type definitions.
-        pkgNode.typeDefinitions.forEach(typeDefinition -> defineNode(typeDefinition, pkgEnv));
+//        // Define type definitions.
+        defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def fields (if any)
         defineFields(pkgNode.typeDefinitions, pkgEnv);
-
-        // Define connector action nodes.
-        defineConnectorMembers(pkgNode.connectors, pkgEnv);
 
         // Define type def members (if any)
         defineMembers(pkgNode.typeDefinitions, pkgEnv);
@@ -360,14 +348,31 @@ public class SymbolEnter extends BLangNodeVisitor {
         defineNode(xmlnsStmtNode.xmlnsDecl, env);
     }
 
+    private void defineTypeNodes(List<BLangTypeDefinition> typeDefs, SymbolEnv env) {
+        if (typeDefs.size() == 0) {
+            return;
+        }
+        this.unresolvedTypes = new ArrayList<>();
+        for (BLangTypeDefinition typeDef : typeDefs) {
+            defineNode(typeDef, env);
+        }
+        if (typeDefs.size() <= unresolvedTypes.size()) {
+            dlog.error(typeDefs.get(0).pos, DiagnosticCode.CYCLIC_TYPE_REFERENCE, unresolvedTypes);
+            return;
+        }
+        defineTypeNodes(unresolvedTypes, env);
+    }
+
     @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         BType definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
-
+        if (definedType == symTable.noType) {
+            this.unresolvedTypes.add(typeDefinition);
+            return;
+        }
         BTypeSymbol typeDefSymbol;
         if (definedType.tsymbol.name != Names.EMPTY) {
             typeDefSymbol = definedType.tsymbol.copy();
-
         } else  {
             typeDefSymbol = definedType.tsymbol;
         }
@@ -887,22 +892,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
                 continue;
             }
-            if (typeDef.symbol.kind == SymbolKind.OBJECT) {
+            if (typeDef.symbol.kind == SymbolKind.OBJECT || typeDef.symbol.kind == SymbolKind.RECORD) {
                 // Create typeDef type
-                BObjectType objectType = (BObjectType) typeDef.symbol.type;
-                BLangObjectTypeNode objTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
+                BStructureType structureType = (BStructureType) typeDef.symbol.type;
+                BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
                 SymbolEnv typeDefEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
-                objectType.fields = objTypeNode.fields.stream()
-                        .peek(field -> defineNode(field, typeDefEnv))
-                        .map(field -> new BField(names.fromIdNode(field.name),
-                                field.symbol, field.expr != null))
-                        .collect(Collectors.toList());
-            } else if (typeDef.symbol.kind == SymbolKind.RECORD) {
-                // Create typeDef type
-                BRecordType recordType = (BRecordType) typeDef.symbol.type;
-                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-                SymbolEnv typeDefEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, typeDef.symbol.scope, pkgEnv);
-                recordType.fields = recordTypeNode.fields.stream()
+                structureType.fields = structureTypeNode.fields.stream()
                         .peek(field -> defineNode(field, typeDefEnv))
                         .map(field -> new BField(names.fromIdNode(field.name),
                                 field.symbol, field.expr != null))
@@ -931,25 +926,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 defineRecordInitFunction(typeDef, typeDefEnv);
             }
         }
-    }
-
-    private void defineConnectorMembers(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
-        connectors.forEach(connector -> {
-            SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
-
-            connector.varDefs.forEach(varDef -> defineNode(varDef.var, conEnv));
-            defineConnectorInitFunction(connector, conEnv);
-            connector.actions.stream()
-                    .peek(action -> action.flagSet.add(Flag.PUBLIC))
-                    .forEach(action -> defineNode(action, conEnv));
-        });
-    }
-
-    private void defineConnectorParams(List<BLangConnector> connectors, SymbolEnv pkgEnv) {
-        connectors.forEach(connector -> {
-            SymbolEnv conEnv = SymbolEnv.createConnectorEnv(connector, connector.symbol.scope, pkgEnv);
-            defineConnectorSymbolParams(connector, connector.symbol, conEnv);
-        });
     }
 
     private void defineServiceMembers(List<BLangService> services, SymbolEnv pkgEnv) {
@@ -1015,10 +991,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             paramTypes.add(invokableSymbol.restParam.type);
         }
         invokableSymbol.type = new BInvokableType(paramTypes, invokableNode.returnTypeNode.type, null);
-    }
-
-    private void defineConnectorSymbolParams(BLangConnector connectorNode, BConnectorSymbol symbol,
-                                             SymbolEnv connectorEnv) {
     }
 
     private void defineSymbol(DiagnosticPos pos, BSymbol symbol) {
