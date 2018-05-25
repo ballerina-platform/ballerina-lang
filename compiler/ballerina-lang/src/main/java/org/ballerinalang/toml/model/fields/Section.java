@@ -25,7 +25,7 @@ import java.util.Locale;
  * @since 0.964
  */
 public enum Section {
-    PROJECT, DEPENDENCIES, PATCHES, PROXY;
+    PROJECT, DEPENDENCIES, PATCHES, PROXY, REPOSITORIES;
 
     /**
      * Check if the section header matches the toml header.

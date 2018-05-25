@@ -25,7 +25,7 @@ import java.util.Locale;
  * @since 0.964
  */
 public enum SettingHeaders {
-    PROXY, CENTRAL;
+    PROXY, CENTRAL, REPOSITORIES;
 
     /**
      * Check if the section header matches the toml header.

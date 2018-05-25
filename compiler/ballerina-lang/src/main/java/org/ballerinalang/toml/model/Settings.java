@@ -25,6 +25,7 @@ package org.ballerinalang.toml.model;
 public class Settings {
     private Proxy proxy = new Proxy();
     private Central central = new Central();
+    private Repositories repositories = new Repositories();
 
     /**
      * Get the proxy configuration object.
@@ -62,5 +63,21 @@ public class Settings {
         this.central = central;
     }
 
+    /**
+     * Get repositories.
+     *
+     * @return repository object
+     */
+    public Repositories getRepos() {
+        return repositories;
+    }
 
+    /**
+     * Set repositories.
+     *
+     * @param repositories repository object
+     */
+    public void setRepos(Repositories repositories) {
+        this.repositories = repositories;
+    }
 }
