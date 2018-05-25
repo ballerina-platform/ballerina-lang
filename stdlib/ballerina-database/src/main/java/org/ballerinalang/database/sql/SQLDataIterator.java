@@ -604,6 +604,7 @@ public class SQLDataIterator extends TableIterator {
             String dateValue = SQLDatasourceUtils.getString(date);
             bStruct.setRefField(refRegIndex.incrementAndGet(), dateValue != null ? new BString(dateValue) : null);
             break;
+        case TypeTags.OBJECT_TYPE_TAG:
         case TypeTags.RECORD_TYPE_TAG:
             bStruct.setRefField(refRegIndex.incrementAndGet(), date != null ? createTimeStruct(date.getTime()) : null);
             break;
@@ -623,6 +624,7 @@ public class SQLDataIterator extends TableIterator {
                 String dateValue = SQLDatasourceUtils.getString(date);
                 bStruct.setStringField(stringRegIndex.incrementAndGet(), dateValue);
                 break;
+            case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 bStruct.setRefField(refRegIndex.incrementAndGet(), createTimeStruct(date.getTime()));
                 break;

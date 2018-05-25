@@ -205,8 +205,8 @@ public class BLangVMErrors {
         return error;
     }
 
-    private static BStruct generateError(ProgramFile programFile, CallableUnitInfo callableUnitInfo, boolean attachCallStack,
-                                         StructureTypeInfo structInfo, Object... values) {
+    private static BStruct generateError(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
+                                         boolean attachCallStack, StructureTypeInfo structInfo, Object... values) {
         BStruct error = BLangVMStructs.createBStruct(structInfo, values);
         if (attachCallStack) {
             attachStackFrame(programFile, error, callableUnitInfo);

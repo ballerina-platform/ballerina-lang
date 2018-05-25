@@ -47,7 +47,7 @@ public class PackageFileReader {
     }
 
     public void readPackage(String packageId) {
-        // FIXME
+        // TODO
         if (!"ballerina.builtin".equals(packageId)) {
             throw new UnsupportedOperationException("unsupport package read from balo: " + packageId);
         } 
@@ -97,7 +97,7 @@ public class PackageFileReader {
 
     private InputStream getCompiledPackageBinary() throws IOException {
         String ballerinaHome = System.getProperty(BALLERINA_HOME);
-        // FIXME: read the zip file and get the binary content
+        // TODO: read the zip file and get the binary content
         Path libsPath = Paths.get(ballerinaHome, "lib", "stdlib-compile-0.971.1-SNAPSHOT.zip");
         Path fileToExtract = Paths.get("obj", "builtin.balo");
 
