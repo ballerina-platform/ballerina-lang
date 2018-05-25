@@ -17,9 +17,9 @@
 
 package org.ballerinalang.stdlib.io.channels.base;
 
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.channels.base.readers.Reader;
 import org.ballerinalang.stdlib.io.channels.base.writers.Writer;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

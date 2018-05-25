@@ -18,12 +18,12 @@
 
 package org.ballerinalang.stdlib.io.events.characters;
 
-import org.ballerinalang.stdlib.io.nativeimpl.CloseCharacterChannel;
 import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.stdlib.io.events.Event;
 import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
 import org.ballerinalang.stdlib.io.events.result.BooleanResult;
+import org.ballerinalang.stdlib.io.nativeimpl.CloseCharacterChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

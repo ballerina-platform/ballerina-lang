@@ -112,6 +112,10 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-prometheus-extension</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-io</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

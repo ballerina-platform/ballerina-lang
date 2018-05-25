@@ -24,9 +24,9 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.file.service.DirectoryListenerConstants;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemServerConnector;
 import org.wso2.transport.localfilesystem.server.exception.LocalFileSystemServerConnectorException;
 

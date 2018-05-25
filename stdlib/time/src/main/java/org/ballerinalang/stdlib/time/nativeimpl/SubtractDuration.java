@@ -34,7 +34,8 @@ import org.ballerinalang.stdlib.time.util.TimeUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "subtractDuration",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = TimeUtils.STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = TimeUtils.STRUCT_TYPE_TIME,
+                             structPackage = "ballerina.time"),
         args = {@Argument(name = "years", type = TypeKind.INT),
                 @Argument(name = "months", type = TypeKind.INT),
                 @Argument(name = "days", type = TypeKind.INT),

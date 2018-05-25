@@ -18,8 +18,8 @@
 package org.ballerinalang.stdlib.io.channels.base;
 
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.csv.Format;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

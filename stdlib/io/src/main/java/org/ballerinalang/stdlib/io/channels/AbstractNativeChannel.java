@@ -21,9 +21,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.stdlib.io.nativeimpl.OpenFile;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.nativeimpl.OpenFile;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**

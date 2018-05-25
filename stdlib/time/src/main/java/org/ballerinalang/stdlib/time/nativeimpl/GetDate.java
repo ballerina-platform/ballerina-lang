@@ -39,10 +39,11 @@ import java.util.Arrays;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "getDate",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = TimeUtils.STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = TimeUtils.STRUCT_TYPE_TIME,
+                             structPackage = "ballerina.time"),
         returnType = {@ReturnType(type = TypeKind.INT),
-                      @ReturnType(type = TypeKind.INT),
-                      @ReturnType(type = TypeKind.INT)},
+                @ReturnType(type = TypeKind.INT),
+                @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
 public class GetDate extends AbstractTimeFunction {

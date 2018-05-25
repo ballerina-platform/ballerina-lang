@@ -18,16 +18,12 @@
 package org.ballerinalang.stdlib.time.util;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.time.ZoneId;
 import java.time.zone.ZoneRulesException;
 import java.util.Date;
@@ -80,26 +76,5 @@ public class TimeUtils {
             return null;
         }
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
-    }
-
-    public static BStruct createConversionError(Context context, String msg) {
-        return BLangVMErrors.createError(context, -1, msg);
-    }
-
-    /**
-     * Given an input stream, get a byte array.
-     *
-     * @param input Represent an input stream
-     * @return A byte array
-     * @throws IOException In case an error occurs while reading input stream
-     */
-    private static byte[] getByteArray(InputStream input) throws IOException {
-        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[READABLE_BUFFER_SIZE];
-            for (int len; (len = input.read(buffer)) != -1; ) {
-                output.write(buffer, 0, len);
-            }
-            return output.toByteArray();
-        }
     }
 }

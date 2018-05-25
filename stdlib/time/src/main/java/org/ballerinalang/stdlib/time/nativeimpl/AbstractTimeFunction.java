@@ -52,7 +52,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
     }
 
     BStruct createDateTime(Context context, int year, int month, int day, int hour, int minute, int second,
-            int milliSecond, String zoneIDStr) {
+                           int milliSecond, String zoneIDStr) {
         int nanoSecond = milliSecond * 1000000;
         ZoneId zoneId;
         if (zoneIDStr.isEmpty()) {
@@ -63,7 +63,8 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         }
         ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
         long timeValue = zonedDateTime.toInstant().toEpochMilli();
-        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue, zoneIDStr);
+        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue,
+                                          zoneIDStr);
     }
 
     BStruct parseTime(Context context, String dateValue, String pattern) {
@@ -110,10 +111,10 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
             ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
             long timeValue = zonedDateTime.toInstant().toEpochMilli();
             return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue,
-                    zoneId.toString());
+                                              zoneId.toString());
 
         } catch (DateTimeParseException e) {
-            throw new BallerinaException("parse date \"" + dateValue + "\" for the format \"" + pattern  + "\" failed");
+            throw new BallerinaException("parse date \"" + dateValue + "\" for the format \"" + pattern + "\" failed");
         } catch (IllegalArgumentException e) {
             throw new BallerinaException("invalid pattern for parsing " + pattern);
         }
@@ -124,7 +125,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         try {
             ZonedDateTime dateTime = getZonedDateTime(timeStruct);
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(pattern);
-            formattedString =  dateTime.format(dateTimeFormatter);
+            formattedString = dateTime.format(dateTimeFormatter);
         } catch (IllegalArgumentException e) {
             throw new BallerinaException("invalid pattern for formatting: " + pattern);
         }
@@ -137,7 +138,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
     }
 
     BStruct addDuration(Context context, BStruct timeStruct, long years, long months, long days, long hours,
-            long minutes, long seconds, long milliSeconds) {
+                        long minutes, long seconds, long milliSeconds) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         long nanoSeconds = milliSeconds * 1000000;
         dateTime = dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes)
@@ -149,7 +150,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
     }
 
     BStruct subtractDuration(Context context, BStruct timeStruct, long years, long months, long days, long hours,
-            long minutes, long seconds, long milliSeconds) {
+                             long minutes, long seconds, long milliSeconds) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         long nanoSeconds = milliSeconds * 1000000;
         dateTime = dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours)

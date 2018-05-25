@@ -20,13 +20,13 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
+import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.stdlib.io.channels.AbstractNativeChannel;
 import org.ballerinalang.stdlib.io.channels.BlobChannel;
 import org.ballerinalang.stdlib.io.channels.BlobIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.natives.annotations.Argument;
-import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;

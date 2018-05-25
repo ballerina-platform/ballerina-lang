@@ -17,10 +17,10 @@
 
 package org.ballerinalang.stdlib.io.channels;
 
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.readers.AsyncReader;
 import org.ballerinalang.stdlib.io.channels.base.writers.AsyncWriter;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
 import java.io.IOException;
 import java.nio.channels.WritableByteChannel;

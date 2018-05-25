@@ -25,12 +25,12 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
-import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
-import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.readers.CharacterChannelReader;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**

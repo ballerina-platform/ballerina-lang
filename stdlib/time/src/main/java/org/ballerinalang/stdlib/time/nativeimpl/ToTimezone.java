@@ -34,13 +34,14 @@ import org.ballerinalang.stdlib.time.util.TimeUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "toTimezone",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = TimeUtils.STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = TimeUtils.STRUCT_TYPE_TIME,
+                             structPackage = "ballerina.time"),
         args = {@Argument(name = "zoneId", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
                                   structPackage = "ballerina.time")},
         isPublic = true
 )
-public class ToTimezone extends  AbstractTimeFunction {
+public class ToTimezone extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
