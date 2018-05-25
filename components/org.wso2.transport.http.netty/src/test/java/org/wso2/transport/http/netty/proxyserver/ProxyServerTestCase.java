@@ -32,7 +32,6 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -41,7 +40,6 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.pipeline.PipelineProxyTestCase;
@@ -53,6 +51,7 @@ import java.io.InputStreamReader;
 import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -62,7 +61,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_METHOD;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 
 /**
  * Tests for proxy server
@@ -74,7 +72,6 @@ public class ProxyServerTestCase {
     private static ServerConnector serverConnector;
     private ClientAndProxy proxy;
     private HttpWsConnectorFactory httpWsConnectorFactory;
-    private SenderConfiguration senderConfiguration;
     private ProxyServerConfiguration proxyServerConfiguration;
 
     @BeforeClass
@@ -89,10 +86,6 @@ public class ProxyServerTestCase {
             TestUtil.handleException("Failed to resolve host", e);
         }
 
-        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
-        setSenderConfigs();
-
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         ListenerConfiguration listenerConfiguration = getListenerConfiguration();
         serverConnector = httpWsConnectorFactory
@@ -101,9 +94,7 @@ public class ProxyServerTestCase {
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = httpWsConnectorFactory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        senderConfiguration);
+        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
     }
 
     private ListenerConfiguration getListenerConfiguration() {
@@ -116,11 +107,13 @@ public class ProxyServerTestCase {
         return listenerConfiguration;
     }
 
-    private void setSenderConfigs() {
+    private SenderConfiguration getSenderConfigs() {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setScheme(HTTPS_SCHEME);
+        return senderConfiguration;
     }
 
     @Test

@@ -25,7 +25,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -35,13 +34,13 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -50,7 +49,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_2_0;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 
 /**
  * A test case consisting of a http2 client and server communicating over TLS.
@@ -60,15 +58,11 @@ public class TestHttp2WithALPN {
     private static final Logger log = LoggerFactory.getLogger(TestHttp2WithALPN.class);
     private ServerConnector serverConnector;
     private HttpClientConnector httpClientConnector;
-    private SenderConfiguration senderConfiguration;
     private int port = 8443;
     private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
     public void setup() throws InterruptedException {
-
-        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
 
         HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
         serverConnector = factory
@@ -77,11 +71,8 @@ public class TestHttp2WithALPN {
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        setSenderConfigs();
         connectorFactory = new DefaultHttpWsConnectorFactory();
-        httpClientConnector = connectorFactory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        senderConfiguration);
+        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
     }
 
     @Test
@@ -118,11 +109,13 @@ public class TestHttp2WithALPN {
         return listenerConfiguration;
     }
 
-    private void setSenderConfigs() {
+    private SenderConfiguration getSenderConfigs() {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         senderConfiguration.setHttpVersion(String.valueOf(HTTP_2_0));
         senderConfiguration.setScheme(HTTPS_SCHEME);
+        return senderConfiguration;
     }
 
     @AfterClass

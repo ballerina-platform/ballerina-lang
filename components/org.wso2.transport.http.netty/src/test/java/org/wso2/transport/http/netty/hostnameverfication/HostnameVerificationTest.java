@@ -24,7 +24,6 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -35,12 +34,12 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.https.SSLConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -49,7 +48,6 @@ import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 
 /**
  * A test for hostname verification. Contains two test scenarios to test certificates with CN included and not included.
@@ -63,7 +61,6 @@ public class HostnameVerificationTest {
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory factory;
     private String tlsStoreType = "PKCS12";
-    private SenderConfiguration senderConfiguration;
 
     @DataProvider(name = "configurations")
     private Object[][] configurations() {
@@ -96,12 +93,7 @@ public class HostnameVerificationTest {
     public void testHostNameVerification(String keyStoreFilePath, String keyStorePassword, String trustStoreFilePath,
             String trustStorePassword, boolean hasException, int serverPort) throws InterruptedException {
 
-        TransportsConfiguration transportsConfiguration = new TransportsConfiguration();
-        senderConfiguration = HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, HTTP_SCHEME);
-        setSenderConfigs(trustStoreFilePath, trustStorePassword);
-
         factory = new DefaultHttpWsConnectorFactory();
-
         serverConnector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                 setListenerConfiguration(serverPort, keyStoreFilePath, keyStorePassword));
         ServerConnectorFuture future = serverConnector.start();
@@ -109,8 +101,7 @@ public class HostnameVerificationTest {
         future.sync();
 
         httpClientConnector = factory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        senderConfiguration);
+                .createHttpClientConnector(new HashMap<>(), getSenderConfigs(trustStoreFilePath, trustStorePassword));
 
         sendRequest(hasException, serverPort);
     }
@@ -159,11 +150,13 @@ public class HostnameVerificationTest {
         return listenerConfiguration;
     }
 
-    private void setSenderConfigs(String trustStoreFilePath, String trustStorePassword) {
+    private SenderConfiguration getSenderConfigs(String trustStoreFilePath, String trustStorePassword) {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
         senderConfiguration.setTrustStorePass(trustStorePassword);
         senderConfiguration.setTLSStoreType(tlsStoreType);
         senderConfiguration.setScheme(HTTPS_SCHEME);
+        return senderConfiguration;
     }
 
     @AfterClass
