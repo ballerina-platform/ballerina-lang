@@ -88,6 +88,12 @@
         </fileSet>
         <fileSet>
             <directory>
+                ${project.build.directory}/extracted-distributions/ballerina-runtime-jar/META-INF/ballerina
+            </directory>
+            <outputDirectory>src</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-mime-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
@@ -169,6 +175,7 @@
                 <include>org.ballerinalang:ballerina-file:jar</include>
                 <include>org.ballerinalang:ballerina-math:jar</include>
                 <include>org.ballerinalang:ballerina-reflect:jar</include>
+                <include>org.ballerinalang:ballerina-runtime:jar</include>
                 <include>org.ballerinalang:ballerina-core:jar</include>
                 <include>org.ballerinalang:ballerina-lang:jar</include>
                 <include>org.ballerinalang:ballerina-launcher:jar</include>
