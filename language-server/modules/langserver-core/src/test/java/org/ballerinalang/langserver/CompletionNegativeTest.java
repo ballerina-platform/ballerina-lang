@@ -36,7 +36,7 @@ public abstract class CompletionNegativeTest extends CompletionTest {
     @Override
     @Test(dataProvider = "completion-negative-data-provider")
     public void test(String config, String configPath) {
-        String configJsonPath = SAMPLES_COPY_DIR + File.separator + configPath + File.separator + config;
+        String configJsonPath = "completion" + File.separator + configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);
         List<CompletionItem> negativeList = getExpectedList(configJsonObject);
