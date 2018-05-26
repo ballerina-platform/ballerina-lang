@@ -969,6 +969,11 @@
                 <artifactId>org.wso2.transport.local-file-system</artifactId>
                 <version>${file.transport.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.github.chewiebug</groupId>
+                <artifactId>gcviewer</artifactId>
+                <version>${chewiebug.gcviewer.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1669,6 +1674,7 @@
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
 
         <file.transport.version>6.0.53</file.transport.version>
+        <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
 
