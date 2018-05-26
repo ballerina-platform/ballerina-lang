@@ -15,10 +15,9 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver;
+package org.ballerinalang.langserver.completion;
 
 import com.google.gson.JsonObject;
-import org.ballerinalang.langserver.completion.CompletionTest;
 import org.ballerinalang.langserver.completion.util.CompletionTestUtil;
 import org.ballerinalang.langserver.completion.util.FileUtils;
 import org.eclipse.lsp4j.CompletionItem;
