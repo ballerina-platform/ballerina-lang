@@ -157,8 +157,8 @@ public class TreeVisitor extends LSNodeVisitor {
         // Then visit each top-level element sorted using the compilation unit
         String fileName = documentServiceContext.get(DocumentServiceKeys.FILE_NAME_KEY);
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream().filter(node ->
-                    node.getPosition().getSource().getCompilationUnitName().equals(fileName)
-            ).collect(Collectors.toList());
+                node.getPosition().getSource().getCompilationUnitName().equals(fileName)
+        ).collect(Collectors.toList());
 
         if (topLevelNodes.isEmpty()) {
             this.setTerminateVisitor(true);
@@ -769,7 +769,7 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangMatchExpression bLangMatchExpression) {
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(bLangMatchExpression.getPosition(), bLangMatchExpression, this,
-                                    this.documentServiceContext)) {
+                        this.documentServiceContext)) {
             final TreeVisitor visitor = this;
             Class fallbackCursorPositionResolver = this.cursorPositionResolver;
             this.cursorPositionResolver = MatchExpressionScopeResolver.class;
@@ -793,7 +793,7 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangMatchExpression.BLangMatchExprPatternClause matchExprPatternClause) {
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(matchExprPatternClause.getPosition(), matchExprPatternClause, this,
-                                    this.documentServiceContext)) {
+                        this.documentServiceContext)) {
             if (matchExprPatternClause.expr != null) {
                 this.acceptNode(matchExprPatternClause.expr, symbolEnv);
             }
@@ -985,7 +985,7 @@ public class TreeVisitor extends LSNodeVisitor {
         }
 
         Collections.reverse(filteredTokens);
-        
+
         /*
         This particular logic identifies a matching pair of closing and opening bracket and then check whether the
         cursor is within those bracket pair
