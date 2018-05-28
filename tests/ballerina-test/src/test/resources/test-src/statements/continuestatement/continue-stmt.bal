@@ -4,26 +4,26 @@ function calculateExp1 (int x, int y) returns (int) {
     while (x > yCopy) {
         yCopy = yCopy + 1;
         if (yCopy == 10) {
-            next;
+            continue;
         }
         z = z + 1;
     }
     return z;
 }
 
-function nestedNextStmt (int x, int y) returns (int) {
+function nestedContinueStmt (int x, int y) returns (int) {
     int z = 0;
     int yCopy = y;
     while (x >= yCopy) {
         yCopy = yCopy + 1;
         int i = 0;
         if (yCopy == 10) {
-            next;
+            continue;
         }
         while (i < yCopy) {
             i = i + 1;
             if (i == 10) {
-                next;
+                continue;
             }
             z = z + i;
         }
@@ -44,9 +44,9 @@ function testFinallyWithWhile (string command) returns (string) {
         tracePath("while" + i);
         try {
             tracePath("try" + i);
-            if (i == 2 && command == "next") {
-                tracePath("next");
-                next;
+            if (i == 2 && command == "continue") {
+                tracePath("continue");
+                continue;
             }
         } finally {
             tracePath("finally" + i);
@@ -64,9 +64,9 @@ function testFinallyWithForeach (string command) returns (string) {
         tracePath("foreach" + i);
         try {
             tracePath("try" + i);
-            if (i == 3 && command == "next") {
-                tracePath("next");
-                next;
+            if (i == 3 && command == "continue") {
+                tracePath("continue");
+                continue;
             }
         } finally {
             tracePath("finally" + i);

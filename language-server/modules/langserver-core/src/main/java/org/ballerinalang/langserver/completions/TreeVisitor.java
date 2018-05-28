@@ -90,7 +90,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -644,9 +644,9 @@ public class TreeVisitor extends LSNodeVisitor {
         }
     }
 
-    public void visit(BLangNext nextNode) {
+    public void visit(BLangContinue continueNode) {
         ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(nextNode.getPosition(), nextNode, this, this.documentServiceContext);
+                .isCursorBeforeNode(continueNode.getPosition(), continueNode, this, this.documentServiceContext);
     }
 
     @Override

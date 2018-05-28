@@ -139,7 +139,7 @@ function Listener::sendSubscriptionRequests() {
 
     foreach subscriptionDetails in subscriptionDetailsArray {
         if (lengthof subscriptionDetails.keys() == 0) {
-            next;
+            continue;
         }
 
         string strSubscribeOnStartUp = <string>subscriptionDetails["subscribeOnStartUp"];
@@ -187,7 +187,7 @@ function Listener::sendSubscriptionRequests() {
                     }
                     error websubError => {
                         log:printError("Error sending out subscription request on start up: " + websubError.message);
-                        next;
+                        continue;
                     }
                 }
             }
