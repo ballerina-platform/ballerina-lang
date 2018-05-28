@@ -52,7 +52,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-logging</artifactId>
+            <artifactId>ballerina-log-api</artifactId>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>

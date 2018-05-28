@@ -70,6 +70,10 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-log-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-math</artifactId>
         </dependency>
         <dependency>
@@ -330,6 +334,7 @@
                                 ballerina-grpc,
                                 ballerina-http,
                                 ballerina-io,
+                                ballerina-log-api,
                                 ballerina-jms,
                                 ballerina-math,
                                 ballerina-mime,

@@ -181,6 +181,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-log-api</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-math</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1120,6 +1125,7 @@
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
                 <module>stdlib/io</module>
+                <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/math</module>
@@ -1187,6 +1193,7 @@
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
                 <module>stdlib/io</module>
+                <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/math</module>
@@ -1250,6 +1257,7 @@
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
                 <module>stdlib/io</module>
+                <module>stdlib/log-api</module>
                 <module>stdlib/transactions</module>
                 <module>stdlib/grpc</module>
                 <module>stdlib/math</module>

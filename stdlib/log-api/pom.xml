@@ -28,9 +28,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ballerina-auth</artifactId>
+    <artifactId>ballerina-log-api</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina - Auth</name>
+    <name>Ballerina - Log API</name>
     <url>http://ballerina.io</url>
 
     <dependencies>
@@ -40,19 +40,11 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-log-api</artifactId>
+            <artifactId>ballerina-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-system</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-time</artifactId>
+            <artifactId>ballerina-logging</artifactId>
         </dependency>
     </dependencies>
 
@@ -77,7 +69,7 @@
                     </processors>
                     <options>
                         <nativeEntityProviderPackage>
-                            org.ballerinalang.stdlib.auth.generated.providers
+                            org.ballerinalang.stdlib.log.generated.providers
                         </nativeEntityProviderPackage>
                         <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
