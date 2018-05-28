@@ -204,14 +204,18 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private boolean stopAnalysis;
     private boolean blockedOnWorkerInteraction;
     private BlockedNode blockedNode;
-    private Boolean taintedStatus;
-    private Boolean returnTaintedStatus;
     private Set<TaintRecord.TaintError> taintErrorSet = new LinkedHashSet<>();
     private Map<BlockingNode, List<BlockedNode>> blockedNodeMap = new HashMap<>();
     private Map<BlockingNode, List<BlockedNode>> blockedEntryPointNodeMap = new HashMap<>();
     private Map<BLangIdentifier, Boolean> workerInteractionTaintedStatusMap;
     private BLangIdentifier currWorkerIdentifier;
     private BLangIdentifier currForkIdentifier;
+
+    // Tainted status can have three valid values. "True" to denote that the analyzed expression was "tainted". "False"
+    // to indicate that the analyzed expression was "untainted". Null to denote that the result of the expression should
+    // be neglected while evaluating the tainted status. This is used to nullify the result of recursive invocations.
+    private Boolean taintedStatus;
+    private Boolean returnTaintedStatus;
 
     private static final String ANNOTATION_TAINTED = "tainted";
     private static final String ANNOTATION_UNTAINTED = "untainted";
