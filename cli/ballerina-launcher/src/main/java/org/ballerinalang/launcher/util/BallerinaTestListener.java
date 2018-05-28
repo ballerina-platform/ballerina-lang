@@ -18,15 +18,11 @@
 
 package org.ballerinalang.launcher.util;
 
-import org.ballerinalang.stdlib.utils.GenerateBalo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -54,24 +50,9 @@ public class BallerinaTestListener implements ISuiteListener {
 
     // TODO
     private void copyStandardLibs() {
-        try {
-            cleanupStandardLibs();
             ballerinaHome = System.getProperty(BALLERINA_HOME);
-            Path stdlibModule =
-                    Paths.get(GenerateBalo.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-            Path stdlibCompileZip = stdlibModule.getParent().resolve("stdlib-compile-0.971.1-SNAPSHOT.zip");
-
-            if (!stdlibs.toFile().exists()) {
-                Files.createDirectory(stdlibs);
-            }
-
-            Path zip = stdlibs.resolve("stdlib-compile-0.971.1-SNAPSHOT.zip");
-            Files.copy(stdlibCompileZip, zip);
             System.setProperty(BALLERINA_HOME, stdlibs.getParent().toAbsolutePath().toString());
             log.info(BALLERINA_HOME + " is set to: " + System.getProperty(BALLERINA_HOME));
-        } catch (URISyntaxException | IOException e) {
-            throw new RuntimeException("error occured while loading standard libs: " + e.getMessage(), e);
-        }
     }
 
     private void cleanupStandardLibs() {
@@ -80,7 +61,5 @@ public class BallerinaTestListener implements ISuiteListener {
         } else {
             System.clearProperty(BALLERINA_HOME);
         }
-
-        BFileUtil.delete(stdlibs);
     }
 }
