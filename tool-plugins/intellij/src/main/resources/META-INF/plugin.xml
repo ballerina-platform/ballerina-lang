@@ -90,6 +90,10 @@
         <annotator language="Ballerina"
                    implementationClass="org.ballerinalang.plugins.idea.codeinsight.daemon.impl.BallerinaAnnotator"/>
 
+        <!--refactoring-->
+        <lang.refactoringSupport language="Ballerina"
+                                 implementationClass="org.ballerinalang.plugins.idea.refactoring.BallerinaRefactoringSupport"/>
+
         <!-- file templates -->
         <internalFileTemplate name="Ballerina File"/>
         <internalFileTemplate name="Ballerina Main"/>
