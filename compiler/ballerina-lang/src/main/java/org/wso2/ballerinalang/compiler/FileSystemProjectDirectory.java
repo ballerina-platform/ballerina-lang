@@ -194,7 +194,6 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
         if (Files.notExists(parent)) {
             Files.createDirectories(parent);
         }
-
         Files.copy(outputEntry.getInputStream(), destPath, StandardCopyOption.REPLACE_EXISTING);
     }
 

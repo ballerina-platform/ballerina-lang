@@ -23,8 +23,12 @@ import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
+import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.PrintStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
@@ -59,6 +63,9 @@ public class BuildCommand implements BLauncherCmd {
     @Parameter(names = "--java.debug", hidden = true)
     private String debugPort;
 
+    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    private String sourceRoot;
+
     public void execute() {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
@@ -71,7 +78,8 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         // Get source root path.
-        Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        System.setProperty("ballerina.source.root", sourceRootPath.toString());
         if (argList == null || argList.size() == 0) {
             // ballerina build
             BuilderUtils.compileAndWrite(sourceRootPath, offline);
@@ -88,9 +96,25 @@ public class BuildCommand implements BLauncherCmd {
                 targetFileName = pkgName;
             }
 
-            BuilderUtils.compileAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline);
+            Path sourcePath = Paths.get(pkgName);
+            String srcPathStr = sourcePath.toString();
+            Path fullPath = sourceRootPath.resolve(sourcePath);
+            if (Files.isRegularFile(fullPath) &&
+                    srcPathStr.endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX) &&
+                    !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                BuilderUtils.compileAndWrite(fullPath.getParent(), fullPath.getFileName().toString(), targetFileName,
+                                             buildCompiledPkg, offline);
+            } else if (Files.isDirectory(sourceRootPath)) {
+                if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
+                    throw new BallerinaException("Do you mean to build the ballerina package as a project? If so run" +
+                                                 " ballerina init to make it a project with a .ballerina directory");
+                }
+                BuilderUtils.compileAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline);
+            } else {
+                throw new BallerinaException("Invalid Ballerina source path, it should either be a directory or a" +
+                                             "file  with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
+            }
         }
-
         Runtime.getRuntime().exit(0);
     }
 
