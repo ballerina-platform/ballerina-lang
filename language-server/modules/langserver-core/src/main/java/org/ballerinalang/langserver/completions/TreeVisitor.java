@@ -251,7 +251,7 @@ public class TreeVisitor extends LSNodeVisitor {
         boolean isCursorBeforeNode = ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(varNode.getPosition(), varNode, this, this.documentServiceContext);
         // This is an endpoint definition
-        if (!isCursorBeforeNode) {
+        if (!isCursorBeforeNode && varNode.expr != null) {
             this.acceptNode(varNode.expr, symbolEnv);
         }
     }

@@ -132,7 +132,7 @@ public class MimeUtil {
      * @param parameterName Name of the parameter
      * @return Parameter value as a string
      */
-    static String getContentTypeParamValue(String contentType, String parameterName) {
+    public static String getContentTypeParamValue(String contentType, String parameterName) {
         try {
             MimeType mimeType = new MimeType(contentType);
             MimeTypeParameterList parameterList = mimeType.getParameters();

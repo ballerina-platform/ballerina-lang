@@ -84,6 +84,15 @@ public class CommonUtil {
     
     public static final String LINE_SEPARATOR = System.lineSeparator();
 
+    public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
+
+    public static final boolean LS_DEBUG_ENABLED;
+
+    static {
+        String debugLogStr = System.getProperty("ballerina.debugLog");
+        LS_DEBUG_ENABLED =  debugLogStr != null && Boolean.parseBoolean(debugLogStr);
+    }
+
     /**
      * Get the package URI to the given package name.
      *
@@ -290,7 +299,7 @@ public class CommonUtil {
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
         LSDocument document = new LSDocument(identifier.getUri());
         String fileContent = docManager.getFileContent(getPath(document));
-        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR);
+        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
         if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
             String lineContent = splitedFileContent[startPosition.getLine()];
             List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));

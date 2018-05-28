@@ -66,15 +66,15 @@ public class BallerinaTransactionClauseImpl extends BallerinaCompositeElementImp
   }
 
   @Override
-  @Nullable
-  public PsiElement getWith() {
-    return findChildByType(WITH);
-  }
-
-  @Override
   @NotNull
   public PsiElement getTransaction() {
     return notNullChild(findChildByType(TRANSACTION));
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getWith() {
+    return findChildByType(WITH);
   }
 
 }

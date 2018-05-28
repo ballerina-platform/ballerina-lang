@@ -38,11 +38,8 @@
             overflow: hidden;
             text-overflow:ellipsis;
         }
-        .icon.fw.fw-down-arrow, .icon.fw.fw-right-arrow{
+        .icon.fw.fw-down-arrow, .icon.fw.direction-icon{
             color: #3bff00;
-        }
-        .icon.fw.fw-up-arrow, .icon.fw.fw-left-arrow{
-            color: #ff7a00;
         }
         .row:nth-child(odd) {
             background-color: #444;

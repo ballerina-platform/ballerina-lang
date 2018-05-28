@@ -26,13 +26,27 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiReference;
+import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.psi.BallerinaAssignmentStatement;
+import org.ballerinalang.plugins.idea.psi.BallerinaField;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import org.ballerinalang.plugins.idea.psi.BallerinaForeverStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
+import org.ballerinalang.plugins.idea.psi.BallerinaInvocation;
+import org.ballerinalang.plugins.idea.psi.BallerinaObjectParameter;
 import org.ballerinalang.plugins.idea.psi.BallerinaOrgName;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageName;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
+import org.ballerinalang.plugins.idea.psi.BallerinaResourceDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaTableQueryExpression;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
+import org.ballerinalang.plugins.idea.psi.BallerinaXmlAttrib;
+import org.ballerinalang.plugins.idea.psi.reference.BallerinaPackageNameReference;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -81,9 +95,11 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             if (orgName != null) {
                 continue;
             }
-
             BallerinaPackageName packageNameNode = PsiTreeUtil.getParentOfType(identifier, BallerinaPackageName.class);
             if (packageNameNode != null) {
+                continue;
+            }
+            if (identifier.getParent() instanceof BallerinaResourceDefinition) {
                 continue;
             }
             BallerinaVariableReferenceList variableReferenceList = PsiTreeUtil.getParentOfType(identifier,
@@ -91,11 +107,92 @@ public class BallerinaUnresolvedReferenceInspection extends LocalInspectionTool 
             if (variableReferenceList != null) {
                 continue;
             }
+
+            // Skip record key highlighting in json.
+            BallerinaRecordKey recordKey = PsiTreeUtil.getParentOfType(identifier, BallerinaRecordKey.class);
+            BallerinaAssignmentStatement assignmentStatement = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaAssignmentStatement.class);
+            BallerinaVariableDefinitionStatement definitionStatement = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaVariableDefinitionStatement.class);
+            if (recordKey != null && (assignmentStatement == null || definitionStatement == null)) {
+                continue;
+            }
+
+            // Skip var assignment.
+            BallerinaSimpleVariableReference variableReference = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaSimpleVariableReference.class);
+            if (variableReference != null && variableReference.getParent() instanceof BallerinaAssignmentStatement
+                    && assignmentStatement != null && assignmentStatement.getVar() != null) {
+                continue;
+            }
+
+            // Skip object creation.
+            if (identifier.getText().equals("new")) {
+                continue;
+            }
+
+            // Skip self reference.
+            if (identifier.getText().equals("self")) {
+                continue;
+            }
+
+            // Skip unresolved fields.
+            BallerinaField ballerinaField = PsiTreeUtil.getParentOfType(identifier, BallerinaField.class);
+            if (ballerinaField != null) {
+                continue;
+            }
+
+            // Skip unresolved invocations.
+            BallerinaInvocation invocation = PsiTreeUtil.getParentOfType(identifier, BallerinaInvocation.class);
+            if (invocation != null) {
+                continue;
+            }
+
+            // Skip parameters in object initializer.
+            BallerinaObjectParameter objectParameter = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaObjectParameter.class);
+            if (objectParameter != null) {
+                continue;
+            }
+
+            // Skip xml attributes.
+            BallerinaXmlAttrib xmlAttrib = PsiTreeUtil.getParentOfType(identifier, BallerinaXmlAttrib.class);
+            if (xmlAttrib != null) {
+                continue;
+            }
+            // Skip namespaces.
+            PsiElement prevSibling = PsiTreeUtil.prevVisibleLeaf(identifier);
+            if (prevSibling instanceof LeafPsiElement) {
+                if (((LeafPsiElement) prevSibling).getElementType() == BallerinaTypes.COLON) {
+                    PsiElement parent = prevSibling.getParent();
+                    if (parent instanceof BallerinaPackageReference) {
+                        PsiReference reference = parent.getReference();
+                        if (!(reference instanceof BallerinaPackageNameReference)) {
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            // Todo - Remove after completion support is added.
+            BallerinaForeverStatement ballerinaForeverStatement = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaForeverStatement.class);
+            if (ballerinaForeverStatement != null) {
+                continue;
+            }
+
+            BallerinaTableQueryExpression tableQueryExpression = PsiTreeUtil.getParentOfType(identifier,
+                    BallerinaTableQueryExpression.class);
+            if (tableQueryExpression != null) {
+                continue;
+            }
+
             PsiReference reference = identifier.getReference();
             if (reference != null && reference.resolve() == null) {
                 problemDescriptors.add(createProblemDescriptor(manager, identifier, isOnTheFly, availableFixes));
                 continue;
             }
+
             PsiElement parent = identifier.getParent();
             if (parent instanceof BallerinaPackageReference) {
                 reference = parent.getReference();

@@ -1,5 +1,4 @@
-$diagram-background: #e7eaeb;
-$white:#fff;
+
 .editor-area {
   .rc-tabs-tab-active {
     .tab-title-wrapper {
@@ -63,8 +62,6 @@ $white:#fff;
 
 .client-line-header,
 .statement-title-rect,
-.struct-type-dropdown-wrapper,
-.struct-input-value-wrapper,
 .flowchart-background-empty-rect,
 .flowchart-separator-line,
 .panel-header {
@@ -124,7 +121,6 @@ $white:#fff;
   fill: $connector-color;
 }
 
-
 .ballerina-editor {
   .design-view-container {
     background-color: $diagram-background;
@@ -144,7 +140,7 @@ $white:#fff;
           fill: $white;
         }
         .editable-text-label {
-          fill: #333;
+          fill: $text-color;
           stroke: #2b2b2b;
           font-weight: 300;
           stroke-width: 0;
@@ -161,17 +157,8 @@ $white:#fff;
         .title-icon{
           fill: #636363;        
         }
-
-        .parameter-text,
-        .parameter-bracket-text,
-        .return-types-opening-brack-text,
-        .parameter-bracket-text,
-        .return-types-closing-brack-text {
-          dominant-baseline: text-before-edge;
-          cursor: default;
-        }
         .editor-area {
-          color: #333;
+          color: $text-color;
           border: 1px solid #333;
         }
       }
@@ -187,7 +174,7 @@ $white:#fff;
             font-weight: 300;
           }
           text, .title-text {
-            fill: #333;
+            fill: $text-color;
             font-weight: 300px;
           }
         }
@@ -195,36 +182,6 @@ $white:#fff;
           stroke: $primary-line-bgcolor;
           fill: $primary-line-bgcolor;
           stroke-dasharray: 5, 5;
-        }
-        .struct-content-operations-wrapper {
-          fill: #e4e4e4;
-          stroke: #e4e4e4;
-        }
-        .struct-type-dropdown-wrapper,
-        .struct-input-value-wrapper {
-          fill: #f9f9f9;
-          stroke: #ccc;
-          stroke-width: 1.2;
-        }
-        .struct-added-value-wrapper-light {
-          fill: #f5f5f5;
-          stroke: #ccc;
-          stroke-width: 0.5px;
-        }
-        .struct-delete-icon-wrapper-light {
-          fill: #f5f5f5;
-          stroke: #ccc;
-          stroke-dasharray: 0, 150, 50;
-        }
-        .struct-added-value-wrapper-dark {
-          fill: #dcdcdc;
-          stroke: #ccc;
-          stroke-width: 0.5px;
-        }
-        .struct-delete-icon-wrapper-dark {
-          fill: #dcdcdc;
-          stroke: #ccc;
-          stroke-dasharray: 0, 150, 50;
         }
 
         .match-expression{
@@ -241,20 +198,18 @@ $white:#fff;
           text-transform: lowercase;
         }
         .statement-title-text {
-          text-anchor: middle;
-          dominant-baseline: central;
-          fill: #777;
+          fill: $statementTextColor;
           font-style: italic;
         }
         .statement-title-text-left {
           text-anchor: start;
           dominant-baseline: central;
-          fill: #777;
+          fill: $statementTextColor;
           font-style: italic;
         }
         .compound-statement-rect {
           fill: none;
-          stroke: #777;
+          stroke: $statementTextColor;
           stroke-dasharray: 3, 3;
         }
         .flowchart-separator-line {
@@ -278,7 +233,7 @@ $white:#fff;
         .property-pane-action-button-delete,
         .property-pane-action-button-jump {
           opacity: 0.6;
-          fill: #333;
+          fill: $text-color;
           &:hover {
             opacity: 1;
           }
@@ -290,16 +245,8 @@ $white:#fff;
     .panel {
       .panel-header,
       .svg-container {
-        fill: #fff;
+        fill: $white;
         stroke-width: 0;
-        .parameter-text,
-        .parameter-bracket-text,
-        .return-types-opening-brack-text,
-        .parameter-bracket-text {
-          fill: #444;
-          dominant-baseline: text-before-edge;
-          cursor: default;
-        }
       }
     }
     .title-text, .condition-text{
@@ -322,7 +269,7 @@ $white:#fff;
       margin: 0 5px;
       float: left;
       padding: 2px 8px;
-      color: #fff;
+      color: $white;
       line-height: 26px; 
     }
     .bottom-label-icon-wrapper:hover {
@@ -343,7 +290,7 @@ $white:#fff;
     right: 25px;
   }
   .background-empty-rect {
-    fill: #FFF;
+    fill: $white;
   }
   .fork-bar {
     fill: #a5a5a5;
@@ -383,62 +330,6 @@ $white:#fff;
   }
 }
 
-.loading-overlay-enter {
-  opacity: 0.01;
-}
-
-.loading-overlay-enter.loading-overlay-enter-active {
-  opacity: 0.5;
-  transition: opacity 300ms ease-in;
-}
-
-.loading-overlay-leave {
-  opacity: 0.5;
-}
-
-.loading-overlay-leave.loading-overlay-leave-active {
-  opacity: 0.01;
-  transition: opacity 300ms ease-in;
-}
-
-.bal-file-editor-loading-container {
-  z-index: 1000;
-  text-align: center;
-  vertical-align: center;
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-color: rgb(60, 60, 60);
-  color: white;
-  opacity: 0.5;
-}
-
-#parse-pending-loader {
-  left: calc(50% - 132px);
-  top: 50%;
-  position: absolute;
-  width: 234px;
-  height: 28px;
-  font-size: 30px;
-  margin: auto;
-  color: #fff;
-  font-weight: 500;
-}
-
-#parse-pending-loader:after {
-  overflow: hidden;
-  vertical-align: bottom;
-  -webkit-animation: ellipsis steps(4, end) 900ms infinite;
-  animation: ellipsis steps(4, end) 900ms infinite;
-  content: "\2026";
-  /* ascii code for the ellipsis character */
-  width: 0px;
-  display: block;
-  margin-top: -40px;
-  margin-left: 93px;
-  font-size: 50px;
-}
-
 @keyframes ellipsis {
   to {
     width: 1.25em;
@@ -452,7 +343,7 @@ $white:#fff;
 }
 
 .swagger-view-container {
-  background: #FFF;
+  background: $white;
 }
 
 swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
@@ -474,31 +365,16 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   display: none,
 }
 
+.swaggerEditor .SplitPane {
+  height: 100% !important;
+}
+
 .expand-operation {
   display: none;
 }
 
 .SplitPane .vertical {
   overflow: hidden;
-}
-
-.swaggerEditor .SplitPane {
-  height: 100% !important;
-}
-
-.swagger-service-selector-wrapper {
-  background-color: #131313;
-  height: 22px;
-  overflow: hidden;
-  line-height: 15px;
-  color: white;
-  padding-left: 20px;
-}
-
-.swagger-service-selector-span {
-  float: left;
-  margin-top: 6px;
-  padding-right: 8px;
 }
 
 .divider {
@@ -509,46 +385,37 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   font-size: 10px;
 }
 
-.title-bg {
-  
-}
-
 .panel-header-title text{
   font-weight: 500 !important;
-}
-
-.title-icon{
-  fill: #636363;
 }
 
 .top-menu {
   position: fixed;
   padding: 3px 26px 6px !important;
   height: 40px;
-}
-
-.top-bar {
-  height: 30px;
-  margin-top: 5px;
-  width: auto;
-  margin-right: 10px !important;
-  .row {
-    padding: 0 !important;
-    width: 160px;
-    margin-top: 20px;
-    height: 30px !important;
-    .column {
-      min-width: 150px;
-      width: 50%;
+  .top-bar {
+    height: 30px;
+    margin-top: 5px;
+    width: auto;
+    margin-right: 10px !important;
+    .row {
       padding: 0 !important;
-      background: $white;
-      box-shadow: none !important;
-      .top-bar-row {
-        background: $white !important;
-        margin-top: 0px !important;
-        border-bottom: 1px solid #ececec;
-        .ui.label {
-          background-color: $white !important;
+      width: 160px;
+      margin-top: 20px;
+      height: 30px !important;
+      .column {
+        min-width: 150px;
+        width: 50%;
+        padding: 0 !important;
+        background: $white;
+        box-shadow: none !important;
+        .top-bar-row {
+          background: $white !important;
+          margin-top: 0px !important;
+          border-bottom: 1px solid #ececec;
+          .ui.label {
+            background-color: $white !important;
+          }
         }
       }
     }
@@ -561,24 +428,20 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .ui.bottom.center.popup {
   transform-origin: center top;
-  background: #f8f8f8;
+  background: $menu-pop-content-bgcolor;
   border: 1px solid #e7eaeb;
 }
 
 .ui.bottom.popup:before{
-  background: #f8f8f8 !important;
+  background: $menu-pop-content-bgcolor !important;
 }
 
 .ui.bottom.center.popup:before{
   box-shadow:-1px -1px 0px 0px #e7eaeb !important;
 }
 
-.title-text {
-  fill: #333;
-}
-
 .menu-pop-content {
-  background: #f8f8f8 !important;
+  background: $menu-pop-content-bgcolor !important;
   width: 500px;
   .column {
     width: 250px !important;
@@ -616,14 +479,14 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 a.item.menu-button.ui.button.primary {
   background: $brand-primary;
-  color: #fff;
+  color: $white;
   padding: 7px 10px !important;
   margin-top: 3px;
   margin-left: 5px;
   font-weight: 300;
   
   &:hover {
-    background: #27a9a3 !important;
+    background: $brand-primary-hover !important;
     font-weight: 300 !important;
   }
   
