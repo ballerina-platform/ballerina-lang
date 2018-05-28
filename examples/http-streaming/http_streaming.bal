@@ -25,6 +25,7 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
         //Send the request to the client with file content.
         var response = clientEndpoint->post("/stream/receiver",
             request = request);
+
         http:Response res = new;
         match response {
             http:Response resp => {
@@ -33,6 +34,7 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
                     string payload => {
                         //Set the response payload.
                         res.setTextPayload(payload);
+
                     }
                     error err => {
                         log:printError(err.message, err = err);
@@ -62,9 +64,11 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
                 //written to.
                 io:ByteChannel destinationChannel =
                     getFileChannel("./files/ReceivedFile.pdf", io:WRITE);
+
                 try {
                     //Copy the incoming stream to the destination channel.
                     copy(sourceChannel, destinationChannel);
+
                     response.setTextPayload("File Received!");
                 } catch (error err) {
                     log:printError("error occurred while saving file : "
@@ -137,6 +141,7 @@ function copy(io:ByteChannel src, io:ByteChannel dst) {
     // Specifies the number of bytes that should be read from a
     //single read operation.
     int bytesChunk = 10000;
+    
     int numberOfBytesWritten = 0;
     int readCount = 0;
     int offset = 0;
