@@ -1037,27 +1037,27 @@ public class BallerinaPsiImplUtil {
         });
     }
 
-    public static PsiElement getType(@NotNull BallerinaIdentifier identifierreachStatement) {
-        return CachedValuesManager.getCachedValue(identifierreachStatement, () -> {
-            PsiReference reference = identifierreachStatement.getReference();
+    public static PsiElement getType(@NotNull BallerinaIdentifier identifier) {
+        return CachedValuesManager.getCachedValue(identifier, () -> {
+            PsiReference reference = identifier.getReference();
             if (reference == null) {
-                return CachedValueProvider.Result.create(null, identifierreachStatement);
+                return CachedValueProvider.Result.create(null, identifier);
             }
             PsiElement resolvedElement = reference.resolve();
             if (resolvedElement == null) {
-                return CachedValueProvider.Result.create(null, identifierreachStatement);
+                return CachedValueProvider.Result.create(null, identifier);
             }
             BallerinaAssignmentStatement assignmentStatement = PsiTreeUtil.getParentOfType(resolvedElement,
                     BallerinaAssignmentStatement.class);
             if (assignmentStatement != null) {
-                return CachedValueProvider.Result.create(getType(assignmentStatement), identifierreachStatement);
+                return CachedValueProvider.Result.create(getType(assignmentStatement), identifier);
             }
             BallerinaVariableDefinitionStatement definitionStatement = PsiTreeUtil.getParentOfType(resolvedElement,
                     BallerinaVariableDefinitionStatement.class);
             if (definitionStatement != null) {
-                return CachedValueProvider.Result.create(getType(definitionStatement), identifierreachStatement);
+                return CachedValueProvider.Result.create(getType(definitionStatement), identifier);
             }
-            return CachedValueProvider.Result.create(null, identifierreachStatement);
+            return CachedValueProvider.Result.create(null, identifier);
         });
     }
 
