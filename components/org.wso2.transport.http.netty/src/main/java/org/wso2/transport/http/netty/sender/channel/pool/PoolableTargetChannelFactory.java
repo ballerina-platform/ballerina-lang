@@ -68,8 +68,16 @@ public class PoolableTargetChannelFactory implements PoolableObjectFactory {
                 senderConfiguration, clientBootstrap, httpRoute, connectionManager, connectionAvailabilityFuture);
         clientBootstrap.handler(httpClientChannelInitializer);
 
-        ChannelFuture channelFuture = clientBootstrap
-                .connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
+        // Connect to proxy server if proxy is enabled
+        ChannelFuture channelFuture;
+        if (senderConfiguration.getProxyServerConfiguration() != null) {
+            channelFuture = clientBootstrap.connect(new InetSocketAddress(
+                    senderConfiguration.getProxyServerConfiguration().getProxyHost(),
+                    senderConfiguration.getProxyServerConfiguration().getProxyPort()
+            ));
+        } else {
+            channelFuture = clientBootstrap.connect(new InetSocketAddress(httpRoute.getHost(), httpRoute.getPort()));
+        }
         connectionAvailabilityFuture.setSocketAvailabilityFuture(channelFuture);
         connectionAvailabilityFuture.setForceHttp2(senderConfiguration.isForceHttp2());
 

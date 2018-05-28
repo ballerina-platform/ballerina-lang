@@ -28,11 +28,15 @@ import org.bouncycastle.cert.ocsp.OCSPResp;
 import org.bouncycastle.cert.ocsp.SingleResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.certificatevalidation.RevocationVerificationManager;
 
 import java.math.BigInteger;
 
 import javax.net.ssl.SSLSession;
 import javax.security.cert.X509Certificate;
+
+import static org.wso2.transport.http.netty.common.certificatevalidation.Constants.CACHE_DEFAULT_ALLOCATED_SIZE;
+import static org.wso2.transport.http.netty.common.certificatevalidation.Constants.CACHE_DEFAULT_DELAY_MINS;
 
 /**
  * A handler for OCSP stapling.
@@ -40,6 +44,7 @@ import javax.security.cert.X509Certificate;
 public class OCSPStaplingHandler extends OcspClientHandler {
 
     private static final Logger log = LoggerFactory.getLogger(OCSPStaplingHandler.class);
+
     protected OCSPStaplingHandler(ReferenceCountedOpenSslEngine engine) {
         super(engine);
     }
@@ -50,7 +55,13 @@ public class OCSPStaplingHandler extends OcspClientHandler {
         //Get the stapled ocsp response from the ssl engine.
         byte[] staple = engine.getOcspResponse();
         if (staple == null) {
-            throw new IllegalStateException("Server didn't provide an OCSP staple!");
+            // If the response came from the server does not contain the OCSP staple, client attempts to validate
+            // the certificate by directly calling OCSP access location and if that also fails, finally
+            // do the CRL validation.
+            int cacheSize = CACHE_DEFAULT_ALLOCATED_SIZE;
+            int cacheDelay = CACHE_DEFAULT_DELAY_MINS;
+            RevocationVerificationManager revocationVerifier = new RevocationVerificationManager(cacheSize, cacheDelay);
+            return revocationVerifier.verifyRevocationStatus(engine.getSession().getPeerCertificateChain());
         }
 
         OCSPResp response = new OCSPResp(staple);
@@ -75,7 +86,7 @@ public class OCSPStaplingHandler extends OcspClientHandler {
                     .append("\n  OCSP Serial: ").append(ocspSerial).toString();
             log.debug(message);
         }
-        //For a OCSP response to be valid, certificate serial number should be equal to the ocsp serial number.
+        //For an OCSP response to be valid, certificate serial number should be equal to the ocsp serial number.
         return status == CertificateStatus.GOOD && certSerial.equals(ocspSerial);
     }
 }

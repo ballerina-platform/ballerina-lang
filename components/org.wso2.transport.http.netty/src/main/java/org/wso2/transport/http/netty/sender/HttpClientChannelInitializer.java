@@ -149,8 +149,9 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         }
     }
 
+    // Use netty proxy handler only if scheme is https
     private void configureProxyServer(ChannelPipeline clientPipeline) {
-        if (proxyServerConfiguration != null) {
+        if (proxyServerConfiguration != null && sslConfig != null) {
             if (proxyServerConfiguration.getProxyUsername() != null
                     && proxyServerConfiguration.getProxyPassword() != null) {
                 clientPipeline.addLast(Constants.PROXY_HANDLER,

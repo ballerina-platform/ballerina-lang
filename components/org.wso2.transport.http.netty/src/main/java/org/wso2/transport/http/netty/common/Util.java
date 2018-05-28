@@ -55,6 +55,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.wso2.transport.http.netty.common.Constants.COLON;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_HOST;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_PORT;
+import static org.wso2.transport.http.netty.common.Constants.IS_PROXY_ENABLED;
+import static org.wso2.transport.http.netty.common.Constants.PROTOCOL;
+import static org.wso2.transport.http.netty.common.Constants.TO;
+import static org.wso2.transport.http.netty.common.Constants.URL_AUTHORITY;
+
 /**
  * Includes utility methods for creating http requests and responses and their related properties.
  */
@@ -143,7 +151,7 @@ public class Util {
         HttpVersion httpVersion = getHttpVersion(outboundRequestMsg);
         String requestPath = getRequestPath(outboundRequestMsg);
         HttpRequest outboundNettyRequest = new DefaultHttpRequest(httpVersion, httpMethod,
-                (String) outboundRequestMsg.getProperty(Constants.TO), false);
+                (String) outboundRequestMsg.getProperty(TO), false);
         outboundNettyRequest.setMethod(httpMethod);
         outboundNettyRequest.setProtocolVersion(httpVersion);
         outboundNettyRequest.setUri(requestPath);
@@ -153,10 +161,18 @@ public class Util {
     }
 
     private static String getRequestPath(HTTPCarbonMessage outboundRequestMsg) {
-        if (outboundRequestMsg.getProperty(Constants.TO) == null) {
-            outboundRequestMsg.setProperty(Constants.TO, "");
+        if (outboundRequestMsg.getProperty(TO) == null) {
+            outboundRequestMsg.setProperty(TO, "");
         }
-        return (String) outboundRequestMsg.getProperty(Constants.TO);
+        // Return absolute url if proxy is enabled
+        if (outboundRequestMsg.getProperty(IS_PROXY_ENABLED) != null &&
+                (boolean) outboundRequestMsg.getProperty(IS_PROXY_ENABLED)) {
+            return outboundRequestMsg.getProperty(PROTOCOL) + URL_AUTHORITY
+                    + outboundRequestMsg.getProperty(HTTP_HOST) + COLON
+                    + outboundRequestMsg.getProperty(HTTP_PORT)
+                    + outboundRequestMsg.getProperty(TO);
+        }
+        return (String) outboundRequestMsg.getProperty(TO);
     }
 
     private static HttpVersion getHttpVersion(HTTPCarbonMessage outboundRequestMsg) {

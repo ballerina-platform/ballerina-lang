@@ -86,7 +86,7 @@ public class HTTPCarbonMessage {
             // for using the same message again, we need to set the future again and restart
             // the life-cycle.
             if (httpContent instanceof LastHttpContent) {
-                messageFuture = null;
+                this.removeMessageFuture();
             }
         } else {
             blockingEntityCollector.addHttpContent(httpContent);
@@ -181,6 +181,16 @@ public class HTTPCarbonMessage {
     }
 
     /**
+     * Set the header value for the given name.
+     *
+     * @param key header name.
+     * @param value header value as object.
+     */
+    public void setHeader(String key, Object value) {
+        this.httpMessage.headers().set(key, value);
+    }
+
+    /**
      * Let you set a set of headers.
      *
      * @param httpHeaders set of headers that needs to be set.
@@ -204,6 +214,10 @@ public class HTTPCarbonMessage {
         } else {
             return null;
         }
+    }
+
+    public synchronized void removeMessageFuture() {
+        this.messageFuture = null;
     }
 
     public Map<String, Object> getProperties() {
