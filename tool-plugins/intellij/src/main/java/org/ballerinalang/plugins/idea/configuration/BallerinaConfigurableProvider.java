@@ -24,6 +24,7 @@ import com.intellij.openapi.options.SearchableConfigurable;
 import com.intellij.openapi.options.UnnamedConfigurable;
 import com.intellij.openapi.project.Project;
 import org.ballerinalang.plugins.idea.codeinsight.imports.BallerinaAutoImportConfigurable;
+import org.ballerinalang.plugins.idea.codeinsight.recursivesearch.BallerinaRecursiveReferenceSearchConfigurable;
 import org.ballerinalang.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerConfigurable;
 import org.ballerinalang.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.Nls;
@@ -50,11 +51,15 @@ public class BallerinaConfigurableProvider extends ConfigurableProvider {
         Configurable sdkConfigurable = BallerinaSdkService.getInstance(myProject).createSdkConfigurable();
         Configurable autoImportConfigurable = new BallerinaAutoImportConfigurable(myProject, false);
         Configurable semanticAnalyzerConfigurable = new BallerinaSemanticAnalyzerConfigurable(myProject, false);
+        Configurable recursiveReferenceSearchConfigurable = new BallerinaRecursiveReferenceSearchConfigurable
+                (myProject, false);
 
         BallerinaCompositeConfigurable configurableWithSDK = new BallerinaCompositeConfigurable(sdkConfigurable,
-                librariesConfigurable, autoImportConfigurable, semanticAnalyzerConfigurable);
+                librariesConfigurable, autoImportConfigurable, semanticAnalyzerConfigurable,
+                recursiveReferenceSearchConfigurable);
         BallerinaCompositeConfigurable configurableWithoutSDK = new BallerinaCompositeConfigurable
-                (librariesConfigurable, autoImportConfigurable, semanticAnalyzerConfigurable);
+                (librariesConfigurable, autoImportConfigurable, semanticAnalyzerConfigurable,
+                        recursiveReferenceSearchConfigurable);
 
         return sdkConfigurable != null ? configurableWithSDK : configurableWithoutSDK;
     }

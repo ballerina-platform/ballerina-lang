@@ -194,6 +194,8 @@
 
         <applicationService
                 serviceImplementation="org.ballerinalang.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings"/>
+        <applicationService
+                serviceImplementation="org.ballerinalang.plugins.idea.codeinsight.recursivesearch.BallerinaRecursiveReferenceSearchSettings"/>
 
         <!--inspections-->
         <localInspection language="Ballerina" displayName="Unresolved reference inspection" groupPath="Ballerina"
