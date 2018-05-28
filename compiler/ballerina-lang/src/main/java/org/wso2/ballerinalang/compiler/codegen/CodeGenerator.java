@@ -3352,14 +3352,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     private void addPackageInfo(BPackageSymbol packageSymbol, ProgramFile programFile) {
         BLangPackage pkgNode = this.packageCache.get(packageSymbol.pkgID);
         if (pkgNode == null) {
-            // This is a package loaded from a BALO
-            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
-                programFile.packageFileMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile);
-            }
-            return;
+            packageSymbol.imports.forEach(importPkdSymbol -> addPackageInfo(importPkdSymbol, programFile));
+        } else {
+            pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
         }
 
-        pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
         if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
             programFile.packageFileMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile);
         }
