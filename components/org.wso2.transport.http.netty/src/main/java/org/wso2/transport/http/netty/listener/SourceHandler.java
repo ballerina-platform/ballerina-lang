@@ -148,11 +148,11 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                 log.warn(httpRequest.decoderResult().cause().getMessage());
             }
 
-            sourceHandlerErrorHandler.setStateHeaderReceived();
+            sourceHandlerErrorHandler.setState(InboundState.HEADERS_RECEIVED);
         } else {
             if (inboundRequestMsg != null) {
                 if (msg instanceof HttpContent) {
-                    sourceHandlerErrorHandler.setStateReceivingEntityBody();
+                    sourceHandlerErrorHandler.setState(InboundState.RECEIVING_ENTITY_BODY);
 
                     HttpContent httpContent = (HttpContent) msg;
                     inboundRequestMsg.addHttpContent(httpContent);
@@ -166,7 +166,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                         outboundRespFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
                         inboundRequestMsg = null;
 
-                        sourceHandlerErrorHandler.setStateRequestReceived();
+                        sourceHandlerErrorHandler.setState(InboundState.ENTITY_BODY_RECEIVED);
                     }
                 }
             } else {

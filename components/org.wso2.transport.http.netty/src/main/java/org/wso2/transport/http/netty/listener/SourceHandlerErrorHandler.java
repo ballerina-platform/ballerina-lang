@@ -38,12 +38,6 @@ public class SourceHandlerErrorHandler {
 
     private static Logger log = LoggerFactory.getLogger(SourceHandlerErrorHandler.class);
 
-    private enum InboundState {
-        CONNECTED,
-        HEADERS_RECEIVED,
-        RECEIVING_ENTITY_BODY, ENTITY_BODY_RECEIVED
-    }
-
     private HTTPCarbonMessage inboundRequestMsg;
     private final ServerConnectorFuture serverConnectorFuture;
     private final HttpResponseFuture httpOutboundRespFuture;
@@ -68,7 +62,7 @@ public class SourceHandlerErrorHandler {
             switch (state) {
             case CONNECTED:
                 serverConnectorFuture.notifyErrorListener(
-                        new ServerConnectorException(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE));
+                        new ServerConnectorException(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_REQUEST));
                 break;
             case RECEIVING_ENTITY_BODY:
                 handleIncompleteInboundRequest(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
@@ -110,19 +104,7 @@ public class SourceHandlerErrorHandler {
         }
     }
 
-    public void setStateConnected() {
-        state = InboundState.CONNECTED;
-    }
-
-    public void setStateHeaderReceived() {
-        state = InboundState.HEADERS_RECEIVED;
-    }
-
-    public void setStateReceivingEntityBody() {
-        state = InboundState.RECEIVING_ENTITY_BODY;
-    }
-
-    public void setStateRequestReceived() {
-        state = InboundState.ENTITY_BODY_RECEIVED;
+    public void setState(InboundState inboundState) {
+        state = inboundState;
     }
 }
