@@ -7,9 +7,13 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.ProcessingContext;
+import org.ballerinalang.plugins.idea.psi.BallerinaAssignmentStatement;
+import org.ballerinalang.plugins.idea.psi.BallerinaBlock;
 import org.ballerinalang.plugins.idea.psi.BallerinaCompositeElement;
 import org.ballerinalang.plugins.idea.psi.BallerinaDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaEndpointDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
+import org.ballerinalang.plugins.idea.psi.BallerinaExpressionStmt;
 import org.ballerinalang.plugins.idea.psi.BallerinaFiniteType;
 import org.ballerinalang.plugins.idea.psi.BallerinaForeachStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
@@ -21,11 +25,14 @@ import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTransactionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
 import org.ballerinalang.plugins.idea.psi.BallerinaUserDefineTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReferenceList;
 import org.ballerinalang.plugins.idea.psi.BallerinaWhileStatement;
+import org.ballerinalang.plugins.idea.psi.BallerinaWorkerBody;
+import org.ballerinalang.plugins.idea.psi.BallerinaWorkerDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaXmlAttrib;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -141,6 +148,60 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                             BallerinaCompletionUtils.addLoopKeywordsAsLookups(result);
                         }
 
+                        // Inside an empty function body.
+                        BallerinaBlock ballerinaBlock = PsiTreeUtil.getParentOfType(position, BallerinaBlock.class);
+                        BallerinaWorkerDefinition workerDefinition = PsiTreeUtil.getParentOfType(position,
+                                BallerinaWorkerDefinition.class);
+                        if (ballerinaBlock != null && workerDefinition == null) {
+                            List<BallerinaEndpointDefinition> endpointDefinitions =
+                                    PsiTreeUtil.getChildrenOfTypeAsList(ballerinaBlock,
+                                            BallerinaEndpointDefinition.class);
+                            List<BallerinaWorkerDefinition> workerDefinitions =
+                                    PsiTreeUtil.getChildrenOfTypeAsList(ballerinaBlock,
+                                            BallerinaWorkerDefinition.class);
+                            if (endpointDefinitions.isEmpty() && workerDefinitions.isEmpty()) {
+                                BallerinaCompletionUtils.addEndpointAsLookup(result);
+                                BallerinaCompletionUtils.addWorkerKeywordsAsLookups(result);
+                            }
+                        }
+
+                        // After an endpoint declaration.
+                        BallerinaEndpointDefinition endpointDefinition = PsiTreeUtil.getPrevSiblingOfType(statement,
+                                BallerinaEndpointDefinition.class);
+                        if (endpointDefinition != null) {
+                            BallerinaCompletionUtils.addEndpointAsLookup(result);
+                            BallerinaCompletionUtils.addWorkerKeywordsAsLookups(result);
+                        }
+
+                        // Handle "but" keyword completion.
+                        BallerinaStatement prevStatement = PsiTreeUtil.getPrevSiblingOfType(statement,
+                                BallerinaStatement.class);
+                        if (prevStatement != null) {
+                            BallerinaExpressionStmt expressionStmt = prevStatement.getExpressionStmt();
+                            if (expressionStmt != null) {
+                                PsiElement semicolon = expressionStmt.getSemicolon();
+                                if (semicolon == null) {
+                                    BallerinaCompletionUtils.addButKeywordsAsLookups(result);
+                                }
+                            }
+                            BallerinaAssignmentStatement assignmentStatement = prevStatement.getAssignmentStatement();
+                            if (assignmentStatement != null) {
+                                PsiElement semicolon = assignmentStatement.getSemicolon();
+                                if (semicolon == null) {
+                                    BallerinaCompletionUtils.addButKeywordsAsLookups(result);
+                                }
+                            }
+                            BallerinaVariableDefinitionStatement variableDefinitionStatement =
+                                    prevStatement.getVariableDefinitionStatement();
+                            if (variableDefinitionStatement != null) {
+                                PsiElement semicolon = variableDefinitionStatement.getSemicolon();
+                                if (semicolon == null) {
+                                    BallerinaCompletionUtils.addButKeywordsAsLookups(result);
+                                }
+                            }
+                        }
+
+                        // Add other keywords.
                         BallerinaCompletionUtils.addValueTypesAsLookups(result, true);
                         BallerinaCompletionUtils.addReferenceTypesAsLookups(result, true);
                         BallerinaCompletionUtils.addVarAsLookup(result);
@@ -148,6 +209,18 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
                         BallerinaCompletionUtils.addLockAsLookup(result);
                         BallerinaCompletionUtils.addCommonKeywords(result);
                         return;
+                    }
+                }
+            }
+            // Handle "but" keyword completion.
+            BallerinaStatement prevStatement = PsiTreeUtil.getPrevSiblingOfType(statement, BallerinaStatement.class);
+            if (prevStatement != null) {
+                BallerinaVariableDefinitionStatement variableDefinitionStatement =
+                        prevStatement.getVariableDefinitionStatement();
+                if (variableDefinitionStatement != null) {
+                    PsiElement semicolon = variableDefinitionStatement.getSemicolon();
+                    if (semicolon == null) {
+                        BallerinaCompletionUtils.addButKeywordsAsLookups(result);
                     }
                 }
             }
@@ -227,9 +300,29 @@ public class BallerinaKeywordCompletionProvider extends CompletionProvider<Compl
             if (ballerinaParameterList != null) {
                 List<BallerinaParameter> parameterList = ballerinaParameterList.getParameterList();
                 if (parameterList.size() == 1) {
-                    BallerinaCompletionUtils.addEndpointAsLookup(result);
+                    BallerinaCompletionUtils.addEndpointWithoutTemplateAsLookup(result);
                     return;
                 }
+            }
+        }
+
+        // Add keywords in parameters.
+        BallerinaParameter ballerinaParameter = PsiTreeUtil.getParentOfType(parent, BallerinaParameter.class);
+        if (ballerinaParameter != null) {
+            BallerinaTypeName ballerinaTypeName = PsiTreeUtil.getParentOfType(parent, BallerinaTypeName.class);
+            if (ballerinaTypeName != null) {
+                BallerinaCompletionUtils.addValueTypesAsLookups(result, true);
+                BallerinaCompletionUtils.addReferenceTypesAsLookups(result, true);
+                return;
+            }
+        }
+
+        BallerinaBlock ballerinaBlock = PsiTreeUtil.getParentOfType(position, BallerinaBlock.class);
+        if (ballerinaBlock != null) {
+            BallerinaWorkerBody workerBody = PsiTreeUtil.getPrevSiblingOfType(position.getParent(),
+                    BallerinaWorkerBody.class);
+            if (workerBody != null) {
+                BallerinaCompletionUtils.addWorkerKeywordsAsLookups(result);
             }
         }
     }

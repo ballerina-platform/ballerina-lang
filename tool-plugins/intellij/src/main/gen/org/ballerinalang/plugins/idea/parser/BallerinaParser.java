@@ -3334,14 +3334,15 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   // TypeName identifier? EQUAL_GT Expression
   public static boolean MatchExpressionPatternClause(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "MatchExpressionPatternClause")) return false;
-    boolean r;
+    boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, MATCH_EXPRESSION_PATTERN_CLAUSE, "<match expression pattern clause>");
     r = TypeName(b, l + 1, -1);
-    r = r && MatchExpressionPatternClause_1(b, l + 1);
-    r = r && consumeToken(b, EQUAL_GT);
-    r = r && Expression(b, l + 1, -1);
-    exit_section_(b, l, m, r, false, null);
-    return r;
+    p = r; // pin = 1
+    r = r && report_error_(b, MatchExpressionPatternClause_1(b, l + 1));
+    r = p && report_error_(b, consumeToken(b, EQUAL_GT)) && r;
+    r = p && Expression(b, l + 1, -1) && r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   // identifier?
@@ -7456,42 +7457,55 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // but LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE
+  // but (LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE)
   public static boolean matchExpression(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "matchExpression")) return false;
     if (!nextTokenIs(b, BUT)) return false;
     boolean r, p;
     Marker m = enter_section_(b, l, _NONE_, MATCH_EXPRESSION, null);
-    r = consumeTokens(b, 1, BUT, LEFT_BRACE);
+    r = consumeToken(b, BUT);
+    p = r; // pin = 1
+    r = r && matchExpression_1(b, l + 1);
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  // LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE
+  private static boolean matchExpression_1(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "matchExpression_1")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
+    r = consumeToken(b, LEFT_BRACE);
     p = r; // pin = 1
     r = r && report_error_(b, MatchExpressionPatternClause(b, l + 1));
-    r = p && report_error_(b, matchExpression_3(b, l + 1)) && r;
+    r = p && report_error_(b, matchExpression_1_2(b, l + 1)) && r;
     r = p && consumeToken(b, RIGHT_BRACE) && r;
     exit_section_(b, l, m, r, p, null);
     return r || p;
   }
 
   // (COMMA MatchExpressionPatternClause)*
-  private static boolean matchExpression_3(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "matchExpression_3")) return false;
+  private static boolean matchExpression_1_2(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "matchExpression_1_2")) return false;
     int c = current_position_(b);
     while (true) {
-      if (!matchExpression_3_0(b, l + 1)) break;
-      if (!empty_element_parsed_guard_(b, "matchExpression_3", c)) break;
+      if (!matchExpression_1_2_0(b, l + 1)) break;
+      if (!empty_element_parsed_guard_(b, "matchExpression_1_2", c)) break;
       c = current_position_(b);
     }
     return true;
   }
 
   // COMMA MatchExpressionPatternClause
-  private static boolean matchExpression_3_0(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "matchExpression_3_0")) return false;
-    boolean r;
-    Marker m = enter_section_(b);
+  private static boolean matchExpression_1_2_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "matchExpression_1_2_0")) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_);
     r = consumeToken(b, COMMA);
+    p = r; // pin = 1
     r = r && MatchExpressionPatternClause(b, l + 1);
-    exit_section_(b, m, null, r);
-    return r;
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
   }
 
   /* ********************************************************** */

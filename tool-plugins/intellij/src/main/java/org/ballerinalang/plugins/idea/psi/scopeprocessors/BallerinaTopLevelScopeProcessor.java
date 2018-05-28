@@ -37,6 +37,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaMatchExpressionPatternClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaNameReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaNamespaceDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaOnCommitStatement;
@@ -197,10 +198,14 @@ public class BallerinaTopLevelScopeProcessor extends BallerinaScopeProcessorBase
                                         insertHandler = ParenthesisInsertHandler.INSTANCE;
                                     }
                                 }
+                                BallerinaMatchExpressionPatternClause patternClause =
+                                        PsiTreeUtil.getParentOfType(myElement,
+                                                BallerinaMatchExpressionPatternClause.class);
                                 if (publicFieldsOnly != null) {
                                     if (child.isPublic()) {
-                                        myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(child,
-                                                insertHandler));
+                                        myResult.addElement(BallerinaCompletionUtils
+                                                .createFunctionLookupElementWithSemicolon(child, insertHandler,
+                                                        patternClause == null));
                                         lookupElementsFound = true;
                                     }
                                 } else {

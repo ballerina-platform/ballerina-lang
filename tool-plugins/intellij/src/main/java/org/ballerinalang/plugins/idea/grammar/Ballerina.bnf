@@ -703,9 +703,9 @@ AwaitExpression ::= await Expression
 MatchExprExpression ::= Expression matchExpression
 CheckedExpression ::= check Expression
 
-matchExpression ::= but LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE {pin=1}
+matchExpression ::= but (LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE) {pin(".*")=1}
 
-MatchExpressionPatternClause ::= TypeName identifier? EQUAL_GT Expression
+MatchExpressionPatternClause ::= TypeName identifier? EQUAL_GT Expression {pin=1}
 
 //reusable productions
 
