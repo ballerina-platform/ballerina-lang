@@ -28,8 +28,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
-    public BTypeSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(kind, flags, name, pkgID, type, owner);
+    public BTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+        super(symTag, flags, name, pkgID, type, owner);
     }
 
     @Override

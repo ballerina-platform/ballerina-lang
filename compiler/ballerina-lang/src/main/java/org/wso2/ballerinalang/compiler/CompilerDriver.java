@@ -26,9 +26,13 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -63,6 +67,7 @@ public class CompilerDriver {
     private final Desugar desugar;
     private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
+    private final SymbolResolver symResolver;
 
     public static CompilerDriver getInstance(CompilerContext context) {
         CompilerDriver compilerDriver = context.get(COMPILER_DRIVER_KEY);
@@ -88,6 +93,7 @@ public class CompilerDriver {
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = getCompilerPhase();
+        this.symResolver = SymbolResolver.getInstance(context);
     }
 
     public BLangPackage compilePackage(BLangPackage packageNode) {
@@ -103,6 +109,12 @@ public class CompilerDriver {
         } else {
             symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null);
         }
+
+        // Update the error symbol
+        BSymbol errorStructSymbol = symResolver.lookupSymbol(
+                symbolTable.pkgEnvMap.get(symbolTable.builtInPackageSymbol), Names.ERROR, SymTag.RECORD);
+        errorStructSymbol.type = symbolTable.errStructType;
+        errorStructSymbol.type.tsymbol = (BTypeSymbol) errorStructSymbol;
     }
 
 
