@@ -60,6 +60,30 @@
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-dependencies</id>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>unpack</goal>
+                        </goals>
+                        <configuration>
+                            <artifactItems>
+                                <artifactItem>
+                                    <groupId>org.ballerinalang</groupId>
+                                    <artifactId>stdlib-compile</artifactId>
+                                    <type>zip</type>
+                                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                                </artifactItem>
+                            </artifactItems>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- For ballerina annotation processing -->
             <plugin>
                 <groupId>org.bsc.maven</groupId>
@@ -97,6 +121,12 @@
                         </goals>
                         <phase>compile</phase>
                         <configuration>
+                            <systemProperties>
+                                <systemProperty>
+                                    <key>ballerina.home</key>
+                                    <value>${project.build.directory}</value>
+                                </systemProperty>
+                            </systemProperties>
                             <arguments>
                                 <argument>${ballerina.source.directory}/packaging_pull</argument>
                             </arguments>
