@@ -15,18 +15,18 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/internal as file;
+import ballerina/internal;
 import ballerina/log;
 import ballerina/time;
 
 string TEST_CONTENT = "Hello";
 
 function createSourceAndTargetDirs(string pathValue) returns boolean {
-    file:Path parentPath = new(pathValue);
-    file:Path sourcePath = parentPath.resolve("source");
+    internal:Path parentPath = new(pathValue);
+    internal:Path sourcePath = parentPath.resolve("source");
     match sourcePath.createDirectory() {
         () => {
-            file:Path targetPath = parentPath.resolve("target");
+            internal:Path targetPath = parentPath.resolve("target");
             match targetPath.createDirectory() {
                 () => {
                     return sourcePath.exists() && targetPath.exists();
@@ -45,14 +45,14 @@ function createSourceAndTargetDirs(string pathValue) returns boolean {
 }
 
 function createFolderStructure(string sourcePathValue) returns boolean {
-    file:Path sourcePath = new(sourcePathValue);
-    file:Path parentPath = sourcePath.resolve("parent");
+    internal:Path sourcePath = new(sourcePathValue);
+    internal:Path parentPath = sourcePath.resolve("parent");
     match parentPath.createDirectory() {
         () => {
-            file:Path childPath = parentPath.resolve("child");
+            internal:Path childPath = parentPath.resolve("child");
             match childPath.createDirectory() {
                 () => {
-                    file:Path xmlFilePath = childPath.resolve("sample.xml");
+                    internal:Path xmlFilePath = childPath.resolve("sample.xml");
                     match xmlFilePath.createFile() {
                         () => {
                             return parentPath.exists() && childPath.exists() && xmlFilePath.exists();
@@ -77,15 +77,15 @@ function createFolderStructure(string sourcePathValue) returns boolean {
 }
 
 function testFolderContent(string rootPathValue) returns boolean {
-    file:Path rootPath = new(rootPathValue);
-    file:Path parentPath = rootPath.resolve("parent");
-    file:Path childPath = parentPath.resolve("child");
-    file:Path xmlFilePath = rootPath.resolve("parent", "child", "sample.xml");
+    internal:Path rootPath = new(rootPathValue);
+    internal:Path parentPath = rootPath.resolve("parent");
+    internal:Path childPath = parentPath.resolve("child");
+    internal:Path xmlFilePath = rootPath.resolve("parent", "child", "sample.xml");
 
     _ = testWriteFile(xmlFilePath.getPathValue());
 
-    file:Path parentOfXmlFile = check xmlFilePath.getParentDirectory();
-    file:Path[] paths = check parentOfXmlFile.list();
+    internal:Path parentOfXmlFile = check xmlFilePath.getParentDirectory();
+    internal:Path[] paths = check parentOfXmlFile.list();
 
     return parentPath.getExtension() == "" &&
             parentPath.isDirectory() &&
@@ -102,15 +102,15 @@ function testFolderContent(string rootPathValue) returns boolean {
 }
 
 function testGetModifiedTime(string pathValue) returns (string) {
-    file:Path path = new(pathValue);
+    internal:Path path = new(pathValue);
     time:Time modifiedTime = check path.getModifiedTime();
     return modifiedTime.toString();
 }
 
 function testCopyToFunction(string source, string target) returns boolean {
-    file:Path sourcePath = new(source);
+    internal:Path sourcePath = new(source);
     io:println(source);
-    file:Path targetPath = new(target);
+    internal:Path targetPath = new(target);
     io:println(target);
     match sourcePath.copyTo(targetPath) {
         () => {
@@ -124,7 +124,7 @@ function testCopyToFunction(string source, string target) returns boolean {
 }
 
 function testFolderDelete(string path) returns boolean {
-    file:Path pathToDelete = new(path);
+    internal:Path pathToDelete = new(path);
     match pathToDelete.delete() {
         () => {
             return !pathToDelete.exists();
@@ -137,8 +137,8 @@ function testFolderDelete(string path) returns boolean {
 }
 
 function testMoveToFunction(string source, string target) returns boolean {
-    file:Path sourcePath = new(source);
-    file:Path targetPath = new(target);
+    internal:Path sourcePath = new(source);
+    internal:Path targetPath = new(target);
     match sourcePath.moveTo(targetPath) {
         () => {
             return testFolderContent(targetPath.getPathValue());
@@ -151,7 +151,7 @@ function testMoveToFunction(string source, string target) returns boolean {
 }
 
 function testWriteFile(string pathValue) returns error? {
-    file:Path filePath = new(pathValue);
+    internal:Path filePath = new(pathValue);
     string absolutePath = filePath.getPathValue();
     io:ByteChannel channel = io:openFile(absolutePath, "rw");
     var result = channel.write(TEST_CONTENT.toBlob("UTF-8"), 0);

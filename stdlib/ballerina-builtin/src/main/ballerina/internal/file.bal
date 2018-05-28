@@ -136,7 +136,6 @@ public type Path object {
     documentation {
         Resolve given path.
 
-        P{{paths}} The path to append
         R{{}} Resolved path
     }
     public native function resolve(string... paths) returns Path;

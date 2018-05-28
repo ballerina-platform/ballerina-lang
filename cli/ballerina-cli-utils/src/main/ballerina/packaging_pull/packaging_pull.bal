@@ -82,7 +82,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 
             if (!createDirectories(destDirPath)) {
                 internal:Path pkgArchivePath = new(destArchivePath);
-                if (internal:pathExists(pkgArchivePath)){
+                if (pkgArchivePath.exists()){
                     io:println("package already exists in the home repository");
                     return;                              
                 }        
@@ -310,8 +310,8 @@ documentation {
 }
 function createDirectories(string directoryPath) returns (boolean) {
     internal:Path dirPath = new(directoryPath);
-    if (!internal:pathExists(dirPath)){
-        boolean directoryCreationStatus = check (internal:createDirectory(dirPath));
+    if (!dirPath.exists()){
+        boolean directoryCreationStatus = check (dirPath.createDirectory());
         return directoryCreationStatus;
     } else {
         return false;
