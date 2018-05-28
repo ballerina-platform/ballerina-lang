@@ -16,10 +16,13 @@ import java.nio.file.Paths;
  */
 public class RepoUtils {
     private static final String USER_HOME = "user.home";
+    private static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io/packages/";
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
+    public static final boolean COMPILE_BALLERINA_ORG =
+            Boolean.parseBoolean(System.getProperty("BALLERINA_DEV_MODE_COMPILE"));
     private static Settings settings = null;
 
     /**
@@ -70,6 +73,10 @@ public class RepoUtils {
             return STAGING_URL;
         }
         return PRODUCTION_URL;
+    }
+
+    public static Path getLibDir() {
+        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
     }
 
     /**

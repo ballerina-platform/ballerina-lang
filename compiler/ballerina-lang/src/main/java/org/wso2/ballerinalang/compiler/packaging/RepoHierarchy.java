@@ -21,7 +21,7 @@ public class RepoHierarchy {
 
     private final Repo[] repos;
     private final RepoHierarchy[] dags;
-    private static final boolean verbose = false;
+    private static final boolean verbose = Boolean.parseBoolean(System.getenv("BALLERINA_REPO_LOOKUP_VERBOSE"));
     private static final PrintStream out = System.out;
 
     RepoHierarchy(Repo[] repos, RepoHierarchy[] dags) {

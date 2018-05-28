@@ -48,12 +48,13 @@ public class PackageFileReader {
 
     public void readPackage(String packageId) {
         // TODO
-        if (!"ballerina.builtin".equals(packageId)) {
+        if (!packageId.startsWith("ballerina.")) {
             throw new UnsupportedOperationException("unsupport package read from balo: " + packageId);
-        } 
+        }
+        String pkgName = packageId.replaceFirst("^ballerina\\.", "");
 
         try {
-            readPackage(getCompiledPackageBinary());
+            readPackage(getCompiledPackageBinary(pkgName));
         } catch (IOException e) {
             throw new BLangRuntimeException("error while reading package: " + packageId);
         }
@@ -95,14 +96,13 @@ public class PackageFileReader {
         pkgInfoReader.readPackageInfo();
     }
 
-    private InputStream getCompiledPackageBinary() throws IOException {
+    private InputStream getCompiledPackageBinary(String pkgName) throws IOException {
         String ballerinaHome = System.getProperty(BALLERINA_HOME);
         // TODO: read the zip file and get the binary content
-        Path libsPath = Paths.get(ballerinaHome, "lib", "stdlib-compile-0.971.1-SNAPSHOT.zip");
-        Path fileToExtract = Paths.get("obj", "builtin.balo");
+        Path libsPath = Paths.get(ballerinaHome, "lib", "repo", "ballerina", pkgName, "0.0.0", pkgName + ".zip");
 
         ZipFile zipFile = new ZipFile(libsPath.toFile());
-        ZipEntry zipEntry = zipFile.getEntry(fileToExtract.toString());
+        ZipEntry zipEntry = zipFile.getEntry("obj/" + pkgName + ".balo");
         InputStream is = zipFile.getInputStream(zipEntry);
         return is;
     }

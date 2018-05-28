@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchy;
 import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder;
+import org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.RepoNode;
 import org.wso2.ballerinalang.compiler.packaging.Resolution;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
@@ -105,7 +106,7 @@ public class PackageLoader {
     private final CompiledPackageSymbolEnter compiledPkgSymbolEnter;
     private final Names names;
     private final BLangDiagnosticLog dlog;
-    private static final boolean shouldReadBalo = Boolean.parseBoolean(System.getenv("BALLERINA_READ_BALO"));
+    private static final boolean shouldReadBalo = true;
 
     public static PackageLoader getInstance(CompilerContext context) {
         PackageLoader loader = context.get(PACKAGE_LOADER_KEY);
@@ -140,33 +141,27 @@ public class PackageLoader {
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
         Path balHomeDir = RepoUtils.createAndGetHomeReposPath();
         Path projectHiddenDir = sourceRoot.resolve(".ballerina");
-        RepoHierarchyBuilder.RepoNode[] systemArr = loadSystemRepos();
         Converter<Path> converter = sourceDirectory.getConverter();
 
+        RepoNode system = node(new BinaryRepo(RepoUtils.getLibDir()));
         Repo remote = new RemoteRepo(URI.create(RepoUtils.getRemoteRepoURL()));
         Repo homeCacheRepo = new CacheRepo(balHomeDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo homeRepo = shouldReadBalo ? new BinaryRepo(balHomeDir) : new ZipRepo(balHomeDir);
         Repo projectCacheRepo = new CacheRepo(projectHiddenDir, ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
         Repo projectRepo = shouldReadBalo ? new BinaryRepo(projectHiddenDir) : new ZipRepo(projectHiddenDir);
 
-        RepoHierarchyBuilder.RepoNode homeCacheNode;
+
+        RepoNode homeCacheNode;
 
         if (offline) {
-            homeCacheNode = node(homeCacheRepo, systemArr);
+            homeCacheNode = node(homeCacheRepo, system);
         } else {
-            homeCacheNode = node(homeCacheRepo, node(remote, systemArr));
+            homeCacheNode = node(homeCacheRepo, node(remote, system));
         }
-
-        Path libsDir = RepoUtils.createAndGetLibsRepoPath();
-        if (libsDir != null) {
-            Repo libRepo = new BinaryRepo(libsDir);
-            homeCacheNode = node(libRepo, homeCacheNode);
-        }
-
-        RepoHierarchyBuilder.RepoNode nonLocalRepos = node(projectRepo,
-                                                           node(projectCacheRepo, homeCacheNode),
-                                                           node(homeRepo, homeCacheNode));
-        RepoHierarchyBuilder.RepoNode fullRepoGraph;
+        RepoNode nonLocalRepos = node(projectRepo,
+                                      node(projectCacheRepo, homeCacheNode),
+                                      node(homeRepo, homeCacheNode));
+        RepoNode fullRepoGraph;
         if (converter != null) {
             Repo programingSource = new ProgramingSourceRepo(converter);
             Repo projectSource = new ProjectSourceRepo(converter, testEnabled);
@@ -180,8 +175,8 @@ public class PackageLoader {
 
     }
 
-    private RepoHierarchyBuilder.RepoNode[] loadSystemRepos() {
-        List<RepoHierarchyBuilder.RepoNode> systemList;
+    private RepoNode[] loadSystemRepos() {
+        List<RepoNode> systemList;
         ServiceLoader<SystemPackageRepositoryProvider> loader
                 = ServiceLoader.load(SystemPackageRepositoryProvider.class);
         systemList = StreamSupport.stream(loader.spliterator(), false)
@@ -189,7 +184,7 @@ public class PackageLoader {
                                   .filter(Objects::nonNull)
                                   .map(r -> node(r))
                                   .collect(Collectors.toList());
-        return systemList.toArray(new RepoHierarchyBuilder.RepoNode[systemList.size()]);
+        return systemList.toArray(new RepoNode[systemList.size()]);
     }
 
     private PackageEntity loadPackageEntity(PackageID pkgId) {

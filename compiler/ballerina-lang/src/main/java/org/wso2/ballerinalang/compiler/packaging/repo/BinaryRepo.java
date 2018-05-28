@@ -2,11 +2,13 @@ package org.wso2.ballerinalang.compiler.packaging.repo;
 
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
+import org.wso2.ballerinalang.compiler.packaging.Patten.Part;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
 import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
 
 import java.nio.file.Path;
 
+import static org.wso2.ballerinalang.compiler.packaging.Patten.LATEST_VERSION_DIR;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
 /**
@@ -25,10 +27,19 @@ public class BinaryRepo implements Repo<Path> {
     public Patten calculate(PackageID pkg) {
         String orgName = pkg.getOrgName().getValue();
         String pkgName = pkg.getName().getValue();
-        String version = pkg.getPackageVersion().getValue();
+        Part version;
+        String versionStr = pkg.getPackageVersion().getValue();
+        if (versionStr.isEmpty()) {
+            version = LATEST_VERSION_DIR;
+        } else {
+            version = path(versionStr);
+        }
         String artifactName = pkgName + ".zip";
         String binaryFileName = pkgName + ".balo";
-        return new Patten(path("repo", orgName, pkgName, version, artifactName, "obj", binaryFileName));
+
+        return new Patten(path("repo", orgName, pkgName),
+                          version,
+                          path(artifactName, "obj", binaryFileName));
     }
 
     @Override

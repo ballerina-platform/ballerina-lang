@@ -22,6 +22,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -104,7 +105,7 @@ public class CompiledPackageSymbolEnter {
     private final Names names;
     private final BLangDiagnosticLog dlog;
     private TypeSignatureReader<BType> typeSigReader;
-    
+
     private CompiledPackageSymbolEnv env;
 
     private static final CompilerContext.Key<CompiledPackageSymbolEnter> COMPILED_PACKAGE_SYMBOL_ENTER_KEY =
@@ -139,6 +140,9 @@ public class CompiledPackageSymbolEnter {
         byte[] modifiedPkgBinaryContent = Arrays.copyOfRange(
                 packageBinaryContent, 6, packageBinaryContent.length);
         pkgSymbol.packageFile = new CompiledBinaryFile.PackageFile(modifiedPkgBinaryContent);
+        SymbolEnv builtinEnv = this.symTable.pkgEnvMap.get(symTable.builtInPackageSymbol);
+        SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(null, pkgSymbol.scope, builtinEnv);
+        this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
         return pkgSymbol;
     }
 
@@ -819,17 +823,28 @@ public class CompiledPackageSymbolEnter {
         return (BInvokableType) typeStack.pop();
     }
 
-    private BPackageSymbol lookupPackageSymbol(Name packageName) {
+    private BPackageSymbol lookupPackageSymbol(Name packagePath) {
         //TODO below is a temporary fix, this needs to be removed later.
-        if (packageName.equals(names.fromString(env.pkgSymbol.pkgID.orgName + "." + env.pkgSymbol.pkgID.name))) {
+        if (packagePath.equals(names.fromString(env.pkgSymbol.pkgID.orgName + "." + env.pkgSymbol.pkgID.name))) {
             return env.pkgSymbol;
         }
 //        if (packageName.equals(env.pkgSymbol.pkgID.name)) {
 //            return env.pkgSymbol;
 //        }
+        //TODO: fix for non-ballerina packages
+        Name packageName = new Name(packagePath.getValue().replaceFirst("^ballerina\\.", ""));
         BSymbol symbol = lookupMemberSymbol(this.env.pkgSymbol.scope, packageName, SymTag.PACKAGE);
-        if (symbol == this.symTable.notFoundSymbol) {
-            throw new BLangCompilerException("Unknown imported package: " + packageName);
+
+        if (symbol == this.symTable.notFoundSymbol && packagePath.getValue().startsWith("ballerina")) {
+            symbol = this.packageLoader.loadPackageSymbol(new PackageID(
+                    new Name("ballerina"),
+                    packageName,
+                    new Name("0.0.0")
+            ), env.loadedRepository);
+
+            if (symbol == null) {
+                throw new BLangCompilerException("Unknown imported package: " + packageName);
+            }
         }
 
         return (BPackageSymbol) symbol;
@@ -922,7 +937,7 @@ public class CompiledPackageSymbolEnter {
 
     /**
      * Create types for compiler phases.
-     * 
+     *
      * @since 0.975.0
      */
     private class CompilerTypeCreater implements TypeCreater<BType> {
@@ -1006,7 +1021,7 @@ public class CompiledPackageSymbolEnter {
 
         @Override
         public BType getCollenctionType(char typeChar, List<BType> memberTypes) {
-            
+
             switch (typeChar) {
                 case 'O':
                     return new BUnionType(null, new LinkedHashSet<>(memberTypes),
