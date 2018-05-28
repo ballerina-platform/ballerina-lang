@@ -166,6 +166,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-config-api</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-crypto</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1121,6 +1126,7 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/cache</module>
+                <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
@@ -1189,6 +1195,7 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/cache</module>
+                <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
@@ -1253,6 +1260,7 @@
                 <module>stdlib/ballerina-builtin</module>
                 <module>stdlib/ballerina-config</module>
                 <module>stdlib/cache</module>
+                <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
                 <module>stdlib/file</module>
                 <module>stdlib/http</module>
