@@ -15,8 +15,9 @@ documentation {
     P{{dirPath}} Path of the directory to save the pulled package
     P{{pkgPath}} Package path
     P{{fileSeparator}} File separator based on the operating system
+    P{{terminalWidth}} Width of the terminal
 }
-function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator) {
+function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator, string terminalWidth) {
     endpoint http:Client httpEndpoint = definedEndpoint;
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -89,8 +90,9 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 
             io:ByteChannel destDirChannel = getFileChannel(destArchivePath, io:WRITE);
             string toAndFrom = " [central.ballerina.io -> home repo]";
-
-            copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom);
+            int rightMargin = 3;
+            int width = (check <int> terminalWidth) - rightMargin;
+            copy(pkgSize, sourceChannel, destDirChannel, fullPkgPath, toAndFrom, width);
                                 
             closeChannel(destDirChannel);
             closeChannel(sourceChannel);
@@ -120,7 +122,7 @@ function main(string... args){
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
     }
-    pullPackage(httpEndpoint, args[0], args[1], args[2], args[3]);
+    pullPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[8]);
 }
 
 documentation {
@@ -219,10 +221,10 @@ documentation {
     P{{dest}} Byte channel of the destination folder
     P{{fullPkgPath}} Full package path
     P{{toAndFrom}} Pulled package details
+    P{{width}} Width of the terminal
 }
-function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom) {
-    string truncatedFullPkgPath = truncateString(fullPkgPath);
-    string msg = truncatedFullPkgPath + toAndFrom;
+function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom, int width) {
+    int terminalWidth = width;
     int bytesChunk = 8;
     blob readContent;
     int readCount = -1;
@@ -232,26 +234,32 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
     string equals = "==========";
     string tabspaces = "          ";
     boolean completed = false;
+    int rightMargin = 5;
+    int totalVal = 10;
+    int startVal = 0;
+    int rightpadLength = terminalWidth - equals.length() - tabspaces.length() - rightMargin;
     try {
         while (!completed) {
             (readContent, readCount) = readBytes(src, bytesChunk);
-            if (readCount <= 0) {
+            if (readCount <= startVal) {
                 completed = true;
             }
             if (dest != null) {
-                numberOfBytesWritten = writeBytes(dest, readContent, 0);
+                numberOfBytesWritten = writeBytes(dest, readContent, startVal);
             }
             totalCount = totalCount + readCount;
             float percentage = totalCount / pkgSize;
             noOfBytesRead = totalCount + "/" + pkgSize;
-            string bar = equals.substring(0, <int> (percentage * 10));
-            string spaces = tabspaces.substring(0, 10 - <int>(percentage * 10));
-            io:print("\r" + rightPad(msg, 100) + "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize);
+            string bar = equals.substring(startVal, <int> (percentage * totalVal));
+            string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));   
+            string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;            
+            string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
+            io:print("\r" + rightPad(msg, rightpadLength) + size);
         }
     } catch (error err) {
         io:println("");
     }
-    io:print("\r" + rightPad(fullPkgPath + toAndFrom, (115 + noOfBytesRead.length())) + "\n");
+    io:println("\r" + rightPad(fullPkgPath + toAndFrom, terminalWidth));
 }
 
 documentation {
@@ -278,26 +286,18 @@ documentation {
     This function truncates the string.
 
     P{{text}} String to be truncated
+    P{{maxSize}} Maximum size of the log message printed
     R{{}} Truncated string.
 }
-function truncateString (string text) returns (string) {
-    int indexOfVersion = text.lastIndexOf(":");
-    string withoutVersion = text.substring(0, indexOfVersion);
-    string versionOfPkg = text.substring(indexOfVersion, text.length());
-    int minLength = 57;
-    int lengthWithoutVersion = withoutVersion.length();
-    if (lengthWithoutVersion > minLength) {
-        int noOfCharactersToBeRemoved = lengthWithoutVersion - minLength;
-        int half = noOfCharactersToBeRemoved / 2;
-        int middleOfWithoutVersion = lengthWithoutVersion / 2;
-        int leftFromMiddle = middleOfWithoutVersion - half;
-        int rightFromMiddle = middleOfWithoutVersion + half;
-
-        string truncatedLeftStr = withoutVersion.substring(0, leftFromMiddle);
-        string truncatedRightStr = withoutVersion.substring(rightFromMiddle, lengthWithoutVersion);
-
-        string truncatedStr = truncatedLeftStr + "…" + truncatedRightStr;
-        return truncatedStr + versionOfPkg;
+function truncateString (string text, int maxSize) returns (string) {
+    int lengthOfText = text.length();
+    if (lengthOfText > maxSize) {
+        int endIndex = 3;
+        if (maxSize > endIndex) {
+            endIndex = maxSize - endIndex;
+        }
+        string truncatedStr = text.substring(0, endIndex);
+        return truncatedStr + "…";
     }
     return text;
 }

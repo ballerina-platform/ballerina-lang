@@ -260,7 +260,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         this.currPkgEnv = pkgEnv;
         this.env = pkgEnv;
 
-        pkgNode.topLevelNodes.forEach(e -> { ((BLangNode) e).accept(this); this.blockedNode = null; });
+        pkgNode.topLevelNodes.forEach(e -> {
+            ((BLangNode) e).accept(this);
+            this.blockedNode = null;
+        });
 
         analyzerPhase = AnalyzerPhase.BLOCKED_NODE_ANALYSIS;
         resolveBlockedInvokable(blockedNodeMap);

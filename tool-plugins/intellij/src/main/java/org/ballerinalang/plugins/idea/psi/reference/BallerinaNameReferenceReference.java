@@ -34,6 +34,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaExpression;
 import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
+import org.ballerinalang.plugins.idea.psi.BallerinaMatchExpressionPatternClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaNameReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaObjectInitializer;
 import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
@@ -46,6 +47,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeInitExpr;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
+import org.ballerinalang.plugins.idea.psi.BallerinaUserDefineTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableDefinitionStatement;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaActionInvocationProcessor;
@@ -53,6 +55,7 @@ import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaAnnotationFie
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaAnonymousServiceConfigProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaBlockProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaEndpointFieldProcessor;
+import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaExpressionProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaObjectFieldProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaPackageNameProcessor;
 import org.ballerinalang.plugins.idea.psi.scopeprocessors.BallerinaScopeProcessorBase;
@@ -83,19 +86,25 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
 
         BallerinaTypeInitExpr typeInitExpr = PsiTreeUtil.getParentOfType(myElement, BallerinaTypeInitExpr.class);
         if (typeInitExpr != null) {
-            BallerinaVariableDefinitionStatement variableDefinitionStatement = PsiTreeUtil.getParentOfType(typeInitExpr,
-                    BallerinaVariableDefinitionStatement.class);
-            if (variableDefinitionStatement != null) {
-                if (BallerinaPsiImplUtil.isObjectInitializer(variableDefinitionStatement)) {
-                    PsiElement type = BallerinaPsiImplUtil.getType(variableDefinitionStatement);
-                    if (type != null && type.getParent() instanceof BallerinaTypeDefinition) {
-                        BallerinaObjectInitializer initializer =
-                                BallerinaPsiImplUtil.getInitializer(((BallerinaTypeDefinition) type.getParent()));
-                        if (initializer != null) {
-                            return initializer.getNew();
+            // We need to check for user defined types for cases like "Person p = new Employee();" where we are
+            // trying to resolve Employee.
+            BallerinaUserDefineTypeName userDefineTypeName = PsiTreeUtil.getChildOfType(typeInitExpr,
+                    BallerinaUserDefineTypeName.class);
+            if (userDefineTypeName == null) {
+                BallerinaVariableDefinitionStatement variableDefinitionStatement =
+                        PsiTreeUtil.getParentOfType(typeInitExpr, BallerinaVariableDefinitionStatement.class);
+                if (variableDefinitionStatement != null) {
+                    if (BallerinaPsiImplUtil.isObjectInitializer(variableDefinitionStatement)) {
+                        PsiElement type = BallerinaPsiImplUtil.getType(variableDefinitionStatement);
+                        if (type != null && type.getParent() instanceof BallerinaTypeDefinition) {
+                            BallerinaObjectInitializer initializer =
+                                    BallerinaPsiImplUtil.getInitializer(((BallerinaTypeDefinition) type.getParent()));
+                            if (initializer != null) {
+                                return initializer.getNew();
+                            }
                         }
+                        return null;
                     }
-                    return null;
                 }
             }
         }
@@ -134,6 +143,13 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
 
         BallerinaRecordKey recordKey = PsiTreeUtil.getParentOfType(myElement, BallerinaRecordKey.class);
         if (recordKey == null) {
+            processor = new BallerinaExpressionProcessor(null, myElement, false);
+            processResolveVariants(processor);
+            result = processor.getResult();
+            if (result != null) {
+                return result;
+            }
+
             processor = new BallerinaStatementProcessor(null, myElement, false);
             processResolveVariants(processor);
             result = processor.getResult();
@@ -294,13 +310,21 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
             BallerinaNameReference nameReference = (BallerinaNameReference) parent;
             inLocalPackage = nameReference.isInLocalPackage();
         } else if (parent instanceof BallerinaAnyIdentifierName) {
-            PsiElement prevSibling = parent.getPrevSibling();
-            if (prevSibling instanceof BallerinaPackageReference) {
+            PsiElement prevSibling = PsiTreeUtil.prevVisibleLeaf(parent);
+            if (prevSibling != null && prevSibling.getParent() instanceof BallerinaPackageReference) {
                 inLocalPackage = false;
             }
         }
 
         if (inLocalPackage) {
+            BallerinaMatchExpressionPatternClause matchExpressionPatternClause = PsiTreeUtil.getParentOfType(myElement,
+                    BallerinaMatchExpressionPatternClause.class);
+            if (matchExpressionPatternClause != null && processor instanceof BallerinaExpressionProcessor) {
+                if (!processor.execute(matchExpressionPatternClause, resolveState)) {
+                    return false;
+                }
+            }
+
             // Note - Execute BallerinaStatementProcessor first.
             BallerinaStatement ballerinaStatement = PsiTreeUtil.getParentOfType(myElement, BallerinaStatement.class);
             if (ballerinaStatement != null && processor instanceof BallerinaStatementProcessor) {
@@ -308,6 +332,16 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                     return false;
                 }
             }
+
+            // Need to consider this situation for variable definitions in service body.
+            BallerinaVariableDefinitionStatement variableDefinitionStatement =
+                    PsiTreeUtil.getParentOfType(myElement, BallerinaVariableDefinitionStatement.class);
+            if (variableDefinitionStatement != null && processor instanceof BallerinaStatementProcessor) {
+                if (!processor.execute(variableDefinitionStatement, resolveState)) {
+                    return false;
+                }
+            }
+
             BallerinaBlock ballerinaBlock = PsiTreeUtil.getParentOfType(myElement, BallerinaBlock.class);
             if (ballerinaBlock != null && processor instanceof BallerinaBlockProcessor) {
                 if (!processor.execute(ballerinaBlock, resolveState)) {
@@ -338,9 +372,9 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
             BallerinaPackageReference packageReference = null;
 
             if (parent instanceof BallerinaAnyIdentifierName) {
-                PsiElement prevSibling = parent.getPrevSibling();
-                if (prevSibling instanceof BallerinaPackageReference) {
-                    packageReference = ((BallerinaPackageReference) prevSibling);
+                PsiElement prevSibling = PsiTreeUtil.prevVisibleLeaf(parent);
+                if (prevSibling != null && prevSibling.getParent() instanceof BallerinaPackageReference) {
+                    packageReference = ((BallerinaPackageReference) prevSibling.getParent());
                 }
             } else if (parent instanceof BallerinaNameReference) {
                 packageReference = ((BallerinaNameReference) parent).getPackageReference();

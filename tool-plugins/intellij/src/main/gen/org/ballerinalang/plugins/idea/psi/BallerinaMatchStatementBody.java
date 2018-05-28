@@ -29,7 +29,7 @@ public interface BallerinaMatchStatementBody extends BallerinaCompositeElement {
   @NotNull
   PsiElement getLeftBrace();
 
-  @NotNull
+  @Nullable
   PsiElement getRightBrace();
 
 }

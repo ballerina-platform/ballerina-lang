@@ -59,6 +59,7 @@ public class WorkerData {
         }
         if (ci.maxByteRegs > 0) {
             this.byteRegs = new byte[ci.maxByteRegs][];
+            Arrays.fill(this.byteRegs, BLangConstants.BLOB_EMPTY_VALUE);
         }
         if (ci.maxBValueRegs > 0) {
             this.refRegs = new BRefType[ci.maxBValueRegs];
@@ -81,6 +82,7 @@ public class WorkerData {
         }
         if (wdi.byteRegCount > 0) {
             this.byteRegs = new byte[wdi.byteRegCount][];
+            Arrays.fill(this.byteRegs, BLangConstants.BLOB_EMPTY_VALUE);
         }
         if (wdi.refRegCount > 0) {
             this.refRegs = new BRefType[wdi.refRegCount];
@@ -108,6 +110,7 @@ public class WorkerData {
         count = wdi1.byteRegCount + wdi2.byteRegCount;
         if (count > 0) {
             this.byteRegs = new byte[count][];
+            Arrays.fill(this.byteRegs, BLangConstants.BLOB_EMPTY_VALUE);
         }
         count = wdi1.refRegCount + wdi2.refRegCount;
         if (count > 0) {

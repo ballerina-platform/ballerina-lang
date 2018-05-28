@@ -168,7 +168,8 @@ public class SignatureHelpUtil {
         CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         BLangPackage bLangPackage = LSPackageLoader.getPackageById(compilerContext, bInvokableSymbol.pkgID);
         
-        if (bInvokableSymbol.owner.kind.equals(SymbolKind.OBJECT)) {
+        // Check for the action invocations. In an action invocation, function/action is bound to object (owner)
+        if (SymbolKind.OBJECT.equals(bInvokableSymbol.owner.kind)) {
             BLangObject filteredObject = bLangPackage.getObjects().stream()
                     .filter(object -> object.name.getValue().equals(bInvokableSymbol.owner.name.getValue()))
                     .findFirst()

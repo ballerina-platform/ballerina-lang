@@ -41,7 +41,6 @@ import io.netty.handler.codec.http.websocketx.extensions.compression.WebSocketCl
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -81,7 +80,6 @@ public class WebSocketTestClient {
 
     /**
      * Handshake with the remote server.
-     *
      */
     public void handshake() throws InterruptedException {
         group = new NioEventLoopGroup();
@@ -91,7 +89,7 @@ public class WebSocketTestClient {
             protected void initChannel(SocketChannel ch) {
                 ChannelPipeline pipeline = ch.pipeline();
                 pipeline.addLast(new HttpClientCodec(), new HttpObjectAggregator(8192),
-                          WebSocketClientCompressionHandler.INSTANCE, webSocketHandler);
+                                 WebSocketClientCompressionHandler.INSTANCE, webSocketHandler);
             }
         });
         channel = bootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
@@ -100,6 +98,7 @@ public class WebSocketTestClient {
 
     /**
      * Send text to the server.
+     *
      * @param text text need to be sent.
      */
     public void sendText(String text) throws InterruptedException {
@@ -112,9 +111,10 @@ public class WebSocketTestClient {
 
     /**
      * Send binary data to server.
+     *
      * @param buf buffer containing the data need to be sent.
      */
-    public void sendBinary(ByteBuffer buf) throws IOException, InterruptedException {
+    public void sendBinary(ByteBuffer buf) throws InterruptedException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
@@ -124,9 +124,10 @@ public class WebSocketTestClient {
 
     /**
      * Send a ping message to the server.
+     *
      * @param buf content of the ping message to be sent.
      */
-    public void sendPing(ByteBuffer buf) throws IOException, InterruptedException {
+    public void sendPing(ByteBuffer buf) throws InterruptedException {
         if (channel == null) {
             logger.error("Channel is null. Cannot send text.");
             throw new IllegalArgumentException("Cannot find the channel to write");
@@ -173,6 +174,16 @@ public class WebSocketTestClient {
      */
     public boolean isPong() {
         return webSocketHandler.isPong();
+    }
+
+    /**
+     * Gets the header value from the response headers from the WebSocket handler.
+     *
+     * @param headerName the header name
+     * @return the header value from the response headers.
+     */
+    public String getHeader(String headerName) {
+        return webSocketHandler.getHeader(headerName);
     }
 
     /**

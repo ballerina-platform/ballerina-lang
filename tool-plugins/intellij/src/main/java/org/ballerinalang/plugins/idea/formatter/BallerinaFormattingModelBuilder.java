@@ -154,7 +154,7 @@ import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ON;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ONABORT;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ONCOMMIT;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ONRETRY;
-import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ONRETRY_CLAUSE;
+import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ON_RETRY_CLAUSE;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.OR;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ORDER;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.OUTER;
@@ -436,7 +436,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(ELSE_IF_CLAUSE).spaceIf(true)
                 .before(ELSE_CLAUSE).spaceIf(true)
 
-                .before(ONRETRY_CLAUSE).spaceIf(true)
+                .before(ON_RETRY_CLAUSE).spaceIf(true)
 
                 .betweenInside(DOT, MUL, FIELD).spaceIf(false)
 

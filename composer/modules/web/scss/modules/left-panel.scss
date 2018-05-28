@@ -20,19 +20,22 @@
         text-align: left;
     }
     .item i {
-        color: #999999;
         border: none !important;
     }
-    .item.active {
-        cursor: pointer !important;
-        border-left: 3px solid #2fb8b0 !important;
-        padding-left: 12px;
-        background-color: #252525 !important;
-        color: #d2d2d2 !important;
+    .ui.vertical.tabular.menu {
+        .item {
+            color: #999999;
+            &.active {
+                cursor: pointer !important;
+                padding-left: 12px;
+                background-color: #252525 !important;
+                color: white !important;
+            }
+        }
     }
     .item:hover i{
         cursor: pointer !important;
-        color: #d2d2d2 !important;
+        color: white !important;
     }
     .panel-actions {
         float: right;

@@ -42,9 +42,9 @@ public class BallerinaMatchExpressionPatternClauseImpl extends BallerinaComposit
   }
 
   @Override
-  @NotNull
+  @Nullable
   public BallerinaExpression getExpression() {
-    return notNullChild(PsiTreeUtil.getChildOfType(this, BallerinaExpression.class));
+    return PsiTreeUtil.getChildOfType(this, BallerinaExpression.class);
   }
 
   @Override
@@ -54,9 +54,9 @@ public class BallerinaMatchExpressionPatternClauseImpl extends BallerinaComposit
   }
 
   @Override
-  @NotNull
+  @Nullable
   public PsiElement getEqualGt() {
-    return notNullChild(findChildByType(EQUAL_GT));
+    return findChildByType(EQUAL_GT);
   }
 
   @Override

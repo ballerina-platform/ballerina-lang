@@ -27,7 +27,7 @@ public interface BallerinaStreamingAction extends BallerinaCompositeElement {
   BallerinaBlock getBlock();
 
   @Nullable
-  BallerinaFormalParameterList getFormalParameterList();
+  BallerinaParameter getParameter();
 
   @NotNull
   PsiElement getEqualGt();

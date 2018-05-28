@@ -23,13 +23,13 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaMatchExpressionPatternClause extends BallerinaCompositeElement {
 
-  @NotNull
+  @Nullable
   BallerinaExpression getExpression();
 
   @NotNull
   BallerinaTypeName getTypeName();
 
-  @NotNull
+  @Nullable
   PsiElement getEqualGt();
 
   @Nullable

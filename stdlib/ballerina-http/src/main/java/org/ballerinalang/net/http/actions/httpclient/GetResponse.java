@@ -26,6 +26,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -70,7 +71,7 @@ public class GetResponse extends AbstractHTTPAction {
                 setHttpConnectorListener(new ResponseListener(dataContext));
     }
 
-    private class ResponseListener implements HttpConnectorListener {
+    private static class ResponseListener implements HttpConnectorListener {
 
         private DataContext dataContext;
 
@@ -80,15 +81,13 @@ public class GetResponse extends AbstractHTTPAction {
 
         @Override
         public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
-            dataContext.notifyReply(
-                    createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+            dataContext.notifyInboundResponseStatus(
+                    HttpUtil.createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
         }
 
         public void onError(Throwable throwable) {
-            BStruct httpConnectorError = createStruct(
-                    dataContext.context, HttpConstants.STRUCT_GENERIC_ERROR, HttpConstants.PACKAGE_BALLERINA_BUILTIN);
-            httpConnectorError.setStringField(0, throwable.getMessage());
-            dataContext.notifyReply(null, httpConnectorError);
+            BStruct httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
+            dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }
 }

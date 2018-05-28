@@ -19,6 +19,7 @@ package org.ballerinalang.plugins.idea.psi;
 
 import com.intellij.psi.NavigatablePsiElement;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiErrorElement;
 import com.intellij.psi.PsiNameIdentifierOwner;
 import com.intellij.psi.PsiReference;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
@@ -109,6 +110,8 @@ public class BallerinaIdentifier extends LeafPsiElement implements PsiNameIdenti
                     return new BallerinaOrgReference(this);
                 }
             }
+        } else if (parent instanceof PsiErrorElement) {
+            return new BallerinaNameReferenceReference(this);
         }
         return null;
     }

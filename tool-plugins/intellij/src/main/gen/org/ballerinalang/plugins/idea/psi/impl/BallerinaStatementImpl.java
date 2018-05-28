@@ -67,6 +67,12 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
 
   @Override
   @Nullable
+  public BallerinaDoneStatement getDoneStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDoneStatement.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaExpressionStmt getExpressionStmt() {
     return PsiTreeUtil.getChildOfType(this, BallerinaExpressionStmt.class);
   }
@@ -121,6 +127,12 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
 
   @Override
   @Nullable
+  public BallerinaRetryStatement getRetryStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaRetryStatement.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaReturnStatement getReturnStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaReturnStatement.class);
   }
@@ -171,12 +183,6 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
   @Nullable
   public BallerinaMatchStatement getMatchStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaMatchStatement.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaRetryStatement getRetryStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaRetryStatement.class);
   }
 
   @Override
