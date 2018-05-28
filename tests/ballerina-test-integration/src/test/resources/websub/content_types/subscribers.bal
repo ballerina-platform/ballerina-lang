@@ -17,12 +17,11 @@ endpoint websub:Listener websubEP {
 }
 service<websub:Service> websubSubscriber bind websubEP {
     onNotification (websub:Notification notification) {
-        http:Request request = notification.request;
-        if (request.getContentType() == mime:TEXT_PLAIN) {
-            string payload = check request.getTextPayload();
+        if (notification.getContentType() == mime:TEXT_PLAIN) {
+            string payload = check notification.getTextPayload();
             io:println("Text WebSub Notification Received by websubSubscriber: ", payload);
-        } else if (request.getContentType() == mime:APPLICATION_XML) {
-            xml payload = check request.getXmlPayload();
+        } else if (notification.getContentType() == mime:APPLICATION_XML) {
+            xml payload = check notification.getXmlPayload();
             io:println("XML WebSub Notification Received by websubSubscriber: ", payload);
         }
     }
@@ -37,12 +36,11 @@ service<websub:Service> websubSubscriber bind websubEP {
 }
 service<websub:Service> websubSubscriberTwo bind websubEP {
     onNotification (websub:Notification notification) {
-        http:Request request = notification.request;
-        if (request.getContentType() == mime:TEXT_PLAIN) {
-            string payload = check request.getTextPayload();
+        if (notification.getContentType() == mime:TEXT_PLAIN) {
+            string payload = check notification.getTextPayload();
             io:println("Text WebSub Notification Received by websubSubscriberTwo: ", payload);
-        } else if (request.getContentType() == mime:APPLICATION_XML) {
-            xml payload = check request.getXmlPayload();
+        } else if (notification.getContentType() == mime:APPLICATION_XML) {
+            xml payload = check notification.getXmlPayload();
             io:println("XML WebSub Notification Received by websubSubscriberTwo: ", payload);
         }
     }

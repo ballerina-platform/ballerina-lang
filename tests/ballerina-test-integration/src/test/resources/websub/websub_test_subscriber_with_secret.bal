@@ -27,7 +27,7 @@ service<websub:Service> websubSubscriber bind websubEP {
     }
 
     onNotification (websub:Notification notification) {
-        json payload = check notification.request.getJsonPayload();
+        json payload = check notification.getJsonPayload();
         io:println("WebSub Notification Received: " + payload.toString());
     }
 }

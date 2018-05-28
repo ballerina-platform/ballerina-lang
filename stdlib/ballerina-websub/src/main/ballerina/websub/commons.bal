@@ -295,12 +295,150 @@ function validateSignature(string xHubSignature, string stringPayload, string se
 }
 
 documentation {
-    Record representing the WebSub Content Delivery Request received.
+    Object representing the WebSub Content Delivery Request received.
 
     F{{request}} The HTTP POST request received as the notification
 }
-public type Notification {
-    http:Request request,
+public type Notification object {
+
+    private {
+        http:Request request;
+    }
+
+    documentation {
+        Retrieves the query parameters of the content delivery request request, as a map.
+
+        R{{}} String constrained map of query params
+    }
+    public function getQueryParams() returns map<string> {
+        return request.getQueryParams();
+    }
+
+    documentation {
+        Retrieves the `Entity` associated with the content delivery request.
+
+        R{{}} The `Entity` of the request. An `error` is returned, if entity construction fails
+    }
+    public function getEntity() returns mime:Entity|error {
+        return request.getEntity();
+    }
+
+    documentation {
+        Returns whether the requested header key exists in the header map of the content delivery request.
+
+        P{{headerName}} The header name
+        R{{}} Returns true if the specified header key exists
+    }
+    public function hasHeader(string headerName) returns boolean {
+        return request.hasHeader(headerName);
+    }
+
+    documentation {
+        Returns the value of the specified header. If the specified header key maps to multiple values, the first of
+        these values is returned.
+
+        P{{headerName}} The header name
+        R{{}} The first header value for the specified header name. An exception is thrown if no header is found.
+                Ideally `hasHeader()` needs to be used to check the existence of header initially.
+    }
+    public function getHeader(string headerName) returns string {
+        return request.getHeader(headerName);
+    }
+
+    documentation {
+        Retrieves all the header values to which the specified header key maps to.
+
+        P{{headerName}} The header name
+        R{{}} The header values the specified header key maps to. An exception is thrown if no header is found.
+                Ideally `hasHeader()` needs to be used to check the existence of header initially.
+    }
+    public function getHeaders(string headerName) returns string[] {
+        return request.getHeaders(headerName);
+    }
+
+    documentation {
+        Retrieves all the names of the headers present in the content delivery request.
+
+        R{{}} An array of all the header names
+    }
+    public function getHeaderNames() returns string[] {
+        return request.getHeaderNames();
+    }
+
+    documentation {
+        Retrieves the type of the payload of the content delivery request (i.e: the `content-type` header value).
+
+        R{{}} Returns the `content-type` header value as a string
+    }
+    public function getContentType() returns string {
+        return request.getContentType();
+    }
+
+    documentation {
+        Extracts `json` payload from the content delivery request.
+
+        R{{}} The `json` payload or `error` in case of errors. If the content type is not JSON, an `error` is returned.
+    }
+    public function getJsonPayload() returns json|error {
+        return request.getJsonPayload();
+    }
+
+    documentation {
+        Extracts `xml` payload from the content delivery request.
+
+        R{{}} The `xml` payload or `error` in case of errors. If the content type is not XML, an `error` is returned.
+    }
+    public function getXmlPayload() returns xml|error {
+        return request.getXmlPayload();
+    }
+
+    documentation {
+        Extracts `text` payload from the content delivery request.
+
+        R{{}} The `text` payload or `error` in case of errors.
+                If the content type is not of type text, an `error` is returned.
+    }
+    public function getTextPayload() returns string|error {
+        return request.getTextPayload();
+    }
+
+    documentation {
+        Retrieves the content delivery request payload as a `string`. Content type is not checked during payload
+        construction which makes this different from `getTextPayload()` function.
+
+        R{{}} The string representation of the message payload or `error` in case of errors
+    }
+    public function getPayloadAsString() returns string|error {
+        return request.getPayloadAsString();
+    }
+
+    documentation {
+        Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
+
+        R{{}} A byte channel from which the message payload can be read or `error` in case of errors
+    }
+    public function getByteChannel() returns io:ByteChannel|error {
+        return request.getByteChannel();
+    }
+
+    documentation {
+        Retrieves the request payload as a `blob`.
+
+        R{{}} The blob representation of the message payload or `error` in case of errors
+    }
+    public function getBinaryPayload() returns blob|error {
+        return request.getBinaryPayload();
+    }
+
+    documentation {
+        Retrieves the form parameters from the content delivery request as a `map`.
+
+        R{{}} The map of form params or `error` in case of errors
+    }
+    public function getFormParams() returns map<string>|error {
+        return request.getFormParams();
+    }
+
 };
 
 documentation {
