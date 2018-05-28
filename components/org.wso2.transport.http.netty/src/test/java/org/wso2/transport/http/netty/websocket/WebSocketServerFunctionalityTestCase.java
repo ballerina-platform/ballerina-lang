@@ -222,7 +222,7 @@ public class WebSocketServerFunctionalityTestCase {
         Assert.assertTrue(cause instanceof IllegalStateException);
         Assert.assertEquals(cause.getMessage(),
                             String.format("Expected status code %d but found %d in echoed close frame from remote " +
-                                                  "backend",
+                                                  "endpoint",
                                           closeFrame.statusCode(), closeFrame.statusCode() + 1));
         closeFrame.release();
     }
