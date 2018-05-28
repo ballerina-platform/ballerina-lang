@@ -128,8 +128,8 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends IntegrationT
 
     @Test
     public void testDiscoveryAndIntentVerification() throws BallerinaTestException, InterruptedException {
-        intentVerificationLogLeecherOne.waitForText(10000);
-        intentVerificationLogLeecherTwo.waitForText(10000);
+        intentVerificationLogLeecherOne.waitForText(30000);
+        intentVerificationLogLeecherTwo.waitForText(30000);
     }
 
     @Test(dependsOnMethods = "testDiscoveryAndIntentVerification")

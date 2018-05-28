@@ -75,7 +75,7 @@ public class LSCompiler {
     private static Path untitledProjectPath;
 
     private static final Pattern untitledFilePattern =
-            Pattern.compile("^(?:file:\\/\\/)?\\/temp\\/(.*)\\/untitled.bal");
+            Pattern.compile(".*[/\\\\]temp[/\\\\](.*)[/\\\\]untitled.bal");
 
     static {
         // Here we will create a tmp directory as the untitled project repo.
@@ -107,9 +107,9 @@ public class LSCompiler {
     /**
      * Returns a BallerinaFile compiling in-memory content.
      *
-     * @param content
-     * @param phase
-     * @return
+     * @param content       Content to be compiled
+     * @param phase         Compiler Phase
+     * @return {@link BallerinaFile}    BallerinaFile containing the compiled package
      */
     public BallerinaFile compileContent(String content, CompilerPhase phase, boolean preserveWhitespace) {
         java.nio.file.Path filePath = createAndGetTempFile(UNTITLED_BAL);

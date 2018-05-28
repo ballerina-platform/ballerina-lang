@@ -179,10 +179,20 @@ public class BNullValueTest {
         BRunUtil.invoke(positiveCompileResult, "testNullArrayAccess", new BValue[]{});
     }
 
-    @Test(description = "Test accessing an element in a null map", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error:.*message: cannot find key 'maths'.*")
+    @Test(description = "Test accessing an element in a null map constrained to any")
     void testNullMapAccess() {
-        BRunUtil.invoke(positiveCompileResult, "testNullMapAccess", new BValue[]{});
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullMapAccess", new BValue[]{});
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(vals[0] instanceof BString);
+        Assert.assertEquals(vals[0].stringValue(), null);
+    }
+
+    @Test(description = "Test accessing an element in a null map constrained to any with conversion")
+    void testNullMapAccessWithConversion() {
+        BValue[] vals = BRunUtil.invoke(positiveCompileResult, "testNullMapAccessWithConversion", new BValue[]{});
+        Assert.assertEquals(vals.length, 1);
+        Assert.assertTrue(vals[0] instanceof BStruct);
+        Assert.assertEquals(((BStruct) vals[0]).getStringField(0), "'null' cannot be cast to 'int'");
     }
 
     @Test(description = "Test negative test cases")

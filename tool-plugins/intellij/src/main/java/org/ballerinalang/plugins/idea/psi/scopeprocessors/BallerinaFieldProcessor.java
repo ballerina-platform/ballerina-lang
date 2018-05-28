@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package org.ballerinalang.plugins.idea.psi.scopeprocessors;
 
 import com.intellij.codeInsight.completion.CompletionResultSet;
@@ -17,10 +33,13 @@ import org.ballerinalang.plugins.idea.psi.BallerinaFieldDefinitionList;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
 import org.ballerinalang.plugins.idea.psi.BallerinaMapArrayVariableReference;
+import org.ballerinalang.plugins.idea.psi.BallerinaNullableTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaRecordTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaSimpleVariableReference;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
+import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
+import org.ballerinalang.plugins.idea.psi.BallerinaUnionTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaVariableReference;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +74,7 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
         if (accept(element)) {
             PsiElement parent = element.getParent();
             PsiElement prevSibling = parent.getPrevSibling();
-            if (prevSibling == null || !(prevSibling instanceof BallerinaVariableReference)) {
+            if (!(prevSibling instanceof BallerinaVariableReference)) {
                 return true;
             }
 
@@ -100,8 +119,8 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                 // Anonymous objects.
                 if (type instanceof BallerinaRecordTypeName) {
                     PsiElement definition = type.getParent();
-                    BallerinaIdentifier ownerName = PsiTreeUtil.getChildOfType(definition, BallerinaIdentifier.class);
-                    if (ownerName != null) {
+                    BallerinaIdentifier identifier = PsiTreeUtil.getChildOfType(definition, BallerinaIdentifier.class);
+                    if (identifier != null) {
                         BallerinaFieldDefinitionList fieldDefinitionList = PsiTreeUtil.findChildOfType(type,
                                 BallerinaFieldDefinitionList.class);
                         List<BallerinaFieldDefinition> fieldDefinitions =
@@ -119,14 +138,36 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                                 // Note - Child is passed here instead of identifier because it is is top level
                                 // definition.
                                 myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(
-                                        definitionIdentifier, ownerName, typeName, null, null, false));
+                                        definitionIdentifier, identifier, typeName, null, null, false));
                             } else if (myElement.getText().equals(definitionIdentifier.getText())) {
                                 add(definitionIdentifier);
                             }
                         }
                     }
                     return false;
+                } else if (type instanceof BallerinaNullableTypeName) {
+                    BallerinaTypeName nillableType =
+                            BallerinaPsiImplUtil.getTypeNameFromNillableType(((BallerinaNullableTypeName) type));
+                    PsiElement identifier = BallerinaPsiImplUtil.resolveTypeToDefinition(nillableType);
+                    if (identifier != null && identifier.getParent() instanceof BallerinaTypeDefinition) {
+                        processTypeDefinition(((BallerinaTypeDefinition) identifier.getParent()), identifier);
+                    }
+                } else if (type instanceof BallerinaUnionTypeName) {
+                    BallerinaTypeName typeName =
+                            BallerinaPsiImplUtil.liftErrorAndGetType(((BallerinaUnionTypeName) type));
+                    if (typeName != null) {
+                        PsiElement identifier = BallerinaPsiImplUtil.resolveTypeToDefinition(typeName);
+                        if (identifier != null && identifier.getParent() instanceof BallerinaTypeDefinition) {
+                            processTypeDefinition(((BallerinaTypeDefinition) identifier.getParent()), identifier);
+                        }
+                    }
+                } else if (BallerinaPsiImplUtil.isConstraintableType(type)) {
+                    PsiElement identifier = BallerinaPsiImplUtil.getConstrainedType(type);
+                    if (identifier != null && identifier.getParent() instanceof BallerinaTypeDefinition) {
+                        processTypeDefinition(((BallerinaTypeDefinition) identifier.getParent()), identifier);
+                    }
                 }
+
                 PsiElement ballerinaTypeDefinition = type.getParent();
                 if (ballerinaTypeDefinition instanceof BallerinaTypeDefinition) {
                     BallerinaObjectFieldProcessor ballerinaFieldProcessor = new BallerinaObjectFieldProcessor(myResult,
@@ -163,6 +204,13 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                             }
                         }
                     }
+                    List<BallerinaTypeDefinition> typeDefinitions = BallerinaPsiImplUtil.suggestBuiltInTypes(type);
+                    for (BallerinaTypeDefinition typeDefinition : typeDefinitions) {
+                        PsiElement identifier = typeDefinition.getIdentifier();
+                        if (identifier != null && type.getText().equals(identifier.getText())) {
+                            processTypeDefinition(typeDefinition, identifier);
+                        }
+                    }
                 } else if (type instanceof BallerinaArrayTypeName) {
                     if (element.getParent().getPrevSibling() instanceof BallerinaMapArrayVariableReference) {
                         List<BallerinaFunctionDefinition> functionDefinitions =
@@ -185,6 +233,26 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                         }
                     }
                 } else if (type.getParent().getParent() instanceof BallerinaBuiltInReferenceTypeName) {
+                    // Note - Built-in functions for xml literals in var assignments are handled from here.
+                    List<BallerinaFunctionDefinition> functionDefinitions =
+                            BallerinaPsiImplUtil.suggestBuiltInFunctions(type);
+
+                    for (BallerinaFunctionDefinition functionDefinition : functionDefinitions) {
+                        PsiElement identifier = functionDefinition.getIdentifier();
+                        if (identifier != null) {
+                            if (myResult != null) {
+                                // Todo - Conside oncommit, onabort, etc and set the insert handler
+                                // Note - Child is passed here instead of identifier because it is is top level
+                                // definition.
+                                myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(
+                                        functionDefinition, SmartParenthesisInsertHandler.INSTANCE));
+                            } else if (myElement.getText().equals(identifier.getText())) {
+                                add(identifier);
+                            }
+                        }
+                    }
+                } else if (type.getParent().getParent() instanceof BallerinaSimpleTypeName) {
+                    // Note - Built-in functions for string literals in var assignments are handled from here.
                     List<BallerinaFunctionDefinition> functionDefinitions =
                             BallerinaPsiImplUtil.suggestBuiltInFunctions(type);
 
@@ -206,6 +274,34 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
             }
         }
         return true;
+    }
+
+    private void processTypeDefinition(@NotNull BallerinaTypeDefinition typeDefinition, @NotNull PsiElement
+            identifier) {
+        BallerinaFieldDefinitionList fieldDefinitionList =
+                PsiTreeUtil.findChildOfType(typeDefinition, BallerinaFieldDefinitionList.class);
+        List<BallerinaFieldDefinition> fieldDefinitions =
+                PsiTreeUtil.getChildrenOfTypeAsList(fieldDefinitionList,
+                        BallerinaFieldDefinition.class);
+
+        for (BallerinaFieldDefinition fieldDefinition : fieldDefinitions) {
+            PsiElement definitionIdentifier = fieldDefinition.getIdentifier();
+            String typeName = "Type";
+            PsiElement typeNameFromField = BallerinaPsiImplUtil.getTypeNameFromField
+                    (fieldDefinition);
+            if (typeNameFromField != null) {
+                typeName = typeNameFromField.getText();
+            }
+            if (myResult != null) {
+                // Todo - Conside oncommit, onabort, etc and set the insert handler
+                // Note - Child is passed here instead of identifier because it is is top level
+                // definition.
+                myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(
+                        definitionIdentifier, identifier, typeName, null, null, false));
+            } else if (myElement.getText().equals(definitionIdentifier.getText())) {
+                add(definitionIdentifier);
+            }
+        }
     }
 
     private boolean processTypeDefinition(@NotNull BallerinaTypeDefinition ballerinaTypeDefinition) {

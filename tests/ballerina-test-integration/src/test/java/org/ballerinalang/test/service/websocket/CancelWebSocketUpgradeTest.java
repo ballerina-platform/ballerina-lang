@@ -20,35 +20,23 @@ package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
-import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.net.URISyntaxException;
 
 /**
- * This Class tests the cancelWebSocketUpgrade method of the http connector
+ * This Class tests the cancelWebSocketUpgrade method of the http connector.
  */
 public class CancelWebSocketUpgradeTest extends WebSocketIntegrationTest {
 
-    private WebSocketRemoteServer remoteServer;
-    private ServerInstance ballerinaServerInstance;
     private WebSocketTestClient client;
 
     @BeforeClass(description = "Initializes Ballerina with the cancel_websocket_upgrade.bal file")
-    public void setup() throws InterruptedException, BallerinaTestException {
-        remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
-        remoteServer.run();
-
-        String balPath = new File("src/test/resources/websocket/cancel_websocket_upgrade.bal")
-                .getAbsolutePath();
-        ballerinaServerInstance = ServerInstance.initBallerinaServer();
-        ballerinaServerInstance.startBallerinaServer(balPath);
-
+    public void setup() throws BallerinaTestException {
+        initBallerinaServer("cancel_websocket_upgrade.bal");
     }
 
     @Test(description = "Tests the cancelWebSocketUpgrade method",
@@ -71,8 +59,7 @@ public class CancelWebSocketUpgradeTest extends WebSocketIntegrationTest {
 
     @AfterClass(description = "Stops Ballerina")
     public void cleanup() throws BallerinaTestException {
-        ballerinaServerInstance.stopServer();
-        remoteServer.stop();
+        stopBallerinaServerInstance();
     }
 }
 

@@ -575,13 +575,15 @@ public class BallerinaCompletionUtils {
 
     @NotNull
     public static LookupElement createTypeLookupElement(@NotNull BallerinaTopLevelDefinition definition) {
+        return createTypeLookupElement(definition, AddSpaceInsertHandler.INSTANCE);
+    }
+
+    @NotNull
+    public static LookupElement createTypeLookupElement(@NotNull BallerinaTopLevelDefinition definition,
+                                                        @Nullable InsertHandler<LookupElement> insertHandler) {
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(definition.getIdentifier()
-                .getText(), definition)
-                .withInsertHandler(AddSpaceInsertHandler.INSTANCE)
-                .withTypeText("Type").withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold();
-        // Todo - Add tail text
-        //                .withTailText(BallerinaDocumentationProvider.getParametersAndReturnTypes(element
-        // .getParent()));
+                .getText(), definition).withInsertHandler(insertHandler).withTypeText("Type")
+                .withIcon(definition.getIcon(Iconable.ICON_FLAG_VISIBILITY)).bold();
         return PrioritizedLookupElement.withPriority(builder, TYPE_PRIORITY);
     }
 
@@ -638,6 +640,20 @@ public class BallerinaCompletionUtils {
     }
 
     @NotNull
+    public static LookupElement createNamespaceLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Namespace").withIcon(BallerinaIcons.NAMESPACE);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
+    public static LookupElement createServiceLookupElement(@NotNull PsiElement element) {
+        LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(element.getText(), element)
+                .withTypeText("Service").withIcon(BallerinaIcons.SERVICE);
+        return PrioritizedLookupElement.withPriority(builder, VARIABLE_PRIORITY);
+    }
+
+    @NotNull
     public static LookupElement createFieldLookupElement(@NotNull PsiElement fieldName,
                                                          @NotNull PsiElement ownerName,
                                                          @NotNull String type, @Nullable String defaultValue,
@@ -667,7 +683,7 @@ public class BallerinaCompletionUtils {
                 BallerinaUserDefineTypeName.class);
         LookupElementBuilder builder = LookupElementBuilder.createWithSmartPointer(identifier.getText(), identifier)
                 .withTypeText("Annotation").withIcon(BallerinaIcons.ANNOTATION)
-                .withInsertHandler(userDefineTypeName != null ? BracesInsertHandler.INSTANCE_WITH_AUTO_POPUP
+                .withInsertHandler(userDefineTypeName != null ? BracesInsertHandler.INSTANCE
                         : AddSpaceInsertHandler.INSTANCE);
         return PrioritizedLookupElement.withPriority(builder, ANNOTATION_PRIORITY);
     }

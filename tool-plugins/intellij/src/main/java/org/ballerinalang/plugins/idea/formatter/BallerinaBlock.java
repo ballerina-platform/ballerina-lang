@@ -345,7 +345,7 @@ public class BallerinaBlock extends AbstractBlock {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.TRANSACTION_CLAUSE) {
             childIndent = Indent.getNormalIndent();
-        } else if (myNode.getElementType() == BallerinaTypes.ONRETRY_CLAUSE) {
+        } else if (myNode.getElementType() == BallerinaTypes.ON_RETRY_CLAUSE) {
             childIndent = Indent.getNormalIndent();
         } else if (myNode.getElementType() == BallerinaTypes.TRY_CATCH_STATEMENT) {
             childIndent = Indent.getNormalIndent();

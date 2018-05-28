@@ -49,6 +49,7 @@ public interface BallerinaTypes {
   IElementType BINARY_EQUAL_EXPRESSION = new BallerinaCompositeElementType("BINARY_EQUAL_EXPRESSION");
   IElementType BINARY_OR_EXPRESSION = new BallerinaCompositeElementType("BINARY_OR_EXPRESSION");
   IElementType BINARY_POW_EXPRESSION = new BallerinaCompositeElementType("BINARY_POW_EXPRESSION");
+  IElementType BLOB_LITERAL = new BallerinaCompositeElementType("BLOB_LITERAL");
   IElementType BLOCK = new BallerinaCompositeElementType("BLOCK");
   IElementType BRACED_OR_TUPLE_EXPRESSION = new BallerinaCompositeElementType("BRACED_OR_TUPLE_EXPRESSION");
   IElementType BREAK_STATEMENT = new BallerinaCompositeElementType("BREAK_STATEMENT");
@@ -75,6 +76,7 @@ public interface BallerinaTypes {
   IElementType DOCUMENTATION_TEMPLATE_CONTENT = new BallerinaCompositeElementType("DOCUMENTATION_TEMPLATE_CONTENT");
   IElementType DOCUMENTATION_TEMPLATE_INLINE_CODE = new BallerinaCompositeElementType("DOCUMENTATION_TEMPLATE_INLINE_CODE");
   IElementType DOC_TEXT = new BallerinaCompositeElementType("DOC_TEXT");
+  IElementType DONE_STATEMENT = new BallerinaCompositeElementType("DONE_STATEMENT");
   IElementType DOUBLE_BACK_TICK_DEPRECATED_INLINE_CODE = new BallerinaCompositeElementType("DOUBLE_BACK_TICK_DEPRECATED_INLINE_CODE");
   IElementType DOUBLE_BACK_TICK_DOC_INLINE_CODE = new BallerinaCompositeElementType("DOUBLE_BACK_TICK_DOC_INLINE_CODE");
   IElementType ELEMENT = new BallerinaCompositeElementType("ELEMENT");
@@ -160,9 +162,9 @@ public interface BallerinaTypes {
   IElementType OBJECT_PARAMETER = new BallerinaCompositeElementType("OBJECT_PARAMETER");
   IElementType OBJECT_PARAMETER_LIST = new BallerinaCompositeElementType("OBJECT_PARAMETER_LIST");
   IElementType OBJECT_TYPE_NAME = new BallerinaCompositeElementType("OBJECT_TYPE_NAME");
-  IElementType ONABORT_STATEMENT = new BallerinaCompositeElementType("ONABORT_STATEMENT");
-  IElementType ONCOMMIT_STATEMENT = new BallerinaCompositeElementType("ONCOMMIT_STATEMENT");
-  IElementType ONRETRY_CLAUSE = new BallerinaCompositeElementType("ONRETRY_CLAUSE");
+  IElementType ON_ABORT_STATEMENT = new BallerinaCompositeElementType("ON_ABORT_STATEMENT");
+  IElementType ON_COMMIT_STATEMENT = new BallerinaCompositeElementType("ON_COMMIT_STATEMENT");
+  IElementType ON_RETRY_CLAUSE = new BallerinaCompositeElementType("ON_RETRY_CLAUSE");
   IElementType ORDER_BY_CLAUSE = new BallerinaCompositeElementType("ORDER_BY_CLAUSE");
   IElementType ORDER_BY_TYPE = new BallerinaCompositeElementType("ORDER_BY_TYPE");
   IElementType ORDER_BY_VARIABLE = new BallerinaCompositeElementType("ORDER_BY_VARIABLE");
@@ -297,6 +299,8 @@ public interface BallerinaTypes {
   IElementType AT = new BallerinaTokenType("@");
   IElementType AWAIT = new BallerinaTokenType("await");
   IElementType BACKTICK = new BallerinaTokenType("`");
+  IElementType BASE_16_BLOB_LITERAL = new BallerinaTokenType("BASE_16_BLOB_LITERAL");
+  IElementType BASE_64_BLOB_LITERAL = new BallerinaTokenType("BASE_64_BLOB_LITERAL");
   IElementType BINARY_INTEGER_LITERAL = new BallerinaTokenType("BINARY_INTEGER_LITERAL");
   IElementType BIND = new BallerinaTokenType("bind");
   IElementType BLOB = new BallerinaTokenType("blob");
@@ -332,6 +336,7 @@ public interface BallerinaTypes {
   IElementType DOCUMENTATION_TEMPLATE_END = new BallerinaTokenType("DOCUMENTATION_TEMPLATE_END");
   IElementType DOCUMENTATION_TEMPLATE_START = new BallerinaTokenType("DOCUMENTATION_TEMPLATE_START");
   IElementType DOCUMENTATION_TEMPLATE_TEXT = new BallerinaTokenType("DOCUMENTATION_TEMPLATE_TEXT");
+  IElementType DONE = new BallerinaTokenType("done");
   IElementType DOT = new BallerinaTokenType(".");
   IElementType DOUBLE_BACK_TICK_INLINE_CODE = new BallerinaTokenType("DOUBLE_BACK_TICK_INLINE_CODE");
   IElementType DOUBLE_BACK_TICK_INLINE_CODE_END = new BallerinaTokenType("DOUBLE_BACK_TICK_INLINE_CODE_END");
@@ -475,7 +480,7 @@ public interface BallerinaTypes {
   IElementType WHERE = new BallerinaTokenType("where");
   IElementType WHILE = new BallerinaTokenType("while");
   IElementType WINDOW = new BallerinaTokenType("window");
-  IElementType WITH = new BallerinaTokenType("WITH");
+  IElementType WITH = new BallerinaTokenType("with");
   IElementType WITHIN = new BallerinaTokenType("within");
   IElementType WORKER = new BallerinaTokenType("worker");
   IElementType XML = new BallerinaTokenType("xml");
@@ -578,6 +583,9 @@ public interface BallerinaTypes {
       else if (type == BINARY_POW_EXPRESSION) {
         return new BallerinaBinaryPowExpressionImpl(node);
       }
+      else if (type == BLOB_LITERAL) {
+        return new BallerinaBlobLiteralImpl(node);
+      }
       else if (type == BLOCK) {
         return new BallerinaBlockImpl(node);
       }
@@ -655,6 +663,9 @@ public interface BallerinaTypes {
       }
       else if (type == DOC_TEXT) {
         return new BallerinaDocTextImpl(node);
+      }
+      else if (type == DONE_STATEMENT) {
+        return new BallerinaDoneStatementImpl(node);
       }
       else if (type == DOUBLE_BACK_TICK_DEPRECATED_INLINE_CODE) {
         return new BallerinaDoubleBackTickDeprecatedInlineCodeImpl(node);
@@ -911,14 +922,14 @@ public interface BallerinaTypes {
       else if (type == OBJECT_TYPE_NAME) {
         return new BallerinaObjectTypeNameImpl(node);
       }
-      else if (type == ONABORT_STATEMENT) {
-        return new BallerinaOnabortStatementImpl(node);
+      else if (type == ON_ABORT_STATEMENT) {
+        return new BallerinaOnAbortStatementImpl(node);
       }
-      else if (type == ONCOMMIT_STATEMENT) {
-        return new BallerinaOncommitStatementImpl(node);
+      else if (type == ON_COMMIT_STATEMENT) {
+        return new BallerinaOnCommitStatementImpl(node);
       }
-      else if (type == ONRETRY_CLAUSE) {
-        return new BallerinaOnretryClauseImpl(node);
+      else if (type == ON_RETRY_CLAUSE) {
+        return new BallerinaOnRetryClauseImpl(node);
       }
       else if (type == ORDER_BY_CLAUSE) {
         return new BallerinaOrderByClauseImpl(node);

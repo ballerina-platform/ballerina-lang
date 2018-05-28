@@ -63,16 +63,6 @@ public class CreateCharacterChannel extends BlockingNativeCallableUnit {
     private static final int ENCODING_INDEX = 0;
 
     /**
-     * The package path of the byte channel.
-     */
-    private static final String CHAR_CHANNEL_PACKAGE = "ballerina.io";
-
-    /**
-     * The type of the byte channel struct.
-     */
-    private static final String STRUCT_TYPE = "CharacterChannel";
-
-    /**
      * {@inheritDoc}
      */
     @Override

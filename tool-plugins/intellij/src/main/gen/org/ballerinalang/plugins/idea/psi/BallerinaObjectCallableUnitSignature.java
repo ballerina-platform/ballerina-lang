@@ -32,10 +32,10 @@ public interface BallerinaObjectCallableUnitSignature extends BallerinaComposite
   @Nullable
   BallerinaReturnParameter getReturnParameter();
 
-  @NotNull
+  @Nullable
   PsiElement getLeftParenthesis();
 
-  @NotNull
+  @Nullable
   PsiElement getRightParenthesis();
 
 }

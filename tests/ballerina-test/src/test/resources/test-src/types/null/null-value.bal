@@ -79,6 +79,13 @@ function testNullMapAccess () returns (string) {
     return value;
 }
 
+function testNullMapAccessWithConversion () returns (int|error) {
+    map marks;
+    int|error value;
+    value = <int>marks["maths"];
+    return value;
+}
+
 function testCastingNull (any j) returns (xml) {
     xml x;
     x = check <xml>j;

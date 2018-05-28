@@ -189,15 +189,22 @@ class TreeBuilder {
             if (!node.serviceTypeStruct) {
                 node.isServiceTypeUnavailable = true;
             }
+
+            if (!node.anonymousEndpointBind && node.boundEndpoints && node.boundEndpoints.length <= 0
+                && !_.find(node.ws, (ws) => ws.text === 'bind')) {
+                node.bindNotAvailable = true;
+            }
         }
 
         // Mark the first argument ad a service endpoint.
         if (node.kind === 'Resource' && node.parameters[0]) {
-            const endpointParam = node.parameters[0];
-            const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
-            endpointParam.serviceEndpoint = true;
-            endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
-            endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
+            if (node.parameters[0].ws && _.find(node.parameters[0].ws, (ws) => ws.text === 'endpoint')) {
+                const endpointParam = node.parameters[0];
+                const valueWithBar = endpointParam.name.valueWithBar || endpointParam.name.value;
+                endpointParam.serviceEndpoint = true;
+                endpointParam.name.setValue(endpointParam.name.getValue().replace('$', ''));
+                endpointParam.name.valueWithBar = valueWithBar.replace('$', '');
+            }
         }
 
         // Add the positions for the join and timeout bodies.
@@ -252,24 +259,36 @@ class TreeBuilder {
         if (node.kind === 'Function') {
             if (node.returnTypeNode && node.returnTypeNode.typeKind !== 'nil') {
                 node.hasReturns = true;
-                if (node.ws) {
-                    for (let i = 0; i < node.ws.length; i++) {
-                        if (node.ws[i].text === ')' && node.ws[i + 1].text !== 'returns') {
-                            for (let j = 0; j < node.returnTypeNode.ws.length; j++) {
-                                if (node.returnTypeNode.ws[j].text === 'returns') {
-                                    node.ws.splice((i + 1), 0, node.returnTypeNode.ws[j]);
-                                    node.returnTypeNode.ws.splice(j, 1);
-                                    break;
-                                }
-                            }
-                            break;
-                        }
-                    }
+            }
+
+            if (node.defaultableParameters) {
+                for (let i = 0; i < node.defaultableParameters.length; i++) {
+                    node.defaultableParameters[i].defaultable = true;
+                    node.defaultableParameters[i].variable.defaultable = true;
                 }
             }
 
+            node.allParams = _.concat(node.parameters, node.defaultableParameters);
+            node.allParams.sort((a, b) => {
+                return (((a.position.endColumn > b.position.startColumn)
+                    && (a.position.endLine === b.position.endLine))
+                    || (a.position.endLine > b.position.endLine));
+            });
+
             if (node.receiver && !node.receiver.ws) {
-                node.noVisibleReceiver = true;
+
+                if (_.find(node.ws, (ws) => ws.text === '::')
+                    && node.receiver.typeNode
+                    && node.receiver.typeNode.ws
+                    && node.receiver.typeNode.ws.length > 0) {
+                    node.objectOuterFunction = true;
+                    if (node.receiver.typeNode.ws[0].text === 'function') {
+                        node.receiver.typeNode.ws.splice(0, 1);
+                    }
+                    node.objectOuterFunctionTypeName = node.receiver.typeNode.typeName;
+                } else {
+                    node.noVisibleReceiver = true;
+                }
             }
 
             if (node.restParameters && node.parameters && node.parameters.length > 0) {
@@ -278,6 +297,27 @@ class TreeBuilder {
 
             if (node.restParameters && node.restParameters.typeNode) {
                 node.restParameters.typeNode.isRestParam = true;
+            }
+        }
+
+        if (node.kind === 'Record') {
+            let semicolonCount = 0;
+            let commaCount = 0;
+
+            if (node.ws) {
+                for (let i = 0; i < node.ws.length; i++) {
+                    if (node.ws[i].text === ';') {
+                        semicolonCount += 1;
+                    } else if (node.ws[i].text === ',') {
+                        commaCount += 1;
+                    }
+                }
+
+                if (commaCount > 0) {
+                    node.separateWithComma = true;
+                } else if (semicolonCount > 1) {
+                    node.separateWithSemicolon = true;
+                }
             }
         }
 
@@ -458,12 +498,49 @@ class TreeBuilder {
             if (node.returnTypeNode && node.returnTypeNode.ws) {
                 node.hasReturn = true;
             }
+
+            if (node.ws && node.ws[0] && node.ws[0].text === '(') {
+                node.withParantheses = true;
+            }
         }
 
         if (node.kind === 'Literal') {
             if ((node.value === 'nil' || node.value === 'null') && node.ws
                 && node.ws.length < 3 && node.ws[0].text === '(') {
                 node.emptyParantheses = true;
+            }
+        }
+
+        if (node.kind === 'Foreach') {
+            if (node.ws && _.find(node.ws, (ws) => ws.text === '(')) {
+                node.withParantheses = true;
+            }
+        }
+
+        if (node.kind === 'Endpoint') {
+            if (node.ws && _.find(node.ws, (ws) => ws.text === '=')) {
+                node.isConfigAssignment = true;
+            }
+        }
+
+        if (node.kind === 'UserDefinedType') {
+            if (node.ws && node.nullable && _.find(node.ws, (ws) => ws.text === '?')) {
+                node.nullableOperatorAvailable = true;
+            }
+        }
+
+        if (node.kind === 'ArrayType') {
+            if (node.dimensions > 0 && node.ws) {
+                node.dimensionAsString = "";
+                for (let j = 0; j < node.ws.length; j++) {
+                    if (node.ws[j].text === '[') {
+                        let startingBracket = node.ws[j];
+                        let endingBracket = node.ws[j + 1];
+
+                        node.dimensionAsString += startingBracket.ws + startingBracket.text +
+                            endingBracket.ws + endingBracket.text;
+                    }
+                }
             }
         }
     }
