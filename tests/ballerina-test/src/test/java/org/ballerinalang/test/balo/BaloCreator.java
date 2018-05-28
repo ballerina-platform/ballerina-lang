@@ -38,7 +38,7 @@ public class BaloCreator {
      * @param packageId Package ID
      * @throws IOException If any error occurred while reading the source files
      */
-    public static void create(Path projectPath, String packageId) throws IOException {
+    public static void create(Path projectPath, String packageId, String orgName) throws IOException {
         Path baloPath = Paths.get(".ballerina");
         projectPath = Paths.get("src", "test", "resources").resolve(projectPath);
 
@@ -51,6 +51,7 @@ public class BaloCreator {
         BuilderUtils.compileAndWrite(projectPath, packageId, "target/lib/", false, true);
 
         // copy the balo to the temp-ballerina-home/libs/
+        BFileUtil.delete(Paths.get("target", "lib", "repo", orgName));
         BFileUtil.copy(projectPath.resolve(baloPath), Paths.get("target", "lib"));
     }
 }

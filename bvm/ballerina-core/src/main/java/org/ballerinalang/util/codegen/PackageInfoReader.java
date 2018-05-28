@@ -766,7 +766,8 @@ public class PackageInfoReader {
         readAttributeInfoEntries(packageInfo, packageInfo, transformerInfo);
     }
 
-    public void readWorkerDataChannelEntries(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo) throws IOException {
+    public void readWorkerDataChannelEntries(PackageInfo packageInfo, CallableUnitInfo callableUnitInfo)
+            throws IOException {
         int sourceCPIndex = dataInStream.readInt();
         int targetCPIndex = dataInStream.readInt();
 
@@ -1059,7 +1060,8 @@ public class PackageInfoReader {
         return docAttrInfo;
     }
 
-    private LocalVariableInfo getLocalVariableInfo(PackageInfo packageInfo, ConstantPool constantPool) throws IOException {
+    private LocalVariableInfo getLocalVariableInfo(PackageInfo packageInfo, ConstantPool constantPool)
+            throws IOException {
         int varNameCPIndex = dataInStream.readInt();
         UTF8CPEntry varNameCPEntry = (UTF8CPEntry) constantPool.getCPEntry(varNameCPIndex);
         int variableIndex = dataInStream.readInt();
