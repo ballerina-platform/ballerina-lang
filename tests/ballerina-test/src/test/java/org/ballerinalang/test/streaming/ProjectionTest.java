@@ -62,11 +62,8 @@ public class ProjectionTest {
 
     @Test(description = "Test streaming projection query with errors")
     public void testProjectionNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0,
-                "undefined stream attribute 'address' found in select clause",
-                44, 9);
-        BAssertUtil.validateError(resultNegative, 1,
                 "Incompatible stream action argument type 'Employee' defined",
                 45, 9);
     }
