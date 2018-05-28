@@ -26,14 +26,24 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CompilerPluginRunner;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
 import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG;
@@ -63,6 +73,7 @@ public class CompilerDriver {
     private final Desugar desugar;
     private final CodeGenerator codeGenerator;
     private final CompilerPhase compilerPhase;
+    private final SymbolResolver symResolver;
 
     public static CompilerDriver getInstance(CompilerContext context) {
         CompilerDriver compilerDriver = context.get(COMPILER_DRIVER_KEY);
@@ -88,6 +99,7 @@ public class CompilerDriver {
         this.desugar = Desugar.getInstance(context);
         this.codeGenerator = CodeGenerator.getInstance(context);
         this.compilerPhase = getCompilerPhase();
+        this.symResolver = SymbolResolver.getInstance(context);
     }
 
     public BLangPackage compilePackage(BLangPackage packageNode) {
@@ -103,8 +115,10 @@ public class CompilerDriver {
         } else {
             symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null);
         }
-    }
 
+        // Update the error symbol
+        updateErrorSymbol();
+    }
 
     // Private methods
 
@@ -209,5 +223,24 @@ public class CompilerDriver {
     private BLangPackage getBuiltInPackage(Name orgName, Name name) {
         return codegen(desugar(taintAnalyze(codeAnalyze(semAnalyzer.analyze(
                 pkgLoader.loadAndDefinePackage(SymbolTable.BUILTIN))))));
+    }
+
+    private void updateErrorSymbol() {
+        BSymbol errorStructSymbol = symResolver
+                .lookupSymbol(symbolTable.pkgEnvMap.get(symbolTable.builtInPackageSymbol), Names.ERROR, SymTag.RECORD);
+        symbolTable.errStructType.fields = ((BStructureType) errorStructSymbol.type).fields;
+
+        // change type of the 'cause' field
+        BUnionType causeType = (BUnionType) symbolTable.errStructType.fields.get(1).type;
+        Set<BType> memberTypes = new HashSet<BType>() {{
+                add(symbolTable.errStructType);
+                add(symbolTable.nilType);
+        }};
+        BType newCauseType = new BUnionType(causeType.tsymbol, memberTypes, true);
+        symbolTable.errStructType.fields.get(1).type = newCauseType;
+
+        // change the type of the error symbol
+        errorStructSymbol.type = symbolTable.errStructType;
+        errorStructSymbol.type.tsymbol = (BTypeSymbol) errorStructSymbol;
     }
 }
