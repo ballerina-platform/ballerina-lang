@@ -18,17 +18,21 @@
 
 package org.wso2.transport.http.netty.chunkdisable;
 
+import io.netty.buffer.Unpooled;
+import io.netty.handler.codec.http.DefaultFullHttpRequest;
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpVersion;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.util.TestUtil;
-
-import java.io.IOException;
-import java.net.HttpURLConnection;
+import org.wso2.transport.http.netty.util.client.http.HttpClient;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
 
 /**
  * A test class for auto chunking behaviour.
@@ -43,16 +47,21 @@ public class ChunkEnableServerTestCase extends ChunkServerTemplate {
 
     @Test
     public void postTest() {
-        try {
-            HttpURLConnection urlConn = sendEntityBody(TestUtil.largeEntity);
-            assertEquals(urlConn.getHeaderField(HttpHeaderNames.TRANSFER_ENCODING.toString()), Constants.CHUNKED);
 
-            urlConn = sendEntityBody(TestUtil.smallEntity);
-            assertEquals(urlConn.getHeaderField(HttpHeaderNames.TRANSFER_ENCODING.toString()), Constants.CHUNKED);
+        HttpClient httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+        FullHttpRequest httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
+                HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.largeEntity.getBytes()));
+        FullHttpResponse httpResponse = httpClient.sendRequest(httpRequest);
 
-            urlConn.disconnect();
-        } catch (IOException e) {
-            TestUtil.handleException("IOException occurred while running postTest", e);
-        }
+        assertEquals(TestUtil.largeEntity, TestUtil.getEntityBodyFrom(httpResponse));
+        assertNotNull(httpResponse.headers().get(HttpHeaderNames.TRANSFER_ENCODING));
+
+        httpClient = new HttpClient(TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT);
+        httpRequest = new DefaultFullHttpRequest(HttpVersion.HTTP_1_1,
+                HttpMethod.POST, "/", Unpooled.wrappedBuffer(TestUtil.smallEntity.getBytes()));
+        httpResponse = httpClient.sendRequest(httpRequest);
+
+        assertEquals(TestUtil.smallEntity, TestUtil.getEntityBodyFrom(httpResponse));
+        assertNotNull(httpResponse.headers().get(HttpHeaderNames.TRANSFER_ENCODING));
     }
 }
