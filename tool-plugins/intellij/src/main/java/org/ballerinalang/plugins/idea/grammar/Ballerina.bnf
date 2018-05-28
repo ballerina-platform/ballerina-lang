@@ -208,7 +208,7 @@ ServiceEndpointAttachments ::= bind (NameReference (COMMA NameReference)* | Reco
 ServiceBody ::= LEFT_BRACE (/*ResourceDefinition+ | EndpointDefinition+ ResourceDefinition* |*/ EndpointDefinition* (VariableDefinitionStatementInService | NamespaceDeclarationStatement)* ResourceDefinition*) RIGHT_BRACE /*{pin=1}*/
 
 // Note - Always sync with VariableDefinitionStatement
-VariableDefinitionStatementInService ::= /*<<isNotAResourceDefinition>> VariableDefinitionStatement*/ TypeName identifier VariableAssignment? SEMICOLON {elementType=VariableDefinitionStatement}
+VariableDefinitionStatementInService ::= /*<<isNotAResourceDefinition>> VariableDefinitionStatement*/ TypeName identifier VariableAssignment? SEMICOLON {pin(".*")=2 elementType=VariableDefinitionStatement}
 ResourceDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? identifier LEFT_PARENTHESIS resourceParameterList? RIGHT_PARENTHESIS CallableUnitBody {pin=4}
 resourceParameterList ::= endpointParameter | ParameterList
 endpointParameter ::= endpoint identifier (COMMA ParameterList)? {pin(".*")=1}
@@ -299,9 +299,12 @@ AttachmentPoint ::= service | resource | function | object | type | endpoint | T
 WorkerDefinition ::= worker identifier WorkerBody {
     pin=1
     stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaWorkerDefinitionStub"
+    recoverWhile=WorkerDefinitionRecover
 }
 
-WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE
+private WorkerDefinitionRecover ::= !(worker|'}')
+
+WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 GlobalEndpointDefinition ::= public? EndpointDefinition {
     pin=2
@@ -453,7 +456,7 @@ TableInitialization ::= RecordLiteral
 
 ArrayLiteral ::= LEFT_BRACKET ExpressionList? RIGHT_BRACKET
 
-TypeInitExpr ::= new UserDefineTypeName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS | new (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)? {pin=1}
+TypeInitExpr ::= new (UserDefineTypeName (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS) | (LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS)?) {pin(".*")=1}
 
 AssignmentStatement ::= withVar | withoutVar
 
@@ -471,15 +474,16 @@ PostIncrementStatement ::= VariableReference PostArithmeticOperator SEMICOLON
 
 PostArithmeticOperator ::= INCREMENT | DECREMENT
 
-VariableReferenceList ::= VariableReference (COMMA VariableReference)* //{pin(".*")=1}
+VariableReferenceList ::= VariableReference (COMMA VariableReference)* {pin(".*")=1}
 
 IfElseStatement ::= IfClause ElseIfClause* ElseClause? /*{pin=1}*/
 
-IfClause ::= if LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
+IfClause ::= if (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
-ElseIfClause ::= else if LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=2}
+ElseIfClause ::= else pinnedElseClause
+private pinnedElseClause ::= if (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
-ElseClause ::= else LEFT_BRACE Block RIGHT_BRACE {pin=1}
+ElseClause ::= else (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
 
 matchStatement ::= match Expression matchStatementBody {pin=1}
 matchStatementBody ::= LEFT_BRACE matchPatternClause+ RIGHT_BRACE {pin=1}
@@ -489,46 +493,49 @@ matchPatternClause ::= namedPattern | unnamedPattern
 unnamedPattern ::= TypeName EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
 namedPattern ::= TypeName identifier EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=3}
 
-ForeachStatement ::= foreach LEFT_PARENTHESIS? VariableReferenceList in (IntRangeExpression | Expression) RIGHT_PARENTHESIS? LEFT_BRACE Block RIGHT_BRACE {pin=1}
+ForeachStatement ::= foreach (LEFT_PARENTHESIS? VariableReferenceList in (IntRangeExpression | Expression) RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
 IntRangeExpression ::= openRange | closedRange
 private openRange ::= Expression RANGE Expression {pin=2}
 private closedRange ::= (LEFT_BRACKET|LEFT_PARENTHESIS) Expression RANGE Expression (RIGHT_BRACKET|RIGHT_PARENTHESIS) {pin=3}
 
 // Todo - pin 1?
-WhileStatement ::= while LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS WhileStatementBody
+WhileStatement ::= while (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS WhileStatementBody) {pin(".*")=1}
 
-WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE
+WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 NextStatement ::= next SEMICOLON {pin=1}
 
 BreakStatement ::= break SEMICOLON {pin=1}
 
 // typeName is only message
-ForkJoinStatement ::= fork LEFT_BRACE ForkStatementBody RIGHT_BRACE JoinClause? TimeoutClause? {pin=1}
+ForkJoinStatement ::= fork (LEFT_BRACE ForkStatementBody RIGHT_BRACE JoinClause? TimeoutClause?) {pin(".*")=1}
 
 ForkStatementBody ::= WorkerDefinition*
 
 // below typeName is only 'message[]'
-JoinClause ::= join (LEFT_PARENTHESIS JoinConditions RIGHT_PARENTHESIS)? LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS JoinClauseBody {pin=1}
+JoinClause ::= join (LEFT_PARENTHESIS JoinConditions RIGHT_PARENTHESIS)? (LEFT_PARENTHESIS TypeName identifier (RIGHT_PARENTHESIS JoinClauseBody)) {pin(".*")=1}
 
-JoinClauseBody ::= LEFT_BRACE Block RIGHT_BRACE
+JoinClauseBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 // Todo - Needs reorder?
-JoinConditions ::= (some IntegerLiteral | all) (identifier (COMMA identifier)*)? {pin=1}
+JoinConditions ::= (some IntegerLiteral | all) (identifier (COMMA identifier)*)? {pin(".*")=1 recoverWhile=JoinConditionRecover}
+
+// Todo - Add more tokens. Eg - int
+private JoinConditionRecover ::= !(')'|'}')
 
 // below typeName is only 'message[]'
-TimeoutClause ::= timeout LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS TimeoutClauseBody {pin=1}
+TimeoutClause ::= timeout (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS TimeoutClauseBody)) {pin(".*")=1}
 
-TimeoutClauseBody ::= LEFT_BRACE Block RIGHT_BRACE
+TimeoutClauseBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
-TryCatchStatement ::= try LEFT_BRACE Block RIGHT_BRACE CatchClauses {pin=1}
+TryCatchStatement ::= try (LEFT_BRACE Block RIGHT_BRACE CatchClauses) {pin(".*")=1}
 
 CatchClauses ::= CatchClause+ FinallyClause? | FinallyClause
 
-CatchClause ::= catch LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
+CatchClause ::= catch (LEFT_PARENTHESIS TypeName identifier RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
-FinallyClause ::= finally LEFT_BRACE Block RIGHT_BRACE {pin=1}
+FinallyClause ::= finally {LEFT_BRACE Block RIGHT_BRACE} {pin(".*")=1}
 
 ThrowStatement ::= throw Expression SEMICOLON {pin=1}
 
@@ -571,7 +578,7 @@ Index ::= LEFT_BRACKET Expression RIGHT_BRACKET /*{pin=1}*/
 XmlAttrib ::= AT (LEFT_BRACKET Expression RIGHT_BRACKET)? /*{pin=1}*/
 
 // Todo - Need to pin?
-FunctionInvocation ::= functionNameReference LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS
+FunctionInvocation ::= functionNameReference LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS {pin=2}
 
 // Todo - Adding pin will mess function invocation.
 Invocation ::= (DOT | NOT) AnyIdentifierName LEFT_PARENTHESIS InvocationArgList? RIGHT_PARENTHESIS /*{pin=1}*/
@@ -591,17 +598,17 @@ ExpressionList ::= Expression (COMMA Expression)* {
 
 ExpressionStmt ::= Expression SEMICOLON {pin=1}
 
-TransactionStatement ::= TransactionClause OnretryClause?
+TransactionStatement ::= TransactionClause OnRetryClause? {pin=1}
 
-TransactionClause ::= transaction (with TransactionPropertyInitStatementList)? LEFT_BRACE Block RIGHT_BRACE {pin(".*")=1}
+TransactionClause ::= transaction (with TransactionPropertyInitStatementList)? (LEFT_BRACE (Block RIGHT_BRACE)) {pin(".*")=1}
 
-TransactionPropertyInitStatement ::= RetriesStatement | OnCommitStatement | OnAbortStatement {pin=1}
+TransactionPropertyInitStatement ::= RetriesStatement | OnCommitStatement | OnAbortStatement
 
 TransactionPropertyInitStatementList ::= TransactionPropertyInitStatement (COMMA TransactionPropertyInitStatement)* {pin(".*")=1}
 
 LockStatement ::= lock LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
-OnretryClause ::= onretry LEFT_BRACE Block RIGHT_BRACE {pin=1}
+OnRetryClause ::= onretry (LEFT_BRACE (Block RIGHT_BRACE)) {pin(".*")=1}
 
 AbortStatement ::= abort SEMICOLON {pin=1}
 
@@ -696,9 +703,9 @@ AwaitExpression ::= await Expression
 MatchExprExpression ::= Expression matchExpression
 CheckedExpression ::= check Expression
 
-matchExpression ::= but LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE {pin=1}
+matchExpression ::= but (LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE) {pin(".*")=1}
 
-MatchExpressionPatternClause ::= TypeName identifier? EQUAL_GT Expression
+MatchExpressionPatternClause ::= TypeName identifier? EQUAL_GT Expression {pin=1}
 
 //reusable productions
 
@@ -750,12 +757,15 @@ SimpleLiteral ::= (ADD|SUB)? IntegerLiteral
                   | QUOTED_STRING_LITERAL
                   | BOOLEAN_LITERAL
                   | EmptyTupleLiteral
+                  | BlobLiteral
                   | NULL_LITERAL
 
 // §3.10.1 Integer Literals
 IntegerLiteral ::= DECIMAL_INTEGER_LITERAL | HEX_INTEGER_LITERAL | OCTAL_INTEGER_LITERAL | BINARY_INTEGER_LITERAL
 
 EmptyTupleLiteral ::= LEFT_PARENTHESIS RIGHT_PARENTHESIS
+
+BlobLiteral ::= BASE_16_BLOB_LITERAL | BASE_64_BLOB_LITERAL
 
 NamedArgs ::= identifier ASSIGN Expression {pin=2}
 
@@ -818,7 +828,7 @@ AggregationQuery ::= from StreamingInput SelectClause? OrderByClause?
 DoneStatement ::= done SEMICOLON {pin=1}
 
 // Note - Pinning 1 does not seem to work.
-ForeverStatement ::= forever LEFT_BRACE ForeverStatementBody RIGHT_BRACE {pin=2}
+ForeverStatement ::= forever (LEFT_BRACE ForeverStatementBody RIGHT_BRACE) {pin(".*")=1}
 ForeverStatementBody ::= StreamingQueryStatement+
 
 StreamingQueryStatement ::= from (StreamingInput (JoinStreamingInput)? | PatternClause)
@@ -829,7 +839,7 @@ StreamingQueryStatement ::= from (StreamingInput (JoinStreamingInput)? | Pattern
 
 PatternClause ::= every? PatternStreamingInput WithinClause?
 
-WithinClause ::= within Expression {pin=1}
+WithinClause ::= within DECIMAL_INTEGER_LITERAL TimeScale {pin=1}
 
 OrderByClause ::= order by OrderByVariable (COMMA OrderByVariable)* {pin=1}
 
@@ -847,13 +857,13 @@ GroupByClause ::= group by VariableReferenceList {pin=1}
 
 HavingClause ::= having Expression {pin=1}
 
-StreamingAction ::= EQUAL_GT LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
+StreamingAction ::= EQUAL_GT LEFT_PARENTHESIS Parameter RIGHT_PARENTHESIS LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 SetClause ::= set SetAssignmentClause (COMMA SetAssignmentClause)* {pin=1}
 
 SetAssignmentClause ::= VariableReference ASSIGN Expression
 
-StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin(".*")=1}
+StreamingInput ::= VariableReference WhereClause? FunctionInvocation* WindowClause? FunctionInvocation* WhereClause? (as identifier)? {pin=1}
 
 JoinStreamingInput ::= (unidirectional JoinType | JoinType unidirectional | JoinType) StreamingInput on Expression
 
@@ -870,11 +880,11 @@ PatternStreamingInput ::=
 
 private Pattern1 ::= PatternStreamingEdgeInput (followed by | COMMA) PatternStreamingInput {pin=2}
 private Pattern2 ::= LEFT_PARENTHESIS PatternStreamingInput RIGHT_PARENTHESIS
-private Pattern4 ::= NOT PatternStreamingEdgeInput (AND PatternStreamingEdgeInput | for SimpleLiteral) {pin(".*")=1}
+private Pattern4 ::= NOT PatternStreamingEdgeInput (AND PatternStreamingEdgeInput | for DECIMAL_INTEGER_LITERAL TimeScale) {pin(".*")=1}
 private Pattern3 ::= foreach PatternStreamingInput {pin=1}
 private Pattern5 ::= PatternStreamingEdgeInput (AND | OR) PatternStreamingEdgeInput {pin=2}
 
-PatternStreamingEdgeInput ::= VariableReference WhereClause? IntRangeExpression? (as identifier)? {pin(".*")=1}
+PatternStreamingEdgeInput ::= VariableReference WhereClause? IntRangeExpression? (as identifier)? {pin=1}
 
 WhereClause ::= where Expression {pin=1}
 

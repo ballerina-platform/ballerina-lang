@@ -124,6 +124,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitBinaryExpression(o);
   }
 
+  public void visitBlobLiteral(@NotNull BallerinaBlobLiteral o) {
+    visitCompositeElement(o);
+  }
+
   public void visitBlock(@NotNull BallerinaBlock o) {
     visitCompositeElement(o);
   }
@@ -513,7 +517,7 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
-  public void visitOnretryClause(@NotNull BallerinaOnretryClause o) {
+  public void visitOnRetryClause(@NotNull BallerinaOnRetryClause o) {
     visitCompositeElement(o);
   }
 

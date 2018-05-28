@@ -107,7 +107,7 @@ public class CommandExecutor {
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
             String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                         .getFileContent(Paths.get(URI.create(documentUri)));
-            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+            String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
             int totalLines = contentComponents.length;
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();

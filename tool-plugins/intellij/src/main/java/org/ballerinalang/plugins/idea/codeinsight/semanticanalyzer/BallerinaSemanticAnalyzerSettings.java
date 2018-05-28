@@ -35,7 +35,7 @@ import org.jetbrains.annotations.Nullable;
 public class BallerinaSemanticAnalyzerSettings implements PersistentStateComponent<BallerinaSemanticAnalyzerSettings> {
 
     @Attribute
-    private boolean myUseSemanticAnalyzer = true;
+    private boolean myUseSemanticAnalyzer = false;
 
     public static BallerinaSemanticAnalyzerSettings getInstance() {
         return ServiceManager.getService(BallerinaSemanticAnalyzerSettings.class);

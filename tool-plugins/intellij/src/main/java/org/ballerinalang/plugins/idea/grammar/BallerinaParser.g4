@@ -668,6 +668,7 @@ simpleLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
+    |   blobLiteral
     |   NullLiteral
     ;
 
@@ -681,6 +682,11 @@ integerLiteral
 
 emptyTupleLiteral
     :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
+    ;
+
+blobLiteral
+    : Base16BlobLiteral
+    | Base64BlobLiteral
     ;
 
 namedArgs
@@ -811,7 +817,7 @@ patternClause
     ;
 
 withinClause
-    :   WITHIN expression
+    :   WITHIN DecimalIntegerLiteral timeScale
     ;
 
 orderByClause
@@ -849,7 +855,7 @@ havingClause
     ;
 
 streamingAction
-    :   EQUAL_GT LEFT_PARENTHESIS formalParameterList? RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   EQUAL_GT LEFT_PARENTHESIS parameter RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 setClause
@@ -877,7 +883,7 @@ outputRateLimit
 patternStreamingInput
     :   patternStreamingEdgeInput ( FOLLOWED BY | COMMA ) patternStreamingInput
     |   LEFT_PARENTHESIS patternStreamingInput RIGHT_PARENTHESIS
-    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR simpleLiteral)
+    |   NOT patternStreamingEdgeInput (AND patternStreamingEdgeInput | FOR DecimalIntegerLiteral timeScale)
     |   patternStreamingEdgeInput (AND | OR ) patternStreamingEdgeInput
     |   patternStreamingEdgeInput
     ;

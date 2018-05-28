@@ -108,6 +108,9 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.LEFT_BRACE && rawLookup2 == BallerinaTypes.BIND)
                                 && !(rawLookup == BallerinaTypes.LINE_COMMENT &&
                                 rawLookup2 == BallerinaTypes.LINE_COMMENT)
+                                && !(rawLookup == BallerinaTypes.LINE_COMMENT &&
+                                rawLookup2 == BallerinaTypes.LEFT_BRACE)
+                                && !(rawLookup == BallerinaTypes.LINE_COMMENT && rawLookup2 == BallerinaTypes.COMMA)
                                 ) {
                             return true;
                         } else {
@@ -181,6 +184,19 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                     rawLookup2 == BallerinaTypes.RIGHT_BRACE) {
                                 if (next1Element == BallerinaTypes.COLON && next2Element == BallerinaTypes.IDENTIFIER) {
                                     return true;
+                                }
+                            } else if (rawLookup == BallerinaTypes.LINE_COMMENT &&
+                                    rawLookup2 == BallerinaTypes.LEFT_BRACE) {
+                                if (next1Element == BallerinaTypes.COLON && next2Element == BallerinaTypes.IDENTIFIER) {
+                                    return true;
+                                }
+                            } else if (rawLookup == BallerinaTypes.LINE_COMMENT && rawLookup2 == BallerinaTypes.COMMA) {
+                                if (next1Element == BallerinaTypes.COLON && next2Element == BallerinaTypes.IDENTIFIER) {
+                                    IElementType tokenType = latestDoneMarker.getTokenType();
+                                    if (tokenType == BallerinaTypes.RECORD_KEY_VALUE) {
+                                        return false;
+                                    }
+                                    return false;
                                 }
                             }
                             return false;

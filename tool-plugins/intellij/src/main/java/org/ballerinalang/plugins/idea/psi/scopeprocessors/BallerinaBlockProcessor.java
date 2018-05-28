@@ -320,6 +320,32 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
                     add(identifier);
                 }
             }
+
+            List<BallerinaObjectParameter> objectParameterList = ballerinaObjectParameterList.getObjectParameterList();
+            for (BallerinaObjectParameter parameter : objectParameterList) {
+                PsiElement identifier = parameter.getIdentifier();
+                if (identifier != null) {
+                    if (myResult != null) {
+                        myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier,
+                                BallerinaPsiImplUtil.formatBallerinaTypeName(parameter.getTypeName()), ""));
+                    } else if (myElement.getText().equals(identifier.getText())) {
+                        add(identifier);
+                    }
+                }
+            }
+
+            BallerinaRestParameter restParameter = ballerinaObjectParameterList.getRestParameter();
+            if (restParameter != null) {
+                PsiElement identifier = restParameter.getIdentifier();
+                if (identifier != null) {
+                    if (myResult != null) {
+                        myResult.addElement(BallerinaCompletionUtils.createParameterLookupElement(identifier,
+                                BallerinaPsiImplUtil.formatBallerinaTypeName(restParameter.getTypeName()), ""));
+                    } else if (myElement.getText().equals(identifier.getText())) {
+                        add(identifier);
+                    }
+                }
+            }
         }
 
         BallerinaRestParameter restParameter = PsiTreeUtil.findChildOfType(ballerinaObjectInitializer,
@@ -465,7 +491,8 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             return;
         }
 
-        List<BallerinaVariableDefinitionStatement> definitions = serviceBody.getVariableDefinitionStatementList();
+        List<BallerinaVariableDefinitionStatement> definitions =
+                serviceBody.getVariableDefinitionStatementList();
         for (BallerinaVariableDefinitionStatement definition : definitions) {
             PsiElement identifier = definition.getIdentifier();
             if (identifier == null) {
