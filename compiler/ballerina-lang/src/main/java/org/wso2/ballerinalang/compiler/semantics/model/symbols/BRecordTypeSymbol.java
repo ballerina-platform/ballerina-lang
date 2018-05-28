@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -29,8 +30,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class BRecordTypeSymbol extends BStructureTypeSymbol {
 
-    public BRecordTypeSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(kind, flags, name, pkgID, type, owner);
+    public BRecordTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+        super(SymbolKind.RECORD, symTag, flags, name, pkgID, type, owner);
     }
 
     @Override
