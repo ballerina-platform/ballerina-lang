@@ -78,7 +78,7 @@ public class VariableScopeTest {
         BAssertUtil.validateError(resultNegative,
                                   4,
                                   "incompatible types: expected 'DummyEndpoint', found '()'",
-                                  59,
-                                  12);
+                                  58,
+                                  16);
     }
 }
