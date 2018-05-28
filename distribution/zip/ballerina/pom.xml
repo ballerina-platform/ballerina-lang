@@ -333,6 +333,7 @@
                                 ballerina-builtin,
                                 ballerina-cache,
                                 ballerina-config,
+                                ballerina-config-api,
                                 ballerina-crypto,
                                 ballerina-database,
                                 ballerina-file,
