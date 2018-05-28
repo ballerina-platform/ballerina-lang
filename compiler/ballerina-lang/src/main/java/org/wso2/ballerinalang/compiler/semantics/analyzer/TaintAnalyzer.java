@@ -220,8 +220,13 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     private static final int ALL_UNTAINTED_TABLE_ENTRY_INDEX = -1;
     private static final int RETURN_TAINTED_STATUS_COLUMN_INDEX = 0;
 
-    private enum AnalyzerPhase { INITIAL_ANALYSIS, BLOCKED_NODE_ANALYSIS, LOOP_ANALYSIS, LOOP_ANALYSIS_COMPLETE,
-        LOOP_ANALYSIS_FINISHED}
+    private enum AnalyzerPhase {
+        INITIAL_ANALYSIS,
+        BLOCKED_NODE_ANALYSIS,
+        LOOP_ANALYSIS,
+        LOOP_ANALYSIS_COMPLETE,
+        LOOPS_RESOLVED_ANALYSIS
+    }
     private AnalyzerPhase analyzerPhase;
 
     public static TaintAnalyzer getInstance(CompilerContext context) {
@@ -1556,7 +1561,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private void visitInvokable(BLangFunction invNode, SymbolEnv symbolEnv) {
-        if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_FINISHED || invNode.attachedOuterFunction
+        if (analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS || invNode.attachedOuterFunction
                 || invNode.symbol.taintTable == null) {
             if (Symbols.isNative(invNode.symbol) || invNode.interfaceFunction) {
                 attachTaintTableBasedOnAnnotations(invNode);
@@ -1985,7 +1990,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                         blockedNode.invokableNode.accept(this);
                     }
                 }
-                analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS_FINISHED;
+                analyzerPhase = AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS;
             }
             sortedBlockedNodeMap = remainingBlockedNodeMap;
         }
