@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -116,6 +117,7 @@ public class Compiler {
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         List<BLangPackage> packages = pkgIdStream
+                .filter(p -> !SymbolTable.BUILTIN.equals(p))
                 .map(this.pkgLoader::loadEntryPackage)
                 .collect(Collectors.toList());
 

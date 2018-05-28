@@ -35,6 +35,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
+import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG;
+
 /**
  * This class drives the compilation of packages through various phases
  * such as symbol enter, semantic analysis, type checking, code analysis,
@@ -94,8 +97,12 @@ public class CompilerDriver {
 
     public void loadBuiltinPackage() {
         // Load built-in packages.
-        BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_ORG, Names.BUILTIN_PACKAGE);
-        symbolTable.builtInPackageSymbol = builtInPkg.symbol;
+        if (COMPILE_BALLERINA_ORG) {
+            BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_ORG, Names.BUILTIN_PACKAGE);
+            symbolTable.builtInPackageSymbol = builtInPkg.symbol;
+        } else {
+            symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null);
+        }
     }
 
 
@@ -201,6 +208,6 @@ public class CompilerDriver {
 
     private BLangPackage getBuiltInPackage(Name orgName, Name name) {
         return codegen(desugar(taintAnalyze(codeAnalyze(semAnalyzer.analyze(
-                pkgLoader.loadAndDefinePackage(orgName.getValue(), name.getValue()))))));
+                pkgLoader.loadAndDefinePackage(SymbolTable.BUILTIN))))));
     }
 }
