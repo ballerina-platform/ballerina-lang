@@ -1124,7 +1124,6 @@
 
                 <module>stdlib/auth</module>
                 <module>stdlib/ballerina-builtin</module>
-                <module>stdlib/ballerina-config</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
@@ -1147,6 +1146,7 @@
 
                 <module>stdlib/stdlib-compile</module>
 
+                <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
@@ -1193,7 +1193,6 @@
 
                 <module>stdlib/auth</module>
                 <module>stdlib/ballerina-builtin</module>
-                <module>stdlib/ballerina-config</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
@@ -1216,6 +1215,7 @@
 
                 <module>stdlib/stdlib-compile</module>
 
+                <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
@@ -1258,7 +1258,6 @@
 
                 <module>stdlib/auth</module>
                 <module>stdlib/ballerina-builtin</module>
-                <module>stdlib/ballerina-config</module>
                 <module>stdlib/cache</module>
                 <module>stdlib/config-api</module>
                 <module>stdlib/crypto</module>
@@ -1281,6 +1280,7 @@
 
                 <module>stdlib/stdlib-compile</module>
 
+                <module>bvm/ballerina-config</module>
                 <module>bvm/ballerina-core</module>
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
