@@ -26,22 +26,17 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.websocket.WebSocketTestClient;
 import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
-import java.io.IOException;
-import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import javax.net.ssl.SSLException;
 
 /**
  * Test cases for WebSocket pass-through scenarios.
@@ -58,7 +53,7 @@ public class WebSocketPassThroughTestCase {
     private ServerConnector serverConnector;
 
     @BeforeClass
-    public void setup() throws InterruptedException, ClientConnectorException {
+    public void setup() throws InterruptedException {
         remoteServer.run();
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
@@ -66,12 +61,12 @@ public class WebSocketPassThroughTestCase {
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
-        connectorFuture.setWSConnectorListener(new WebSocketPassthroughServerConnectorListener());
+        connectorFuture.setWSConnectorListener(new WebSocketPassThroughServerConnectorListener());
         connectorFuture.sync();
     }
 
     @Test
-    public void testTextPassThrough() throws InterruptedException, SSLException, URISyntaxException, ProtocolException {
+    public void testTextPassThrough() throws InterruptedException, URISyntaxException {
         CountDownLatch latch = new CountDownLatch(1);
         WebSocketTestClient webSocketClient = new WebSocketTestClient();
         webSocketClient.handshake();
@@ -86,8 +81,7 @@ public class WebSocketPassThroughTestCase {
     }
 
     @Test
-    public void testBinaryPassThrough()
-            throws InterruptedException, IOException, URISyntaxException {
+    public void testBinaryPassThrough() throws InterruptedException, URISyntaxException {
         CountDownLatch latch = new CountDownLatch(1);
         WebSocketTestClient webSocketClient = new WebSocketTestClient();
         webSocketClient.handshake();
@@ -102,7 +96,7 @@ public class WebSocketPassThroughTestCase {
     }
 
     @AfterClass
-    public void cleaUp() throws ServerConnectorException, InterruptedException {
+    public void cleaUp() {
         serverConnector.stop();
         remoteServer.stop();
     }

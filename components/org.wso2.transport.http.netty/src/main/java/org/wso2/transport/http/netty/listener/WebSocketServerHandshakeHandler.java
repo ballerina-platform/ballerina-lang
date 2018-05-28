@@ -45,6 +45,8 @@ import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
 import java.net.InetSocketAddress;
 
+import static org.wso2.transport.http.netty.common.Constants.HTTP_OBJECT_AGGREGATOR;
+
 /**
  * WebSocket handshake handler for carbon transports.
  */
@@ -52,6 +54,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerHandshakeHandler.class);
 
+    private static int maxContentLength = 8192;
     private final ServerConnectorFuture serverConnectorFuture;
     private final String interfaceId;
 
@@ -75,9 +78,10 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
                     }
                     ChannelPipeline pipeline = ctx.pipeline();
                     ChannelHandlerContext decoderCtx = pipeline.context(HttpRequestDecoder.class);
-                    String aggregatorName = "aggregate";
-                    pipeline.addAfter(decoderCtx.name(), aggregatorName, new HttpObjectAggregator(8192));
-                    pipeline.addAfter(aggregatorName, "handshake", new SimpleChannelInboundHandler<FullHttpRequest>() {
+                    pipeline.addAfter(decoderCtx.name(), HTTP_OBJECT_AGGREGATOR,
+                            new HttpObjectAggregator(maxContentLength));
+                    pipeline.addAfter(HTTP_OBJECT_AGGREGATOR, "handshake",
+                            new SimpleChannelInboundHandler<FullHttpRequest>() {
                         @Override
                         protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
                             // Remove ourselves and do the actual handshake

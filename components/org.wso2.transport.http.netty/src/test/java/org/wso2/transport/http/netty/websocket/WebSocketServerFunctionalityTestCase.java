@@ -26,18 +26,15 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnector;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.client.websocket.WebSocketTestClient;
 
 import java.io.IOException;
-import java.net.ProtocolException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
-import javax.net.ssl.SSLException;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -97,7 +94,7 @@ public class WebSocketServerFunctionalityTestCase {
     }
 
     @Test
-    public void testPingToTestClient() throws InterruptedException, IOException, URISyntaxException {
+    public void testPingToTestClient() throws InterruptedException, URISyntaxException {
         final String ping = "ping";
         CountDownLatch pingLatch = new CountDownLatch(1);
         WebSocketTestClient pingCheckClient = new WebSocketTestClient();
@@ -132,8 +129,7 @@ public class WebSocketServerFunctionalityTestCase {
     }
 
     @Test
-    public void testCloseForcefully()
-            throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
+    public void testForceFulConnectionClosure() throws InterruptedException, URISyntaxException {
         CountDownLatch clientLatch = new CountDownLatch(1);
         CountDownLatch serverLatch = new CountDownLatch(1);
         serverConnectorListener.setReturnFutureLatch(serverLatch);
@@ -150,8 +146,7 @@ public class WebSocketServerFunctionalityTestCase {
     }
 
     @Test
-    public void testSendAndWaitForCloseFrameEchoBack()
-            throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
+    public void testSendAndWaitForCloseFrameEchoBack() throws InterruptedException, URISyntaxException {
         int expectedStatusCode = 1001;
         String expectedReason = "Going away";
         CountDownLatch clientLatch = new CountDownLatch(1);
@@ -186,8 +181,7 @@ public class WebSocketServerFunctionalityTestCase {
 
     @Test(description = "As per spec typically the remote endpoint should echo back the same status code " +
             "sent by this endpoint. This tests the error for not receiving the same status code.")
-    public void testSendAndReceiveReceiveDifferentStatusCode()
-            throws InterruptedException, ProtocolException, SSLException, URISyntaxException {
+    public void testSendAndReceiveReceiveDifferentStatusCode() throws InterruptedException, URISyntaxException {
         int expectedStatusCode = 1001;
         String expectedReason = "Going away";
         CountDownLatch clientLatch = new CountDownLatch(1);
@@ -228,7 +222,7 @@ public class WebSocketServerFunctionalityTestCase {
     }
 
     @AfterClass
-    public void cleaUp() throws ServerConnectorException, InterruptedException {
+    public void cleaUp() {
         serverConnector.stop();
     }
 }

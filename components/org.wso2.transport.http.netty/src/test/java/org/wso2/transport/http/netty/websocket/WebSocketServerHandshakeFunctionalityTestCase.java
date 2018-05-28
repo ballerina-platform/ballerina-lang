@@ -115,7 +115,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
 
         WebSocketTestClient testClient = new WebSocketTestClient(null, headers);
         CountDownLatch handshakeCompleteCountDownLatch = new CountDownLatch(1);
-        listener.setHandshakeCompleCountDownLatch(handshakeCompleteCountDownLatch);
+        listener.setHandshakeCompleteCountDownLatch(handshakeCompleteCountDownLatch);
         testClient.handshake();
         handshakeCompleteCountDownLatch.await(countdownLatchTimeout, TimeUnit.SECONDS);
         for (String testMsg: testMsgArray) {

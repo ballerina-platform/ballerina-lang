@@ -104,11 +104,11 @@ public interface WebSocketConnection {
     ChannelFuture pong(ByteBuffer data);
 
     /**
-     * Initiate connection closure. Channel future will complete operation successfully if and only if it receives back
-     * a echoed WebSocket frame from the remote endpoint with the same status code which is written. Also it will not
-     * move to <b>done</b> state until it receives a WebSocket frame from the remote backend.
-     * If user does not need to wait for the echoed back WebSocket frame of the remote endpoint user need to handle
-     * it separately.
+     * Initiates connection closure. {@link ChannelFuture} will complete operation successfully if and only if it
+     * receives back a echoed close WebSocket frame from the remote endpoint with the same status code as was written.
+     * Also {@link ChannelFuture} will not reach operationComplete state until it receives a close WebSocket frame
+     * from the remote endpoint. If user does not need to wait for the echoed back WebSocket frame from the remote
+     * endpoint, user need to handle it separately.
      *
      * @param statusCode Status code to indicate the reason of closure
      *                   @see <a href="https://tools.ietf.org/html/rfc6455">WebSocket Protocol</a>

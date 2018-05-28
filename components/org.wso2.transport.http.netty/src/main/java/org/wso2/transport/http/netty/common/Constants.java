@@ -171,7 +171,7 @@ public final class Constants {
 
     public static final String LOCALHOST = "localhost";
 
-
+    public static final String HTTP_OBJECT_AGGREGATOR = "HTTP_OBJECT_AGGREGATOR";
     public static final String WEBSOCKET_PROTOCOL = "ws";
     public static final String WEBSOCKET_PROTOCOL_SECURED = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";

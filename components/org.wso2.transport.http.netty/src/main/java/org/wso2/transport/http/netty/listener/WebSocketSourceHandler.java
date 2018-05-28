@@ -227,10 +227,10 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
             connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
             closeFrameReceived = true;
         } else {
-            if (webSocketConnection.getSentCloseStatusCode() != closeWebSocketFrame.statusCode()) {
-                String errMsg =
-                        String.format("Expected status code %d but found %d in echoed close frame from remote endpoint",
-                                      webSocketConnection.getSentCloseStatusCode(), closeWebSocketFrame.statusCode());
+            if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
+                String errMsg = String.format(
+                        "Expected status code %d but found %d in echoed close frame from remote endpoint",
+                        webSocketConnection.getCloseInitiatedStatusCode(), closeWebSocketFrame.statusCode());
                 closePromise.setFailure(new IllegalStateException(errMsg));
                 return;
             }

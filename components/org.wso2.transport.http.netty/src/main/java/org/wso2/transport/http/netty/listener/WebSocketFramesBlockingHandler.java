@@ -39,12 +39,12 @@ public class WebSocketFramesBlockingHandler extends ChannelInboundHandlerAdapter
     }
 
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+    public void handlerAdded(ChannelHandlerContext ctx) {
         this.ctx = ctx;
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (readNext) {
             readNext = false;
             ctx.fireChannelRead(msg);

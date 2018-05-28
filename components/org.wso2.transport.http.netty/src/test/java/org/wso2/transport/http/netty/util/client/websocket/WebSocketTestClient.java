@@ -59,13 +59,14 @@ public class WebSocketTestClient {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
+    private static final int maxContentLength = 8192;
     private String url = String.format("ws://%s:%d/%s", TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT, "test");
     private final String subProtocol;
     private Map<String, String> customHeaders;
     private boolean handshakeSuccessful;
 
     private Channel channel;
-    private WebSocketTestClientFrameHandler handler;
+    private WebSocketTestClientFrameHandler clientFrameHandler;
 
     public WebSocketTestClient() {
         this(null, new HashMap<>());
@@ -85,15 +86,15 @@ public class WebSocketTestClient {
         if (!handshakeSuccessful) {
             throw new IllegalStateException("Cannot set countdown latch until handshake is done");
         }
-        handler.setCountDownLatch(countDownLatch);
+        clientFrameHandler.setCountDownLatch(countDownLatch);
     }
 
     public WebSocketClientHandshaker getHandshaker() {
-        return handler.getHandshaker();
+        return clientFrameHandler.getHandshaker();
     }
 
     public HttpResponse getHandshakeResponse() {
-        return handler.getHttpResponse();
+        return clientFrameHandler.getHttpResponse();
     }
 
     /**
@@ -110,7 +111,7 @@ public class WebSocketTestClient {
         try {
             WebSocketClientHandshaker clientHandshaker = WebSocketClientHandshakerFactory
                     .newHandshaker(uri, WebSocketVersion.V13, subProtocol, true, headers);
-            handler = new WebSocketTestClientFrameHandler(clientHandshaker);
+            clientFrameHandler = new WebSocketTestClientFrameHandler(clientHandshaker);
 
             Bootstrap clientBootstrap = new Bootstrap();
             clientBootstrap.group(eventLoopGroup).channel(NioSocketChannel.class)
@@ -119,13 +120,13 @@ public class WebSocketTestClient {
                         protected void initChannel(SocketChannel ch) {
                             ChannelPipeline pipeline = ch.pipeline();
                             pipeline.addLast(new HttpClientCodec(),
-                                      new HttpObjectAggregator(8192),
+                                      new HttpObjectAggregator(maxContentLength),
                                       WebSocketClientCompressionHandler.INSTANCE,
-                                      handler);
+                                    clientFrameHandler);
                         }
                     });
             channel = clientBootstrap.connect(uri.getHost(), uri.getPort()).sync().channel();
-            handshakeSuccessful = handler.handshakeFuture().sync().isSuccess();
+            handshakeSuccessful = clientFrameHandler.handshakeFuture().sync().isSuccess();
             logger.debug("WebSocket Handshake successful : " + handshakeSuccessful);
         } catch (Exception e) {
             logger.error("Handshake unsuccessful : " + e.getMessage());
@@ -190,14 +191,14 @@ public class WebSocketTestClient {
      * @return the text received from the server.
      */
     public String getTextReceived() {
-        return handler.getTextReceived();
+        return clientFrameHandler.getTextReceived();
     }
 
     /**
      * @return the binary data received from the server.
      */
     public ByteBuffer getBufferReceived() {
-        return handler.getBufferReceived();
+        return clientFrameHandler.getBufferReceived();
     }
 
     /**
@@ -215,7 +216,7 @@ public class WebSocketTestClient {
      * @return true if a ping is received.
      */
     public boolean isPingReceived() {
-        return handler.isPingReceived();
+        return clientFrameHandler.isPingReceived();
     }
 
     /**
@@ -224,7 +225,7 @@ public class WebSocketTestClient {
      * @return true if a ping is received.
      */
     public boolean isPongReceived() {
-        return handler.isPongReceived();
+        return clientFrameHandler.isPongReceived();
     }
 
     /**
@@ -233,7 +234,7 @@ public class WebSocketTestClient {
      * @return received close frame.
      */
     public CloseWebSocketFrame getReceivedCloseFrame() {
-        return handler.getReceiveCloseFrame();
+        return clientFrameHandler.getReceivedCloseFrame();
     }
 
     /**

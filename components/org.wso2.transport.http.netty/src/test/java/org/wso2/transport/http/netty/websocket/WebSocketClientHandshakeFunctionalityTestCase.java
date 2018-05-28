@@ -51,7 +51,6 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
     private DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
     private final String url = String.format("ws://%s:%d/%s", "localhost",
                                              TestUtil.REMOTE_WS_SERVER_PORT, "websocket");
-    private static final String PING = "ping";
     private final int latchWaitTimeInSeconds = 10;
     private WebSocketClientConnector clientConnector;
     private WebSocketRemoteServer remoteServer;

@@ -36,9 +36,9 @@ import java.util.concurrent.CountDownLatch;
 public class WebSocketServerHandshakeFunctionalityListener implements WebSocketConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerHandshakeFunctionalityListener.class);
+
     private WebSocketConnection currentWebSocketConnection;
     private CountDownLatch handshakeCompleteCountDownLatch;
-
 
     private static final String[] supportingSubProtocols = {"json", "xml"};
 
@@ -46,7 +46,7 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
         return currentWebSocketConnection;
     }
 
-    public void setHandshakeCompleCountDownLatch(CountDownLatch handshakeCompleteCountDownLatch) {
+    public void setHandshakeCompleteCountDownLatch(CountDownLatch handshakeCompleteCountDownLatch) {
         this.handshakeCompleteCountDownLatch = handshakeCompleteCountDownLatch;
     }
 

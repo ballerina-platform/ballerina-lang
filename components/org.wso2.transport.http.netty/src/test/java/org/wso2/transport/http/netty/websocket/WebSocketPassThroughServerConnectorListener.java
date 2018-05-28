@@ -42,9 +42,9 @@ import org.wso2.transport.http.netty.util.TestUtil;
 /**
  * Server Connector Listener to check WebSocket pass-through scenarios.
  */
-public class WebSocketPassthroughServerConnectorListener implements WebSocketConnectorListener {
+public class WebSocketPassThroughServerConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketPassthroughServerConnectorListener.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughServerConnectorListener.class);
 
     private final HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
 
@@ -55,7 +55,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
         WsClientConnectorConfig configuration = new WsClientConnectorConfig(remoteUrl);
         configuration.setAutoRead(false);
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
-        WebSocketConnectorListener clientConnectorListener = new WebSocketPassthroughClientConnectorListener();
+        WebSocketConnectorListener clientConnectorListener = new WebSocketPassThroughClientConnectorListener();
         clientConnector.connect(clientConnectorListener).setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection clientWebSocketConnection, HttpCarbonResponse response) {

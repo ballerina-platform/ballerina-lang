@@ -43,20 +43,19 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     private static final String PING = "ping";
     private static final String CLOSE = "close";
     private static final String CLOSE_WITHOUT_FRAME = "close-without-frame";
-    private static final String ECHO_DIFFERENT_FRAME = "echo-back-different-frame";
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         log.debug("channel is active");
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         log.debug("channel is inactive");
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
         if (frame instanceof TextWebSocketFrame) {
             String text = ((TextWebSocketFrame) frame).text();
             switch (text) {

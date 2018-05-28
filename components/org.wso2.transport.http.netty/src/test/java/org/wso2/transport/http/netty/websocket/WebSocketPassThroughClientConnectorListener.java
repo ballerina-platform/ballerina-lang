@@ -32,9 +32,9 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 /**
  * Client connector Listener to check WebSocket pass-through scenarios.
  */
-public class WebSocketPassthroughClientConnectorListener implements WebSocketConnectorListener {
+public class WebSocketPassThroughClientConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(WebSocketPassthroughClientConnectorListener.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughClientConnectorListener.class);
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {

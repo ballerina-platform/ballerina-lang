@@ -116,7 +116,7 @@ public class WebSocketClientFunctionalityTestCase {
         Assert.assertEquals(bufferReceived, bufferSent);
     }
 
-    @Test(description = "Test ping receive from the server.")
+    @Test(description = "Test ping received from the server.")
     public void testPingReceive() throws Throwable {
         CountDownLatch pingLatch = new CountDownLatch(1);
         WebSocketTestClientConnectorListener pingConnectorListener =
@@ -215,7 +215,7 @@ public class WebSocketClientFunctionalityTestCase {
     }
 
     @Test
-    public void testClientCloseConnectionForcefully() throws Throwable {
+    public void testForceFulConnectionClosure() throws Throwable {
         WebSocketConnection webSocketConnection =
                 getWebSocketConnectionSync(new WebSocketTestClientConnectorListener());
         CountDownLatch countDownLatch = new CountDownLatch(1);

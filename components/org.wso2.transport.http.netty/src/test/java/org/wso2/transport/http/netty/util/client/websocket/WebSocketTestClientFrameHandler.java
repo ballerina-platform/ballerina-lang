@@ -54,7 +54,7 @@ public class WebSocketTestClientFrameHandler extends SimpleChannelInboundHandler
     // Variables to store events received.
     private String textReceived;
     private ByteBuffer bufferReceived;
-    private CloseWebSocketFrame receiveCloseFrame;
+    private CloseWebSocketFrame receivedCloseFrame;
     private boolean isPingReceived;
     private boolean isPongReceived;
     private FullHttpResponse httpResponse;
@@ -134,7 +134,7 @@ public class WebSocketTestClientFrameHandler extends SimpleChannelInboundHandler
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
-            receiveCloseFrame = (CloseWebSocketFrame) frame.retain();
+            receivedCloseFrame = (CloseWebSocketFrame) frame.retain();
         }
         countDownLatch();
     }
@@ -160,9 +160,9 @@ public class WebSocketTestClientFrameHandler extends SimpleChannelInboundHandler
     /**
      * @return Received close frame.
      */
-    public CloseWebSocketFrame getReceiveCloseFrame() {
-         CloseWebSocketFrame tempFrame = receiveCloseFrame;
-         receiveCloseFrame = null;
+    public CloseWebSocketFrame getReceivedCloseFrame() {
+         CloseWebSocketFrame tempFrame = receivedCloseFrame;
+         receivedCloseFrame = null;
          return tempFrame;
     }
 
