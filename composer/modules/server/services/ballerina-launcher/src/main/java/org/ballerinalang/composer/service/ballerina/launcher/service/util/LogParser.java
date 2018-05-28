@@ -61,17 +61,20 @@ public class LogParser {
             logReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
             String line;
             while ((line = logReader.readLine()) != null) {
-                JsonElement jelement = new JsonParser().parse(line);
-                JsonObject jobject = jelement.getAsJsonObject();
-                String rawRecord;
                 try {
-                    rawRecord = jobject.get("record").getAsJsonObject().get("message").getAsString();
+                    JsonElement jelement = new JsonParser().parse(line);
+                    JsonObject jobject = jelement.getAsJsonObject();
+                    String rawRecord;
+                    try {
+                        rawRecord = jobject.get("record").getAsJsonObject().get("message").getAsString();
+                    } catch (Exception e) {
+                        rawRecord = jelement.getAsString();
+                    }
+                    jobject.addProperty("meta", parseLogLine(rawRecord));
+                    launchManagerInstance.pushLogToClient(jobject.toString());
                 } catch (Exception e) {
-                    rawRecord = jelement.getAsString();
+                    // do nothing
                 }
-                jobject.addProperty("meta", parseLogLine(rawRecord));
-
-                launchManagerInstance.pushLogToClient(jobject.toString());
             }
         } catch (Exception e) {
             stopListner();
