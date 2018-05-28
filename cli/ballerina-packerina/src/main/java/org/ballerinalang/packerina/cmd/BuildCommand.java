@@ -107,12 +107,12 @@ public class BuildCommand implements BLauncherCmd {
             } else if (Files.isDirectory(sourceRootPath)) {
                 if (Files.isDirectory(fullPath) && !RepoUtils.hasProjectRepo(sourceRootPath)) {
                     throw new BallerinaException("Do you mean to build the ballerina package as a project? If so run" +
-                                                         " ballerina init to make it a project with a .ballerina directory");
+                                                 " ballerina init to make it a project with a .ballerina directory");
                 }
                 BuilderUtils.compileAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline);
             } else {
                 throw new BallerinaException("Invalid Ballerina source path, it should either be a directory or a" +
-                                                     "file  with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
+                                             "file  with a \'" + BLangConstants.BLANG_SRC_FILE_SUFFIX + "\' extension");
             }
         }
         Runtime.getRuntime().exit(0);
