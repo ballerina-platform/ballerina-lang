@@ -314,8 +314,10 @@ public class CompiledPackageSymbolEnter {
         String pkgVersion = getUTF8CPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.loadedRepository);
+        //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
+        this.env.pkgSymbol.imports.add(importPackageSymbol);
     }
 
     private void defineFunction(DataInputStream dataInStream) throws IOException {

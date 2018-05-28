@@ -23,6 +23,9 @@ import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
 /**
@@ -31,6 +34,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PAC
 public class BPackageSymbol extends BTypeSymbol {
 
     public BInvokableSymbol initFunctionSymbol, startFunctionSymbol, stopFunctionSymbol;
+    public List<BPackageSymbol> imports = new ArrayList<>();
     public PackageFile packageFile;
     public CompiledPackage compiledPackage;
 
