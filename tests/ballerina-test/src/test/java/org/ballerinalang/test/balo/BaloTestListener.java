@@ -33,7 +33,7 @@ public class BaloTestListener implements ISuiteListener {
     @Override
     public void onStart(ISuite suite) {
         try {
-            BaloCreator.create(Paths.get("test-src", "balo", "test_project"), "foo");
+            BaloCreator.create(Paths.get("test-src", "balo", "test_project"), "foo", "testorg");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

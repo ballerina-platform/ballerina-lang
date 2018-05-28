@@ -336,17 +336,23 @@ public class CompiledPackageSymbolEnter {
             TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) this.env.constantPool[attachedToTypeRefCPIndex];
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeRefCPEntry.typeSigCPIndex];
             BType bType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
+
+            // Update the symbol by:
+            //     1) Appending the type name in front of the function name
+            //     2) Removing the first parameter from the param list
+            invokableSymbol = Symbols.createFunctionSymbol(flags,
+                    names.fromString(Symbols.getAttachedFuncSymbolName(bType.tsymbol.name.value, funcName)),
+                    this.env.pkgSymbol.pkgID, null, bType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+            List<BType> params = new ArrayList<>();
+            params.addAll(funcType.paramTypes);
+            // remove first parameter
+            params.remove(0);
+            funcType.paramTypes = params;
+
             if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.RECORD) {
-                invokableSymbol = Symbols.createFunctionSymbol(flags, names.fromString(Symbols
-                                .getAttachedFuncSymbolName(bType.tsymbol.name.value, funcName)),
-                        this.env.pkgSymbol.pkgID, null, bType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
-                List<BType> params = new ArrayList<>();
-                params.addAll(funcType.paramTypes);
-                //remove first parameter
-                params.remove(0);
-                funcType.paramTypes = params;
                 scopeToDefine = bType.tsymbol.scope;
             }
+
             if (bType.tag == TypeTags.OBJECT && Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
                 ((BObjectTypeSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
                         invokableSymbol, funcType);
@@ -994,19 +1000,19 @@ public class CompiledPackageSymbolEnter {
                     if (constraint == null) {
                         return symTable.jsonType;
                     }
-                    return new BJSONType(TypeTags.JSON, constraint, null);
+                    return new BJSONType(TypeTags.JSON, constraint, symTable.jsonType.tsymbol);
                 case 'D':
                     if (constraint == null) {
                         return symTable.tableType;
                     }
-                    return new BTableType(TypeTags.TABLE, constraint, null);
+                    return new BTableType(TypeTags.TABLE, constraint, symTable.tableType.tsymbol);
                 case 'M':
                     if (constraint == null || constraint == symTable.anyType) {
                         return symTable.mapType;
                     }
-                    return new BMapType(TypeTags.MAP, constraint, null);
+                    return new BMapType(TypeTags.MAP, constraint, symTable.mapType.tsymbol);
                 case 'H':
-                    return new BStreamType(TypeTags.STREAM, constraint, null);
+                    return new BStreamType(TypeTags.STREAM, constraint, symTable.streamType.tsymbol);
                 case 'G':
                 case 'T':
                 default:
