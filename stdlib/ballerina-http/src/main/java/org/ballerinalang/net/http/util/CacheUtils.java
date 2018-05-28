@@ -82,7 +82,6 @@ public class CacheUtils {
             TemporalAccessor lastModifiedTime = ZonedDateTime.parse(lastModified, DateTimeFormatter.RFC_1123_DATE_TIME);
             return ifModifiedSinceTime.equals(lastModifiedTime);
         } catch (DateTimeParseException e) {
-            log.error("Failed to parse the provided date/time string: " + e.getParsedString(), e);
             // If the Date header cannot be parsed, it is ignored.
             return false;
         }

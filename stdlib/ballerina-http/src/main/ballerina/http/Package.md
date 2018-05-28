@@ -16,7 +16,7 @@ The Ballerina circuit breaker supports tripping on HTTP error status codes and I
 
 `Client` endpoints support Certificate Revocation List (CRL) and Online Certificate Status Protocol (OCSP). They also support HTTP2, keep-alive, chunking, HTTP caching, and data compression/decompression. 
 
-See [Client Endpoint Example](https://ballerinalang.org/docs/by-example/http-client-connector), [Circuit Breaker Example](https://ballerinalang.org/docs/by-example/http-circuit-breaker), [HTTP Redirects Example](https://ballerinalang.org/docs/by-example/http-redirects)
+See [Client Endpoint Example](https://ballerina.io/learn/by-example/http-client-endpoint.html), [Circuit Breaker Example](https://ballerina.io/learn/by-example/http-circuit-breaker.html), [HTTP Redirects Example](https://ballerina.io/learn/by-example/http-redirects.html)
 
 ### Listener endpoints
 
@@ -25,13 +25,13 @@ A `Service` represents a collection of network-accessible entry points and can b
 When a `Service` receives a request, it is dispatched to the best-matched resource.
 
 
-See [Listener Endpoint Example](https://ballerinalang.org/docs/by-example/http-data-binding), [HTTP CORS Example](https://ballerinalang.org/docs/by-example/http-cors), [HTTP Failover Example](https://ballerinalang.org/docs/by-example/http-failover), [HTTP Load Balancer Example](https://ballerinalang.org/docs/by-example/http-load-balancer)
+See [Listener Endpoint Example](https://ballerina.io/learn/by-example/http-data-binding.html), [HTTP CORS Example](https://ballerina.io/learn/by-example/http-cors.html), [HTTP Failover Example](https://ballerina.io/learn/by-example/http-failover.html), [HTTP Load Balancer Example](https://ballerina.io/learn/by-example/http-load-balancer.html)
 
 `Listener` endpoints can be exposed via SSL. They support Mutual SSL, Hostname Verification, and Server Name Indication (SNI), and Application Layer Protocol Negotiation (ALPN). `Listener` endpoints also support OCSP Stapling, HTTP2, keep-alive, chunking, HTTP caching, and data compression/decompression. 
 
-See [Mutual SSL Example](https://ballerinalang.org/docs/by-example/mutual-ssl).
+See [Mutual SSL Example](https://ballerina.io/learn/by-example/mutual-ssl.html).
 
-See [Caching Example](https://ballerinalang.org/docs/by-example/caching), [HTTP Disable Chunking Example](https://ballerinalang.org/docs/by-example/http-disable-chunking).
+See [Caching Example](https://ballerina.io/learn/by-example/caching.html), [HTTP Disable Chunking Example](https://ballerina.io/learn/by-example/http-disable-chunking.html).
 
 ### WebSockets
 
@@ -67,9 +67,9 @@ Here `upgradeService` is a `WebSocketService`.
 
 
 
-See [WebSocket Basic Example](https://ballerinalang.org/docs/by-example/websocket-basic-sample), 
-[HTTP to WebSocket Upgrade Example](https://ballerinalang.org/docs/by-example/http-to-websocket-upgrade),
-[WebSocket Chat Application](https://ballerinalang.org/docs/by-example/websocket-chat-application)
+See [WebSocket Basic Example](https://ballerina.io/learn/by-example/websocket-basic-sample.html), 
+[HTTP to WebSocket Upgrade Example](https://ballerina.io/learn/by-example/http-to-websocket-upgrade.html),
+[WebSocket Chat Application](https://ballerina.io/learn/by-example/websocket-chat-application.html)
 
 ### Logging
 
@@ -85,7 +85,7 @@ This package supports two types of logs:
     
 To publish logs to a socket, both the host and port configurations must be provided.  
 
-See [HTTP Trace Logs Example](https://ballerinalang.org/docs/by-example/http-trace-logs)
+See [HTTP Access Logs Example](https://ballerina.io/learn/by-example/http-access-logs.html), [HTTP Trace Logs Example](https://ballerina.io/learn/by-example/http-trace-logs.html)
 
 ## Samples
 

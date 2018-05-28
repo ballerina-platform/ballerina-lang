@@ -36,6 +36,9 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
   BallerinaCompoundAssignmentStatement getCompoundAssignmentStatement();
 
   @Nullable
+  BallerinaDoneStatement getDoneStatement();
+
+  @Nullable
   BallerinaExpressionStmt getExpressionStmt();
 
   @Nullable
@@ -63,6 +66,9 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
   BallerinaPostIncrementStatement getPostIncrementStatement();
 
   @Nullable
+  BallerinaRetryStatement getRetryStatement();
+
+  @Nullable
   BallerinaReturnStatement getReturnStatement();
 
   @Nullable
@@ -88,9 +94,6 @@ public interface BallerinaStatement extends BallerinaCompositeElement {
 
   @Nullable
   BallerinaMatchStatement getMatchStatement();
-
-  @Nullable
-  BallerinaRetryStatement getRetryStatement();
 
   @Nullable
   BallerinaTupleDestructuringStatement getTupleDestructuringStatement();

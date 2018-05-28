@@ -31,6 +31,7 @@ public class DefaultValue {
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
+    private byte[] blobValue;
 
     public DefaultValue(int typeDescCPIndex, String typeDesc) {
         this.typeDescCPIndex = typeDescCPIndex;
@@ -83,5 +84,13 @@ public class DefaultValue {
 
     public void setBooleanValue(boolean booleanValue) {
         this.booleanValue = booleanValue;
+    }
+
+    public byte[] getBlobValue() {
+        return blobValue;
+    }
+
+    public void setBlobValue(byte[] blobValue) {
+        this.blobValue = blobValue;
     }
 }

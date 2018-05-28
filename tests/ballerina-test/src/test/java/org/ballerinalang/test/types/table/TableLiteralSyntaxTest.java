@@ -39,6 +39,18 @@ public class TableLiteralSyntaxTest {
     }
 
     @Test
+    public void testTableDefaultValueForLocalVariable() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableDefaultValueForLocalVariable");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test
+    public void testTableDefaultValueForGlobalVariable() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableDefaultValueForGlobalVariable");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
+    @Test
     public void testTableAddOnUnconstrainedTable() {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddOnUnconstrainedTable");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);

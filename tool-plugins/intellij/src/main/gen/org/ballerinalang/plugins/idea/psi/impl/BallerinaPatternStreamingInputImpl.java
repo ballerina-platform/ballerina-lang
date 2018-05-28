@@ -55,8 +55,8 @@ public class BallerinaPatternStreamingInputImpl extends BallerinaCompositeElemen
 
   @Override
   @Nullable
-  public BallerinaSimpleLiteral getSimpleLiteral() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaSimpleLiteral.class);
+  public BallerinaTimeScale getTimeScale() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTimeScale.class);
   }
 
   @Override
@@ -69,6 +69,12 @@ public class BallerinaPatternStreamingInputImpl extends BallerinaCompositeElemen
   @Nullable
   public PsiElement getComma() {
     return findChildByType(COMMA);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getDecimalIntegerLiteral() {
+    return findChildByType(DECIMAL_INTEGER_LITERAL);
   }
 
   @Override

@@ -27,9 +27,11 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
+import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.types.FiniteType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
@@ -49,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollec
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
@@ -65,7 +68,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +82,16 @@ public class CommonUtil {
 
     private static final String OPEN_BRACKET_KEY_WORD = "(";
     
-    private static final String LINE_SEPARATOR = System.lineSeparator();
+    public static final String LINE_SEPARATOR = System.lineSeparator();
+
+    public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
+
+    public static final boolean LS_DEBUG_ENABLED;
+
+    static {
+        String debugLogStr = System.getProperty("ballerina.debugLog");
+        LS_DEBUG_ENABLED =  debugLogStr != null && Boolean.parseBoolean(debugLogStr);
+    }
 
     /**
      * Get the package URI to the given package name.
@@ -287,7 +299,7 @@ public class CommonUtil {
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
         LSDocument document = new LSDocument(identifier.getUri());
         String fileContent = docManager.getFileContent(getPath(document));
-        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR);
+        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
         if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
             String lineContent = splitedFileContent[startPosition.getLine()];
             List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
@@ -405,6 +417,9 @@ public class CommonUtil {
      */
     public static String getDefaultValueForType(BType bType) {
         String typeString;
+        if (bType == null) {
+            return "()";
+        }
         switch (bType.getKind()) {
             case INT:
                 typeString = Integer.toString(0);
@@ -427,7 +442,10 @@ public class CommonUtil {
                 typeString = "{}";
                 break;
             case FINITE:
-                typeString = bType.toString();
+                List<String> types = new ArrayList<>();
+                ((FiniteType) bType).getValueSpace().forEach(typeEntry -> types.add(typeEntry.toString()));
+                types.sort(Comparator.naturalOrder());
+                typeString = String.join("|", types);
                 break;
             case UNION:
                 String[] typeNameComps = bType.toString().split(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
@@ -435,23 +453,11 @@ public class CommonUtil {
                 break;
             case STREAM:
             default:
-                typeString = "null";
+                typeString = "()";
                 break;
         }
         return typeString;
     }
-
-    /**
-     * Get the base indentation of a given node.
-     *
-     * @param token Token to be evaluated
-     * @return {@link String}   Calculated base indentation
-     */
-    public static String getBaseIndentationFromNode(Token token) {
-        int tokenCharPosition = token.getCharPositionInLine();
-        return String.join("", Collections.nCopies(tokenCharPosition, " "));
-    }
-
 
     /**
      * Get the variable symbol info by the name.
@@ -460,7 +466,7 @@ public class CommonUtil {
      * @param symbols list of symbol info
      * @return {@link SymbolInfo}   Symbol Info extracted
      */
-    public static SymbolInfo getVariableByName(String name, List<SymbolInfo> symbols) {
+    private static SymbolInfo getVariableByName(String name, List<SymbolInfo> symbols) {
         return symbols.stream()
                 .filter(symbolInfo -> symbolInfo.getSymbolName().equals(name))
                 .findFirst()
@@ -598,6 +604,83 @@ public class CommonUtil {
     public static boolean listContainsPackage(String pkg, List<BallerinaPackage> pkgList) {
         return pkgList.stream().anyMatch(ballerinaPackage -> ballerinaPackage.getFullPackageNameAlias().equals(pkg));
     }
+
+    /**
+     * Get completion items list for struct fields.
+     * 
+     * @param structFields      List of struct fields
+     * @return {@link List}     List of completion items for the struct fields
+     */
+    public static List<CompletionItem> getStructFieldPopulateCompletionItems(List<BStructType.BStructField>
+                                                                                     structFields) {
+        List<CompletionItem> completionItems = new ArrayList<>();
+        structFields.forEach(bStructField -> {
+            StringBuilder insertText = new StringBuilder(bStructField.getName().getValue() + ": ");
+            if (bStructField.getType() instanceof BStructType) {
+                insertText.append("{").append(LINE_SEPARATOR).append("\t${1}").append(LINE_SEPARATOR).append("}");
+            } else {
+                insertText.append("${1:").append(getDefaultValueForType(bStructField.getType())).append("}");
+            }
+            CompletionItem fieldItem = new CompletionItem();
+            fieldItem.setInsertText(insertText.toString());
+            fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
+            fieldItem.setLabel(bStructField.getName().getValue());
+            fieldItem.setDetail(ItemResolverConstants.FIELD_TYPE);
+            fieldItem.setSortText(Priority.PRIORITY120.toString());
+            completionItems.add(fieldItem);
+        });
+
+        return completionItems;
+    }
+
+    /**
+     * Get the completion item to fill all the struct fields.
+     * @param fields                    List of struct fields
+     * @return {@link CompletionItem}   Completion Item to fill all the options
+     */
+    public static CompletionItem getFillAllStructFieldsItem(List<BStructType.BStructField> fields) {
+        List<String> fieldEntries = new ArrayList<>();
+
+        fields.forEach(bStructField -> {
+            String defaultFieldEntry = bStructField.getName().getValue()
+                    + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + " " + getDefaultValueForType(bStructField.getType());
+            fieldEntries.add(defaultFieldEntry);
+        });
+
+        String insertText = String.join(("," + LINE_SEPARATOR), fieldEntries);
+        String label = "Add All Attributes";
+
+        CompletionItem completionItem = new CompletionItem();
+        completionItem.setLabel(label);
+        completionItem.setInsertText(insertText);
+        completionItem.setSortText(Priority.PRIORITY110.toString());
+
+        return completionItem;
+    }
+
+    /**
+     * Get the actions defined over and endpoint.
+     * @param bEndpointVarSymbol    Endpoint variable symbol to evaluate
+     * @return {@link List}         List of extracted actions as Symbol Info
+     */
+    public static List<SymbolInfo> getActionsOfEndpoint(BEndpointVarSymbol bEndpointVarSymbol) {
+        List<SymbolInfo> endpointActions = new ArrayList<>();
+        BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
+        BType boundType = ((BInvokableType) getClientFuncType).retType;
+        boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
+            if (scopeEntry.symbol instanceof BInvokableSymbol
+                    && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
+                String[] nameComponents = name.toString().split("\\.");
+                SymbolInfo actionFunctionSymbol =
+                        new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
+                endpointActions.add(actionFunctionSymbol);
+            }
+        });
+
+        return endpointActions;
+    }
+
+    // Private Methods
 
     private static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {
         BType bType = variable.getScopeEntry().symbol.getType();
@@ -745,27 +828,5 @@ public class CommonUtil {
                 });
 
         return returnMap;
-    }
-
-    /**
-     * Get the actions defined over and endpoint.
-     * @param bEndpointVarSymbol    Endpoint variable symbol to evaluate
-     * @return {@link List}         List of extracted actions as Symbol Info
-     */
-    public static List<SymbolInfo> getActionsOfEndpoint(BEndpointVarSymbol bEndpointVarSymbol) {
-        List<SymbolInfo> endpointActions = new ArrayList<>();
-        BType getClientFuncType = bEndpointVarSymbol.getClientFunction.type;
-        BType boundType = ((BInvokableType) getClientFuncType).retType;
-        boundType.tsymbol.scope.entries.forEach((name, scopeEntry) -> {
-            if (scopeEntry.symbol instanceof BInvokableSymbol
-                    && !scopeEntry.symbol.getName().getValue().equals(UtilSymbolKeys.NEW_KEYWORD_KEY)) {
-                String[] nameComponents = name.toString().split("\\.");
-                SymbolInfo actionFunctionSymbol =
-                        new SymbolInfo(nameComponents[nameComponents.length - 1], scopeEntry);
-                endpointActions.add(actionFunctionSymbol);
-            }
-        });
-        
-        return endpointActions;
     }
 }

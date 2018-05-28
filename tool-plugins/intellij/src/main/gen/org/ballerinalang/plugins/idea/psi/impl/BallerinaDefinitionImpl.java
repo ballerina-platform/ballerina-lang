@@ -42,12 +42,6 @@ public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl imple
   }
 
   @Override
-  @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
-  }
-
-  @Override
   @Nullable
   public BallerinaAnnotationDefinition getAnnotationDefinition() {
     return PsiTreeUtil.getChildOfType(this, BallerinaAnnotationDefinition.class);
@@ -81,18 +75,6 @@ public class BallerinaDefinitionImpl extends BallerinaCompositeElementImpl imple
   @Nullable
   public BallerinaTypeDefinition getTypeDefinition() {
     return PsiTreeUtil.getChildOfType(this, BallerinaTypeDefinition.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaDeprecatedAttachment getDeprecatedAttachment() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDeprecatedAttachment.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaDocumentationAttachment getDocumentationAttachment() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationAttachment.class);
   }
 
 }

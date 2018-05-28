@@ -200,6 +200,7 @@ import org.wso2.ballerinalang.programfile.attributes.ParamDefaultValueAttributeI
 import org.wso2.ballerinalang.programfile.attributes.ParameterAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.TaintTableAttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.VarTypeCountAttributeInfo;
+import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPool;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -605,6 +606,14 @@ public class CodeGenerator extends BLangNodeVisitor {
                 }
                 emit(opcode, regIndex);
                 break;
+
+            case TypeTags.BLOB:
+                byte[] blobValue = (byte[]) literalExpr.value;
+                BlobCPEntry blobCPEntry = new BlobCPEntry(blobValue);
+                int blobCPIndex = currentPkgInfo.addCPEntry(blobCPEntry);
+                emit(InstructionCodes.LCONST, getOperand(blobCPIndex), regIndex);
+                break;
+
             case TypeTags.NIL:
                 emit(InstructionCodes.RCONST_NULL, regIndex);
         }
@@ -764,7 +773,6 @@ public class CodeGenerator extends BLangNodeVisitor {
     public void visit(BLangTableLiteral tableLiteral) {
         genNode(tableLiteral.configurationExpr, this.env);
         Operand varRefRegIndex = tableLiteral.configurationExpr.regIndex;
-
         tableLiteral.regIndex = calcAndGetExprRegIndex(tableLiteral);
         Operand typeCPIndex = getTypeCPIndex(tableLiteral.type);
         emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex, varRefRegIndex);
@@ -1745,6 +1753,10 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
             case TypeTags.BOOLEAN:
                 defaultValue.booleanValue = (Boolean) literalExpr.value;
+                break;
+            case TypeTags.BLOB:
+                defaultValue.blobValue = (byte[]) literalExpr.value;
+                defaultValue.valueCPIndex = currentPkgInfo.addCPEntry(new BlobCPEntry(defaultValue.blobValue));
                 break;
             case TypeTags.NIL:
                 break;

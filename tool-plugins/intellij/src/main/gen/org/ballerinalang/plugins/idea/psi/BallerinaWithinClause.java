@@ -24,7 +24,10 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaWithinClause extends BallerinaCompositeElement {
 
   @Nullable
-  BallerinaExpression getExpression();
+  BallerinaTimeScale getTimeScale();
+
+  @Nullable
+  PsiElement getDecimalIntegerLiteral();
 
   @NotNull
   PsiElement getWithin();

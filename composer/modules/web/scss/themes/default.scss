@@ -1,6 +1,14 @@
 $brand-primary: #2fb8b0;
+$brand-primary-hover: #30a9a2;
 $primaryBackgroundColor: #e7eaeb;
+$primaryBackgroundColorHover: #e7eaeb;
 $secondary-color:#575a5e;
+$secondary-color-hover:#616467;
+
+$white:#fff;
+$diagram-background: #e7eaeb;
+$text-color:#333;
+$statementTextColor:#777;
 
 $header-bgcolor: #1a1b1d;
 $header-brand-color: #fff;
@@ -15,6 +23,11 @@ $menubar-link-hover-bgcolor: #16191d;
 $menubar-file-dropdown-menu-bgcolor: #565656;
 $menubar-file-dropdown-menu-link-hover-color: $menubar-file-dropdown-menu-bgcolor;
 $menubar-file-dropdown-menu-link-hover-bgcolor: #d4d4d4;
+
+$rc-tabs-tab-hover:#bebebe;
+$rc-tabs-tab-color:#6D6D6D;
+
+$menu-pop-content-bgcolor:#f8f8f8;
 
 $breadcrumb-bgcolor: #3C3F41;
 $breadcrumb-active-color: #fff;

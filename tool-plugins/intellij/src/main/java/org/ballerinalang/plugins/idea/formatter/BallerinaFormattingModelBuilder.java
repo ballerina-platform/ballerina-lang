@@ -154,7 +154,7 @@ import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ON;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ONABORT;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ONCOMMIT;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ONRETRY;
-import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ONRETRY_CLAUSE;
+import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ON_RETRY_CLAUSE;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.OR;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.ORDER;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.OUTER;
@@ -202,6 +202,7 @@ import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TABLE;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.THROW;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TIMEOUT;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TRANSACTION;
+import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TRANSACTION_PROPERTY_INIT_STATEMENT_LIST;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TRIGGER_WORKER;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TRY;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.TUPLE_TYPE_NAME;
@@ -435,7 +436,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .before(ELSE_IF_CLAUSE).spaceIf(true)
                 .before(ELSE_CLAUSE).spaceIf(true)
 
-                .before(ONRETRY_CLAUSE).spaceIf(true)
+                .before(ON_RETRY_CLAUSE).spaceIf(true)
 
                 .betweenInside(DOT, MUL, FIELD).spaceIf(false)
 
@@ -469,6 +470,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(IDENTIFIER, ENDPOINT_INITIALIZATION).spaceIf(true)
 
                 .around(ARRAY_TYPE_NAME).spaceIf(false)
+
+                .around(TRANSACTION_PROPERTY_INIT_STATEMENT_LIST).spaceIf(true)
 
                 // Streaming
                 .before(WHERE_CLAUSE).spaceIf(true)

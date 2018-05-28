@@ -49,8 +49,8 @@ public class BallerinaStreamingActionImpl extends BallerinaCompositeElementImpl 
 
   @Override
   @Nullable
-  public BallerinaFormalParameterList getFormalParameterList() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaFormalParameterList.class);
+  public BallerinaParameter getParameter() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaParameter.class);
   }
 
   @Override
