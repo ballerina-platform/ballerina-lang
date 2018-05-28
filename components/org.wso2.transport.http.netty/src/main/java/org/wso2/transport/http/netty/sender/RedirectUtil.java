@@ -51,6 +51,7 @@ public class RedirectUtil {
      * @param redirectionMethod of the redirect request
      * @param statusCode of the request
      * @param ctx of the request
+     * @param headers list of headers
      * @return HTTPCarbonMessage with request properties
      * @throws MalformedURLException when the url is incorrect
      */

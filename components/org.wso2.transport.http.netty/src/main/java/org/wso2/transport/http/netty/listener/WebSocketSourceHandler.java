@@ -76,6 +76,7 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
+     * @param blockingHandler {@link WebSocketFramesBlockingHandler} to be used when creating the WebSocket connection.
      * @param isSecured       indication of whether the connection is secured or not.
      * @param httpRequest     {@link FullHttpRequest} which contains the details of WebSocket Upgrade.
      * @param ctx             {@link ChannelHandlerContext} of WebSocket connection.
