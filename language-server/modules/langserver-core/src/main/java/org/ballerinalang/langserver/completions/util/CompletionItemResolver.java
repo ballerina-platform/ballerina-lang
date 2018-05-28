@@ -23,6 +23,7 @@ import org.ballerinalang.langserver.completions.resolvers.BLangEndpointContextRe
 import org.ballerinalang.langserver.completions.resolvers.BLangMatchContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangMatchExpressionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BLangRecordContextResolver;
+import org.ballerinalang.langserver.completions.resolvers.BLangRecordLiteralContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BlockStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ConnectorActionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ConnectorDefinitionContextResolver;
@@ -63,6 +64,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 
@@ -111,6 +113,8 @@ public enum CompletionItemResolver {
             new FunctionContextResolver()),
     OBJECT_TYPE_CONTEXT(BLangObject.class,
             new ObjectTypeContextResolver()),
+    RECORD_LITERAL_CONTEXT(BLangRecordLiteral.class,
+            new BLangRecordLiteralContextResolver()),
     MATCH_STATEMENT_CONTEXT(BLangMatch.class,
             new BLangMatchContextResolver()),
     MATCH_EXPRESSION_CONTEXT(BLangMatchExpression.class,
