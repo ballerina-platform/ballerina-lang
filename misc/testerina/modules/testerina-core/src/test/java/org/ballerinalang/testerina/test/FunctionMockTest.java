@@ -43,7 +43,7 @@ public class FunctionMockTest {
     @BeforeClass
     public void createDir() throws IOException {
         Path filePath = Paths.get(sourceRoot + "/.ballerina");
-        Files.deleteIfExists(filePath);
+        Utils.cleanUpDir(filePath);
         Files.createDirectory(filePath);
     }
 
