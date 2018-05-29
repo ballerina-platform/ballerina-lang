@@ -25,7 +25,7 @@ import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.stubs.StubOutputStream;
 import com.intellij.psi.tree.IStubFileElementType;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.stubs.BallerinaFileStub;
+import io.ballerina.plugins.idea.stubs.BallerinaFileStub;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

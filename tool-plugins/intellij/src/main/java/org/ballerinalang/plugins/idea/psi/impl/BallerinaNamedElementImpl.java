@@ -43,7 +43,7 @@ import org.ballerinalang.plugins.idea.psi.BallerinaNamedElement;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
-import org.ballerinalang.plugins.idea.stubs.BallerinaNamedStub;
+import io.ballerina.plugins.idea.stubs.BallerinaNamedStub;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

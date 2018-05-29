@@ -39,7 +39,7 @@ import io.ballerina.plugins.idea.BallerinaFileType;
 import io.ballerina.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaElementFactory;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
-import org.ballerinalang.plugins.idea.stubs.BallerinaFileStub;
+import io.ballerina.plugins.idea.stubs.BallerinaFileStub;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

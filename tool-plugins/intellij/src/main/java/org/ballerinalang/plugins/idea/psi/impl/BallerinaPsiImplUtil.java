@@ -123,7 +123,7 @@ import org.ballerinalang.plugins.idea.psi.reference.BallerinaPackageNameReferenc
 import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
-import org.ballerinalang.plugins.idea.stubs.BallerinaPackageVersionStub;
+import io.ballerina.plugins.idea.stubs.BallerinaPackageVersionStub;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

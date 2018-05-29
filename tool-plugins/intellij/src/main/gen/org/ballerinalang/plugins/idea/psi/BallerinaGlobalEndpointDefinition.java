@@ -22,7 +22,7 @@ import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaTopLevelDefinition;
 import com.intellij.psi.StubBasedPsiElement;
-import org.ballerinalang.plugins.idea.stubs.BallerinaGlobalEndpointDefinitionStub;
+import io.ballerina.plugins.idea.stubs.BallerinaGlobalEndpointDefinitionStub;
 
 public interface BallerinaGlobalEndpointDefinition extends BallerinaNamedElement, BallerinaTopLevelDefinition, StubBasedPsiElement<BallerinaGlobalEndpointDefinitionStub> {
 

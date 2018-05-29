@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 {
@@ -131,7 +130,7 @@
     extends("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "org.ballerinalang.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
 
     // Each stubbed element should have this element type factory.
-    elementTypeFactory("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "org.ballerinalang.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
+    elementTypeFactory("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
 
     // Each stub which is not a named definition should extend this class.
 //    extends("PackageDeclaration") = "org.ballerinalang.plugins.idea.psi.impl.BallerinaStubbedElementImpl<?>"
@@ -143,7 +142,7 @@
     // Each named element should extend this class.
     extends("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "org.ballerinalang.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
     // Each stubbed element should have this element type factory.
-    elementTypeFactory("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "org.ballerinalang.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
+    elementTypeFactory("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
 
     implements("NameReference") = "org.ballerinalang.plugins.idea.psi.BallerinaReferenceExpressionBase"
 
@@ -168,12 +167,12 @@ CompletePackageName ::= PackageName (DOT PackageName)* {
 }
 
 PackageName ::= identifier {
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaPackageNameStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageNameStub"
 }
 
 PackageVersion ::= version identifier {
     pin=1
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaPackageVersionStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageVersionStub"
 }
 
 // Todo - Cache
@@ -183,11 +182,11 @@ ImportDeclaration ::= import (OrgName DIV)? CompletePackageName PackageVersion? 
 }
 
 OrgName ::= identifier {
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaOrgNameStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaOrgNameStub"
 }
 
 Alias ::= as identifier {
-    pin=1 stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaAliasStub"
+    pin=1 stubClass="io.ballerina.plugins.idea.stubs.BallerinaAliasStub"
 }
 
 // Note - Global variable definition should be the first definition since it can contain identifier as type.
@@ -227,7 +226,7 @@ NonEmptyBlock ::= Statement+ {elementType=Block}
 
 // Todo - Need getIdentifier?
 FunctionDefinition ::= (public)? (native)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
-    pin=3 methods=[getIdentifier getName] stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
+    pin=3 methods=[getIdentifier getName] stubClass="io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
 }
 private FunctionWithReceiver ::=  (LT Parameter GT)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
 private FunctionWithoutReceiver ::= AttachedObject DOUBLE_COLON CallableUnitSignature CallableUnitBody {pin=2}
@@ -242,7 +241,7 @@ CallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList
 TypeDefinition ::= (public)? type identifier FiniteType SEMICOLON {
     pin=2
     methods=[getName]
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaTypeDefinitionStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaTypeDefinitionStub"
 }
 
 ObjectBody ::= PublicObjectFields? PrivateObjectFields? ObjectInitializer? ObjectFunctions?
@@ -279,14 +278,14 @@ ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParamet
 
 AnnotationDefinition ::= (public)? annotation (LT AttachmentPoint (COMMA AttachmentPoint)* GT)? identifier UserDefineTypeName? SEMICOLON {
     pin=2
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaAnnotationDefinitionStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaAnnotationDefinitionStub"
 }
 
 //private AttachmentPointsRecover ::= !(GT | Identifier | SEMICOLON)
 
 GlobalVariableDefinition ::= (public)? TypeName identifier (ASSIGN  Expression)? SEMICOLON {
     pin=2
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub"
 }
 
 // Todo - Need to update the service?
@@ -298,7 +297,7 @@ AttachmentPoint ::= service | resource | function | object | type | endpoint | T
 // Todo - Rename as declaration
 WorkerDefinition ::= worker identifier WorkerBody {
     pin=1
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaWorkerDefinitionStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaWorkerDefinitionStub"
     recoverWhile=WorkerDefinitionRecover
 }
 
@@ -308,12 +307,12 @@ WorkerBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
 GlobalEndpointDefinition ::= public? EndpointDefinition {
     pin=2
-    methods=[getIdentifier] stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaGlobalEndpointDefinitionStub"
+    methods=[getIdentifier] stubClass="io.ballerina.plugins.idea.stubs.BallerinaGlobalEndpointDefinitionStub"
 }
 
 EndpointDefinition ::= AnnotationAttachment* endpoint EndpointType identifier EndpointInitialization? SEMICOLON {
     pin=2
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaEndpointDefinitionStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaEndpointDefinitionStub"
 }
 
 EndpointType ::= NameReference
@@ -437,7 +436,7 @@ VariableDefinitionStatement ::= TypeName identifier VariableAssignment? SEMICOLO
     pin=2
     // Note - Resource definition cannot be identified correctly with this pin.
     methods=[getType]
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaVariableDefinitionStatementStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaVariableDefinitionStatementStub"
 }
 
 private VariableAssignment ::= ASSIGN Expression {pin=1}
@@ -624,7 +623,7 @@ NamespaceDeclarationStatement ::= NamespaceDeclaration /*{pin=1}*/
 
 NamespaceDeclaration ::= xmlns QUOTED_STRING_LITERAL (as identifier)? SEMICOLON {
     pin=1
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaNamespaceDeclarationStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaNamespaceDeclarationStub"
 }
 
 Expression
@@ -711,7 +710,7 @@ MatchExpressionPatternClause ::= TypeName identifier? EQUAL_GT Expression {pin=1
 
 NameReference ::= <<isPackageExpected>> PackageReference identifier | identifier {
     methods=[/*getReference*/ getQualifier /*resolve*/ resolveType isInLocalPackage]
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaNameReferenceStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaNameReferenceStub"
 //    extends=test
 //    elementType=test
 }
@@ -723,7 +722,7 @@ functionNameReference ::= <<isPackageExpected>> PackageReference? AnyIdentifierN
 PackageReference ::= identifier COLON {
     pin=2
     methods=[getReference]
-    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaPackageReferenceStub"
+    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageReferenceStub"
 }
 
 ReturnParameter ::= returns ReturnType {pin=1}

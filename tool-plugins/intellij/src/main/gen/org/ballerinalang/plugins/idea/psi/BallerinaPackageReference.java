@@ -21,7 +21,7 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.StubBasedPsiElement;
-import org.ballerinalang.plugins.idea.stubs.BallerinaPackageReferenceStub;
+import io.ballerina.plugins.idea.stubs.BallerinaPackageReferenceStub;
 import com.intellij.psi.PsiReference;
 
 public interface BallerinaPackageReference extends BallerinaNamedElement, StubBasedPsiElement<BallerinaPackageReferenceStub> {

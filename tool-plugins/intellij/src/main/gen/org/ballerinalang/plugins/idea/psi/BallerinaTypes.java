@@ -20,7 +20,7 @@ package org.ballerinalang.plugins.idea.psi;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.PsiElement;
 import com.intellij.lang.ASTNode;
-import org.ballerinalang.plugins.idea.stubs.factory.BallerinaElementTypeFactory;
+import io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory;
 import org.ballerinalang.plugins.idea.psi.impl.*;
 
 public interface BallerinaTypes {

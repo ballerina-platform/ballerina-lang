@@ -24,7 +24,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiElementVisitor;
 import com.intellij.psi.util.PsiTreeUtil;
 import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.*;
-import org.ballerinalang.plugins.idea.stubs.BallerinaPackageVersionStub;
+import io.ballerina.plugins.idea.stubs.BallerinaPackageVersionStub;
 import org.ballerinalang.plugins.idea.psi.*;
 import com.intellij.psi.stubs.IStubElementType;
 
