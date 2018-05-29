@@ -21,7 +21,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.BallerinaAssignmentStatement;
 import org.ballerinalang.plugins.idea.psi.BallerinaBlock;
 import org.ballerinalang.plugins.idea.psi.BallerinaCallableUnitSignature;

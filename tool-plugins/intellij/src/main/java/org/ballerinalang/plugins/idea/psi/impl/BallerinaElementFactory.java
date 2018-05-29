@@ -23,7 +23,7 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.impl.PsiParserFacadeImpl;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
-import org.ballerinalang.plugins.idea.BallerinaLanguage;
+import io.ballerina.plugins.idea.BallerinaLanguage;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
 import org.ballerinalang.plugins.idea.psi.BallerinaImportDeclaration;

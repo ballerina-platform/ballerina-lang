@@ -33,7 +33,7 @@ import com.intellij.ui.RowIcon;
 import com.intellij.usageView.UsageViewUtil;
 import com.intellij.util.IncorrectOperationException;
 import com.intellij.util.PlatformIcons;
-import org.ballerinalang.plugins.idea.BallerinaIcons;
+import io.ballerina.plugins.idea.BallerinaIcons;
 import org.ballerinalang.plugins.idea.psi.BallerinaCompositeElement;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;

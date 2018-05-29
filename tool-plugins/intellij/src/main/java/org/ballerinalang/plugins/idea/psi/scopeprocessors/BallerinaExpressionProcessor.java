@@ -20,7 +20,7 @@ import com.intellij.codeInsight.completion.CompletionResultSet;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.ResolveState;
-import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.BallerinaMatchExpressionPatternClause;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypeName;
 import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;

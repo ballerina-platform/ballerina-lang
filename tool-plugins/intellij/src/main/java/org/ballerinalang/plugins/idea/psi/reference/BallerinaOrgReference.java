@@ -20,9 +20,9 @@ package org.ballerinalang.plugins.idea.psi.reference;
 import com.intellij.codeInsight.lookup.LookupElement;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
-import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
+import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
-import org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker;
+import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

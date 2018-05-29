@@ -31,11 +31,11 @@ import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReferen
 import com.intellij.psi.impl.source.resolve.reference.impl.providers.FileReferenceSet;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.containers.ContainerUtil;
-import org.ballerinalang.plugins.idea.BallerinaConstants;
+import io.ballerina.plugins.idea.BallerinaConstants;
 import org.ballerinalang.plugins.idea.psi.BallerinaImportDeclaration;
 import org.ballerinalang.plugins.idea.psi.BallerinaOrgName;
-import org.ballerinalang.plugins.idea.sdk.BallerinaPathModificationTracker;
-import org.ballerinalang.plugins.idea.sdk.BallerinaSdkUtil;
+import io.ballerina.plugins.idea.sdk.BallerinaPathModificationTracker;
+import io.ballerina.plugins.idea.sdk.BallerinaSdkUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
