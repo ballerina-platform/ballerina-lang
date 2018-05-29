@@ -56,6 +56,9 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.wso2.transport.http.netty.listener.InboundState.ENTITY_BODY_RECEIVED;
+import static org.wso2.transport.http.netty.listener.InboundState.RECEIVING_ENTITY_BODY;
+
 /**
  * A Class responsible for handle  incoming message through netty inbound pipeline.
  */
@@ -107,8 +110,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.ctx = ctx;
         this.remoteAddress = ctx.channel().remoteAddress();
 
-        sourceHandlerErrorHandler = new
-                SourceHandlerErrorHandler(inboundRequestMsg, serverConnectorFuture, outboundRespFuture);
+        sourceHandlerErrorHandler = new SourceHandlerErrorHandler(serverConnectorFuture);
     }
 
     @Override
@@ -116,7 +118,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         // Stop the connector timer
         ctx.close();
         if (!idleTimeout) {
-            sourceHandlerErrorHandler.handleErrorCloseScenario();
+            sourceHandlerErrorHandler.handleErrorCloseScenario(inboundRequestMsg, outboundRespFuture);
         }
         closeTargetChannels();
 
@@ -147,12 +149,10 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (httpRequest.decoderResult().isFailure()) {
                 log.warn(httpRequest.decoderResult().cause().getMessage());
             }
-
-            sourceHandlerErrorHandler.setState(InboundState.HEADERS_RECEIVED);
         } else {
             if (inboundRequestMsg != null) {
                 if (msg instanceof HttpContent) {
-                    sourceHandlerErrorHandler.setState(InboundState.RECEIVING_ENTITY_BODY);
+                    sourceHandlerErrorHandler.setState(RECEIVING_ENTITY_BODY);
 
                     HttpContent httpContent = (HttpContent) msg;
                     inboundRequestMsg.addHttpContent(httpContent);
@@ -166,7 +166,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                         outboundRespFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
                         inboundRequestMsg = null;
 
-                        sourceHandlerErrorHandler.setState(InboundState.ENTITY_BODY_RECEIVED);
+                        sourceHandlerErrorHandler.setState(ENTITY_BODY_RECEIVED);
                     }
                 }
             } else {
@@ -256,7 +256,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeout = true;
             this.channelInactive(ctx);
-            this.sourceHandlerErrorHandler.handleIdleErrorScenario();
+            this.sourceHandlerErrorHandler.handleIdleErrorScenario(inboundRequestMsg, outboundRespFuture);
 
             log.debug("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
         } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {

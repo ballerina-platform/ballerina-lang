@@ -23,7 +23,6 @@ package org.wso2.transport.http.netty.listener;
  */
 enum InboundState {
     CONNECTED,
-    HEADERS_RECEIVED,
     RECEIVING_ENTITY_BODY,
     ENTITY_BODY_RECEIVED
 }

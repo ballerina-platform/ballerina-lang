@@ -31,6 +31,14 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION;
+import static org.wso2.transport.http.netty.listener.InboundState.CONNECTED;
+import static org.wso2.transport.http.netty.listener.InboundState.ENTITY_BODY_RECEIVED;
+import static org.wso2.transport.http.netty.listener.InboundState.RECEIVING_ENTITY_BODY;
+
 /**
  * Handle all the errors related to source-handler.
  */
@@ -40,43 +48,49 @@ public class SourceHandlerErrorHandler {
 
     private HTTPCarbonMessage inboundRequestMsg;
     private final ServerConnectorFuture serverConnectorFuture;
-    private final HttpResponseFuture httpOutboundRespFuture;
     private InboundState state;
 
-    public SourceHandlerErrorHandler(HTTPCarbonMessage inboundRequestMsg, ServerConnectorFuture serverConnectorFuture,
-            HttpResponseFuture httpOutboundRespFuture) {
-        this.inboundRequestMsg = inboundRequestMsg;
+    public SourceHandlerErrorHandler(ServerConnectorFuture serverConnectorFuture) {
         this.serverConnectorFuture = serverConnectorFuture;
-        this.httpOutboundRespFuture = httpOutboundRespFuture;
-        this.state = InboundState.CONNECTED;
+        this.state = CONNECTED;
     }
 
-    void handleErrorCloseScenario() {
-        if (state == InboundState.RECEIVING_ENTITY_BODY) {
-            handleIncompleteInboundRequest(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION);
+    void handleErrorCloseScenario(HTTPCarbonMessage inboundRequestMsg, HttpResponseFuture httpOutboundRespFuture) {
+        this.inboundRequestMsg = inboundRequestMsg;
+        String errorMessage = REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION;
+        if (state == RECEIVING_ENTITY_BODY) {
+            handleIncompleteInboundRequest(errorMessage);
+        } else if (state == ENTITY_BODY_RECEIVED) {
+            try {
+                serverConnectorFuture.notifyErrorListener(new ServerConnectorException(errorMessage));
+                httpOutboundRespFuture.notifyHttpListener(new ServerConnectorException(errorMessage));
+            } catch (ServerConnectorException e) {
+                log.error("Couldn't notify error state to application layer");
+            }
         }
     }
 
-    void handleIdleErrorScenario() {
+    void handleIdleErrorScenario(HTTPCarbonMessage inboundRequestMsg, HttpResponseFuture httpOutboundRespFuture) {
+        this.inboundRequestMsg = inboundRequestMsg;
         try {
             switch (state) {
             case CONNECTED:
                 serverConnectorFuture.notifyErrorListener(
-                        new ServerConnectorException(Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_REQUEST));
+                        new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_REQUEST));
                 break;
             case RECEIVING_ENTITY_BODY:
-                handleIncompleteInboundRequest(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
+                handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
                 break;
             case ENTITY_BODY_RECEIVED:
                 // This means we have received the complete inbound request. But nothing happened
                 // after that.
                 serverConnectorFuture.notifyErrorListener(new ServerConnectorException(
-                        Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
+                        IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
 
                 // This is to stop application layer writing response after
                 // idle timeout is triggered.
                 httpOutboundRespFuture.notifyHttpListener(new ServerConnectorException(
-                        Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
+                        IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
                 break;
             default:
                 log.error("Unexpected state detected ", state);
@@ -89,12 +103,12 @@ public class SourceHandlerErrorHandler {
     private void handleIncompleteInboundRequest(String errorMessage) {
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
-        inboundRequestMsg.addHttpContent(lastHttpContent);
+        this.inboundRequestMsg.addHttpContent(lastHttpContent);
         log.warn(errorMessage);
     }
 
     public void exceptionCaught(Throwable cause) {
-        if (state != InboundState.RECEIVING_ENTITY_BODY) {
+        if (state == RECEIVING_ENTITY_BODY) {
             handleIncompleteInboundRequest(Constants.EXCEPTION_CAUGHT_WHILE_READING_REQUEST);
         }
         try {
