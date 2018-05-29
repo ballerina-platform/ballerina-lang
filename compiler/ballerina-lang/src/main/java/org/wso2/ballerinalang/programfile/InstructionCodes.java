@@ -139,6 +139,9 @@ public interface InstructionCodes {
     int ILE = 111;
     int FLE = 112;
 
+    int IRC = 223;
+    int IRHO = 224;
+
     int REQ_NULL = 113;
     int RNE_NULL = 114;
 

@@ -116,6 +116,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
+import java.util.stream.LongStream;
 
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -389,7 +390,12 @@ public class CPU {
                     case InstructionCodes.SNE_NULL:
                         execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
                         break;
-    
+
+                    case InstructionCodes.IRC:
+                    case InstructionCodes.IRHO:
+                        execIntegerRangeOpcodes(sf, opcode, operands);
+                        break;
+
                     case InstructionCodes.TR_RETRY:
                         i = operands[0];
                         j = operands[1];
@@ -1065,6 +1071,21 @@ public class CPU {
                 break;
             default:
                 throw new UnsupportedOperationException();
+        }
+    }
+
+    private static void execIntegerRangeOpcodes(WorkerData sf, int opcode, int[] operands) {
+        int i = operands[0];
+        int j = operands[1];
+        int k = operands[2];
+        switch (opcode) {
+            case InstructionCodes.IRC:
+                sf.refRegs[k] = new BIntArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
+                break;
+
+            case InstructionCodes.IRHO:
+                sf.refRegs[k] = new BIntArray(LongStream.range(sf.longRegs[i], sf.longRegs[j]).toArray());
+                break;
         }
     }
 
