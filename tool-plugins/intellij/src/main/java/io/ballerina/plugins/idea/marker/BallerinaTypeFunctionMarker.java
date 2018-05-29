@@ -32,10 +32,10 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.FunctionUtil;
 import com.intellij.util.containers.ContainerUtil;
-import org.ballerinalang.plugins.idea.psi.BallerinaAttachedObject;
-import org.ballerinalang.plugins.idea.psi.BallerinaCallableUnitSignature;
-import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
+import io.ballerina.plugins.idea.psi.BallerinaAttachedObject;
+import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

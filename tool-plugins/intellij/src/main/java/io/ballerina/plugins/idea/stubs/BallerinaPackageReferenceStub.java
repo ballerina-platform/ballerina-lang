@@ -19,7 +19,7 @@ package io.ballerina.plugins.idea.stubs;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.util.io.StringRef;
-import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
+import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
 
 /**
  * Stub for package reference.

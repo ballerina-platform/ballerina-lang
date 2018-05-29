@@ -20,7 +20,7 @@ import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.IndexSink;
 import com.intellij.psi.stubs.StubBase;
 import io.ballerina.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.psi.BallerinaCompositeElement;
+import io.ballerina.plugins.idea.psi.BallerinaCompositeElement;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 

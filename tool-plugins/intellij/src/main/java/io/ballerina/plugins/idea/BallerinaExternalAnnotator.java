@@ -37,7 +37,7 @@ import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.util.PathUtil;
 import io.ballerina.plugins.idea.codeinsight.semanticanalyzer.BallerinaSemanticAnalyzerSettings;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.jetbrains.annotations.NotNull;

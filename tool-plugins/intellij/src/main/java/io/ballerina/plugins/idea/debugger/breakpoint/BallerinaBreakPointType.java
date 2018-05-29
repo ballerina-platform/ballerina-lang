@@ -26,7 +26,7 @@ import com.intellij.util.Processor;
 import com.intellij.xdebugger.XDebuggerUtil;
 import com.intellij.xdebugger.breakpoints.XLineBreakpointType;
 import io.ballerina.plugins.idea.BallerinaFileType;
-import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
+import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

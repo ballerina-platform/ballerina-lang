@@ -18,7 +18,7 @@ package io.ballerina.plugins.idea.refactoring;
 
 import com.intellij.lang.refactoring.RefactoringSupportProvider;
 import com.intellij.psi.PsiElement;
-import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
+import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import org.jetbrains.annotations.NotNull;
 
 /**

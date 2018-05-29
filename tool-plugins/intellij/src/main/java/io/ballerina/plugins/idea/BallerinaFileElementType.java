@@ -24,7 +24,7 @@ import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.stubs.StubOutputStream;
 import com.intellij.psi.tree.IStubFileElementType;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.stubs.BallerinaFileStub;
 import org.jetbrains.annotations.NotNull;
 

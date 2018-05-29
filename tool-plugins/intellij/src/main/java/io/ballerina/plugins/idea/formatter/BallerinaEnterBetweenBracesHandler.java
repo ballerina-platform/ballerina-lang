@@ -26,8 +26,8 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.BallerinaLanguage;
-import org.ballerinalang.plugins.idea.psi.BallerinaEndpointDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaEndpointDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
 import org.jetbrains.annotations.NotNull;
 
 /**

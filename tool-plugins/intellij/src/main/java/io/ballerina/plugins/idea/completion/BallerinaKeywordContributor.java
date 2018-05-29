@@ -21,7 +21,7 @@ import com.intellij.codeInsight.completion.CompletionType;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.patterns.PsiElementPattern;
 import com.intellij.psi.PsiElement;
-import org.ballerinalang.plugins.idea.psi.reference.BallerinaNameReferenceReference;
+import io.ballerina.plugins.idea.psi.reference.BallerinaNameReferenceReference;
 
 import static com.intellij.patterns.PlatformPatterns.psiElement;
 

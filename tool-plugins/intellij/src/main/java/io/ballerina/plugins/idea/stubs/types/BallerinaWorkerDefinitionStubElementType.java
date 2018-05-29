@@ -25,9 +25,9 @@ import com.intellij.psi.stubs.StubOutputStream;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.stubs.BallerinaWorkerDefinitionStub;
 import io.ballerina.plugins.idea.stubs.index.BallerinaWorkerIndex;
-import org.ballerinalang.plugins.idea.psi.BallerinaNamedElement;
-import org.ballerinalang.plugins.idea.psi.BallerinaWorkerDefinition;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaWorkerDefinitionImpl;
+import io.ballerina.plugins.idea.psi.BallerinaNamedElement;
+import io.ballerina.plugins.idea.psi.BallerinaWorkerDefinition;
+import io.ballerina.plugins.idea.psi.impl.BallerinaWorkerDefinitionImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

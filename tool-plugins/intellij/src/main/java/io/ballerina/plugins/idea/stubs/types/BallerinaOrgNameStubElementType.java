@@ -20,8 +20,8 @@ import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.stubs.StubOutputStream;
 import io.ballerina.plugins.idea.stubs.BallerinaOrgNameStub;
-import org.ballerinalang.plugins.idea.psi.BallerinaOrgName;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaOrgNameImpl;
+import io.ballerina.plugins.idea.psi.BallerinaOrgName;
+import io.ballerina.plugins.idea.psi.impl.BallerinaOrgNameImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

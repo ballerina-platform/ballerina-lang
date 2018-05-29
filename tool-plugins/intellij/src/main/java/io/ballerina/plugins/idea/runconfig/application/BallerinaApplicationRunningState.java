@@ -27,7 +27,7 @@ import com.intellij.openapi.module.ModuleUtilCore;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunningState;
 import io.ballerina.plugins.idea.runconfig.RunConfigurationKind;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;

@@ -57,7 +57,7 @@
         <stubIndex implementation="io.ballerina.plugins.idea.stubs.index.BallerinaNamespaceIndex"/>
         <!--Add organization index-->
 
-        <stubElementTypeHolder class="org.ballerinalang.plugins.idea.psi.BallerinaTypes"/>
+        <stubElementTypeHolder class="io.ballerina.plugins.idea.psi.BallerinaTypes"/>
 
         <indexPatternBuilder implementation="io.ballerina.plugins.idea.BallerinaIndexPatternBuilder"/>
 
@@ -72,8 +72,8 @@
         <lang.findUsagesProvider language="Ballerina"
                                  implementationClass="io.ballerina.plugins.idea.usage.BallerinaFindUsageProvider"/>
 
-        <lang.elementManipulator forClass="org.ballerinalang.plugins.idea.psi.BallerinaCompletePackageName"
-                                 implementationClass="org.ballerinalang.plugins.idea.psi.manipulator.BallerinaPackageManipulator"/>
+        <lang.elementManipulator forClass="io.ballerina.plugins.idea.psi.BallerinaCompletePackageName"
+                                 implementationClass="io.ballerina.plugins.idea.psi.manipulator.BallerinaPackageManipulator"/>
 
         <codeInsight.parameterInfo language="Ballerina"
                                    implementationClass="io.ballerina.plugins.idea.editor.BallerinaParameterInfoHandler"/>

@@ -17,22 +17,22 @@
 {
     classHeader = "CopyrightHeader.txt"
 
-    implements = "org.ballerinalang.plugins.idea.psi.BallerinaCompositeElement"
-    extends = "org.ballerinalang.plugins.idea.psi.impl.BallerinaCompositeElementImpl"
+    implements = "io.ballerina.plugins.idea.psi.BallerinaCompositeElement"
+    extends = "io.ballerina.plugins.idea.psi.impl.BallerinaCompositeElementImpl"
 
-    parserClass = "org.ballerinalang.plugins.idea.parser.BallerinaParser"
-    parserUtilClass="org.ballerinalang.plugins.idea.parser.BallerinaParserUtil"
+    parserClass = "io.ballerina.plugins.idea.parser.BallerinaParser"
+    parserUtilClass="io.ballerina.plugins.idea.parser.BallerinaParserUtil"
 
     psiClassPrefix = "Ballerina"
     psiImplClassSuffix = "Impl"
-    psiPackage = "org.ballerinalang.plugins.idea.psi"
-    psiImplPackage = "org.ballerinalang.plugins.idea.psi.impl"
-    psiImplUtilClass = "org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil"
+    psiPackage = "io.ballerina.plugins.idea.psi"
+    psiImplPackage = "io.ballerina.plugins.idea.psi.impl"
+    psiImplUtilClass = "io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil"
 
-    elementTypeHolderClass = "org.ballerinalang.plugins.idea.psi.BallerinaTypes"
-    elementTypeClass = "org.ballerinalang.plugins.idea.psi.BallerinaCompositeElementType"
+    elementTypeHolderClass = "io.ballerina.plugins.idea.psi.BallerinaTypes"
+    elementTypeClass = "io.ballerina.plugins.idea.psi.BallerinaCompositeElementType"
 
-    tokenTypeClass = "org.ballerinalang.plugins.idea.psi.BallerinaTokenType"
+    tokenTypeClass = "io.ballerina.plugins.idea.psi.BallerinaTokenType"
 
     tokens = [
 
@@ -123,28 +123,28 @@
     extends("(Simple|Array|Nullable|Union|Group|Tuple|Annotated|Object|Record)TypeName|BinaryAndExpression") = TypeName
 
     // Each named definition which can be renamed should implement this interface.
-    implements("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "org.ballerinalang.plugins.idea.psi.BallerinaNamedElement"
+    implements("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
     // This is to identify top level elements in a file.
-    implements("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "org.ballerinalang.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
+    implements("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaTopLevelDefinition"
     // Each named definition should extend this class.
-    extends("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "org.ballerinalang.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
+    extends("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
 
     // Each stubbed element should have this element type factory.
     elementTypeFactory("(Function|Struct|GlobalVariable|Annotation|(.*Endpoint)|Action|Worker|Type)Definition") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
 
     // Each stub which is not a named definition should extend this class.
-//    extends("PackageDeclaration") = "org.ballerinalang.plugins.idea.psi.impl.BallerinaStubbedElementImpl<?>"
+//    extends("PackageDeclaration") = "BallerinaStubbedElementImpl<?>"
 
     // "|NamespaceDeclaration|ParameterList|ParameterTypeNameList|CallableUnitSignature|ParameterTypeNameList|ReturnParameters"
     // Todo - Add CatchClause, TriggerWorker, WorkerReply?
     // Each named element (which can be renamed) should implement this interface.
-    implements("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "org.ballerinalang.plugins.idea.psi.BallerinaNamedElement"
+    implements("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.BallerinaNamedElement"
     // Each named element should extend this class.
-    extends("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "org.ballerinalang.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
+    extends("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "io.ballerina.plugins.idea.psi.impl.BallerinaNamedElementImpl<?>"
     // Each stubbed element should have this element type factory.
     elementTypeFactory("Package(Name|Version)|OrgName|Alias|(Name|Package)Reference|VariableDefinitionStatement|NamespaceDeclaration") = "io.ballerina.plugins.idea.stubs.factory.BallerinaElementTypeFactory.stubFactory"
 
-    implements("NameReference") = "org.ballerinalang.plugins.idea.psi.BallerinaReferenceExpressionBase"
+    implements("NameReference") = "io.ballerina.plugins.idea.psi.BallerinaReferenceExpressionBase"
 
     generateTokenAccessors = true
 }
@@ -158,7 +158,7 @@ DefinitionWithoutAnnotationAttachments ::= documentationAttachment? deprecatedAt
 //PackageDeclaration ::= package CompletePackageName PackageVersion? SEMICOLON {
 //    pin=1
 //    methods=[getName]
-//    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaPackageDeclarationStub"
+//    stubClass="io.ballerina.plugins.idea.stubs.BallerinaPackageDeclarationStub"
 //}
 
 CompletePackageName ::= PackageName (DOT PackageName)* {
@@ -569,7 +569,7 @@ SimpleVariableReference ::=  NameReference
 
 Field ::= (DOT | NOT) (identifier | MUL) {
     /*pin=1*/
-//    stubClass="org.ballerinalang.plugins.idea.stubs.BallerinaFieldStub"
+//    stubClass="io.ballerina.plugins.idea.stubs.BallerinaFieldStub"
 }
 
 Index ::= LEFT_BRACKET Expression RIGHT_BRACKET /*{pin=1}*/

@@ -25,9 +25,9 @@ import com.intellij.psi.stubs.StubOutputStream;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub;
 import io.ballerina.plugins.idea.stubs.index.BallerinaFunctionIndex;
-import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaNamedElement;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaFunctionDefinitionImpl;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaNamedElement;
+import io.ballerina.plugins.idea.psi.impl.BallerinaFunctionDefinitionImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

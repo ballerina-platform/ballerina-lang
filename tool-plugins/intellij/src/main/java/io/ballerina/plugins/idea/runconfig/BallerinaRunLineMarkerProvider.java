@@ -21,11 +21,11 @@ import com.intellij.execution.lineMarker.RunLineMarkerContributor;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.Function;
 import io.ballerina.plugins.idea.BallerinaIcons;
-import org.ballerinalang.plugins.idea.psi.BallerinaAnyIdentifierName;
-import org.ballerinalang.plugins.idea.psi.BallerinaCallableUnitSignature;
-import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaServiceDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
+import io.ballerina.plugins.idea.psi.BallerinaAnyIdentifierName;
+import io.ballerina.plugins.idea.psi.BallerinaCallableUnitSignature;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaTypes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -26,7 +26,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import io.ballerina.plugins.idea.psi.BallerinaFile;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 

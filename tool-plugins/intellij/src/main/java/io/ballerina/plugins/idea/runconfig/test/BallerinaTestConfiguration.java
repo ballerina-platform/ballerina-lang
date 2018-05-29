@@ -34,7 +34,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiManager;
 import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunConfigurationWithMain;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import io.ballerina.plugins.idea.psi.BallerinaFile;
 import io.ballerina.plugins.idea.runconfig.BallerinaModuleBasedConfiguration;
 import io.ballerina.plugins.idea.runconfig.RunConfigurationKind;
 import io.ballerina.plugins.idea.runconfig.ui.BallerinaTestSettingsEditor;

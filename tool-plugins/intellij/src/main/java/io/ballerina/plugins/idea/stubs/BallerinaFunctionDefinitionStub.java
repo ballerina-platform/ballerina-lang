@@ -19,7 +19,7 @@ package io.ballerina.plugins.idea.stubs;
 import com.intellij.psi.stubs.IStubElementType;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.util.io.StringRef;
-import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 
 /**
  * Stub for function definition.

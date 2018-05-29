@@ -32,10 +32,10 @@ import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.BallerinaConstants;
 import io.ballerina.plugins.idea.runconfig.application.BallerinaApplicationConfiguration;
 import io.ballerina.plugins.idea.runconfig.test.BallerinaTestConfiguration;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaServiceDefinition;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import io.ballerina.plugins.idea.psi.BallerinaFile;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaServiceDefinition;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -24,7 +24,7 @@ import com.intellij.psi.stubs.StubIndexKey;
 import com.intellij.util.Processor;
 import com.intellij.util.indexing.IdFilter;
 import io.ballerina.plugins.idea.BallerinaFileElementType;
-import org.ballerinalang.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -24,9 +24,9 @@ import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.stubs.StubOutputStream;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.stubs.BallerinaGlobalEndpointDefinitionStub;
-import org.ballerinalang.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaNamedElement;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaGlobalEndpointDefinitionImpl;
+import io.ballerina.plugins.idea.psi.BallerinaGlobalEndpointDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaNamedElement;
+import io.ballerina.plugins.idea.psi.impl.BallerinaGlobalEndpointDefinitionImpl;
 import io.ballerina.plugins.idea.stubs.index.BallerinaGlobalEndpointIndex;
 import org.jetbrains.annotations.NotNull;
 

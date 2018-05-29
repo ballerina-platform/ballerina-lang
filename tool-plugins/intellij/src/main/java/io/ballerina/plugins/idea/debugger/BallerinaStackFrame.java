@@ -30,7 +30,7 @@ import com.intellij.xdebugger.frame.XStackFrame;
 import com.intellij.xdebugger.frame.XValueChildrenList;
 import io.ballerina.plugins.idea.debugger.dto.Frame;
 import io.ballerina.plugins.idea.debugger.dto.Variable;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -24,9 +24,9 @@ import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.stubs.StubOutputStream;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.stubs.BallerinaNamespaceDeclarationStub;
-import org.ballerinalang.plugins.idea.psi.BallerinaNamedElement;
-import org.ballerinalang.plugins.idea.psi.BallerinaNamespaceDeclaration;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaNamespaceDeclarationImpl;
+import io.ballerina.plugins.idea.psi.BallerinaNamedElement;
+import io.ballerina.plugins.idea.psi.BallerinaNamespaceDeclaration;
+import io.ballerina.plugins.idea.psi.impl.BallerinaNamespaceDeclarationImpl;
 import io.ballerina.plugins.idea.stubs.index.BallerinaNamespaceIndex;
 import org.jetbrains.annotations.NotNull;
 

@@ -25,9 +25,9 @@ import com.intellij.psi.stubs.StubOutputStream;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub;
 import io.ballerina.plugins.idea.stubs.index.BallerinaGlobalVariableIndex;
-import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaNamedElement;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaGlobalVariableDefinitionImpl;
+import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaNamedElement;
+import io.ballerina.plugins.idea.psi.impl.BallerinaGlobalVariableDefinitionImpl;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

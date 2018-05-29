@@ -19,7 +19,7 @@ package io.ballerina.plugins.idea.stubs;
 import com.intellij.psi.stubs.PsiFileStubImpl;
 import com.intellij.psi.tree.IStubFileElementType;
 import io.ballerina.plugins.idea.BallerinaFileElementType;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
+import io.ballerina.plugins.idea.psi.BallerinaFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

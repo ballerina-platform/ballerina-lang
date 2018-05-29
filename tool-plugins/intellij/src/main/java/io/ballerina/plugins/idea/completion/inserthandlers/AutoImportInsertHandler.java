@@ -32,8 +32,8 @@ import com.intellij.psi.PsiDocumentManager;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import io.ballerina.plugins.idea.completion.BallerinaCompletionUtils;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaElementFactory;
+import io.ballerina.plugins.idea.psi.BallerinaFile;
+import io.ballerina.plugins.idea.psi.impl.BallerinaElementFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

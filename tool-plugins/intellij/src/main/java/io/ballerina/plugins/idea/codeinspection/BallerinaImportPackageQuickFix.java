@@ -46,9 +46,9 @@ import com.intellij.ui.components.JBList;
 import com.intellij.util.containers.ContainerUtil;
 import io.ballerina.plugins.idea.BallerinaIcons;
 import io.ballerina.plugins.idea.codeinsight.imports.BallerinaCodeInsightSettings;
-import org.ballerinalang.plugins.idea.psi.BallerinaFile;
-import org.ballerinalang.plugins.idea.psi.BallerinaIdentifier;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import io.ballerina.plugins.idea.psi.BallerinaFile;
+import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import io.ballerina.plugins.idea.sdk.BallerinaSdkService;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -60,7 +60,7 @@ import java.util.Map;
 
 import javax.swing.SwingConstants;
 
-import static org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil.LOCAL_PACKAGE_PLACEHOLDER;
+import static io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil.LOCAL_PACKAGE_PLACEHOLDER;
 
 /**
  * Quick fix which adds imports.

@@ -18,7 +18,7 @@ package io.ballerina.plugins.idea.codeinsight.editoractions;
 
 import com.intellij.codeInsight.editorActions.SimpleTokenSetQuoteHandler;
 import com.intellij.openapi.editor.highlighter.HighlighterIterator;
-import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
+import io.ballerina.plugins.idea.psi.BallerinaTypes;
 
 /**
  * Responsible for entering the closing quotes when we type a double quote.

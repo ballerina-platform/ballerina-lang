@@ -27,17 +27,17 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.util.PsiTreeUtil;
 import io.ballerina.plugins.idea.highlighting.BallerinaSyntaxHighlightingColors;
-import org.ballerinalang.plugins.idea.psi.BallerinaAnnotationAttachment;
-import org.ballerinalang.plugins.idea.psi.BallerinaCompletePackageName;
-import org.ballerinalang.plugins.idea.psi.BallerinaFunctionDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaGlobalVariableDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaNameReference;
-import org.ballerinalang.plugins.idea.psi.BallerinaPackageReference;
-import org.ballerinalang.plugins.idea.psi.BallerinaRecordKey;
-import org.ballerinalang.plugins.idea.psi.BallerinaTypeDefinition;
-import org.ballerinalang.plugins.idea.psi.BallerinaTypes;
-import org.ballerinalang.plugins.idea.psi.BallerinaXmlItem;
-import org.ballerinalang.plugins.idea.psi.reference.BallerinaPackageNameReference;
+import io.ballerina.plugins.idea.psi.BallerinaAnnotationAttachment;
+import io.ballerina.plugins.idea.psi.BallerinaCompletePackageName;
+import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaNameReference;
+import io.ballerina.plugins.idea.psi.BallerinaPackageReference;
+import io.ballerina.plugins.idea.psi.BallerinaRecordKey;
+import io.ballerina.plugins.idea.psi.BallerinaTypeDefinition;
+import io.ballerina.plugins.idea.psi.BallerinaTypes;
+import io.ballerina.plugins.idea.psi.BallerinaXmlItem;
+import io.ballerina.plugins.idea.psi.reference.BallerinaPackageNameReference;
 import org.jetbrains.annotations.NotNull;
 
 /**

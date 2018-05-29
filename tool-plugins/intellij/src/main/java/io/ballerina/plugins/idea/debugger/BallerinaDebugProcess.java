@@ -52,7 +52,7 @@ import io.ballerina.plugins.idea.debugger.dto.BreakPoint;
 import io.ballerina.plugins.idea.debugger.dto.Message;
 import io.ballerina.plugins.idea.debugger.protocol.Command;
 import io.ballerina.plugins.idea.debugger.protocol.Response;
-import org.ballerinalang.plugins.idea.psi.impl.BallerinaPsiImplUtil;
+import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

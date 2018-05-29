@@ -7,7 +7,7 @@ import com.intellij.psi.tree.IElementType;
 
 import static com.intellij.psi.TokenType.BAD_CHARACTER;
 import static com.intellij.psi.TokenType.WHITE_SPACE;
-import static org.ballerinalang.plugins.idea.psi.BallerinaTypes.*;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 
 
 /**
