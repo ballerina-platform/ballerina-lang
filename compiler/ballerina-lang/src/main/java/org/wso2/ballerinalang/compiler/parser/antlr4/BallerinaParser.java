@@ -42,7 +42,7 @@ public class BallerinaParser extends Parser {
 		LT_EQUAL=145, AND=146, OR=147, RARROW=148, LARROW=149, AT=150, BACKTICK=151, 
 		RANGE=152, ELLIPSIS=153, PIPE=154, EQUAL_GT=155, ELVIS=156, COMPOUND_ADD=157, 
 		COMPOUND_SUB=158, COMPOUND_MUL=159, COMPOUND_DIV=160, INCREMENT=161, DECREMENT=162, 
-		HALF_OPEN_RANGE_OPERATOR=163, DecimalIntegerLiteral=164, HexIntegerLiteral=165, 
+		HALF_OPEN_RANGE=163, DecimalIntegerLiteral=164, HexIntegerLiteral=165, 
 		OctalIntegerLiteral=166, BinaryIntegerLiteral=167, FloatingPointLiteral=168, 
 		BooleanLiteral=169, QuotedStringLiteral=170, Base16BlobLiteral=171, Base64BlobLiteral=172, 
 		NullLiteral=173, Identifier=174, XMLLiteralStart=175, StringTemplateLiteralStart=176, 
@@ -233,7 +233,7 @@ public class BallerinaParser extends Parser {
 		"EQUAL", "NOT_EQUAL", "GT", "LT", "GT_EQUAL", "LT_EQUAL", "AND", "OR", 
 		"RARROW", "LARROW", "AT", "BACKTICK", "RANGE", "ELLIPSIS", "PIPE", "EQUAL_GT", 
 		"ELVIS", "COMPOUND_ADD", "COMPOUND_SUB", "COMPOUND_MUL", "COMPOUND_DIV", 
-		"INCREMENT", "DECREMENT", "HALF_OPEN_RANGE_OPERATOR", "DecimalIntegerLiteral", 
+		"INCREMENT", "DECREMENT", "HALF_OPEN_RANGE", "DecimalIntegerLiteral", 
 		"HexIntegerLiteral", "OctalIntegerLiteral", "BinaryIntegerLiteral", "FloatingPointLiteral", 
 		"BooleanLiteral", "QuotedStringLiteral", "Base16BlobLiteral", "Base64BlobLiteral", 
 		"NullLiteral", "Identifier", "XMLLiteralStart", "StringTemplateLiteralStart", 
@@ -9312,7 +9312,7 @@ public class BallerinaParser extends Parser {
 			return getRuleContext(ExpressionContext.class,i);
 		}
 		public TerminalNode ELLIPSIS() { return getToken(BallerinaParser.ELLIPSIS, 0); }
-		public TerminalNode HALF_OPEN_RANGE_OPERATOR() { return getToken(BallerinaParser.HALF_OPEN_RANGE_OPERATOR, 0); }
+		public TerminalNode HALF_OPEN_RANGE() { return getToken(BallerinaParser.HALF_OPEN_RANGE, 0); }
 		public IntegerRangeExpressionContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -9761,7 +9761,7 @@ public class BallerinaParser extends Parser {
 						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
 						setState(1628);
 						_la = _input.LA(1);
-						if ( !(_la==ELLIPSIS || _la==HALF_OPEN_RANGE_OPERATOR) ) {
+						if ( !(_la==ELLIPSIS || _la==HALF_OPEN_RANGE) ) {
 						_errHandler.recoverInline(this);
 						} else {
 							consume();

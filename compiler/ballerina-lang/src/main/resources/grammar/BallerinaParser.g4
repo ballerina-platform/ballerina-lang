@@ -590,7 +590,7 @@ expression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
-    |   expression (ELLIPSIS | HALF_OPEN_RANGE_OPERATOR) expression         # integerRangeExpression
+    |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
     |	expression matchExpression										    # matchExprExpression

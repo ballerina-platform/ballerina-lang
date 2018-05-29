@@ -199,8 +199,8 @@ INCREMENT      : '++' ;
 DECREMENT      : '--' ;
 
 // Integer Range Operators.
-// CLOSED_RANGE_OPERATOR - ELLIPSIS
-HALF_OPEN_RANGE_OPERATOR   : '..<' ;
+// CLOSED_RANGE - ELLIPSIS
+HALF_OPEN_RANGE   : '..<' ;
 
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?
