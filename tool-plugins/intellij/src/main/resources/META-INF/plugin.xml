@@ -1,5 +1,5 @@
 <idea-plugin>
-    <id>org.ballerinalang</id>
+    <id>io.ballerina</id>
     <name>Ballerina</name>
     <version>0.972.1-SNAPSHOT</version>
     <vendor email="ballerinalang@wso2.com" url="http://wso2.org">WSO2 Inc.</vendor>
