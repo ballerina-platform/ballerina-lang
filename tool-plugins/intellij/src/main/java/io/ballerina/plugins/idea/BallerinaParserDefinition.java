@@ -27,7 +27,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IFileElementType;
 import com.intellij.psi.tree.TokenSet;
-import org.ballerinalang.plugins.idea.lexer.BallerinaLexerAdapter;
+import io.ballerina.plugins.idea.lexer.BallerinaLexerAdapter;
 import org.ballerinalang.plugins.idea.parser.BallerinaParser;
 import org.ballerinalang.plugins.idea.psi.BallerinaFile;
 import org.ballerinalang.plugins.idea.psi.BallerinaTypes;

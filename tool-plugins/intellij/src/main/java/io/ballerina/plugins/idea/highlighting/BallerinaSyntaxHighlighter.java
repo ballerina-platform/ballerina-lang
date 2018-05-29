@@ -21,7 +21,7 @@ import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterBase;
 import com.intellij.psi.tree.IElementType;
 import io.ballerina.plugins.idea.BallerinaParserDefinition;
-import org.ballerinalang.plugins.idea.lexer.BallerinaLexerAdapter;
+import io.ballerina.plugins.idea.lexer.BallerinaLexerAdapter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
