@@ -1588,6 +1588,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code integerRangeExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterIntegerRangeExpression(BallerinaParser.IntegerRangeExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code integerRangeExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitIntegerRangeExpression(BallerinaParser.IntegerRangeExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code elvisExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
