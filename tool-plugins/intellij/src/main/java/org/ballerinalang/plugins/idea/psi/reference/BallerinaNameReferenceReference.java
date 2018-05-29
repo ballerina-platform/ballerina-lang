@@ -17,6 +17,7 @@
 
 package org.ballerinalang.plugins.idea.psi.reference;
 
+import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
@@ -24,6 +25,7 @@ import com.intellij.psi.PsiReference;
 import com.intellij.psi.ResolveState;
 import com.intellij.psi.impl.source.tree.LeafPsiElement;
 import com.intellij.psi.util.PsiTreeUtil;
+import org.ballerinalang.plugins.idea.codeinsight.recursivesearch.BallerinaRecursiveReferenceSearchSettings;
 import org.ballerinalang.plugins.idea.completion.BallerinaCompletionUtils;
 import org.ballerinalang.plugins.idea.psi.BallerinaAnnotationAttachment;
 import org.ballerinalang.plugins.idea.psi.BallerinaAnyIdentifierName;
@@ -361,9 +363,10 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                     if (!processor.execute(originalFile, resolveState)) {
                         return false;
                     }
-
+                    boolean useRecursiveReferenceSearch =
+                            BallerinaRecursiveReferenceSearchSettings.getInstance().useRecursiveReferenceSearch();
                     // Recursively find definitions in the project starting from the current directory.
-                    if (originalFile.getContainingDirectory() != null) {
+                    if (originalFile.getContainingDirectory() != null && useRecursiveReferenceSearch) {
                         recursivelyFindOutwards(processor, originalFile.getContainingDirectory(), originalFile);
                     }
                 }
@@ -399,6 +402,7 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
     // Todo - Merge with method in BallerinaTypeReference
     private boolean recursivelyFindOutwards(@NotNull BallerinaScopeProcessorBase processor, @NotNull PsiDirectory root,
                                             @Nullable PsiElement originToIgnore) {
+        ProgressManager.checkCanceled();
         if (!processor.isCompletion() && processor.getResult() != null) {
             return false;
         }
@@ -408,6 +412,7 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
 
         // Iterate through all elements in the current directory.
         for (PsiElement child : root.getChildren()) {
+            ProgressManager.checkCanceled();
             // If the current child is the source of the completion, we ignore it since it is already processed.
             if (child.equals(originToIgnore)) {
                 continue;
@@ -435,8 +440,11 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                 if (superParent == null) {
                     continue;
                 }
-                if (!(BallerinaPsiImplUtil.isAContentRoot(superParent) && IGNORED_DIRECTORIES.contains(directory
-                        .getName()))) {
+                boolean useRecursiveReferenceSearch =
+                        BallerinaRecursiveReferenceSearchSettings.getInstance().useRecursiveReferenceSearch();
+                if (!(BallerinaPsiImplUtil.isAContentRoot(superParent) &&
+                        IGNORED_DIRECTORIES.contains(directory.getName())) && useRecursiveReferenceSearch) {
+                    ProgressManager.checkCanceled();
                     recursivelyFindOutwards(processor, directory, null);
                 }
             }
@@ -446,7 +454,10 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                 if (parent == null) {
                     return true;
                 }
-                if (!BallerinaPsiImplUtil.isAContentRoot(parent)) {
+                boolean useRecursiveReferenceSearch =
+                        BallerinaRecursiveReferenceSearchSettings.getInstance().useRecursiveReferenceSearch();
+                if (!BallerinaPsiImplUtil.isAContentRoot(parent) && useRecursiveReferenceSearch) {
+                    ProgressManager.checkCanceled();
                     return recursivelyFindOutwards(processor, parent, root);
                 }
             }
