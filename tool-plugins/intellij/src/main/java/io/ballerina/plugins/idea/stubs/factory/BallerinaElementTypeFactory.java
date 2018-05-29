@@ -17,10 +17,10 @@
 package io.ballerina.plugins.idea.stubs.factory;
 
 import com.intellij.psi.stubs.IStubElementType;
-import io.ballerina.plugins.idea.stubs.types.BallerinaFunctionDefinitionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaAliasStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaAnnotationDefinitionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaEndpointDefinitionStubElementType;
+import io.ballerina.plugins.idea.stubs.types.BallerinaFunctionDefinitionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaGlobalEndpointDefinitionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaGlobalVariableDefinitionStubElementType;
 import io.ballerina.plugins.idea.stubs.types.BallerinaNameReferenceStubElementType;

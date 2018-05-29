@@ -23,11 +23,11 @@ import com.intellij.psi.stubs.StubIndexKey;
 import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.stubs.StubOutputStream;
 import com.intellij.util.containers.ContainerUtil;
-import io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub;
-import io.ballerina.plugins.idea.stubs.index.BallerinaGlobalVariableIndex;
 import io.ballerina.plugins.idea.psi.BallerinaGlobalVariableDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaNamedElement;
 import io.ballerina.plugins.idea.psi.impl.BallerinaGlobalVariableDefinitionImpl;
+import io.ballerina.plugins.idea.stubs.BallerinaGlobalVariableDefinitionStub;
+import io.ballerina.plugins.idea.stubs.index.BallerinaGlobalVariableIndex;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;

@@ -26,9 +26,9 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.EditorTextField;
 import com.intellij.ui.ListCellRendererWrapper;
 import com.intellij.ui.RawCommandLineEditor;
-import io.ballerina.plugins.idea.runconfig.application.BallerinaApplicationConfiguration;
 import io.ballerina.plugins.idea.runconfig.BallerinaRunUtil;
 import io.ballerina.plugins.idea.runconfig.RunConfigurationKind;
+import io.ballerina.plugins.idea.runconfig.application.BallerinaApplicationConfiguration;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

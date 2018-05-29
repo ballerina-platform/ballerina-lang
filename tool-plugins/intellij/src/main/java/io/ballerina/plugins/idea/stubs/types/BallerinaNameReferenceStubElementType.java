@@ -19,9 +19,9 @@ package io.ballerina.plugins.idea.stubs.types;
 import com.intellij.psi.stubs.StubElement;
 import com.intellij.psi.stubs.StubInputStream;
 import com.intellij.psi.stubs.StubOutputStream;
-import io.ballerina.plugins.idea.stubs.BallerinaNameReferenceStub;
 import io.ballerina.plugins.idea.psi.BallerinaNameReference;
 import io.ballerina.plugins.idea.psi.impl.BallerinaNameReferenceImpl;
+import io.ballerina.plugins.idea.stubs.BallerinaNameReferenceStub;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
