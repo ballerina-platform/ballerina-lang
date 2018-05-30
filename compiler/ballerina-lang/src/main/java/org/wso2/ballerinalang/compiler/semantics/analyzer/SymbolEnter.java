@@ -707,8 +707,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_OBJECT_FIELD, varName, env.enclTypeDefinition.name);
             }
             varNode.type = symbol.type;
-            varName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
-            BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, varName, env);
+            BVarSymbol varSymbol = createVarSymbol(varNode.flagSet, varNode.type, varName, env);
 
             // This is to identify variable when passing parameters TODO any alternative?
             varSymbol.field = true;
@@ -716,13 +715,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
             //This means enclosing type definition is a object type defintion
             BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
-
             objectTypeNode.initFunction.initFunctionStmts.put(symbol,
                     (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
             varSymbol.docTag = varNode.docTag;
             varNode.symbol = varSymbol;
             return;
         }
+
         // assign the type to var type node
         if (varNode.type == null) {
             varNode.type = symResolver.resolveTypeNode(varNode.typeNode, env);
@@ -1011,15 +1010,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                       SymbolEnv env) {
         // Create variable symbol
         Scope enclScope = env.scope;
-        BVarSymbol varSymbol;
-
-        if (varType.tag == TypeTags.INVOKABLE) {
-            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
-                    env.enclPkg.symbol.pkgID, varType, enclScope.owner);
-        } else {
-            varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
-                    env.enclPkg.symbol.pkgID, varType, enclScope.owner);
-        }
+        BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env);
 
         // Add it to the enclosing scope
         // Find duplicates in current scope only
@@ -1027,6 +1018,18 @@ public class SymbolEnter extends BLangNodeVisitor {
             varSymbol.type = symTable.errType;
         }
         enclScope.define(varSymbol.name, varSymbol);
+        return varSymbol;
+    }
+
+    private BVarSymbol createVarSymbol(Set<Flag> flagSet, BType varType, Name varName, SymbolEnv env) {
+        BVarSymbol varSymbol;
+        if (varType.tag == TypeTags.INVOKABLE) {
+            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, Flags.asMask(flagSet), varName,
+                    env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+        } else {
+            varSymbol = new BVarSymbol(Flags.asMask(flagSet), varName,
+                    env.enclPkg.symbol.pkgID, varType, env.scope.owner);
+        }
         return varSymbol;
     }
 
@@ -1216,12 +1219,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         varRef.pos = variable.pos;
         varRef.variableName = (BLangIdentifier) createIdentifier(fieldVar.name.getValue());
         varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        varRef.symbol = fieldVar;
+        varRef.type = fieldVar.type;
 
         //Create RHS variable reference
         BLangSimpleVarRef exprVar = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
         exprVar.pos = variable.pos;
         exprVar.variableName = (BLangIdentifier) createIdentifier(varSym.name.getValue());
         exprVar.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        exprVar.symbol = varSym;
+        exprVar.type = varSym.type;
 
         //Create assignment statement
         BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
