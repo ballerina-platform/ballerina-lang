@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -337,30 +338,33 @@ public class CompiledPackageSymbolEnter {
             int attachedToTypeRefCPIndex = dataInStream.readInt();
             TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) this.env.constantPool[attachedToTypeRefCPIndex];
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeRefCPEntry.typeSigCPIndex];
-            BType bType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
+            BType attachedType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
 
             // Update the symbol by:
             //     1) Appending the type name in front of the function name
             //     2) Removing the first parameter from the param list
             invokableSymbol = Symbols.createFunctionSymbol(flags,
-                    names.fromString(Symbols.getAttachedFuncSymbolName(bType.tsymbol.name.value, funcName)),
-                    this.env.pkgSymbol.pkgID, null, bType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName)),
+                    this.env.pkgSymbol.pkgID, null, attachedType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
             List<BType> params = new ArrayList<>();
             params.addAll(funcType.paramTypes);
             // remove first parameter
             params.remove(0);
             funcType.paramTypes = params;
 
-            if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.RECORD) {
-                scopeToDefine = bType.tsymbol.scope;
-            }
-
-            if (bType.tag == TypeTags.OBJECT && Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
-                ((BObjectTypeSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
-                        invokableSymbol, funcType);
-            } else if (bType.tag == TypeTags.RECORD && Names.INIT_FUNCTION_SUFFIX.value.equals(funcName)) {
-                ((BRecordTypeSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
-                        invokableSymbol, funcType);
+            if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
+                scopeToDefine = attachedType.tsymbol.scope;
+                BAttachedFunction attachedFunc =
+                        new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
+                BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
+                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
+                    structureTypeSymbol.initializerFunc = attachedFunc;
+                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
+                } else if (funcName.endsWith(Names.INIT_FUNCTION_SUFFIX.value)) {
+                    structureTypeSymbol.initializerFunc = attachedFunc;
+                } else {
+                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
+                }
             }
         }
 
