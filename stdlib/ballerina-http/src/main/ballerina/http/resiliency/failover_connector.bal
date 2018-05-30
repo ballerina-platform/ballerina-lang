@@ -94,7 +94,7 @@ public type FailoverActions object {
                                         message) returns Response|error;
 
     //This is a dummy function inserted for equivalency and should be made private
-    public function postNative(@sensitive string path, Request req) returns Response|error {
+    public function nativePost(@sensitive string path, Request req) returns Response|error {
         error err = {message:"Unsuported Operation"};
         return err;
     }
@@ -167,10 +167,17 @@ public type FailoverActions object {
         The GET action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function get(string path, Request? request = ()) returns Response|error;
+    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
+
+    //TODO:This is a dummy function inserted for equivalency and should be made private
+    public function nativeGet(@sensitive string path, Request req) returns Response|error {
+        error err = {message:"Unsuported Operation"};
+        return err;
+    }
 
     documentation {
         Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
@@ -264,8 +271,9 @@ public function FailoverActions::delete(string path, Request? request = ()) retu
     return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
 }
 
-public function FailoverActions::get(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                    message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_GET, self.failoverInferredConfig);
 }
 

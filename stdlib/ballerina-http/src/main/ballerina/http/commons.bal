@@ -65,7 +65,7 @@ documentation {
 public function invokeEndpoint (string path, Request outRequest,
                                 HttpOperation requestAction, CallerActions httpClient) returns Response|error {
     if (HTTP_GET == requestAction) {
-        return httpClient.get(path, request = outRequest);
+        return httpClient.get(path, message = outRequest);
     } else if (HTTP_POST == requestAction) {
         return httpClient.post(path, outRequest);
     } else if (HTTP_OPTIONS == requestAction) {

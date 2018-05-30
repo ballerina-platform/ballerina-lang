@@ -121,7 +121,7 @@ public type HttpCachingClient object {
                                         message) returns Response|error;
 
     //TODO:This is a dummy function inserted for equivalency and should be made private
-    public function postNative(@sensitive string path, Request req) returns Response|error {
+    public function nativePost(@sensitive string path, Request req) returns Response|error {
         error err = {message:"Unsuported Operation"};
         return err;
     }
@@ -182,10 +182,17 @@ public type HttpCachingClient object {
         response cannot be found will the request be directed to the origin server.
 
         P{{path}} Request path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function get(string path, Request? request = ()) returns Response|error;
+    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
+
+    //TODO:This is a dummy function inserted for equivalency and should be made private
+    public function nativeGet(@sensitive string path, Request req) returns Response|error {
+        error err = {message:"Unsuported Operation"};
+        return err;
+    }
 
     documentation {
         Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the
@@ -354,8 +361,9 @@ public function HttpCachingClient::delete(string path, Request? request = ()) re
     }
 }
 
-public function HttpCachingClient::get(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function HttpCachingClient::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message = ()) returns Response|error {
+    Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared);
 }
@@ -692,7 +700,7 @@ function sendValidationRequest(CallerActions httpClient, string path, Response c
 
     // TODO: handle cases where neither of the above 2 headers are present
 
-    match httpClient.get(path, request = validationRequest) {
+    match httpClient.get(path, message = validationRequest) {
         Response validationResponse => return validationResponse;
 
         error err => return err;
@@ -702,7 +710,7 @@ function sendValidationRequest(CallerActions httpClient, string path, Response c
 function sendNewRequest(CallerActions httpClient, Request request, string path, string httpMethod)
                                                                                 returns Response|error {
     if (httpMethod == GET) {
-        return httpClient.get(path, request = request);
+        return httpClient.get(path, message = request);
     } else if (httpMethod == HEAD) {
         return httpClient.head(path, request = request);
     } else {

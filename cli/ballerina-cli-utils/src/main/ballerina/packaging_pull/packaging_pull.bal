@@ -25,7 +25,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     req.addHeader("Accept-Encoding", "identity");
 
     http:Response httpResponse = new;
-    var result = httpEndpoint -> get("", request=req);
+    var result = httpEndpoint -> get("", message=req);
 
     match result {
         http:Response response => httpResponse = response;

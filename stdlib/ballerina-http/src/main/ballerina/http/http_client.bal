@@ -39,13 +39,13 @@ public type CallerActions object {
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function post(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
-    message) returns Response|error {
+                            message) returns Response|error {
         Request req = buildRequest(message);
-        return self.postNative(path, req);
+        return self.nativePost(path, req);
     }
 
     //TODO: Make this private once the equivalancy works with private
-    public native function postNative(@sensitive string path, Request req) returns Response|error;
+    public native function nativePost(@sensitive string path, Request req) returns Response|error;
 
     documentation {
         The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
@@ -98,10 +98,17 @@ public type CallerActions object {
         The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
 
         P{{path}} Request path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function get(@sensitive string path, Request? request = ()) returns Response|error;
+    public function get(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message = ()) returns Response|error {
+        Request req = buildRequest(message);
+        return self.nativeGet(path, req);
+    }
+
+    //TODO: Make this private once the equivalancy works with private
+    public native function nativeGet(@sensitive string path, Request req) returns Response|error;
 
     documentation {
         The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.

@@ -69,7 +69,7 @@ public type HttpSecureClient object {
     }
 
     //TODO:This is a dummy function inserted for equivalency and should be made private
-    public function postNative(@sensitive string path, Request req) returns Response|error {
+    public function nativePost(@sensitive string path, Request req) returns Response|error {
         error err = {message:"Unsuported Operation"};
         return err;
     }
@@ -179,19 +179,26 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Request path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function get(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.get(path, request = req);
+        Response response = check httpClient.get(path, message = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.get(path, request = req);
+            return httpClient.get(path, message = req);
         }
         return response;
+    }
+
+    //TODO:This is a dummy function inserted for equivalency and should be made private
+    public function nativeGet(@sensitive string path, Request req) returns Response|error {
+        error err = {message:"Unsuported Operation"};
+        return err;
     }
 
     documentation {

@@ -15,7 +15,7 @@ documentation {
 function search (http:Client definedEndpoint, string url, string querySearched, string terminalWidth) {
     endpoint http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
-    var result = httpEndpoint -> get(untaint querySearched, request=req);
+    var result = httpEndpoint -> get(untaint querySearched, message=req);
     http:Response httpResponse = new;
     match result {
         http:Response response => httpResponse = response;

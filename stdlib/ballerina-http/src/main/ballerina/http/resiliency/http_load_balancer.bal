@@ -62,7 +62,7 @@ public type LoadBalancerActions object {
                                         message) returns Response|error;
 
     //This is a dummy function inserted for equivalency and should be made private
-    public function postNative(@sensitive string path, Request req) returns Response|error {
+    public function nativePost(@sensitive string path, Request req) returns Response|error {
         error err = {message:"Unsuported Operation"};
         return err;
     }
@@ -136,10 +136,17 @@ public type LoadBalancerActions object {
         The GET action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function get(string path, Request? request = ()) returns Response|error;
+    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
+
+    //TODO:This is a dummy function inserted for equivalency and should be made private
+    public function nativeGet(@sensitive string path, Request req) returns Response|error {
+        error err = {message:"Unsuported Operation"};
+        return err;
+    }
 
     documentation {
         The submit implementation of the LoadBalancer Connector.
@@ -246,8 +253,9 @@ public function LoadBalancerActions::delete(string path, Request? request = ()) 
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 
-public function LoadBalancerActions::get(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function LoadBalancerActions::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 

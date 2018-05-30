@@ -177,7 +177,7 @@ public type CircuitBreakerClient object {
                                         message) returns Response|error;
 
     //TODO:This is a dummy function inserted for equivalency and should be made private
-    public function postNative(@sensitive string path, Request req) returns Response|error {
+    public function nativePost(@sensitive string path, Request req) returns Response|error {
         error err = {message:"Unsuported Operation"};
         return err;
     }
@@ -238,10 +238,17 @@ public type CircuitBreakerClient object {
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} An optional HTTP request or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function get(string path, Request? request = ()) returns Response|error;
+    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
+
+    //TODO:This is a dummy function inserted for equivalency and should be made private
+    public function nativeGet(@sensitive string path, Request req) returns Response|error {
+        error err = {message:"Unsuported Operation"};
+        return err;
+    }
 
     documentation {
         The OPTIONS action implementation of the Circuit Breaker. This wraps the `options()` function of the underlying
@@ -464,7 +471,9 @@ public function CircuitBreakerClient::delete(string path, Request? request = ())
     }
 }
 
-public function CircuitBreakerClient::get(string path, Request? request = ()) returns Response|error {
+public function CircuitBreakerClient::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message = ()) returns Response|error {
+    Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -473,7 +482,7 @@ public function CircuitBreakerClient::get(string path, Request? request = ()) re
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-       match httpClient.get(path, request = request) {
+       match httpClient.get(path, message = request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
