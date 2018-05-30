@@ -37,7 +37,6 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Security;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
@@ -68,10 +67,6 @@ public class SSLHandlerFactory {
 
     public SSLHandlerFactory(SSLConfig sslConfig) {
         this.sslConfig = sslConfig;
-        String algorithm = Security.getProperty("ssl.KeyManagerFactory.algorithm");
-        if (algorithm == null) {
-            algorithm = "SunX509";
-        }
         needClientAuth = sslConfig.isNeedClientAuth();
         String protocol = sslConfig.getSSLProtocol();
         try {
@@ -79,7 +74,7 @@ public class SSLHandlerFactory {
             if (sslConfig.getKeyStore() != null) {
                 KeyStore ks = getKeyStore(sslConfig.getKeyStore(), sslConfig.getKeyStorePass());
                 // Set up key manager factory to use our key store
-                kmf = KeyManagerFactory.getInstance(algorithm);
+                kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
                 if (ks != null) {
                     kmf.init(ks, sslConfig.getCertPass() != null ?
                             sslConfig.getCertPass().toCharArray() :
@@ -90,7 +85,7 @@ public class SSLHandlerFactory {
             TrustManager[] trustManagers = null;
             if (sslConfig.getTrustStore() != null) {
                 KeyStore tks = getKeyStore(sslConfig.getTrustStore(), sslConfig.getTrustStorePass());
-                tmf = TrustManagerFactory.getInstance(algorithm);
+                tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
                 tmf.init(tks);
                 trustManagers = tmf.getTrustManagers();
             }
