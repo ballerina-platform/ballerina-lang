@@ -33,6 +33,8 @@ import java.nio.file.attribute.BasicFileAttributes;
  */
 public class BFileUtil {
 
+    private static final String IGNORE = ".gitignore";
+
     /**
      * Copy a file or directory to a target location.
      * 
@@ -58,7 +60,7 @@ public class BFileUtil {
 
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    if (Files.exists(file)) {
+                    if (!IGNORE.equals(file.getFileName().toString()) && Files.exists(file)) {
                         Files.copy(file, targetPath.resolve(sourcePath.relativize(file)));
                     }
                     return FileVisitResult.CONTINUE;
