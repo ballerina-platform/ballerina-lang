@@ -322,6 +322,9 @@ public class PackageInfoReader {
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
 
+        // Read annotation info entries
+        readAnnotationInfoEntries(packageInfo);
+
         // Read service info entries
         readServiceInfoEntries(packageInfo);
 
@@ -389,6 +392,21 @@ public class PackageInfoReader {
             }
         }
 
+    }
+
+    private void readAnnotationInfoEntries(PackageInfo packageInfo) throws IOException {
+        int typeDefCount = dataInStream.readShort();
+        for (int i = 0; i < typeDefCount; i++) {
+
+            dataInStream.readInt();
+            dataInStream.readInt();
+            dataInStream.readInt();
+            //TODO any better way?
+            int count = dataInStream.readInt();
+            for (int j = 0; j < count; j++) {
+                dataInStream.readInt();
+            }
+        }
     }
 
     private void readObjectInfoEntry(PackageInfo packageInfo, TypeDefInfo typeDefInfo) throws IOException {

@@ -52,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -160,6 +161,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.programfile.AnnotationInfo;
 import org.wso2.ballerinalang.programfile.AttachedFunctionInfo;
 import org.wso2.ballerinalang.programfile.CallableUnitInfo;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
@@ -411,6 +413,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         pkgNode.globalVars.forEach(this::createPackageVarInfo);
         pkgNode.typeDefinitions.forEach(this::createTypeDefinitionInfoEntry);
+        pkgNode.annotations.forEach(this::createAnnotationInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
         pkgNode.services.forEach(this::createServiceInfoEntry);
         pkgNode.functions.forEach(this::createFunctionInfoEntry);
@@ -1789,6 +1792,24 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     public void visit(BLangTypeDefinition typeDefinition) {
         //TODO
+    }
+
+    private void createAnnotationInfoEntry(BLangAnnotation annotation) {
+        int nameCPIndex = addUTF8CPEntry(currentPkgInfo, annotation.name.value);
+        int typeSigCPIndex = -1;
+        if (annotation.typeNode != null) {
+            typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, annotation.typeNode.type.getDesc());
+        }
+        //TODO any better way?
+        int[] attachPointCPIndexes = new int[annotation.attachmentPoints.size()];
+        int i = 0;
+        for (BLangAnnotationAttachmentPoint point : annotation.attachmentPoints) {
+            attachPointCPIndexes[i] = addUTF8CPEntry(currentPkgInfo, point.attachmentPoint.getValue());
+        }
+
+        AnnotationInfo annotationInfo = new AnnotationInfo(nameCPIndex, typeSigCPIndex,
+                annotation.symbol.flags, attachPointCPIndexes);
+        currentPkgInfo.annotationInfoMap.put(annotation.name.value, annotationInfo);
     }
 
     private void createTypeDefinitionInfoEntry(BLangTypeDefinition typeDefinition) {
