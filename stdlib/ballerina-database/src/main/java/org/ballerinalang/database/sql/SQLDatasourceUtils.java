@@ -24,7 +24,6 @@ import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -33,6 +32,7 @@ import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -891,10 +891,13 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static String getSQLType(BType value) {
-        int tag = value.getTag();
+    public static String getSQLType(BRefType value) {
+        int tag = value.getType().getTag();
         switch (tag) {
         case TypeTags.INT_TAG:
+            if (value.value() instanceof Long) {
+                return Constants.SQLDataTypes.BIGINT;
+            }
             return Constants.SQLDataTypes.INTEGER;
         case TypeTags.STRING_TAG:
             return Constants.SQLDataTypes.VARCHAR;
@@ -906,7 +909,8 @@ public class SQLDatasourceUtils {
             return Constants.SQLDataTypes.BLOB;
         default:
             throw new BallerinaException(
-                    "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());
+                    "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getType()
+                            .getName());
         }
     }
 

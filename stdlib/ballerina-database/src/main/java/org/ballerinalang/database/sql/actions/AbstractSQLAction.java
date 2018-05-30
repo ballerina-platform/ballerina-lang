@@ -345,7 +345,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 paramStruct = (BStruct) typeValue;
             } else {
                 paramStruct = getSQLParameter(context);
-                paramStruct.setRefField(0, new BString(SQLDatasourceUtils.getSQLType(typeValue.getType())));
+                paramStruct.setRefField(0, new BString(SQLDatasourceUtils.getSQLType(typeValue)));
                 paramStruct.setRefField(1, typeValue);
                 paramStruct.setRefField(2, new BString(Constants.QueryParamDirection.DIR_IN));
             }
@@ -605,7 +605,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {
             case Constants.SQLDataTypes.SMALLINT:
-                SQLDatasourceUtils.setIntValue(stmt, value, index, direction, Types.INTEGER);
+                SQLDatasourceUtils.setIntValue(stmt, value, index, direction, Types.SMALLINT);
                 break;
             case Constants.SQLDataTypes.VARCHAR:
                 SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
@@ -629,8 +629,10 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 SQLDatasourceUtils.setDoubleValue(stmt, value, index, direction, Types.DOUBLE);
                 break;
             case Constants.SQLDataTypes.NUMERIC:
-            case Constants.SQLDataTypes.DECIMAL:
                 SQLDatasourceUtils.setNumericValue(stmt, value, index, direction, Types.NUMERIC);
+                break;
+            case Constants.SQLDataTypes.DECIMAL:
+                SQLDatasourceUtils.setNumericValue(stmt, value, index, direction, Types.DECIMAL);
                 break;
             case Constants.SQLDataTypes.BIT:
             case Constants.SQLDataTypes.BOOLEAN:
@@ -640,10 +642,14 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 SQLDatasourceUtils.setTinyIntValue(stmt, value, index, direction, Types.TINYINT);
                 break;
             case Constants.SQLDataTypes.BIGINT:
-            case Constants.SQLDataTypes.INTEGER:
                 SQLDatasourceUtils.setBigIntValue(stmt, value, index, direction, Types.BIGINT);
                 break;
+            case Constants.SQLDataTypes.INTEGER:
+                SQLDatasourceUtils.setIntValue(stmt, value, index, direction, Types.INTEGER);
+                break;
             case Constants.SQLDataTypes.REAL:
+                SQLDatasourceUtils.setRealValue(stmt, value, index, direction, Types.REAL);
+                break;
             case Constants.SQLDataTypes.FLOAT:
                 SQLDatasourceUtils.setRealValue(stmt, value, index, direction, Types.FLOAT);
                 break;

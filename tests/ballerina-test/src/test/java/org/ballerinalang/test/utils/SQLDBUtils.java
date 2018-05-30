@@ -52,24 +52,9 @@ public class SQLDBUtils {
      * @param dbName  Name of the DB instance.
      * @param sqlFile SQL statements for initialization.
      */
-    public static void initDatabase(String dbDirectory, String dbName, String sqlFile) {
-        Connection connection = null;
-        Statement st = null;
-        try {
-            Class.forName("org.hsqldb.jdbcDriver");
-            String jdbcURL = "jdbc:hsqldb:file:" + dbDirectory + dbName;
-            connection = DriverManager.getConnection(jdbcURL, "SA", "");
-            String sql = readFileToString(sqlFile);
-            String[] sqlQuery = sql.trim().split("/");
-            st = connection.createStatement();
-            for (String query : sqlQuery) {
-                st.executeUpdate(query.trim());
-            }
-        } catch (ClassNotFoundException | SQLException e) {
-            log.error("Error while initializing database: ", e);
-        } finally {
-            releaseResources(connection, st);
-        }
+    public static void initHSQLDBDatabase(String dbDirectory, String dbName, String sqlFile) {
+        String jdbcURL = "jdbc:hsqldb:file:" + dbDirectory + dbName;
+        initDatabase(jdbcURL, "SA", "", sqlFile, "org.hsqldb.jdbcDriver");
     }
 
     /**
@@ -80,26 +65,43 @@ public class SQLDBUtils {
      * @param sqlFile SQL statements for initialization.
      */
     public static void initH2Database(String dbDirectory, String dbName, String sqlFile) {
-        Connection connection = null;
-        Statement st = null;
-        try {
-            Class.forName("org.h2.Driver");
-            String jdbcURL = "jdbc:h2:file:" + dbDirectory + dbName;
-            connection = DriverManager.getConnection(jdbcURL, "sa", "");
+        String jdbcURL = "jdbc:h2:file:" + dbDirectory + dbName;
+        initDatabase(jdbcURL, "sa", "", sqlFile, "org.h2.Driver");
+    }
+
+    public static void initMySQLDatabase(String jdbcURL, String username, String password, String sqlFile) {
+        initDatabase(jdbcURL, username, password, sqlFile, "com.mysql.jdbc.Driver");
+    }
+
+    public static void initPostgresDatabase(String jdbcURL, String username, String password, String sqlFile) {
+        initDatabase(jdbcURL, username, password, sqlFile, "org.postgresql.Driver");
+    }
+
+    private static void initDatabase(String jdbcURL, String username, String password, String sqlFile, String
+            driverClass) {
+        loadDriverClass(driverClass);
+        try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
+                Statement st = connection.createStatement()) {
             String sql = readFileToString(sqlFile);
             String[] sqlQuery = sql.trim().split("/");
-            st = connection.createStatement();
             for (String query : sqlQuery) {
                 st.executeUpdate(query.trim());
             }
-            connection.commit();
-        } catch (ClassNotFoundException | SQLException e) {
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+        } catch (SQLException e) {
             log.error("Error while initializing database: ", e);
-        } finally {
-            releaseResources(connection, st);
         }
     }
 
+    private static void loadDriverClass(String driverClass) {
+        try {
+            Class.forName(driverClass);
+        } catch (ClassNotFoundException e) {
+            log.error("Error while initializing database: ", e);
+        }
+    }
 
     /**
      * Delete the given directory along with all files and sub directories.

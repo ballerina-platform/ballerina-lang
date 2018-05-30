@@ -154,10 +154,12 @@ public class SQLDataIterator extends TableIterator {
                     case Types.LONGNVARCHAR:
                         handleStringValue(refRegIndex, stringRegIndex, bStruct, index);
                         break;
-                    case Types.BLOB:
                     case Types.BINARY:
                     case Types.VARBINARY:
                     case Types.LONGVARBINARY:
+                        handleBinaryValue(bStruct, refRegIndex, blobRegIndex, index);
+                        break;
+                    case Types.BLOB:
                         handleBlobValue(bStruct, refRegIndex, blobRegIndex, index);
                         break;
                     case Types.CLOB:
@@ -460,6 +462,24 @@ public class SQLDataIterator extends TableIterator {
         } else {
             handleMappingDateValueToNonUnionType(date, fieldTypeTag, bStruct, stringRegIndex, refRegIndex,
                     longRegIndex);
+        }
+    }
+
+    private void handleBinaryValue(BStruct bStruct, RegistryIndex refRegIndex, RegistryIndex blobRegIndex, int index)
+            throws SQLException {
+        BStructType.StructField[] structFields = getStructFields();
+        int fieldTypeTag = getFieldTypeTag(structFields, index);
+        byte[] binaryValue = rs.getBytes(index);
+        if (fieldTypeTag == TypeTags.UNION_TAG) {
+            BRefType refValue = binaryValue == null ? null : new BBlob(binaryValue);
+            validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.BLOB_TAG,
+                    retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+        } else {
+            if (binaryValue != null) {
+                bStruct.setBlobField(blobRegIndex.incrementAndGet(), binaryValue);
+            } else {
+                handleNilToNonNillableFieldAssignment();
+            }
         }
     }
 

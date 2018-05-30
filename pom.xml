@@ -974,6 +974,31 @@
                 <artifactId>gcviewer</artifactId>
                 <version>${chewiebug.gcviewer.version}</version>
             </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -1538,7 +1563,7 @@
 
 
 
-        <testng.version>6.9.4</testng.version>
+        <testng.version>6.13.1</testng.version>
         <commons.io.version>2.5</commons.io.version>
         <handlebars.version>4.0.6</handlebars.version>
         <osgi.api.version>6.0.0</osgi.api.version>
@@ -1574,6 +1599,9 @@
         <com.zaxxer.hikaricp.version>3.1.0</com.zaxxer.hikaricp.version>
         <hyperSQL.version>2.4.0</hyperSQL.version>
         <h2.version>1.4.197</h2.version>
+        <mysql.version>5.1.46</mysql.version>
+        <postgresql.version>42.2.1</postgresql.version>
+        <testcontainers.version>1.7.2</testcontainers.version>
         <gson.version>2.7</gson.version>
         <maven.wagon.ssh.version>2.10</maven.wagon.ssh.version>
         <lambdaj.version>2.3.3</lambdaj.version>
