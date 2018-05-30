@@ -170,10 +170,17 @@ public type CircuitBreakerClient object {
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function post(string path, Request? request = ()) returns Response|error;
+    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                        message) returns Response|error;
+
+    //TODO:This is a dummy function inserted for equivalency and should be made private
+    public function postNative(@sensitive string path, Request req) returns Response|error {
+        error err = {message:"Unsuported Operation"};
+        return err;
+    }
 
     documentation {
         The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
@@ -322,24 +329,26 @@ public type CircuitBreakerClient object {
     public function forceOpen();
 };
 
-public function CircuitBreakerClient::post(string path, Request? request = ()) returns Response|error {
-   CallerActions httpClient = self.httpClient;
-   CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-   self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
+public function CircuitBreakerClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns Response|error {
+    Request req = buildRequest(message);
+    CallerActions httpClient = self.httpClient;
+    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
-   if (self.currentCircuitState == CB_OPEN_STATE) {
-       // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-       return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-   } else {
-       match httpClient.post(path, request = request) {
+    if (self.currentCircuitState == CB_OPEN_STATE) {
+        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+    } else {
+        match httpClient.post(path, req) {
             Response service_response => {
-                                    updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                                    return service_response;
-                                }
+                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
+                return service_response;
+            }
             error serviceError => {
-                                    updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return serviceError;
-                                }
+                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
+                return serviceError;
+            }
         }
     }
 }

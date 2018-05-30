@@ -67,7 +67,7 @@ public function invokeEndpoint (string path, Request outRequest,
     if (HTTP_GET == requestAction) {
         return httpClient.get(path, request = outRequest);
     } else if (HTTP_POST == requestAction) {
-        return httpClient.post(path, request = outRequest);
+        return httpClient.post(path, outRequest);
     } else if (HTTP_OPTIONS == requestAction) {
         return httpClient.options(path, request = outRequest);
     } else if (HTTP_PUT == requestAction) {

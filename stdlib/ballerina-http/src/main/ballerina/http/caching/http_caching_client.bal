@@ -114,10 +114,17 @@ public type HttpCachingClient object {
         origin server. Responses received for POST requests invalidate the cached responses for the same resource.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} HTTP request or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function post(string path, Request? request = ()) returns Response|error;
+    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
+
+    //TODO:This is a dummy function inserted for equivalency and should be made private
+    public function postNative(@sensitive string path, Request req) returns Response|error {
+        error err = {message:"Unsuported Operation"};
+        return err;
+    }
 
     documentation {
         Responses for HEAD requests are cacheable and as such, will be routed through the HTTP cache. Only if a
@@ -266,11 +273,12 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-public function HttpCachingClient::post(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function HttpCachingClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                                       message) returns Response|error {
+    Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    match self.httpClient.post(path, request = req) {
+    match self.httpClient.post(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;

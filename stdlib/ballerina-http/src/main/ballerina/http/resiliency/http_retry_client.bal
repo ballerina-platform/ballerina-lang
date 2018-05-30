@@ -52,10 +52,17 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function post(string path, Request? request = ()) returns Response|error;
+    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
+
+    //TODO:This is a dummy function inserted for equivalency and should be made private
+    public function postNative(@sensitive string path, Request req) returns Response|error {
+        error err = {message:"Unsuported Operation"};
+        return err;
+    }
 
     documentation {
         The `head()` function wraps the underlying HTTP actions in a way to provide
@@ -191,8 +198,9 @@ public type RetryClient object {
     public function rejectPromise(PushPromise promise);
 };
 
-public function RetryClient::post(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function RetryClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                message) returns Response|error {
+    Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_POST, self);
 }
 

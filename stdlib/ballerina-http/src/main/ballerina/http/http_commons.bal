@@ -125,3 +125,18 @@ documentation {
 }
 //TODO: Make the error nillable
 public native function parseHeader (string headerValue) returns (string, map)|error;
+
+function buildRequest(Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Request {
+    Request req = new;
+    match message {
+        () => {io:println("Inside buildRequest with no req or payload!");}
+        Request request => {req = request;}
+        string textContent => {req.setTextPayload(textContent);}
+        xml xmlContent => {req.setXmlPayload(xmlContent);}
+        json jsonContent => {req.setJsonPayload(jsonContent);}
+        blob blobContent => {req.setBinaryPayload(blobContent);}
+        io:ByteChannel byteChannelContent => {req.setByteChannel(byteChannelContent);}
+        mime:Entity[] bodyParts => {req.setBodyParts(bodyParts);}
+    }
+    return req;
+}

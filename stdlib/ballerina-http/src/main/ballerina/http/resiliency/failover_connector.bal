@@ -87,10 +87,17 @@ public type FailoverActions object {
         The POST action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} HTTP request or any payload
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function post(string path, Request? request = ()) returns Response|error;
+    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                        message) returns Response|error;
+
+    //This is a dummy function inserted for equivalency and should be made private
+    public function postNative(@sensitive string path, Request req) returns Response|error {
+        error err = {message:"Unsuported Operation"};
+        return err;
+    }
 
     documentation {
         The HEAD action implementation of the Failover Connector.
@@ -218,8 +225,9 @@ public type FailoverActions object {
     public function rejectPromise(PushPromise promise);
 };
 
-public function FailoverActions::post(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                                    message) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_POST, self.failoverInferredConfig);
 }
 

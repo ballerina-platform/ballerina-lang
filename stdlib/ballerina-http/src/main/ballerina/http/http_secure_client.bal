@@ -52,19 +52,26 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function post(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.post(path, request = req);
+        Response response = check httpClient.post(path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.post(path, request = req);
+            return httpClient.post(path, req);
         }
         return response;
+    }
+
+    //TODO:This is a dummy function inserted for equivalency and should be made private
+    public function postNative(@sensitive string path, Request req) returns Response|error {
+        error err = {message:"Unsuported Operation"};
+        return err;
     }
 
     documentation {
@@ -394,7 +401,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
     refreshTokenRequest.setTextPayload("grant_type=refresh_token&refresh_token=" + refreshToken,
         contentType = mime:APPLICATION_FORM_URLENCODED);
-    Response refreshTokenResponse = check refreshTokenClient.post(EMPTY_STRING, request = refreshTokenRequest);
+    Response refreshTokenResponse = check refreshTokenClient.post(EMPTY_STRING, refreshTokenRequest);
 
     json generatedToken = check refreshTokenResponse.getJsonPayload();
     if (refreshTokenResponse.statusCode == OK_200) {

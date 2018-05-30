@@ -45,7 +45,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     req.addHeader("Authorization", "Bearer " + accessToken);
     req.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
 
-    var result = httpEndpoint -> post("", request=req);
+    var result = httpEndpoint -> post("", req);
     http:Response httpResponse = new;
     match result {
         http:Response response => httpResponse = response;
