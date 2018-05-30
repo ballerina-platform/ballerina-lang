@@ -109,6 +109,7 @@ public class HttpToWebSocketProtocolSwitchTestCase {
     @AfterClass
     public void cleaUp() throws ServerConnectorException, InterruptedException {
         serverConnector.stop();
+        httpConnectorFactory.shutdown();
     }
 
 }
