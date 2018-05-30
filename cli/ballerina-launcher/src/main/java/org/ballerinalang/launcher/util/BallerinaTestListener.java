@@ -26,6 +26,8 @@ import org.testng.ISuiteListener;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_HOME;
+
 /**
  * A listener for loading ballerina standard libs prior to running the tests.
  *
@@ -33,29 +35,27 @@ import java.nio.file.Paths;
  */
 public class BallerinaTestListener implements ISuiteListener {
 
-    private static final String BALLERINA_HOME = "ballerina.home";
     private static Logger log = LoggerFactory.getLogger(BallerinaTestListener.class);
     private Path stdlibs = Paths.get("target", "lib");
     private String ballerinaHome;
 
     @Override
     public void onStart(ISuite iSuite) {
-        copyStandardLibs();
+        setBallerinaHome();
     }
 
     @Override
     public void onFinish(ISuite iSuite) {
-        cleanupStandardLibs();
+        resetBallerinaHome();
     }
 
-    // TODO
-    private void copyStandardLibs() {
-            ballerinaHome = System.getProperty(BALLERINA_HOME);
-            System.setProperty(BALLERINA_HOME, stdlibs.getParent().toAbsolutePath().toString());
-            log.info(BALLERINA_HOME + " is set to: " + System.getProperty(BALLERINA_HOME));
+    private void setBallerinaHome() {
+        ballerinaHome = System.getProperty(BALLERINA_HOME);
+        System.setProperty(BALLERINA_HOME, stdlibs.getParent().toAbsolutePath().toString());
+        log.info(BALLERINA_HOME + " is set to: " + System.getProperty(BALLERINA_HOME));
     }
 
-    private void cleanupStandardLibs() {
+    private void resetBallerinaHome() {
         if (ballerinaHome != null) {
             System.setProperty(BALLERINA_HOME, ballerinaHome);
         } else {

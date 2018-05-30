@@ -28,6 +28,7 @@ import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 import static org.ballerinalang.util.BLangConstants.MAGIC_NUMBER;
 import static org.ballerinalang.util.BLangConstants.VERSION_NUMBER;
 
@@ -99,7 +100,6 @@ public class ProgramFileReader {
 
     private void loadBuiltinPackage() throws IOException {
         PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
-        // TODO
-        pkgFileReader.readPackage("ballerina.builtin");
+        pkgFileReader.readPackage(BALLERINA_BUILTIN_PKG);
     }
 }
