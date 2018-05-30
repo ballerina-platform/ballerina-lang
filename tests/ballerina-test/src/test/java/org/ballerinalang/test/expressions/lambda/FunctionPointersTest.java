@@ -34,7 +34,7 @@ import org.testng.annotations.Test;
  */
 public class FunctionPointersTest {
 
-    CompileResult fpProgram, privateFPProgram, globalProgram, structProgram;
+    private CompileResult fpProgram, privateFPProgram, globalProgram, structProgram;
 
     @BeforeClass
     public void setup() {

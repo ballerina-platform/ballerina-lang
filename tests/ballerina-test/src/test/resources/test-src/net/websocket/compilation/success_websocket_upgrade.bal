@@ -40,7 +40,7 @@ service<http:Service> proxy bind ep {
 
 service<http:WebSocketService> simpleProxy {
 
-    onOpen(endpoint ep) {
+    onOpen(endpoint ep1) {
     }
 
 }

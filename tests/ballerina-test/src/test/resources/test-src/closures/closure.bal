@@ -385,7 +385,6 @@ function testVariableShadowingInClosure1(int a) returns function (float) returns
     float f = 5.6;
 
     if (a < 10) {
-        int a = 4;
         b = a + b + <int>f;
     }
 
@@ -412,7 +411,6 @@ function testVariableShadowingInClosure2(int a) returns function (float) returns
     boolean boo = true;
 
     if (a < 10) {
-        int a = 4;
         b = a + b + <int>f;
     }
 
@@ -450,7 +448,6 @@ function testVariableShadowingInClosure3(int a) returns (function (float) return
     boolean boo = true;
 
     if (a < 10) {
-        int a = 4;
         b = a + b + <int>f;
     }
 
@@ -533,5 +530,3 @@ function testLocalVarModifyWithinClosureScope() returns (float){
     float fsum = fadd;
     return (fsum);
 }
-
-

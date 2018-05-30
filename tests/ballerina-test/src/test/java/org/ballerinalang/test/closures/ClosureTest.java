@@ -169,19 +169,19 @@ public class ClosureTest {
     @Test(description = "Test closure with variable shadowing")
     public void testClosureWithVariableShadowing1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test23");
-        Assert.assertEquals((returns[0]).stringValue(), "Ballerina22");
+        Assert.assertEquals((returns[0]).stringValue(), "Ballerina27");
     }
 
     @Test(description = "Test two level closure with variable shadowing")
     public void testClosureWithVariableShadowing2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test24");
-        Assert.assertEquals((returns[0]).stringValue(), "Out22In52Ballerina!!!");
+        Assert.assertEquals((returns[0]).stringValue(), "Out27In57Ballerina!!!");
     }
 
     @Test(description = "Test three level closure with variable shadowing")
     public void testClosureWithVariableShadowing3() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test25");
-        Assert.assertEquals((returns[0]).stringValue(), "OutMost22Out37In73Ballerina!!!");
+        Assert.assertEquals((returns[0]).stringValue(), "OutMost27Out42In78Ballerina!!!");
     }
 
     @Test(description = "Test three level closure with variable shadowing another test case")

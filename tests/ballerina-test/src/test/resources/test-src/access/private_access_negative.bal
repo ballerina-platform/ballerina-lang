@@ -10,11 +10,11 @@ type Bar {
 
 type Baz 1|2;
 
-public Foo f = new ();
+public Foo foo = new ();
 
 public Bar b = {s:"K"};
 
-public Baz z = 1;
+public Baz baz = 1;
 
 object {public {
                  string s;

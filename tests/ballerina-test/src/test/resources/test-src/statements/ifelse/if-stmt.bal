@@ -119,10 +119,10 @@ function nestedIfElseScope(int number1, int number2) returns (int) {
 function testConditionScope(int b) returns (int) {
     int output = 0;
     if (a > b) {
-        int a = 1;
+        int c = 1;
         output = 10;
     } else if (a == b) {
-        int a = 2;
+        int c = 2;
         output = 20;
     }
     return output;

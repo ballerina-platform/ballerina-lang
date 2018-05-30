@@ -73,8 +73,8 @@ function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], err
     try {
         while (dt.hasNext()) {
             Employee rs = check <Employee>dt.getNext();
-            Employee e = { id: rs.id, name: rs.name, address: rs.address };
-            employeeArray3[i] = e;
+            Employee emp = { id: rs.id, name: rs.name, address: rs.address };
+            employeeArray3[i] = emp;
             i++;
         }
     } catch (error err) {

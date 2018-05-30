@@ -56,7 +56,6 @@ function testVariableShadowingBasic() returns int{
     int b = 4;
 
     if (a > 3) {
-        int a = 6;
         b = a + b;
     }
     return b;
@@ -67,7 +66,6 @@ function testVariableShadowingInCurrentScope1(int a) returns int{
     int b = 4;
 
     if (a > 3) {
-        int a = 6;
         b = a + b;
     }
     return b;
@@ -77,7 +75,6 @@ function testVariableShadowingInCurrentScope2(int a) returns function (float) re
     int b = 4;
 
     if (a < 10) {
-        int a = 4;
         b = a + b;
     }
 
