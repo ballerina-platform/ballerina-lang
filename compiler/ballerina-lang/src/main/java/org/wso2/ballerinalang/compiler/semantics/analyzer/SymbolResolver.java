@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.model.elements.Flag;
@@ -121,7 +121,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
-        
+
         //if a symbol is found, then check whether it is unique
         return isUniqueSymbol(pos, symbol, foundSym);
     }
@@ -131,9 +131,9 @@ public class SymbolResolver extends BLangNodeVisitor {
      * environment scope. Additionally, it checks from the enclosing environment scope only if it s function block
      * to restrict shadowing of function arguments.
      *
-     * @param pos symbol pos for diagnostic purpose.
-     * @param env symbol environment to lookup.
-     * @param symbol the symbol that is being defined.
+     * @param pos       symbol pos for diagnostic purpose.
+     * @param env       symbol environment to lookup.
+     * @param symbol    the symbol that is being defined.
      * @param expSymTag expected tag of the symbol for.
      * @return true if the symbol is unique, false otherwise.
      */
@@ -161,8 +161,8 @@ public class SymbolResolver extends BLangNodeVisitor {
      * This method will check whether the symbol being defined is unique comparing it with the found symbol
      * from the scope.
      *
-     * @param pos symbol pos for diagnostic purpose.
-     * @param symbol symbol that is being defined.
+     * @param pos      symbol pos for diagnostic purpose.
+     * @param symbol   symbol that is being defined.
      * @param foundSym symbol that is found from the scope.
      * @return true if the symbol is unique, false otherwise.
      */
@@ -184,8 +184,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             return false;
         }
 
-        if (foundSym.owner instanceof BPackageSymbol) {
-            // Found symbol is a global definition.
+        if ((foundSym.owner instanceof BPackageSymbol) && (foundSym.getKind() != SymbolKind.XMLNS)) {
+            // Found symbol is a global definition but not a xmlns, it is an redeclared symbol.
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
@@ -195,8 +195,8 @@ public class SymbolResolver extends BLangNodeVisitor {
     /**
      * Lookup the symbol using given name in the given environment scope only.
      *
-     * @param env environment to lookup the symbol.
-     * @param name name of the symbol to lookup.
+     * @param env       environment to lookup the symbol.
+     * @param name      name of the symbol to lookup.
      * @param expSymTag expected tag of the symbol.
      * @return if a symbol is found return it.
      */
@@ -339,7 +339,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         Name transformerName = names.fromString(Names.TRANSFORMER.value + "<" + sourceType + "," + targetType + ">");
         return lookupSymbol(env, transformerName, SymTag.TRANSFORMER);
     }
-    
+
     public BSymbol resolveAnnotation(DiagnosticPos pos, SymbolEnv env, Name pkgAlias, Name annotationName) {
         return this.lookupSymbolInPackage(pos, env, pkgAlias, annotationName, SymTag.ANNOTATION);
     }
@@ -351,14 +351,14 @@ public class SymbolResolver extends BLangNodeVisitor {
             return pkgSymbol;
         }
         BSymbol symbol = lookupMemberSymbol(pos, pkgSymbol.scope, env, connectorName, SymTag.CONNECTOR);
-//        if (symbol == symTable.notFoundSymbol) {
-//            dlog.error(pos, code, connectorName);
-//        }
+        //        if (symbol == symTable.notFoundSymbol) {
+        //            dlog.error(pos, code, connectorName);
+        //        }
         return symbol;
     }
 
     public BSymbol resolveObject(DiagnosticPos pos, DiagnosticCode code, SymbolEnv env,
-                                    Name pkgAlias, Name objectName) {
+                                 Name pkgAlias, Name objectName) {
         BSymbol pkgSymbol = resolvePkgSymbol(pos, env, pkgAlias);
         if (pkgSymbol == symTable.notFoundSymbol) {
             return pkgSymbol;
@@ -445,8 +445,8 @@ public class SymbolResolver extends BLangNodeVisitor {
     /**
      * Recursively analyse the symbol env to find the closure variable symbol that is being resolved.
      *
-     * @param env     symbol env to analyse and find the closure variable.
-     * @param name    name of the symbol to lookup
+     * @param env       symbol env to analyse and find the closure variable.
+     * @param name      name of the symbol to lookup
      * @param expSymTag symbol tag
      * @return resolved closure variable symbol for the given name.
      */
