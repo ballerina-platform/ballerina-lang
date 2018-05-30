@@ -22,7 +22,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.packerina.UserRepositoryUtils;
+import org.ballerinalang.packerina.UninstallUtils;
 
 import java.io.PrintStream;
 import java.util.List;
@@ -63,7 +63,7 @@ public class UninstallCommand implements BLauncherCmd {
             throw LauncherUtils.createUsageException("too many arguments");
         }
         String packageStr = argList.get(0);
-        UserRepositoryUtils.uninstallSourcePackage(packageStr);
+        UninstallUtils.uninstallPackage(packageStr);
     }
 
     @Override
