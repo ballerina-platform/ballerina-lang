@@ -18,6 +18,11 @@
 import _ from 'lodash';
 import log from 'log';
 import Plugin from 'core/plugin/plugin';
+import {
+    BaseLanguageClient, CloseAction, ErrorAction,
+    createConnection, MonacoToProtocolConverter, ProtocolToMonacoConverter,
+    MonacoCommands, MonacoLanguages, MonacoWorkspace, ConsoleWindow
+} from 'monaco-languageclient';
 import { listen } from 'vscode-ws-jsonrpc';
 import { setTimeout } from 'timers';
 import ReconnectingWebSocket from 'reconnecting-websocket';
@@ -49,6 +54,7 @@ class BallerinaPlugin extends Plugin {
     constructor() {
         super();
         this.langServerConnection = undefined;
+        this.lsCommands = [];
         this.getLangServerConnection = this.getLangServerConnection.bind(this);
     }
 
@@ -101,11 +107,44 @@ class BallerinaPlugin extends Plugin {
         // create the web socket
         const url = getServiceEndpoint('ballerina-langserver');
         const webSocket = new ReconnectingWebSocket(url, undefined, socketOptions);
+        const m2p = new MonacoToProtocolConverter();
+        const p2m = new ProtocolToMonacoConverter();
         // listen when the web socket is opened
         listen({
             webSocket,
             onConnection: (connection) => {
                 this.langServerConnection = connection;
+                // create and start the language client
+                const languageClient = new BaseLanguageClient({
+                    name: 'Ballerina Language Client',
+                    clientOptions: {
+                        // use a language id as a document selector
+                        documentSelector: ['ballerina-lang'],
+                        // disable the default error handler
+                        errorHandler: {
+                            error: () => ErrorAction.Continue,
+                            closed: () => CloseAction.DoNotRestart,
+                        },
+                    },
+                    services: {
+                        commands: {
+                            registerCommand: (...args) => {
+                                this.lsCommands.push({ ...args });
+                            },
+                        },
+                        languages: new MonacoLanguages(p2m, m2p),
+                        workspace: new MonacoWorkspace(p2m, m2p),
+                        window: new ConsoleWindow(),
+                    },
+                    // create a language client connection from the JSON RPC connection on demand
+                    connectionProvider: {
+                        get: (errorHandler, closeHandler) => {
+                            return Promise.resolve(createConnection(connection, errorHandler, closeHandler));
+                        },
+                    },
+                });
+                const disposable = languageClient.start();
+                connection.onClose(() => disposable.dispose());
             },
         });
     }

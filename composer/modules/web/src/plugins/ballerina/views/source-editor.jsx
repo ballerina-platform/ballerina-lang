@@ -17,10 +17,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-    BaseLanguageClient, CloseAction, ErrorAction,
-    createMonacoServices, createConnection,
-} from 'monaco-languageclient';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 import File from 'core/workspace/model/file';
 import { COMMANDS, EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
@@ -189,31 +185,15 @@ class SourceEditor extends React.Component {
         editorInstance.setModel(modelForFile);
         this.props.commandProxy.on(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
         this.props.commandProxy.on(GO_TO_POSITION, this.handleGoToPosition);
-        const services = createMonacoServices(editorInstance);
         const getLangServerConnection = this.props.ballerinaPlugin.getLangServerConnection();
         getLangServerConnection
             .then((connection) => {
-                // create and start the language client
-                const languageClient = new BaseLanguageClient({
-                    name: 'Ballerina Language Client',
-                    clientOptions: {
-                        // use a language id as a document selector
-                        documentSelector: [BAL_LANGUAGE],
-                        // disable the default error handler
-                        errorHandler: {
-                            error: () => ErrorAction.Continue,
-                            closed: () => CloseAction.DoNotRestart,
-                        },
-                    },
-                    services,
-                    // create a language client connection from the JSON RPC connection on demand
-                    connectionProvider: {
-                        get: (errorHandler, closeHandler) => {
-                            return Promise.resolve(createConnection(connection, errorHandler, closeHandler));
-                        },
-                    },
+                this.props.ballerinaPlugin.lsCommands.forEach((cmd) => {
+                    editorInstance._commandService.addCommand({
+                        id: cmd.command,
+                        handler: (_accessor, ...args) => cmd.callback(...args),
+                    });
                 });
-
                 editorInstance.onMouseDown((e) => {
                     if (e.event.ctrlKey) {
                         e.event.preventDefault();
@@ -240,9 +220,6 @@ class SourceEditor extends React.Component {
                         });
                     }
                 });
-
-                const disposable = languageClient.start();
-                connection.onClose(() => disposable.dispose());
             });
         this.bindCommands();
         editorInstance.onMouseDown((e) => {
