@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.langserver.completion.definitions;
 
-import org.ballerinalang.langserver.CompletionNegativeTest;
+import org.ballerinalang.langserver.completion.CompletionNegativeTest;
 import org.testng.annotations.DataProvider;
 
 /**

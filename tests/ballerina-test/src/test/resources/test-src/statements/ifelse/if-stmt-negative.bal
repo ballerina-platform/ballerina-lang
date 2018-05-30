@@ -30,3 +30,16 @@ function testIfStmtWithIncompatibleType2() {
     }
     return;
 }
+
+function testIfStmtWithIncompatibleType3() {
+    if "foo" {
+        int a = 5;
+    } else if 4 {
+        int b = 4;
+    }
+
+    if (5, "baz") {
+        //do nothing
+    }
+    return;
+}

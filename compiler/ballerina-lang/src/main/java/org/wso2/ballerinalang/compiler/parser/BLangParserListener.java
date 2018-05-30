@@ -356,7 +356,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         // TODO remove when removing struct
-        boolean isReceiverAttached = ctx.parameter() != null;
+        boolean isReceiverAttached = ctx.typeName() != null;
 
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
                 bodyExists, isReceiverAttached, false);
@@ -3036,13 +3036,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     private byte[] getBlobLiteral(BallerinaParser.BlobLiteralContext blobLiteralContext) {
+        byte[] blobLiteralValue = new byte[0];
         if (blobLiteralContext.Base16BlobLiteral() != null) {
-            return hexStringToByteArray(getBlobTextValue(blobLiteralContext.getText()));
+            blobLiteralValue = hexStringToByteArray(getBlobTextValue(blobLiteralContext.getText()));
         } else if (blobLiteralContext.Base64BlobLiteral() != null) {
-            return Base64.getDecoder().decode(getBlobTextValue(blobLiteralContext.getText()).
+            blobLiteralValue = Base64.getDecoder().decode(getBlobTextValue(blobLiteralContext.getText()).
                     getBytes(StandardCharsets.UTF_8));
         }
-        return null;
+        return blobLiteralValue;
     }
 
     private String getBlobTextValue(String blobLiteralNodeText) {
