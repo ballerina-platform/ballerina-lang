@@ -2020,18 +2020,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                                    BLangStatement streamingQueryStatement,
                                                    BStructType.BStructField outputStructField) {
 
-        if (structField == null) {
-            dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement)
-                            streamingQueryStatement).
-                            getSelectClause()).pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE,
-                    attributeName);
-        } else {
+        if (structField != null) {
             this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
                             streamingQueryStatement).getStreamingAction()).pos,
                     outputStructField.getType(), structField.getType(),
                     DiagnosticCode.INCOMPATIBLE_TYPES);
         }
-
     }
 
     private Map<String, List<BStructType.BStructField>> createInputStreamSpecificFieldMap

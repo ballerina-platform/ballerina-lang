@@ -1257,8 +1257,16 @@ public class BLangPackageBuilder {
         }
 
         if (isReceiverAttached) {
-            BLangVariable receiver = (BLangVariable) this.varStack.pop();
+            //Get type node for this attached function
+            TypeNode typeNode = this.typeNodeStack.pop();
+            //Create and add receiver to attached functions
+            BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+            receiver.pos = pos;
+
+            IdentifierNode name = createIdentifier(Names.SELF.getValue());
+            receiver.setName(name);
             receiver.docTag = DocTag.RECEIVER;
+            receiver.setTypeNode(typeNode);
             function.receiver = receiver;
             function.flagSet.add(Flag.ATTACHED);
         }

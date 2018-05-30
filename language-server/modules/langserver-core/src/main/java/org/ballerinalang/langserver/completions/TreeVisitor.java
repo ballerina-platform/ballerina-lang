@@ -76,6 +76,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -804,6 +805,12 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangSimpleVarRef simpleVarRef) {
         ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(simpleVarRef.getPosition(), simpleVarRef, this, this.documentServiceContext);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral recordLiteral) {
+        SymbolEnv annotationAttachmentEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
+        this.isCursorWithinBlock(recordLiteral.getPosition(), annotationAttachmentEnv);
     }
 
     public void setPreviousNode(BLangNode previousNode) {
