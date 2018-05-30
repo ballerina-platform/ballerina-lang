@@ -90,6 +90,13 @@ if $os400; then
   export QIBM_MULTI_THREADED
 fi
 
+if ! type "tput" > /dev/null; then
+  BALLERINA_CLI_WIDTH="80"
+else
+  BALLERINA_CLI_WIDTH=`tput cols`
+fi
+export BALLERINA_CLI_WIDTH
+
 # For Migwn, ensure paths are in UNIX format before anything is touched
 if $mingw ; then
   [ -n "$BALLERINA_HOME" ] &&
@@ -144,6 +151,12 @@ if [ "$CMD" = "--java.debug" ]; then
   fi
   JAVA_OPTS="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=$PORT"
   echo "Please start the remote debugging client to continue..."
+fi
+
+jdk_18=`$JAVA_HOME/bin/java -version 2>&1 | grep "1.[8|9]"`
+if [ "$jdk_18" = "" ]; then
+   echo "Error: Ballerina is supported only on JDK 1.8 and above"
+   exit 1
 fi
 
 BALLERINA_XBOOTCLASSPATH=""

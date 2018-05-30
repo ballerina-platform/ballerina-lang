@@ -22,6 +22,31 @@ function testIfStmt(int a, int b, int c) returns (int, int) {
     return (a1 + x, b1 + 1);
 }
 
+function testIfStmtWithoutParentheses(int a, int b, int c) returns (int, int) {
+
+    int x;
+    x = 10;
+
+    int a1;
+    if a == b {
+        a1 = 100;
+
+    } else if a == (b + 1) {
+        a1 = 200;
+
+    } else  if (((a == (b + 2)))) {
+        a1 = 300;
+
+    } else {
+        a1 = 400;
+    }
+
+    int b1 = c;
+
+    return (a1 + x, b1 + 1);
+}
+
+
 function testAgeGroup(int age) returns (string) {
     string avgGroup;
     if (age > 18) {

@@ -86,7 +86,7 @@ public class URIConverter implements Converter<URI> {
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
             executor.execute("packaging_pull/packaging_pull.balx", true, u.toString(), destDirPath.toString(),
                              fullPkgPath, File.separator, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
-                             proxy.getPassword());
+                             proxy.getPassword(), RepoUtils.getTerminalWidth());
             // TODO Simplify using ZipRepo
             Patten pattern = new Patten(Patten.LATEST_VERSION_DIR,
                                         Patten.path(pkgName + ".zip"),

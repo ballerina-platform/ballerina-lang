@@ -363,11 +363,11 @@ ifElseStatement
     ;
 
 ifClause
-    :   IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   IF expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 elseIfClause
-    :   ELSE IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   ELSE IF expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 elseClause
@@ -392,7 +392,7 @@ intRangeExpression
     ;
 
 whileStatement
-    :   WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   WHILE expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 nextStatement
@@ -664,6 +664,7 @@ simpleLiteral
     |   QuotedStringLiteral
     |   BooleanLiteral
     |   emptyTupleLiteral
+    |   blobLiteral
     |   NullLiteral
     ;
 
@@ -677,6 +678,11 @@ integerLiteral
 
 emptyTupleLiteral
     :   LEFT_PARENTHESIS RIGHT_PARENTHESIS
+    ;
+
+blobLiteral
+    : Base16BlobLiteral
+    | Base64BlobLiteral
     ;
 
 namedArgs

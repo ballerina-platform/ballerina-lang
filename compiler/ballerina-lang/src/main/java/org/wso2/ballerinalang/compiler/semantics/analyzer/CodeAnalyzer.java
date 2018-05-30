@@ -146,6 +146,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
@@ -169,6 +170,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private boolean statementReturns;
     private boolean lastStatement;
+    private boolean withinRetryBlock;
     private int forkJoinCount;
     private int workerCount;
     private SymbolTable symTable;
@@ -375,8 +377,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
-        //Check whether transaction is within a handler function. This can check for single level only. We need data
-        //flow analysis to check for further levels.
+        //Check whether transaction is within a handler function or retry block. This can check for single level only.
+        // We need data flow analysis to check for further levels.
         if (!isValidTransactionBlock()) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER);
             return;
@@ -389,9 +391,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.transactionCount--;
         this.resetLastStatement();
         if (transactionNode.onRetryBody != null) {
+            this.withinRetryBlock = true;
             analyzeNode(transactionNode.onRetryBody, env);
             this.resetStatementReturns();
             this.resetLastStatement();
+            this.withinRetryBlock = false;
         }
         this.returnWithintransactionCheckStack.pop();
         this.loopWithintransactionCheckStack.pop();
@@ -680,7 +684,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangVariable varNode) {
         analyzeExpr(varNode.expr);
 
-        if (!Symbols.isPublic(varNode.symbol)) {
+        if (Objects.isNull(varNode.symbol) || !Symbols.isPublic(varNode.symbol)) {
             return;
         }
 
@@ -1319,7 +1323,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isValidTransactionBlock() {
-        return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek());
+        return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek()) &&
+                !this.withinRetryBlock;
     }
 
     private boolean checkDoneValidityInTransaction() {

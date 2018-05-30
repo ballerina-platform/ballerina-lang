@@ -19,7 +19,9 @@ package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
@@ -108,10 +110,10 @@ public class Sprintf extends BlockingNativeCallableUnit {
                         result.append(String.format("%" + padding + "f", args.get(k).value()));
                         break;
                     case 'x':
-                        result.append(String.format("%" + padding + "x", args.get(k).value()));
+                        formatHexString(args, result, k, padding, "x");
                         break;
                     case 'X':
-                        result.append(String.format("%" + padding + "X", args.get(k).value()));
+                        formatHexString(args, result, k, padding, "X");
                         break;
                     case 'o':
                         result.append(String.format("%" + padding + "o", args.get(k).value()));
@@ -150,5 +152,17 @@ public class Sprintf extends BlockingNativeCallableUnit {
             result.append(format.charAt(i));
         }
         context.setReturnValues(new BString(result.toString()));
+    }
+
+    private void formatHexString(BRefValueArray args, StringBuilder result, int k, StringBuilder padding, String x) {
+        BRefType ref = args.get(k);
+        if (BTypes.typeBlob.getTag() == ref.getType().getTag()) {
+            byte[] blob = (byte[]) ref.value();
+            for (byte b : blob) {
+                result.append(String.format("%" + padding + x, b));
+            }
+        } else {
+            result.append(String.format("%" + padding + x, args.get(k).value()));
+        }
     }
 }

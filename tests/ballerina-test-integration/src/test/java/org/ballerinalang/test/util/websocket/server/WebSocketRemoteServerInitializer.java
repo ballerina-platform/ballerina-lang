@@ -34,13 +34,15 @@ public class WebSocketRemoteServerInitializer extends ChannelInitializer<SocketC
     private static final String WEBSOCKET_PATH = "/websocket";
 
     @Override
-    public void initChannel(SocketChannel ch) throws Exception {
+    public void initChannel(SocketChannel ch) {
         ChannelPipeline pipeline = ch.pipeline();
         pipeline.addLast(new HttpServerCodec());
         pipeline.addLast(new HttpObjectAggregator(8192));
         pipeline.addLast(new WebSocketServerCompressionHandler());
+        WebSocketHeadersHandler headersHandler = new WebSocketHeadersHandler();
+        pipeline.addLast(headersHandler);
         pipeline.addLast(new WebSocketServerProtocolHandler(WEBSOCKET_PATH, null, true));
-        WebSocketRemoteServerFrameHandler frameHandler = new WebSocketRemoteServerFrameHandler();
+        WebSocketRemoteServerFrameHandler frameHandler = new WebSocketRemoteServerFrameHandler(headersHandler);
         pipeline.addLast(frameHandler);
     }
 }

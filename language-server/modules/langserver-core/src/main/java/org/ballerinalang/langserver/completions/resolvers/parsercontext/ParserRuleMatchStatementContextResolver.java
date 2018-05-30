@@ -50,7 +50,9 @@ import java.util.stream.Collectors;
  * Completion Item resolver for the match statement parser rule context.
  */
 public class ParserRuleMatchStatementContextResolver extends AbstractItemResolver {
-    private static final String LINE_SEPERATOR = System.lineSeparator();
+
+    private static final String LINE_SEPARATOR = System.lineSeparator();
+
     @Override
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
@@ -123,16 +125,16 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
     private String getMatchFieldsSnippet(BUnionType bUnionType) {
         Set<BType> memberTypes = bUnionType.getMemberTypes();
         StringBuilder fieldsSnippet = new StringBuilder("{");
-        fieldsSnippet.append(LINE_SEPERATOR);
+        fieldsSnippet.append(LINE_SEPARATOR);
 
         memberTypes.forEach(bType -> {
             fieldsSnippet
                     .append("\t").append(bType.toString()).append(" => {")
-                    .append(LINE_SEPERATOR)
+                    .append(LINE_SEPARATOR)
                     .append("\t\t")
-                    .append(LINE_SEPERATOR)
+                    .append(LINE_SEPARATOR)
                     .append("\t").append("}")
-                    .append(LINE_SEPERATOR);
+                    .append(LINE_SEPARATOR);
         });
         fieldsSnippet.append("}");
         
