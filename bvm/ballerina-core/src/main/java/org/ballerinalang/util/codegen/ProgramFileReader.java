@@ -1577,8 +1577,6 @@ public class ProgramFileReader {
                 case InstructionCodes.MAP2JSON:
                 case InstructionCodes.JSON2MAP:
                 case InstructionCodes.JSON2ARRAY:
-                case InstructionCodes.IRC:
-                case InstructionCodes.IRHO:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1588,6 +1586,7 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWXMLELEMENT:
                 case InstructionCodes.TR_BEGIN:
                 case InstructionCodes.MAPLOAD:
+                case InstructionCodes.INT_RANGE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

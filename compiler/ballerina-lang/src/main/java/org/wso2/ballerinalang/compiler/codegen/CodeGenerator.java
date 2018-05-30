@@ -26,6 +26,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.FunctionFlags;
+import org.ballerinalang.util.IntegerRangeOperator;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -1010,7 +1011,13 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(binaryExpr.lhsExpr, this.env);
             genNode(binaryExpr.rhsExpr, this.env);
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
-            emit(binaryExpr.opSymbol.opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
+            int opCode = binaryExpr.opSymbol.opcode;
+            if (opCode == InstructionCodes.INT_RANGE) {
+                emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex,
+                        getOperand(IntegerRangeOperator.valueOf(binaryExpr.opKind.name()).value()));
+            } else {
+                emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
+            }
         }
     }
 

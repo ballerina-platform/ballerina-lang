@@ -136,8 +136,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ILE] = "ile";
         mnemonics[InstructionCodes.FLE] = "fle";
 
-        mnemonics[InstructionCodes.IRC] = "irc";
-        mnemonics[InstructionCodes.IRHO] = "irho";
+        mnemonics[InstructionCodes.INT_RANGE] = "int_range";
         
         mnemonics[InstructionCodes.REQ_NULL] = "reg_null";
         mnemonics[InstructionCodes.RNE_NULL] = "rne_null";

@@ -298,8 +298,8 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, floatType, booleanType, InstructionCodes.FGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, floatType, booleanType, InstructionCodes.FGE);
 
-        defineBinaryOperator(OperatorKind.CLOSED_RANGE, intType, intType, intArrayType, InstructionCodes.IRC);
-        defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, intType, intType, intArrayType, InstructionCodes.IRHO);
+        defineBinaryOperator(OperatorKind.CLOSED_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
+        defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
 
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType, -1);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType, -1);
