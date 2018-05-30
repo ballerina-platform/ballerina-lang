@@ -778,8 +778,7 @@ public class CompiledPackageSymbolEnter {
         for (int i = 0; i < attchmntIndexesLength; i++) {
             dataInStream.readInt();
         }
-
-        return varName;
+        return varName.substring(varName.indexOf('.') + 1);
     }
 
     private Object getObjectFieldDefaultValue(byte[] defaultValueAttrData) throws IOException {
