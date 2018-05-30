@@ -300,6 +300,27 @@ class TreeBuilder {
             }
         }
 
+        if (node.kind === 'Record') {
+            let semicolonCount = 0;
+            let commaCount = 0;
+
+            if (node.ws) {
+                for (let i = 0; i < node.ws.length; i++) {
+                    if (node.ws[i].text === ';') {
+                        semicolonCount += 1;
+                    } else if (node.ws[i].text === ',') {
+                        commaCount += 1;
+                    }
+                }
+
+                if (commaCount > 0) {
+                    node.separateWithComma = true;
+                } else if (semicolonCount > 1) {
+                    node.separateWithSemicolon = true;
+                }
+            }
+        }
+
         if (node.kind === 'Object') {
             node.publicFields = [];
             node.privateFields = [];
@@ -487,6 +508,39 @@ class TreeBuilder {
             if ((node.value === 'nil' || node.value === 'null') && node.ws
                 && node.ws.length < 3 && node.ws[0].text === '(') {
                 node.emptyParantheses = true;
+            }
+        }
+
+        if (node.kind === 'Foreach') {
+            if (node.ws && _.find(node.ws, (ws) => ws.text === '(')) {
+                node.withParantheses = true;
+            }
+        }
+
+        if (node.kind === 'Endpoint') {
+            if (node.ws && _.find(node.ws, (ws) => ws.text === '=')) {
+                node.isConfigAssignment = true;
+            }
+        }
+
+        if (node.kind === 'UserDefinedType') {
+            if (node.ws && node.nullable && _.find(node.ws, (ws) => ws.text === '?')) {
+                node.nullableOperatorAvailable = true;
+            }
+        }
+
+        if (node.kind === 'ArrayType') {
+            if (node.dimensions > 0 && node.ws) {
+                node.dimensionAsString = "";
+                for (let j = 0; j < node.ws.length; j++) {
+                    if (node.ws[j].text === '[') {
+                        let startingBracket = node.ws[j];
+                        let endingBracket = node.ws[j + 1];
+
+                        node.dimensionAsString += startingBracket.ws + startingBracket.text +
+                            endingBracket.ws + endingBracket.text;
+                    }
+                }
             }
         }
     }

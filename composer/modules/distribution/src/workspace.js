@@ -19,18 +19,31 @@
 
 const {ipcMain, dialog} = require('electron');
 
+const extensions = [
+    { name: 'Ballerina files', extensions: ['bal']}, 
+    { name: 'XML files ', extensions: ['xml']},
+    { name: 'JSON files', extensions: ['json']}, 
+    { name: 'TOML files', extensions: ['toml']}, 
+    { name: 'Conf files', extensions: ['conf']},
+    { name: 'Text files', extensions: ['txt']}, 
+    { name: 'YAML files', extensions: ['yml']}, 
+    { name: 'Markdown files', extensions: ['md']},
+    { name: 'SQL files', extensions: ['sql']}, 
+    { name: 'Shell scripts', extensions: ['sh']}, 
+    { name: 'Bat scripts', extensions: ['bat']}
+];
+
 function setupNativeWizards(mainWindow) {
     ipcMain.on('show-file-open-dialog', function (event) {
         dialog.showOpenDialog(
           mainWindow,
             {
                 title: 'Open Ballerina File',
-                filters: [
-                    {name: 'Ballerina Files (*.bal) ', extensions: ['bal']},
-                ],
+                message: 'choose ballerina file to open',
+                filters: extensions,
                 properties: ['openFile', 'promptToCreate']
             }, function (file) {
-                if (file) event.sender.send('file-opened', file);
+                event.sender.send('file-open-wizard-closed', file)
             }
         );
     });
@@ -40,11 +53,10 @@ function setupNativeWizards(mainWindow) {
           mainWindow,
             {
                 title: 'Save Ballerina File',
-                filters: [
-                    {name: 'Ballerina Files (*.bal) ', extensions: ['bal']},
-                ]
+                message: 'select where to save the ballerina file',
+                filters: extensions
             }, function (file) {
-                if (file) event.sender.send('file-save-path-selected', file);
+                event.sender.send('file-save-wizard-closed', file);
             }
         );
     });
@@ -54,9 +66,10 @@ function setupNativeWizards(mainWindow) {
           mainWindow,
             {
                 title: 'Open Ballerina Folder',
+                message: 'select a ballerina project folder',
                 properties: ['openDirectory', 'createDirectory']
-            }, function (folder) {
-                if (folder) event.sender.send('folder-opened', folder);
+            }, function (folders) {
+                event.sender.send('folder-open-wizard-closed', folders ? folders[0] : undefined);
             }
         );
     });

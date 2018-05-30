@@ -46,7 +46,7 @@ public class PackageImportDelayTest extends CompletionTest {
     @Test(dataProvider = "completion-data-provider", enabled = false)
     @Override
     public void test(String config, String configPath) {
-        String configJsonPath = SAMPLES_COPY_DIR + File.separator + configPath + File.separator + config;
+        String configJsonPath = configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
         // Allow warmup and caching
