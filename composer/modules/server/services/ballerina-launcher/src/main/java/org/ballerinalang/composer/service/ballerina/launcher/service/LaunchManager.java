@@ -120,7 +120,7 @@ public class LaunchManager {
 
             new Thread(new Runnable() {
                 public void run() {
-                    LogParser.getLogParserInstance().startListner(launchManagerInstance);
+                    LogParser.getLogParserInstance().startListener(launchManagerInstance);
                 }
             }).start();
 

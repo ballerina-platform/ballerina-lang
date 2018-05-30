@@ -40,7 +40,7 @@ public class LogParser {
 
     static final Pattern ID_PATTERN = Pattern.compile("id: ([a-z0-9]*)");
     static final Pattern DIRECTION = Pattern.compile("(INBOUND|OUTBOUND)");
-    static final Pattern HEADER = Pattern.compile("(?:INBOUND|OUTBOUND): ([\\s\\S]*)");
+    static final Pattern HEADER = Pattern.compile("(?:INBOUND|OUTBOUND): (.*[\\n\\r])([\\s\\S]*)");
     static final Pattern HTTP_METHOD = Pattern.compile("(GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)");
     static final Pattern PATH = Pattern.compile("(?:GET|POST|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)"
             + " ([^\\s]+)");
@@ -54,7 +54,7 @@ public class LogParser {
         return logParserInstance;
     }
 
-    public void startListner(LaunchManager launchManagerInstance) {
+    public void startListener(LaunchManager launchManagerInstance) {
         try {
             listenSocket = new ServerSocket(5010);
             Socket dataSocket = listenSocket.accept();
@@ -110,10 +110,19 @@ public class LogParser {
         }
     }
 
-    private String getHeader(String logLine) {
+    private String getHeaderType(String logLine) {
         Matcher matcher = HEADER.matcher(logLine);
         if (matcher.find()) {
             return matcher.group(1);
+        } else {
+            return "";
+        }
+    }
+
+    private String getHeader(String logLine) {
+        Matcher matcher = HEADER.matcher(logLine);
+        if (matcher.find()) {
+            return matcher.group(2);
         } else {
             return "";
         }
@@ -171,8 +180,10 @@ public class LogParser {
         log.setId(getId(logLine));
         log.setDirection(getDirection(logLine));
         String header = getHeader(logLine);
+        String headerType = getHeaderType(logLine);
         String payload = getPayload(header);
         log.setHeaders(removePayload(header, payload));
+        log.setHeaderType(headerType);
         log.setContentType(getContentType(logLine));
         log.setHttpMethod(getHttpMethod(logLine));
         log.setPath(getPath(logLine));
