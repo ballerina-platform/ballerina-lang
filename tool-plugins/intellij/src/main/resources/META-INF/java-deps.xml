@@ -16,18 +16,18 @@
 
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
-        <moduleType id="BALLERINA_MODULE" implementationClass="org.ballerinalang.plugins.idea.BallerinaModuleType"/>
+        <moduleType id="BALLERINA_MODULE" implementationClass="io.ballerina.plugins.idea.BallerinaModuleType"/>
         <moduleConfigurationEditorProvider
-                implementation="org.ballerinalang.plugins.idea.configuration.BallerinaModuleEditorsProvider"
+                implementation="io.ballerina.plugins.idea.configuration.BallerinaModuleEditorsProvider"
                 order="first"/>
         <editorNotificationProvider
-                implementation="org.ballerinalang.plugins.idea.inspections.WrongModuleTypeNotificationProvider"/>
+                implementation="io.ballerina.plugins.idea.inspections.WrongModuleTypeNotificationProvider"/>
 
         <projectStructureDetector
-                implementation="org.ballerinalang.plugins.idea.project.BallerinaProjectStructureDetector"/>
+                implementation="io.ballerina.plugins.idea.project.BallerinaProjectStructureDetector"/>
 
-        <projectService serviceInterface="org.ballerinalang.plugins.idea.sdk.BallerinaSdkService"
-                        serviceImplementation="org.ballerinalang.plugins.idea.sdk.BallerinaIdeaSdkService"
+        <projectService serviceInterface="io.ballerina.plugins.idea.sdk.BallerinaSdkService"
+                        serviceImplementation="io.ballerina.plugins.idea.sdk.BallerinaIdeaSdkService"
                         overrides="true"/>
     </extensions>
 </idea-plugin>
