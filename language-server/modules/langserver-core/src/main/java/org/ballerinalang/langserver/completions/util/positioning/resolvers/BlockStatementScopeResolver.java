@@ -47,8 +47,9 @@ import java.util.Map;
 public class BlockStatementScopeResolver extends CursorPositionResolver {
     /**
      * Check whether the cursor position is located before the evaluating statement node.
+     *
      * @param nodePosition position of the node
-     * @param node statement being evaluated
+     * @param node         statement being evaluated
      * @return true|false
      */
     @Override
@@ -92,7 +93,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
         return false;
     }
-    
+
     private boolean isWithinScopeAfterLastChildNode(TreeVisitor treeVisitor, boolean lastChild,
                                                     int nodeELine, int nodeECol, int line, int col, Node node) {
         if (!lastChild) {
@@ -104,11 +105,11 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
             int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
             boolean isWithinScope = (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
                     (line > nodeELine || (line == nodeELine && col > nodeECol));
-            
+
             if (isWithinScope) {
                 treeVisitor.setPreviousNode((BLangNode) node);
             }
-            
+
             return isWithinScope;
         }
     }
@@ -118,8 +119,8 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
             return (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
         } else if (blockOwner instanceof BLangTypeDefinition
                 && ((BLangTypeDefinition) blockOwner).typeNode instanceof BLangObjectTypeNode) {
-            List<BLangVariable> structFields
-                    = ((BLangObjectTypeNode) ((BLangTypeDefinition) blockOwner).typeNode).getFields();
+            List<BLangVariable> structFields = (List<BLangVariable>)
+                    ((BLangObjectTypeNode) ((BLangTypeDefinition) blockOwner).typeNode).getFields();
             return (structFields.indexOf(node) == structFields.size() - 1);
         } else {
             return false;
@@ -215,6 +216,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
     /**
      * Calculate the end line of the BLangIf node.
+     *
      * @param bLangIf {@link BLangIf}
      * @return end line of the if node
      */
