@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -30,7 +30,7 @@ import java.nio.file.Paths;
 /**
  * This class contains a set of utility methods to used by the uninstall command.
  *
- * @since 0.90
+ * @since 0.972.1
  */
 public class UninstallUtils {
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();

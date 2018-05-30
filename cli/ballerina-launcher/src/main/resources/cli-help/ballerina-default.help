@@ -39,6 +39,7 @@ BALLERINA COMMANDS
          run        Run Ballerina program
          build      Compile Ballerina program
          install    Install packages to home repository
+         uninstall  Uninstall packages from home repository
          pull       Download package from Ballerina Central
          push       Upload package to Ballerina Central
          init       Initialize Ballerina project

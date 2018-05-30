@@ -17,9 +17,9 @@ DEFAULT BEHAVIOR
 
 EXAMPLES
      Uninstall math package
-     $ ballerina uninstall user_name/math:0.0.1
+     $ ballerina uninstall org_name/math:0.0.1
      This will remove the math package from the home repository
      on a Mac or Linux machine in 
-     ~/.ballerina/repo/user_name/math/0.0.1/math.zip
+     ~/.ballerina/repo/org_name/math/0.0.1/math.zip
      On a Windows machine the package will be placed in 
-     \User\user_name\.ballerina\repo\user_name\math\0.0.1\math.zip
+     \User\user_name\.ballerina\repo\org_name\math\0.0.1\math.zip
