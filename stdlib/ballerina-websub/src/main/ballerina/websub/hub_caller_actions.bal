@@ -420,7 +420,3 @@ function getRedirectionMaxCount(http:FollowRedirects? followRedirects) returns i
     }
     return 0;
 }
-
-function isSuccessStatusCode(int statusCode) returns boolean {
-    return (200 <= statusCode && statusCode < 300);
-}

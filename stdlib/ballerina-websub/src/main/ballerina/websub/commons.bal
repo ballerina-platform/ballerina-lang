@@ -636,3 +636,7 @@ type WebSubContent {
     string|xml|json|blob|io:ByteChannel payload,
     string contentType,
 };
+
+function isSuccessStatusCode(int statusCode) returns boolean {
+    return (200 <= statusCode && statusCode < 300);
+}

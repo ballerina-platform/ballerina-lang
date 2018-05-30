@@ -588,8 +588,27 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
         var contentDistributionRequest = callbackEp->post("", request = request);
         match (contentDistributionRequest) {
-            http:Response response => { return; } //TODO: Handle based on response code
-            error err => { log:printError("Error delievering content to: " + callback); }
+            http:Response response => {
+                int respStatusCode = response.statusCode;
+                if (isSuccessStatusCode(respStatusCode)) {
+                    log:printDebug("Content delivery to callback[" + callback
+                                    + "] successful for topic[" + subscriptionDetails.topic + "]");
+                } else if (respStatusCode == http:GONE_410) {
+                    removeSubscription(subscriptionDetails.topic, callback);
+                    if (hubPersistenceEnabled) {
+                        changeSubscriptionInDatabase(MODE_UNSUBSCRIBE, subscriptionDetails);
+                    }
+                    log:printInfo("HTTP 410 response code received: Subscription deleted for callback[" + callback
+                                    + "], topic[" + subscriptionDetails.topic + "]");
+                } else {
+                    log:printError("Error delievering content to callback[" + callback + "] for topic["
+                                + subscriptionDetails.topic + "]: received response code " + respStatusCode);
+                }
+            }
+            error err => {
+                log:printError("Error delievering content to callback[" + callback + "] for topic["
+                                + subscriptionDetails.topic + "]: " + err .message);
+            }
         }
     }
 }
