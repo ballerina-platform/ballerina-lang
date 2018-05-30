@@ -18,33 +18,33 @@ public class BallerinaLexer extends Lexer {
 		new PredictionContextCache();
 	public static final int
 		IMPORT=1, AS=2, PUBLIC=3, PRIVATE=4, NATIVE=5, SERVICE=6, RESOURCE=7, 
-		FUNCTION=8, OBJECT=9, ANNOTATION=10, PARAMETER=11, TRANSFORMER=12, WORKER=13, 
-		ENDPOINT=14, BIND=15, XMLNS=16, RETURNS=17, VERSION=18, DOCUMENTATION=19, 
-		DEPRECATED=20, RECORD=21, FROM=22, ON=23, SELECT=24, GROUP=25, BY=26, 
-		HAVING=27, ORDER=28, WHERE=29, FOLLOWED=30, INSERT=31, INTO=32, UPDATE=33, 
-		DELETE=34, SET=35, FOR=36, WINDOW=37, QUERY=38, EXPIRED=39, CURRENT=40, 
-		EVENTS=41, EVERY=42, WITHIN=43, LAST=44, FIRST=45, SNAPSHOT=46, OUTPUT=47, 
-		INNER=48, OUTER=49, RIGHT=50, LEFT=51, FULL=52, UNIDIRECTIONAL=53, REDUCE=54, 
-		SECOND=55, MINUTE=56, HOUR=57, DAY=58, MONTH=59, YEAR=60, SECONDS=61, 
-		MINUTES=62, HOURS=63, DAYS=64, MONTHS=65, YEARS=66, FOREVER=67, LIMIT=68, 
-		ASCENDING=69, DESCENDING=70, TYPE_INT=71, TYPE_FLOAT=72, TYPE_BOOL=73, 
-		TYPE_STRING=74, TYPE_BLOB=75, TYPE_MAP=76, TYPE_JSON=77, TYPE_XML=78, 
-		TYPE_TABLE=79, TYPE_STREAM=80, TYPE_ANY=81, TYPE_DESC=82, TYPE=83, TYPE_FUTURE=84, 
-		VAR=85, NEW=86, IF=87, MATCH=88, ELSE=89, FOREACH=90, WHILE=91, NEXT=92, 
-		BREAK=93, FORK=94, JOIN=95, SOME=96, ALL=97, TIMEOUT=98, TRY=99, CATCH=100, 
-		FINALLY=101, THROW=102, RETURN=103, TRANSACTION=104, ABORT=105, RETRY=106, 
-		ONRETRY=107, RETRIES=108, ONABORT=109, ONCOMMIT=110, LENGTHOF=111, WITH=112, 
-		IN=113, LOCK=114, UNTAINT=115, START=116, AWAIT=117, BUT=118, CHECK=119, 
-		DONE=120, SEMICOLON=121, COLON=122, DOUBLE_COLON=123, DOT=124, COMMA=125, 
-		LEFT_BRACE=126, RIGHT_BRACE=127, LEFT_PARENTHESIS=128, RIGHT_PARENTHESIS=129, 
-		LEFT_BRACKET=130, RIGHT_BRACKET=131, QUESTION_MARK=132, ASSIGN=133, ADD=134, 
-		SUB=135, MUL=136, DIV=137, POW=138, MOD=139, NOT=140, EQUAL=141, NOT_EQUAL=142, 
-		GT=143, LT=144, GT_EQUAL=145, LT_EQUAL=146, AND=147, OR=148, RARROW=149, 
-		LARROW=150, AT=151, BACKTICK=152, RANGE=153, ELLIPSIS=154, PIPE=155, EQUAL_GT=156, 
-		ELVIS=157, COMPOUND_ADD=158, COMPOUND_SUB=159, COMPOUND_MUL=160, COMPOUND_DIV=161, 
-		INCREMENT=162, DECREMENT=163, DecimalIntegerLiteral=164, HexIntegerLiteral=165, 
-		OctalIntegerLiteral=166, BinaryIntegerLiteral=167, FloatingPointLiteral=168, 
-		BooleanLiteral=169, QuotedStringLiteral=170, Base16BlobLiteral=171, Base64BlobLiteral=172, 
+		FUNCTION=8, OBJECT=9, RECORD=10, ANNOTATION=11, PARAMETER=12, TRANSFORMER=13, 
+		WORKER=14, ENDPOINT=15, BIND=16, XMLNS=17, RETURNS=18, VERSION=19, DOCUMENTATION=20, 
+		DEPRECATED=21, FROM=22, ON=23, SELECT=24, GROUP=25, BY=26, HAVING=27, 
+		ORDER=28, WHERE=29, FOLLOWED=30, INSERT=31, INTO=32, UPDATE=33, DELETE=34, 
+		SET=35, FOR=36, WINDOW=37, QUERY=38, EXPIRED=39, CURRENT=40, EVENTS=41, 
+		EVERY=42, WITHIN=43, LAST=44, FIRST=45, SNAPSHOT=46, OUTPUT=47, INNER=48, 
+		OUTER=49, RIGHT=50, LEFT=51, FULL=52, UNIDIRECTIONAL=53, REDUCE=54, SECOND=55, 
+		MINUTE=56, HOUR=57, DAY=58, MONTH=59, YEAR=60, SECONDS=61, MINUTES=62, 
+		HOURS=63, DAYS=64, MONTHS=65, YEARS=66, FOREVER=67, LIMIT=68, ASCENDING=69, 
+		DESCENDING=70, TYPE_INT=71, TYPE_FLOAT=72, TYPE_BOOL=73, TYPE_STRING=74, 
+		TYPE_BLOB=75, TYPE_MAP=76, TYPE_JSON=77, TYPE_XML=78, TYPE_TABLE=79, TYPE_STREAM=80, 
+		TYPE_ANY=81, TYPE_DESC=82, TYPE=83, TYPE_FUTURE=84, VAR=85, NEW=86, IF=87, 
+		MATCH=88, ELSE=89, FOREACH=90, WHILE=91, NEXT=92, BREAK=93, FORK=94, JOIN=95, 
+		SOME=96, ALL=97, TIMEOUT=98, TRY=99, CATCH=100, FINALLY=101, THROW=102, 
+		RETURN=103, TRANSACTION=104, ABORT=105, RETRY=106, ONRETRY=107, RETRIES=108, 
+		ONABORT=109, ONCOMMIT=110, LENGTHOF=111, WITH=112, IN=113, LOCK=114, UNTAINT=115, 
+		START=116, AWAIT=117, BUT=118, CHECK=119, DONE=120, SEMICOLON=121, COLON=122, 
+		DOUBLE_COLON=123, DOT=124, COMMA=125, LEFT_BRACE=126, RIGHT_BRACE=127, 
+		LEFT_PARENTHESIS=128, RIGHT_PARENTHESIS=129, LEFT_BRACKET=130, RIGHT_BRACKET=131, 
+		QUESTION_MARK=132, ASSIGN=133, ADD=134, SUB=135, MUL=136, DIV=137, POW=138, 
+		MOD=139, NOT=140, EQUAL=141, NOT_EQUAL=142, GT=143, LT=144, GT_EQUAL=145, 
+		LT_EQUAL=146, AND=147, OR=148, RARROW=149, LARROW=150, AT=151, BACKTICK=152, 
+		RANGE=153, ELLIPSIS=154, PIPE=155, EQUAL_GT=156, ELVIS=157, COMPOUND_ADD=158, 
+		COMPOUND_SUB=159, COMPOUND_MUL=160, COMPOUND_DIV=161, INCREMENT=162, DECREMENT=163, 
+		DecimalIntegerLiteral=164, HexIntegerLiteral=165, OctalIntegerLiteral=166, 
+		BinaryIntegerLiteral=167, FloatingPointLiteral=168, BooleanLiteral=169, 
+		QuotedStringLiteral=170, Base16BlobLiteral=171, Base64BlobLiteral=172, 
 		NullLiteral=173, Identifier=174, XMLLiteralStart=175, StringTemplateLiteralStart=176, 
 		DocumentationTemplateStart=177, DeprecatedTemplateStart=178, ExpressionEnd=179, 
 		DocumentationTemplateAttributeEnd=180, WS=181, NEW_LINE=182, LINE_COMMENT=183, 
@@ -84,76 +84,77 @@ public class BallerinaLexer extends Lexer {
 
 	public static final String[] ruleNames = {
 		"IMPORT", "AS", "PUBLIC", "PRIVATE", "NATIVE", "SERVICE", "RESOURCE", 
-		"FUNCTION", "OBJECT", "ANNOTATION", "PARAMETER", "TRANSFORMER", "WORKER", 
-		"ENDPOINT", "BIND", "XMLNS", "RETURNS", "VERSION", "DOCUMENTATION", "DEPRECATED", 
-		"RECORD", "FROM", "ON", "SELECT", "GROUP", "BY", "HAVING", "ORDER", "WHERE", 
-		"FOLLOWED", "INSERT", "INTO", "UPDATE", "DELETE", "SET", "FOR", "WINDOW", 
-		"QUERY", "EXPIRED", "CURRENT", "EVENTS", "EVERY", "WITHIN", "LAST", "FIRST", 
-		"SNAPSHOT", "OUTPUT", "INNER", "OUTER", "RIGHT", "LEFT", "FULL", "UNIDIRECTIONAL", 
-		"REDUCE", "SECOND", "MINUTE", "HOUR", "DAY", "MONTH", "YEAR", "SECONDS", 
-		"MINUTES", "HOURS", "DAYS", "MONTHS", "YEARS", "FOREVER", "LIMIT", "ASCENDING", 
-		"DESCENDING", "TYPE_INT", "TYPE_FLOAT", "TYPE_BOOL", "TYPE_STRING", "TYPE_BLOB", 
-		"TYPE_MAP", "TYPE_JSON", "TYPE_XML", "TYPE_TABLE", "TYPE_STREAM", "TYPE_ANY", 
-		"TYPE_DESC", "TYPE", "TYPE_FUTURE", "VAR", "NEW", "IF", "MATCH", "ELSE", 
-		"FOREACH", "WHILE", "NEXT", "BREAK", "FORK", "JOIN", "SOME", "ALL", "TIMEOUT", 
-		"TRY", "CATCH", "FINALLY", "THROW", "RETURN", "TRANSACTION", "ABORT", 
-		"RETRY", "ONRETRY", "RETRIES", "ONABORT", "ONCOMMIT", "LENGTHOF", "WITH", 
-		"IN", "LOCK", "UNTAINT", "START", "AWAIT", "BUT", "CHECK", "DONE", "SEMICOLON", 
-		"COLON", "DOUBLE_COLON", "DOT", "COMMA", "LEFT_BRACE", "RIGHT_BRACE", 
-		"LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", "LEFT_BRACKET", "RIGHT_BRACKET", 
-		"QUESTION_MARK", "ASSIGN", "ADD", "SUB", "MUL", "DIV", "POW", "MOD", "NOT", 
-		"EQUAL", "NOT_EQUAL", "GT", "LT", "GT_EQUAL", "LT_EQUAL", "AND", "OR", 
-		"RARROW", "LARROW", "AT", "BACKTICK", "RANGE", "ELLIPSIS", "PIPE", "EQUAL_GT", 
-		"ELVIS", "COMPOUND_ADD", "COMPOUND_SUB", "COMPOUND_MUL", "COMPOUND_DIV", 
-		"INCREMENT", "DECREMENT", "DecimalIntegerLiteral", "HexIntegerLiteral", 
-		"OctalIntegerLiteral", "BinaryIntegerLiteral", "IntegerTypeSuffix", "DecimalNumeral", 
-		"Digits", "Digit", "NonZeroDigit", "DigitOrUnderscore", "Underscores", 
-		"HexNumeral", "HexDigits", "HexDigit", "HexDigitOrUnderscore", "OctalNumeral", 
-		"OctalDigits", "OctalDigit", "OctalDigitOrUnderscore", "BinaryNumeral", 
-		"BinaryDigits", "BinaryDigit", "BinaryDigitOrUnderscore", "FloatingPointLiteral", 
-		"DecimalFloatingPointLiteral", "ExponentPart", "ExponentIndicator", "SignedInteger", 
-		"Sign", "FloatTypeSuffix", "HexadecimalFloatingPointLiteral", "HexSignificand", 
-		"BinaryExponent", "BinaryExponentIndicator", "BooleanLiteral", "QuotedStringLiteral", 
-		"StringCharacters", "StringCharacter", "EscapeSequence", "OctalEscape", 
-		"UnicodeEscape", "ZeroToThree", "Base16BlobLiteral", "HexGroup", "Base64BlobLiteral", 
-		"Base64Group", "PaddedBase64Group", "Base64Char", "PaddingChar", "NullLiteral", 
-		"Identifier", "Letter", "LetterOrDigit", "XMLLiteralStart", "StringTemplateLiteralStart", 
-		"DocumentationTemplateStart", "DeprecatedTemplateStart", "ExpressionEnd", 
-		"DocumentationTemplateAttributeEnd", "WS", "NEW_LINE", "LINE_COMMENT", 
-		"IdentifierLiteral", "IdentifierLiteralChar", "IdentifierLiteralEscapeSequence", 
-		"XML_COMMENT_START", "CDATA", "DTD", "EntityRef", "CharRef", "XML_WS", 
-		"XML_TAG_OPEN", "XML_TAG_OPEN_SLASH", "XML_TAG_SPECIAL_OPEN", "XMLLiteralEnd", 
-		"ExpressionStart", "XMLTemplateText", "XMLText", "XMLTextChar", "XMLEscapedSequence", 
-		"XMLBracesSequence", "XML_TAG_CLOSE", "XML_TAG_SPECIAL_CLOSE", "XML_TAG_SLASH_CLOSE", 
-		"SLASH", "QNAME_SEPARATOR", "EQUALS", "DOUBLE_QUOTE", "SINGLE_QUOTE", 
-		"XMLQName", "XML_TAG_WS", "XMLTagExpressionStart", "HEXDIGIT", "DIGIT", 
-		"NameChar", "NameStartChar", "DOUBLE_QUOTE_END", "XMLDoubleQuotedTemplateString", 
-		"XMLDoubleQuotedString", "XMLDoubleQuotedStringChar", "SINGLE_QUOTE_END", 
-		"XMLSingleQuotedTemplateString", "XMLSingleQuotedString", "XMLSingleQuotedStringChar", 
-		"XML_PI_END", "XMLPIText", "XMLPITemplateText", "XMLPITextFragment", "XMLPIChar", 
-		"XMLPIAllowedSequence", "XMLPISpecialSequence", "XML_COMMENT_END", "XMLCommentText", 
-		"XMLCommentTemplateText", "XMLCommentTextFragment", "XMLCommentChar", 
-		"XMLCommentAllowedSequence", "XMLCommentSpecialSequence", "DocumentationTemplateEnd", 
-		"DocumentationTemplateAttributeStart", "SBDocInlineCodeStart", "DBDocInlineCodeStart", 
-		"TBDocInlineCodeStart", "DocumentationTemplateText", "DocumentationTemplateStringChar", 
-		"AttributePrefix", "DocBackTick", "DocumentationEscapedSequence", "DocumentationValidCharSequence", 
-		"TripleBackTickInlineCodeEnd", "TripleBackTickInlineCode", "TripleBackTickInlineCodeChar", 
-		"DoubleBackTickInlineCodeEnd", "DoubleBackTickInlineCode", "DoubleBackTickInlineCodeChar", 
-		"SingleBackTickInlineCodeEnd", "SingleBackTickInlineCode", "SingleBackTickInlineCodeChar", 
-		"DeprecatedTemplateEnd", "SBDeprecatedInlineCodeStart", "DBDeprecatedInlineCodeStart", 
-		"TBDeprecatedInlineCodeStart", "DeprecatedTemplateText", "DeprecatedTemplateStringChar", 
-		"DeprecatedBackTick", "DeprecatedEscapedSequence", "DeprecatedValidCharSequence", 
-		"StringTemplateLiteralEnd", "StringTemplateExpressionStart", "StringTemplateText", 
-		"StringTemplateStringChar", "StringLiteralEscapedSequence", "StringTemplateValidCharSequence"
+		"FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", "TRANSFORMER", 
+		"WORKER", "ENDPOINT", "BIND", "XMLNS", "RETURNS", "VERSION", "DOCUMENTATION", 
+		"DEPRECATED", "FROM", "ON", "SELECT", "GROUP", "BY", "HAVING", "ORDER", 
+		"WHERE", "FOLLOWED", "INSERT", "INTO", "UPDATE", "DELETE", "SET", "FOR", 
+		"WINDOW", "QUERY", "EXPIRED", "CURRENT", "EVENTS", "EVERY", "WITHIN", 
+		"LAST", "FIRST", "SNAPSHOT", "OUTPUT", "INNER", "OUTER", "RIGHT", "LEFT", 
+		"FULL", "UNIDIRECTIONAL", "REDUCE", "SECOND", "MINUTE", "HOUR", "DAY", 
+		"MONTH", "YEAR", "SECONDS", "MINUTES", "HOURS", "DAYS", "MONTHS", "YEARS", 
+		"FOREVER", "LIMIT", "ASCENDING", "DESCENDING", "TYPE_INT", "TYPE_FLOAT", 
+		"TYPE_BOOL", "TYPE_STRING", "TYPE_BLOB", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", 
+		"TYPE_TABLE", "TYPE_STREAM", "TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", 
+		"VAR", "NEW", "IF", "MATCH", "ELSE", "FOREACH", "WHILE", "NEXT", "BREAK", 
+		"FORK", "JOIN", "SOME", "ALL", "TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", 
+		"RETURN", "TRANSACTION", "ABORT", "RETRY", "ONRETRY", "RETRIES", "ONABORT", 
+		"ONCOMMIT", "LENGTHOF", "WITH", "IN", "LOCK", "UNTAINT", "START", "AWAIT", 
+		"BUT", "CHECK", "DONE", "SEMICOLON", "COLON", "DOUBLE_COLON", "DOT", "COMMA", 
+		"LEFT_BRACE", "RIGHT_BRACE", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
+		"LEFT_BRACKET", "RIGHT_BRACKET", "QUESTION_MARK", "ASSIGN", "ADD", "SUB", 
+		"MUL", "DIV", "POW", "MOD", "NOT", "EQUAL", "NOT_EQUAL", "GT", "LT", "GT_EQUAL", 
+		"LT_EQUAL", "AND", "OR", "RARROW", "LARROW", "AT", "BACKTICK", "RANGE", 
+		"ELLIPSIS", "PIPE", "EQUAL_GT", "ELVIS", "COMPOUND_ADD", "COMPOUND_SUB", 
+		"COMPOUND_MUL", "COMPOUND_DIV", "INCREMENT", "DECREMENT", "DecimalIntegerLiteral", 
+		"HexIntegerLiteral", "OctalIntegerLiteral", "BinaryIntegerLiteral", "IntegerTypeSuffix", 
+		"DecimalNumeral", "Digits", "Digit", "NonZeroDigit", "DigitOrUnderscore", 
+		"Underscores", "HexNumeral", "HexDigits", "HexDigit", "HexDigitOrUnderscore", 
+		"OctalNumeral", "OctalDigits", "OctalDigit", "OctalDigitOrUnderscore", 
+		"BinaryNumeral", "BinaryDigits", "BinaryDigit", "BinaryDigitOrUnderscore", 
+		"FloatingPointLiteral", "DecimalFloatingPointLiteral", "ExponentPart", 
+		"ExponentIndicator", "SignedInteger", "Sign", "FloatTypeSuffix", "HexadecimalFloatingPointLiteral", 
+		"HexSignificand", "BinaryExponent", "BinaryExponentIndicator", "BooleanLiteral", 
+		"QuotedStringLiteral", "StringCharacters", "StringCharacter", "EscapeSequence", 
+		"OctalEscape", "UnicodeEscape", "ZeroToThree", "Base16BlobLiteral", "HexGroup", 
+		"Base64BlobLiteral", "Base64Group", "PaddedBase64Group", "Base64Char", 
+		"PaddingChar", "NullLiteral", "Identifier", "Letter", "LetterOrDigit", 
+		"XMLLiteralStart", "StringTemplateLiteralStart", "DocumentationTemplateStart", 
+		"DeprecatedTemplateStart", "ExpressionEnd", "DocumentationTemplateAttributeEnd", 
+		"WS", "NEW_LINE", "LINE_COMMENT", "IdentifierLiteral", "IdentifierLiteralChar", 
+		"IdentifierLiteralEscapeSequence", "XML_COMMENT_START", "CDATA", "DTD", 
+		"EntityRef", "CharRef", "XML_WS", "XML_TAG_OPEN", "XML_TAG_OPEN_SLASH", 
+		"XML_TAG_SPECIAL_OPEN", "XMLLiteralEnd", "ExpressionStart", "XMLTemplateText", 
+		"XMLText", "XMLTextChar", "XMLEscapedSequence", "XMLBracesSequence", "XML_TAG_CLOSE", 
+		"XML_TAG_SPECIAL_CLOSE", "XML_TAG_SLASH_CLOSE", "SLASH", "QNAME_SEPARATOR", 
+		"EQUALS", "DOUBLE_QUOTE", "SINGLE_QUOTE", "XMLQName", "XML_TAG_WS", "XMLTagExpressionStart", 
+		"HEXDIGIT", "DIGIT", "NameChar", "NameStartChar", "DOUBLE_QUOTE_END", 
+		"XMLDoubleQuotedTemplateString", "XMLDoubleQuotedString", "XMLDoubleQuotedStringChar", 
+		"SINGLE_QUOTE_END", "XMLSingleQuotedTemplateString", "XMLSingleQuotedString", 
+		"XMLSingleQuotedStringChar", "XML_PI_END", "XMLPIText", "XMLPITemplateText", 
+		"XMLPITextFragment", "XMLPIChar", "XMLPIAllowedSequence", "XMLPISpecialSequence", 
+		"XML_COMMENT_END", "XMLCommentText", "XMLCommentTemplateText", "XMLCommentTextFragment", 
+		"XMLCommentChar", "XMLCommentAllowedSequence", "XMLCommentSpecialSequence", 
+		"DocumentationTemplateEnd", "DocumentationTemplateAttributeStart", "SBDocInlineCodeStart", 
+		"DBDocInlineCodeStart", "TBDocInlineCodeStart", "DocumentationTemplateText", 
+		"DocumentationTemplateStringChar", "AttributePrefix", "DocBackTick", "DocumentationEscapedSequence", 
+		"DocumentationValidCharSequence", "TripleBackTickInlineCodeEnd", "TripleBackTickInlineCode", 
+		"TripleBackTickInlineCodeChar", "DoubleBackTickInlineCodeEnd", "DoubleBackTickInlineCode", 
+		"DoubleBackTickInlineCodeChar", "SingleBackTickInlineCodeEnd", "SingleBackTickInlineCode", 
+		"SingleBackTickInlineCodeChar", "DeprecatedTemplateEnd", "SBDeprecatedInlineCodeStart", 
+		"DBDeprecatedInlineCodeStart", "TBDeprecatedInlineCodeStart", "DeprecatedTemplateText", 
+		"DeprecatedTemplateStringChar", "DeprecatedBackTick", "DeprecatedEscapedSequence", 
+		"DeprecatedValidCharSequence", "StringTemplateLiteralEnd", "StringTemplateExpressionStart", 
+		"StringTemplateText", "StringTemplateStringChar", "StringLiteralEscapedSequence", 
+		"StringTemplateValidCharSequence"
 	};
 
 	private static final String[] _LITERAL_NAMES = {
 		null, "'import'", "'as'", "'public'", "'private'", "'native'", "'service'", 
-		"'resource'", "'function'", "'object'", "'annotation'", "'parameter'", 
+		"'resource'", "'function'", "'object'", "'record'", "'annotation'", "'parameter'", 
 		"'transformer'", "'worker'", "'endpoint'", "'bind'", "'xmlns'", "'returns'", 
-		"'version'", "'documentation'", "'deprecated'", "'record'", "'from'", 
-		"'on'", null, "'group'", "'by'", "'having'", "'order'", "'where'", "'followed'", 
-		null, "'into'", null, null, "'set'", "'for'", "'window'", "'query'", "'expired'", 
+		"'version'", "'documentation'", "'deprecated'", "'from'", "'on'", null, 
+		"'group'", "'by'", "'having'", "'order'", "'where'", "'followed'", null, 
+		"'into'", null, null, "'set'", "'for'", "'window'", "'query'", "'expired'", 
 		"'current'", null, "'every'", "'within'", null, null, "'snapshot'", null, 
 		"'inner'", "'outer'", "'right'", "'left'", "'full'", "'unidirectional'", 
 		"'reduce'", null, null, null, null, null, null, null, null, null, null, 
@@ -177,29 +178,29 @@ public class BallerinaLexer extends Lexer {
 	};
 	private static final String[] _SYMBOLIC_NAMES = {
 		null, "IMPORT", "AS", "PUBLIC", "PRIVATE", "NATIVE", "SERVICE", "RESOURCE", 
-		"FUNCTION", "OBJECT", "ANNOTATION", "PARAMETER", "TRANSFORMER", "WORKER", 
-		"ENDPOINT", "BIND", "XMLNS", "RETURNS", "VERSION", "DOCUMENTATION", "DEPRECATED", 
-		"RECORD", "FROM", "ON", "SELECT", "GROUP", "BY", "HAVING", "ORDER", "WHERE", 
-		"FOLLOWED", "INSERT", "INTO", "UPDATE", "DELETE", "SET", "FOR", "WINDOW", 
-		"QUERY", "EXPIRED", "CURRENT", "EVENTS", "EVERY", "WITHIN", "LAST", "FIRST", 
-		"SNAPSHOT", "OUTPUT", "INNER", "OUTER", "RIGHT", "LEFT", "FULL", "UNIDIRECTIONAL", 
-		"REDUCE", "SECOND", "MINUTE", "HOUR", "DAY", "MONTH", "YEAR", "SECONDS", 
-		"MINUTES", "HOURS", "DAYS", "MONTHS", "YEARS", "FOREVER", "LIMIT", "ASCENDING", 
-		"DESCENDING", "TYPE_INT", "TYPE_FLOAT", "TYPE_BOOL", "TYPE_STRING", "TYPE_BLOB", 
-		"TYPE_MAP", "TYPE_JSON", "TYPE_XML", "TYPE_TABLE", "TYPE_STREAM", "TYPE_ANY", 
-		"TYPE_DESC", "TYPE", "TYPE_FUTURE", "VAR", "NEW", "IF", "MATCH", "ELSE", 
-		"FOREACH", "WHILE", "NEXT", "BREAK", "FORK", "JOIN", "SOME", "ALL", "TIMEOUT", 
-		"TRY", "CATCH", "FINALLY", "THROW", "RETURN", "TRANSACTION", "ABORT", 
-		"RETRY", "ONRETRY", "RETRIES", "ONABORT", "ONCOMMIT", "LENGTHOF", "WITH", 
-		"IN", "LOCK", "UNTAINT", "START", "AWAIT", "BUT", "CHECK", "DONE", "SEMICOLON", 
-		"COLON", "DOUBLE_COLON", "DOT", "COMMA", "LEFT_BRACE", "RIGHT_BRACE", 
-		"LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", "LEFT_BRACKET", "RIGHT_BRACKET", 
-		"QUESTION_MARK", "ASSIGN", "ADD", "SUB", "MUL", "DIV", "POW", "MOD", "NOT", 
-		"EQUAL", "NOT_EQUAL", "GT", "LT", "GT_EQUAL", "LT_EQUAL", "AND", "OR", 
-		"RARROW", "LARROW", "AT", "BACKTICK", "RANGE", "ELLIPSIS", "PIPE", "EQUAL_GT", 
-		"ELVIS", "COMPOUND_ADD", "COMPOUND_SUB", "COMPOUND_MUL", "COMPOUND_DIV", 
-		"INCREMENT", "DECREMENT", "DecimalIntegerLiteral", "HexIntegerLiteral", 
-		"OctalIntegerLiteral", "BinaryIntegerLiteral", "FloatingPointLiteral", 
+		"FUNCTION", "OBJECT", "RECORD", "ANNOTATION", "PARAMETER", "TRANSFORMER", 
+		"WORKER", "ENDPOINT", "BIND", "XMLNS", "RETURNS", "VERSION", "DOCUMENTATION", 
+		"DEPRECATED", "FROM", "ON", "SELECT", "GROUP", "BY", "HAVING", "ORDER", 
+		"WHERE", "FOLLOWED", "INSERT", "INTO", "UPDATE", "DELETE", "SET", "FOR", 
+		"WINDOW", "QUERY", "EXPIRED", "CURRENT", "EVENTS", "EVERY", "WITHIN", 
+		"LAST", "FIRST", "SNAPSHOT", "OUTPUT", "INNER", "OUTER", "RIGHT", "LEFT", 
+		"FULL", "UNIDIRECTIONAL", "REDUCE", "SECOND", "MINUTE", "HOUR", "DAY", 
+		"MONTH", "YEAR", "SECONDS", "MINUTES", "HOURS", "DAYS", "MONTHS", "YEARS", 
+		"FOREVER", "LIMIT", "ASCENDING", "DESCENDING", "TYPE_INT", "TYPE_FLOAT", 
+		"TYPE_BOOL", "TYPE_STRING", "TYPE_BLOB", "TYPE_MAP", "TYPE_JSON", "TYPE_XML", 
+		"TYPE_TABLE", "TYPE_STREAM", "TYPE_ANY", "TYPE_DESC", "TYPE", "TYPE_FUTURE", 
+		"VAR", "NEW", "IF", "MATCH", "ELSE", "FOREACH", "WHILE", "NEXT", "BREAK", 
+		"FORK", "JOIN", "SOME", "ALL", "TIMEOUT", "TRY", "CATCH", "FINALLY", "THROW", 
+		"RETURN", "TRANSACTION", "ABORT", "RETRY", "ONRETRY", "RETRIES", "ONABORT", 
+		"ONCOMMIT", "LENGTHOF", "WITH", "IN", "LOCK", "UNTAINT", "START", "AWAIT", 
+		"BUT", "CHECK", "DONE", "SEMICOLON", "COLON", "DOUBLE_COLON", "DOT", "COMMA", 
+		"LEFT_BRACE", "RIGHT_BRACE", "LEFT_PARENTHESIS", "RIGHT_PARENTHESIS", 
+		"LEFT_BRACKET", "RIGHT_BRACKET", "QUESTION_MARK", "ASSIGN", "ADD", "SUB", 
+		"MUL", "DIV", "POW", "MOD", "NOT", "EQUAL", "NOT_EQUAL", "GT", "LT", "GT_EQUAL", 
+		"LT_EQUAL", "AND", "OR", "RARROW", "LARROW", "AT", "BACKTICK", "RANGE", 
+		"ELLIPSIS", "PIPE", "EQUAL_GT", "ELVIS", "COMPOUND_ADD", "COMPOUND_SUB", 
+		"COMPOUND_MUL", "COMPOUND_DIV", "INCREMENT", "DECREMENT", "DecimalIntegerLiteral", 
+		"HexIntegerLiteral", "OctalIntegerLiteral", "BinaryIntegerLiteral", "FloatingPointLiteral", 
 		"BooleanLiteral", "QuotedStringLiteral", "Base16BlobLiteral", "Base64BlobLiteral", 
 		"NullLiteral", "Identifier", "XMLLiteralStart", "StringTemplateLiteralStart", 
 		"DocumentationTemplateStart", "DeprecatedTemplateStart", "ExpressionEnd", 
@@ -867,47 +868,47 @@ public class BallerinaLexer extends Lexer {
 		"\3\5\3\5\3\5\3\5\3\6\3\6\3\6\3\6\3\6\3\6\3\6\3\7\3\7\3\7\3\7\3\7\3\7\3"+
 		"\7\3\7\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\3\t\3\t"+
 		"\3\t\3\t\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\13\3\13\3\13\3\13\3\13\3\13\3\13"+
-		"\3\13\3\13\3\13\3\13\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\r\3\r\3"+
-		"\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\r\3\16\3\16\3\16\3\16\3\16\3\16\3"+
-		"\16\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\20\3\20\3\20\3\20\3"+
-		"\20\3\21\3\21\3\21\3\21\3\21\3\21\3\22\3\22\3\22\3\22\3\22\3\22\3\22\3"+
-		"\22\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3\24\3\24\3\24\3\24\3\24\3"+
-		"\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\24\3\25\3\25\3\25\3\25\3\25\3"+
-		"\25\3\25\3\25\3\25\3\25\3\25\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\27\3"+
-		"\27\3\27\3\27\3\27\3\27\3\27\3\30\3\30\3\30\3\31\3\31\3\31\3\31\3\31\3"+
-		"\31\3\31\3\31\3\31\3\31\3\32\3\32\3\32\3\32\3\32\3\32\3\33\3\33\3\33\3"+
-		"\34\3\34\3\34\3\34\3\34\3\34\3\34\3\35\3\35\3\35\3\35\3\35\3\35\3\36\3"+
-		"\36\3\36\3\36\3\36\3\36\3\37\3\37\3\37\3\37\3\37\3\37\3\37\3\37\3\37\3"+
-		" \3 \3 \3 \3 \3 \3 \3 \3 \3 \3!\3!\3!\3!\3!\3\"\3\"\3\"\3\"\3\"\3\"\3"+
-		"\"\3\"\3\"\3\"\3#\3#\3#\3#\3#\3#\3#\3#\3#\3#\3$\3$\3$\3$\3%\3%\3%\3%\3"+
-		"%\3%\3&\3&\3&\3&\3&\3&\3&\3\'\3\'\3\'\3\'\3\'\3\'\3(\3(\3(\3(\3(\3(\3"+
-		"(\3(\3)\3)\3)\3)\3)\3)\3)\3)\3*\3*\3*\3*\3*\3*\3*\3*\3*\3*\3+\3+\3+\3"+
-		"+\3+\3+\3,\3,\3,\3,\3,\3,\3,\3,\3,\3-\3-\3-\3-\3-\3-\3-\3-\3.\3.\3.\3"+
-		".\3.\3.\3.\3.\3.\3/\3/\3/\3/\3/\3/\3/\3/\3/\3\60\3\60\3\60\3\60\3\60\3"+
-		"\60\3\60\3\60\3\60\3\60\3\61\3\61\3\61\3\61\3\61\3\61\3\62\3\62\3\62\3"+
-		"\62\3\62\3\62\3\63\3\63\3\63\3\63\3\63\3\63\3\64\3\64\3\64\3\64\3\64\3"+
-		"\65\3\65\3\65\3\65\3\65\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3"+
-		"\66\3\66\3\66\3\66\3\66\3\66\3\67\3\67\3\67\3\67\3\67\3\67\3\67\38\38"+
-		"\38\38\38\38\38\38\38\38\39\39\39\39\39\39\39\39\39\39\3:\3:\3:\3:\3:"+
-		"\3:\3:\3:\3;\3;\3;\3;\3;\3;\3;\3<\3<\3<\3<\3<\3<\3<\3<\3<\3=\3=\3=\3="+
-		"\3=\3=\3=\3=\3>\3>\3>\3>\3>\3>\3>\3>\3>\3>\3>\3?\3?\3?\3?\3?\3?\3?\3?"+
-		"\3?\3?\3?\3@\3@\3@\3@\3@\3@\3@\3@\3@\3A\3A\3A\3A\3A\3A\3A\3A\3B\3B\3B"+
-		"\3B\3B\3B\3B\3B\3B\3B\3C\3C\3C\3C\3C\3C\3C\3C\3C\3D\3D\3D\3D\3D\3D\3D"+
-		"\3D\3E\3E\3E\3E\3E\3E\3F\3F\3F\3F\3F\3F\3F\3F\3F\3F\3G\3G\3G\3G\3G\3G"+
-		"\3G\3G\3G\3G\3G\3H\3H\3H\3H\3I\3I\3I\3I\3I\3I\3J\3J\3J\3J\3J\3J\3J\3J"+
-		"\3K\3K\3K\3K\3K\3K\3K\3L\3L\3L\3L\3L\3M\3M\3M\3M\3N\3N\3N\3N\3N\3O\3O"+
-		"\3O\3O\3P\3P\3P\3P\3P\3P\3Q\3Q\3Q\3Q\3Q\3Q\3Q\3R\3R\3R\3R\3S\3S\3S\3S"+
-		"\3S\3S\3S\3S\3S\3T\3T\3T\3T\3T\3U\3U\3U\3U\3U\3U\3U\3V\3V\3V\3V\3W\3W"+
-		"\3W\3W\3X\3X\3X\3Y\3Y\3Y\3Y\3Y\3Y\3Z\3Z\3Z\3Z\3Z\3[\3[\3[\3[\3[\3[\3["+
-		"\3[\3\\\3\\\3\\\3\\\3\\\3\\\3]\3]\3]\3]\3]\3^\3^\3^\3^\3^\3^\3_\3_\3_"+
-		"\3_\3_\3`\3`\3`\3`\3`\3a\3a\3a\3a\3a\3b\3b\3b\3b\3c\3c\3c\3c\3c\3c\3c"+
-		"\3c\3d\3d\3d\3d\3e\3e\3e\3e\3e\3e\3f\3f\3f\3f\3f\3f\3f\3f\3g\3g\3g\3g"+
-		"\3g\3g\3h\3h\3h\3h\3h\3h\3h\3i\3i\3i\3i\3i\3i\3i\3i\3i\3i\3i\3i\3j\3j"+
-		"\3j\3j\3j\3j\3k\3k\3k\3k\3k\3k\3l\3l\3l\3l\3l\3l\3l\3l\3m\3m\3m\3m\3m"+
-		"\3m\3m\3m\3n\3n\3n\3n\3n\3n\3n\3n\3o\3o\3o\3o\3o\3o\3o\3o\3o\3p\3p\3p"+
-		"\3p\3p\3p\3p\3p\3p\3q\3q\3q\3q\3q\3r\3r\3r\3s\3s\3s\3s\3s\3t\3t\3t\3t"+
-		"\3t\3t\3t\3t\3u\3u\3u\3u\3u\3u\3v\3v\3v\3v\3v\3v\3w\3w\3w\3w\3x\3x\3x"+
-		"\3x\3x\3x\3y\3y\3y\3y\3y\3z\3z\3{\3{\3|\3|\3|\3}\3}\3~\3~\3\177\3\177"+
+		"\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\f\3\r\3\r\3\r\3\r\3\r\3\r\3"+
+		"\r\3\r\3\r\3\r\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16\3\16"+
+		"\3\16\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\20\3\20\3\20\3\20\3\20\3\20"+
+		"\3\20\3\20\3\20\3\21\3\21\3\21\3\21\3\21\3\22\3\22\3\22\3\22\3\22\3\22"+
+		"\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3\24\3\24\3\24\3\24\3\24\3\24"+
+		"\3\24\3\24\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25"+
+		"\3\25\3\25\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\26\3\27"+
+		"\3\27\3\27\3\27\3\27\3\27\3\27\3\30\3\30\3\30\3\31\3\31\3\31\3\31\3\31"+
+		"\3\31\3\31\3\31\3\31\3\31\3\32\3\32\3\32\3\32\3\32\3\32\3\33\3\33\3\33"+
+		"\3\34\3\34\3\34\3\34\3\34\3\34\3\34\3\35\3\35\3\35\3\35\3\35\3\35\3\36"+
+		"\3\36\3\36\3\36\3\36\3\36\3\37\3\37\3\37\3\37\3\37\3\37\3\37\3\37\3\37"+
+		"\3 \3 \3 \3 \3 \3 \3 \3 \3 \3 \3!\3!\3!\3!\3!\3\"\3\"\3\"\3\"\3\"\3\""+
+		"\3\"\3\"\3\"\3\"\3#\3#\3#\3#\3#\3#\3#\3#\3#\3#\3$\3$\3$\3$\3%\3%\3%\3"+
+		"%\3%\3%\3&\3&\3&\3&\3&\3&\3&\3\'\3\'\3\'\3\'\3\'\3\'\3(\3(\3(\3(\3(\3"+
+		"(\3(\3(\3)\3)\3)\3)\3)\3)\3)\3)\3*\3*\3*\3*\3*\3*\3*\3*\3*\3*\3+\3+\3"+
+		"+\3+\3+\3+\3,\3,\3,\3,\3,\3,\3,\3,\3,\3-\3-\3-\3-\3-\3-\3-\3-\3.\3.\3"+
+		".\3.\3.\3.\3.\3.\3.\3/\3/\3/\3/\3/\3/\3/\3/\3/\3\60\3\60\3\60\3\60\3\60"+
+		"\3\60\3\60\3\60\3\60\3\60\3\61\3\61\3\61\3\61\3\61\3\61\3\62\3\62\3\62"+
+		"\3\62\3\62\3\62\3\63\3\63\3\63\3\63\3\63\3\63\3\64\3\64\3\64\3\64\3\64"+
+		"\3\65\3\65\3\65\3\65\3\65\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66\3\66"+
+		"\3\66\3\66\3\66\3\66\3\66\3\66\3\67\3\67\3\67\3\67\3\67\3\67\3\67\38\3"+
+		"8\38\38\38\38\38\38\38\38\39\39\39\39\39\39\39\39\39\39\3:\3:\3:\3:\3"+
+		":\3:\3:\3:\3;\3;\3;\3;\3;\3;\3;\3<\3<\3<\3<\3<\3<\3<\3<\3<\3=\3=\3=\3"+
+		"=\3=\3=\3=\3=\3>\3>\3>\3>\3>\3>\3>\3>\3>\3>\3>\3?\3?\3?\3?\3?\3?\3?\3"+
+		"?\3?\3?\3?\3@\3@\3@\3@\3@\3@\3@\3@\3@\3A\3A\3A\3A\3A\3A\3A\3A\3B\3B\3"+
+		"B\3B\3B\3B\3B\3B\3B\3B\3C\3C\3C\3C\3C\3C\3C\3C\3C\3D\3D\3D\3D\3D\3D\3"+
+		"D\3D\3E\3E\3E\3E\3E\3E\3F\3F\3F\3F\3F\3F\3F\3F\3F\3F\3G\3G\3G\3G\3G\3"+
+		"G\3G\3G\3G\3G\3G\3H\3H\3H\3H\3I\3I\3I\3I\3I\3I\3J\3J\3J\3J\3J\3J\3J\3"+
+		"J\3K\3K\3K\3K\3K\3K\3K\3L\3L\3L\3L\3L\3M\3M\3M\3M\3N\3N\3N\3N\3N\3O\3"+
+		"O\3O\3O\3P\3P\3P\3P\3P\3P\3Q\3Q\3Q\3Q\3Q\3Q\3Q\3R\3R\3R\3R\3S\3S\3S\3"+
+		"S\3S\3S\3S\3S\3S\3T\3T\3T\3T\3T\3U\3U\3U\3U\3U\3U\3U\3V\3V\3V\3V\3W\3"+
+		"W\3W\3W\3X\3X\3X\3Y\3Y\3Y\3Y\3Y\3Y\3Z\3Z\3Z\3Z\3Z\3[\3[\3[\3[\3[\3[\3"+
+		"[\3[\3\\\3\\\3\\\3\\\3\\\3\\\3]\3]\3]\3]\3]\3^\3^\3^\3^\3^\3^\3_\3_\3"+
+		"_\3_\3_\3`\3`\3`\3`\3`\3a\3a\3a\3a\3a\3b\3b\3b\3b\3c\3c\3c\3c\3c\3c\3"+
+		"c\3c\3d\3d\3d\3d\3e\3e\3e\3e\3e\3e\3f\3f\3f\3f\3f\3f\3f\3f\3g\3g\3g\3"+
+		"g\3g\3g\3h\3h\3h\3h\3h\3h\3h\3i\3i\3i\3i\3i\3i\3i\3i\3i\3i\3i\3i\3j\3"+
+		"j\3j\3j\3j\3j\3k\3k\3k\3k\3k\3k\3l\3l\3l\3l\3l\3l\3l\3l\3m\3m\3m\3m\3"+
+		"m\3m\3m\3m\3n\3n\3n\3n\3n\3n\3n\3n\3o\3o\3o\3o\3o\3o\3o\3o\3o\3p\3p\3"+
+		"p\3p\3p\3p\3p\3p\3p\3q\3q\3q\3q\3q\3r\3r\3r\3s\3s\3s\3s\3s\3t\3t\3t\3"+
+		"t\3t\3t\3t\3t\3u\3u\3u\3u\3u\3u\3v\3v\3v\3v\3v\3v\3w\3w\3w\3w\3x\3x\3"+
+		"x\3x\3x\3x\3y\3y\3y\3y\3y\3z\3z\3{\3{\3|\3|\3|\3}\3}\3~\3~\3\177\3\177"+
 		"\3\u0080\3\u0080\3\u0081\3\u0081\3\u0082\3\u0082\3\u0083\3\u0083\3\u0084"+
 		"\3\u0084\3\u0085\3\u0085\3\u0086\3\u0086\3\u0087\3\u0087\3\u0088\3\u0088"+
 		"\3\u0089\3\u0089\3\u008a\3\u008a\3\u008b\3\u008b\3\u008c\3\u008c\3\u008d"+
@@ -1187,10 +1188,10 @@ public class BallerinaLexer extends Lexer {
 		"\3\2\2\2\r\u026f\3\2\2\2\r\u0271\3\2\2\2\16\u027b\3\2\2\2\16\u027d\3\2"+
 		"\2\2\16\u027f\3\2\2\2\17\u0287\3\2\2\2\21\u028e\3\2\2\2\23\u0291\3\2\2"+
 		"\2\25\u0298\3\2\2\2\27\u02a0\3\2\2\2\31\u02a7\3\2\2\2\33\u02af\3\2\2\2"+
-		"\35\u02b8\3\2\2\2\37\u02c1\3\2\2\2!\u02c8\3\2\2\2#\u02d3\3\2\2\2%\u02dd"+
-		"\3\2\2\2\'\u02e9\3\2\2\2)\u02f0\3\2\2\2+\u02f9\3\2\2\2-\u02fe\3\2\2\2"+
-		"/\u0304\3\2\2\2\61\u030c\3\2\2\2\63\u0314\3\2\2\2\65\u0322\3\2\2\2\67"+
-		"\u032d\3\2\2\29\u0334\3\2\2\2;\u033b\3\2\2\2=\u033e\3\2\2\2?\u0348\3\2"+
+		"\35\u02b8\3\2\2\2\37\u02c1\3\2\2\2!\u02c8\3\2\2\2#\u02cf\3\2\2\2%\u02da"+
+		"\3\2\2\2\'\u02e4\3\2\2\2)\u02f0\3\2\2\2+\u02f7\3\2\2\2-\u0300\3\2\2\2"+
+		"/\u0305\3\2\2\2\61\u030b\3\2\2\2\63\u0313\3\2\2\2\65\u031b\3\2\2\2\67"+
+		"\u0329\3\2\2\29\u0334\3\2\2\2;\u033b\3\2\2\2=\u033e\3\2\2\2?\u0348\3\2"+
 		"\2\2A\u034e\3\2\2\2C\u0351\3\2\2\2E\u0358\3\2\2\2G\u035e\3\2\2\2I\u0364"+
 		"\3\2\2\2K\u036d\3\2\2\2M\u0377\3\2\2\2O\u037c\3\2\2\2Q\u0386\3\2\2\2S"+
 		"\u0390\3\2\2\2U\u0394\3\2\2\2W\u039a\3\2\2\2Y\u03a1\3\2\2\2[\u03a7\3\2"+
@@ -1289,34 +1290,34 @@ public class BallerinaLexer extends Lexer {
 		"\7v\2\2\u02bd\u02be\7k\2\2\u02be\u02bf\7q\2\2\u02bf\u02c0\7p\2\2\u02c0"+
 		"\36\3\2\2\2\u02c1\u02c2\7q\2\2\u02c2\u02c3\7d\2\2\u02c3\u02c4\7l\2\2\u02c4"+
 		"\u02c5\7g\2\2\u02c5\u02c6\7e\2\2\u02c6\u02c7\7v\2\2\u02c7 \3\2\2\2\u02c8"+
-		"\u02c9\7c\2\2\u02c9\u02ca\7p\2\2\u02ca\u02cb\7p\2\2\u02cb\u02cc\7q\2\2"+
-		"\u02cc\u02cd\7v\2\2\u02cd\u02ce\7c\2\2\u02ce\u02cf\7v\2\2\u02cf\u02d0"+
-		"\7k\2\2\u02d0\u02d1\7q\2\2\u02d1\u02d2\7p\2\2\u02d2\"\3\2\2\2\u02d3\u02d4"+
-		"\7r\2\2\u02d4\u02d5\7c\2\2\u02d5\u02d6\7t\2\2\u02d6\u02d7\7c\2\2\u02d7"+
-		"\u02d8\7o\2\2\u02d8\u02d9\7g\2\2\u02d9\u02da\7v\2\2\u02da\u02db\7g\2\2"+
-		"\u02db\u02dc\7t\2\2\u02dc$\3\2\2\2\u02dd\u02de\7v\2\2\u02de\u02df\7t\2"+
-		"\2\u02df\u02e0\7c\2\2\u02e0\u02e1\7p\2\2\u02e1\u02e2\7u\2\2\u02e2\u02e3"+
-		"\7h\2\2\u02e3\u02e4\7q\2\2\u02e4\u02e5\7t\2\2\u02e5\u02e6\7o\2\2\u02e6"+
-		"\u02e7\7g\2\2\u02e7\u02e8\7t\2\2\u02e8&\3\2\2\2\u02e9\u02ea\7y\2\2\u02ea"+
-		"\u02eb\7q\2\2\u02eb\u02ec\7t\2\2\u02ec\u02ed\7m\2\2\u02ed\u02ee\7g\2\2"+
-		"\u02ee\u02ef\7t\2\2\u02ef(\3\2\2\2\u02f0\u02f1\7g\2\2\u02f1\u02f2\7p\2"+
-		"\2\u02f2\u02f3\7f\2\2\u02f3\u02f4\7r\2\2\u02f4\u02f5\7q\2\2\u02f5\u02f6"+
-		"\7k\2\2\u02f6\u02f7\7p\2\2\u02f7\u02f8\7v\2\2\u02f8*\3\2\2\2\u02f9\u02fa"+
-		"\7d\2\2\u02fa\u02fb\7k\2\2\u02fb\u02fc\7p\2\2\u02fc\u02fd\7f\2\2\u02fd"+
-		",\3\2\2\2\u02fe\u02ff\7z\2\2\u02ff\u0300\7o\2\2\u0300\u0301\7n\2\2\u0301"+
-		"\u0302\7p\2\2\u0302\u0303\7u\2\2\u0303.\3\2\2\2\u0304\u0305\7t\2\2\u0305"+
-		"\u0306\7g\2\2\u0306\u0307\7v\2\2\u0307\u0308\7w\2\2\u0308\u0309\7t\2\2"+
-		"\u0309\u030a\7p\2\2\u030a\u030b\7u\2\2\u030b\60\3\2\2\2\u030c\u030d\7"+
-		"x\2\2\u030d\u030e\7g\2\2\u030e\u030f\7t\2\2\u030f\u0310\7u\2\2\u0310\u0311"+
-		"\7k\2\2\u0311\u0312\7q\2\2\u0312\u0313\7p\2\2\u0313\62\3\2\2\2\u0314\u0315"+
-		"\7f\2\2\u0315\u0316\7q\2\2\u0316\u0317\7e\2\2\u0317\u0318\7w\2\2\u0318"+
-		"\u0319\7o\2\2\u0319\u031a\7g\2\2\u031a\u031b\7p\2\2\u031b\u031c\7v\2\2"+
-		"\u031c\u031d\7c\2\2\u031d\u031e\7v\2\2\u031e\u031f\7k\2\2\u031f\u0320"+
-		"\7q\2\2\u0320\u0321\7p\2\2\u0321\64\3\2\2\2\u0322\u0323\7f\2\2\u0323\u0324"+
-		"\7g\2\2\u0324\u0325\7r\2\2\u0325\u0326\7t\2\2\u0326\u0327\7g\2\2\u0327"+
-		"\u0328\7e\2\2\u0328\u0329\7c\2\2\u0329\u032a\7v\2\2\u032a\u032b\7g\2\2"+
-		"\u032b\u032c\7f\2\2\u032c\66\3\2\2\2\u032d\u032e\7t\2\2\u032e\u032f\7"+
-		"g\2\2\u032f\u0330\7e\2\2\u0330\u0331\7q\2\2\u0331\u0332\7t\2\2\u0332\u0333"+
+		"\u02c9\7t\2\2\u02c9\u02ca\7g\2\2\u02ca\u02cb\7e\2\2\u02cb\u02cc\7q\2\2"+
+		"\u02cc\u02cd\7t\2\2\u02cd\u02ce\7f\2\2\u02ce\"\3\2\2\2\u02cf\u02d0\7c"+
+		"\2\2\u02d0\u02d1\7p\2\2\u02d1\u02d2\7p\2\2\u02d2\u02d3\7q\2\2\u02d3\u02d4"+
+		"\7v\2\2\u02d4\u02d5\7c\2\2\u02d5\u02d6\7v\2\2\u02d6\u02d7\7k\2\2\u02d7"+
+		"\u02d8\7q\2\2\u02d8\u02d9\7p\2\2\u02d9$\3\2\2\2\u02da\u02db\7r\2\2\u02db"+
+		"\u02dc\7c\2\2\u02dc\u02dd\7t\2\2\u02dd\u02de\7c\2\2\u02de\u02df\7o\2\2"+
+		"\u02df\u02e0\7g\2\2\u02e0\u02e1\7v\2\2\u02e1\u02e2\7g\2\2\u02e2\u02e3"+
+		"\7t\2\2\u02e3&\3\2\2\2\u02e4\u02e5\7v\2\2\u02e5\u02e6\7t\2\2\u02e6\u02e7"+
+		"\7c\2\2\u02e7\u02e8\7p\2\2\u02e8\u02e9\7u\2\2\u02e9\u02ea\7h\2\2\u02ea"+
+		"\u02eb\7q\2\2\u02eb\u02ec\7t\2\2\u02ec\u02ed\7o\2\2\u02ed\u02ee\7g\2\2"+
+		"\u02ee\u02ef\7t\2\2\u02ef(\3\2\2\2\u02f0\u02f1\7y\2\2\u02f1\u02f2\7q\2"+
+		"\2\u02f2\u02f3\7t\2\2\u02f3\u02f4\7m\2\2\u02f4\u02f5\7g\2\2\u02f5\u02f6"+
+		"\7t\2\2\u02f6*\3\2\2\2\u02f7\u02f8\7g\2\2\u02f8\u02f9\7p\2\2\u02f9\u02fa"+
+		"\7f\2\2\u02fa\u02fb\7r\2\2\u02fb\u02fc\7q\2\2\u02fc\u02fd\7k\2\2\u02fd"+
+		"\u02fe\7p\2\2\u02fe\u02ff\7v\2\2\u02ff,\3\2\2\2\u0300\u0301\7d\2\2\u0301"+
+		"\u0302\7k\2\2\u0302\u0303\7p\2\2\u0303\u0304\7f\2\2\u0304.\3\2\2\2\u0305"+
+		"\u0306\7z\2\2\u0306\u0307\7o\2\2\u0307\u0308\7n\2\2\u0308\u0309\7p\2\2"+
+		"\u0309\u030a\7u\2\2\u030a\60\3\2\2\2\u030b\u030c\7t\2\2\u030c\u030d\7"+
+		"g\2\2\u030d\u030e\7v\2\2\u030e\u030f\7w\2\2\u030f\u0310\7t\2\2\u0310\u0311"+
+		"\7p\2\2\u0311\u0312\7u\2\2\u0312\62\3\2\2\2\u0313\u0314\7x\2\2\u0314\u0315"+
+		"\7g\2\2\u0315\u0316\7t\2\2\u0316\u0317\7u\2\2\u0317\u0318\7k\2\2\u0318"+
+		"\u0319\7q\2\2\u0319\u031a\7p\2\2\u031a\64\3\2\2\2\u031b\u031c\7f\2\2\u031c"+
+		"\u031d\7q\2\2\u031d\u031e\7e\2\2\u031e\u031f\7w\2\2\u031f\u0320\7o\2\2"+
+		"\u0320\u0321\7g\2\2\u0321\u0322\7p\2\2\u0322\u0323\7v\2\2\u0323\u0324"+
+		"\7c\2\2\u0324\u0325\7v\2\2\u0325\u0326\7k\2\2\u0326\u0327\7q\2\2\u0327"+
+		"\u0328\7p\2\2\u0328\66\3\2\2\2\u0329\u032a\7f\2\2\u032a\u032b\7g\2\2\u032b"+
+		"\u032c\7r\2\2\u032c\u032d\7t\2\2\u032d\u032e\7g\2\2\u032e\u032f\7e\2\2"+
+		"\u032f\u0330\7c\2\2\u0330\u0331\7v\2\2\u0331\u0332\7g\2\2\u0332\u0333"+
 		"\7f\2\2\u03338\3\2\2\2\u0334\u0335\7h\2\2\u0335\u0336\7t\2\2\u0336\u0337"+
 		"\7q\2\2\u0337\u0338\7o\2\2\u0338\u0339\3\2\2\2\u0339\u033a\b\27\2\2\u033a"+
 		":\3\2\2\2\u033b\u033c\7q\2\2\u033c\u033d\7p\2\2\u033d<\3\2\2\2\u033e\u033f"+
@@ -1700,11 +1701,11 @@ public class BallerinaLexer extends Lexer {
 		"\2\u081d\u0820\3\2\2\2\u081e\u081c\3\2\2\2\u081e\u081f\3\2\2\2\u081f\u0821"+
 		"\3\2\2\2\u0820\u081e\3\2\2\2\u0821\u0822\5\u013d\u0099\2\u0822\u0823\b"+
 		"\u00db\33\2\u0823\u0824\3\2\2\2\u0824\u0825\b\u00db\34\2\u0825\u01c2\3"+
-		"\2\2\2\u0826\u082a\5\63\24\2\u0827\u0829\5\u01cb\u00e0\2\u0828\u0827\3"+
+		"\2\2\2\u0826\u082a\5\65\25\2\u0827\u0829\5\u01cb\u00e0\2\u0828\u0827\3"+
 		"\2\2\2\u0829\u082c\3\2\2\2\u082a\u0828\3\2\2\2\u082a\u082b\3\2\2\2\u082b"+
 		"\u082d\3\2\2\2\u082c\u082a\3\2\2\2\u082d\u082e\5\u0109\177\2\u082e\u082f"+
 		"\b\u00dc\35\2\u082f\u0830\3\2\2\2\u0830\u0831\b\u00dc\36\2\u0831\u01c4"+
-		"\3\2\2\2\u0832\u0836\5\65\25\2\u0833\u0835\5\u01cb\u00e0\2\u0834\u0833"+
+		"\3\2\2\2\u0832\u0836\5\67\26\2\u0833\u0835\5\u01cb\u00e0\2\u0834\u0833"+
 		"\3\2\2\2\u0835\u0838\3\2\2\2\u0836\u0834\3\2\2\2\u0836\u0837\3\2\2\2\u0837"+
 		"\u0839\3\2\2\2\u0838\u0836\3\2\2\2\u0839\u083a\5\u0109\177\2\u083a\u083b"+
 		"\b\u00dd\37\2\u083b\u083c\3\2\2\2\u083c\u083d\b\u00dd \2\u083d\u01c6\3"+
