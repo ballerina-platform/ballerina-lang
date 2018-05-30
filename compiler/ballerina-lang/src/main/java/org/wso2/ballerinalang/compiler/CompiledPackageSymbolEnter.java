@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -351,16 +352,17 @@ public class CompiledPackageSymbolEnter {
             params.remove(0);
             funcType.paramTypes = params;
 
+            BAttachedFunction attachedFunction = new BAttachedFunction(getAttacheFuncName(invokableSymbol.name, bType),
+                    invokableSymbol, funcType);
             if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.RECORD) {
+                ((BStructureTypeSymbol) bType.tsymbol).attachedFuncs.add(attachedFunction);
                 scopeToDefine = bType.tsymbol.scope;
             }
 
             if (bType.tag == TypeTags.OBJECT && Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
-                ((BObjectTypeSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
-                        invokableSymbol, funcType);
+                ((BObjectTypeSymbol) bType.tsymbol).initializerFunc = attachedFunction;
             } else if (bType.tag == TypeTags.RECORD && Names.INIT_FUNCTION_SUFFIX.value.equals(funcName)) {
-                ((BRecordTypeSymbol) bType.tsymbol).initializerFunc = new BAttachedFunction(invokableSymbol.name,
-                        invokableSymbol, funcType);
+                ((BRecordTypeSymbol) bType.tsymbol).initializerFunc = attachedFunction;
             }
         }
 
@@ -386,6 +388,12 @@ public class CompiledPackageSymbolEnter {
         setTaintTable(invokableSymbol, attrDataMap);
 
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
+    }
+
+    //TODO find better approach
+    private Name getAttacheFuncName(Name name, BType type) {
+        String attachedFuncName = name.toString().substring(type.tsymbol.name.toString().length() + 1);
+        return names.fromString(attachedFuncName);
     }
 
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
