@@ -100,8 +100,8 @@ public class IntegerRangeOperatorTest {
 
         BIntArray returnArray = (BIntArray) returns[0];
         int expectedSize = endValue - startValue;
-        Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
-                + "Integer Range " + startValue + " ... " + endValue);
+        Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
+                + " Open Integer Range " + startValue + " ... " + endValue);
         for (int i = 0; i < expectedSize; i++) {
             Assert.assertEquals(returnArray.get(i), startValue + i, "Incorrect value found at index: " + i);
         }
@@ -117,8 +117,8 @@ public class IntegerRangeOperatorTest {
 
         BIntArray returnArray = (BIntArray) returns[0];
         int expectedSize = 0;
-        Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
-                + "Integer Range " + startValue + " ... " + endValue);
+        Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
+                + " Open Integer Range " + startValue + " ... " + endValue);
     }
 
     @Test(description = "Test half open integer range when the start value is greater than the end value")
@@ -131,8 +131,8 @@ public class IntegerRangeOperatorTest {
 
         BIntArray returnArray = (BIntArray) returns[0];
         int expectedSize = 0;
-        Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
-                + "Integer Range " + startValue + " ... " + endValue);
+        Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
+                + " Open Integer Range " + startValue + " ... " + endValue);
     }
 
     @Test(description = "Test integer range operators with errors")
