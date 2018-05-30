@@ -61,20 +61,15 @@ public type LoadBalancerActions object {
     public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    //This is a dummy function inserted for equivalency and should be made private
-    public function nativePost(@sensitive string path, Request req) returns Response|error {
-        error err = {message:"Unsuported Operation"};
-        return err;
-    }
-
     documentation {
         The HEAD action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function head(string path, Request? request = ()) returns Response|error;
+    public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
 
     documentation {
         The PATCH action implementation of the LoadBalancer Connector.
@@ -83,7 +78,8 @@ public type LoadBalancerActions object {
         P{{request}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function patch(string path, Request? request = ()) returns Response|error;
+    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                            message) returns Response|error;
 
     documentation {
         The PUT action implementation of the Load Balance Connector.
@@ -92,7 +88,8 @@ public type LoadBalancerActions object {
         P{{request}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function put(string path, Request? request = ()) returns Response|error;
+    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                        message) returns Response|error;
 
     documentation {
         The OPTIONS action implementation of the LoadBalancer Connector.
@@ -101,7 +98,8 @@ public type LoadBalancerActions object {
         P{{request}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function options(string path, Request? request = ()) returns Response|error;
+    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                            message = ()) returns Response|error;
 
     documentation {
         The FORWARD action implementation of the LoadBalancer Connector.
@@ -121,7 +119,8 @@ public type LoadBalancerActions object {
         P{{request}} An HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function execute(string httpVerb, string path, Request request) returns Response|error;
+    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                                            message) returns Response|error;
 
     documentation {
         The DELETE action implementation of the LoadBalancer Connector.
@@ -130,7 +129,8 @@ public type LoadBalancerActions object {
         P{{request}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function delete(string path, Request? request = ()) returns Response|error;
+    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                            message) returns Response|error;
 
     documentation {
         The GET action implementation of the LoadBalancer Connector.
@@ -141,12 +141,6 @@ public type LoadBalancerActions object {
     }
     public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
-
-    //TODO:This is a dummy function inserted for equivalency and should be made private
-    public function nativeGet(@sensitive string path, Request req) returns Response|error {
-        error err = {message:"Unsuported Operation"};
-        return err;
-    }
 
     documentation {
         The submit implementation of the LoadBalancer Connector.
@@ -220,23 +214,27 @@ public function LoadBalancerActions::post(string path, Request|string|xml|json|b
     return performLoadBalanceAction(self, path, req, HTTP_POST);
 }
 
-public function LoadBalancerActions::head(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function LoadBalancerActions::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_HEAD);
 }
 
-public function LoadBalancerActions::patch(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function LoadBalancerActions::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+    Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PATCH);
 }
 
-public function LoadBalancerActions::put(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function LoadBalancerActions::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message) returns Response|error {
+    Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_PUT);
 }
 
-public function LoadBalancerActions::options(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function LoadBalancerActions::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_OPTIONS);
 }
 
@@ -244,12 +242,15 @@ public function LoadBalancerActions::forward(string path, Request request) retur
     return performLoadBalanceAction(self, path, request, HTTP_FORWARD);
 }
 
-public function LoadBalancerActions::execute(string httpVerb, string path, Request request) returns Response|error {
-    return performLoadBalanceExecuteAction(self, path, request, httpVerb);
+public function LoadBalancerActions::execute(string httpVerb, string path, Request|string|xml|json|blob|
+                                                        io:ByteChannel|mime:Entity[]|() message) returns Response|error {
+    Request req = buildRequest(message);
+    return performLoadBalanceExecuteAction(self, path, req, httpVerb);
 }
 
-public function LoadBalancerActions::delete(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function LoadBalancerActions::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+    Request req = buildRequest(message);
     return performLoadBalanceAction(self, path, req, HTTP_DELETE);
 }
 

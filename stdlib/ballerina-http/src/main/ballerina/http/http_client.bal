@@ -41,29 +41,34 @@ public type CallerActions object {
     public function post(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                             message) returns Response|error {
         Request req = buildRequest(message);
-        return self.nativePost(path, req);
+        return nativePost(self, path, req);
     }
-
-    //TODO: Make this private once the equivalancy works with private
-    public native function nativePost(@sensitive string path, Request req) returns Response|error;
 
     documentation {
         The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function head(@sensitive string path, Request? request = ()) returns Response|error;
+    public function head(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                    message = ()) returns Response|error {
+        Request req = buildRequest(message);
+        return nativeHead(self, path, req);
+    }
 
     documentation {
         The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function put(@sensitive string path, Request? request = ()) returns Response|error;
+    public function put(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message) returns Response|error {
+        Request req = buildRequest(message);
+        return nativePut(self, path, req);
+    }
 
     documentation {
 		Invokes an HTTP call with the specified HTTP verb.
@@ -73,26 +78,37 @@ public type CallerActions object {
         P{{request}} An HTTP outbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function execute(@sensitive string httpVerb, @sensitive string path, Request request)
-                                                                                returns Response|error;
+    public function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|blob
+                                                        |io:ByteChannel|mime:Entity[]|() message) returns Response|error {
+        Request req = buildRequest(message);
+        return nativeExecute(self, path, req);
+    }
 
     documentation {
         The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function patch(@sensitive string path, Request? request = ()) returns Response|error;
+    public function patch(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+        Request req = buildRequest(message);
+        return nativePatch(self, path, req);
+    }
 
     documentation {
         The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function delete(@sensitive string path, Request? request = ()) returns Response|error;
+    public function delete(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+        Request req = buildRequest(message);
+        return nativeDelete(self, path, req);
+    }
 
     documentation {
         The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
@@ -104,20 +120,21 @@ public type CallerActions object {
     public function get(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message = ()) returns Response|error {
         Request req = buildRequest(message);
-        return self.nativeGet(path, req);
+        return nativeGet(self, path, req);
     }
-
-    //TODO: Make this private once the equivalancy works with private
-    public native function nativeGet(@sensitive string path, Request req) returns Response|error;
 
     documentation {
         The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
 
         P{{path}} Request path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function options(@sensitive string path, Request? request = ()) returns Response|error;
+    public native function options(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message = ()) returns Response|error {
+        Request req = buildRequest(message);
+        return nativeOptions(self, path, req);
+    }
 
     documentation {
         The `forward()` function can be used to invoke an HTTP call with inbound request's HTTP verb
@@ -194,3 +211,20 @@ public type HttpTimeoutError {
     error? cause,
     int statusCode,
 };
+
+//Since the struct equivalency doesn't work with private following functions are defined outside the object
+native function nativePost(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+
+native function nativeHead(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+
+native function nativePut(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+
+native function nativeExecute(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+
+native function nativePatch(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+
+native function nativeDelete(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+
+native function nativeGet(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+
+native function nativeOptions(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;

@@ -58,31 +58,27 @@ public type RetryClient object {
     public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
-    //TODO:This is a dummy function inserted for equivalency and should be made private
-    public function nativePost(@sensitive string path, Request req) returns Response|error {
-        error err = {message:"Unsuported Operation"};
-        return err;
-    }
-
     documentation {
         The `head()` function wraps the underlying HTTP actions in a way to provide
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function head(string path, Request? request = ()) returns Response|error;
+    public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
 
     documentation {
         The `put()` function wraps the underlying HTTP actions in a way to provide
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function put(string path, Request? request = ()) returns Response|error;
+    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
 
     documentation {
         The `forward()` function wraps the underlying HTTP actions in a way to provide retrying functionality
@@ -103,7 +99,8 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function execute(string httpVerb, string path, Request request) returns Response|error;
+    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error;
 
     documentation {
         The `patch()` function wraps the undeline underlying HTTP actions in a way to provide
@@ -113,7 +110,8 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function patch(string path, Request? request = ()) returns Response|error;
+    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
 
     documentation {
         The `delete()` function wraps the underlying HTTP actions in a way to provide
@@ -123,7 +121,8 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function delete(string path, Request? request = ()) returns Response|error;
+    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns Response|error;
 
     documentation {
         The `get()` function wraps the underlying HTTP actions in a way to provide
@@ -136,12 +135,6 @@ public type RetryClient object {
     public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
 
-    //TODO:This is a dummy function inserted for equivalency and should be made private
-    public function nativeGet(@sensitive string path, Request req) returns Response|error {
-        error err = {message:"Unsuported Operation"};
-        return err;
-    }
-
     documentation {
         The `options()` function wraps the underlying HTTP actions in a way to provide
         retrying functionality for a given endpoint to recover from network level failures.
@@ -150,7 +143,8 @@ public type RetryClient object {
         P{{request}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
-    public function options(string path, Request? request = ()) returns Response|error;
+    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message = ()) returns Response|error;
 
     documentation {
 	Submits an HTTP request to a service with the specified HTTP verb.
@@ -211,13 +205,15 @@ public function RetryClient::post(string path, Request|string|xml|json|blob|io:B
     return performRetryAction(path, req, HTTP_POST, self);
 }
 
-public function RetryClient::head(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function RetryClient::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_HEAD, self);
 }
 
-public function RetryClient::put(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function RetryClient::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                message) returns Response|error {
+    Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PUT, self);
 }
 
@@ -225,17 +221,21 @@ public function RetryClient::forward(string path, Request request) returns Respo
     return performRetryAction(path, request, HTTP_FORWARD, self);
 }
 
-public function RetryClient::execute(string httpVerb, string path, Request request) returns Response|error {
-    return performRetryClientExecuteAction(path, request, httpVerb, self);
+public function RetryClient::execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
+                                                                    |mime:Entity[]|() message) returns Response|error {
+    Request req = buildRequest(message);
+    return performRetryClientExecuteAction(path, req, httpVerb, self);
 }
 
-public function RetryClient::patch(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function RetryClient::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                    message) returns Response|error {
+    Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_PATCH, self);
 }
 
-public function RetryClient::delete(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function RetryClient::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                    message) returns Response|error {
+    Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_DELETE, self);
 }
 
@@ -245,8 +245,9 @@ public function RetryClient::get(string path, Request|string|xml|json|blob|io:By
     return performRetryAction(path, req, HTTP_GET, self);
 }
 
-public function RetryClient::options(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function RetryClient::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                    message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performRetryAction(path, req, HTTP_OPTIONS, self);
 }
 

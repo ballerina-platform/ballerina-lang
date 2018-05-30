@@ -93,12 +93,6 @@ public type FailoverActions object {
     public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
                                         message) returns Response|error;
 
-    //This is a dummy function inserted for equivalency and should be made private
-    public function nativePost(@sensitive string path, Request req) returns Response|error {
-        error err = {message:"Unsuported Operation"};
-        return err;
-    }
-
     documentation {
         The HEAD action implementation of the Failover Connector.
 
@@ -106,7 +100,8 @@ public type FailoverActions object {
         P{{request}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function head(string path, Request? request = ()) returns Response|error;
+    public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                        message = ()) returns Response|error;
 
     documentation {
         The PATCH action implementation of the Failover Connector.
@@ -115,7 +110,8 @@ public type FailoverActions object {
         P{{request}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function patch(string path, Request? request = ()) returns Response|error;
+    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                            message) returns Response|error;
 
     documentation {
         The PUT action  implementation of the Failover Connector.
@@ -124,7 +120,8 @@ public type FailoverActions object {
         P{{request}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function put(string path, Request? request = ()) returns Response|error;
+    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                        message) returns Response|error;
 
     documentation {
         The OPTIONS action implementation of the Failover Connector.
@@ -133,7 +130,8 @@ public type FailoverActions object {
         P{{request}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function options(string path, Request? request = ()) returns Response|error;
+    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                            message = ()) returns Response|error;
 
     documentation {
         Invokes an HTTP call using the incoming request's HTTP method.
@@ -152,7 +150,8 @@ public type FailoverActions object {
         P{{request}} An HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function execute(string httpVerb, string path, Request request) returns Response|error;
+    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                                            message) returns Response|error;
 
     documentation {
         The DELETE action implementation of the Failover Connector.
@@ -161,7 +160,8 @@ public type FailoverActions object {
         P{{request}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function delete(string path, Request? request = ()) returns Response|error;
+    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                            message) returns Response|error;
 
     documentation {
         The GET action implementation of the Failover Connector.
@@ -172,12 +172,6 @@ public type FailoverActions object {
     }
     public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                         message = ()) returns Response|error;
-
-    //TODO:This is a dummy function inserted for equivalency and should be made private
-    public function nativeGet(@sensitive string path, Request req) returns Response|error {
-        error err = {message:"Unsuported Operation"};
-        return err;
-    }
 
     documentation {
         Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
@@ -238,23 +232,27 @@ public function FailoverActions::post(string path, Request|string|xml|json|blob|
     return performFailoverAction(path, req, HTTP_POST, self.failoverInferredConfig);
 }
 
-public function FailoverActions::head(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                                    message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_HEAD, self.failoverInferredConfig);
 }
 
-public function FailoverActions::patch(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                                        message) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PATCH, self.failoverInferredConfig);
 }
 
-public function FailoverActions::put(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                                    message) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PUT, self.failoverInferredConfig);
 }
 
-public function FailoverActions::options(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                                        message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_OPTIONS, self.failoverInferredConfig);
 }
 
@@ -262,12 +260,15 @@ public function FailoverActions::forward(string path, Request request) returns R
     return performFailoverAction(path, request, HTTP_FORWARD, self.failoverInferredConfig);
 }
 
-public function FailoverActions::execute(string httpVerb, string path, Request request) returns Response|error {
-    return performExecuteAction(path, request, httpVerb, self.failoverInferredConfig);
+public function FailoverActions::execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
+                                                                |mime:Entity[]| () message) returns Response|error {
+    Request req = buildRequest(message);
+    return performExecuteAction(path, req, httpVerb, self.failoverInferredConfig);
 }
 
-public function FailoverActions::delete(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                                        message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
 }
 

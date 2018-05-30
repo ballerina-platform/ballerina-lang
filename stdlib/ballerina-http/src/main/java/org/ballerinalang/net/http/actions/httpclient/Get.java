@@ -34,8 +34,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "nativeGet",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
-                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "client", type = TypeKind.STRUCT),
                 @Argument(name = "path", type = TypeKind.STRING),
