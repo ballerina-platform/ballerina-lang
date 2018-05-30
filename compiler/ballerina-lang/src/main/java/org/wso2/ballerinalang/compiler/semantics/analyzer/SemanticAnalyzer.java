@@ -355,12 +355,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         objectTypeNode.fields.forEach(field -> analyzeDef(field, env));
 
         analyzeDef(objectTypeNode.initFunction, env);
-
-        //Visit temporary init statements in the init function
-        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(objectTypeNode.initFunction,
-                objectTypeNode.initFunction.symbol.scope, env);
-        objectTypeNode.initFunction.initFunctionStmts.values().forEach(s -> analyzeNode(s, funcEnv));
-
         objectTypeNode.functions.forEach(f -> analyzeDef(f, env));
     }
 
