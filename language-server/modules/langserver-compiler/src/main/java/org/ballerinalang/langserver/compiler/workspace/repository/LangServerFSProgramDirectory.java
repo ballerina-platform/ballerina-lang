@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.wso2.ballerinalang.compiler.FileSystemProgramDirectory;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -34,43 +33,32 @@ public class LangServerFSProgramDirectory extends FileSystemProgramDirectory {
 
     private Path programDirPath;
     private WorkspaceDocumentManager documentManager;
-    private LSContext lsContext;
-    private static Converter<Path> converter = null;
 
     public static LangServerFSProgramDirectory getInstance(CompilerContext context, Path projectDirPath,
-                                                           WorkspaceDocumentManager documentManager,
-                                                           LSContext lsContext) {
+                                                           WorkspaceDocumentManager documentManager) {
         LangServerFSProgramDirectory lsFSProgramDirectory = context.get(LS_PROGRAM_DIRECTORY);
         if (lsFSProgramDirectory == null) {
             synchronized (LangServerFSProgramDirectory.class) {
                 lsFSProgramDirectory = context.get(LS_PROGRAM_DIRECTORY);
                 if (lsFSProgramDirectory == null) {
-                    lsFSProgramDirectory = new LangServerFSProgramDirectory(context, projectDirPath, documentManager,
-                            lsContext);
+                    lsFSProgramDirectory = new LangServerFSProgramDirectory(context, projectDirPath, documentManager);
                 }
             }
         }
         lsFSProgramDirectory.documentManager = documentManager;
-        lsFSProgramDirectory.lsContext = lsContext;
-        if (converter != null) {
-            ((LSPathConverter) converter).resetLSContext(lsContext);
-        }
         return lsFSProgramDirectory;
     }
 
     public LangServerFSProgramDirectory(CompilerContext context, Path programDirPath,
-                                        WorkspaceDocumentManager documentManager, LSContext lsContext) {
+                                        WorkspaceDocumentManager documentManager) {
         super(programDirPath);
         context.put(LS_PROGRAM_DIRECTORY, this);
         this.programDirPath = programDirPath;
         this.documentManager = documentManager;
-        this.lsContext = lsContext;
     }
 
     @Override
     public Converter<Path> getConverter() {
-        // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
-        converter = new LSPathConverter(programDirPath, documentManager, lsContext);
-        return converter;
+        return new LSPathConverter(programDirPath, documentManager);
     }
 }

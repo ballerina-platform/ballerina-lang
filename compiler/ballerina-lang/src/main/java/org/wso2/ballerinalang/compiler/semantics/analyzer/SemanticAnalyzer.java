@@ -748,6 +748,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangIf ifNode) {
         typeChecker.checkExpr(ifNode.expr, env, symTable.booleanType);
+
+        BType actualType = ifNode.expr.type;
+        if (TypeTags.TUPLE == actualType.tag) {
+            dlog.error(ifNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
+        }
+
         analyzeStmt(ifNode.body, env);
 
         if (ifNode.elseStmt != null) {
@@ -793,6 +799,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, symTable.booleanType);
+
+        BType actualType = whileNode.expr.type;
+        if (TypeTags.TUPLE == actualType.tag) {
+            dlog.error(whileNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
+        }
+
         analyzeStmt(whileNode.body, env);
     }
 
@@ -2008,18 +2020,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                                    BLangStatement streamingQueryStatement,
                                                    BStructType.BStructField outputStructField) {
 
-        if (structField == null) {
-            dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement)
-                            streamingQueryStatement).
-                            getSelectClause()).pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE,
-                    attributeName);
-        } else {
+        if (structField != null) {
             this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
                             streamingQueryStatement).getStreamingAction()).pos,
                     outputStructField.getType(), structField.getType(),
                     DiagnosticCode.INCOMPATIBLE_TYPES);
         }
-
     }
 
     private Map<String, List<BStructType.BStructField>> createInputStreamSpecificFieldMap

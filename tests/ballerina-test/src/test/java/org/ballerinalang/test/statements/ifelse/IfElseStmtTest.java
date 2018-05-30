@@ -118,6 +118,24 @@ public class IfElseStmtTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Check If Stmt Without Parentheses")
+    public void testIfStmtWithoutParentheses() {
+        BValue[] args = {new BInteger(10), new BInteger(100), new BInteger(20)};
+        BValue[] returns = BRunUtil.invoke(result, "testIfStmtWithoutParentheses", args);
+
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BInteger.class);
+
+        long actual = ((BInteger) returns[0]).intValue();
+        long expected = 410;
+        Assert.assertEquals(actual, expected);
+
+        actual = ((BInteger) returns[1]).intValue();
+        expected = 21;
+        Assert.assertEquals(actual, expected);
+    }
+
     @Test(description = "Check simple ifElse")
     public void testAge() {
         BValue[] args = {new BInteger(21)};
@@ -228,10 +246,14 @@ public class IfElseStmtTest {
 
     @Test
     public void ifStmtNegativeTest() {
-        Assert.assertEquals(negativeResult.getErrorCount(), 4);
+        Assert.assertEquals(negativeResult.getErrorCount(), 7);
         BAssertUtil.validateError(negativeResult, 0, "incompatible types: expected 'boolean', found 'int'", 2, 7);
         BAssertUtil.validateError(negativeResult, 1, "this function must return a result", 19, 1);
         BAssertUtil.validateError(negativeResult, 2, "incompatible types: expected 'boolean', found 'string'", 22, 16);
         BAssertUtil.validateError(negativeResult, 3, "incompatible types: expected 'boolean', found 'string'", 28, 9);
+        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'boolean', found 'string'", 35, 8);
+        BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'boolean', found 'int'", 37, 15);
+        BAssertUtil.validateError(negativeResult, 6, "incompatible types: expected 'boolean', found '(int,string)'",
+                41, 8);
     }
 }

@@ -1037,6 +1037,30 @@ public class BallerinaPsiImplUtil {
         });
     }
 
+    public static PsiElement getType(@NotNull BallerinaIdentifier identifier) {
+        return CachedValuesManager.getCachedValue(identifier, () -> {
+            PsiReference reference = identifier.getReference();
+            if (reference == null) {
+                return CachedValueProvider.Result.create(null, identifier);
+            }
+            PsiElement resolvedElement = reference.resolve();
+            if (resolvedElement == null) {
+                return CachedValueProvider.Result.create(null, identifier);
+            }
+            BallerinaAssignmentStatement assignmentStatement = PsiTreeUtil.getParentOfType(resolvedElement,
+                    BallerinaAssignmentStatement.class);
+            if (assignmentStatement != null) {
+                return CachedValueProvider.Result.create(getType(assignmentStatement), identifier);
+            }
+            BallerinaVariableDefinitionStatement definitionStatement = PsiTreeUtil.getParentOfType(resolvedElement,
+                    BallerinaVariableDefinitionStatement.class);
+            if (definitionStatement != null) {
+                return CachedValueProvider.Result.create(getType(definitionStatement), identifier);
+            }
+            return CachedValueProvider.Result.create(null, identifier);
+        });
+    }
+
     @Nullable
     private static PsiElement getBallerinaTypeFromVariableReference(@NotNull BallerinaVariableReference
                                                                             variableReference) {
@@ -1887,6 +1911,50 @@ public class BallerinaPsiImplUtil {
             }
         }
         return packageMap;
+    }
+
+    @Nullable
+    public static String suggestPackage(@NotNull PsiElement element) {
+        PsiFile containingFile = element.getContainingFile();
+        String filePath = containingFile.getVirtualFile().getPath();
+
+        Project project = element.getProject();
+
+        // From local project.
+        List<VirtualFile> packages = getPackagesFromProject(project);
+        // This is used to identify that the package is in the local project.
+        for (VirtualFile aPackage : packages) {
+            String packagePath = aPackage.getPath();
+            if (filePath.contains(packagePath)) {
+                return aPackage.getName();
+            }
+        }
+
+        // Get the module for the element.
+        Module module = ModuleUtilCore.findModuleForPsiElement(element);
+
+        // Get packages from SDK.
+        packages = getPackagesFromSDK(project, module);
+        for (VirtualFile aPackage : packages) {
+            String packagePath = aPackage.getPath();
+            if (filePath.contains(packagePath)) {
+                return aPackage.getName();
+            }
+        }
+
+        // Get packages from user repository.
+        List<VirtualFile> organizations = BallerinaPathModificationTracker.getAllOrganizationsInUserRepo();
+        for (VirtualFile organization : organizations) {
+            String organizationName = organization.getName();
+            packages = BallerinaPathModificationTracker.getPackagesFromOrganization(organizationName);
+            for (VirtualFile aPackage : packages) {
+                String packagePath = aPackage.getPath();
+                if (filePath.contains(packagePath)) {
+                    return aPackage.getName();
+                }
+            }
+        }
+        return null;
     }
 
     public static boolean isConstraintableType(@NotNull PsiElement type) {
