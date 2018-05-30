@@ -135,10 +135,10 @@ public class TestFinallyBlock {
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 t-f2 tf3");
     }
 
-    @Test(description = "check next with finally ")
-    public void testNextWithFinallyBlock() {
+    @Test(description = "check continue with finally ")
+    public void testContinueWithFinallyBlock() {
         BValue[] args = {};
-        BValue[] returns = BRunUtil.invoke(compileResult, "testNext1", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testContinue1", args);
         Assert.assertNotNull(returns);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "s t-f1 t-f2 tf3 t-f4 t-f5");

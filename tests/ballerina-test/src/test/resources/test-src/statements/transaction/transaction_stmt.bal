@@ -364,13 +364,13 @@ function transactionWithBreak() returns (string) {
     return "done";
 }
 
-function transactionWithNext() returns (string) {
+function transactionWithContinue() returns (string) {
     int i = 0;
     transaction {
         while (i < 5) {
             i = i + 1;
             if (i == 2) {
-                next;
+                continue;
             }
         }
     }

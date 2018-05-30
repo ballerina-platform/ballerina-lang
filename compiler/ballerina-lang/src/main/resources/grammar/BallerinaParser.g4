@@ -272,7 +272,7 @@ statement
     |   matchStatement
     |   foreachStatement
     |   whileStatement
-    |   nextStatement
+    |   continueStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
@@ -394,8 +394,8 @@ whileStatement
     :   WHILE expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-nextStatement
-    :   NEXT SEMICOLON
+continueStatement
+    :   CONTINUE SEMICOLON
     ;
 
 breakStatement
@@ -780,6 +780,7 @@ reservedWord
     :   FOREACH
     |   TYPE_MAP
     |   START
+    |   CONTINUE
     ;
 
 
