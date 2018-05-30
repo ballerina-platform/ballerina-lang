@@ -338,31 +338,30 @@ public class CompiledPackageSymbolEnter {
             int attachedToTypeRefCPIndex = dataInStream.readInt();
             TypeRefCPEntry typeRefCPEntry = (TypeRefCPEntry) this.env.constantPool[attachedToTypeRefCPIndex];
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeRefCPEntry.typeSigCPIndex];
-            BType bType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
+            BType attachedType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
 
             // Update the symbol by:
             //     1) Appending the type name in front of the function name
             //     2) Removing the first parameter from the param list
             invokableSymbol = Symbols.createFunctionSymbol(flags,
-                    names.fromString(Symbols.getAttachedFuncSymbolName(bType.tsymbol.name.value, funcName)),
-                    this.env.pkgSymbol.pkgID, null, bType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
+                    names.fromString(Symbols.getAttachedFuncSymbolName(attachedType.tsymbol.name.value, funcName)),
+                    this.env.pkgSymbol.pkgID, null, attachedType.tsymbol, Symbols.isFlagOn(flags, Flags.NATIVE));
             List<BType> params = new ArrayList<>();
             params.addAll(funcType.paramTypes);
             // remove first parameter
             params.remove(0);
             funcType.paramTypes = params;
 
-            BAttachedFunction attachedFunction = new BAttachedFunction(getAttacheFuncName(invokableSymbol.name, bType),
-                    invokableSymbol, funcType);
-            if (bType.tag == TypeTags.OBJECT || bType.tag == TypeTags.RECORD) {
-                ((BStructureTypeSymbol) bType.tsymbol).attachedFuncs.add(attachedFunction);
-                scopeToDefine = bType.tsymbol.scope;
-            }
-
-            if (bType.tag == TypeTags.OBJECT && Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
-                ((BObjectTypeSymbol) bType.tsymbol).initializerFunc = attachedFunction;
-            } else if (bType.tag == TypeTags.RECORD && Names.INIT_FUNCTION_SUFFIX.value.equals(funcName)) {
-                ((BRecordTypeSymbol) bType.tsymbol).initializerFunc = attachedFunction;
+            if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
+                scopeToDefine = attachedType.tsymbol.scope;
+                BAttachedFunction attachedFunc =
+                        new BAttachedFunction(getAttacheFuncName(funcName, attachedType), invokableSymbol, funcType);
+                BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
+                structureTypeSymbol.attachedFuncs.add(attachedFunc);
+                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
+                        || funcName.endsWith(Names.INIT_FUNCTION_SUFFIX.value)) {
+                    structureTypeSymbol.initializerFunc = attachedFunc;
+                }
             }
         }
 
@@ -391,8 +390,8 @@ public class CompiledPackageSymbolEnter {
     }
 
     //TODO find better approach
-    private Name getAttacheFuncName(Name name, BType type) {
-        String attachedFuncName = name.toString().substring(type.tsymbol.name.toString().length() + 1);
+    private Name getAttacheFuncName(String name, BType type) {
+        String attachedFuncName = name.substring(type.tsymbol.name.toString().length() + 1);
         return names.fromString(attachedFuncName);
     }
 
