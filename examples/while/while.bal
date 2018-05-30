@@ -21,10 +21,10 @@ function main(string... args) {
 
     int k = 0;
     while (k < 5) {
-        // If you want to move to the next loop iteration immediately, use the `next` statement as shown here.
+        // If you want to move to the next loop iteration immediately, use the `continue` statement as shown here.
         if (k < 3) {
             k = k + 1;
-            next;
+            continue;
         }
 
         io:println(k);
