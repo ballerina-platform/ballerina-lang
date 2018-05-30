@@ -39,7 +39,10 @@ service websubSubscriber bind websubEP {
 
     // Define the resource that accepts the content delivery requests.
     onNotification(websub:Notification notification) {
-        log:printInfo("WebSub Notification Received: "
-                                            + notification.payload.toString());
+        match (notification.getPayloadAsString()) {
+            string payloadAsString => log:printInfo("WebSub Notification Received: "
+                                                        + payloadAsString);
+            error e => log:printError("Error retrieving payload as string", err = e);
+        }
     }
 }
