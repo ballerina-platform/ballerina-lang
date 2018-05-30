@@ -17,35 +17,31 @@
 documentation {
     Removes each element that matches the given key.
 
-    T{{j}} A JSON object
     P{{key}} Key of the field to remove
 }
-public native function<json j> remove(string key);
+public native function json::remove(string key);
 
 documentation {
     Converts a JSON object to a string representation.
 
-    T{{j}} A JSON object
     R{{}} String value of the converted JSON
 }
-public native function<json j> toString() returns (string);
+public native function json::toString() returns (string);
 
 documentation {
     Returns an array of keys contained in the specified JSON.
 
-    T{{j}} A JSON object
     R{{}} A string array of keys contained in the specified JSON
 }
-public native function<json j> getKeys() returns (string[]);
+public native function json::getKeys() returns (string[]);
 
 documentation {
     Converts a JSON object to a XML representation.
 
-    T{{j}} A JSON object
     P{{options}} jsonOptions struct for JSON to XML conversion properties
     R{{}} The XML representation of the JSON
 }
-public native function<json j> toXML({
+public native function json::toXML({
                                          string attributePrefix = "@";
                                          string arrayEntryTag = "item";
                                      } options) returns (xml|error);
