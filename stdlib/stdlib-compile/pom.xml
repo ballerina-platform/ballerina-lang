@@ -39,22 +39,24 @@
             <artifactId>ballerina-builtin</artifactId>
             <type>zip</type>
         </dependency>
-
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-http</artifactId>
             <type>zip</type>
         </dependency>
-
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-mime</artifactId>
             <type>zip</type>
         </dependency>
-
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-database</artifactId>
+            <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-transactions</artifactId>
             <type>zip</type>
         </dependency>
     </dependencies>
