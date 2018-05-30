@@ -51,6 +51,12 @@
             <artifactId>ballerina-mime</artifactId>
             <type>zip</type>
         </dependency>
+
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-database</artifactId>
+            <type>zip</type>
+        </dependency>
     </dependencies>
 
     <build>
