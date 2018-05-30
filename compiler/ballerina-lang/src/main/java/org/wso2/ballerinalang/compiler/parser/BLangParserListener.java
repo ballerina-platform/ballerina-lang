@@ -356,7 +356,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         // TODO remove when removing struct
-        boolean isReceiverAttached = ctx.parameter() != null;
+        boolean isReceiverAttached = ctx.typeName() != null;
 
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
                 bodyExists, isReceiverAttached, false);

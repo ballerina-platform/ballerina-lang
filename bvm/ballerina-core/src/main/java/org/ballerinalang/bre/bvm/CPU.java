@@ -751,7 +751,6 @@ public class CPU {
             } catch (HandleErrorException e) {
                 throw e;
             } catch (Throwable e) {
-                BLangVMUtils.log("fatal error: " + e.getMessage());
                 ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                 handleError(ctx);
             }
