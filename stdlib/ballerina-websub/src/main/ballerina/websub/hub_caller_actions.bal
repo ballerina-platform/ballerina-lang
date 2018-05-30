@@ -211,10 +211,10 @@ public function CallerActions::publishUpdate(string topic, string|xml|json|blob|
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
-        http:Response response => {
-            if (!isSuccessStatusCode(response.statusCode)) {
-                string payload = response.getTextPayload() but { error => "" };
-                error webSubError = {message:"Error occured publishing update: " + payload};
+        http:Response httpResponse => {
+            if (!isSuccessStatusCode(httpResponse.statusCode)) {
+                string textPayload = httpResponse.getTextPayload() but { error => "" };
+                error webSubError = {message:"Error occured publishing update: " + textPayload };
                 return webSubError;
             }
             return;
@@ -242,10 +242,10 @@ public function CallerActions::notifyUpdate(string topic, map<string>? headers =
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
-        http:Response response => {
-            if (!isSuccessStatusCode(response.statusCode)) {
-                string payload = response.getTextPayload() but { error => "" };
-                error webSubError = {message:"Error occured notifying update availability: " + payload};
+        http:Response httpResponse => {
+            if (!isSuccessStatusCode(httpResponse.statusCode)) {
+                string textPayload = httpResponse.getTextPayload() but { error => "" };
+                error webSubError = {message:"Error occured notifying update availability: " + textPayload };
                 return webSubError;
             }
             return;
@@ -411,9 +411,9 @@ function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubsc
 
 function getRedirectionMaxCount(http:FollowRedirects? followRedirects) returns int {
     match(followRedirects) {
-        http:FollowRedirects followRedirects => {
-            if (followRedirects.enabled) {
-                return followRedirects.maxCount;
+        http:FollowRedirects newFollowRedirects => {
+            if (newFollowRedirects.enabled) {
+                return newFollowRedirects.maxCount;
             }
         }
         () => {}

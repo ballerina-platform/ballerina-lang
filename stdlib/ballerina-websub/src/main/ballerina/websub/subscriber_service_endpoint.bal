@@ -150,10 +150,10 @@ function Listener::sendSubscriptionRequests() {
             string hub = <string>subscriptionDetails["hub"];
             string topic = <string>subscriptionDetails["topic"];
 
-            http:SecureSocket? secureSocket;
+            http:SecureSocket? newSecureSocket;
             match (<http:SecureSocket>subscriptionDetails["secureSocket"]) {
-                http:SecureSocket httpSecureSocket => { secureSocket = httpSecureSocket; }
-                error => { secureSocket = (); }
+                http:SecureSocket httpSecureSocket => { newSecureSocket = httpSecureSocket; }
+                error => { newSecureSocket = (); }
             }
 
             http:AuthConfig? auth;
@@ -174,7 +174,7 @@ function Listener::sendSubscriptionRequests() {
                         "Subscription Request not sent since hub and/or topic and resource URL are unavailable");
                     return;
                 }
-                match (retrieveHubAndTopicUrl(resourceUrl, auth, secureSocket, followRedirects)) {
+                match (retrieveHubAndTopicUrl(resourceUrl, auth, newSecureSocket, followRedirects)) {
                     (string, string) discoveredDetails => {
                         var (retHub, retTopic) = discoveredDetails;
                         retHub = check http:decode(retHub, "UTF-8");
@@ -191,7 +191,7 @@ function Listener::sendSubscriptionRequests() {
                     }
                 }
             }
-            invokeClientConnectorForSubscription(hub, auth, secureSocket, followRedirects, subscriptionDetails);
+            invokeClientConnectorForSubscription(hub, auth, newSecureSocket, followRedirects, subscriptionDetails);
         }
     }
 }
