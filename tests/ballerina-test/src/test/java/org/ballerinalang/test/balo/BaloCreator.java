@@ -24,6 +24,10 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.util.BLangConstants.USER_REPO_DEFAULT_DIRNAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME;
+
 /**
  * Class containing utility methods for creating BALO.
  * 
@@ -31,27 +35,30 @@ import java.nio.file.Paths;
  */
 public class BaloCreator {
 
+    private static final String TARGET = "target";
+
     /**
      * Generates BALO from the provided package and copy it to the ballerina.home directory.
      * 
      * @param projectPath Path to the project
      * @param packageId Package ID
+     * @param orgName Organization name
      * @throws IOException If any error occurred while reading the source files
      */
     public static void create(Path projectPath, String packageId, String orgName) throws IOException {
-        Path baloPath = Paths.get(".ballerina");
+        Path baloPath = Paths.get(USER_REPO_DEFAULT_DIRNAME);
         projectPath = Paths.get("src", "test", "resources").resolve(projectPath);
 
         // Clear any old balos
         // clearing from .ballerina will remove the .ballerina file as well. Therefore start clearing from
         // another level down
-        BFileUtil.delete(projectPath.resolve(baloPath).resolve("repo"));
+        BFileUtil.delete(projectPath.resolve(baloPath).resolve(DOT_BALLERINA_REPO_DIR_NAME));
 
         // compile and create the balo
-        BuilderUtils.compileAndWrite(projectPath, packageId, "target/lib/", false, true);
+        BuilderUtils.compileAndWrite(projectPath, packageId, TARGET + "/" + BALLERINA_HOME_LIB + "/", false, true);
 
         // copy the balo to the temp-ballerina-home/libs/
-        BFileUtil.delete(Paths.get("target", "lib", "repo", orgName));
-        BFileUtil.copy(projectPath.resolve(baloPath), Paths.get("target", "lib"));
+        BFileUtil.delete(Paths.get(TARGET, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName));
+        BFileUtil.copy(projectPath.resolve(baloPath), Paths.get(TARGET, BALLERINA_HOME_LIB));
     }
 }
