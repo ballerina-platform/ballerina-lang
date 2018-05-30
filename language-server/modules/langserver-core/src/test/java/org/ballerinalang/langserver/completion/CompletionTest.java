@@ -42,9 +42,6 @@ public abstract class CompletionTest {
 
     private static final Logger LOGGER = Logger.getLogger(CompletionTest.class);
 
-    private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
-            + File.separator + "completion";
-
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) {
         String configJsonPath = "completion" + File.separator + configPath + File.separator + config;
