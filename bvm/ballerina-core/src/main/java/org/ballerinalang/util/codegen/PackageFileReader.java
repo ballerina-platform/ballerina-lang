@@ -18,6 +18,7 @@
 package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
 import java.io.BufferedInputStream;
@@ -32,6 +33,15 @@ import java.nio.file.StandardOpenOption;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_HOME;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+import static org.ballerinalang.util.BLangConstants.BLANG_COMPILED_PACKAGE_FILE_SUFFIX;
+import static org.ballerinalang.util.BLangConstants.USER_REPO_OBJ_DIRNAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA_HOME_LIB;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME;
+
 /**
  * Reads a Ballerina package from a BALO.
  *
@@ -40,15 +50,13 @@ import java.util.zip.ZipFile;
 public class PackageFileReader {
 
     private ProgramFile programFile;
-    private static final String BALLERINA_HOME = "ballerina.home";
 
     public PackageFileReader(ProgramFile programFile) {
         this.programFile = programFile;
     }
 
     public void readPackage(String packageId) {
-        // TODO
-        if (!packageId.startsWith("ballerina.")) {
+        if (!packageId.startsWith(BALLERINA_PACKAGE_PREFIX)) {
             throw new UnsupportedOperationException("unsupport package read from balo: " + packageId);
         }
         String pkgName = packageId.replaceFirst("^ballerina\\.", "");
@@ -98,11 +106,12 @@ public class PackageFileReader {
 
     private InputStream getCompiledPackageBinary(String pkgName) throws IOException {
         String ballerinaHome = System.getProperty(BALLERINA_HOME);
-        // TODO: read the zip file and get the binary content
-        Path libsPath = Paths.get(ballerinaHome, "lib", "repo", "ballerina", pkgName, "0.0.0", pkgName + ".zip");
+        Path libsPath = Paths.get(ballerinaHome, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME,
+                BALLERINA_BUILTIN_PKG_PREFIX, pkgName, Names.DEFAULT_VERSION.value, pkgName + BLANG_COMPILED_PKG_EXT);
 
         ZipFile zipFile = new ZipFile(libsPath.toFile());
-        ZipEntry zipEntry = zipFile.getEntry("obj/" + pkgName + ".balo");
+        ZipEntry zipEntry =
+                zipFile.getEntry(USER_REPO_OBJ_DIRNAME + "/" + pkgName + BLANG_COMPILED_PACKAGE_FILE_SUFFIX);
         InputStream is = zipFile.getInputStream(zipEntry);
         return is;
     }

@@ -61,6 +61,9 @@ public class BLangConstants {
     public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
 
     public static final String USER_HOME = "user.home";
+    public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String BALLERINA_PACKAGE_PREFIX = "ballerina.";
+    public static final String BALLERINA_BUILTIN_PKG = "ballerina.builtin";
     
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
