@@ -269,6 +269,8 @@ public final class Constants {
     public static final String REQUEST_LINE_TOO_LONG = "An HTTP line is larger than";
     public static final String REQUEST_HEADER_TOO_LARGE = "HTTP header is larger than";
 
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_REQUEST
+            = "Idle timeout triggered before reading inbound request";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST
             = "Idle timeout triggered while reading inbound request";
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE
