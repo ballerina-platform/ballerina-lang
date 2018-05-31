@@ -19,7 +19,7 @@ public Baz baz = 1;
 object {public {
                  string s;
                  Baz z = 1;
-                 Foo foo;
+                 Foo foo1;
              }
          } anonObj;
 
@@ -65,9 +65,9 @@ public function BazFunc (Foo... fArg) returns (Baz) {
 public function test1(object {public {
                                               string s;
                                               Baz z = 1;
-                                              Foo foo;
+                                              Foo foo1;
                                           }
-                                      } anonObj) returns string {
+                                      } anonObj1) returns string {
     return "K";
 }
 
@@ -75,14 +75,14 @@ public function test2() returns object {
                                             public {
                                                 string s;
                                                 Baz z = 1;
-                                                Foo foo;
+                                                Foo foo1;
                                             }
                                         }{
     object {
         public {
             string s;
             Baz z = 1;
-            Foo foo;
+            Foo foo1;
         }
     } m = new;
 
@@ -94,7 +94,7 @@ function test3() returns string {
         public {
             string s;
             Baz z = 1;
-            Foo foo;
+            Foo foo1;
         }
     } m = new;
 
@@ -106,7 +106,7 @@ function test4() returns string {
         public {
             string s;
             Baz z = 1;
-            Foo foo;
+            Foo foo1;
         }
     } m = new;
 
@@ -157,7 +157,7 @@ public function test6({
                           Baz z = 1;
                           Foo foo;
                           BarRecord br;
-                      } anonRecord) returns string {
+                      } anonRecord1) returns string {
     return "K";
 }
 

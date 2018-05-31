@@ -1,16 +1,16 @@
-function testIfStmt(int a, int b, int c) returns (int, int) {
+function testIfStmt(int aa, int b, int c) returns (int, int) {
 
     int x;
     x = 10;
 
     int a1;
-    if ( a == b) {
+    if ( aa == b) {
         a1 = 100;
 
-    } else if (a == b + 1){
+    } else if (aa == b + 1){
         a1 = 200;
 
-    } else  if (a == b + 2){
+    } else  if (aa == b + 2){
         a1 = 300;
 
     }  else {
@@ -22,19 +22,19 @@ function testIfStmt(int a, int b, int c) returns (int, int) {
     return (a1 + x, b1 + 1);
 }
 
-function testIfStmtWithoutParentheses(int a, int b, int c) returns (int, int) {
+function testIfStmtWithoutParentheses(int aa, int b, int c) returns (int, int) {
 
     int x;
     x = 10;
 
     int a1;
-    if a == b {
+    if aa == b {
         a1 = 100;
 
-    } else if a == (b + 1) {
+    } else if aa == (b + 1) {
         a1 = 200;
 
-    } else  if (((a == (b + 2)))) {
+    } else  if (((aa == (b + 2)))) {
         a1 = 300;
 
     } else {

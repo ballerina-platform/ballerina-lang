@@ -80,7 +80,6 @@ function testVariableShadowingInCurrentScope2(int a) returns function (float) re
 
     var foo = (float f) => (string) {
         if (a > 8) {
-            int a = 6;
             b = a + <int>f + b;
         }
         return "K" + b;

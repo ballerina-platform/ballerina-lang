@@ -61,7 +61,7 @@ public class BlockStmtTest {
     @Test
     public void testVariableShadowingInCurrentScope2() {
         BValue[] returns = BRunUtil.invoke(result, "test3");
-        Assert.assertEquals(returns[0].stringValue(), "K22");
+        Assert.assertEquals(returns[0].stringValue(), "K25");
     }
 
     @Test(description = "Test block statement with errors")
