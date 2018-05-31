@@ -79,12 +79,11 @@
     </test>
     <test name="Websocket Tests" parallel="false">
         <classes>
-            <class name="org.wso2.transport.http.netty.websocket.WebSocketServerTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.WebSocketClientTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.WebSocketPassThroughTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.WebSocketMessagePropertiesTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.HttpToWebSocketProtocolSwitchTestCase"/>
-            <class name="org.wso2.transport.http.netty.websocket.HttpToWebSocketProtocolSwitchMultiThreadTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerHandshakeFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientHandshakeFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientFunctionalityTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.passthrough.WebSocketPassThroughTestCase"/>
         </classes>
     </test>
     <test name="HTTP2 Tests" parallel="false">

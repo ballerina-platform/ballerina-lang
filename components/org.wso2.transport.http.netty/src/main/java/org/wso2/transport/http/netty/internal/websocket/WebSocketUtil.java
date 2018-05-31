@@ -30,6 +30,7 @@ import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFram
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketTextMessage;
+import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
 
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -43,15 +44,16 @@ public class WebSocketUtil {
         return ctx.channel().id().asLongText();
     }
 
-    public static DefaultWebSocketConnection getWebSocketConnection(WebSocketInboundFrameHandler frameHandler,
+    public static DefaultWebSocketConnection getWebSocketConnection(ChannelHandlerContext ctx,
+                                                                    WebSocketInboundFrameHandler frameHandler,
+                                                                    WebSocketFramesBlockingHandler blockingHandler,
                                                                     boolean isSecured,
                                                                     String uri) throws URISyntaxException {
-        ChannelHandlerContext ctx = frameHandler.getChannelHandlerContext();
         DefaultWebSocketSession session = new DefaultWebSocketSession(ctx, isSecured, uri, getSessionID(ctx));
-        return new DefaultWebSocketConnection(frameHandler, session);
+        return new DefaultWebSocketConnection(ctx, frameHandler, blockingHandler, session);
     }
 
-    public static WebSocketControlMessage getWebsocketControlMessage(WebSocketFrame webSocketFrame,
+    public static WebSocketControlMessage getWebSocketControlMessage(WebSocketFrame webSocketFrame,
                                                                      WebSocketControlSignal controlSignal) {
         ByteBuf content = webSocketFrame.content();
         ByteBuffer clonedContent = getClonedByteBuf(content);
