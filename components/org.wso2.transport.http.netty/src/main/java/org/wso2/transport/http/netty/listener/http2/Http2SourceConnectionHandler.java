@@ -110,6 +110,7 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
             HTTPTransportContextHolder.getInstance().getHandlerExecutor()
                     .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
+        ctx.fireChannelInactive();
     }
 
     /**

@@ -155,6 +155,18 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        destroy();
+        ctx.fireChannelInactive();
+    }
+
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        destroy();
+        ctx.fireChannelUnregistered();
+    }
+
     /**
      * Notifies the registered listeners which listen for the incoming carbon messages.
      *
@@ -216,4 +228,9 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         sourceReqCMsg.setProperty(Constants.TO, uri);
         return sourceReqCMsg;
     }
+
+    private void destroy() {
+        streamIdRequestMap.clear();
+    }
+
 }
