@@ -23,6 +23,7 @@ import io.netty.handler.codec.http2.DefaultHttp2Connection;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
+import io.netty.handler.codec.http2.Http2ConnectionHandler;
 import io.netty.handler.codec.http2.Http2Settings;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.FrameLogger;
@@ -31,10 +32,10 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import static io.netty.handler.logging.LogLevel.TRACE;
 
 /**
- * {@code HTTP2SourceHandlerBuilder} is used to build the HTTP2SourceHandler.
+ * {@code HTTP2SourceHandlerBuilder} is used to build the HTTP2SourceConnectionHandler.
  */
 public final class Http2SourceHandlerBuilder
-        extends AbstractHttp2ConnectionHandlerBuilder<Http2SourceHandler, Http2SourceHandlerBuilder> {
+        extends AbstractHttp2ConnectionHandlerBuilder<Http2SourceConnectionHandler, Http2SourceHandlerBuilder> {
 
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
@@ -50,22 +51,26 @@ public final class Http2SourceHandlerBuilder
     }
 
     @Override
-    public Http2SourceHandler build() {
+    public Http2SourceConnectionHandler build() {
         Http2Connection conn = new DefaultHttp2Connection(true);
         if (serverChannelInitializer.isHttpTraceLogEnabled()) {
             frameLogger(new FrameLogger(TRACE, Constants.TRACE_LOG_DOWNSTREAM));
         }
         connection(conn);
-        return super.build();
+        Http2ConnectionHandler connectionHandler = super.build();
+        if (connectionHandler instanceof Http2SourceConnectionHandler) {
+            return (Http2SourceConnectionHandler) connectionHandler;
+        }
+        return null;
     }
 
     @Override
-    protected Http2SourceHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
+    public Http2SourceConnectionHandler build(Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
                                        Http2Settings initialSettings) {
-        Http2SourceHandler handler = new Http2SourceHandler(
-                serverChannelInitializer, decoder, encoder, initialSettings, interfaceId, connection(),
+        Http2SourceConnectionHandler sourceConnectionHandler = new Http2SourceConnectionHandler(
+                serverChannelInitializer, decoder, encoder, initialSettings, interfaceId,
                 serverConnectorFuture, serverName);
-        frameListener(handler.getHttp2FrameListener());
-        return handler;
+        frameListener(sourceConnectionHandler.getHttp2FrameListener());
+        return sourceConnectionHandler;
     }
 }
