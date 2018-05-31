@@ -42,7 +42,7 @@ public class Http2PushPromise extends Http2Frame {
     private OutboundMsgHolder outboundMsgHolder;
 
     /**
-     * Constructor to create {@code Http2PushPromise} with initial {@code HttpRequest} and {@link OutboundMsgHolder}.
+     * Constructor to create {@code Http2PushPromise} with initial {@code HttpRequest}.
      *
      * @param httpRequest   the HttpRequest
      */
