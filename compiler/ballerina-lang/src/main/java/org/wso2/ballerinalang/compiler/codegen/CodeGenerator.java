@@ -1802,9 +1802,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
         //TODO any better way?
         int[] attachPointCPIndexes = new int[annotation.attachmentPoints.size()];
-        int i = 0;
-        for (BLangAnnotationAttachmentPoint point : annotation.attachmentPoints) {
-            attachPointCPIndexes[i] = addUTF8CPEntry(currentPkgInfo, point.attachmentPoint.getValue());
+        List<BLangAnnotationAttachmentPoint> attachmentPoints = annotation.attachmentPoints;
+        for (int i = 0; i < attachmentPoints.size(); i++) {
+            String pointName = attachmentPoints.get(i).attachmentPoint.getValue();
+            attachPointCPIndexes[i] = addUTF8CPEntry(currentPkgInfo, pointName);
         }
 
         AnnotationInfo annotationInfo = new AnnotationInfo(nameCPIndex, typeSigCPIndex,
