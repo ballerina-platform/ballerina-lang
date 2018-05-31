@@ -51,12 +51,6 @@ function test6(){
     }
 }
 
-function test7(){
-    foreach i in [ "a".."z" ] {
-        io:println(i);
-    }
-}
-
 function test8(){
     json j = ["a" , "b", "c"];
     var a = check <json[]> j;
