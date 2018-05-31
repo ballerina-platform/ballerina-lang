@@ -196,6 +196,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
 
+        // Visit global variables first. Otherwise shadowed variables will not be identified correctly.
+        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
+
         // Define struct nodes.
         pkgNode.enums.forEach(enumNode -> defineNode(enumNode, pkgEnv));
 
@@ -251,8 +254,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.annotations.forEach(annot -> defineNode(annot, pkgEnv));
 
         resolveAnnotationAttributeTypes(pkgNode.annotations, pkgEnv);
-
-        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         pkgNode.globalEndpoints.forEach(ep -> defineNode(ep, pkgEnv));
 
