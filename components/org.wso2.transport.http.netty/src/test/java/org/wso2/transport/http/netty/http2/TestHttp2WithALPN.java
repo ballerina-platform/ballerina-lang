@@ -58,7 +58,6 @@ public class TestHttp2WithALPN {
     private static final Logger log = LoggerFactory.getLogger(TestHttp2WithALPN.class);
     private ServerConnector serverConnector;
     private HttpClientConnector httpClientConnector;
-    private int port = 8443;
     private HttpWsConnectorFactory connectorFactory;
 
     @BeforeClass
@@ -79,7 +78,7 @@ public class TestHttp2WithALPN {
     public void testHttp2Post() {
         try {
             String testValue = "Test";
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(port, testValue, "");
+            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT1, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
@@ -101,7 +100,7 @@ public class TestHttp2WithALPN {
 
     private ListenerConfiguration getListenerConfigs() {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setPort(port);
+        listenerConfiguration.setPort(TestUtil.SERVER_PORT1);
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setVersion(String.valueOf(HTTP_2_0));
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
