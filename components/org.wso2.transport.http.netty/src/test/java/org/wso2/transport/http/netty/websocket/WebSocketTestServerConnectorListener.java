@@ -107,7 +107,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
                 webSocketConnection.ping(ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5}));
                 break;
             case CLOSE_FORCEFULLY:
-                closeFuture = webSocketConnection.closeForcefully();
+                closeFuture = webSocketConnection.terminateConnection();
                 handleCloseFuture(returnFutureLatch, closeFuture);
                 break;
             case CLOSE_AND_WAIT:

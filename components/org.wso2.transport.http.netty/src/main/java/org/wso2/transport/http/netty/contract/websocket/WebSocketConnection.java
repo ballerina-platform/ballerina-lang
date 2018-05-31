@@ -128,9 +128,9 @@ public interface WebSocketConnection {
     ChannelFuture finishConnectionClosure(int statusCode, String reason);
 
     /**
-     * Close connection without close frame.
+     * Terminate connection without close frame.
      *
      * @return Future to represent the completion of closure asynchronously.
      */
-    ChannelFuture closeForcefully();
+    ChannelFuture terminateConnection();
 }

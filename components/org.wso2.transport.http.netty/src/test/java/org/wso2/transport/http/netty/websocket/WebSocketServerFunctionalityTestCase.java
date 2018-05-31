@@ -24,6 +24,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.certificatevalidation.TestConstants;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -52,7 +54,7 @@ public class WebSocketServerFunctionalityTestCase {
     @BeforeClass
     public void setup() throws InterruptedException {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setHost("localhost");
+        listenerConfiguration.setHost(Constants.LOCALHOST);
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
@@ -110,9 +112,10 @@ public class WebSocketServerFunctionalityTestCase {
         pingCheckClient.sendCloseFrame(defaultStatusCode, defaultCloseReason).closeChannel();
     }
 
+    //TODO: Description
     @Test
-    public void testPongToTestClientForPingReceived()
-            throws InterruptedException, IOException, URISyntaxException {
+    public void testPong()
+            throws InterruptedException, URISyntaxException {
         CountDownLatch pongLatch = new CountDownLatch(1);
         WebSocketTestClient pongCheckClient = new WebSocketTestClient();
         pongCheckClient.handshake();
@@ -140,37 +143,24 @@ public class WebSocketServerFunctionalityTestCase {
         serverLatch.await(latchCountDownInSecs, SECONDS);
         clientLatch.await(latchCountDownInSecs, SECONDS);
 
-        Assert.assertEquals(client.getReceivedCloseFrame(), null);
+        Assert.assertNull(client.getReceivedCloseFrame());
         Assert.assertFalse(client.isOpen());
         Assert.assertFalse(serverConnectorListener.getCloseFuture().channel().isOpen());
     }
 
     @Test
-    public void testSendAndWaitForCloseFrameEchoBack() throws InterruptedException, URISyntaxException {
-        int expectedStatusCode = 1001;
-        String expectedReason = "Going away";
-        CountDownLatch clientLatch = new CountDownLatch(1);
-        CountDownLatch serverLatch = new CountDownLatch(1);
-        serverConnectorListener.setReturnFutureLatch(serverLatch);
-        WebSocketTestClient client = new WebSocketTestClient();
-        client.handshake();
-        client.setCountDownLatch(clientLatch);
-        client.sendText("send-and-wait");
-        clientLatch.await(latchCountDownInSecs, SECONDS);
-        serverLatch.await(latchCountDownInSecs, SECONDS);
+    public void testServerInitiatedClosure() throws InterruptedException, URISyntaxException {
+        WebSocketTestClient client = commandServerInitiatedClosure();
         CloseWebSocketFrame closeFrame = client.getReceivedCloseFrame();
 
         // Assert the pre conditions after receiving a close frame from the server and
         // before client echoing the close frame.
         Assert.assertNotNull(closeFrame);
-        Assert.assertEquals(closeFrame.statusCode(), expectedStatusCode);
-        Assert.assertEquals(closeFrame.reasonText(), expectedReason);
+        Assert.assertEquals(closeFrame.statusCode(), 1001);
+        Assert.assertEquals(closeFrame.reasonText(), "Going away");
         Assert.assertFalse(serverConnectorListener.getCloseFuture().isDone());
 
-        CountDownLatch closeDoneLatch = new CountDownLatch(1);
-        serverConnectorListener.setCloseDoneLatch(closeDoneLatch);
-        client.sendCloseFrame(closeFrame.statusCode(), null);
-        closeDoneLatch.await(latchCountDownInSecs, SECONDS);
+        acknowledgeServerClosure(client, closeFrame.statusCode());
 
         // Assert the post conditions after receiving a close frame from the server and
         // after client echoing the close frame.
@@ -179,11 +169,14 @@ public class WebSocketServerFunctionalityTestCase {
         closeFrame.release();
     }
 
-    @Test(description = "As per spec typically the remote endpoint should echo back the same status code " +
-            "sent by this endpoint. This tests the error for not receiving the same status code.")
-    public void testSendAndReceiveReceiveDifferentStatusCode() throws InterruptedException, URISyntaxException {
-        int expectedStatusCode = 1001;
-        String expectedReason = "Going away";
+    private void acknowledgeServerClosure(WebSocketTestClient client, int statusCode) throws InterruptedException {
+        CountDownLatch closeDoneLatch = new CountDownLatch(1);
+        serverConnectorListener.setCloseDoneLatch(closeDoneLatch);
+        client.sendCloseFrame(statusCode, null);
+        closeDoneLatch.await(latchCountDownInSecs, SECONDS);
+    }
+
+    private WebSocketTestClient commandServerInitiatedClosure() throws URISyntaxException, InterruptedException {
         CountDownLatch clientLatch = new CountDownLatch(1);
         CountDownLatch serverLatch = new CountDownLatch(1);
         serverConnectorListener.setReturnFutureLatch(serverLatch);
@@ -193,19 +186,23 @@ public class WebSocketServerFunctionalityTestCase {
         client.sendText("send-and-wait");
         clientLatch.await(latchCountDownInSecs, SECONDS);
         serverLatch.await(latchCountDownInSecs, SECONDS);
+        return client;
+    }
+
+    @Test(description = "As per spec typically the remote endpoint should echo back the same status code " +
+            "sent by this endpoint. This tests the error for not receiving the same status code.")
+    public void testSendAndReceiveDifferentStatusCode() throws InterruptedException, URISyntaxException {
+        WebSocketTestClient client = commandServerInitiatedClosure();
         CloseWebSocketFrame closeFrame = client.getReceivedCloseFrame();
 
         // Assert the pre conditions after receiving a close frame from the server and
         // before client echoing the close frame.
         Assert.assertNotNull(closeFrame);
-        Assert.assertEquals(closeFrame.statusCode(), expectedStatusCode);
-        Assert.assertEquals(closeFrame.reasonText(), expectedReason);
+        Assert.assertEquals(closeFrame.statusCode(), 1001);
+        Assert.assertEquals(closeFrame.reasonText(),  "Going away");
         Assert.assertFalse(serverConnectorListener.getCloseFuture().isDone());
 
-        CountDownLatch closeDoneLatch = new CountDownLatch(1);
-        serverConnectorListener.setCloseDoneLatch(closeDoneLatch);
-        client.sendCloseFrame(closeFrame.statusCode() + 1, null);
-        closeDoneLatch.await(latchCountDownInSecs, SECONDS);
+        acknowledgeServerClosure(client, closeFrame.statusCode() + 1);
         Throwable cause = serverConnectorListener.getCloseFuture().cause();
 
         // Assert the post conditions after receiving a close frame from the server and
@@ -222,7 +219,7 @@ public class WebSocketServerFunctionalityTestCase {
     }
 
     @AfterClass
-    public void cleaUp() {
+    public void cleanUp() {
         serverConnector.stop();
     }
 }

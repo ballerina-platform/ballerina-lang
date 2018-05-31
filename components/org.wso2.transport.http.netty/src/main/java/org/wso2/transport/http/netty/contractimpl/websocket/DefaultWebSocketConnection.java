@@ -166,7 +166,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
     }
 
     @Override
-    public ChannelFuture closeForcefully() {
+    public ChannelFuture terminateConnection() {
         return ctx.close();
     }
 

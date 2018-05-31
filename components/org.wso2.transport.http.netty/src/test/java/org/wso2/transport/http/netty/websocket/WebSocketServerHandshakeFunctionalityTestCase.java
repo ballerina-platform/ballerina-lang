@@ -24,6 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -51,7 +52,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
     @BeforeClass
     public void setup() throws InterruptedException {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
-        listenerConfiguration.setHost("localhost");
+        listenerConfiguration.setHost(Constants.LOCALHOST);
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
         DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
@@ -62,11 +63,8 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
     }
 
     @Test(description = "Check whether the correct sub protocol is chosen by the server with the given sequence.")
-    public void testServerSubProtocolNegotiationSuccessful() throws URISyntaxException, InterruptedException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("x-negotiate-sub-protocols", "true");
-        WebSocketTestClient testClient = new WebSocketTestClient("dummy1, xml, dummy2, json", headers);
-        testClient.handshake();
+    public void testSuccessfulSubProtocolNegotiation() throws URISyntaxException, InterruptedException {
+        WebSocketTestClient testClient = createClientAndHandshake("x-negotiate-sub-protocols", "dummy1, xml, dummy2, json");
 
         Assert.assertEquals(testClient.getHandshaker().actualSubprotocol(), "xml");
 
@@ -76,19 +74,13 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
     @Test(description = "Check whether no any sub protocol is negotiated when unsupported sub protocols are requested.",
           expectedExceptions = WebSocketHandshakeException.class,
           expectedExceptionsMessageRegExp = "Invalid subprotocol. Actual: null. Expected one of: dummy1, dummy2")
-    public void testServerSubProtocolNegotiationFail() throws URISyntaxException, InterruptedException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("x-negotiate-sub-protocols", "true");
-        WebSocketTestClient testClient = new WebSocketTestClient("dummy1, dummy2", headers);
-        testClient.handshake();
+    public void testFailSubProtocolNegotiation() throws URISyntaxException, InterruptedException {
+        createClientAndHandshake("x-negotiate-sub-protocols", "dummy1, dummy2");
     }
 
     @Test(description = "Check the capability of sending custom headers in handshake response.")
-    public void testServerHandshakeWithCustomHeadersResponse() throws URISyntaxException, InterruptedException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("x-send-custom-header", "true");
-        WebSocketTestClient testClient = new WebSocketTestClient(null, headers);
-        testClient.handshake();
+    public void testHandshakeWithCustomHeader() throws URISyntaxException, InterruptedException {
+        WebSocketTestClient testClient = createClientAndHandshake("x-send-custom-header", null);
 
         Assert.assertEquals(testClient.getHandshakeResponse().headers().get("x-custom-header"), "custom-header-value");
 
@@ -105,47 +97,24 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
 
     @Test
     public void testReadNextFrame() throws URISyntaxException, InterruptedException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("x-wait-for-frame-read", "true");
-        int noOfMsgs = 10;
-        String testMsgArray[] = new String[noOfMsgs];
-        for (int i = 0; i < noOfMsgs; i++) {
-            testMsgArray[i] = "testMessage" + i;
-        }
-
-        WebSocketTestClient testClient = new WebSocketTestClient(null, headers);
         CountDownLatch handshakeCompleteCountDownLatch = new CountDownLatch(1);
         listener.setHandshakeCompleteCountDownLatch(handshakeCompleteCountDownLatch);
-        testClient.handshake();
+        WebSocketTestClient testClient = createClientAndHandshake("x-wait-for-frame-read", null);
         handshakeCompleteCountDownLatch.await(countdownLatchTimeout, TimeUnit.SECONDS);
-        for (String testMsg: testMsgArray) {
-            testClient.sendText(testMsg);
-        }
+        String[] testMsgArray = sendTextMessages(testClient, 10);
         WebSocketConnection webSocketConnection = listener.getCurrentWebSocketConnection();
 
         Assert.assertNotNull(webSocketConnection);
 
         for (String testMsg: testMsgArray) {
-            CountDownLatch countDownLatch = new CountDownLatch(1);
-            testClient.setCountDownLatch(countDownLatch);
-            webSocketConnection.readNextFrame();
-            countDownLatch.await(countdownLatchTimeout, TimeUnit.SECONDS);
-
-            Assert.assertEquals(testClient.getTextReceived(), testMsg);
+            Assert.assertEquals(readNextTextFrame(testClient, webSocketConnection), testMsg);
         }
     }
 
     @Test(description = "Test connection closure due to idle timeout in server.")
     public void testIdleTimeout() throws URISyntaxException, InterruptedException {
-        Map<String, String> headers = new HashMap<>();
-        headers.put("x-set-connection-timeout", "true");
-        WebSocketTestClient testClient = new WebSocketTestClient(null, headers);
-        testClient.handshake();
-
-        CountDownLatch countDownLatch = new CountDownLatch(1);
-        testClient.setCountDownLatch(countDownLatch);
-        countDownLatch.await(countdownLatchTimeout, TimeUnit.SECONDS);
-        CloseWebSocketFrame closeFrame = testClient.getReceivedCloseFrame();
+        WebSocketTestClient testClient = createClientAndHandshake("x-set-connection-timeout", null);
+        CloseWebSocketFrame closeFrame = getReceivedCloseFrame(testClient);
 
         Assert.assertNotNull(closeFrame);
         Assert.assertEquals(closeFrame.statusCode(), 1001);
@@ -154,12 +123,13 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         testClient.sendCloseFrame(closeFrame.statusCode(), null).closeChannel();
     }
 
-    @Test(description = "WebSocket server sends 400 Bad Request if a handshake request is received with " +
+
+    @Test(description = "WebSocket server sends 400 Bad Request if a createClientAndHandshake request is received with " +
             "other than GET method")
     public void testHandshakeWithPostMethod() throws IOException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         URL url = URI.create(String.format("http://%s:%d/%s", TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT,
-                                           "/websocket")).toURL();
+                "/websocket")).toURL();
         HttpURLConnection urlConn = (HttpURLConnection) url.openConnection();
         urlConn.setRequestMethod("POST");
         urlConn.setRequestProperty("Connection", "Upgrade");
@@ -170,10 +140,46 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         Assert.assertEquals(urlConn.getResponseCode(), 400);
         Assert.assertEquals(urlConn.getResponseMessage(), "Bad Request");
         Assert.assertNull(urlConn.getHeaderField("sec-websocket-accept"));
+
+        urlConn.disconnect();
     }
 
     @AfterClass
     public void cleanup() {
         serverConnector.stop();
+    }
+
+    private String readNextTextFrame(WebSocketTestClient testClient, WebSocketConnection webSocketConnection) throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        testClient.setCountDownLatch(countDownLatch);
+        webSocketConnection.readNextFrame();
+        countDownLatch.await(countdownLatchTimeout, TimeUnit.SECONDS);
+        return testClient.getTextReceived();
+    }
+
+    private String[] sendTextMessages(WebSocketTestClient testClient, int noOfMessages) throws InterruptedException {
+        String testMsgArray[] = new String[noOfMessages];
+        for (int i = 0; i < noOfMessages; i++) {
+            String testMsg = "testMessage" + i;
+            testMsgArray[i] = testMsg;
+            testClient.sendText(testMsg);
+        }
+        return testMsgArray;
+    }
+
+    private CloseWebSocketFrame getReceivedCloseFrame(WebSocketTestClient testClient) throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        testClient.setCountDownLatch(countDownLatch);
+        countDownLatch.await(countdownLatchTimeout, TimeUnit.SECONDS);
+        return testClient.getReceivedCloseFrame();
+    }
+
+    private WebSocketTestClient createClientAndHandshake(String commandHeader, String subProtocols)
+            throws URISyntaxException, InterruptedException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(commandHeader, "true");
+        WebSocketTestClient testClient = new WebSocketTestClient(subProtocols, headers);
+        testClient.handshake();
+        return testClient;
     }
 }
