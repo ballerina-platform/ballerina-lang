@@ -153,10 +153,11 @@ public type RetryClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
+    public function submit(string httpVerb, string path,  Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns HttpFuture|error;
 
     documentation {
 	Retrieves the `Response` for a previously submitted request.
@@ -251,8 +252,10 @@ public function RetryClient::options(string path, Request|string|xml|json|blob|i
     return performRetryAction(path, req, HTTP_OPTIONS, self);
 }
 
-public function RetryClient::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
-    return self.httpClient.submit(httpVerb, path, request);
+public function RetryClient::submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|
+                                                                    mime:Entity[]|() message) returns HttpFuture|error {
+    Request req = buildRequest(message);
+    return self.httpClient.submit(httpVerb, path, req);
 }
 
 public function RetryClient::getResponse(HttpFuture httpFuture) returns Response|error {

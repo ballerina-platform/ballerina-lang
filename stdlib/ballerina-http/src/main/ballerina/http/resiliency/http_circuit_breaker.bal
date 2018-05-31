@@ -269,10 +269,11 @@ public type CircuitBreakerClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
+    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+                                                            message) returns HttpFuture|error;
 
     documentation {
         Circuit breaking not supported. Defaults to the `getResponse()` function of the underlying HTTP
@@ -544,7 +545,9 @@ public function CircuitBreakerClient::forward(string path, Request request) retu
    }
 }
 
-public function CircuitBreakerClient::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+public function CircuitBreakerClient::submit(string httpVerb, string path, Request|string|xml|json|blob|
+                                                    io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
+    Request request = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, request);
 }
 

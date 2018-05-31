@@ -213,10 +213,11 @@ public type HttpCachingClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP request
+        P{{message}} An HTTP request
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
+    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns HttpFuture|error;
 
     documentation {
         Retrieves the `Response` for a previously submitted request.
@@ -397,9 +398,10 @@ public function HttpCachingClient::forward(string path, Request request) returns
     }
 }
 
-public function HttpCachingClient::submit(string httpVerb, string path, Request request)
-                                                                            returns HttpFuture|error {
-    return self.httpClient.submit(httpVerb, path, request);
+public function HttpCachingClient::submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
+                                                                            |mime:Entity[]|() message) returns HttpFuture|error {
+    Request req = buildRequest(message);
+    return self.httpClient.submit(httpVerb, path, req);
 }
 
 public function HttpCachingClient::getResponse(HttpFuture httpFuture) returns Response|error {

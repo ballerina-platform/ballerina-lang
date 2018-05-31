@@ -81,7 +81,7 @@ public type CallerActions object {
     public function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|blob
                                                         |io:ByteChannel|mime:Entity[]|() message) returns Response|error {
         Request req = buildRequest(message);
-        return nativeExecute(self, path, req);
+        return nativeExecute(self, httpVerb, path, req);
     }
 
     documentation {
@@ -152,11 +152,14 @@ public type CallerActions object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
-    public native function submit(@sensitive string httpVerb, string path, Request request)
-                                                                            returns HttpFuture|error;
+    public function submit(@sensitive string httpVerb, string path, Request|string|xml|json|blob|
+                                                    io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
+        Request req = buildRequest(message);
+        return nativeSubmit(self, httpVerb, path, req);
+    }
 
     documentation {
         Retrieves the `Response` for a previously submitted request.
@@ -219,7 +222,8 @@ native function nativeHead(CallerActions callerActions, @sensitive string path, 
 
 native function nativePut(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
-native function nativeExecute(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+native function nativeExecute(CallerActions callerActions, @sensitive string httpVerb, @sensitive string path,
+                                                                                Request req) returns Response|error;
 
 native function nativePatch(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
@@ -228,3 +232,6 @@ native function nativeDelete(CallerActions callerActions, @sensitive string path
 native function nativeGet(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
 native function nativeOptions(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
+
+native function nativeSubmit(CallerActions callerActions, @sensitive string httpVerb, string path, Request req)
+                                                                                            returns HttpFuture|error;

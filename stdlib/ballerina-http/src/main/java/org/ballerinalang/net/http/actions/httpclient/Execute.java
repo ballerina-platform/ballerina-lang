@@ -22,7 +22,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.AcceptEncodingConfig;
 import org.ballerinalang.net.http.DataContext;
@@ -39,7 +38,7 @@ import java.util.Locale;
         orgName = "ballerina", packageName = "http",
         functionName = "nativeExecute",
         args = {
-                @Argument(name = "client", type = TypeKind.STRUCT),
+                @Argument(name = "callerActions", type = TypeKind.STRUCT),
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",

@@ -23,7 +23,6 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -37,7 +36,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
         orgName = "ballerina", packageName = "http",
         functionName = "nativeOptions",
         args = {
-                @Argument(name = "client", type = TypeKind.CONNECTOR),
+                @Argument(name = "callerActions", type = TypeKind.CONNECTOR),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
                         structPackage = "ballerina.http")

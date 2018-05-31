@@ -147,10 +147,11 @@ public type LoadBalancerActions object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
+    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns HttpFuture|error;
 
     documentation {
         The getResponse implementation of the LoadBalancer Connector.
@@ -260,7 +261,8 @@ public function LoadBalancerActions::get(string path, Request|string|xml|json|bl
     return performLoadBalanceAction(self, path, req, HTTP_GET);
 }
 
-public function LoadBalancerActions::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+public function LoadBalancerActions::submit(string httpVerb, string path, Request|string|xml|json|blob|
+    io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
     error err = {message:"Unsupported action for LoadBalancer client."};
     return err;
 }

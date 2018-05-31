@@ -236,12 +236,14 @@ public type HttpSecureClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns (HttpFuture|error) {
-        check generateSecureRequest(request, config);
-        return httpClient.submit(httpVerb, path, request);
+    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns (HttpFuture|error) {
+        Request req = buildRequest(message);
+        check generateSecureRequest(req, config);
+        return httpClient.submit(httpVerb, path, req);
     }
 
     documentation {

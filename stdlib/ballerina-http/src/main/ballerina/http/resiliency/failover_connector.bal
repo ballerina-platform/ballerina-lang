@@ -180,10 +180,11 @@ public type FailoverActions object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
+    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns HttpFuture|error;
 
     documentation {
         Retrieves the `Response` for a previously submitted request.
@@ -278,7 +279,8 @@ public function FailoverActions::get(string path, Request|string|xml|json|blob|i
     return performFailoverAction(path, req, HTTP_GET, self.failoverInferredConfig);
 }
 
-public function FailoverActions::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+public function FailoverActions::submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
+                                                            |mime:Entity[]|() message) returns HttpFuture|error {
     error err = {message:"Unsupported action for Failover client."};
     return err;
 }
