@@ -19,7 +19,6 @@
 package org.ballerinalang.test.service.websocket;
 
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.ballerinalang.test.util.websocket.server.WebSocketRemoteServer;
 import org.testng.Assert;
@@ -27,7 +26,6 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -40,17 +38,13 @@ import java.util.concurrent.TimeUnit;
 public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
 
     private WebSocketRemoteServer remoteServer;
-    private ServerInstance ballerinaServerInstance;
     private static final String URL = "ws://localhost:9090/proxy/ws";
 
     @BeforeClass(description = "Initializes Ballerina")
     public void setup() throws InterruptedException, BallerinaTestException {
         remoteServer = new WebSocketRemoteServer(REMOTE_SERVER_PORT);
         remoteServer.run();
-
-        String balPath = new File("src/test/resources/websocket/simple_proxy_server.bal").getAbsolutePath();
-        ballerinaServerInstance = ServerInstance.initBallerinaServer();
-        ballerinaServerInstance.startBallerinaServer(balPath);
+        initBallerinaServer("simple_proxy_server.bal");
     }
 
     @Test(priority = 1, description = "Tests sending and receiving of text frames in WebSockets")
@@ -81,7 +75,7 @@ public class WebSocketSimpleProxyTestCase extends WebSocketIntegrationTest {
 
     @AfterClass(description = "Stops Ballerina")
     public void cleanup() throws BallerinaTestException {
-        ballerinaServerInstance.stopServer();
+        stopBallerinaServerInstance();
         remoteServer.stop();
     }
 }

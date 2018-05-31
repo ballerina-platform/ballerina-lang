@@ -33,6 +33,7 @@ Gets a access parameter value (`true` or `false`) for a given key. Please note t
 Example:
 ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
 P{{accessMode}} read or write mode
+P{{accessMode}} read or write mode
 R{{successful}} boolean `true` or `false`
 }
 public function File::open (string accessMode) returns (boolean) {
@@ -40,15 +41,15 @@ public function File::open (string accessMode) returns (boolean) {
     return successful;
 }
 
-documentation { Documentation for File struct
-F{{path}} struct `field path` documentation
+documentation { Documentation for File object
+F{{path}} file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 }
 public type File object {
     public {
         string path;
     }
 
-    public function open (string accessMode) returns (boolean);
+    public function open(string accessMode) returns boolean;
 };
 
 //documentation {

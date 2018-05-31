@@ -160,7 +160,8 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.documentationText, " Documentation for File type\n");
         Assert.assertEquals(dNode.getAttributes().size(), 1);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "path");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " type `field path` documentation\n");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " file path. Example:" +
+                " ``C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src``\n");
 
         // test union param
         docNodes = ((BLangFunction) packageNode.getFunctions().get(1)).docAttachments;
@@ -190,24 +191,22 @@ public class DocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
-        Assert.assertEquals(compileResult.getWarnCount(), 10);
-        int i = 0;
-        BAssertUtil.validateWarning(compileResult, i++, "already documented attribute 'a'", 5, 1);
-        BAssertUtil.validateWarning(compileResult, i++, "no such documentable attribute 'c' with doc prefix 'F'", 7,
+        Assert.assertEquals(compileResult.getWarnCount(), 11);
+        BAssertUtil.validateWarning(compileResult, 0, "already documented attribute 'a'", 5, 1);
+        BAssertUtil.validateWarning(compileResult, 1, "no such documentable attribute 'c' with doc prefix 'F'", 7, 1);
+        BAssertUtil.validateWarning(compileResult, 2, "already documented attribute 'a'", 22, 1);
+        BAssertUtil.validateWarning(compileResult, 3, "no such documentable attribute 'c' with doc prefix 'F'", 24, 1);
+        BAssertUtil.validateWarning(compileResult, 4, "already documented attribute 'accessMode'", 36, 1);
+        BAssertUtil.validateWarning(compileResult, 5, "already documented attribute 'url'", 83, 1);
+        BAssertUtil.validateWarning(compileResult, 6, "no such documentable attribute 'urls' with doc prefix 'P'", 84,
                 1);
-        BAssertUtil.validateWarning(compileResult, i++, "already documented attribute 'a'", 22, 1);
-        BAssertUtil.validateWarning(compileResult, i++, "no such documentable attribute 'c' with doc prefix 'F'", 24,
+        BAssertUtil.validateWarning(compileResult, 7, "no such documentable attribute 'conn' with doc prefix 'P'", 98,
                 1);
-        BAssertUtil.validateWarning(compileResult, i++, "already documented attribute 'url'", 82, 1);
-        BAssertUtil.validateWarning(compileResult, i++, "no such documentable attribute 'urls' with doc prefix 'P'",
-                83, 1);
-        BAssertUtil.validateWarning(compileResult, i++, "no such documentable attribute 'conn' with doc prefix 'P'",
-                97, 1);
-        BAssertUtil.validateWarning(compileResult, i++, "already documented attribute 'req'", 109, 5);
-        BAssertUtil.validateWarning(compileResult, i++, "no such documentable attribute 'reqest' with doc prefix 'P'",
-                110, 5);
-        BAssertUtil.validateWarning(compileResult, i++,
-                "no such documentable attribute 'testConstd' with doc prefix " + "'V'", 119, 1);
+        BAssertUtil.validateWarning(compileResult, 8, "already documented attribute 'req'", 110, 5);
+        BAssertUtil.validateWarning(compileResult, 9, "no such documentable attribute 'reqest' with doc prefix 'P'",
+                111, 5);
+        BAssertUtil.validateWarning(compileResult, 10,
+                "no such documentable attribute 'testConstd' with doc prefix " + "'V'", 120, 1);
     }
 
     //    @Test(description = "Test doc transformer.")
@@ -432,7 +431,7 @@ public class DocumentationTest {
                 .filter(node -> node.getName().getValue().equals("File")).findFirst().get()).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, "\n" + "  This Struct is deprecated use `File2` instead.\n");
+        Assert.assertEquals(dNode.documentationText, "\n" + "  This Object is deprecated use `File2` instead.\n");
 
 //        dNodes = ((BLangEnum) packageNode.getEnums().get(0)).deprecatedAttachments;
 //        dNode = dNodes.get(0);

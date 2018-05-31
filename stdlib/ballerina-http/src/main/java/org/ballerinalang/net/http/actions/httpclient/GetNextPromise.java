@@ -18,6 +18,7 @@ package org.ballerinalang.net.http.actions.httpclient;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
@@ -71,7 +72,7 @@ public class GetNextPromise extends AbstractHTTPAction {
                 setPushPromiseListener(new PromiseListener(dataContext));
     }
 
-    private class PromiseListener implements HttpClientConnectorListener {
+    private static class PromiseListener implements HttpClientConnectorListener {
 
         private DataContext dataContext;
 
@@ -82,9 +83,10 @@ public class GetNextPromise extends AbstractHTTPAction {
         @Override
         public void onPushPromise(Http2PushPromise pushPromise) {
             BStruct pushPromiseStruct =
-                    createStruct(dataContext.context, HttpConstants.PUSH_PROMISE, HttpConstants.PROTOCOL_PACKAGE_HTTP);
+                    BLangConnectorSPIUtil.createBStruct(dataContext.context, HttpConstants.PROTOCOL_PACKAGE_HTTP,
+                                                        HttpConstants.PUSH_PROMISE);
             HttpUtil.populatePushPromiseStruct(pushPromiseStruct, pushPromise);
-            dataContext.notifyReply(pushPromiseStruct, null);
+            dataContext.notifyInboundResponseStatus(pushPromiseStruct, null);
         }
     }
 }

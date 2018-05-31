@@ -69,7 +69,8 @@ public class BBlob extends BValueType implements BRefType<byte[]> {
         return value;
     }
 
-    @Override public byte[] value() {
+    @Override
+    public byte[] value() {
         return value;
     }
 }

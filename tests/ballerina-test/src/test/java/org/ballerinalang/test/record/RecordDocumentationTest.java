@@ -90,27 +90,22 @@ public class RecordDocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/record_annotation_negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
-        Assert.assertEquals(compileResult.getWarnCount(), 10);
-        BAssertUtil.validateWarning(compileResult, 0,
-                "already documented attribute 'a'", 5, 1);
-        BAssertUtil.validateWarning(compileResult, 1,
-                "no such documentable attribute 'c' with doc prefix 'F'", 7, 1);
+        Assert.assertEquals(compileResult.getWarnCount(), 11);
+        BAssertUtil.validateWarning(compileResult, 0, "already documented attribute 'a'", 5, 1);
+        BAssertUtil.validateWarning(compileResult, 1, "no such documentable attribute 'c' with doc prefix 'F'", 7, 1);
         BAssertUtil.validateWarning(compileResult, 2,
                 "no such documentable attribute 'testConstd' with doc prefix 'V'", 17, 1);
-        BAssertUtil.validateWarning(compileResult, 3,
-                "already documented attribute 'a'", 31, 1);
-        BAssertUtil.validateWarning(compileResult, 4,
-                "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
-        BAssertUtil.validateWarning(compileResult, 5,
-                "already documented attribute 'url'", 91, 1);
-        BAssertUtil.validateWarning(compileResult, 6,
-                "no such documentable attribute 'urls' with doc prefix 'P'", 92, 1);
-        BAssertUtil.validateWarning(compileResult, 7,
-                "no such documentable attribute 'conn' with doc prefix 'P'", 106, 1);
-        BAssertUtil.validateWarning(compileResult, 8,
-                "already documented attribute 'req'", 112, 5);
-        BAssertUtil.validateWarning(compileResult, 9,
-                "no such documentable attribute 'reqest' with doc prefix 'P'", 113, 5);
+        BAssertUtil.validateWarning(compileResult, 3, "already documented attribute 'a'", 31, 1);
+        BAssertUtil.validateWarning(compileResult, 4, "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
+        BAssertUtil.validateWarning(compileResult, 5, "already documented attribute 'accessMode'", 45, 1);
+        BAssertUtil.validateWarning(compileResult, 6, "already documented attribute 'url'", 92, 1);
+        BAssertUtil.validateWarning(compileResult, 7, "no such documentable attribute 'urls' with doc prefix 'P'", 93,
+                1);
+        BAssertUtil.validateWarning(compileResult, 8, "no such documentable attribute 'conn' with doc prefix 'P'", 107,
+                1);
+        BAssertUtil.validateWarning(compileResult, 9, "already documented attribute 'req'", 113, 5);
+        BAssertUtil.validateWarning(compileResult, 10, "no such documentable attribute 'reqest' with doc prefix 'P'",
+                114, 5);
     }
 
     private String getErrorString(Diagnostic[] diagnostics) {

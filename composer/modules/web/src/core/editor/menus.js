@@ -78,10 +78,7 @@ export function getMenuDefinitions(plugin) {
             isActive: () => {
                 const { editor } = plugin.appContext;
                 const activeEditor = editor.getActiveEditor();
-                if (activeEditor && activeEditor.constructor.name === 'Editor') {
-                    return true;
-                }
-                return false;
+                return !_.isNil(activeEditor) && !_.isNil(activeEditor.file) && !_.isEmpty(activeEditor.file.content);
             },
             command: COMMANDS.FORMAT,
             icon: 'format',

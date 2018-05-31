@@ -56,12 +56,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangUnaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -245,8 +245,8 @@ public class ASTBuilderUtil {
         return returnStmt;
     }
 
-    static void createNextStmt(DiagnosticPos pos, BLangBlockStmt target) {
-        final BLangNext nextStmt = (BLangNext) TreeBuilder.createNextNode();
+    static void createContinueStmt(DiagnosticPos pos, BLangBlockStmt target) {
+        final BLangContinue nextStmt = (BLangContinue) TreeBuilder.createContinueNode();
         nextStmt.pos = pos;
         target.addStatement(nextStmt);
     }

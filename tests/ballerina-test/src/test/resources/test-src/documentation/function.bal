@@ -10,14 +10,14 @@ public function File::open (string accessMode) returns (boolean) {
 }
 
 documentation { Documentation for File type
-F{{path}} type `field path` documentation
+F{{path}} file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 }
 public type File object {
     public {
         string path;
     }
 
-    public function open (string accessMode) returns (boolean);
+    public function open(string accessMode) returns boolean;
 };
 
 documentation {
