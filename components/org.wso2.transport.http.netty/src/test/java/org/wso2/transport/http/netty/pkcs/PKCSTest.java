@@ -56,7 +56,6 @@ public class PKCSTest {
     private static HttpClientConnector httpClientConnector;
     private String password = "ballerina";
     private String tlsStoreType = "PKCS12";
-    private static int serverPort = 5431;
     private HttpWsConnectorFactory httpConnectorFactory;
     private ServerConnector serverConnector;
 
@@ -78,7 +77,7 @@ public class PKCSTest {
 
     private ListenerConfiguration getListenerConfiguration() {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        listenerConfiguration.setPort(serverPort);
+        listenerConfiguration.setPort(TestUtil.SERVER_PORT3);
         //set PKCS12 keystore to ballerina server.
         String keyStoreFile = "/simple-test-config/wso2carbon.p12";
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStoreFile));
@@ -103,7 +102,7 @@ public class PKCSTest {
     public void testPKCS12() {
         try {
             String testValue = "Test";
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
+            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT3, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
@@ -125,6 +124,7 @@ public class PKCSTest {
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
         serverConnector.stop();
+        httpClientConnector.close();
         try {
             httpConnectorFactory.shutdown();
         } catch (InterruptedException e) {

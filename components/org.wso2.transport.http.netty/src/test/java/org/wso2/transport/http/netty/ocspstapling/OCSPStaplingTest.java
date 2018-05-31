@@ -100,7 +100,6 @@ public class OCSPStaplingTest {
     private static final Logger log = LoggerFactory.getLogger(OCSPStaplingTest.class);
     private HttpClientConnector httpClientConnector;
     private String tlsStoreType = "PKCS12";
-    private int port = 7777;
     private List<String> ocspUrlList = new ArrayList<String>();
     private ServerConnector serverConnector;
     private HttpWsConnectorFactory factory;
@@ -139,7 +138,7 @@ public class OCSPStaplingTest {
     public void testOcspStapling() {
         try {
             String testValue = "Test";
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(port, testValue, "");
+            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT3, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
@@ -187,7 +186,7 @@ public class OCSPStaplingTest {
 
     private ListenerConfiguration setListenerConfiguration(String keyStore, String keyStorePassword) {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        listenerConfiguration.setPort(port);
+        listenerConfiguration.setPort(TestUtil.SERVER_PORT3);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStore));
         listenerConfiguration.setKeyStorePass(keyStorePassword);
         listenerConfiguration.setScheme(HTTPS_SCHEME);

@@ -59,7 +59,7 @@ public class MutualSSLTestCase {
 
     private static HttpClientConnector httpClientConnector;
     private HttpWsConnectorFactory factory;
-    private static int serverPort = 9095;
+    private ServerConnector connector;
 
     @BeforeClass
     public void setup() throws InterruptedException {
@@ -68,7 +68,7 @@ public class MutualSSLTestCase {
 
         ListenerConfiguration listenerConfiguration = getListenerConfiguration();
 
-        ServerConnector connector = factory
+        connector = factory
                 .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
         ServerConnectorFuture future = connector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
@@ -79,7 +79,7 @@ public class MutualSSLTestCase {
 
     private ListenerConfiguration getListenerConfiguration() {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        listenerConfiguration.setPort(serverPort);
+        listenerConfiguration.setPort(TestUtil.SERVER_PORT3);
         String verifyClient = "require";
         listenerConfiguration.setVerifyClient(verifyClient);
         listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
@@ -105,7 +105,7 @@ public class MutualSSLTestCase {
     public void testHttpsPost() {
         try {
             String testValue = "Test";
-            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
+            HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(TestUtil.SERVER_PORT3, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
             HTTPConnectorListener listener = new HTTPConnectorListener(latch);
@@ -127,6 +127,8 @@ public class MutualSSLTestCase {
 
     @AfterClass
     public void cleanUp() throws ServerConnectorException {
+        connector.stop();
+        httpClientConnector.close();
         try {
             factory.shutdown();
         } catch (Exception e) {

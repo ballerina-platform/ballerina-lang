@@ -84,10 +84,9 @@ public class ProxyServerUtil {
     static void setUpClientAndServerConnectors(ListenerConfiguration listenerConfiguration, String scheme)
             throws InterruptedException {
 
-        int proxyPort = 15427;
         ProxyServerConfiguration proxyServerConfiguration = null;
         try {
-            proxyServerConfiguration = new ProxyServerConfiguration("localhost", proxyPort);
+            proxyServerConfiguration = new ProxyServerConfiguration("localhost", TestUtil.SERVER_PORT2);
         } catch (UnknownHostException e) {
             TestUtil.handleException("Failed to resolve host", e);
         }
@@ -110,6 +109,7 @@ public class ProxyServerUtil {
 
     static void shutDown() {
         httpClientConnector.close();
+        serverConnector.stop();
         try {
             httpWsConnectorFactory.shutdown();
         } catch (InterruptedException e) {

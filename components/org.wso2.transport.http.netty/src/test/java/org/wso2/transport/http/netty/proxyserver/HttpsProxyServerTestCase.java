@@ -50,15 +50,13 @@ public class HttpsProxyServerTestCase {
     @BeforeClass
     public void setup() throws InterruptedException {
         //Start proxy server.
-        int proxyPort = 15427;
-        proxy = startClientAndProxy(proxyPort);
+        proxy = startClientAndProxy(TestUtil.SERVER_PORT2);
         ProxyServerUtil.setUpClientAndServerConnectors(getListenerConfiguration(), HTTPS_SCHEME);
     }
 
     private ListenerConfiguration getListenerConfiguration() {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        int serverPort = 8081;
-        listenerConfiguration.setPort(serverPort);
+        listenerConfiguration.setPort(TestUtil.SERVER_PORT1);
         listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         String password = "wso2carbon";
@@ -71,9 +69,9 @@ public class HttpsProxyServerTestCase {
             String testValue = "Test";
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
             HTTPCarbonMessage msg = new HttpCarbonRequest(
-                    new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "https://localhost:8081"));
+                    new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "https://localhost:9091"));
             msg.setProperty(HTTP_METHOD, HttpMethod.POST.toString());
-            msg.setHeader("Host", "localhost:8081");
+            msg.setHeader("Host", "localhost:9091");
             msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
             ProxyServerUtil.sendRequest(msg, testValue);
     }

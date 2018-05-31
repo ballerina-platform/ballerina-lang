@@ -53,20 +53,18 @@ public class HttpProxyServerTestCase {
     private ClientAndProxy proxy;
     private HTTPCarbonMessage msg;
     private String testValue = "Test";
-    private int serverPort = 8081;
 
     @BeforeClass
     public void setup() throws InterruptedException {
-        int proxyPort = 15427;
-        proxy = startClientAndProxy(proxyPort);
+        proxy = startClientAndProxy(TestUtil.SERVER_PORT2);
 
         ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
         msg = new HTTPCarbonMessage(new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, ""));
-        msg.setProperty(HTTP_PORT, serverPort);
+        msg.setProperty(HTTP_PORT, TestUtil.SERVER_PORT1);
         msg.setProperty(PROTOCOL, HTTP_SCHEME);
         msg.setProperty(HTTP_HOST, TestUtil.TEST_HOST);
         msg.setProperty(HTTP_METHOD, HTTP_POST_METHOD);
-        msg.setHeader("Host", "localhost:8081");
+        msg.setHeader("Host", "localhost:9091");
         msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
 
         ProxyServerUtil.setUpClientAndServerConnectors(getListenerConfiguration(), HTTP_SCHEME);
@@ -74,7 +72,7 @@ public class HttpProxyServerTestCase {
 
     private ListenerConfiguration getListenerConfiguration() {
         ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        listenerConfiguration.setPort(serverPort);
+        listenerConfiguration.setPort(TestUtil.SERVER_PORT1);
         return listenerConfiguration;
     }
 
@@ -89,7 +87,7 @@ public class HttpProxyServerTestCase {
     public void testHttpProxyRequestUrl() {
         msg.setProperty(IS_PROXY_ENABLED, true);
         HttpRequest request = Util.createHttpRequest(msg);
-        String expectedUri = "http://localhost:8081";
+        String expectedUri = "http://localhost:9091";
         Assert.assertEquals(request.uri(), expectedUri);
     }
 
