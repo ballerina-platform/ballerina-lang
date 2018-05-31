@@ -61,7 +61,7 @@ type ResultBalTypes {
     float NUMERIC_TYPE,
     float DECIMAL_TYPE,
     float REAL_TYPE,
-    blob? BLOB_TYPE,
+    blob BLOB_TYPE,
 };
 
 type Employee {
@@ -228,22 +228,11 @@ function testCallProcedure(string jdbcUrl, string userName, string password) ret
     };
 
     string returnValue;
-    if (jdbcUrl.contains("postgres")) {
-        // For postgresql passing a Type is required as always a table is returned from functions even if the return
-        // type is VOID
-        var ret = testDB->call("{call InsertPersonData(100,'James')}", [Dummy]);
-        match ret {
-            table[] dt => returnValue = "table";
-            () => returnValue = "nil";
-            error => returnValue = "error";
-        }
-    } else {
-        var ret = testDB->call("{call InsertPersonData(100,'James')}", ());
-        match ret {
-            table[] dt => returnValue = "table";
-            () => returnValue = "nil";
-            error => returnValue = "error";
-        }
+    var ret = testDB->call("{call InsertPersonData(100,'James')}", ());
+    match ret {
+        table[] dt => returnValue = "table";
+        () => returnValue = "nil";
+        error => returnValue = "error";
     }
     table dt = check testDB->select("SELECT  FirstName from Customers where registrationID = 100", ResultCustomers);
     string firstName;
@@ -571,18 +560,6 @@ function testOutParameters(string jdbcUrl, string userName, string password) ret
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_OUT };
     sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_OUT };
-    if (jdbcUrl.contains("postgres")) {
-        // PostgreSQL accepts float(1) to float(24) as selecting the real type, while float(25) to float(53) select
-        // double precision. float with no precision specified is taken to mean double precision.
-        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_OUT };
-        // In postgresql, there is no clob type so text type has to be used instead.
-        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_OUT };
-        // TODO: Until handling postgresql bytea and oid is figured out properly, just to make sure this testcase runs
-        // smoothly on postgresql, binary type is used in place of blob. Note that in "TestOutParams" also bytea type
-        // is used in place of blob type argument. Please refer
-        // https://github.com/ballerina-platform/ballerina-lang/issues/8759
-        paraBlob = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
-    }
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
 
     _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
@@ -619,18 +596,6 @@ function testNullOutParameters(string jdbcUrl, string userName, string password)
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_OUT };
     sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_OUT };
-    if (jdbcUrl.contains("postgres")) {
-        // PostgreSQL accepts float(1) to float(24) as selecting the real type, while float(25) to float(53) select
-        // double precision. float with no precision specified is taken to mean double precision.
-        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_OUT };
-        // In postgresql, there is no clob type so text type has to be used instead.
-        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_OUT };
-        // TODO: Until handling postgresql bytea and oid is figured out properly, just to make sure this testcase runs
-        // smoothly on postgresql, binary type is used in place of blob. Note that in "TestOutParams" also bytea type
-        // is used in place of blob type argument. Please refer
-        // https://github.com/ballerina-platform/ballerina-lang/issues/8759
-        paraBlob = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
-    }
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
 
     _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
@@ -665,17 +630,6 @@ function testINParameters(string jdbcUrl, string userName, string password) retu
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, value: "very long text" };
     sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: "YmxvYiBkYXRh" };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu" };
-    if (jdbcUrl.contains("postgres")) {
-        // There is no tiny-int type in postgres hence using small-int
-        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, value: 1 };
-        // In postgresql, there is no clob type so text type has to be used instead.
-        paraClob = { sqlType: sql:TYPE_VARCHAR, value: "very long text" };
-        // TODO: Until handling postgresql bytea and oid is figured out properly, just to make sure this testcase runs
-        // smoothly on postgresql, binary type is used in place of blob. Note that in "TestOutParams" also bytea type
-        // is used in place of blob type argument. Please refer
-        // https://github.com/ballerina-platform/ballerina-lang/issues/8759
-        paraBlob = { sqlType: sql:TYPE_BINARY, value: "YmxvYiBkYXRh" };
-    }
 
     int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
@@ -687,7 +641,7 @@ function testINParameters(string jdbcUrl, string userName, string password) retu
 }
 
 function testINParametersWithDirectValues(string jdbcUrl, string userName, string password) returns (int, int, float,
-            float, boolean, string, float, float, float, blob?, blob?) {
+        float, boolean, string, float, float, float, blob, blob) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -695,29 +649,18 @@ function testINParametersWithDirectValues(string jdbcUrl, string userName, strin
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    int insertCount;
-    blob? blobInsert;
-    if (jdbcUrl.contains("postgres")) {
-        // TODO: Until https://github.com/ballerina-platform/ballerina-lang/issues/8759 is resolved, skipping testing
-        // blob type for postgres
-        insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type)
-            VALUES (?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true,
-            "Hello", 1234.567, 1234.567, 1234.567);
-    } else {
-        table dt1 = check testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
+    table dt1 = check testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
 
-        blob blobInsertTemp;
-        while (dt1.hasNext()) {
-            ResultBlob rs = check <ResultBlob>dt1.getNext();
-            blobInsertTemp = rs.BLOB_TYPE;
-        }
-        blobInsert = blobInsertTemp;
-        insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
+    blob blobInsert;
+    while (dt1.hasNext()) {
+        ResultBlob rs = check <ResultBlob>dt1.getNext();
+        blobInsert = rs.BLOB_TYPE;
+    }
+
+    int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type)
             VALUES (?,?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true,
-            "Hello", 1234.567, 1234.567, 1234.567, blobInsertTemp);
-    }
+        "Hello", 1234.567, 1234.567, 1234.567, blobInsert);
     table dt = check testDB->select("SELECT int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type from
             DataTypeTable where row_id = 25", ResultBalTypes);
@@ -730,7 +673,7 @@ function testINParametersWithDirectValues(string jdbcUrl, string userName, strin
     float n;
     float dec;
     float real;
-    blob? blobReturn;
+    blob blobReturn;
 
     while (dt.hasNext()) {
         ResultBalTypes rs = check <ResultBalTypes>dt.getNext();
@@ -749,13 +692,21 @@ function testINParametersWithDirectValues(string jdbcUrl, string userName, strin
 }
 
 function testINParametersWithDirectVariables(string jdbcUrl, string userName, string password) returns (int, int, float,
-            float, boolean, string, float, float, float, blob?, blob?) {
+        float, boolean, string, float, float, float, blob, blob) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
         password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
+
+    table dt1 = check testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
+
+    blob blobInsert;
+    while (dt1.hasNext()) {
+        ResultBlob rs = check <ResultBlob>dt1.getNext();
+        blobInsert = rs.BLOB_TYPE;
+    }
 
     int rowid = 26;
     int intType = 1;
@@ -768,30 +719,10 @@ function testINParametersWithDirectVariables(string jdbcUrl, string userName, st
     float decimalType = 1234.567;
     float realType = 1234.567;
 
-    blob? blobInsert;
-    int insertCount;
-    if (jdbcUrl.contains("postgres")) {
-        // TODO: Until https://github.com/ballerina-platform/ballerina-lang/issues/8759 is resolved, skipping testing
-        // blob type for postgres
-        insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type)
-            VALUES (?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
-            stringType, numericType, decimalType, realType);
-    } else {
-        table dt1 = check testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
-
-        blob blobInsertTemp;
-        while (dt1.hasNext()) {
-            ResultBlob rs = check <ResultBlob>dt1.getNext();
-            blobInsertTemp = rs.BLOB_TYPE;
-        }
-        blobInsert = blobInsertTemp;
-        insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
+    int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type)
             VALUES (?,?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
-            stringType, numericType, decimalType, realType, blobInsertTemp);
-    }
-
+        stringType, numericType, decimalType, realType, blobInsert);
     table dt = check testDB->select("SELECT int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type from
             DataTypeTable where row_id = 26", ResultBalTypes);
@@ -804,7 +735,7 @@ function testINParametersWithDirectVariables(string jdbcUrl, string userName, st
     float n;
     float dec;
     float real;
-    blob? blobReturn;
+    blob blobReturn;
 
     while (dt.hasNext()) {
         var rs = check <ResultBalTypes>dt.getNext();
@@ -845,14 +776,6 @@ function testNullINParameterValues(string jdbcUrl, string userName, string passw
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, value: () };
     sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: () };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: () };
-
-    if (jdbcUrl.contains("postgres")) {
-        // TODO: Until handling postgresql bytea and oid is figured out properly, just to make sure this testcase runs
-        // smoothly on postgresql, binary type is used in place of blob. Note that in "TestOutParams" also bytea type
-        // is used in place of blob type argument. Please refer
-        // https://github.com/ballerina-platform/ballerina-lang/issues/8759
-        paraBlob = { sqlType: sql:TYPE_BINARY, value: () };
-    }
 
     int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,

@@ -54,7 +54,7 @@ public class SQLDBUtils {
      */
     public static void initHSQLDBDatabase(String dbDirectory, String dbName, String sqlFile) {
         String jdbcURL = "jdbc:hsqldb:file:" + dbDirectory + dbName;
-        initDatabase(jdbcURL, "SA", "", sqlFile, "org.hsqldb.jdbcDriver");
+        initDatabase(jdbcURL, "SA", "", sqlFile);
     }
 
     /**
@@ -66,20 +66,18 @@ public class SQLDBUtils {
      */
     public static void initH2Database(String dbDirectory, String dbName, String sqlFile) {
         String jdbcURL = "jdbc:h2:file:" + dbDirectory + dbName;
-        initDatabase(jdbcURL, "sa", "", sqlFile, "org.h2.Driver");
+        initDatabase(jdbcURL, "sa", "", sqlFile);
     }
 
-    public static void initMySQLDatabase(String jdbcURL, String username, String password, String sqlFile) {
-        initDatabase(jdbcURL, username, password, sqlFile, "com.mysql.jdbc.Driver");
-    }
-
-    public static void initPostgresDatabase(String jdbcURL, String username, String password, String sqlFile) {
-        initDatabase(jdbcURL, username, password, sqlFile, "org.postgresql.Driver");
-    }
-
-    private static void initDatabase(String jdbcURL, String username, String password, String sqlFile, String
-            driverClass) {
-        loadDriverClass(driverClass);
+    /**
+     * Create a DB and initialize with given SQL file.
+     *
+     * @param jdbcURL JDBC URL
+     * @param username  Username for the DB
+     * @param password Password to connect to the DB
+     * @param sqlFile SQL statements for initialization.
+     */
+    public static void initDatabase(String jdbcURL, String username, String password, String sqlFile) {
         try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
                 Statement st = connection.createStatement()) {
             String sql = readFileToString(sqlFile);
@@ -91,14 +89,6 @@ public class SQLDBUtils {
                 connection.commit();
             }
         } catch (SQLException e) {
-            log.error("Error while initializing database: ", e);
-        }
-    }
-
-    private static void loadDriverClass(String driverClass) {
-        try {
-            Class.forName(driverClass);
-        } catch (ClassNotFoundException e) {
             log.error("Error while initializing database: ", e);
         }
     }

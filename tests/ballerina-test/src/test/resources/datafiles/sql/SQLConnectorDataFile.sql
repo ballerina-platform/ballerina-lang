@@ -1,38 +1,38 @@
 CREATE TABLE IF NOT EXISTS Customers(
-  CUSTOMERID INTEGER NOT NULL IDENTITY,
-  FIRSTNAME  VARCHAR(300),
-  LASTNAME  VARCHAR(300),
-  REGISTRATIONID INTEGER,
-  CREDITLIMIT DOUBLE,
-  COUNTRY  VARCHAR(300),
+  customerid INTEGER NOT NULL IDENTITY,
+  firstname  VARCHAR(300),
+  lastname  VARCHAR(300),
+  registrationid INTEGER,
+  creditlimit DOUBLE,
+  country  VARCHAR(300),
   PRIMARY KEY (CUSTOMERID)
 );
 /
 CREATE TABLE IF NOT EXISTS DataTypeTable(
-  ROW_ID       INTEGER,
-  INT_TYPE     INTEGER,
-  LONG_TYPE    BIGINT,
-  FLOAT_TYPE   FLOAT,
-  DOUBLE_TYPE  DOUBLE,
-  BOOLEAN_TYPE BOOLEAN,
-  STRING_TYPE  VARCHAR(50),
-  NUMERIC_TYPE NUMERIC(10,3),
-  DECIMAL_TYPE DECIMAL(10,3),
-  REAL_TYPE    REAL,
-  TINYINT_TYPE TINYINT,
-  SMALLINT_TYPE SMALLINT,
-  CLOB_TYPE    CLOB,
-  BLOB_TYPE    BLOB,
-  BINARY_TYPE  BINARY(27),
+  row_id       INTEGER,
+  int_type     INTEGER,
+  long_type    BIGINT,
+  float_type   FLOAT,
+  double_type  DOUBLE,
+  boolean_type BOOLEAN,
+  string_type  VARCHAR(50),
+  numeric_type NUMERIC(10,3),
+  decimal_type DECIMAL(10,3),
+  real_type    REAL,
+  tinyint_type TINYINT,
+  smallint_type SMALLINT,
+  clob_type    CLOB,
+  blob_type    BLOB,
+  binary_type  BINARY(27),
   PRIMARY KEY (row_id)
 );
 /
 CREATE TABLE IF NOT EXISTS DateTimeTypes(
-  ROW_ID         INTEGER,
-  DATE_TYPE      DATE,
-  TIME_TYPE      TIME,
-  DATETIME_TYPE  DATETIME,
-  TIMESTAMP_TYPE TIMESTAMP
+  row_id         INTEGER,
+  date_type      DATE,
+  time_type      TIME,
+  datetime_type  DATETIME,
+  timestamp_type TIMESTAMP
 );
 /
 insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values

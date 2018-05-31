@@ -38,7 +38,6 @@ import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
-import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
@@ -152,54 +151,73 @@ public class SQLDataIterator extends TableIterator {
                     case Types.NCHAR:
                     case Types.NVARCHAR:
                     case Types.LONGNVARCHAR:
-                        handleStringValue(refRegIndex, stringRegIndex, bStruct, index);
+                        String sValue = rs.getString(index);
+                        handleStringValue(sValue, refRegIndex, stringRegIndex, bStruct, index);
                         break;
                     case Types.BINARY:
                     case Types.VARBINARY:
                     case Types.LONGVARBINARY:
-                        handleBinaryValue(bStruct, refRegIndex, blobRegIndex, index);
+                        byte[] binaryValue = rs.getBytes(index);
+                        handleBinaryValue(bStruct, refRegIndex, blobRegIndex, index, binaryValue);
                         break;
                     case Types.BLOB:
-                        handleBlobValue(bStruct, refRegIndex, blobRegIndex, index);
+                        Blob blobValue = rs.getBlob(index);
+                        handleBinaryValue(bStruct, refRegIndex, blobRegIndex, index,
+                                blobValue == null ? null : blobValue.getBytes(1L, (int) blobValue.length()));
                         break;
                     case Types.CLOB:
-                        handleClobValue(bStruct, index, refRegIndex, stringRegIndex);
+                        String clobValue = SQLDatasourceUtils.getString((rs.getClob(index)));
+                        handleStringValue(clobValue, refRegIndex, stringRegIndex, bStruct, index);
                         break;
                     case Types.NCLOB:
-                        handleNClobValue(bStruct, index, refRegIndex, stringRegIndex);
+                        String nClobValue = SQLDatasourceUtils.getString((rs.getNClob(index)));
+                        handleStringValue(nClobValue, refRegIndex, stringRegIndex, bStruct, index);
                         break;
                     case Types.DATE:
-                        handleDateValue(index, bStruct, stringRegIndex, refRegIndex, longRegIndex);
+                        Date date = rs.getDate(index);
+                        handleDateValue(index, bStruct, stringRegIndex, refRegIndex, longRegIndex, date);
                         break;
                     case Types.TIME:
                     case Types.TIME_WITH_TIMEZONE:
-                        handleTimeValue(index, bStruct, stringRegIndex, refRegIndex, longRegIndex);
+                        Time time = rs.getTime(index, utcCalendar);
+                        handleDateValue(index, bStruct, stringRegIndex, refRegIndex, longRegIndex, time);
                         break;
                     case Types.TIMESTAMP:
                     case Types.TIMESTAMP_WITH_TIMEZONE:
-                        handleTimestampValue(index, bStruct, stringRegIndex, refRegIndex, longRegIndex);
+                        Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
+                        handleDateValue(index, bStruct, stringRegIndex, refRegIndex, longRegIndex, timestamp);
                         break;
                     case Types.ROWID:
-                        handleRowIdValue(bStruct, index, refRegIndex, stringRegIndex);
+                        sValue = new String(rs.getRowId(index).getBytes(), "UTF-8");
+                        handleStringValue(sValue, refRegIndex, stringRegIndex, bStruct, index);
                         break;
                     case Types.TINYINT:
                     case Types.SMALLINT:
-                        handleSmallIntValue(bStruct, refRegIndex, longRegIndex, index);
+                        long iValue = rs.getInt(index);
+                        handleLongValue(iValue, bStruct, refRegIndex, longRegIndex, index);
                         break;
                     case Types.INTEGER:
                     case Types.BIGINT:
-                        handleBigIntValue(bStruct, refRegIndex, longRegIndex, index);
+                        long lValue = rs.getLong(index);
+                        handleLongValue(lValue, bStruct, refRegIndex, longRegIndex, index);
                         break;
                     case Types.REAL:
                     case Types.FLOAT:
-                        handleFloatValue(bStruct, refRegIndex, doubleRegIndex, index);
+                        double fValue = rs.getFloat(index);
+                        handleDoubleValue(fValue, bStruct, refRegIndex, doubleRegIndex, index);
                         break;
                     case Types.DOUBLE:
-                        handleDoubleValue(bStruct, refRegIndex, doubleRegIndex, index);
+                        double dValue = rs.getDouble(index);
+                        handleDoubleValue(dValue, bStruct, refRegIndex, doubleRegIndex, index);
                         break;
                     case Types.NUMERIC:
                     case Types.DECIMAL:
-                        handleDecimalValue(bStruct, refRegIndex, doubleRegIndex, index);
+                        double decimalValue = 0;
+                        BigDecimal bigDecimalValue = rs.getBigDecimal(index);
+                        if (bigDecimalValue != null) {
+                            decimalValue = bigDecimalValue.doubleValue();
+                        }
+                        handleDoubleValue(decimalValue, bStruct, refRegIndex, doubleRegIndex, index);
                         break;
                     case Types.BIT:
                     case Types.BOOLEAN:
@@ -436,24 +454,6 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private void handleDateValue(int index, BStruct bStruct, RegistryIndex stringRegIndex, RegistryIndex refRegIndex,
-            RegistryIndex longRegIndex) throws SQLException {
-        Date date = rs.getDate(index);
-        handleDateValue(index, bStruct, stringRegIndex, refRegIndex, longRegIndex, date);
-    }
-
-    private void handleTimeValue(int index, BStruct bStruct, RegistryIndex stringRegIndex, RegistryIndex refRegIndex,
-            RegistryIndex longRegIndex) throws SQLException {
-        Time time = rs.getTime(index, utcCalendar);
-        handleDateValue(index, bStruct, stringRegIndex, refRegIndex, longRegIndex, time);
-    }
-
-    private void handleTimestampValue(int index, BStruct bStruct, RegistryIndex stringRegIndex,
-            RegistryIndex refRegIndex, RegistryIndex longRegIndex) throws SQLException {
-        Timestamp timestamp = rs.getTimestamp(index, utcCalendar);
-        handleDateValue(index, bStruct, stringRegIndex, refRegIndex, longRegIndex, timestamp);
-    }
-
-    private void handleDateValue(int index, BStruct bStruct, RegistryIndex stringRegIndex, RegistryIndex refRegIndex,
             RegistryIndex longRegIndex, java.util.Date date) {
         BStructType.StructField[] structFields = getStructFields();
         int fieldTypeTag = getFieldTypeTag(structFields, index);
@@ -465,64 +465,21 @@ public class SQLDataIterator extends TableIterator {
         }
     }
 
-    private void handleBinaryValue(BStruct bStruct, RegistryIndex refRegIndex, RegistryIndex blobRegIndex, int index)
-            throws SQLException {
+    private void handleBinaryValue(BStruct bStruct, RegistryIndex refRegIndex, RegistryIndex blobRegIndex, int index,
+     byte[] bytes) {
         BStructType.StructField[] structFields = getStructFields();
         int fieldTypeTag = getFieldTypeTag(structFields, index);
-        byte[] binaryValue = rs.getBytes(index);
         if (fieldTypeTag == TypeTags.UNION_TAG) {
-            BRefType refValue = binaryValue == null ? null : new BBlob(binaryValue);
+            BRefType refValue = bytes == null ? null : new BBlob(bytes);
             validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.BLOB_TAG,
                     retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
-            if (binaryValue != null) {
-                bStruct.setBlobField(blobRegIndex.incrementAndGet(), binaryValue);
+            if (bytes != null) {
+                bStruct.setBlobField(blobRegIndex.incrementAndGet(), bytes);
             } else {
                 handleNilToNonNillableFieldAssignment();
             }
         }
-    }
-
-    private void handleBlobValue(BStruct bStruct, RegistryIndex refRegIndex, RegistryIndex blobRegIndex, int index)
-            throws SQLException {
-        BStructType.StructField[] structFields = getStructFields();
-        int fieldTypeTag = getFieldTypeTag(structFields, index);
-        Blob blobValue = rs.getBlob(index);
-        if (fieldTypeTag == TypeTags.UNION_TAG) {
-            BRefType refValue = blobValue == null ? null : new BBlob(blobValue.getBytes(1L, (int) blobValue.length()));
-            validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.BLOB_TAG,
-                    retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
-        } else {
-            if (blobValue != null) {
-                bStruct.setBlobField(blobRegIndex.incrementAndGet(), blobValue.getBytes(1L, (int) blobValue.length()));
-            } else {
-                handleNilToNonNillableFieldAssignment();
-            }
-        }
-    }
-
-    private void handleNClobValue(BStruct bStruct, int index, RegistryIndex refRegIndex, RegistryIndex stringRegIndex)
-            throws SQLException {
-        String nClobValue = SQLDatasourceUtils.getString((rs.getNClob(index)));
-        handleStringValue(nClobValue, refRegIndex, stringRegIndex, bStruct, index);
-    }
-
-    private void handleClobValue(BStruct bStruct, int index, RegistryIndex refRegIndex, RegistryIndex stringRegIndex)
-            throws SQLException {
-        String clobValue = SQLDatasourceUtils.getString((rs.getClob(index)));
-        handleStringValue(clobValue, refRegIndex, stringRegIndex, bStruct, index);
-    }
-
-    private void handleStringValue(RegistryIndex refRegIndex, RegistryIndex stringRegIndex, BStruct bStruct, int index)
-            throws SQLException {
-        String sValue = rs.getString(index);
-        handleStringValue(sValue, refRegIndex, stringRegIndex, bStruct, index);
-    }
-
-    private void handleRowIdValue(BStruct bStruct, int index, RegistryIndex refRegIndex, RegistryIndex stringRegIndex)
-            throws SQLException, UnsupportedEncodingException {
-        String sValue = new String(rs.getRowId(index).getBytes(), "UTF-8");
-        handleStringValue(sValue, refRegIndex, stringRegIndex, bStruct, index);
     }
 
     private void handleStringValue(String stringValue, RegistryIndex refRegIndex, RegistryIndex stringRegIndex,
@@ -542,18 +499,6 @@ public class SQLDataIterator extends TableIterator {
         }
     }
 
-    private void handleSmallIntValue(BStruct bStruct, RegistryIndex refRegIndex, RegistryIndex longRegIndex, int index)
-            throws SQLException {
-        long iValue = rs.getInt(index);
-        handleLongValue(iValue, bStruct, refRegIndex, longRegIndex, index);
-    }
-
-    private void handleBigIntValue(BStruct bStruct, RegistryIndex refRegIndex, RegistryIndex longRegIndex, int index)
-            throws SQLException {
-        long lValue = rs.getLong(index);
-        handleLongValue(lValue, bStruct, refRegIndex, longRegIndex, index);
-    }
-
     private void handleLongValue(long longValue, BStruct bStruct, RegistryIndex refRegIndex, RegistryIndex longRegIndex,
             int index) throws SQLException {
         BStructType.StructField[] structFields = getStructFields();
@@ -570,28 +515,6 @@ public class SQLDataIterator extends TableIterator {
                 bStruct.setIntField(longRegIndex.incrementAndGet(), longValue);
             }
         }
-    }
-
-    private void handleDoubleValue(BStruct bStruct, RegistryIndex refRegIndex, RegistryIndex doubleRegIndex, int index)
-            throws SQLException {
-        double dValue = rs.getDouble(index);
-        handleDoubleValue(dValue, bStruct, refRegIndex, doubleRegIndex, index);
-    }
-
-    private void handleFloatValue(BStruct bStruct, RegistryIndex refRegIndex, RegistryIndex doubleRegIndex, int index)
-            throws SQLException {
-        double fValue = rs.getFloat(index);
-        handleDoubleValue(fValue, bStruct, refRegIndex, doubleRegIndex, index);
-    }
-
-    private void handleDecimalValue(BStruct bStruct, RegistryIndex refRegIndex, RegistryIndex doubleRegIndex, int index)
-            throws SQLException {
-        double decimalValue = 0;
-        BigDecimal bigDecimalValue = rs.getBigDecimal(index);
-        if (bigDecimalValue != null) {
-            decimalValue = bigDecimalValue.doubleValue();
-        }
-        handleDoubleValue(decimalValue, bStruct, refRegIndex, doubleRegIndex, index);
     }
 
     private void handleDoubleValue(double fValue, BStruct bStruct, RegistryIndex refRegIndex,

@@ -895,10 +895,7 @@ public class SQLDatasourceUtils {
         int tag = value.getType().getTag();
         switch (tag) {
         case TypeTags.INT_TAG:
-            if (value.value() instanceof Long) {
-                return Constants.SQLDataTypes.BIGINT;
-            }
-            return Constants.SQLDataTypes.INTEGER;
+            return Constants.SQLDataTypes.BIGINT;
         case TypeTags.STRING_TAG:
             return Constants.SQLDataTypes.VARCHAR;
         case TypeTags.FLOAT_TAG:

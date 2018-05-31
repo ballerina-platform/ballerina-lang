@@ -69,17 +69,15 @@ public class SQLActionsTest {
 
     @BeforeClass
     public void setup() {
+        String jdbcURL, username, password;
         switch (dbType) {
         case MYSQL:
             mysql = new MySQLContainer();
             mysql.start();
-            String jdbcURL = mysql.getJdbcUrl();
-            String username = mysql.getUsername();
-            String password = mysql.getPassword();
-            SQLDBUtils.initMySQLDatabase(jdbcURL, username, password, "datafiles/sql/SQLConnectorMYSQLDataFile.sql");
-            connectionArgs[0] = new BString(jdbcURL);
-            connectionArgs[1] = new BString(username);
-            connectionArgs[2] = new BString(password);
+            jdbcURL = mysql.getJdbcUrl();
+            username = mysql.getUsername();
+            password = mysql.getPassword();
+            SQLDBUtils.initDatabase(jdbcURL, username, password, "datafiles/sql/SQLConnectorMYSQLDataFile.sql");
             break;
         case POSTGRES:
             postgres = new PostgreSQLContainer();
@@ -87,19 +85,19 @@ public class SQLActionsTest {
             jdbcURL = postgres.getJdbcUrl();
             username = postgres.getUsername();
             password = postgres.getPassword();
-            SQLDBUtils.initMySQLDatabase(jdbcURL, username, password, "datafiles/sql/SQLConnectorPostgresDataFile.sql");
-            connectionArgs[0] = new BString(jdbcURL);
-            connectionArgs[1] = new BString(username);
-            connectionArgs[2] = new BString(password);
+            SQLDBUtils.initDatabase(jdbcURL, username, password, "datafiles/sql/SQLConnectorPostgresDataFile.sql");
             break;
         default:
             SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-            SQLDBUtils.initHSQLDBDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLConnectorDataFile.sql");
-            connectionArgs[0] = new BString("jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR");
-            connectionArgs[1] = new BString("SA");
-            connectionArgs[2] = new BString("");
+            jdbcURL = "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR";
+            username = "SA";
+            password = "";
+            SQLDBUtils.initDatabase(jdbcURL, username, password, "datafiles/sql/SQLConnectorDataFile.sql");
             break;
         }
+        connectionArgs[0] = new BString(jdbcURL);
+        connectionArgs[1] = new BString(username);
+        connectionArgs[2] = new BString(password);
 
         result = BCompileUtil.compile("test-src/connectors/sql/sql_actions_test.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql_actions_negative_test.bal");
@@ -310,14 +308,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
-        if (dbType == POSTGRES) {
-            // TODO: Until handling postgresql bytea and oid is figured out properly, just to make sure this testcase
-            // runs smoothly on postgresql, binary type is used in place of blob Please refer
-            // https://github.com/ballerina-platform/ballerina-lang/issues/8759
-            Assert.assertEquals(returns[12].stringValue(), "wso2 ballerina blob test.");
-        } else {
-            Assert.assertEquals(returns[12].stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
-        }
+        Assert.assertEquals(returns[12].stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
         Assert.assertEquals(returns[13].stringValue(), "wso2 ballerina binary test.");
     }
 
@@ -359,13 +350,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
-        if (dbType == POSTGRES) {
-            // TODO: Until https://github.com/ballerina-platform/ballerina-lang/issues/8759 is resolved, skipping
-            // testing blob type for postgres which causes a null return here
-            Assert.assertNull(returns[9]);
-        } else {
-            Assert.assertTrue(returns[9].stringValue().equals(returns[10].stringValue()));
-        }
+        Assert.assertTrue(returns[9].stringValue().equals(returns[10].stringValue()));
     }
 
     @Test(groups = "ConnectorTest")
@@ -379,13 +364,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
-        if (dbType == POSTGRES) {
-            // TODO: Until https://github.com/ballerina-platform/ballerina-lang/issues/8759 is resolved, skipping
-            // testing blob type for postgres which causes a null return here
-            Assert.assertNull(returns[9]);
-        } else {
-            Assert.assertTrue(returns[9].stringValue().equals(returns[10].stringValue()));
-        }
+        Assert.assertTrue(returns[9].stringValue().equals(returns[10].stringValue()));
     }
 
     @Test(groups = "ConnectorTest")
@@ -411,18 +390,8 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
-        //Assert.assertEquals(returns[12].stringValue(), "YmxvYiBkYXRh");
+        Assert.assertEquals(returns[12].stringValue(), "YmxvYiBkYXRh");
         Assert.assertEquals(returns[13].stringValue(), "wso2 ballerina binary test.");
-
-        if (dbType == POSTGRES) {
-            // TODO: Until handling postgresql bytea and oid is figured out properly, just to make sure this testcase
-            // runs smoothly on postgresql, binary type is used in place of blob Please refer
-            // https://github.com/ballerina-platform/ballerina-lang/issues/8759
-            Assert.assertEquals(returns[12].stringValue(), "wso2 ballerina blob test.");
-        } else {
-            Assert.assertEquals(returns[12].stringValue(), "YmxvYiBkYXRh");
-
-        }
     }
 
     @Test(groups = "ConnectorTest")
@@ -650,15 +619,15 @@ public class SQLActionsTest {
 
     @Test(dependsOnGroups = "ConnectorTest")
     public void testCloseConnectionPool() {
-        BValue connectionCountQuery = new BString("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA"
-                + ".SYSTEM_SESSIONS");
+        BValue connectionCountQuery;
         if (dbType == MYSQL) {
             connectionCountQuery = new BString("SELECT COUNT(*) FROM information_schema.PROCESSLIST");
+        } else {
+            connectionCountQuery = new BString("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA"
+                    + ".SYSTEM_SESSIONS");
         }
         BValue[] args = new BValue[4];
-        for (int i = 0; i < 3; i++) {
-            args[i] = connectionArgs[i];
-        }
+        System.arraycopy(connectionArgs, 0, args, 0, 3);
         args[3] = connectionCountQuery;
         BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", args);
         BInteger retValue = (BInteger) returns[0];
@@ -668,27 +637,7 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest", description = "Check blob binary and clob types types.")
     public void testComplexTypeRetrieval() {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeRetrieval", connectionArgs);
-        String expected0 = "<results><result><ROW_ID>1</ROW_ID><INT_TYPE>10</INT_TYPE>"
-                + "<LONG_TYPE>9223372036854774807</LONG_TYPE><FLOAT_TYPE>123.34</FLOAT_TYPE>"
-                + "<DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE><BOOLEAN_TYPE>true</BOOLEAN_TYPE>"
-                + "<STRING_TYPE>Hello</STRING_TYPE><NUMERIC_TYPE>1234.567</NUMERIC_TYPE>"
-                + "<DECIMAL_TYPE>1234.567</DECIMAL_TYPE><REAL_TYPE>1234.567</REAL_TYPE><TINYINT_TYPE>1</TINYINT_TYPE>"
-                + "<SMALLINT_TYPE>5555</SMALLINT_TYPE><CLOB_TYPE>very long text</CLOB_TYPE>"
-                + "<BLOB_TYPE>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</BLOB_TYPE>"
-                + "<BINARY_TYPE>d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu</BINARY_TYPE></result></results>";
-        String expected1 = "<results><result><ROW_ID>1</ROW_ID>"
-                + "<DATE_TYPE>2017-02-03</DATE_TYPE><TIME_TYPE>11:35:45</TIME_TYPE>"
-                + "<DATETIME_TYPE>2017-02-03 11:53:00.000000</DATETIME_TYPE>"
-                + "<TIMESTAMP_TYPE>2017-02-03 11:53:00.000000</TIMESTAMP_TYPE></result></results>";
-        String expected2 = "[{\"ROW_ID\":1,\"INT_TYPE\":10,"
-                + "\"LONG_TYPE\":9223372036854774807,\"FLOAT_TYPE\":123.34,\"DOUBLE_TYPE\":2.139095039E9,"
-                + "\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\",\"NUMERIC_TYPE\":1234.567,\"DECIMAL_TYPE\":1234.567,"
-                + "\"REAL_TYPE\":1234.567,\"TINYINT_TYPE\":1,\"SMALLINT_TYPE\":5555,\"CLOB_TYPE\":\"very long text\","
-                + "\"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\","
-                + "\"BINARY_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu\"}]";
-        String expected3 = "[{\"ROW_ID\":1,\"DATE_TYPE\":\"2017-02-03\","
-                + "\"TIME_TYPE\":\"11:35:45\",\"DATETIME_TYPE\":\"2017-02-03 11:53:00.000000\","
-                + "\"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00.000000\"}]";
+        String expected0, expected1, expected2, expected3;
         if (dbType == MYSQL) {
             expected0 = "<results><result><row_id>1</row_id><int_type>10</int_type><long_type>9223372036854774807"
                     + "</long_type><float_type>123.34</float_type><double_type>2.139095039E9</double_type>"
@@ -710,6 +659,28 @@ public class SQLActionsTest {
                     + "\"binary_type\":\"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu\"}]";
             expected3 = "[{\"row_id\":1,\"date_type\":\"2017-02-03\",\"time_type\":\"11:35:45\","
                     + "\"datetime_type\":\"2017-02-03 11:53:00.0\",\"timestamp_type\":\"2017-02-03 11:53:00.0\"}]";
+        } else {
+            expected0 = "<results><result><ROW_ID>1</ROW_ID><INT_TYPE>10</INT_TYPE>"
+                    + "<LONG_TYPE>9223372036854774807</LONG_TYPE><FLOAT_TYPE>123.34</FLOAT_TYPE>"
+                    + "<DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE><BOOLEAN_TYPE>true</BOOLEAN_TYPE>"
+                    + "<STRING_TYPE>Hello</STRING_TYPE><NUMERIC_TYPE>1234.567</NUMERIC_TYPE>"
+                    + "<DECIMAL_TYPE>1234.567</DECIMAL_TYPE><REAL_TYPE>1234.567</REAL_TYPE><TINYINT_TYPE>1"
+                    + "</TINYINT_TYPE><SMALLINT_TYPE>5555</SMALLINT_TYPE><CLOB_TYPE>very long text</CLOB_TYPE>"
+                    + "<BLOB_TYPE>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</BLOB_TYPE>"
+                    + "<BINARY_TYPE>d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu</BINARY_TYPE></result></results>";
+            expected1 = "<results><result><ROW_ID>1</ROW_ID>"
+                    + "<DATE_TYPE>2017-02-03</DATE_TYPE><TIME_TYPE>11:35:45</TIME_TYPE>"
+                    + "<DATETIME_TYPE>2017-02-03 11:53:00.000000</DATETIME_TYPE>"
+                    + "<TIMESTAMP_TYPE>2017-02-03 11:53:00.000000</TIMESTAMP_TYPE></result></results>";
+            expected2 = "[{\"ROW_ID\":1,\"INT_TYPE\":10,"
+                    + "\"LONG_TYPE\":9223372036854774807,\"FLOAT_TYPE\":123.34,\"DOUBLE_TYPE\":2.139095039E9,"
+                    + "\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\",\"NUMERIC_TYPE\":1234.567,"
+                    + "\"DECIMAL_TYPE\":1234.567,\"REAL_TYPE\":1234.567,\"TINYINT_TYPE\":1,\"SMALLINT_TYPE\":5555,"
+                    + "\"CLOB_TYPE\":\"very long text\",\"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\","
+                    + "\"BINARY_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu\"}]";
+            expected3 = "[{\"ROW_ID\":1,\"DATE_TYPE\":\"2017-02-03\","
+                    + "\"TIME_TYPE\":\"11:35:45\",\"DATETIME_TYPE\":\"2017-02-03 11:53:00.000000\","
+                    + "\"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00.000000\"}]";
         }
 
         Assert.assertEquals(returns[0].stringValue(), expected0);
@@ -756,18 +727,17 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest", description = "Test failure scenario in adding data to mirrored table")
     public void testAddToMirrorTableNegative() throws Exception {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableNegative", connectionArgs);
-        String errorMessage = "{message:\"execute update failed: integrity constraint "
-                + "violation: unique constraint or index violation; SYS_PK_10179 table: EMPLOYEEADDNEGATIVE\", "
-                + "cause:null}";
+        String errorMessage = "execute update failed: integrity constraint violation: unique constraint or index "
+                + "violation";
         if (dbType == MYSQL) {
-            errorMessage = "{message:\"execute update failed: Duplicate entry '1' for key 'PRIMARY'\", cause:null}";
+            errorMessage = "execute update failed: Duplicate entry '1' for key 'PRIMARY'";
         } else if (dbType == POSTGRES) {
             errorMessage = "{message:\"execute update failed: ERROR: duplicate key value violates unique constraint "
                     + "\"employeeaddnegative_pkey\"\n"
                     + "  Detail: Key (id)=(1) already exists.\", cause:null}";
         }
         Assert.assertNotNull(returns);
-        Assert.assertEquals(returns[0].stringValue(), errorMessage);
+        Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
     }
 
     @Test(groups = "ConnectorTest", description = "Test adding data to mirrored table")
@@ -788,7 +758,6 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest", description = "Test iterating data of a mirrored table multiple times")
     public void testIterateMirrorTable() throws Exception {
-        BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTable", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "([{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
@@ -799,7 +768,6 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest", description = "Test iterating data of a mirrored table after closing")
     public void testIterateMirrorTableAfterClose() throws Exception {
-        BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTableAfterClose", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "([{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
@@ -811,7 +779,6 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest", description = "Test iterating data of a table loaded to memory multiple times")
     public void testSelectLoadToMemory() throws Exception {
-        BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "([{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
@@ -823,7 +790,6 @@ public class SQLActionsTest {
 
     @Test(groups = "ConnectorTest", description = "Test iterating data of a table loaded to memory after closing")
     public void testLoadToMemorySelectAfterTableClose() throws Exception {
-        BValue[] args = {};
         BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns[0].stringValue(), "([{id:1, name:\"Manuri\", address:\"Sri Lanka\"}, {id:2, "
