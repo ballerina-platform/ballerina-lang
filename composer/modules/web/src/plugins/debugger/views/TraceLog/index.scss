@@ -41,6 +41,9 @@
         .icon.fw.fw-down-arrow, .icon.fw.direction-icon{
             color: #3bff00;
         }
+        .icon.fw.direction-icon.fw-upstream-outbound, .icon.fw.direction-icon.fw-upstream-inbound {
+            padding-left: 16px;
+        }
         .row:nth-child(odd) {
             background-color: #444;
         }
