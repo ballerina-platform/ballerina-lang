@@ -55,7 +55,7 @@ public type CallerActions object {
 
         P{{sqlQuery}} SQL statement to execute
         R{{}} An `int[]` - The elements in the array returned by the operation may be one of the following  or else
-         an`error` will be returned if there is any error.
+              an`error` will be returned if there is any error.
            A number greater than or equal to zero - indicates that the command was processed successfully
                           and is an update count giving the number of rows
            A value of -2 - Indicates that the command was processed successfully but that the number of rows affected
