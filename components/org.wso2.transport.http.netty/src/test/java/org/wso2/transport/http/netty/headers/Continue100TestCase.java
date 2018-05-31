@@ -32,6 +32,7 @@ import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -84,15 +85,14 @@ public class Continue100TestCase {
 
         // 100-continue response
         Assert.assertEquals(responses.get(0).status(), HttpResponseStatus.CONTINUE);
-        Assert.assertEquals(Integer.parseInt(responses.get(0).headers().get(HttpHeaderNames.CONTENT_LENGTH)), 0);
 
         // Actual response
         String responsePayload = TestUtil.getEntityBodyFrom(responses.get(1));
         Assert.assertEquals(responses.get(1).status(), HttpResponseStatus.OK);
         Assert.assertEquals(responsePayload, TestUtil.largeEntity);
         Assert.assertEquals(responsePayload.getBytes().length, TestUtil.largeEntity.getBytes().length);
-        Assert.assertEquals(Integer.parseInt(responses.get(1).headers().get(HttpHeaderNames.CONTENT_LENGTH)),
-                            TestUtil.largeEntity.getBytes().length);
+        Assert.assertEquals((responses.get(1).headers().get(HttpHeaderNames.TRANSFER_ENCODING)),
+                Constants.CHUNKED);
     }
 
     @AfterClass

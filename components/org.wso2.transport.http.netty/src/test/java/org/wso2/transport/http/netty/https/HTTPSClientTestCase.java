@@ -23,16 +23,13 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.HTTPConnectorListener;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -40,15 +37,16 @@ import org.wso2.transport.http.netty.util.server.HttpsServer;
 import org.wso2.transport.http.netty.util.server.initializers.MockServerInitializer;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
-import java.util.Set;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.TEXT_PLAIN;
 
 /**
  * Tests for HTTPS client connector
@@ -64,21 +62,15 @@ public class HTTPSClientTestCase {
 
     @BeforeClass
     public void setup() {
-        TransportsConfiguration transportsConfiguration =
-                TestUtil.getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-        Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
-        senderConfig.forEach(config -> {
-            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
-            }
-        });
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
+        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setScheme(HTTPS_SCHEME);
 
         httpsServer = TestUtil.startHttpsServer(TestUtil.HTTPS_SERVER_PORT,
-                new MockServerInitializer(testValue, "text/plain", 200));
+                new MockServerInitializer(testValue, TEXT_PLAIN, 200));
         connectorFactory = new DefaultHttpWsConnectorFactory();
-        httpClientConnector = connectorFactory.createHttpClientConnector(
-                HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+        httpClientConnector = connectorFactory.createHttpClientConnector(new HashMap<>(), senderConfiguration);
     }
 
     @Test
