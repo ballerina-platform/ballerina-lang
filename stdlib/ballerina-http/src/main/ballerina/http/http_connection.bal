@@ -23,10 +23,13 @@ public type Connection object {
     documentation {
         Sends the outbound response to the caller.
 
-        P{{response}} The outbound response
+        P{{message}} The outbound response or payload
         R{{}} Returns an `error` if failed to respond
     }
-    public native function respond(Response response) returns error?;
+    public function respond(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns error? {
+        Response response = buildResponse(message);
+        return nativeRespond(self, response);
+    }
 
     documentation {
         Pushes a promise to the caller.
@@ -79,6 +82,8 @@ public type Connection object {
     }
     public function redirect(Response response, RedirectCode code, string[] locations) returns error?;
 };
+
+native function nativeRespond(Connection connection, Response response) returns error?;
 
 /////////////////////////////////
 /// Ballerina Implementations ///

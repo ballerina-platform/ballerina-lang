@@ -127,16 +127,31 @@ documentation {
 public native function parseHeader (string headerValue) returns (string, map)|error;
 
 public function buildRequest(Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Request {
-    Request req = new;
+    Request request = new;
     match message {
-        () => {io:println("Inside buildRequest with no req or payload!");}
-        Request request => {req = request;}
-        string textContent => {req.setTextPayload(textContent);}
-        xml xmlContent => {req.setXmlPayload(xmlContent);}
-        json jsonContent => {req.setJsonPayload(jsonContent);}
-        blob blobContent => {req.setBinaryPayload(blobContent);}
-        io:ByteChannel byteChannelContent => {req.setByteChannel(byteChannelContent);}
-        mime:Entity[] bodyParts => {req.setBodyParts(bodyParts);}
+        () => {}
+        Request req => {request = req;}
+        string textContent => {request.setTextPayload(textContent);}
+        xml xmlContent => {request.setXmlPayload(xmlContent);}
+        json jsonContent => {request.setJsonPayload(jsonContent);}
+        blob blobContent => {request.setBinaryPayload(blobContent);}
+        io:ByteChannel byteChannelContent => {request.setByteChannel(byteChannelContent);}
+        mime:Entity[] bodyParts => {request.setBodyParts(bodyParts);}
     }
-    return req;
+    return request;
+}
+
+public function buildResponse(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Response {
+    Response response = new;
+    match message {
+        () => {}
+        Response res => {response = res;}
+        string textContent => {response.setTextPayload(textContent);}
+        xml xmlContent => {response.setXmlPayload(xmlContent);}
+        json jsonContent => {response.setJsonPayload(jsonContent);}
+        blob blobContent => {response.setBinaryPayload(blobContent);}
+        io:ByteChannel byteChannelContent => {response.setByteChannel(byteChannelContent);}
+        mime:Entity[] bodyParts => {response.setBodyParts(bodyParts);}
+    }
+    return response;
 }
