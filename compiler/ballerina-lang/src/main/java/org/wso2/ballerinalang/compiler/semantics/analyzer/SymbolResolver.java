@@ -183,9 +183,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
-
-        if ((foundSym.owner instanceof BPackageSymbol) && (foundSym.getKind() != SymbolKind.XMLNS)) {
-            // Found symbol is a global definition but not a xmlns, it is an redeclared symbol.
+        // We allow variable shadowing for xml namespaces. For all other types, we do not allow variable shadowing.
+        if ((foundSym.owner instanceof BPackageSymbol) && (foundSym.getKind() != SymbolKind.XMLNS)
+                || (foundSym.owner instanceof BVarSymbol)) {
+            // Found symbol is a global definition but not a xmlns, or it is a variable symbol, it is an redeclared
+            // symbol.
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
