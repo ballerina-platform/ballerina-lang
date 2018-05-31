@@ -306,7 +306,7 @@ public type Notification object {
     }
 
     documentation {
-        Retrieves the query parameters of the content delivery request request, as a map.
+        Retrieves the query parameters of the content delivery request, as a map.
 
         R{{}} String constrained map of query params
     }

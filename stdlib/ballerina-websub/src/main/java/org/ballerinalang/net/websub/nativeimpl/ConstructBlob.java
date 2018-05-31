@@ -35,9 +35,10 @@ import java.io.IOException;
 import static org.ballerinalang.nativeimpl.io.IOConstants.BYTE_CHANNEL_NAME;
 
 /**
- * Native function to add a subscription to the default Ballerina Hub's underlying broker.
+ * Native function to create a Blob to use as the content when a ByteChannel is specified to indicate the content to
+ * be sent as the WebSub notification.
  *
- * @since 0.972.0
+ * @since 0.973.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
@@ -63,5 +64,4 @@ public class ConstructBlob extends BlockingNativeCallableUnit {
             }
         }
     }
-
 }
