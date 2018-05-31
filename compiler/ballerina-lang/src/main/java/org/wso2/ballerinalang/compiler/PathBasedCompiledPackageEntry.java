@@ -33,10 +33,12 @@ public class PathBasedCompiledPackageEntry implements CompilerOutputEntry {
 
     private Path path;
     private Kind kind;
+    private Path projectDirPath;
 
-    public PathBasedCompiledPackageEntry(Path path, Kind kind) {
+    public PathBasedCompiledPackageEntry(Path path, Kind kind, Path projectDirPath) {
         this.path = path;
         this.kind = kind;
+        this.projectDirPath = projectDirPath;
     }
 
     @Override
@@ -51,6 +53,10 @@ public class PathBasedCompiledPackageEntry implements CompilerOutputEntry {
 
     @Override
     public InputStream getInputStream() throws IOException {
+        if (!this.kind.equals(Kind.OBJ) && !Files.exists(this.path)) {
+            Path resolvedPath = this.projectDirPath.resolve(this.path);
+            return Files.newInputStream(resolvedPath);
+        }
         return Files.newInputStream(this.path);
     }
 }
