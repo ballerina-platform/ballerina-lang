@@ -95,8 +95,9 @@ public class WebSocketPassThroughTestCase {
     }
 
     @AfterClass
-    public void cleaUp() {
+    public void cleaUp() throws InterruptedException {
         serverConnector.stop();
         remoteServer.stop();
+        httpConnectorFactory.shutdown();
     }
 }

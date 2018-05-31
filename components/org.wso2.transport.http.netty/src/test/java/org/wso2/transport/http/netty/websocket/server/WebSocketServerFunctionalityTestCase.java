@@ -42,9 +42,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 public class WebSocketServerFunctionalityTestCase {
 
     private final int latchCountDownInSecs = 10;
-    private ServerConnector serverConnector;
     private final int defaultStatusCode = 1001;
     private final String defaultCloseReason = "Going away";
+    private DefaultHttpWsConnectorFactory httpConnectorFactory;
+    private ServerConnector serverConnector;
     private WebSocketTestServerConnectorListener serverConnectorListener;
 
     @BeforeClass
@@ -52,7 +53,7 @@ public class WebSocketServerFunctionalityTestCase {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(TestUtil.TEST_HOST);
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
-        DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
+        httpConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                 listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
@@ -215,7 +216,8 @@ public class WebSocketServerFunctionalityTestCase {
     }
 
     @AfterClass
-    public void cleanUp() {
+    public void cleanUp() throws InterruptedException {
         serverConnector.stop();
+        httpConnectorFactory.shutdown();
     }
 }

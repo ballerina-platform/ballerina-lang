@@ -46,6 +46,7 @@ import java.util.concurrent.TimeUnit;
 public class WebSocketServerHandshakeFunctionalityTestCase {
 
     private static final int countdownLatchTimeout = 10;
+        DefaultHttpWsConnectorFactory httpConnectorFactory;
     private ServerConnector serverConnector;
     private WebSocketServerHandshakeFunctionalityListener listener;
 
@@ -54,7 +55,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost(Constants.LOCALHOST);
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
-        DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
+        httpConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
@@ -146,8 +147,9 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
     }
 
     @AfterClass
-    public void cleanup() {
+    public void cleanup() throws InterruptedException {
         serverConnector.stop();
+        httpConnectorFactory.shutdown();
     }
 
     private String readNextTextFrame(WebSocketTestClient testClient, WebSocketConnection webSocketConnection)
