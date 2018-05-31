@@ -217,7 +217,7 @@ public class TextDocumentFormatUtil {
                     if (listPropItem instanceof Node) {
                         /* Remove top level anon func and struct */
                         if (node.getKind() == NodeKind.COMPILATION_UNIT) {
-                            // FIXME: 5/21/18 BLangStruct Has been removed and need to revisit the following logic
+                            // TODO: 5/21/18 BLangStruct Has been removed and need to revisit the following logic
 //                            if (listPropItem instanceof BLangStruct && ((BLangStruct) listPropItem).isAnonymous) {
 //                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
 //                                                ((BLangStruct) listPropItem));
