@@ -166,6 +166,13 @@ public class PackageInfoWriter {
             writeTypeDefInfo(dataOutStream, typeDefInfo);
         }
 
+        // Write Annotation entries
+        AnnotationInfo[] annotationEntries = packageInfo.getAnnotationInfoEntries();
+        dataOutStream.writeShort(annotationEntries.length);
+        for (AnnotationInfo annotationInfo : annotationEntries) {
+            writeAnnotatoinInfo(dataOutStream, annotationInfo);
+        }
+
         // TODO Emit service info entries
         ServiceInfo[] serviceInfoEntries = packageInfo.getServiceInfoEntries();
         dataOutStream.writeShort(serviceInfoEntries.length);
@@ -286,6 +293,17 @@ public class PackageInfoWriter {
                 break;
         }
 
+    }
+
+    private static void writeAnnotatoinInfo(DataOutputStream dataOutStream,
+                                         AnnotationInfo typeDefInfo) throws IOException {
+        dataOutStream.writeInt(typeDefInfo.nameCPIndex);
+        dataOutStream.writeInt(typeDefInfo.flags);
+        dataOutStream.writeInt(typeDefInfo.signatureCPIndex);
+        dataOutStream.writeInt(typeDefInfo.attachPointsCPIndexes.length);
+        for (int index : typeDefInfo.attachPointsCPIndexes) {
+            dataOutStream.writeInt(index);
+        }
     }
 
     private static void writeObjectTypeDefInfo(DataOutputStream dataOutStream,

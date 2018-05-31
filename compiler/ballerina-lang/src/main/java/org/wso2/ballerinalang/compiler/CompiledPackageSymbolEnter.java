@@ -24,6 +24,7 @@ import org.ballerinalang.repository.PackageRepository;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -37,6 +38,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
@@ -52,6 +54,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint.AttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -208,6 +212,9 @@ public class CompiledPackageSymbolEnter {
         // define type defs
         defineSymbols(dataInStream, rethrow(this::defineTypeDef));
 
+        // define annotations
+        defineSymbols(dataInStream, rethrow(this::defineAnnotations));
+
         // define services
         defineSymbols(dataInStream, rethrow(this::defineService));
 
@@ -357,13 +364,10 @@ public class CompiledPackageSymbolEnter {
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
                 BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
-                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)) {
+                structureTypeSymbol.attachedFuncs.add(attachedFunc);
+                if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
+                        || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
                     structureTypeSymbol.initializerFunc = attachedFunc;
-                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
-                } else if (funcName.endsWith(Names.INIT_FUNCTION_SUFFIX.value)) {
-                    structureTypeSymbol.initializerFunc = attachedFunc;
-                } else {
-                    structureTypeSymbol.attachedFuncs.add(attachedFunc);
                 }
             }
         }
@@ -414,6 +418,28 @@ public class CompiledPackageSymbolEnter {
         }
 
         this.env.pkgSymbol.scope.define(typeDefSymbol.name, typeDefSymbol);
+    }
+
+    private void defineAnnotations(DataInputStream dataInStream) throws IOException {
+        String name = getUTF8CPEntryValue(dataInStream);
+        int flags = dataInStream.readInt();
+        int typeSig = dataInStream.readInt();
+
+        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, names.fromString(name),
+                this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+        annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
+        int attachCount = dataInStream.readInt();
+        for (int i = 0; i < attachCount; i++) {
+            String attachPoint = getUTF8CPEntryValue(dataInStream);
+            ((BAnnotationSymbol) annotationSymbol).attachmentPoints
+                    .add(new BLangAnnotationAttachmentPoint(AttachmentPoint.getAttachmentPoint(attachPoint)));
+        }
+        this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
+        if (typeSig > 0) {
+            UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeSig];
+            BType varType = getBTypeFromDescriptor(typeSigCPEntry.getValue());
+            ((BAnnotationSymbol) annotationSymbol).attachedType = varType.tsymbol;
+        }
     }
 
     private BObjectTypeSymbol readObjectTypeSymbol(DataInputStream dataInStream,

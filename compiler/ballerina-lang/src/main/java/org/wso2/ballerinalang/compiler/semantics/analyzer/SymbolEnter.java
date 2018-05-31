@@ -57,7 +57,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -1053,34 +1052,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         return varSymbol;
     }
 
-    private void defineConnectorInitFunction(BLangConnector connector, SymbolEnv conEnv) {
-        BLangFunction initFunction = createInitFunction(connector.pos, connector.getName().getValue(),
-                Names.INIT_FUNCTION_SUFFIX);
-        //Add connector as a parameter to the init function
-        BLangVariable param = (BLangVariable) TreeBuilder.createVariableNode();
-        param.pos = connector.pos;
-        param.setName(this.createIdentifier(Names.CONNECTOR.getValue()));
-        BLangUserDefinedType connectorType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        connectorType.pos = connector.pos;
-        connectorType.typeName = connector.name;
-        connectorType.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        param.setTypeNode(connectorType);
-        initFunction.addParameter(param);
-        //Add connector level variables to the init function
-        connector.varDefs.stream().filter(f -> f.var.expr != null)
-                .forEachOrdered(v -> initFunction.body.addStatement(createAssignmentStmt(v.var)));
-
-        addInitReturnStatement(initFunction.body);
-        connector.initFunction = initFunction;
-
-        BLangAction initAction = createNativeInitAction(connector.pos);
-        connector.initAction = initAction;
-
-        defineNode(connector.initFunction, conEnv);
-        defineNode(connector.initAction, conEnv);
-        connector.symbol.initFunctionSymbol = connector.initFunction.symbol;
-    }
-
     private void defineObjectInitFunction(BLangObjectTypeNode object, SymbolEnv conEnv) {
         BLangFunction initFunction = object.initFunction;
         if (initFunction == null) {
@@ -1112,10 +1083,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void defineRecordInitFunction(BLangTypeDefinition typeDef, SymbolEnv conEnv) {
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-        if (recordTypeNode.initFunction == null) {
-            recordTypeNode.initFunction = createInitFunction(typeDef.pos,
-                    typeDef.name.value, Names.INIT_FUNCTION_SUFFIX);
-        }
+        recordTypeNode.initFunction = createInitFunction(typeDef.pos, "", Names.INIT_FUNCTION_SUFFIX);
 
         recordTypeNode.initFunction.receiver = createReceiver(typeDef.pos, typeDef.name);
         recordTypeNode.initFunction.attachedFunction = true;
@@ -1163,13 +1131,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BRecordType recordType = (BRecordType) funcNode.receiver.type;
         BAttachedFunction attachedFunc = new BAttachedFunction(
                 names.fromIdNode(funcNode.name), funcSymbol, funcType);
 
-        Name initFuncName = names.merge(recordType.tsymbol.name, Names.INIT_FUNCTION_SUFFIX);
         // Check whether this attached function is a struct initializer.
-        if (!initFuncName.value.equals(funcNode.name.value)) {
+        if (!Names.INIT_FUNCTION_SUFFIX.value.equals(funcNode.name.value)) {
             dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
                     funcNode.name.value, funcNode.receiver.type.toString());
             return;
