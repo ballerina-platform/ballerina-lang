@@ -817,6 +817,12 @@
                 <artifactId>ballerina-grpc</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-grpc</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
 
             <!-- Siddhi Stream Dependencies -->
             <dependency>

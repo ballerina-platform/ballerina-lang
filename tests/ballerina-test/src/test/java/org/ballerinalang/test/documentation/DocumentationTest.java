@@ -146,17 +146,13 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.documentationText, "\n" + "Gets a access parameter value (`true` or `false`) for a " +
                 "" + "given key. " + "Please note that #foo will always be bigger than #bar.\n" + "Example:\n" +
                 "``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``\n");
-        Assert.assertEquals(dNode.getAttributes().size(), 3);
-        Assert.assertEquals(dNode.getAttributes().get(0).docTag, DocTag.RECEIVER);
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "file");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " file path " +
-                "``C:\\users\\OddThinking\\Documents\\My Source\\Widget\\foo.src``\n");
-        Assert.assertEquals(dNode.getAttributes().get(1).docTag, DocTag.PARAM);
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "accessMode");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText, " read or write mode\n");
-        Assert.assertEquals(dNode.getAttributes().get(2).docTag, DocTag.RETURN);
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText, " success or not\n");
-        Assert.assertEquals(dNode.getAttributes().get(2).type.tag, TypeTags.BOOLEAN);
+        Assert.assertEquals(dNode.getAttributes().size(), 2);
+        Assert.assertEquals(dNode.getAttributes().get(0).docTag, DocTag.PARAM);
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "accessMode");
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " read or write mode\n");
+        Assert.assertEquals(dNode.getAttributes().get(1).docTag, DocTag.RETURN);
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText, " success or not\n");
+        Assert.assertEquals(dNode.getAttributes().get(1).type.tag, TypeTags.BOOLEAN);
 
         docNodes = ((BLangTypeDefinition) packageNode.getTypeDefinitions().get(0)).docAttachments;
         dNode = docNodes.get(0);
@@ -194,37 +190,24 @@ public class DocumentationTest {
     public void testDocumentationNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/negative.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
-        Assert.assertEquals(compileResult.getWarnCount(), 11);
-        BAssertUtil.validateWarning(compileResult, 0, "already documented attribute 'a'", 5, 1);
-        BAssertUtil.validateWarning(compileResult, 1, "no such documentable attribute 'c' with doc prefix 'F'", 7, 1);
-//        BAssertUtil.validateWarning(compileResult, 2,
-//                "already documented attribute 'foo'", 22, 1);
-//        BAssertUtil.validateWarning(compileResult, 3,
-//                "no such documentable attribute 'bar' with doc prefix 'F'", 23, 1);
-        BAssertUtil.validateWarning(compileResult, 2, "already documented attribute 'a'", 22, 1);
-        BAssertUtil.validateWarning(compileResult, 3, "no such documentable attribute 'c' with doc prefix 'F'", 24, 1);
-        BAssertUtil.validateWarning(compileResult, 4, "already documented attribute 'file'", 36, 1);
-//        BAssertUtil.validateWarning(compileResult, 5,
-//                "no such documentable attribute 'successfuls' with doc prefix 'R'", 38, 1);
-//        BAssertUtil.validateWarning(compileResult, 8,
-//                "no such documentable attribute 'pa' with doc prefix 'T'", 63, 2);
-//        BAssertUtil.validateWarning(compileResult, 9,
-//                "already documented attribute 'e'", 65, 2);
-        BAssertUtil.validateWarning(compileResult, 5, "already documented attribute 'url'", 80, 1);
-        BAssertUtil.validateWarning(compileResult, 6, "no such documentable attribute 'urls' with doc prefix 'P'",
-                81, 1);
-        /*BAssertUtil.validateWarning(compileResult, 12,
-                "already documented attribute 's'", 96, 5);*//*Commented since no longer support named returns*/
-        /*BAssertUtil.validateWarning(compileResult, 13,
-                "no such documentable attribute 'ssss' with doc prefix 'R'", 97, 5);*/
-        /*Commented since no longer support named returns*/
-        BAssertUtil.validateWarning(compileResult, 7, "no such documentable attribute 'conn' with doc prefix 'P'",
-                95, 1);
-        BAssertUtil.validateWarning(compileResult, 8, "already documented attribute 'req'", 107, 5);
-        BAssertUtil.validateWarning(compileResult, 9, "no such documentable attribute 'reqest' with doc prefix 'P'",
-                108, 5);
-        BAssertUtil.validateWarning(compileResult, 10, "no such documentable attribute 'testConstd' with doc prefix " +
-                "'V'", 117, 1);
+        Assert.assertEquals(compileResult.getWarnCount(), 10);
+        int i = 0;
+        BAssertUtil.validateWarning(compileResult, i++, "already documented attribute 'a'", 5, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable attribute 'c' with doc prefix 'F'", 7,
+                1);
+        BAssertUtil.validateWarning(compileResult, i++, "already documented attribute 'a'", 22, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable attribute 'c' with doc prefix 'F'", 24,
+                1);
+        BAssertUtil.validateWarning(compileResult, i++, "already documented attribute 'url'", 82, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable attribute 'urls' with doc prefix 'P'",
+                83, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable attribute 'conn' with doc prefix 'P'",
+                97, 1);
+        BAssertUtil.validateWarning(compileResult, i++, "already documented attribute 'req'", 109, 5);
+        BAssertUtil.validateWarning(compileResult, i++, "no such documentable attribute 'reqest' with doc prefix 'P'",
+                110, 5);
+        BAssertUtil.validateWarning(compileResult, i++,
+                "no such documentable attribute 'testConstd' with doc prefix " + "'V'", 119, 1);
     }
 
     //    @Test(description = "Test doc transformer.")
