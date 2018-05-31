@@ -50,41 +50,41 @@ public class EntityBodyWithCharsetTest {
     @BeforeClass
     public void setup() {
         String sourceFilePath = "test-src/mime/entity-body-with-charset-test.bal";
-        compileResult = BCompileUtil.compile(sourceFilePath);
+        compileResult = BCompileUtil.compileAndSetup(sourceFilePath);
         serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     @Test
     public void testSetJsonPayloadWithoutCharset() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetJsonPayloadWithoutCharset");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetJsonPayloadWithoutCharset");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json");
     }
 
     @Test
     public void testCharsetWithExistingContentType() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentType");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testCharsetWithExistingContentType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=ISO_8859-1:1987");
     }
 
     @Test
     public void testSetHeaderAfterJsonPayload() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterJsonPayload");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetHeaderAfterJsonPayload");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=\"ISO_8859-1:1987\"");
     }
 
     @Test
     public void testJsonPayloadWithDefaultCharset() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonPayloadWithDefaultCharset");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testJsonPayloadWithDefaultCharset");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].toString(), "{\"test\":\"菜鸟驿站\"}");
     }
 
     @Test
     public void testJsonPayloadWithCharset() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonPayloadWithCharset");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testJsonPayloadWithCharset");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].toString(), "{\"test\":\"ߢߚߟ\"}");
     }
@@ -92,35 +92,35 @@ public class EntityBodyWithCharsetTest {
     //Request - Xml tests with charset
     @Test
     public void testSetXmlPayloadWithoutCharset() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetXmlPayloadWithoutCharset");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetXmlPayloadWithoutCharset");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml");
     }
 
     @Test
     public void testCharsetWithExistingContentTypeXml() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeXml");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testCharsetWithExistingContentTypeXml");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml");
     }
 
     @Test
     public void testSetHeaderAfterXmlPayload() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterXmlPayload");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetHeaderAfterXmlPayload");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=\"ISO_8859-1:1987\"");
     }
 
     @Test
     public void testXmlPayloadWithDefaultCharset() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testXmlPayloadWithDefaultCharset");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testXmlPayloadWithDefaultCharset");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].toString(), "<菜鸟驿站><name>菜鸟驿站</name></菜鸟驿站>");
     }
 
     @Test
     public void testXmlPayloadWithCharset() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testXmlPayloadWithCharset");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testXmlPayloadWithCharset");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].toString(), "<菜鸟驿站><name>菜鸟驿站</name></菜鸟驿站>");
     }
@@ -128,35 +128,35 @@ public class EntityBodyWithCharsetTest {
     //Request - String payload with charset
     @Test
     public void testSetStringPayloadWithoutCharset() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetStringPayloadWithoutCharset");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetStringPayloadWithoutCharset");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain");
     }
 
     @Test
     public void testCharsetWithExistingContentTypeString() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeString");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testCharsetWithExistingContentTypeString");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain");
     }
 
     @Test
     public void testSetHeaderAfterStringPayload() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterStringPayload");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetHeaderAfterStringPayload");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=\"ISO_8859-1:1987\"");
     }
 
     @Test
     public void testTextPayloadWithDefaultCharset() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTextPayloadWithDefaultCharset");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testTextPayloadWithDefaultCharset");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].toString(), "菜鸟驿站");
     }
 
     @Test
     public void testTextPayloadWithCharset() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testTextPayloadWithCharset");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testTextPayloadWithCharset");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].toString(), "菜鸟驿站");
     }
@@ -164,21 +164,21 @@ public class EntityBodyWithCharsetTest {
     //Response tests - Json with charset
     @Test
     public void testSetJsonPayloadWithoutCharsetResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetJsonPayloadWithoutCharsetResponse");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetJsonPayloadWithoutCharsetResponse");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json");
     }
 
     @Test
     public void testCharsetWithExistingContentTypeResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeResponse");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testCharsetWithExistingContentTypeResponse");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json");
     }
 
     @Test
     public void testSetHeaderAfterJsonPayloadResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterJsonPayloadResponse");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetHeaderAfterJsonPayloadResponse");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/json;charset=\"ISO_8859-1:1987\"");
     }
@@ -186,21 +186,21 @@ public class EntityBodyWithCharsetTest {
     //Response - Xml tests with charset
     @Test
     public void testSetXmlPayloadWithoutCharsetResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetXmlPayloadWithoutCharsetResponse");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetXmlPayloadWithoutCharsetResponse");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml");
     }
 
     @Test
     public void testCharsetWithExistingContentTypeXmlResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeXmlResponse");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testCharsetWithExistingContentTypeXmlResponse");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml");
     }
 
     @Test
     public void testSetHeaderAfterXmlPayloadResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterXmlPayloadResponse");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetHeaderAfterXmlPayloadResponse");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "application/xml;charset=\"ISO_8859-1:1987\"");
     }
@@ -208,21 +208,21 @@ public class EntityBodyWithCharsetTest {
     //Response - String payload with charset
     @Test
     public void testSetStringPayloadWithoutCharsetResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetStringPayloadWithoutCharsetResponse");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetStringPayloadWithoutCharsetResponse");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain");
     }
 
     @Test
     public void testCharsetWithExistingContentTypeStringResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testCharsetWithExistingContentTypeStringResponse");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testCharsetWithExistingContentTypeStringResponse");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain");
     }
 
     @Test
     public void testSetHeaderAfterStringPayloadResponse() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testSetHeaderAfterStringPayloadResponse");
+        BValue[] returns = BRunUtil.invokeStateful(compileResult, "testSetHeaderAfterStringPayloadResponse");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BStringArray) returns[0]).get(0), "text/plain;charset=\"ISO_8859-1:1987\"");
     }

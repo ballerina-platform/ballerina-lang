@@ -44,7 +44,7 @@ public class BLangVMErrors {
     private static final String MSG_CALL_FAILED = "call failed";
     private static final String MSG_CALL_CANCELLED = "call cancelled";
     public static final String PACKAGE_BUILTIN = "ballerina.builtin";
-    private static final String PACKAGE_RUNTIME = "ballerina.runtime";
+    public static final String PACKAGE_RUNTIME = "ballerina.runtime";
     public static final String STRUCT_GENERIC_ERROR = "error";
     private static final String STRUCT_NULL_REF_EXCEPTION = "NullReferenceException";
     private static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";

@@ -40,7 +40,6 @@ public class BPackageSymbol extends BTypeSymbol {
 
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
-    public boolean initFunctionsInvoked = false;
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner);
@@ -80,7 +79,6 @@ public class BPackageSymbol extends BTypeSymbol {
         copy.packageFile = packageFile;
         copy.compiledPackage = compiledPackage;
         copy.entryPointExists = entryPointExists;
-        copy.initFunctionsInvoked = initFunctionsInvoked;
         return copy;
     }
 }
