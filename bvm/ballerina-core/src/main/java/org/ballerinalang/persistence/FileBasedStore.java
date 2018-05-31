@@ -51,11 +51,28 @@ public class FileBasedStore extends StateStore {
             baseDir.mkdir();
         }
 
-        File stateFile = new File(baseDir, instanceId + ".json");
+        String workerName = state.getContext().workerInfo.getWorkerName();
+        File stateFile = new File(baseDir, instanceId + "_" + workerName + ".json");
         try {
             FileUtils.write(stateFile, stateString);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void removeStates(String instanceId) {
+        File baseDir = new File(basePath);
+        if (!baseDir.exists()) {
+            return;
+        }
+
+        File[] stateFiles = baseDir.listFiles();
+        String instancePrefix = instanceId + "_";
+        for (File stateFile : stateFiles) {
+            if (stateFile.getName().startsWith(instancePrefix)) {
+                stateFile.delete();
+            }
         }
     }
 
@@ -101,6 +118,9 @@ public class FileBasedStore extends StateStore {
                 e.printStackTrace();
             }
         }
+        PersistenceUtils.clearTempRefTypes("s_");
+        PersistenceUtils.clearTempContexts();
+        PersistenceUtils.tempRespContexts.clear();
         return states;
     }
 

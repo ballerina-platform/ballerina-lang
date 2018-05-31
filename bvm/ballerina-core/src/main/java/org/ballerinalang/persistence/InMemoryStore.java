@@ -40,6 +40,11 @@ public class InMemoryStore extends StateStore {
     }
 
     @Override
+    public void removeStates(String instanceId) {
+
+    }
+
+    @Override
     public void persistFaildState(String instanceId, State state) {
         List<State> stateList = getFailedStates(instanceId);
         if (stateList == null) {

@@ -28,11 +28,10 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 @BallerinaFunction(
         orgName = "ballerina", packageName = "runtime",
-        functionName = "haltPersisted",
-        args = {@Argument(name = "millis", type = TypeKind.INT)},
+        functionName = "checkpoint",
         isPublic = true
 )
-public class HaltPersisted implements InterruptibleNativeCallableUnit {
+public class Checkpoint implements InterruptibleNativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         long delayMillis = context.getIntArgument(0);
@@ -55,7 +54,7 @@ public class HaltPersisted implements InterruptibleNativeCallableUnit {
 
     @Override
     public boolean persistBeforeOperation() {
-        return true;
+        return false;
     }
 
     @Override

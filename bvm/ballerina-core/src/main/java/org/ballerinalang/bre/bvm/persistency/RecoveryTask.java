@@ -54,6 +54,10 @@ public class RecoveryTask implements Runnable {
         }
         for (State state : states) {
             WorkerExecutionContext context = state.getContext();
+            // As we don't have any running context at this point, none of the contexts can run in caller.
+            // Even though sync functions run in caller under normal conditions, we have to override
+            // that to start a new thread for the function.
+            context.runInCaller = false;
             BLangScheduler.schedule(context);
         }
 

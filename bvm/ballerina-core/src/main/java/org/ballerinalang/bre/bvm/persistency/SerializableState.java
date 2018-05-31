@@ -19,6 +19,7 @@ package org.ballerinalang.bre.bvm.persistency;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableBStruct;
 import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableRefType;
@@ -26,6 +27,7 @@ import org.ballerinalang.bre.bvm.persistency.reftypes.SerializedKey;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.persistence.StateStore;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
@@ -40,6 +42,7 @@ public class SerializableState {
     private String serializationId;
     private String currentContextKey;
     private Map<String, SerializableContext> sContexts = new HashMap<>();
+    private Map<String, SerializableRespContext> sRespContexts = new HashMap<>();
     private Map<String, SerializableRefType> sRefTypes = new HashMap<>();
 
     public String getInstanceId() {
@@ -64,9 +67,10 @@ public class SerializableState {
         if (executionContext == null) {
             return;
         }
-        serializationId = UUID.randomUUID().toString();
+//        serializationId = UUID.randomUUID().toString();
+        serializationId = "s_";
         currentContextKey = serializationId + executionContext.hashCode();
-        SerializableContext serializableContext = new SerializableContext(executionContext, this);
+        SerializableContext serializableContext = new SerializableContext(currentContextKey, executionContext, this);
         sContexts.put(currentContextKey, serializableContext);
     }
 
@@ -78,14 +82,18 @@ public class SerializableState {
     public WorkerExecutionContext getExecutionContext(ProgramFile programFile) {
         SerializableContext serializableContext = sContexts.get(currentContextKey);
         WorkerExecutionContext context = serializableContext.getWorkerExecutionContext(programFile, this);
-        PersistenceUtils.clearTempRefTypes(serializationId);
         return context;
     }
 
     public String addContext(WorkerExecutionContext context) {
-        SerializableContext serializableContext = new SerializableContext(context, this);
+        if (context == null) {
+            return null;
+        }
         String contextKey = serializationId + context.hashCode();
-        sContexts.put(contextKey, serializableContext);
+        if (!sContexts.containsKey(contextKey)) {
+            SerializableContext serializableContext = new SerializableContext(contextKey, context, this);
+            sContexts.put(contextKey, serializableContext);
+        }
         return contextKey;
     }
 
@@ -93,6 +101,30 @@ public class SerializableState {
         SerializableContext serializableContext = sContexts.get(contextKey);
         WorkerExecutionContext context = serializableContext.getWorkerExecutionContext(programFile, this);
         return context;
+    }
+
+    public String addRespContext(CallableWorkerResponseContext responseContext) {
+        if (responseContext == null) {
+            return null;
+        }
+        String key = serializationId + responseContext.hashCode();
+        if (!sRespContexts.containsKey(key)) {
+            SerializableRespContext serializableRespContext = new SerializableRespContext(key, responseContext, this);
+            sRespContexts.put(key, serializableRespContext);
+        }
+        return key;
+    }
+
+    public CallableWorkerResponseContext getResponseContext(
+            String respCtxKey, ProgramFile programFile, CallableUnitInfo callableUnitInfo) {
+        CallableWorkerResponseContext responseContext = PersistenceUtils.tempRespContexts.get(respCtxKey);
+        if (responseContext == null) {
+            SerializableRespContext serializableRespContext = sRespContexts.get(respCtxKey);
+            responseContext =
+                    serializableRespContext.getResponseContext(programFile, callableUnitInfo, this);
+            PersistenceUtils.tempRespContexts.put(respCtxKey, responseContext);
+        }
+        return responseContext;
     }
 
     public ArrayList<Object> serializeRefFields(BRefType[] bRefFields) {

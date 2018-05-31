@@ -18,6 +18,7 @@ package org.ballerinalang.bre.bvm.persistency;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerResponseContext;
 import org.ballerinalang.bre.bvm.persistency.adapters.ArrayListAdapter;
@@ -52,6 +53,10 @@ public class PersistenceUtils {
     private static List<String> serializableClasses = new ArrayList<>();
 
     public static Map<String, Map<String, BRefType>> tempRefTypes = new HashMap<>();
+    public static Map<String, WorkerExecutionContext> tempContexts = new HashMap<>();
+    public static Map<String, CallableWorkerResponseContext> tempRespContexts = new HashMap<>();
+
+    public static List<WorkerExecutionContext> persistableContexts = new ArrayList<>();
 
     private static Gson gson;
 
@@ -74,6 +79,10 @@ public class PersistenceUtils {
 
     public static void clearTempRefTypes(String stateId) {
         tempRefTypes.remove(stateId);
+    }
+
+    public static void clearTempContexts() {
+        tempContexts.clear();
     }
 
     public synchronized static void init() {

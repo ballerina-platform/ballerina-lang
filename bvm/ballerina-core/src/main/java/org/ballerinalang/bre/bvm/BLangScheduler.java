@@ -161,6 +161,7 @@ public class BLangScheduler {
             if (o != null && o instanceof String) {
                 String instanceId = (String) o;
                 ActiveStates.remove(instanceId);
+                StateStore.getInstance().removeStates(instanceId);
             }
         }
         workerCountDown();
