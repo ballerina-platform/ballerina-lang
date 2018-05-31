@@ -41,6 +41,11 @@ class Frames extends React.Component {
         const unescaped = str.replace(/\\"/g, '"');
         return JSON5.parse(unescaped);
     }
+
+    getJsonObject(str = '') {
+        const unescaped = str.replace(/\\"/g, '"');
+        return JSON5.parse((unescaped.substring(str.indexOf('{'), unescaped.lastIndexOf('}') + 1)));
+    }
     /**
      * @description Parse string to JSON
      * @param {any} str
@@ -64,15 +69,27 @@ class Frames extends React.Component {
                 {frame.variables.map((variable) => {
                     const { type = '', name, value } = variable;
                     const label = <span className='node'><strong>{name}</strong>{` (${type})`}</span>;
-                    if (type.toLowerCase().includes('json')
-                        || type.toLowerCase().includes('struct')
+                    if (type.toLowerCase().includes('json')) {
+                        return (
+                            <TreeView key={name} nodeLabel={label} defaultCollapsed>
+                                <div className='node'>Value:</div>
+                                <ReactJson
+                                    src={this.getObject(variable.value)}
+                                    theme='eighties'
+                                    name={name}
+                                    displayDataTypes={false}
+                                    collapsed={1}
+                                    displayObjectSize={false}
+                                />
+                            </TreeView>);
+                    } else if (type.toLowerCase().includes('struct')
                         || type.toLowerCase().includes('map')
                         || variable.value.startsWith('struct')) {
                         return (
                             <TreeView key={name} nodeLabel={label} defaultCollapsed>
                                 <div className='node'>Value:</div>
                                 <ReactJson
-                                    src={this.getObject(variable.value)}
+                                    src={this.getJsonObject(variable.value)}
                                     theme='eighties'
                                     name={name}
                                     displayDataTypes={false}
