@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,10 +14,9 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
-package org.wso2.transport.http.netty.websocket;
+package org.wso2.transport.http.netty.websocket.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +51,9 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     private boolean isClose = false;
     private CountDownLatch latch;
 
+    public WebSocketTestClientConnectorListener() {
+    }
+
     public WebSocketTestClientConnectorListener(CountDownLatch latch) {
         this.latch = latch;
     }
@@ -80,25 +82,25 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
             }
         }
         textQueue.add(textMessage.getText());
-        latch.countDown();
+        countDownLatch();
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
         bufferQueue.add(binaryMessage.getByteBuffer());
-        latch.countDown();
+        countDownLatch();
     }
 
     @Override
     public void onMessage(WebSocketControlMessage controlMessage) {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
             isPingReceived = true;
-            latch.countDown();
+            countDownLatch();
         }
 
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
             isPongReceived = true;
-            latch.countDown();
+            countDownLatch();
         }
     }
 
@@ -106,7 +108,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketCloseMessage closeMessage) {
         isClose = true;
         this.closeMessage = closeMessage;
-        latch.countDown();
+        countDownLatch();
     }
 
     @Override
@@ -114,14 +116,14 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
         errorsQueue.add(throwable);
         log.error("Error handler received: " + throwable.getMessage());
         for (int i = 0; i < latch.getCount(); i++) {
-            latch.countDown();
+            countDownLatch();
         }
     }
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
         isIdleTimeout = true;
-        latch.countDown();
+        countDownLatch();
     }
 
     /**
@@ -212,5 +214,11 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      */
     public WebSocketCloseMessage getCloseMessage() {
         return closeMessage;
+    }
+
+    private void countDownLatch() {
+        if (latch != null) {
+            latch.countDown();
+        }
     }
 }

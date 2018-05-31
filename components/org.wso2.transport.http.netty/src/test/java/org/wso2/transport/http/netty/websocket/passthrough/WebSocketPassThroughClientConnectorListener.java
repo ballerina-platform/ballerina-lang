@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,65 +14,63 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
-package org.wso2.transport.http.netty.websocket;
+package org.wso2.transport.http.netty.websocket.passthrough;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 
 /**
- * WebSocket connector listener for  the Protocol switch from HTTP to WebSocket test case.
+ * Client connector Listener to check WebSocket pass-through scenarios.
  */
-public class HttpToWsProtocolSwitchWebSocketListener implements WebSocketConnectorListener {
+public class WebSocketPassThroughClientConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(HttpToWsProtocolSwitchWebSocketListener.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughClientConnectorListener.class);
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
-        HttpCarbonRequest request = initMessage.getHttpCarbonRequest();
-        if ("handshake".equals(request.getHeader("Command"))) {
-            initMessage.handshake();
-        } else if ("fail".equals(request.getHeader("Command"))) {
-            initMessage.cancelHandshake(404, "Not Found");
-        }
+        throw new UnsupportedOperationException("Method is not supported");
     }
 
     @Override
     public void onMessage(WebSocketTextMessage textMessage) {
+        WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(textMessage.getWebSocketConnection());
+        serverConnection.pushText(textMessage.getText());
+        serverConnection.readNextFrame();
     }
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
+        WebSocketConnection serverConnection = WebSocketPassThroughTestConnectionManager.getInstance().
+                getServerConnection(binaryMessage.getWebSocketConnection());
+        serverConnection.pushBinary(binaryMessage.getByteBuffer());
+        serverConnection.readNextFrame();
     }
 
     @Override
     public void onMessage(WebSocketControlMessage controlMessage) {
+        throw new UnsupportedOperationException("Method is not supported");
     }
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
+        throw new UnsupportedOperationException("Method is not supported");
     }
 
     @Override
     public void onError(Throwable throwable) {
-        handleError(throwable);
     }
 
     @Override
     public void onIdleTimeout(WebSocketControlMessage controlMessage) {
     }
-
-    private void handleError(Throwable throwable) {
-        log.error(throwable.getMessage());
-    }
-
 }
