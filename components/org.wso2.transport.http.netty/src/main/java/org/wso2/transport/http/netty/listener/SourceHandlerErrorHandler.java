@@ -118,14 +118,7 @@ public class SourceHandlerErrorHandler {
     }
 
     public void exceptionCaught(Throwable cause) {
-        if (state == RECEIVING_ENTITY_BODY) {
-            handleIncompleteInboundRequest(Constants.EXCEPTION_CAUGHT_WHILE_READING_REQUEST);
-        }
-        try {
-            serverConnectorFuture.notifyErrorListener(cause);
-        } catch (ServerConnectorException e) {
-            log.error("Couldn't notify error state to application layer");
-        }
+        log.warn("Exception occurred :" + cause);
     }
 
     public void setState(InboundState inboundState) {
