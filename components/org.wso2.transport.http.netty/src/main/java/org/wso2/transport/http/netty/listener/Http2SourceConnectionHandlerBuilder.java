@@ -32,18 +32,20 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import static io.netty.handler.logging.LogLevel.TRACE;
 
 /**
- * {@code HTTP2SourceHandlerBuilder} is used to build the HTTP2SourceConnectionHandler.
+ * {@code Http2SourceConnectionHandlerBuilder} is used to build the HTTP2SourceConnectionHandler.
  */
-public final class Http2SourceHandlerBuilder
-        extends AbstractHttp2ConnectionHandlerBuilder<Http2SourceConnectionHandler, Http2SourceHandlerBuilder> {
+public final class Http2SourceConnectionHandlerBuilder
+        extends AbstractHttp2ConnectionHandlerBuilder
+                        <Http2SourceConnectionHandler, Http2SourceConnectionHandlerBuilder> {
 
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
     private String serverName;
     private HttpServerChannelInitializer serverChannelInitializer;
 
-    public Http2SourceHandlerBuilder(String interfaceId, ServerConnectorFuture serverConnectorFuture,
-                                     String serverName, HttpServerChannelInitializer serverChannelInitializer) {
+    public Http2SourceConnectionHandlerBuilder(String interfaceId, ServerConnectorFuture serverConnectorFuture,
+                                               String serverName,
+                                               HttpServerChannelInitializer serverChannelInitializer) {
         this.interfaceId = interfaceId;
         this.serverConnectorFuture = serverConnectorFuture;
         this.serverName = serverName;
@@ -58,6 +60,8 @@ public final class Http2SourceHandlerBuilder
         }
         connection(conn);
         Http2ConnectionHandler connectionHandler = super.build();
+        // connectionHandler is always become a Http2SourceConnectionHandler,
+        // however instanceof check is added to make findbugs happy
         if (connectionHandler instanceof Http2SourceConnectionHandler) {
             return (Http2SourceConnectionHandler) connectionHandler;
         }

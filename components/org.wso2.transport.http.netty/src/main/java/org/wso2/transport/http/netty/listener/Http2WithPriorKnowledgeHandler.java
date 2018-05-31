@@ -66,7 +66,7 @@ public class Http2WithPriorKnowledgeHandler extends ChannelInboundHandlerAdapter
                 pipeline.addBefore(
                         Constants.HTTP2_UPGRADE_HANDLER,
                         Constants.HTTP2_SOURCE_CONNECTION_HANDLER,
-                        new Http2SourceHandlerBuilder(
+                        new Http2SourceConnectionHandlerBuilder(
                                 interfaceId, serverConnectorFuture, serverName, serverChannelInitializer).build());
 
                 safelyRemoveHandlers(pipeline, Constants.HTTP2_UPGRADE_HANDLER,

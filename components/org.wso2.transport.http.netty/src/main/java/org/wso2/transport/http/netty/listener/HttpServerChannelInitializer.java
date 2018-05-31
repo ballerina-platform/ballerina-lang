@@ -224,7 +224,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
                 return new Http2ServerUpgradeCodec(
                         Constants.HTTP2_SOURCE_CONNECTION_HANDLER,
-                        new Http2SourceHandlerBuilder(
+                        new Http2SourceConnectionHandlerBuilder(
                                 interfaceId, serverConnectorFuture, serverName, this).build());
             } else {
                 return null;
@@ -341,7 +341,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
                 // handles pipeline for HTTP/2 requests after SSL handshake
                 ctx.pipeline().addLast(
                         Constants.HTTP2_SOURCE_CONNECTION_HANDLER,
-                        new Http2SourceHandlerBuilder(
+                        new Http2SourceConnectionHandlerBuilder(
                                 interfaceId, serverConnectorFuture, serverName, channelInitializer).build());
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
                 // handles pipeline for HTTP/1.x requests after SSL handshake
