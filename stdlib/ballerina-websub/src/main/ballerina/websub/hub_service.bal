@@ -66,7 +66,7 @@ service<http:Service> hubService {
         }
 
         if (mode == MODE_SUBSCRIBE || mode == MODE_UNSUBSCRIBE) {
-            boolean validSubscriptionRequest = false;
+            boolean validSubscriptionChangeRequest = false;
             string callbackFromParams = params[HUB_CALLBACK];
             string callback = http:decode(callbackFromParams, "UTF-8") but { error => callbackFromParams };
             match (validateSubscriptionChangeRequest(mode, topic, callback)) {
@@ -75,13 +75,18 @@ service<http:Service> hubService {
                     response.setTextPayload(err.message);
                 }
                 () => {
-                    validSubscriptionRequest = true;
+                    validSubscriptionChangeRequest = true;
                     response.statusCode = http:ACCEPTED_202;
                 }
             }
-            _ = client->respond(response);
-            if (validSubscriptionRequest) {
-                verifyIntent(callback, topic, params);
+            var responseError = client->respond(response);
+            match(responseError) {
+                error e => log:printError("Error responding to subscription change request", err = e);
+                () => {
+                    if (validSubscriptionChangeRequest) {
+                        verifyIntent(callback, topic, params);
+                    }
+                }
             }
             done;
         } else if (mode == MODE_REGISTER) {
@@ -89,7 +94,11 @@ service<http:Service> hubService {
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setTextPayload("Remote topic registration not allowed/not required at the Hub");
                 log:printWarn("Remote topic registration denied at Hub");
-                _ = client->respond(response);
+                var responseError = client->respond(response);
+                match(responseError) {
+                    error e => log:printError("Error responding on remote topic registration failure", err = e);
+                    () => {}
+                }
                 done;
             }
 
@@ -109,13 +118,21 @@ service<http:Service> hubService {
                     log:printInfo("Topic registration successful at Hub, for topic[" + topic + "]");
                 }
             }
-            _ = client->respond(response);
+            var responseError = client->respond(response);
+            match(responseError) {
+                error e => log:printError("Error responding remote topic registration status", err = e);
+                () => {}
+            }
         } else if (mode == MODE_UNREGISTER) {
             if (!hubRemotePublishingEnabled || !hubTopicRegistrationRequired) {
                 response.statusCode = http:BAD_REQUEST_400;
                 response.setTextPayload("Remote unregistration not allowed/not required at the Hub");
                 log:printWarn("Remote topic unregistration denied at Hub");
-                _ = client->respond(response);
+                var responseError = client->respond(response);
+                match(responseError) {
+                    error e => log:printError("Error responding on remote topic unregistration failure", err = e);
+                    () => {}
+                }
                 done;
             }
 
@@ -135,7 +152,11 @@ service<http:Service> hubService {
                     log:printInfo("Topic unregistration successful at Hub, for topic[" + topic + "]");
                 }
             }
-            _ = client->respond(response);
+            var responseError = client->respond(response);
+            match(responseError) {
+                error e => log:printError("Error responding remote topic unregistration status", err = e);
+                () => {}
+            }
         } else {
             if (mode != MODE_PUBLISH) {
                 params = request.getQueryParams();
@@ -164,7 +185,11 @@ service<http:Service> hubService {
                                 log:printError(errorMessage);
                                 response.setTextPayload(errorMessage);
                                 response.statusCode = http:BAD_REQUEST_400;
-                                _ = client->respond(response);
+                                var responseError = client->respond(response);
+                                match(responseError) {
+                                    error e => log:printError("Error responding on update fetch failure", err = e);
+                                    () => {}
+                                }
                                 done;
                             }
                         }
@@ -189,7 +214,12 @@ service<http:Service> hubService {
                                         log:printError(errorMessage);
                                         response.statusCode = http:BAD_REQUEST_400;
                                         response.setTextPayload(errorMessage);
-                                        _ = client->respond(response);
+                                        var responseError = client->respond(response);
+                                        match(responseError) {
+                                            error e => log:printError("Error responding on signature validation failure"
+                                                        + " for publish request", err = e);
+                                            () => {}
+                                        }
                                         done;
                                     }
                                     () => {
@@ -212,22 +242,32 @@ service<http:Service> hubService {
                             log:printError(errorMessage);
                             response.statusCode = http:BAD_REQUEST_400;
                             response.setTextPayload(errorMessage);
-                            _ = client->respond(response);
+                            var responseError = client->respond(response);
+                            match(responseError) {
+                                error e => log:printError("Error responding on payload extraction failure for"
+                                                            + " publish request", err = e);
+                                () => {}
+                            }
                             done;
                         }
                     }
 
                     match(publishStatus) {
                         error err => {
-                            string errorMessage = "Event notification failed for Topic [" + topic + "]: "
+                            string errorMessage = "Update notification failed for Topic [" + topic + "]: "
                                                     + err.message;
                             response.setTextPayload(errorMessage);
                             log:printError(errorMessage);
                         }
                         () => {
-                            log:printInfo("Event notification done for Topic [" + topic + "]");
+                            log:printInfo("Update notification done for Topic [" + topic + "]");
                             response.statusCode = http:ACCEPTED_202;
-                            _ = client->respond(response);
+                            var responseError = client->respond(response);
+                            match(responseError) {
+                                error e => log:printError("Error responding on update notification for topic[" + topic
+                                                            + "]", err = e);
+                                () => {}
+                            }
                             done;
                         }
                     }
@@ -237,10 +277,18 @@ service<http:Service> hubService {
                     response.setTextPayload(errorMessage);
                 }
                 response.statusCode = http:BAD_REQUEST_400;
-                _ = client->respond(response);
+                var responseError = client->respond(response);
+                match(responseError) {
+                    error e => log:printError("Error responding to publish request", err = e);
+                    () => {}
+                }
             } else {
                 response.statusCode = http:BAD_REQUEST_400;
-                _ = client->respond(response);
+                var responseError = client->respond(response);
+                match(responseError) {
+                    error e => log:printError("Error responding to request", err = e);
+                    () => {}
+                }
             }
         }
     }
