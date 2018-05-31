@@ -106,7 +106,7 @@ MATCH       : 'match' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;
 WHILE       : 'while' ;
-NEXT        : 'next' ;
+CONTINUE    : 'continue' ;
 BREAK       : 'break' ;
 FORK        : 'fork' ;
 JOIN        : 'join' ;

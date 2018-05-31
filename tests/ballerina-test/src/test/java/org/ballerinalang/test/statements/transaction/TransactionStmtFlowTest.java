@@ -152,7 +152,7 @@ public class TransactionStmtFlowTest {
 
     @Test
     public void testNestedTransaction4() {
-        BValue[] args = { new BInteger(-10) };
+        BValue[] args = {new BInteger(-10)};
         BValue[] returns = BRunUtil.invoke(programFile, "testNestedTransaction", args);
 
         Assert.assertEquals(returns.length, 1);
@@ -295,8 +295,8 @@ public class TransactionStmtFlowTest {
     }
 
     @Test()
-    public void testTransactionWithNextValid() {
-        BValue[] returns = BRunUtil.invoke(programFile, "transactionWithNext", new BValue[0]);
+    public void testTransactionWithContinueValid() {
+        BValue[] returns = BRunUtil.invoke(programFile, "transactionWithContinue", new BValue[0]);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "done");
     }
@@ -343,7 +343,8 @@ public class TransactionStmtFlowTest {
         BAssertUtil
                 .validateError(resultNegative, 4, "break statement cannot be used to exit from a transaction", 41, 17);
         BAssertUtil
-                .validateError(resultNegative, 5, "next statement cannot be used to exit from a transaction", 54, 17);
+                .validateError(
+                        resultNegative, 5, "continue statement cannot be used to exit from a transaction", 54, 17);
         BAssertUtil
                 .validateError(resultNegative, 6, "return statement cannot be used to exit from a transaction", 67, 17);
         BAssertUtil

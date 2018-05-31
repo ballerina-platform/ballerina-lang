@@ -361,7 +361,7 @@ function nextInsideLock() returns (int, string) {
                 lockWithinLockInt1 = 40;
                 lockWithinLockString1 = "lock value inside while";
                 if (i == 0) {
-                    next;
+                    continue;
                 }
             }
         }
