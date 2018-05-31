@@ -56,8 +56,8 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.wso2.transport.http.netty.listener.InboundState.ENTITY_BODY_RECEIVED;
-import static org.wso2.transport.http.netty.listener.InboundState.RECEIVING_ENTITY_BODY;
+import static org.wso2.transport.http.netty.common.InboundState.ENTITY_BODY_RECEIVED;
+import static org.wso2.transport.http.netty.common.InboundState.RECEIVING_ENTITY_BODY;
 
 /**
  * A Class responsible for handle  incoming message through netty inbound pipeline.
@@ -152,7 +152,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         } else {
             if (inboundRequestMsg != null) {
                 if (msg instanceof HttpContent) {
-                    sourceHandlerErrorHandler.setState(RECEIVING_ENTITY_BODY);
+                    sourceHandlerErrorHandler.setInboundState(RECEIVING_ENTITY_BODY);
 
                     HttpContent httpContent = (HttpContent) msg;
                     inboundRequestMsg.addHttpContent(httpContent);
@@ -166,7 +166,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                         outboundRespFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
                         inboundRequestMsg = null;
 
-                        sourceHandlerErrorHandler.setState(ENTITY_BODY_RECEIVED);
+                        sourceHandlerErrorHandler.setInboundState(ENTITY_BODY_RECEIVED);
                     }
                 }
             } else {
@@ -190,8 +190,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (serverConnectorFuture != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                outboundRespFuture.setHttpConnectorListener(
-                        new HttpOutboundRespListener(ctx, httpRequestMsg, chunkConfig, keepAliveConfig, serverName));
+                outboundRespFuture.setHttpConnectorListener(new HttpOutboundRespListener(ctx, httpRequestMsg,
+                        chunkConfig, keepAliveConfig, serverName, sourceHandlerErrorHandler));
                 this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);

@@ -19,9 +19,11 @@
 package org.wso2.transport.http.netty.message;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
@@ -40,6 +42,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.wso2.transport.http.netty.common.Constants.CHNL_HNDLR_CTX;
+import static org.wso2.transport.http.netty.common.Constants.ERROR_STATE;
+
 /**
  * HTTP based representation for HTTPCarbonMessage.
  */
@@ -53,6 +58,7 @@ public class HTTPCarbonMessage {
     private final ServerConnectorFuture httpOutboundRespFuture = new HttpWsServerConnectorFuture();
     private final DefaultHttpResponseFuture httpOutboundRespStatusFuture = new DefaultHttpResponseFuture();
     private final Observable contentObservable = new DefaultObservable();
+    private boolean inboundRequestCompleted = false;
 
     public HTTPCarbonMessage(HttpMessage httpMessage, Listener contentListener) {
         this.httpMessage = httpMessage;
@@ -87,6 +93,7 @@ public class HTTPCarbonMessage {
             // the life-cycle.
             if (httpContent instanceof LastHttpContent) {
                 this.removeMessageFuture();
+                inboundRequestCompleted = true;
             }
         } else {
             blockingEntityCollector.addHttpContent(httpContent);
@@ -255,8 +262,19 @@ public class HTTPCarbonMessage {
     }
 
     public HttpResponseFuture respond(HTTPCarbonMessage httpCarbonMessage) throws ServerConnectorException {
+        if (!isInboundRequestCompleted()) {
+            stopReadInterestAndRelease();
+            httpCarbonMessage.setProperty(ERROR_STATE, true);
+        }
         httpOutboundRespFuture.notifyHttpListener(httpCarbonMessage);
         return httpOutboundRespStatusFuture;
+    }
+
+    private void stopReadInterestAndRelease() {
+        ChannelHandlerContext ctx = (ChannelHandlerContext) getProperty(CHNL_HNDLR_CTX);
+        ctx.channel().config().setAutoRead(false);
+        addHttpContent(new DefaultLastHttpContent());
+        waitAndReleaseAllEntities();
     }
 
     /**
@@ -354,5 +372,9 @@ public class HTTPCarbonMessage {
      */
     public HttpResponse getNettyHttpResponse() {
         return (HttpResponse) this.httpMessage;
+    }
+
+    public synchronized boolean isInboundRequestCompleted() {
+        return inboundRequestCompleted;
     }
 }

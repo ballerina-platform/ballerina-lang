@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
+import org.wso2.transport.http.netty.listener.SourceHandlerErrorHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
@@ -45,6 +46,8 @@ import java.util.List;
 import java.util.Locale;
 
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
+import static org.wso2.transport.http.netty.common.Constants.ERROR_STATE;
+import static org.wso2.transport.http.netty.common.InboundState.COMPLETED;
 import static org.wso2.transport.http.netty.common.Util.addResponseWriteFailureListener;
 import static org.wso2.transport.http.netty.common.Util.checkForResponseWriteStatus;
 import static org.wso2.transport.http.netty.common.Util.createFullHttpResponse;
@@ -61,6 +64,7 @@ import static org.wso2.transport.http.netty.common.Util.shouldEnforceChunkingfor
 public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
+    private final SourceHandlerErrorHandler sourceHandlerErrorHandler;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -74,9 +78,8 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     private List<HttpContent> contentList = new ArrayList<>();
 
     public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg,
-                                    ChunkConfig chunkConfig,
-                                    KeepAliveConfig keepAliveConfig,
-                                    String serverName) {
+                                    ChunkConfig chunkConfig, KeepAliveConfig keepAliveConfig,
+                                    String serverName, SourceHandlerErrorHandler sourceHandlerErrorHandler) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.inboundRequestMsg = requestMsg;
@@ -84,6 +87,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
         this.chunkConfig = chunkConfig;
         this.serverName = serverName;
+        this.sourceHandlerErrorHandler = sourceHandlerErrorHandler;
     }
 
     @Override
@@ -101,6 +105,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent ->
                     this.sourceContext.channel().eventLoop().execute(() -> {
                         try {
+
                             writeOutboundResponse(outboundResponseMsg, keepAlive, httpContent);
                         } catch (Exception exception) {
                             String errorMsg = "Failed to send the outbound response : "
@@ -151,7 +156,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 outboundChannelFuture = writeOutboundResponseBody(httpContent);
             }
 
-            if (!keepAlive) {
+            if (!keepAlive || ((Boolean) outboundResponseMsg.getProperty(ERROR_STATE))) {
                 outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);
             }
             if (handlerExecutor != null) {
@@ -188,6 +193,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
                 serverName, keepAlive, allContent);
 
         headerWritten = true;
+        sourceHandlerErrorHandler.setInboundState(COMPLETED);
         ChannelFuture outboundChannelFuture = sourceContext.writeAndFlush(fullOutboundResponse);
         checkForResponseWriteStatus(inboundRequestMsg, outboundRespStatusFuture, outboundChannelFuture);
         return outboundChannelFuture;
@@ -205,6 +211,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         setupChunkedRequest(outboundResponseMsg);
         ChannelFuture outboundHeaderFuture = writeOutboundResponseHeaders(outboundResponseMsg, keepAlive);
         addResponseWriteFailureListener(outboundRespStatusFuture, outboundHeaderFuture);
+        sourceHandlerErrorHandler.setInboundState(COMPLETED);
     }
 
     private void resetOutboundListenerState() {

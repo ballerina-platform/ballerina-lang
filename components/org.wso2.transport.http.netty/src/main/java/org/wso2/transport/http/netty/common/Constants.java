@@ -144,6 +144,7 @@ public final class Constants {
     public static final String RESOLVED_REQUESTED_URI = "RESOLVED_REQUESTED_URI";
 
     public static final String HTTP_REASON_PHRASE = "HTTP_REASON_PHRASE";
+    public static final String ERROR_STATE = "ERROR_STATE";
 
     public static final String CHNL_HNDLR_CTX = "CHNL_HNDLR_CTX";
 
@@ -285,7 +286,9 @@ public final class Constants {
     public static final String EXCEPTION_CAUGHT_WHILE_READING_RESPONSE
             = "Exception caught while reading inbound response";
 
-    public static final String REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION
+    public static final String REMOTE_CLIENT_CLOSE_CONNECTION_BEFORE_INITIATING_REQUEST
+            = "Remote client closed connection before initiating the inbound request";
+        public static final String REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION_WITHOUT_COMPLETING_REQUEST
             = "Remote client closed the connection without completing inbound request";
     public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
             = "Remote host closed the connection without completing inbound response";

@@ -16,13 +16,14 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener;
+package org.wso2.transport.http.netty.common;
 
 /**
  * Inbound request state.
  */
-enum InboundState {
+public enum InboundState {
     CONNECTED,
     RECEIVING_ENTITY_BODY,
-    ENTITY_BODY_RECEIVED
+    ENTITY_BODY_RECEIVED,
+    COMPLETED
 }
