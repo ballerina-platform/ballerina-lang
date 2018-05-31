@@ -331,11 +331,11 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     private boolean isValidEndpoints(DefinitionID endpoint) {
         Name orgName = endpoint.orgName == null ? Names.ANON_ORG : names.fromString(endpoint.orgName);
         PackageID pkdID = new PackageID(orgName, names.fromString(endpoint.pkgName), Names.EMPTY);
-        BLangPackage pkgNode = this.packageCache.get(pkdID);
-        if (pkgNode == null) {
+        BPackageSymbol pkgSymbol = this.packageCache.getSymbol(pkdID);
+        if (pkgSymbol == null) {
             return false;
         }
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
         final BSymbol bSymbol = symResolver.lookupSymbol(pkgEnv, names.fromString(endpoint.name), SymTag.VARIABLE_NAME);
         return bSymbol != symTable.notFoundSymbol;
     }
