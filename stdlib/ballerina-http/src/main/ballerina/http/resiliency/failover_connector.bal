@@ -97,7 +97,7 @@ public type FailoverActions object {
         The HEAD action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -107,7 +107,7 @@ public type FailoverActions object {
         The PATCH action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -117,7 +117,7 @@ public type FailoverActions object {
         The PUT action  implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -127,7 +127,7 @@ public type FailoverActions object {
         The OPTIONS action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -147,7 +147,7 @@ public type FailoverActions object {
 
         P{{httpVerb}} HTTP method to be used for the request
         P{{path}} Resource path
-        P{{request}} An HTTP request
+        P{{message}} An HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -157,7 +157,7 @@ public type FailoverActions object {
         The DELETE action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -267,7 +267,7 @@ public function FailoverActions::execute(string httpVerb, string path, Request|s
 }
 
 public function FailoverActions::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
-                                                        message = ()) returns Response|error {
+                                                        message) returns Response|error {
     Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
 }

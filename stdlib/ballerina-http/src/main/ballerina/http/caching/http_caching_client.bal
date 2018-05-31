@@ -148,7 +148,7 @@ public type HttpCachingClient object {
 
         P{{httpMethod}} HTTP method to be used for the request
         P{{path}} Resource path
-        P{{request}} An HTTP request
+        P{{message}} An HTTP request
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function execute(string httpMethod, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -192,7 +192,7 @@ public type HttpCachingClient object {
         origin server. Responses received for OPTIONS requests invalidate the cached responses for the same resource.
 
         P{{path}} Request path
-        P{{request}} An optional HTTP request or any payload
+        P{{message}} An optional HTTP request or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -301,7 +301,7 @@ public function HttpCachingClient::put(string path, Request|string|xml|json|blob
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    match self.httpClient.put(path, request = req) {
+    match self.httpClient.put(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -335,7 +335,7 @@ public function HttpCachingClient::patch(string path, Request|string|xml|json|bl
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    match self.httpClient.patch(path, request = req) {
+    match self.httpClient.patch(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -350,7 +350,7 @@ public function HttpCachingClient::delete(string path, Request|string|xml|json|b
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    match self.httpClient.delete(path, request = req) {
+    match self.httpClient.delete(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -372,7 +372,7 @@ public function HttpCachingClient::options(string path, Request|string|xml|json|
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    match self.httpClient.options(path, request = req) {
+    match self.httpClient.options(path, message = req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -712,7 +712,7 @@ function sendNewRequest(CallerActions httpClient, Request request, string path, 
     if (httpMethod == GET) {
         return httpClient.get(path, message = request);
     } else if (httpMethod == HEAD) {
-        return httpClient.head(path, request = request);
+        return httpClient.head(path, message = request);
     } else {
         error err = {message:"HTTP method not supported in caching client: " + httpMethod};
         return err;

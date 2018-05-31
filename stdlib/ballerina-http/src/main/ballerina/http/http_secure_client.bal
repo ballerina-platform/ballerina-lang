@@ -80,11 +80,11 @@ public type HttpSecureClient object {
                                         message = ()) returns (Response|error) {
         Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.head(path, request = req);
+        Response response = check httpClient.head(path, message = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.head(path, request = req);
+            return httpClient.head(path, message = req);
         }
         return response;
     }
@@ -100,11 +100,11 @@ public type HttpSecureClient object {
     public function put(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
-        Response response = check httpClient.put(path, request = req);
+        Response response = check httpClient.put(path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.put(path, request = req);
+            return httpClient.put(path, req);
         }
         return response;
     }
@@ -140,11 +140,11 @@ public type HttpSecureClient object {
     public function patch(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
-        Response response = check httpClient.patch(path, request = req);
+        Response response = check httpClient.patch(path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.patch(path, request = req);
+            return httpClient.patch(path, req);
         }
         return response;
     }
@@ -160,11 +160,11 @@ public type HttpSecureClient object {
     public function delete(string path, Request? request = ()) returns (Response|error) {
         Request req = request ?: new;
         check generateSecureRequest(req, config);
-        Response response = check httpClient.delete(path, request = req);
+        Response response = check httpClient.delete(path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.delete(path, request = req);
+            return httpClient.delete(path, req);
         }
         return response;
     }
@@ -195,17 +195,18 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Request path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function options(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message = ()) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.options(path, request = req);
+        Response response = check httpClient.options(path, message = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.options(path, request = req);
+            return httpClient.options(path, message = req);
         }
         return response;
     }

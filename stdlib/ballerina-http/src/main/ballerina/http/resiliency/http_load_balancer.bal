@@ -75,7 +75,7 @@ public type LoadBalancerActions object {
         The PATCH action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -85,7 +85,7 @@ public type LoadBalancerActions object {
         The PUT action implementation of the Load Balance Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -95,7 +95,7 @@ public type LoadBalancerActions object {
         The OPTIONS action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -116,7 +116,7 @@ public type LoadBalancerActions object {
 
         P{{httpVerb}} HTTP method to be used for the request
         P{{path}} Resource path
-        P{{request}} An HTTP request
+        P{{message}} An HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -126,7 +126,7 @@ public type LoadBalancerActions object {
         The DELETE action implementation of the LoadBalancer Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
     public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()

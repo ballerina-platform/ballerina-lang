@@ -96,7 +96,7 @@ public type RetryClient object {
         from network level failures.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -107,7 +107,7 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -118,7 +118,7 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -140,7 +140,7 @@ public type RetryClient object {
         retrying functionality for a given endpoint to recover from network level failures.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} The HTTP `Response` message, or an error if the invocation fails
     }
     public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()

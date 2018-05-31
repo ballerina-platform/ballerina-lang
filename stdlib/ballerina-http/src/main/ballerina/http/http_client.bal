@@ -75,7 +75,7 @@ public type CallerActions object {
 
         P{{httpVerb}} HTTP verb value
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|blob

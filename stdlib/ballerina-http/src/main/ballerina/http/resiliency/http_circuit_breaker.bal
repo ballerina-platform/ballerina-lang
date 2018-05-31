@@ -181,7 +181,7 @@ public type CircuitBreakerClient object {
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request struct
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
      }
     public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -192,7 +192,7 @@ public type CircuitBreakerClient object {
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request struct
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -204,7 +204,7 @@ public type CircuitBreakerClient object {
 
         P{{httpVerb}} HTTP verb to be used for the request
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request struct
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -215,7 +215,7 @@ public type CircuitBreakerClient object {
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request struct
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -226,7 +226,7 @@ public type CircuitBreakerClient object {
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request struct
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -248,7 +248,7 @@ public type CircuitBreakerClient object {
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request struct
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
@@ -354,7 +354,7 @@ public function CircuitBreakerClient::post(string path, Request|string|xml|json|
     }
 }
 
-public function CircuitBreakerClient::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+public function CircuitBreakerClient::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
    Request request = buildRequest(message);
    CallerActions httpClient = self.httpClient;
@@ -365,7 +365,7 @@ public function CircuitBreakerClient::head(string path, Request|string|xml|json|
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.head(path, request = request) {
+       match httpClient.head(path, message = request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
@@ -389,7 +389,7 @@ public function CircuitBreakerClient::put(string path, Request|string|xml|json|b
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.put(path, request = request) {
+       match httpClient.put(path, request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
@@ -437,7 +437,7 @@ public function CircuitBreakerClient::patch(string path, Request|string|xml|json
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.patch(path, request = request) {
+       match httpClient.patch(path, request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
@@ -461,7 +461,7 @@ public function CircuitBreakerClient::delete(string path, Request|string|xml|jso
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.delete(path, request = request) {
+       match httpClient.delete(path, request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
@@ -498,7 +498,7 @@ public function CircuitBreakerClient::get(string path, Request|string|xml|json|b
     }
 }
 
-public function CircuitBreakerClient::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+public function CircuitBreakerClient::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                                 message = ()) returns Response|error {
    Request request = buildRequest(message);
    CallerActions httpClient = self.httpClient;
@@ -509,7 +509,7 @@ public function CircuitBreakerClient::options(string path, Request|string|xml|js
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.options(path, request = request) {
+       match httpClient.options(path, message = request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
