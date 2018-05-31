@@ -18,6 +18,7 @@ package org.ballerinalang.bre.bvm.persistency;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerData;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.bre.bvm.WorkerState;
@@ -34,8 +35,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SerializableContext {
+
+    public String contextKey;
+
     // TODO: BStruct error support should be added
     public String parent;
+
+    public String respContextKey;
+
+//    public String targetCtxKey;
+//
+//    public int[] targetRetRegIndexes;
 
     public WorkerState state = WorkerState.CREATED;
 
@@ -139,7 +149,8 @@ public class SerializableContext {
         return props;
     }
 
-    public SerializableContext(WorkerExecutionContext ctx, SerializableState state) {
+    public SerializableContext(String contextKey, WorkerExecutionContext ctx, SerializableState state) {
+        this.contextKey = contextKey;
         ip = ctx.ip;
         populateGlobalProps(ctx.globalProps, state);
         populateLocalProps(ctx.localProps, state);
@@ -156,6 +167,16 @@ public class SerializableContext {
         if (ctx.workerInfo != null) {
             workerName = ctx.workerInfo.getWorkerName();
         }
+        if (ctx.respCtx != null) {
+            if (ctx.respCtx instanceof CallableWorkerResponseContext) {
+                CallableWorkerResponseContext callableRespCtx =
+                        (CallableWorkerResponseContext) ctx.respCtx;
+                respContextKey = state.addRespContext(callableRespCtx);
+//                targetCtxKey = state.addContext(callableRespCtx.getTargetContext());
+//                targetRetRegIndexes = callableRespCtx.getRetRegIndexes();
+            }
+        }
+
         if (ctx.workerLocal != null) {
             workerLocal = new SerializableWorkerData(ctx.workerLocal, state);
         }
@@ -168,6 +189,10 @@ public class SerializableContext {
     }
 
     public WorkerExecutionContext getWorkerExecutionContext(ProgramFile programFile, SerializableState state) {
+
+        if (PersistenceUtils.tempContexts.containsKey(contextKey)) {
+            return PersistenceUtils.tempContexts.get(contextKey);
+        }
 
         CallableUnitInfo callableUnitInfo = null;
         WorkerInfo workerInfo = null;
@@ -209,12 +234,20 @@ public class SerializableContext {
             workerExecutionContext.workerResult = workerResultData;
         } else {
             WorkerExecutionContext parentCtx = state.getContext(parent, programFile);
+            CallableWorkerResponseContext respCtx =
+                    state.getResponseContext(respContextKey, programFile, callableUnitInfo);
+//            CallableWorkerResponseContext respCtx =
+//                    new CallableWorkerResponseContext(callableUnitInfo.getRetParamTypes(), 1);
+//            respCtx.joinTargetContextInfo(state.getContext(targetCtxKey, programFile), targetRetRegIndexes);
             workerExecutionContext = new WorkerExecutionContext(
-                    parentCtx, new DummyResponseContext(), callableUnitInfo, workerInfo, workerLocalData, workerResultData, retRegIndexes, runInCaller);
+                    parentCtx, respCtx, callableUnitInfo, workerInfo, workerLocalData, workerResultData, retRegIndexes, runInCaller);
         }
         workerExecutionContext.globalProps = prepareGlobalProps(state, workerExecutionContext, programFile);
         workerExecutionContext.localProps = prepareLocalProps(state, workerExecutionContext, programFile);
         workerExecutionContext.ip = ip;
+
+        PersistenceUtils.tempContexts.put(contextKey, workerExecutionContext);
+
         return workerExecutionContext;
     }
 

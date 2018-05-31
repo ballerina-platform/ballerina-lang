@@ -52,6 +52,8 @@ public abstract class StateStore {
 
     public abstract List<State> getStates(String instanceId);
 
+    public abstract void removeStates(String instanceId);
+
     public abstract List<State> getFailedStates(String instanceId);
 
     public abstract void removeFailedStates(String instanceId);
