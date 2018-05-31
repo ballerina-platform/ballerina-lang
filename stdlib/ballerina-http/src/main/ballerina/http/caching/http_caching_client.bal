@@ -275,7 +275,7 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-public function HttpCachingClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+public function HttpCachingClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                        message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -297,7 +297,7 @@ public function HttpCachingClient::head(string path, Request|string|xml|json|blo
     return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared);
 }
 
-public function HttpCachingClient::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+public function HttpCachingClient::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -331,7 +331,7 @@ public function HttpCachingClient::execute(string httpMethod, string path, Reque
     }
 }
 
-public function HttpCachingClient::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+public function HttpCachingClient::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
@@ -346,7 +346,7 @@ public function HttpCachingClient::patch(string path, Request|string|xml|json|bl
     }
 }
 
-public function HttpCachingClient::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+public function HttpCachingClient::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                         message) returns Response|error {
     Request req = buildRequest(message);
     setRequestCacheControlHeader(req);

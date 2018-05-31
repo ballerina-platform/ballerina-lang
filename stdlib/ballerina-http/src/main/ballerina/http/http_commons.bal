@@ -126,7 +126,7 @@ documentation {
 //TODO: Make the error nillable
 public native function parseHeader (string headerValue) returns (string, map)|error;
 
-function buildRequest(Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Request {
+public function buildRequest(Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Request {
     Request req = new;
     match message {
         () => {io:println("Inside buildRequest with no req or payload!");}

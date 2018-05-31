@@ -73,8 +73,8 @@ service<http:Service> testService_1 bind testEP {
     postWithEntity(endpoint outboundEP, http:Request clientRequest) {
         http:Request clientReq = new;
         clientReq.setTextPayload("String datasource");
-        http:Response firstResponse = check clientEP -> post("/datasource", request = clientReq);
-        http:Response secondResponse = check clientEP -> post("/datasource", request = clientReq);
+        http:Response firstResponse = check clientEP -> post("/datasource", clientReq);
+        http:Response secondResponse = check clientEP -> post("/datasource", clientReq);
         http:Response testResponse = new;
         string firstVal = check firstResponse.getTextPayload();
         string secondVal = check secondResponse.getTextPayload();

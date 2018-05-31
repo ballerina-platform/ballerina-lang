@@ -78,7 +78,7 @@ public type LoadBalancerActions object {
         P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
     documentation {
@@ -88,7 +88,7 @@ public type LoadBalancerActions object {
         P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                         message) returns Response|error;
 
     documentation {
@@ -98,7 +98,7 @@ public type LoadBalancerActions object {
         P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns Response|error;
 
     documentation {
@@ -119,7 +119,7 @@ public type LoadBalancerActions object {
         P{{message}} An HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                             message) returns Response|error;
 
     documentation {
@@ -129,7 +129,7 @@ public type LoadBalancerActions object {
         P{{message}} An optional HTTP request
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]| ()
+    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                             message) returns Response|error;
 
     documentation {

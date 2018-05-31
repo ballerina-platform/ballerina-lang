@@ -277,6 +277,7 @@ public type MockClient object {
 
     public function get(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns http:Response|error {
+        http:Request req = http:buildRequest(message);
         http:Response response = new;
         actualRequestNumber = actualRequestNumber + 1;
         string scenario = req.getHeader(TEST_SCENARIO_HEADER);

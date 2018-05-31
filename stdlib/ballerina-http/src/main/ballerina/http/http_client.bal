@@ -130,7 +130,7 @@ public type CallerActions object {
         P{{message}} An HTTP outbound request message or any payload
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public native function options(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+    public function options(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                                             message = ()) returns Response|error {
         Request req = buildRequest(message);
         return nativeOptions(self, path, req);

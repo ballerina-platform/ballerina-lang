@@ -75,7 +75,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
         }
 
         http:Response clientResponse = new;
-        var clientRes = productsService -> post("/productsservice", request = clientRequest);
+        var clientRes = productsService -> post("/productsservice", clientRequest);
         match clientRes {
             error err => {
                 io:println("Error occurred while reading locator response");
@@ -110,7 +110,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     }
     ordersMgt (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService -> post("/orderservice/orders", request = clientRequest);
+        var clientResponse = productsService -> post("/orderservice/orders", clientRequest);
         match clientResponse {
             error err => {
                 io:println("Error occurred while writing orders response");
@@ -146,7 +146,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     }
     customerMgt (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService -> post("/customerservice/customers", request = clientRequest);
+        var clientResponse = productsService -> post("/customerservice/customers", clientRequest);
         match clientResponse {
             error err => {
                 io:println("Error occurred while writing customers response");
