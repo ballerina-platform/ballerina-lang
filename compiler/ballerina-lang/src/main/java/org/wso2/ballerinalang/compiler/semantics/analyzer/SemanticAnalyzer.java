@@ -2011,6 +2011,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     + "." + attribute.documentationField.getValue();
             attributeSymbol = this.env.scope.lookup(names.fromString(originalParam)).symbol;
         }
+
+        // If this is a documentation of an object init function, then search for a
+        // matching symbol in the function params.
+        if (attributeSymbol == null && isInitializerFunction(this.env.scope.owner)) {
+            attributeSymbol = getInitFunctionParamSymbol((BInvokableSymbol) this.env.scope.owner, attributeName);
+        }
+
         if (attributeSymbol == null) {
             this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
                     attribute.documentationField, attribute.docTag.getValue());
@@ -2033,5 +2040,34 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
         }
         attribute.type = attributeSymbol.type;
+    }
+
+    private boolean isInitializerFunction(BSymbol symbol) {
+        if (symbol.kind != SymbolKind.FUNCTION) {
+            return false;
+        }
+
+        BInvokableSymbol funcSymbol = (BInvokableSymbol) symbol;
+        if (funcSymbol.receiverSymbol == null) {
+            return false;
+        }
+
+        String funcName = getInitFuncName(funcSymbol);
+        return funcName.equals(funcSymbol.name.value);
+    }
+
+    private BSymbol getInitFunctionParamSymbol(BInvokableSymbol funcSymbol, Name attributeName) {
+        BSymbol foundSymbol =
+                funcSymbol.params.stream().filter(param -> attributeName.equals(param.name)).findAny().orElse(null);
+        if (foundSymbol == null) {
+            foundSymbol = funcSymbol.defaultableParams.stream().filter(param -> attributeName.equals(param.name))
+                    .findAny().orElse(null);
+        }
+
+        return foundSymbol;
+    }
+
+    private String getInitFuncName(BInvokableSymbol funcSymbol) {
+        return funcSymbol.receiverSymbol.type.tsymbol.name + "." + Names.OBJECT_INIT_SUFFIX.value;
     }
 }
