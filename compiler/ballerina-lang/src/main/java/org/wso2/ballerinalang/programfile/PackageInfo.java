@@ -55,6 +55,8 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public Map<String, TypeDefInfo> typeDefInfoMap = new HashMap<>();
 
+    public Map<String, AnnotationInfo> annotationInfoMap = new HashMap<>();
+
     public Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
     private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
@@ -99,6 +101,10 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public TypeDefInfo[] getTypeDefInfoEntries() {
         return typeDefInfoMap.values().toArray(new TypeDefInfo[0]);
+    }
+
+    public AnnotationInfo[] getAnnotationInfoEntries() {
+        return annotationInfoMap.values().toArray(new AnnotationInfo[0]);
     }
 
     public ServiceInfo[] getServiceInfoEntries() {
