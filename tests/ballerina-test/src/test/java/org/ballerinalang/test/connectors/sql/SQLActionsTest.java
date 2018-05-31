@@ -34,6 +34,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
@@ -62,7 +63,7 @@ public class SQLActionsTest {
     private BValue[] connectionArgs = new BValue[3];
 
     @Parameters({"dataClientTestDBType"})
-    public SQLActionsTest(DBType dataClientTestDBType) {
+    public SQLActionsTest(@Optional("HSQLDB") DBType dataClientTestDBType) {
         this.dbType = dataClientTestDBType;
     }
 
