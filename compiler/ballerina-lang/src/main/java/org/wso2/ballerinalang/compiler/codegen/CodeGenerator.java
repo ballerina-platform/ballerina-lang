@@ -133,6 +133,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -141,7 +142,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
@@ -2436,8 +2436,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         varAssignment = false;
     }
 
-    public void visit(BLangNext nextNode) {
-        generateFinallyInstructions(nextNode, NodeKind.WHILE, NodeKind.FOREACH);
+    public void visit(BLangContinue continueNode) {
+        generateFinallyInstructions(continueNode, NodeKind.WHILE, NodeKind.FOREACH);
         this.emit(this.loopResetInstructionStack.peek());
     }
 

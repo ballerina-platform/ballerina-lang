@@ -5,14 +5,14 @@ function calculateExp1 (int x, int y) returns (int) {
         yCopy = yCopy + 1;
         if (yCopy == 10) {
             z = 100;
-            next;
+            continue;
         } else if (yCopy > 20) {
             z = 1000;
-            next;
+            continue;
         }
         z = z + 10;
     }
-    next;
+    continue;
     int a = 10;
     return z;
 }
@@ -24,10 +24,10 @@ function calculateExp2 (int x, int y) returns (int) {
         yCopy = yCopy + 1;
         if (yCopy == 10) {
             z = 100;
-            next;
+            continue;
         } else if (yCopy > 20) {
             z = 1000;
-            next;
+            continue;
             int a = 10;
         }
         z = z + 10;

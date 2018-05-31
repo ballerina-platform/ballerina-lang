@@ -198,6 +198,18 @@ public class LocksInMainTest {
 
     }
 
+    @Test(description = "Tests lock within functions down the function chain")
+    public void testLockWithinFunctionsDownTheLine() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks_in_functions_down_the_chain.bal");
+
+        BValue[] returns =
+                BRunUtil.invoke(compileResult, "lockWithinLock");
+        assertEquals(returns.length, 1);
+        assertSame(returns[0].getClass(), BString.class);
+
+        assertEquals(returns[0].stringValue(), "w1w1w1vw2w2w2v");
+    }
+
     @Test(description = "Tests returning inside lock statement")
     public void testReturnInsideLock() {
         CompileResult compileResult = BCompileUtil.compile("test-src/lock/locks-in-functions.bal");

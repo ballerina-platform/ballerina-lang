@@ -75,10 +75,10 @@ function test9(){
     }
     foreach y in slist {
         io:println(y);
-        next;
+        continue;
         io:println(y);
     }
-    next;
+    continue;
     io:println("done");
 }
 

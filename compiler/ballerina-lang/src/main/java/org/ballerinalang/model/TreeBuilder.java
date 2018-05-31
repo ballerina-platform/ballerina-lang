@@ -104,6 +104,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.BreakNode;
 import org.ballerinalang.model.tree.statements.CatchNode;
 import org.ballerinalang.model.tree.statements.CompoundAssignmentNode;
+import org.ballerinalang.model.tree.statements.ContinueNode;
 import org.ballerinalang.model.tree.statements.DoneNode;
 import org.ballerinalang.model.tree.statements.ExpressionStatementNode;
 import org.ballerinalang.model.tree.statements.ForeachNode;
@@ -113,7 +114,6 @@ import org.ballerinalang.model.tree.statements.IfNode;
 import org.ballerinalang.model.tree.statements.LockNode;
 import org.ballerinalang.model.tree.statements.MatchNode;
 import org.ballerinalang.model.tree.statements.MatchNode.MatchStatementPatternNode;
-import org.ballerinalang.model.tree.statements.NextNode;
 import org.ballerinalang.model.tree.statements.PostIncrementNode;
 import org.ballerinalang.model.tree.statements.RetryNode;
 import org.ballerinalang.model.tree.statements.ReturnNode;
@@ -226,6 +226,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -235,7 +236,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -496,7 +496,7 @@ public class TreeBuilder {
     public static AbortNode createAbortNode() {
         return new BLangAbort();
     }
-    
+
     public static DoneNode createDoneNode() {
         return new BLangDone();
     }
@@ -594,8 +594,8 @@ public class TreeBuilder {
         return new BLangLock();
     }
 
-    public static NextNode createNextNode() {
-        return new BLangNext();
+    public static ContinueNode createContinueNode() {
+        return new BLangContinue();
     }
 
     public static BreakNode createBreakNode() {

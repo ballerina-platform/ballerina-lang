@@ -768,7 +768,7 @@ public class IterableCodeDesugar {
         notExpr.type = symTable.booleanType;
         ifNode.expr = notExpr;
         ifNode.body = ASTBuilderUtil.createBlockStmt(pos);
-        ASTBuilderUtil.createNextStmt(pos, ifNode.body);
+        ASTBuilderUtil.createContinueStmt(pos, ifNode.body);
     }
 
     /**

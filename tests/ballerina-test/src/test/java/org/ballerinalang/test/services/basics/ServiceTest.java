@@ -250,7 +250,7 @@ public class ServiceTest {
     @Test(description = "verify code analyzer errors in services.")
     public void testCheckCodeAnalyzerErrors() {
         BAssertUtil.validateError(negativeResult, 0, "break cannot be used outside of a loop", 12, 9);
-        BAssertUtil.validateError(negativeResult, 1, "next cannot be used outside of a loop", 18, 9);
+        BAssertUtil.validateError(negativeResult, 1, "continue cannot be used outside of a loop", 18, 9);
         BAssertUtil.validateError(negativeResult, 2, "abort cannot be used outside of a transaction block", 24, 9);
         BAssertUtil.validateError(negativeResult, 3, "unreachable code", 31, 9);
         BAssertUtil.validateError(negativeResult, 4, "worker send/receive interactions are invalid; worker(s) cannot "
