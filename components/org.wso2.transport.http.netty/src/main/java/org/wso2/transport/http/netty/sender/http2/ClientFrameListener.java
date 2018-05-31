@@ -34,7 +34,7 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 import org.wso2.transport.http.netty.message.Http2Reset;
 
 /**
- * {@code ClientFrameListener} listen to HTTP/2 Events received from the HTTP/2 backend service
+ * {@code ClientFrameListener} listens to HTTP/2 Events received from the HTTP/2 backend service
  * and construct HTTP/2 frames.
  */
 public class ClientFrameListener extends Http2EventAdapter {

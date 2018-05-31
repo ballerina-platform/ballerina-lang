@@ -75,7 +75,7 @@ public class RedirectHandler implements Http2DataEventListener {
             return true;
         }
         if (endOfStream) {
-            doRedirection(ctx, streamId, statusCode, outboundMsgHolder, location, fetchUserAgentHeaderVal(headers));
+            doRedirection(ctx, streamId, statusCode, outboundMsgHolder, location);
         } else {
             outboundMsgHolder.markForRedirection();
             outboundMsgHolder.setRedirectResponseHeaders(headers);
@@ -90,7 +90,7 @@ public class RedirectHandler implements Http2DataEventListener {
             if (endOfStream) {
                 Http2Headers headers = outboundMsgHolder.getRedirectResponseHeaders();
                 doRedirection(ctx, streamId, fetchStatusCode(headers), outboundMsgHolder,
-                              fetchLocationHeaderVal(headers), fetchUserAgentHeaderVal(headers));
+                              fetchLocationHeaderVal(headers));
             }
             return false;
         }
@@ -128,7 +128,7 @@ public class RedirectHandler implements Http2DataEventListener {
     }
 
     private void doRedirection(ChannelHandlerContext ctx, int streamId, int statusCode,
-                               OutboundMsgHolder outboundMsgHolder, String location, String userAgent) {
+                               OutboundMsgHolder outboundMsgHolder, String location) {
         try {
             HTTPCarbonMessage originalRequest = outboundMsgHolder.getRequest();
             String redirectionMethod = getRedirectionRequestMethod(statusCode, originalRequest);
@@ -163,11 +163,6 @@ public class RedirectHandler implements Http2DataEventListener {
 
     private String fetchLocationHeaderVal(Http2Headers headers) {
         return headers.get(HttpHeaderNames.LOCATION) != null ? headers.get(HttpHeaderNames.LOCATION).toString() : null;
-    }
-
-    private String fetchUserAgentHeaderVal(Http2Headers headers) {
-        return headers.
-                get(HttpHeaderNames.USER_AGENT) != null ? headers.get(HttpHeaderNames.USER_AGENT).toString() : null;
     }
 
     private boolean isRedirectionResponse(int statusCode) {

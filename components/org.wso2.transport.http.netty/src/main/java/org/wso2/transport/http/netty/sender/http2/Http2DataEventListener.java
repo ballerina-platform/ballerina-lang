@@ -51,7 +51,7 @@ public interface Http2DataEventListener {
      *
      * @param ctx         the channel handler context
      * @param streamId    the related stream id
-     * @param data        the bytebuf contains data
+     * @param data        the {@code ByteBuf} contains data
      * @param endOfStream whether stream terminate with this data read operation
      * @return whether to continue the execution of rest of the listeners
      */
@@ -84,7 +84,7 @@ public interface Http2DataEventListener {
      *
      * @param ctx         the channel handler context
      * @param streamId    the related stream id
-     * @param data        the bytebuf contains data
+     * @param data        the {@code ByteBuf} contains data
      * @param endOfStream whether stream terminate with this data read operation
      * @return whether to continue the execution of rest of the listeners
      */

@@ -202,7 +202,7 @@ public class OutboundMsgHolder {
      *
      * @return whether the request is written
      */
-    public boolean isRequestWritten() {
+    boolean isRequestWritten() {
         return requestWritten;
     }
 
@@ -220,32 +220,32 @@ public class OutboundMsgHolder {
      *
      * @return number of redirects
      */
-    public int incrementRedirectCount() {
+    int incrementRedirectCount() {
         return redirectCount.incrementAndGet();
     }
 
-    public boolean isMarkedForRedirection() {
+    boolean isMarkedForRedirection() {
         return markedForRedirection;
     }
 
-    public void markForRedirection() {
+    void markForRedirection() {
         this.markedForRedirection = true;
     }
 
-    public Http2Headers getRedirectResponseHeaders() {
+    Http2Headers getRedirectResponseHeaders() {
         return redirectResponseHeaders;
     }
 
-    public void setRedirectResponseHeaders(Http2Headers redirectResponseHeaders) {
+    void setRedirectResponseHeaders(Http2Headers redirectResponseHeaders) {
         this.redirectResponseHeaders = redirectResponseHeaders;
     }
 
-    public void clearRedirectionState() {
+    void clearRedirectionState() {
         markedForRedirection = false;
         redirectResponseHeaders = null;
     }
 
-    public void updateRequest(HTTPCarbonMessage requestCarbonMessage) {
+    void updateRequest(HTTPCarbonMessage requestCarbonMessage) {
         this.requestCarbonMessage = requestCarbonMessage;
     }
 }
