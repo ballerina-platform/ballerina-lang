@@ -257,10 +257,9 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
             closeFrameReceived = true;
         } else {
             if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
-                String errMsg =
-                        String.format(
-                                "Expected status code %d but found %d in echoed close frame from remote endpoint",
-                                webSocketConnection.getCloseInitiatedStatusCode(), closeWebSocketFrame.statusCode());
+                String errMsg = String.format(
+                        "Expected status code %d but found %d in echoed close frame from remote endpoint",
+                        webSocketConnection.getCloseInitiatedStatusCode(), closeWebSocketFrame.statusCode());
                 closePromise.setFailure(new IllegalStateException(errMsg));
                 return;
             }
@@ -290,8 +289,7 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
         connectorListener.onIdleTimeout((WebSocketControlMessage) websocketControlMessage);
     }
 
-    private void setupCommonProperties(DefaultWebSocketMessage defaultWebSocketMessage,
-                                       ChannelHandlerContext ctx) {
+    private void setupCommonProperties(DefaultWebSocketMessage defaultWebSocketMessage, ChannelHandlerContext ctx) {
         defaultWebSocketMessage.setIsConnectionSecured(isSecure);
         defaultWebSocketMessage.setWebSocketConnection(webSocketConnection);
         defaultWebSocketMessage.setIsServerMessage(false);
