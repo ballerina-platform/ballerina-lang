@@ -59,6 +59,11 @@
             <artifactId>ballerina-transactions</artifactId>
             <type>zip</type>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-grpc</artifactId>
+            <type>zip</type>
+        </dependency>
     </dependencies>
 
     <build>
