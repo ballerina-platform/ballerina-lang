@@ -196,10 +196,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
 
-        // Define service and resource nodes.
-        pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
-
-//        // Define type definitions.
+        // Define type definitions.
         defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def fields (if any)
@@ -207,6 +204,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type def members (if any)
         defineMembers(pkgNode.typeDefinitions, pkgEnv);
+        
+        // Enabled logging errors after type def visit.
+        // TODO: Do this in a cleaner way
+        pkgEnv.logErrors = true;
+        
+        // Define service and resource nodes.
+        pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
 
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));

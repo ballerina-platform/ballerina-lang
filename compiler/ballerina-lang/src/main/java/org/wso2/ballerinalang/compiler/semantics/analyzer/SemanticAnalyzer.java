@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -382,55 +381,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
             attribute.type = symTable.errType;
-            if (attribute.docTag == DocTag.ENDPOINT) {
-                if (!((BLangObjectTypeNode) this.env.enclTypeDefinition.typeNode).getFunctions()
-                        .stream().anyMatch(bLangFunction -> Names.EP_SPI_GET_CALLER_ACTIONS.value
-                                .equals(bLangFunction.getName().toString()))) {
-                    this.dlog.warning(attribute.pos, DiagnosticCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE,
-                            attribute.docTag.getValue());
-                }
-                continue;
+
+            switch (attribute.docTag) {
+                case ENDPOINT:
+                    if (!((BLangObjectTypeNode) this.env.enclTypeDefinition.typeNode).getFunctions()
+                            .stream().anyMatch(bLangFunction -> Names.EP_SPI_GET_CALLER_ACTIONS.value
+                                    .equals(bLangFunction.getName().toString()))) {
+                        this.dlog.warning(attribute.pos, DiagnosticCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE,
+                                attribute.docTag.getValue());
+                    }
+                    break;
+                case RETURN:
+                    attribute.type = this.env.enclInvokable.returnTypeNode.type;
+                    // return params can't have names, hence can't validate
+                    break;
+                case RECEIVER:
+                    // fall through
+                    // TODO: should not allow variables as a receiver
+                default:
+                    if (!visitedAttributes.add(attribute.documentationField)) {
+                        this.dlog.warning(attribute.pos, DiagnosticCode.DUPLICATE_DOCUMENTED_ATTRIBUTE,
+                                attribute.documentationField);
+                        continue;
+                    }
+                    validateDocAttribute(attribute);
+                    break;
             }
-            if (attribute.docTag == DocTag.RETURN) {
-                attribute.type = this.env.enclInvokable.returnTypeNode.type;
-                // return params can't have names, hence can't validate
-                continue;
-            }
-            if (!visitedAttributes.add(attribute.documentationField)) {
-                this.dlog.warning(attribute.pos, DiagnosticCode.DUPLICATE_DOCUMENTED_ATTRIBUTE,
-                        attribute.documentationField);
-                continue;
-            }
-            Name attributeName = names.fromIdNode(attribute.documentationField);
-            BSymbol attributeSymbol = this.env.scope.lookup(attributeName).symbol;
-            if (attributeSymbol == null && this.env.enclTypeDefinition != null) {
-                // check whether the parameter is an inherited one
-                String originalParam = this.env.enclTypeDefinition.getName().getValue()
-                        + "." + attribute.documentationField.getValue();
-                attributeSymbol = this.env.scope.lookup(names.fromString(originalParam)).symbol;
-            }
-            if (attributeSymbol == null) {
-                this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                        attribute.documentationField, attribute.docTag.getValue());
-                continue;
-            }
-            int ownerSymTag = env.scope.owner.tag;
-            if ((ownerSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
-                if (attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE
-                        || ((BAnnotationAttributeSymbol) attributeSymbol).docTag != attribute.docTag) {
-                    this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                            attribute.documentationField, attribute.docTag.getValue());
-                    continue;
-                }
-            } else {
-                if (!(attributeSymbol.tag == SymTag.VARIABLE || attributeSymbol.tag == SymTag.ENDPOINT) || (
-                        (BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
-                    this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE, attribute
-                            .documentationField, attribute.docTag.getValue());
-                    continue;
-                }
-            }
-            attribute.type = attributeSymbol.type;
         }
     }
 
@@ -2024,5 +2000,38 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error((streamAction).pos,
                     DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_TYPE);
         }
+    }
+
+    private void validateDocAttribute(BLangDocumentationAttribute attribute) {
+        Name attributeName = names.fromIdNode(attribute.documentationField);
+        BSymbol attributeSymbol = this.env.scope.lookup(attributeName).symbol;
+        if (attributeSymbol == null && this.env.enclTypeDefinition != null) {
+            // check whether the parameter is an inherited one
+            String originalParam = this.env.enclTypeDefinition.getName().getValue()
+                    + "." + attribute.documentationField.getValue();
+            attributeSymbol = this.env.scope.lookup(names.fromString(originalParam)).symbol;
+        }
+        if (attributeSymbol == null) {
+            this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
+                    attribute.documentationField, attribute.docTag.getValue());
+            return;
+        }
+        int ownerSymTag = env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
+            if (attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE
+                    || ((BAnnotationAttributeSymbol) attributeSymbol).docTag != attribute.docTag) {
+                this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
+                        attribute.documentationField, attribute.docTag.getValue());
+                return;
+            }
+        } else {
+            if (!(attributeSymbol.tag == SymTag.VARIABLE || attributeSymbol.tag == SymTag.ENDPOINT) || (
+                    (BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
+                this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE, attribute
+                        .documentationField, attribute.docTag.getValue());
+                return;
+            }
+        }
+        attribute.type = attributeSymbol.type;
     }
 }
