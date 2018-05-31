@@ -1502,47 +1502,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     private void visitInvokable(BLangInvokableNode invNode, SymbolEnv symbolEnv) {
-        if (invNode.symbol.taintTable == null) {
-            if (Symbols.isNative(invNode.symbol)) {
-                attachTaintTableBasedOnAnnotations(invNode);
-                return;
-            }
-            Map<Integer, TaintRecord> taintTable = new HashMap<>();
-            this.returnTaintedStatus = TaintedStatus.UNTAINTED;
-            // Check the tainted status of return values when no parameter is tainted.
-            analyzeAllParamsUntaintedReturnTaintedStatus(taintTable, invNode, symbolEnv);
-            if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
-                analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS;
-            }
-            boolean isBlocked = processBlockedNode(invNode, false);
-            if (isBlocked) {
-                return;
-            }
-            int requiredParamCount = invNode.requiredParams.size();
-            int defaultableParamCount = invNode.defaultableParams.size();
-            int totalParamCount = requiredParamCount + defaultableParamCount + (invNode.restParam == null ? 0 : 1);
-            for (int paramIndex = 0; paramIndex < totalParamCount; paramIndex++) {
-                BLangVariable param = getParam(invNode, paramIndex, requiredParamCount, defaultableParamCount);
-                // If parameter is sensitive, it is invalid to have a case where tainted status of parameter is true.
-                if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
-                    continue;
-                }
-                this.returnTaintedStatus = TaintedStatus.UNTAINTED;
-                // Set each parameter "tainted", then analyze the body to observe the outcome of the function.
-                analyzeReturnTaintedStatus(taintTable, invNode, symbolEnv, paramIndex, requiredParamCount,
-                        defaultableParamCount);
-                if (analyzerPhase == AnalyzerPhase.LOOP_ANALYSIS_COMPLETE) {
-                    analyzerPhase = AnalyzerPhase.LOOP_ANALYSIS;
-                }
-            }
-            invNode.symbol.taintTable = taintTable;
-        }
-    }
-
-    private void visitInvokable(BLangFunction invNode, SymbolEnv symbolEnv) {
-        if (analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS || invNode.attachedOuterFunction
-                || invNode.symbol.taintTable == null) {
-            if (Symbols.isNative(invNode.symbol) || invNode.interfaceFunction) {
+        if (analyzerPhase == AnalyzerPhase.LOOPS_RESOLVED_ANALYSIS || invNode.symbol.taintTable == null
+                || (invNode.getKind() == NodeKind.FUNCTION && ((BLangFunction) invNode).attachedOuterFunction)) {
+            if (Symbols.isNative(invNode.symbol)
+                    || (invNode.getKind() == NodeKind.FUNCTION && ((BLangFunction) invNode).interfaceFunction)) {
                 attachTaintTableBasedOnAnnotations(invNode);
                 return;
             }
