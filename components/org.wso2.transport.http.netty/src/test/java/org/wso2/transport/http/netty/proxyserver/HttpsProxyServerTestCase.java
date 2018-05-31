@@ -71,7 +71,7 @@ public class HttpsProxyServerTestCase {
             HTTPCarbonMessage msg = new HttpCarbonRequest(
                     new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "https://localhost:9091"));
             msg.setProperty(HTTP_METHOD, HttpMethod.POST.toString());
-            msg.setHeader("Host", "localhost:9091");
+            msg.setHeader("Host", "localhost:9001");
             msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
             ProxyServerUtil.sendRequest(msg, testValue);
     }

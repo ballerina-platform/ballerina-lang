@@ -85,9 +85,9 @@ public class HttpClientRedirectTestCase {
     private HttpWsConnectorFactory connectorFactory;
     private TransportsConfiguration transportsConfiguration;
     private ConnectionManager connectionManager;
-    private static final String FINAL_DESTINATION = "http://localhost:9093/destination";
-    private static final String FINAL_HTTPS_DESTINATION = "https://localhost:9093/destination";
-    private static final String FIRST_DESTINATION = "http://localhost:9092/destination";
+    private static final String FINAL_DESTINATION = "http://localhost:9003/destination";
+    private static final String FINAL_HTTPS_DESTINATION = "https://localhost:9003/destination";
+    private static final String FIRST_DESTINATION = "http://localhost:9002/destination";
     private static final String URL1 = "http://testRedirect/url1";
     private static final String URL2 = "http://testRedirect/url2";
 

@@ -80,9 +80,9 @@ public class TestUtil {
 
     public static final int HTTP_SERVER_PORT = 9000;
     public static final int HTTPS_SERVER_PORT = 9004;
-    public static final int SERVER_PORT1 = 9091;
-    public static final int SERVER_PORT2 = 9092;
-    public static final int SERVER_PORT3 = 9093;
+    public static final int SERVER_PORT1 = 9001;
+    public static final int SERVER_PORT2 = 9002;
+    public static final int SERVER_PORT3 = 9003;
     public static final int SERVER_CONNECTOR_PORT = 8490;
     public static final int ALTER_INTERFACE_PORT = 8590;
     public static final int REMOTE_WS_SERVER_PORT = 9010;
