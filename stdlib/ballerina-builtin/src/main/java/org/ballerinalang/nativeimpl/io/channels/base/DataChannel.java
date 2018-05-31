@@ -41,42 +41,60 @@ public class DataChannel {
         this.order = order;
     }
 
-    private void readFull(ByteBuffer buffer, int requiredNumberOfBytes) throws IOException {
-        int numberOfBytesRead;
+    private void readFull(ByteBuffer buffer) throws IOException {
         do {
-            numberOfBytesRead = channel.read(buffer);
-        } while (numberOfBytesRead < requiredNumberOfBytes && !channel.hasReachedEnd());
+            channel.read(buffer);
+        } while (buffer.hasRemaining() && !channel.hasReachedEnd());
     }
 
-    private int getInt(ByteBuffer buf){
-        int value = 0;
-        int msb = (buf.limit() - 1) * 8;
-        do{
-            value = value + (buf.get() >> msb);
-            msb = msb -8;
-        }while (buf.hasRemaining());
+    private long decodeInt(Representation representation) throws IOException {
+        ByteBuffer buffer;
+        long value = 0;
+        int totalNumberOfBits;
+        int requiredNumberOfBytes;
+        if (Representation.VARIABLE.equals(representation)) {
+            throw new UnsupportedOperationException();
+        } else {
+            requiredNumberOfBytes = representation.getNumberOfBytes();
+            buffer = ByteBuffer.allocate(requiredNumberOfBytes);
+            buffer.order(order);
+        }
+        readFull(buffer);
+        buffer.flip();
+        totalNumberOfBits = (buffer.limit() - 1) * Byte.SIZE;
+        do {
+            value = value + (long) ((buffer.get() & 0xFF) << totalNumberOfBits);
+            totalNumberOfBits = totalNumberOfBits - Byte.SIZE;
+        } while (buffer.hasRemaining());
         return value;
     }
 
-    private int getMergedByteValue(ByteBuffer buffer){
-        //Arrange buffer for reading
-        buffer.flip();
-        if(buffer.order().equals(ByteOrder.nativeOrder())){
-            return getInt(buffer);
-        }else if(buffer.order().equals(ByteOrder.BIG_ENDIAN)){
-            //TODO flip the bits here
-            return getInt(buffer);
-        }else {
-            //TODO need to rearrange the bit order
-            return getInt(buffer);
+    private byte[] encodeInt(long value, Representation representation) {
+        byte[] content;
+        int nBytes;
+        int totalNumberOfBits;
+        if (Representation.VARIABLE.equals(representation)) {
+            nBytes = (int) Math.abs(Math.round((Math.log(Math.abs(value)) / Math.log(2)) / Byte.SIZE));
+            content = new byte[nBytes];
+        } else {
+            nBytes = representation.getNumberOfBytes();
+            content = new byte[representation.getNumberOfBytes()];
         }
+        totalNumberOfBits = (nBytes * Byte.SIZE) - Byte.SIZE;
+        for (int count = 0; count < nBytes; count++) {
+            content[count] = (byte) (value >> totalNumberOfBits);
+            totalNumberOfBits = totalNumberOfBits - Byte.SIZE;
+        }
+        return content;
     }
 
-    public int readFixedInteger(Representation representation) throws IOException {
-        int requiredNumberOfBytes = representation.getNumberOfBytes();
-        ByteBuffer buffer = ByteBuffer.allocate(requiredNumberOfBytes);
-        buffer.order(order);
-        readFull(buffer,requiredNumberOfBytes);
-        return getMergedByteValue(buffer);
+    public void writeFixedInt(long value, Representation representation) throws IOException {
+        byte[] bytes = encodeInt(value, representation);
+        channel.write(ByteBuffer.wrap(bytes));
     }
+
+    public long readFixedInt(Representation representation) throws IOException {
+        return decodeInt(representation);
+    }
+
 }

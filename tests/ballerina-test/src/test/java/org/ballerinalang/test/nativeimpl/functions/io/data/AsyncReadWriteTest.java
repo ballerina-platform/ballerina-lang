@@ -22,7 +22,6 @@ import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.bytes.WriteBytesEvent;
 import org.ballerinalang.nativeimpl.io.events.data.ReadIntegerEvent;
 import org.ballerinalang.nativeimpl.io.events.data.WriteIntegerEvent;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
@@ -59,7 +58,7 @@ public class AsyncReadWriteTest {
         String path = currentDirectoryPath + "sample.dat";
 
         //Number of characters in this file would be 6
-        ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "sample.dat");
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(currentDirectoryPath + "sample.dat");
         Channel channel = new MockByteChannel(byteChannel);
         WriteIntegerEvent writeBytesEvent = new WriteIntegerEvent(channel,-123,new EventContext());
 
@@ -67,7 +66,7 @@ public class AsyncReadWriteTest {
         EventResult eventResult = publish.get();
 
         //Number of characters in this file would be 6
-        byteChannel = TestUtil.openForWriting(path);
+        byteChannel = TestUtil.openForReadingAndWriting(path);
         channel = new MockByteChannel(byteChannel);
 
         ReadIntegerEvent event = new ReadIntegerEvent(channel, new EventContext());

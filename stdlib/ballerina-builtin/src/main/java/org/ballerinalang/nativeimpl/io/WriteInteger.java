@@ -28,13 +28,13 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
 /**
- * Native function ballerina.io#writeInt
+ * Native function ballerina.io#writeFixedInt
  *
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
   orgName = "ballerina", packageName = "io",
-  functionName = "DataChannel.writeInt",
+  functionName = "DataChannel.writeFixedInt",
   receiver = @Receiver(type = TypeKind.STRUCT, structType = "DataChannel", structPackage = "ballerina.io"),
   isPublic = true
 )

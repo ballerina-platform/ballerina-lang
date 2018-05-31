@@ -24,7 +24,8 @@ import com.sun.org.apache.regexp.internal.RE;
 public enum Representation {
     BIT_64(8),
     BIT_32(4),
-    BIT_16(2);
+    BIT_16(2),
+    VARIABLE(-1);
 
     private int numberOfBytes;
 
