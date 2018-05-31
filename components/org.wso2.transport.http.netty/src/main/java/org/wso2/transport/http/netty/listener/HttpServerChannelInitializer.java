@@ -49,6 +49,9 @@ import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.listener.http2.Http2SourceConnectionHandlerBuilder;
+import org.wso2.transport.http.netty.listener.http2.Http2ToHttpFallbackHandler;
+import org.wso2.transport.http.netty.listener.http2.Http2WithPriorKnowledgeHandler;
 import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
 import java.io.IOException;
@@ -169,7 +172,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
      * @param serverPipeline the channel pipeline
      * @param initialHttpScheme initial http scheme
      */
-    void configureHttpPipeline(ChannelPipeline serverPipeline, String initialHttpScheme) {
+    public void configureHttpPipeline(ChannelPipeline serverPipeline, String initialHttpScheme) {
 
         if (initialHttpScheme.equals(Constants.HTTP_SCHEME)) {
             serverPipeline.addLast(Constants.HTTP_ENCODER, new HttpResponseEncoder());
@@ -263,7 +266,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.httpAccessLogEnabled = httpAccessLogEnabled;
     }
 
-    boolean isHttpTraceLogEnabled() {
+    public boolean isHttpTraceLogEnabled() {
         return httpTraceLogEnabled;
     }
 

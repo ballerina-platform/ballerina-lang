@@ -15,7 +15,7 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.transport.http.netty.listener;
+package org.wso2.transport.http.netty.listener.http2;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -38,6 +38,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
+import org.wso2.transport.http.netty.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2DataFrame;
