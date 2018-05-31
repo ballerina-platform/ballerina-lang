@@ -35,7 +35,6 @@ class DiagramMenu extends React.Component {
                 { !this.props.fitToWidth &&
                 <Menu.Menu position='left'>
                     <Menu.Item>
-                        <Input className='package-input' icon='fw fw-package' iconPosition='left' placeholder='Package...' />
                         <AddDefinitionMenu model={this.props.model} />
                     </Menu.Item>
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: true }); }}>

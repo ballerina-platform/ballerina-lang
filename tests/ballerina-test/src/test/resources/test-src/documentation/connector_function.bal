@@ -15,12 +15,12 @@ type TestConnector object {
     public function testSend(string ep) returns boolean;
 };
 
-function<TestConnector t> testAction() returns boolean {
+public function TestConnector::testAction() returns boolean {
     boolean value;
     return value;
 }
 
-function<TestConnector t> testSend(string ep) returns boolean {
+public function TestConnector::testSend(string ep) returns boolean {
     boolean value;
     return value;
 }

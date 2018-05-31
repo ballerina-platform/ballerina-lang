@@ -15,7 +15,7 @@ service<http:Service> FooService {
 
     test2 (string dummyParam) {
         io:println("test2-before");
-        next;
+        continue;
         io:println("test2-after");
     }
 

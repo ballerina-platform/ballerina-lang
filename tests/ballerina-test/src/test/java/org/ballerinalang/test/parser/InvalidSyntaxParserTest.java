@@ -91,6 +91,12 @@ public class InvalidSyntaxParserTest {
     }
 
     @Test
+    public void testObjectAttachedFunctionWithInvalidSyntax() {
+        CompileResult result = BCompileUtil.compile("test-src/parser/object-attached-func-with-invalid-syntax.bal");
+        BAssertUtil.validateError(result, 0, "invalid token '<'", 10, 10);
+    }
+
+    @Test
     public void testResourceWithReply() {
         CompileResult result = BCompileUtil.compile("test-src/parser/resource-with-reply-negative.bal");
         BAssertUtil.validateError(result, 0, "undefined symbol 'reply'", 6, 5);

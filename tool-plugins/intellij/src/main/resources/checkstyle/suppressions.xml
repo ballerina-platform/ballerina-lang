@@ -21,6 +21,6 @@
         "http://checkstyle.sourceforge.net/dtds/suppressions_1_1.dtd">
 
 <suppressions>
-    <suppress checks="." files="gen/org/ballerinalang/plugins/idea"/>
-    <suppress checks="." files="gen\\org\\ballerinalang\\plugins\\idea"/>
+    <suppress checks="." files="gen/io/ballerina/plugins/idea"/>
+    <suppress checks="." files="gen\\io\\ballerina\\plugins\\idea"/>
 </suppressions>

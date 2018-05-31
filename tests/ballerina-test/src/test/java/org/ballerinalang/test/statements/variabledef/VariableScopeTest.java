@@ -75,10 +75,7 @@ public class VariableScopeTest {
         BAssertUtil.validateError(resultNegative, 2, "undefined symbol 'b'", 34, 15);
         //testVariableResourceScope
         BAssertUtil.validateError(resultNegative, 3, "undefined symbol 'b'", 47, 17);
-        BAssertUtil.validateError(resultNegative,
-                                  4,
-                                  "incompatible types: expected 'DummyEndpoint', found '()'",
-                                  59,
-                                  12);
+        BAssertUtil.validateError(resultNegative, 4, "incompatible types: expected 'DummyEndpoint', found '()'", 58,
+                16);
     }
 }

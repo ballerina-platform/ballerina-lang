@@ -68,8 +68,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION (LT parameter GT)? callableUnitSignature (callableUnitBody | SEMICOLON)
-    |   (PUBLIC)? (NATIVE)? FUNCTION Identifier DOUBLE_COLON callableUnitSignature callableUnitBody
+    :   (PUBLIC)? (NATIVE)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -273,7 +272,7 @@ statement
     |   matchStatement
     |   foreachStatement
     |   whileStatement
-    |   nextStatement
+    |   continueStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
@@ -395,8 +394,8 @@ whileStatement
     :   WHILE expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-nextStatement
-    :   NEXT SEMICOLON
+continueStatement
+    :   CONTINUE SEMICOLON
     ;
 
 breakStatement
@@ -781,6 +780,7 @@ reservedWord
     :   FOREACH
     |   TYPE_MAP
     |   START
+    |   CONTINUE
     ;
 
 

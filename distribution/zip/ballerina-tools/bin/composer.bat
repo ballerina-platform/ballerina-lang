@@ -134,7 +134,7 @@ rem ----------------- Execute The Requested Command ----------------------------
 :runServer
 cd %BALLERINA_HOME%
 
-FOR %%C in ("%BALLERINA_HOME%\lib\resources\composer\services\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\lib\resources\composer\services\%%~nC%%~xC"
+set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\lib\resources\composer\services\*"
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
 rem ---------- Add jars to classpath ----------------
 

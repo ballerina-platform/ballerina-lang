@@ -41,7 +41,7 @@ public class ExpressionStmtTest {
     public void testInvalidStatements() {
         CompileResult result = BCompileUtil.compile("test-src/statements/expression/expression-stmt-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 4);
-        BAssertUtil.validateError(result, 0, "undefined symbol 'continue'", 7, 13);
+        BAssertUtil.validateError(result, 0, "undefined symbol 'next'", 7, 13);
         BAssertUtil.validateError(result, 1, "undefined symbol 'foo'", 14, 5);
         BAssertUtil.validateError(result, 2, "undefined function 'bar'", 15, 5);
         BAssertUtil.validateError(result, 3, "variable assignment is required", 16, 5);
