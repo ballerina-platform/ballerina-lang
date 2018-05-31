@@ -59,9 +59,9 @@ public class WebSocketTestClient {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
-    private static final int maxContentLength = 8192;
-    private String url = String.format("ws://%s:%d/%s", TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT, "test");
     private final String subProtocol;
+    private final int maxContentLength;
+    private String url = String.format("ws://%s:%d/%s", TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT, "test");
     private Map<String, String> customHeaders;
     private boolean handshakeSuccessful;
 
@@ -80,6 +80,7 @@ public class WebSocketTestClient {
     public WebSocketTestClient(String subProtocol, Map<String, String> customHeaders) {
         this.subProtocol = subProtocol;
         this.customHeaders = customHeaders;
+        this.maxContentLength = 8192;
     }
 
     public void setCountDownLatch(CountDownLatch countDownLatch) {

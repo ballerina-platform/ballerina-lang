@@ -70,7 +70,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
             HttpRequest httpRequest = (HttpRequest) msg;
             HttpMethod requestMethod = httpRequest.method();
 
-            if (isContainUpgradeHeaders(httpRequest)) {
+            if (containsUpgradeHeaders(httpRequest)) {
                 if (HttpMethod.GET == requestMethod) {
                     if (log.isDebugEnabled()) {
                         log.debug("Upgrading the connection from Http to WebSocket for " +
@@ -121,7 +121,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
      * @param httpRequest {@link HttpRequest} which is checked for WebSocket upgrade.
      * @return true if basic headers needed for WebSocket upgrade are contained in the request.
      */
-    private boolean isContainUpgradeHeaders(HttpRequest httpRequest) {
+    private boolean containsUpgradeHeaders(HttpRequest httpRequest) {
         HttpHeaders headers = httpRequest.headers();
         return headers.containsValue(HttpHeaderNames.CONNECTION, HttpHeaderValues.UPGRADE, true) &&
                 headers.containsValue(HttpHeaderNames.UPGRADE, HttpHeaderValues.WEBSOCKET, true);

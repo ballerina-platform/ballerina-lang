@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.transport.http.netty.websocket;
+package org.wso2.transport.http.netty.websocket.client;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,13 +33,16 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListen
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
-import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_REMOTE_SERVER_PORT;
+import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_REMOTE_SERVER_URL;
+import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_TEST_IDLE_TIMEOUT;
 
 /**
  * Test cases for the WebSocket Client implementation.
@@ -49,29 +52,26 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientHandshakeFunctionalityTestCase.class);
 
     private DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
-    private final String url = String.format("ws://%s:%d/%s", "localhost",
-                                             TestUtil.REMOTE_WS_SERVER_PORT, "websocket");
-    private final int latchWaitTimeInSeconds = 10;
     private WebSocketClientConnector clientConnector;
     private WebSocketRemoteServer remoteServer;
 
     @BeforeClass
     public void setup() throws InterruptedException {
-        WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
-        remoteServer = new WebSocketRemoteServer(TestUtil.REMOTE_WS_SERVER_PORT, "xml, json");
+        remoteServer = new WebSocketRemoteServer(WEBSOCKET_REMOTE_SERVER_PORT, "xml, json");
         remoteServer.run();
+        WsClientConnectorConfig configuration = new WsClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
     }
 
     @Test(description = "Test the idle timeout for WebSocket")
     public void testIdleTimeout() throws Throwable {
-        WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
+        WsClientConnectorConfig configuration = new WsClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
         configuration.setIdleTimeoutInMillis(3000);
         HandshakeResult result = connectAndGetHandshakeResult(configuration);
 
         CountDownLatch countDownLatch = new CountDownLatch(1);
         result.getConnectorListener().setCountDownLatch(countDownLatch);
-        countDownLatch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
 
         Assert.assertNull(result.getThrowable());
         Assert.assertTrue(result.getConnectorListener().isIdleTimeout(), "Should reach idle timeout");
@@ -79,7 +79,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
 
     @Test(description = "Test the sub protocol negotiation with the remote server")
     public void testSubProtocolNegotiationSuccessful() throws InterruptedException {
-        WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
+        WsClientConnectorConfig configuration = new WsClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
         String[] subProtocolsSuccess = {"xmlx", "json"};
         configuration.setSubProtocols(subProtocolsSuccess);
         HandshakeResult result = connectAndGetHandshakeResult(configuration);
@@ -93,7 +93,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
 
     @Test(description = "Test the sub protocol negotiation with the remote server")
     public void testSubProtocolNegotiationFail() throws InterruptedException {
-        WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
+        WsClientConnectorConfig configuration = new WsClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
         String[] subProtocolsFail = {"xmlx", "jsonx"};
         configuration.setSubProtocols(subProtocolsFail);
         HandshakeResult result = connectAndGetHandshakeResult(configuration);
@@ -106,7 +106,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
 
     @Test(description = "Test whether client can send custom headers and receive.")
     public void testSendAndReceiveCustomHeaders() throws InterruptedException {
-        WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
+        WsClientConnectorConfig configuration = new WsClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
         configuration.addHeader("x-ack-custom-header", "true");
         HandshakeResult result = connectAndGetHandshakeResult(configuration);
         HttpCarbonResponse response = result.getHandshakeResponse();
@@ -119,7 +119,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
 
     @Test(description = "Test the behavior of client connector when auto read is false.")
     public void testReadNextFrame() throws Throwable {
-        WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
+        WsClientConnectorConfig configuration = new WsClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
         configuration.setAutoRead(false);
         HandshakeResult result = connectAndGetHandshakeResult(configuration);
 
@@ -149,7 +149,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
         CountDownLatch latch = new CountDownLatch(1);
         connectorListener.setCountDownLatch(latch);
         webSocketConnection.readNextFrame();
-        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
         return connectorListener.getReceivedTextToClient();
     }
 
@@ -164,7 +164,8 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
         return testMsgArray;
     }
 
-    private HandshakeResult connectAndGetHandshakeResult(WsClientConnectorConfig configuration) throws InterruptedException {
+    private HandshakeResult connectAndGetHandshakeResult(WsClientConnectorConfig configuration)
+            throws InterruptedException {
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
         ClientHandshakeFuture handshakeFuture = handshake(connectorListener);
@@ -188,7 +189,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
                 handshakeFutureLatch.countDown();
             }
         });
-        handshakeFutureLatch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        handshakeFutureLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
         return new HandshakeResult(connectionAtomicReference.get(), handshakeResponseAtomicReference.get(),
                 throwableAtomicReference.get(), connectorListener);
     }
@@ -227,6 +228,7 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
     @AfterClass
     public void cleanUp() throws ServerConnectorException, InterruptedException {
         remoteServer.stop();
+        httpConnectorFactory.shutdown();
     }
 
     private ClientHandshakeFuture handshake(WebSocketConnectorListener connectorListener) {

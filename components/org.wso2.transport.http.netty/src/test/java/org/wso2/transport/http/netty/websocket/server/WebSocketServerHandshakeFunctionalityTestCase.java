@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.transport.http.netty.websocket;
+package org.wso2.transport.http.netty.websocket.server;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketHandshakeException;
@@ -64,7 +64,8 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
 
     @Test(description = "Check whether the correct sub protocol is chosen by the server with the given sequence.")
     public void testSuccessfulSubProtocolNegotiation() throws URISyntaxException, InterruptedException {
-        WebSocketTestClient testClient = createClientAndHandshake("x-negotiate-sub-protocols", "dummy1, xml, dummy2, json");
+        WebSocketTestClient testClient =
+                createClientAndHandshake("x-negotiate-sub-protocols", "dummy1, xml, dummy2, json");
 
         Assert.assertEquals(testClient.getHandshaker().actualSubprotocol(), "xml");
 
@@ -124,8 +125,8 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
     }
 
 
-    @Test(description = "WebSocket server sends 400 Bad Request if a createClientAndHandshake request is received with " +
-            "other than GET method")
+    @Test(description = "WebSocket server sends 400 Bad Request if a createClientAndHandshake request is " +
+            "received with other than GET method")
     public void testHandshakeWithPostMethod() throws IOException {
         System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
         URL url = URI.create(String.format("http://%s:%d/%s", TestUtil.TEST_HOST, TestUtil.SERVER_CONNECTOR_PORT,
@@ -149,7 +150,8 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         serverConnector.stop();
     }
 
-    private String readNextTextFrame(WebSocketTestClient testClient, WebSocketConnection webSocketConnection) throws InterruptedException {
+    private String readNextTextFrame(WebSocketTestClient testClient, WebSocketConnection webSocketConnection)
+            throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         testClient.setCountDownLatch(countDownLatch);
         webSocketConnection.readNextFrame();

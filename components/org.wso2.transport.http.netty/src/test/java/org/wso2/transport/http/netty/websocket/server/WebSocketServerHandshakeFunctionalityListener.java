@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.wso2.transport.http.netty.websocket;
+package org.wso2.transport.http.netty.websocket.server;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.slf4j.Logger;

@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,10 +14,9 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
-package org.wso2.transport.http.netty.websocket;
+package org.wso2.transport.http.netty.websocket.client;
 
 import io.netty.channel.ChannelFuture;
 import org.slf4j.Logger;
@@ -36,13 +35,16 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListen
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
-import org.wso2.transport.http.netty.util.TestUtil;
 import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+
+import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_REMOTE_SERVER_PORT;
+import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_REMOTE_SERVER_URL;
+import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_TEST_IDLE_TIMEOUT;
 
 /**
  * Test cases for the WebSocket Client implementation.
@@ -52,17 +54,14 @@ public class WebSocketClientFunctionalityTestCase {
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientFunctionalityTestCase.class);
 
     private DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
-    private final String url = String.format("ws://%s:%d/%s", "localhost",
-                                             TestUtil.REMOTE_WS_SERVER_PORT, "websocket");
-    private final int latchWaitTimeInSeconds = 10;
-    private WsClientConnectorConfig configuration = new WsClientConnectorConfig(url);
     private WebSocketClientConnector clientConnector;
     private WebSocketRemoteServer remoteServer;
 
     @BeforeClass
     public void setup() throws InterruptedException {
-        remoteServer = new WebSocketRemoteServer(TestUtil.REMOTE_WS_SERVER_PORT, "xml, json");
+        remoteServer = new WebSocketRemoteServer(WEBSOCKET_REMOTE_SERVER_PORT, "xml, json");
         remoteServer.run();
+        WsClientConnectorConfig configuration = new WsClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
     }
 
@@ -96,7 +95,7 @@ public class WebSocketClientFunctionalityTestCase {
     }
 
     @Test(description = "Test ping received from the server.")
-    public void testPingReceive() throws Throwable {
+    public void testPing() throws Throwable {
         WebSocketTestClientConnectorListener pingConnectorListener = handshakeAndSendText("ping");
 
         Assert.assertTrue(pingConnectorListener.isPingReceived(), "Ping message should be received");
@@ -118,17 +117,25 @@ public class WebSocketClientFunctionalityTestCase {
                 Assert.fail(t.getMessage());
             }
         });
-        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
         return connectorListener;
     }
 
     @Test(description = "Test binary message sending and receiving.")
     public void testBinarySendAndReceive() throws Throwable {
+        byte[] bytes = {1, 2, 3, 4, 5};
+        ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
+        WebSocketTestClientConnectorListener connectorListener = handshakeAndSendBinaryMessage(bufferSent);
+        ByteBuffer bufferReceived = connectorListener.getReceivedByteBufferToClient();
+
+        Assert.assertEquals(bufferReceived, bufferSent);
+    }
+
+    private WebSocketTestClientConnectorListener handshakeAndSendBinaryMessage(ByteBuffer bufferSent)
+            throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
         WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener(latch);
         ClientHandshakeFuture handshakeFuture = handshake(connectorListener);
-        byte[] bytes = {1, 2, 3, 4, 5};
-        ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         handshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
@@ -141,19 +148,22 @@ public class WebSocketClientFunctionalityTestCase {
                 Assert.fail(t.getMessage());
             }
         });
-        latch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
-        ByteBuffer bufferReceived = connectorListener.getReceivedByteBufferToClient();
-
-        Assert.assertEquals(bufferReceived, bufferSent);
+        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        return connectorListener;
     }
 
     @Test(description = "Test pong received from the server after pinging the server.")
-    public void testPongReceiveForPingSent() throws Throwable {
+    public void testPong() throws Throwable {
+        WebSocketTestClientConnectorListener pongConnectorListener = handshakeAndPing();
+
+        Assert.assertTrue(pongConnectorListener.isPongReceived(), "Pong message should be received");
+    }
+
+    private WebSocketTestClientConnectorListener handshakeAndPing() throws InterruptedException {
         CountDownLatch pongLatch = new CountDownLatch(1);
         WebSocketTestClientConnectorListener pongConnectorListener =
                 new WebSocketTestClientConnectorListener(pongLatch);
-        ClientHandshakeFuture pongHandshakeFuture = handshake(pongConnectorListener);
-        pongHandshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
+        handshake(pongConnectorListener).setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse response) {
                 byte[] bytes = {1, 2, 3, 4, 5};
@@ -167,9 +177,8 @@ public class WebSocketClientFunctionalityTestCase {
                 Assert.fail(t.getMessage());
             }
         });
-        pongLatch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
-
-        Assert.assertTrue(pongConnectorListener.isPongReceived(), "Pong message should be received");
+        pongLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        return pongConnectorListener;
     }
 
     @Test(description = "Test connection termination using WebSocketConnection without sending a close frame.")
@@ -179,7 +188,7 @@ public class WebSocketClientFunctionalityTestCase {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ChannelFuture closeFuture = webSocketConnection.terminateConnection().addListener(
                 future -> countDownLatch.countDown());
-        countDownLatch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
 
         Assert.assertNull(closeFuture.cause());
         Assert.assertTrue(closeFuture.isDone());
@@ -193,7 +202,7 @@ public class WebSocketClientFunctionalityTestCase {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ChannelFuture closeFuture = webSocketConnection.initiateConnectionClosure(1001, "Going away").addListener(
                 future -> countDownLatch.countDown());
-        countDownLatch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
 
         Assert.assertNull(closeFuture.cause());
         Assert.assertTrue(closeFuture.isDone());
@@ -228,7 +237,7 @@ public class WebSocketClientFunctionalityTestCase {
                 countDownLatch.countDown();
             }
         });
-        countDownLatch.await(latchWaitTimeInSeconds, TimeUnit.SECONDS);
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
         if (throwableAtomicReference.get() != null) {
             throw throwableAtomicReference.get();
         }
