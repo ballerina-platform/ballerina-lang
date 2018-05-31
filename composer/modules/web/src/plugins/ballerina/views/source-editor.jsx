@@ -25,6 +25,7 @@ import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
 import MonacoEditor from 'react-monaco-editor';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { CHANGE_EVT_TYPES } from './constants';
+import { REDO_EVENT, UNDO_EVENT } from './../constants/events';
 import Grammar from './../utils/monarch-grammar';
 import { getMonacoKeyBinding } from '../utils/monaco-key-utils';
 import BAL_LANG_CONFIG from '../utils/monaco-lang-config';
@@ -66,11 +67,11 @@ class SourceEditor extends React.Component {
         this.inSilentMode = false;
         this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
-        this.onFileContentChanged = this.onFileContentChanged.bind(this);
         this.lastUpdatedTimestamp = props.file.lastUpdated;
         this.editorDidMount = this.editorDidMount.bind(this);
         this.onWorkspaceFileClose = this.onWorkspaceFileClose.bind(this);
         this.handleGoToPosition = this.handleGoToPosition.bind(this);
+        this.preventChangeEvt = false;
     }
 
     /**
@@ -107,24 +108,6 @@ class SourceEditor extends React.Component {
                 this.debugHitDecorations = this.editorInstance.deltaDecorations(this.debugHitDecorations || [], []);
             }
         }
-
-        if (this.props.file.toURI() !== nextProps.file.toURI()) {
-            if (this.monaco && this.editorInstance) {
-                const uri = this.monaco.Uri.parse(nextProps.file.toURI());
-                let modelForFile = this.monaco.editor.getModel(uri);
-                const currentModel = this.editorInstance.getModel();
-                if (!modelForFile) {
-                    modelForFile = this.monaco.editor.createModel(nextProps.file.content, BAL_LANGUAGE, uri);
-                }
-                if (currentModel && modelForFile && currentModel.uri !== modelForFile.uri) {
-                    this.editorInstance.setModel(modelForFile);
-                }
-            }
-            // Removing the file content changed event of the previous file.
-            this.props.file.off(CONTENT_MODIFIED, this.onFileContentChanged);
-            // Adding the file content changed event to the new file.
-            nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
-        }
     }
 
     /**
@@ -148,21 +131,23 @@ class SourceEditor extends React.Component {
         }
     }
 
-    /**
-     * Event handler when the content of the file object is changed.
-     * @param {Object} evt The event object.
-     * @memberof SourceEditor
-     */
-    onFileContentChanged(evt) {
-        if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-            if (this.monaco && this.editorInstance && evt.file) {
-                const uri = this.monaco.Uri.parse(evt.file.toURI());
-                const modelForFile = this.monaco.editor.getModel(uri);
-                if (modelForFile) {
-                    modelForFile.setValue(evt.file.content);
-                }
-            }
-        }
+    setContent(newContent, ignoreChangeEvt = false) {
+        this.preventChangeEvt = ignoreChangeEvt;
+        this.getCurrentModel()
+            .pushEditOperations([],
+                [{
+                    range: this.getCurrentModel().getFullModelRange(),
+                    text: newContent,
+                    forceMoveMarkers: true,
+                }],
+                () => []);
+        this.getCurrentModel().pushStackElement();
+        this.preventChangeEvt = !ignoreChangeEvt;
+    }
+
+    getCurrentModel() {
+        const uri = this.monaco.Uri.parse(this.props.file.toURI());
+        return this.monaco.editor.getModel(uri);
     }
 
     /**
@@ -172,6 +157,7 @@ class SourceEditor extends React.Component {
      * @param {Object} monaco Monaco API
      */
     editorDidMount(editorInstance, monaco) {
+        this.context.setSourceEditorRef(this);
         this.monaco = monaco;
         this.editorInstance = editorInstance;
         monaco.languages.register({ id: BAL_LANGUAGE });
@@ -182,6 +168,21 @@ class SourceEditor extends React.Component {
         if (!modelForFile) {
             modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
         }
+        modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
+            if (isRedoing || isUndoing || this.preventChangeEvt) {
+                return;
+            }
+            const changeEvent = {
+                type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
+                title: 'Modify source',
+                data: {
+                    sourceEditor: this,
+                },
+            };
+            this.props.file
+                .setContent(editorInstance.getValue(), changeEvent);
+        });
+        // this.props.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
         editorInstance.setModel(modelForFile);
         this.props.commandProxy.on(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
         this.props.commandProxy.on(GO_TO_POSITION, this.handleGoToPosition);
@@ -303,6 +304,18 @@ class SourceEditor extends React.Component {
         });
     }
 
+    undo(title) {
+        this.preventChangeEvt = true;
+        this.editorInstance.trigger(title, 'undo');
+        this.preventChangeEvt = false;
+    }
+
+    redo(title) {
+        this.preventChangeEvt = true;
+        this.editorInstance.trigger(title, 'redo');
+        this.preventChangeEvt = false;
+    }
+
     /**
      * @inheritDoc
      */
@@ -313,16 +326,7 @@ class SourceEditor extends React.Component {
                 <MonacoEditor
                     language='ballerinalang'
                     theme='vs-dark'
-                    value={this.props.file.content}
                     editorDidMount={this.editorDidMount}
-                    onChange={(newValue) => {
-                        const changeEvent = {
-                            type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
-                            title: 'Modify source',
-                        };
-                        this.props.file
-                            .setContent(newValue, changeEvent);
-                    }}
                     options={{
                         autoIndent: true,
                         fontSize: 14,
@@ -359,6 +363,10 @@ SourceEditor.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     isUsedAsPreviewComponent: PropTypes.bool,
+};
+
+SourceEditor.contextTypes = {
+    setSourceEditorRef: PropTypes.func.isRequired,
 };
 
 SourceEditor.defaultProps = {
