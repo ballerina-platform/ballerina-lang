@@ -103,6 +103,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -112,7 +113,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -170,6 +170,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private boolean statementReturns;
     private boolean lastStatement;
+    private boolean withinRetryBlock;
     private int forkJoinCount;
     private int workerCount;
     private SymbolTable symTable;
@@ -376,8 +377,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
-        //Check whether transaction is within a handler function. This can check for single level only. We need data
-        //flow analysis to check for further levels.
+        //Check whether transaction is within a handler function or retry block. This can check for single level only.
+        // We need data flow analysis to check for further levels.
         if (!isValidTransactionBlock()) {
             this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER);
             return;
@@ -390,9 +391,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.transactionCount--;
         this.resetLastStatement();
         if (transactionNode.onRetryBody != null) {
+            this.withinRetryBlock = true;
             analyzeNode(transactionNode.onRetryBody, env);
             this.resetStatementReturns();
             this.resetLastStatement();
+            this.withinRetryBlock = false;
         }
         this.returnWithintransactionCheckStack.pop();
         this.loopWithintransactionCheckStack.pop();
@@ -594,14 +597,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangNext nextNode) {
-        this.checkStatementExecutionValidity(nextNode);
+    public void visit(BLangContinue continueNode) {
+        this.checkStatementExecutionValidity(continueNode);
         if (this.loopCount == 0) {
-            this.dlog.error(nextNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
+            this.dlog.error(continueNode.pos, DiagnosticCode.CONTINUE_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
         if (checkNextBreakValidityInTransaction()) {
-            this.dlog.error(nextNode.pos, DiagnosticCode.NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            this.dlog.error(continueNode.pos, DiagnosticCode.CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
         this.lastStatement = true;
@@ -1320,7 +1323,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isValidTransactionBlock() {
-        return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek());
+        return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek()) &&
+                !this.withinRetryBlock;
     }
 
     private boolean checkDoneValidityInTransaction() {

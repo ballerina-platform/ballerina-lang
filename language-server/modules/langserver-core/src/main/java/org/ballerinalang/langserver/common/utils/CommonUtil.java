@@ -86,6 +86,13 @@ public class CommonUtil {
 
     public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
 
+    public static final boolean LS_DEBUG_ENABLED;
+
+    static {
+        String debugLogStr = System.getProperty("ballerina.debugLog");
+        LS_DEBUG_ENABLED =  debugLogStr != null && Boolean.parseBoolean(debugLogStr);
+    }
+
     /**
      * Get the package URI to the given package name.
      *

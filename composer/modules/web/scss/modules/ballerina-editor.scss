@@ -481,9 +481,9 @@ a.item.menu-button.ui.button.primary {
   background: $brand-primary;
   color: $white;
   padding: 7px 10px !important;
-  margin-top: 3px;
-  margin-left: 5px;
-  font-weight: 300;
+  margin: 5px 10px 4px 4px !important;
+  font-weight: 400;
+  height: 28px;
   
   &:hover {
     background: $brand-primary-hover !important;
