@@ -90,6 +90,23 @@ public class IntegerRangeOperatorTest {
                 + "Integer Range " + startValue + " ... " + endValue);
     }
 
+    @Test(description = "Test closed integer range as an array")
+    public void testClosedIntRangeAsArray() {
+        int startValue = 21;
+        int endValue = 29;
+        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
+        BValue[] returns = BRunUtil.invoke(result, "testClosedIntRangeAsArray", args);
+        Assert.assertEquals(returns.length, 1);
+
+        BIntArray returnArray = (BIntArray) returns[0];
+        int expectedSize = endValue - startValue + 1;
+        Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Closed "
+                + "Integer Range " + startValue + " ... " + endValue + " accessed as an array");
+        for (int i = 0; i < expectedSize; i++) {
+            Assert.assertEquals(returnArray.get(i), startValue + i, "Incorrect value found at index: " + i);
+        }
+    }
+
     @Test(description = "Test half open integer range when the start value is less than the end value")
     public void testStartLessThanEndHalfOpenIntRange() {
         int startValue = 12;
@@ -101,7 +118,7 @@ public class IntegerRangeOperatorTest {
         BIntArray returnArray = (BIntArray) returns[0];
         int expectedSize = endValue - startValue;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
-                + " Open Integer Range " + startValue + " ... " + endValue);
+                + " Open Integer Range " + startValue + " ..< " + endValue);
         for (int i = 0; i < expectedSize; i++) {
             Assert.assertEquals(returnArray.get(i), startValue + i, "Incorrect value found at index: " + i);
         }
@@ -118,7 +135,7 @@ public class IntegerRangeOperatorTest {
         BIntArray returnArray = (BIntArray) returns[0];
         int expectedSize = 0;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
-                + " Open Integer Range " + startValue + " ... " + endValue);
+                + " Open Integer Range " + startValue + " ..< " + endValue);
     }
 
     @Test(description = "Test half open integer range when the start value is greater than the end value")
@@ -132,8 +149,26 @@ public class IntegerRangeOperatorTest {
         BIntArray returnArray = (BIntArray) returns[0];
         int expectedSize = 0;
         Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half"
-                + " Open Integer Range " + startValue + " ... " + endValue);
+                + " Open Integer Range " + startValue + " ..< " + endValue);
     }
+
+    @Test(description = "Test half open integer range as an array")
+    public void testHalfOpenIntRangeAsArray() {
+        int startValue = 291;
+        int endValue = 310;
+        BValue[] args = {new BInteger(startValue), new BInteger(endValue)};
+        BValue[] returns = BRunUtil.invoke(result, "testHalfOpenIntRangeAsArray", args);
+        Assert.assertEquals(returns.length, 1);
+
+        BIntArray returnArray = (BIntArray) returns[0];
+        int expectedSize = endValue - startValue;
+        Assert.assertEquals(returnArray.size(), expectedSize, "Incorrect number of values returned for Half "
+                + "Open Integer Range " + startValue + " ..< " + endValue + " accessed as an array");
+        for (int i = 0; i < expectedSize; i++) {
+            Assert.assertEquals(returnArray.get(i), startValue + i, "Incorrect value found at index: " + i);
+        }
+    }
+
 
     @Test(description = "Test integer range operators with errors")
     public void testSubtractStmtNegativeCases() {
