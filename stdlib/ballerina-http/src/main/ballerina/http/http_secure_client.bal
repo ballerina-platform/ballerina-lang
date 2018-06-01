@@ -22,9 +22,12 @@ import ballerina/mime;
 @final string EMPTY_STRING = "";
 @final string WHITE_SPACE = " ";
 @final string CONTENT_TYPE_HEADER = "Content-Type";
-@final string BASIC_SCHEME = "basic";
-@final string OAUTH_SCHEME = "oauth";
-@final string JWT_SCHEME = "jwt";
+
+public type AUTH_SCHEME "basic"|"oauth2"|"jwt";
+
+@final public AUTH_SCHEME BASIC = "basic";
+@final public AUTH_SCHEME OAUTH2 = "oauth2";
+@final public AUTH_SCHEME JWT = "jwt";
 
 documentation {
     Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
@@ -319,20 +322,20 @@ documentation {
 }
 function generateSecureRequest(Request req, ClientEndpointConfig config) returns (()|error) {
     string scheme = config.auth.scheme but { () => EMPTY_STRING };
-    if (scheme == BASIC_SCHEME) {
+    if (scheme == BASIC) {
         string username = config.auth.username but { () => EMPTY_STRING };
         string password = config.auth.password but { () => EMPTY_STRING };
         string str = username + ":" + password;
         string token = check str.base64Encode();
         req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
-    } else if (scheme == OAUTH_SCHEME) {
+    } else if (scheme == OAUTH2) {
         string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
         if (accessToken == EMPTY_STRING) {
             return updateRequestAndConfig(req, config);
         } else {
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
         }
-    } else if (scheme == JWT_SCHEME){
+    } else if (scheme == JWT){
         string authToken = runtime:getInvocationContext().authContext.authToken;
         if (authToken == EMPTY_STRING) {
             error err;
@@ -342,7 +345,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
         req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
     } else {
         error err;
-        err.message = "Invalid authentication scheme. It should be basic, oauth or jwt";
+        err.message = "Invalid authentication scheme. It should be basic, oauth2 or jwt";
         return err;
     }
     return ();
@@ -417,7 +420,7 @@ documentation {
 }
 function isRetryRequired(Response response, ClientEndpointConfig config) returns boolean {
     string scheme = config.auth.scheme but { () => EMPTY_STRING };
-    if (scheme == OAUTH_SCHEME && response.statusCode == UNAUTHORIZED_401) {
+    if (scheme == OAUTH2 && response.statusCode == UNAUTHORIZED_401) {
         return true;
     }
     return false;
