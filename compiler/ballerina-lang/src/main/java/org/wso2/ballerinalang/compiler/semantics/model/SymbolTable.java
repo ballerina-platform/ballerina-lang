@@ -322,6 +322,7 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.LENGTHOF, xmlType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, mapType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, stringType, intType, InstructionCodes.LENGTHOF);
+        defineUnaryOperator(OperatorKind.LENGTHOF, blobType, intType, InstructionCodes.LENGTHOF);
         defineUnaryOperator(OperatorKind.LENGTHOF, byteType, intType, InstructionCodes.LENGTHOF);
 
         defineConversionOperators();

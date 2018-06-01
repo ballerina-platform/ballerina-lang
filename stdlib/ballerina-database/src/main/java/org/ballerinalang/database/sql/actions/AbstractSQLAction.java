@@ -32,6 +32,8 @@ import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BByte;
@@ -565,6 +567,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                             break;
                         case TypeTags.BOOLEAN_TAG:
                             paramValue = new BBoolean(((BBooleanArray) value).get(i) > 0);
+                            break;
+                        case TypeTags.BLOB_TAG:
+                            paramValue = new BBlob(((BBlobArray) value).get(i));
                             break;
                         default:
                             throw new BallerinaException("unsupported array type for parameter index " + index);
