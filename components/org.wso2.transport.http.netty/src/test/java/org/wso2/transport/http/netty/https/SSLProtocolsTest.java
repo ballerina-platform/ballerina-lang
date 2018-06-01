@@ -70,8 +70,8 @@ public class SSLProtocolsTest {
 
         // true = expecting a SSL hand shake failure.
         // false = expecting no errors.
-        return new Object[][] { { "TLSv1.1", "TLSv1.1", false, 9009 },
-                { "TLSv1.1", "TLSv1.2", true, 9007 } };
+        return new Object[][] { { "TLSv1.1", "TLSv1.1", false, TestUtil.SERVER_PORT1 },
+                { "TLSv1.1", "TLSv1.2", true, TestUtil.SERVER_PORT2 } };
     }
 
     @Test(dataProvider = "protocols")
@@ -173,6 +173,7 @@ public class SSLProtocolsTest {
     public void cleanUp() throws ServerConnectorException {
         try {
             serverConnector.stop();
+            httpClientConnector.close();
             httpWsConnectorFactory.shutdown();
         } catch (Exception e) {
             logger.warn("Interrupted while waiting for response two", e);

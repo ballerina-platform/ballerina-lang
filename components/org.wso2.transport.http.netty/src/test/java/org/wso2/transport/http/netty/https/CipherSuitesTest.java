@@ -18,6 +18,9 @@
 
 package org.wso2.transport.http.netty.https;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
@@ -28,6 +31,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
@@ -55,6 +59,9 @@ public class CipherSuitesTest {
 
     private static HttpClientConnector httpClientConnector;
     private List<Parameter> clientParams;
+    private ServerConnector serverConnector;
+    private HttpWsConnectorFactory factory;
+    private static Logger logger = LoggerFactory.getLogger(CipherSuitesTest.class);
 
     @DataProvider(name = "ciphers")
 
@@ -63,10 +70,10 @@ public class CipherSuitesTest {
         return new Object[][] {
                 // true = expecting a SSL hand shake failure.
                 // false = expecting no errors.
-                { "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", false, 9099},
+                { "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", false,
+                        TestUtil.SERVER_CONNECTOR_PORT },
                 { "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-                        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", true, 9098 }
-        };
+                        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", true, TestUtil.HTTPS_SERVER_PORT } };
     }
 
     @Test(dataProvider = "ciphers")
@@ -89,8 +96,8 @@ public class CipherSuitesTest {
         List<Parameter> serverParams = new ArrayList<>();
         serverParams.add(paramServerCiphers);
 
-        HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
-        ServerConnector serverConnector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
+        factory = new DefaultHttpWsConnectorFactory();
+        serverConnector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                 getListenerConfiguration(serverPort, serverParams));
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
@@ -99,8 +106,6 @@ public class CipherSuitesTest {
         httpClientConnector = factory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
 
         testCiphersuites(hasException, serverPort);
-        serverConnector.stop();
-        httpClientConnector.close();
     }
 
     private void testCiphersuites(boolean hasException, int serverPort) {
@@ -160,5 +165,16 @@ public class CipherSuitesTest {
         senderConfiguration.setScheme(HTTPS_SCHEME);
         senderConfiguration.setParameters(clientParams);
         return senderConfiguration;
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        try {
+            serverConnector.stop();
+            httpClientConnector.close();
+            factory.shutdown();
+        } catch (Exception e) {
+            logger.warn("Interrupted while waiting for response", e);
+        }
     }
  }

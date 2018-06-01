@@ -73,9 +73,9 @@ public class HostnameVerificationTest {
         String keyStoreFileWithCN = "/simple-test-config/wso2carbon.p12";
         String trustStoreFileWithCN = "/simple-test-config/client-truststore.p12";
         String password = "ballerina";
-        return new Object[][] {
-                { keyStoreFilePath, keyStorePassword, trustStoreFilePath, trustStorePassword, true, 9098 },
-                { keyStoreFileWithCN, password, trustStoreFileWithCN, password, false, 9099 }
+        return new Object[][] { { keyStoreFilePath, keyStorePassword, trustStoreFilePath, trustStorePassword, true,
+                TestUtil.HTTPS_SERVER_PORT },
+                { keyStoreFileWithCN, password, trustStoreFileWithCN, password, false, TestUtil.SERVER_PORT2 }
         };
     }
 
