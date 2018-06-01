@@ -200,7 +200,7 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   LEFT_BRACE fieldDefinitionList RIGHT_BRACE                          # recordTypeNameLabel
+    |   RECORD? LEFT_BRACE fieldDefinitionList RIGHT_BRACE                  # recordTypeNameLabel
     ;
 
 fieldDefinitionList
@@ -272,7 +272,7 @@ statement
     |   matchStatement
     |   foreachStatement
     |   whileStatement
-    |   nextStatement
+    |   continueStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
@@ -394,8 +394,8 @@ whileStatement
     :   WHILE expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-nextStatement
-    :   NEXT SEMICOLON
+continueStatement
+    :   CONTINUE SEMICOLON
     ;
 
 breakStatement
@@ -780,6 +780,7 @@ reservedWord
     :   FOREACH
     |   TYPE_MAP
     |   START
+    |   CONTINUE
     ;
 
 

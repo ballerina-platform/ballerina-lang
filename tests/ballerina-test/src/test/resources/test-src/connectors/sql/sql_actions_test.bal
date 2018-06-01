@@ -1042,8 +1042,8 @@ function testBatchUpdateWithFailure(string jdbcUrl, string userName, string pass
 
     int count;
 
-    int[] updateCount = check testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,creditLimit,
-        country) values (?,?,?,?,?,?)", parameters1, parameters2, parameters3, parameters4);
+    int[] updateCount = check testDB->batchUpdate("Insert into Customers (customerId, firstName,lastName,registrationID,
+        creditLimit, country) values (?,?,?,?,?,?)", parameters1, parameters2, parameters3, parameters4);
     table dt = check testDB->select("SELECT count(*) as countval from Customers where customerId in (111,222,333)",
         ResultCount);
 

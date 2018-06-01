@@ -514,21 +514,18 @@ public class SQLActionsTest {
         // This is the one after the failing batch. Depending on the driver this may or may not be executed hence the
         // result could be either 1 or -3
         int[] expectedResult = {1, 1, -3, -3};
-        int totalUpdatedCount = 2;
         if (dbType == MYSQL) {
             expectedResult[3] = 1;
-            totalUpdatedCount = 3;
         } else if (dbType == POSTGRES) {
             expectedResult[0] = -3;
             expectedResult[1] = -3;
-            totalUpdatedCount = 0;
         }
         BIntArray retValue = (BIntArray) returns[0];
         Assert.assertEquals(retValue.get(0), expectedResult[0]);
         Assert.assertEquals(retValue.get(1), expectedResult[1]);
         Assert.assertEquals(retValue.get(2), expectedResult[2]);
         Assert.assertEquals(retValue.get(3), expectedResult[3]);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), totalUpdatedCount);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test(groups = "ConnectorTest")

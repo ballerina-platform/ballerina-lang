@@ -51,6 +51,7 @@ import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
 import SyncErrorsVisitor from './../visitors/sync-errors';
 import { EVENTS } from '../constants';
 import ViewButton from './view-button';
+import MonacoBasedUndoManager from './../utils/monaco-based-undo-manager';
 
 /**
  * React component for BallerinaFileEditor.
@@ -83,49 +84,10 @@ class BallerinaFileEditor extends React.Component {
         };
         this.skipLoadingOverlay = false;
 
-        // create debounced model update callbacks
-        // we will use this to gracefull update design
-        // view during source view (split mode) changes or redo/undo
-        const updateUponSourceChange = _.debounce(() => {
-            this.state.isASTInvalid = true;
-            this.update(true);
-        }, 500);
-        const updateUponUndoRedo = _.debounce(() => {
-            this.state.isASTInvalid = true;
-            this.update(true);
-        }, 100);
-
-
         // listen for the changes to file content
         this.props.file.on(CONTENT_MODIFIED, (evt) => {
             const originEvtType = evt.originEvt.type;
-            if (originEvtType === CHANGE_EVT_TYPES.TREE_MODIFIED) {
-                // Change was done from design view
-                // do an immediate update to reflect tree changes
-                this.forceUpdate();
-                // since the source is changed, we need to sync
-                // current AST with new position info
-                this.skipLoadingOverlay = true;
-                this.validateAndParseFile()
-                    .then((state) => {
-                        const newAST = state.model;
-                        const currentAST = this.state.model;
-                        // update environment object with updated current package info
-                        this.updateEnvironment(this.environment, state.packageInfo);
-                        this.syncASTs(currentAST, newAST);
-
-                        // remove new AST from new state to be set
-                        delete state.model;
-                        this.skipLoadingOverlay = false;
-                        this.setState(state);
-                        this.props.editorModel.setProperty('ast', currentAST);
-                    })
-                    .catch(error => log.error(error));
-            } else if (originEvtType === CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-                updateUponSourceChange();
-            } else if (originEvtType === UNDO_EVENT || originEvtType === REDO_EVENT) {
-                updateUponUndoRedo();
-            } else {
+            if (originEvtType !== CHANGE_EVT_TYPES.TREE_MODIFIED) {
                 // upon code format
                 this.state.isASTInvalid = true;
                 this.update(true);
@@ -155,6 +117,7 @@ class BallerinaFileEditor extends React.Component {
         this.resetSwaggerView = this.resetSwaggerView.bind(this);
         this.handleSplitChange = this.handleSplitChange.bind(this);
         this.onModeChange = this.onModeChange.bind(this);
+        this.sourceEditorRef = undefined;
     }
 
     /**
@@ -168,6 +131,10 @@ class BallerinaFileEditor extends React.Component {
             astRoot: this.state.model,
             environment: this.environment,
             isPreviewViewEnabled: this.props.isPreviewViewEnabled,
+            setSourceEditorRef: (sourceEditorRef) => {
+                this.sourceEditorRef = sourceEditorRef;
+                this.props.editorModel.undoManager = new MonacoBasedUndoManager(sourceEditorRef);
+            },
         };
     }
 
@@ -206,14 +173,40 @@ class BallerinaFileEditor extends React.Component {
      */
     onASTModified(evt) {
         TreeBuilder.modify(evt.origin);
-
         const newContent = this.state.model.getSource();
         // set breakpoints to model
         // this.reCalculateBreakpoints(this.state.model);
         // create a wrapping event object to indicate tree modification
         this.props.file.setContent(newContent, {
-            type: CHANGE_EVT_TYPES.TREE_MODIFIED, originEvt: evt,
+            type: CHANGE_EVT_TYPES.TREE_MODIFIED,
+            originEvt: evt,
+            data: {
+                sourceEditor: this.sourceEditorRef,
+            },
         });
+        this.sourceEditorRef.setContent(newContent, true);
+
+        // Change was done from design view
+        // do an immediate update to reflect tree changes
+        this.forceUpdate();
+        // since the source is changed, we need to sync
+        // current AST with new position info
+        this.skipLoadingOverlay = true;
+        this.validateAndParseFile()
+            .then((state) => {
+                const newAST = state.model;
+                const currentAST = this.state.model;
+                // update environment object with updated current package info
+                this.updateEnvironment(this.environment, state.packageInfo);
+                this.syncASTs(currentAST, newAST);
+
+                // remove new AST from new state to be set
+                delete state.model;
+                this.skipLoadingOverlay = false;
+                this.setState(state);
+                this.props.editorModel.setProperty('ast', currentAST);
+            })
+            .catch(error => log.error(error));
         this.props.commandProxy.dispatch(EVENTS.ACTIVE_BAL_AST_CHANGED, { ast: this.state.model });
         if (evt.type === EVENTS.UPDATE_PACKAGE_DECLARATION) {
             this.props.commandProxy.dispatch(EVENTS.UPDATE_PACKAGE_DECLARATION, {
@@ -761,6 +754,7 @@ BallerinaFileEditor.childContextTypes = {
     editor: PropTypes.instanceOf(BallerinaFileEditor).isRequired,
     environment: PropTypes.instanceOf(PackageScopedEnvironment).isRequired,
     isPreviewViewEnabled: PropTypes.bool.isRequired,
+    setSourceEditorRef: PropTypes.func.isRequired,
 };
 
 export default BallerinaFileEditor;

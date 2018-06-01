@@ -177,12 +177,8 @@ class TryItContainer extends React.Component {
      * @memberof TryItContainer
      */
     render() {
-        const clientTypePills = this.renderClientTypePills();
         const clientView = this.renderClientView();
         return (<div className='try-it-container'>
-            <div className='client-type-pills-wrapper'>
-                {clientTypePills}
-            </div>
             {clientView}
         </div>);
     }

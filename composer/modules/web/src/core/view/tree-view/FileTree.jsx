@@ -22,7 +22,6 @@ import _ from 'lodash';
 import PropTypes from 'prop-types';
 import { getFSRoots, listFiles } from 'api-client/api-client';
 import TreeNode from './TreeNode';
-import './file-tree.scss';
 
 // A symbol to represent file system root
 const FS_ROOT = '#';

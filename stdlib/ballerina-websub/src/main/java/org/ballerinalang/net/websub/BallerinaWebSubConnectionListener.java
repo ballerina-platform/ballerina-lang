@@ -31,7 +31,6 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.mime.util.Constants;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
@@ -53,9 +52,6 @@ import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import static org.ballerinalang.net.http.HttpUtil.extractEntity;
-
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
@@ -171,16 +167,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
             response.addHttpContent(new DefaultLastHttpContent());
             HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
             BStruct notificationRequestStruct = createNotificationRequestStruct(balResource);
-            BStruct entityStruct = extractEntity((BStruct) httpRequest);
-            if (entityStruct != null) {
-                if (entityStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE) instanceof BJSON) {
-                    BJSON jsonBody = (BJSON) (entityStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE));
-                    notificationRequestStruct.setRefField(0, jsonBody);
-                } else {
-                    console.println("ballerina: Non-JSON payload received as WebSub Notification");
-                }
-            }
-            notificationRequestStruct.setRefField(1, (BRefType) httpRequest);
+            notificationRequestStruct.setRefField(0, (BRefType) httpRequest);
             signatureParams[0] = notificationRequestStruct;
         }
 
