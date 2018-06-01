@@ -704,13 +704,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_OBJECT_FIELD, varName, env.enclTypeDefinition.name);
             }
             varNode.type = symbol.type;
-            BVarSymbol varSymbol = createVarSymbol(varNode.flagSet, varNode.type, varName, env);
+            Name updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
+            BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, updatedVarName, env);
 
-            // This is to identify variable when passing parameters TODO any alternative?
-            varSymbol.field = true;
-            varSymbol.originalName = names.fromIdNode(varNode.name);
+            // Reset the name of the symbol to the original var name
+            varSymbol.name = varName;
 
-            //This means enclosing type definition is a object type defintion
+            // This means enclosing type definition is a object type defintion
             BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
             objectTypeNode.initFunction.initFunctionStmts.put(symbol,
                     (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
@@ -1353,5 +1353,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformer, transformer.symbol.scope, pkgEnv);
             defineInvokableSymbolParams(transformer, transformer.symbol, transformerEnv);
         });
+    }
+
+    private Name getFieldSymbolName(BLangVariable receiver, BLangVariable variable) {
+        return names.fromString(Symbols.getAttachedFuncSymbolName(
+                receiver.type.tsymbol.name.value, variable.name.value));
     }
 }
