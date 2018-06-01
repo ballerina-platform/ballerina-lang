@@ -18,31 +18,31 @@
 
 package org.wso2.transport.http.netty.https;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -50,6 +50,7 @@ import java.util.stream.Collectors;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 
 /**
  * Tests for different cipher suites provided by client and server.
@@ -57,8 +58,10 @@ import static org.testng.AssertJUnit.assertNotNull;
 public class CipherSuitesTest {
 
     private static HttpClientConnector httpClientConnector;
-    private static String testValue = "successful";
-    private String verifyClient = "require";
+    private List<Parameter> clientParams;
+    private ServerConnector serverConnector;
+    private HttpWsConnectorFactory factory;
+    private static Logger logger = LoggerFactory.getLogger(CipherSuitesTest.class);
 
     @DataProvider(name = "ciphers")
 
@@ -67,12 +70,10 @@ public class CipherSuitesTest {
         return new Object[][] {
                 // true = expecting a SSL hand shake failure.
                 // false = expecting no errors.
-                { "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", false, 9099},
+                { "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256", false,
+                        TestUtil.SERVER_CONNECTOR_PORT },
                 { "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256",
-                        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", true, 9098 },
-                { "TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,"
-                        + "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", "TLS_RSA_WITH_AES_128_GCM_SHA256", true, 9097 }
-        };
+                        "TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256", true, TestUtil.HTTPS_SERVER_PORT } };
     }
 
     @Test(dataProvider = "ciphers")
@@ -88,53 +89,28 @@ public class CipherSuitesTest {
             throws InterruptedException {
 
         Parameter paramClientCiphers = new Parameter("ciphers", clientCiphers);
-        List<Parameter> clientParams = new ArrayList<>();
+        clientParams = new ArrayList<>();
         clientParams.add(paramClientCiphers);
 
         Parameter paramServerCiphers = new Parameter("ciphers", serverCiphers);
         List<Parameter> serverParams = new ArrayList<>();
         serverParams.add(paramServerCiphers);
 
-        TransportsConfiguration transportsConfiguration = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-        Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
-        senderConfig.forEach(config -> {
-            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
-                config.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
-                config.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
-                config.setParameters(clientParams);
-            }
-        });
-
-        HttpWsConnectorFactory factory = new DefaultHttpWsConnectorFactory();
-        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
-        listenerConfiguration.setPort(serverPort);
-        listenerConfiguration.setVerifyClient(verifyClient);
-        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
-        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
-        listenerConfiguration.setParameters(serverParams);
-
-        ServerConnector serverConnector = factory
-                .createServerConnector(TestUtil.getDefaultServerBootstrapConfig(), listenerConfiguration);
+        factory = new DefaultHttpWsConnectorFactory();
+        serverConnector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
+                getListenerConfiguration(serverPort, serverParams));
         ServerConnectorFuture future = serverConnector.start();
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = factory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+        httpClientConnector = factory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
 
         testCiphersuites(hasException, serverPort);
-        serverConnector.stop();
-        httpClientConnector.close();
     }
 
     private void testCiphersuites(boolean hasException, int serverPort) {
         try {
+            String testValue = "successful";
             HTTPCarbonMessage msg = TestUtil.createHttpsPostReq(serverPort, testValue, "");
 
             CountDownLatch latch = new CountDownLatch(1);
@@ -165,4 +141,40 @@ public class CipherSuitesTest {
             TestUtil.handleException("Exception occurred while running testCiphersuites", e);
         }
     }
-}
+
+    private ListenerConfiguration getListenerConfiguration(int serverPort, List<Parameter> serverParams) {
+        ListenerConfiguration listenerConfiguration = ListenerConfiguration.getDefault();
+        listenerConfiguration.setPort(serverPort);
+        String verifyClient = "require";
+        listenerConfiguration.setVerifyClient(verifyClient);
+        listenerConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
+        listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+        listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
+        listenerConfiguration.setScheme(HTTPS_SCHEME);
+        listenerConfiguration.setParameters(serverParams);
+        return listenerConfiguration;
+    }
+
+    private SenderConfiguration getSenderConfigs() {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
+        senderConfiguration.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setScheme(HTTPS_SCHEME);
+        senderConfiguration.setParameters(clientParams);
+        return senderConfiguration;
+    }
+
+    @AfterClass
+    public void cleanUp() throws ServerConnectorException {
+        try {
+            serverConnector.stop();
+            httpClientConnector.close();
+            factory.shutdown();
+        } catch (Exception e) {
+            logger.warn("Interrupted while waiting for response", e);
+        }
+    }
+ }

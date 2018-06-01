@@ -25,6 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -42,33 +43,45 @@ import java.util.concurrent.CountDownLatch;
 /**
  * WebSocket Client Handler for Testing.
  */
-public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
+public class WebSocketTestClientFrameHandler extends SimpleChannelInboundHandler<Object> {
 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketTestClient.class);
 
     private final WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture;
-    private ChannelHandlerContext ctx;
-
-    private String textReceived = "";
-    private ByteBuffer bufferReceived = null;
-    private boolean isPingReceived;
-    private boolean isPongReceived;
     private CountDownLatch latch;
 
-    public WebSocketClientHandler(WebSocketClientHandshaker handshaker, CountDownLatch latch) {
+    // Variables to store events received.
+    private String textReceived;
+    private ByteBuffer bufferReceived;
+    private CloseWebSocketFrame receivedCloseFrame;
+    private boolean isPingReceived;
+    private boolean isPongReceived;
+    private FullHttpResponse httpResponse;
+
+    public WebSocketTestClientFrameHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
-        this.latch = latch;
     }
 
     public ChannelFuture handshakeFuture() {
         return handshakeFuture;
     }
 
+    public void setCountDownLatch(CountDownLatch latch) {
+        this.latch = latch;
+    }
+
+    public HttpResponse getHttpResponse() {
+        return httpResponse;
+    }
+
+    public WebSocketClientHandshaker getHandshaker() {
+        return handshaker;
+    }
+
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
         handshakeFuture = ctx.newPromise();
-        this.ctx = ctx;
     }
 
     @Override
@@ -79,13 +92,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws InterruptedException {
         logger.debug("WebSocket Client disconnected!");
+        countDownLatch();
     }
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel channel = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
-            handshaker.finishHandshake(channel, (FullHttpResponse) msg);
+            httpResponse = (FullHttpResponse) msg;
+            handshaker.finishHandshake(channel, httpResponse);
             logger.debug("WebSocket Client connected!");
             handshakeFuture.setSuccess();
             return;
@@ -119,15 +134,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             bufferReceived = pongFrame.content().nioBuffer();
         } else if (frame instanceof CloseWebSocketFrame) {
             logger.debug("WebSocket Client received closing");
-            if (channel.isOpen()) {
-                CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) frame;
-                channel.writeAndFlush(new CloseWebSocketFrame(closeWebSocketFrame.statusCode(), null))
-                        .addListener(future -> {
-                            if (channel.isOpen()) {
-                                channel.close().sync();
-                            }
-                        });
-            }
+            receivedCloseFrame = (CloseWebSocketFrame) frame.retain();
         }
         countDownLatch();
     }
@@ -148,6 +155,15 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         ByteBuffer tempBuffer = bufferReceived;
         bufferReceived = null;
         return tempBuffer;
+    }
+
+    /**
+     * @return Received close frame.
+     */
+    public CloseWebSocketFrame getReceivedCloseFrame() {
+         CloseWebSocketFrame tempFrame = receivedCloseFrame;
+         receivedCloseFrame = null;
+         return tempFrame;
     }
 
     /**
@@ -177,16 +193,12 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
         }
+        logger.error("Exception caught: ", cause);
         ctx.close();
     }
 
-    public void shutDown() throws InterruptedException {
-        ctx.channel().writeAndFlush(new CloseWebSocketFrame());
-        ctx.channel().closeFuture().sync();
-    }
-
     private void countDownLatch() {
-        if (this.latch == null) {
+        if (this.latch == null || latch.getCount() == 0) {
             return;
         }
         latch.countDown();

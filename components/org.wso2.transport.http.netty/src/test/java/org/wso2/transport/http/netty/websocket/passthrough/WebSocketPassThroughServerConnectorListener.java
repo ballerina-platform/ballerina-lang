@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,10 +14,9 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
-package org.wso2.transport.http.netty.websocket;
+package org.wso2.transport.http.netty.websocket.passthrough;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,20 +41,20 @@ import org.wso2.transport.http.netty.util.TestUtil;
 /**
  * Server Connector Listener to check WebSocket pass-through scenarios.
  */
-public class WebSocketPassthroughServerConnectorListener implements WebSocketConnectorListener {
+public class WebSocketPassThroughServerConnectorListener implements WebSocketConnectorListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(WebSocketPassthroughServerConnectorListener.class);
+    private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughServerConnectorListener.class);
 
     private final HttpWsConnectorFactory connectorFactory = new DefaultHttpWsConnectorFactory();
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
-                                         TestUtil.REMOTE_WS_SERVER_PORT, "websocket");
+                                         TestUtil.WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
         WsClientConnectorConfig configuration = new WsClientConnectorConfig(remoteUrl);
         configuration.setAutoRead(false);
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
-        WebSocketConnectorListener clientConnectorListener = new WebSocketPassthroughClientConnectorListener();
+        WebSocketConnectorListener clientConnectorListener = new WebSocketPassThroughClientConnectorListener();
         clientConnector.connect(clientConnectorListener).setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection clientWebSocketConnection, HttpCarbonResponse response) {
@@ -71,7 +70,7 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
 
                     @Override
                     public void onError(Throwable t) {
-                        logger.error(t.getMessage());
+                        log.error(t.getMessage());
                         Assert.fail("Error: " + t.getMessage());
                     }
                 });
@@ -107,9 +106,12 @@ public class WebSocketPassthroughServerConnectorListener implements WebSocketCon
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
+        int statusCode = closeMessage.getCloseCode();
+        String closeReason = closeMessage.getCloseReason();
         WebSocketConnection clientConnection = WebSocketPassThroughTestConnectionManager.getInstance()
                 .getClientConnection(closeMessage.getWebSocketConnection());
-        clientConnection.closeForcefully();
+        clientConnection.initiateConnectionClosure(statusCode, closeReason).addListener(
+                future -> closeMessage.getWebSocketConnection().finishConnectionClosure(statusCode, null));
     }
 
     @Override

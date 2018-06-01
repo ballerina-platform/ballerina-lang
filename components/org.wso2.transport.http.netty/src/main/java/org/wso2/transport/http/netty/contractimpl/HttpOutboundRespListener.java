@@ -105,7 +105,6 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             outboundResponseMsg.getHttpContentAsync().setMessageListener(httpContent ->
                     this.sourceContext.channel().eventLoop().execute(() -> {
                         try {
-
                             writeOutboundResponse(outboundResponseMsg, keepAlive, httpContent);
                         } catch (Exception exception) {
                             String errorMsg = "Failed to send the outbound response : "
@@ -155,6 +154,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             } else {
                 outboundChannelFuture = writeOutboundResponseBody(httpContent);
             }
+            sourceHandlerErrorHandler.setComplete();
 
             if (!keepAlive || ((Boolean) outboundResponseMsg.getProperty(ERROR_STATE))) {
                 outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);

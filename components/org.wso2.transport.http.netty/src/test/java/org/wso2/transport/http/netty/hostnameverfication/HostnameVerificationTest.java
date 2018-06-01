@@ -22,10 +22,8 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -36,14 +34,12 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.https.SSLConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
-import java.util.Set;
+import java.util.HashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -51,6 +47,7 @@ import java.util.stream.Collectors;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 
 /**
  * A test for hostname verification. Contains two test scenarios to test certificates with CN included and not included.
@@ -76,9 +73,9 @@ public class HostnameVerificationTest {
         String keyStoreFileWithCN = "/simple-test-config/wso2carbon.p12";
         String trustStoreFileWithCN = "/simple-test-config/client-truststore.p12";
         String password = "ballerina";
-        return new Object[][] {
-                { keyStoreFilePath, keyStorePassword, trustStoreFilePath, trustStorePassword, true, 9098 },
-                { keyStoreFileWithCN, password, trustStoreFileWithCN, password, false, 9099 }
+        return new Object[][] { { keyStoreFilePath, keyStorePassword, trustStoreFilePath, trustStorePassword, true,
+                TestUtil.HTTPS_SERVER_PORT },
+                { keyStoreFileWithCN, password, trustStoreFileWithCN, password, false, TestUtil.SERVER_PORT2 }
         };
     }
 
@@ -96,20 +93,7 @@ public class HostnameVerificationTest {
     public void testHostNameVerification(String keyStoreFilePath, String keyStorePassword, String trustStoreFilePath,
             String trustStorePassword, boolean hasException, int serverPort) throws InterruptedException {
 
-        TransportsConfiguration transportsConfiguration = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-        Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
-
-        senderConfig.forEach(config -> {
-            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
-                config.setTrustStorePass(trustStorePassword);
-                config.setTLSStoreType(tlsStoreType);
-            }
-        });
-
         factory = new DefaultHttpWsConnectorFactory();
-
         serverConnector = factory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                 setListenerConfiguration(serverPort, keyStoreFilePath, keyStorePassword));
         ServerConnectorFuture future = serverConnector.start();
@@ -117,8 +101,7 @@ public class HostnameVerificationTest {
         future.sync();
 
         httpClientConnector = factory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+                .createHttpClientConnector(new HashMap<>(), getSenderConfigs(trustStoreFilePath, trustStorePassword));
 
         sendRequest(hasException, serverPort);
     }
@@ -162,9 +145,18 @@ public class HostnameVerificationTest {
         listenerConfiguration.setPort(port);
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(keyStore));
         listenerConfiguration.setKeyStorePass(keyStorePassword);
-        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
+        listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setTLSStoreType(tlsStoreType);
         return listenerConfiguration;
+    }
+
+    private SenderConfiguration getSenderConfigs(String trustStoreFilePath, String trustStorePassword) {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(trustStoreFilePath));
+        senderConfiguration.setTrustStorePass(trustStorePassword);
+        senderConfiguration.setTLSStoreType(tlsStoreType);
+        senderConfiguration.setScheme(HTTPS_SCHEME);
+        return senderConfiguration;
     }
 
     @AfterClass

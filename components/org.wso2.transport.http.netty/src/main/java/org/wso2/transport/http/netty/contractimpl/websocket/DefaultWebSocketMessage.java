@@ -31,10 +31,9 @@ import java.util.Map;
 public class DefaultWebSocketMessage implements WebSocketMessage {
 
     private final Map<String, Object> properties = new HashMap<>();
-    protected String subProtocol;
     protected String target;
     protected String listenerInterface;
-    protected boolean isConnectionSecured;
+    protected boolean secureConnection;
     protected boolean isServerMessage;
     protected WebSocketConnection webSocketConnection;
     protected String sessionlID;
@@ -55,20 +54,8 @@ public class DefaultWebSocketMessage implements WebSocketMessage {
         return properties;
     }
 
-
-    // setters and getters of common properties.
-
-    public void setSubProtocol(String subProtocol) {
-        this.subProtocol = subProtocol;
-    }
-
     public void setSessionlID(String sessionlID) {
         this.sessionlID = sessionlID;
-    }
-
-    @Override
-    public String getSubProtocol() {
-        return subProtocol;
     }
 
     public void setTarget(String target) {
@@ -90,12 +77,12 @@ public class DefaultWebSocketMessage implements WebSocketMessage {
     }
 
     public void setIsConnectionSecured(boolean isConnectionSecured) {
-        this.isConnectionSecured = isConnectionSecured;
+        this.secureConnection = isConnectionSecured;
     }
 
     @Override
-    public boolean isConnectionSecured() {
-        return isConnectionSecured;
+    public boolean isSecureConnection() {
+        return secureConnection;
     }
 
     public void setIsServerMessage(boolean isServerMessage) {

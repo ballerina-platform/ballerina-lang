@@ -35,6 +35,7 @@ import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGE
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION_WITHOUT_COMPLETING_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION;
+import static org.wso2.transport.http.netty.listener.InboundState.CONNECTED;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSE_CONNECTION_BEFORE_INITIATING_REQUEST;
 import static org.wso2.transport.http.netty.common.InboundState.CONNECTED;
 
@@ -55,6 +56,9 @@ public class SourceHandlerErrorHandler {
     }
 
     void handleErrorCloseScenario(HTTPCarbonMessage inboundRequestMsg, HttpResponseFuture httpOutboundRespFuture) {
+        if (complete) {
+            return;
+        }
         this.inboundRequestMsg = inboundRequestMsg;
         try {
             switch (inboundState) {
@@ -126,5 +130,9 @@ public class SourceHandlerErrorHandler {
 
     public void setInboundState(InboundState inboundState) {
         this.inboundState = inboundState;
+    }
+
+    public void setComplete() {
+        complete = true;
     }
 }

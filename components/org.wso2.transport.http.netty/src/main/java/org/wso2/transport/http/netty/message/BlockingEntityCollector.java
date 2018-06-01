@@ -147,6 +147,9 @@ public class BlockingEntityCollector implements EntityCollector {
                     size += httpContent.content().readableBytes();
                     contentList.add(httpContent);
                     if (size >= maxSize) {
+                        while (!httpContentQueue.isEmpty()) {
+                            contentList.add(httpContentQueue.poll());
+                        }
                         break;
                     } else if ((httpContent instanceof LastHttpContent)) {
                         state = EntityBodyState.CONSUMED;

@@ -23,11 +23,9 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
-import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contentaware.listeners.EchoMessageListener;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -37,16 +35,14 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
-import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 import org.wso2.transport.http.netty.util.TestUtil;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -54,6 +50,7 @@ import java.util.stream.Collectors;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
 
 /**
  * Tests for SSL protocols.
@@ -65,6 +62,7 @@ public class SSLProtocolsTest {
     private static HttpClientConnector httpClientConnector;
     private static HttpWsConnectorFactory httpWsConnectorFactory;
     private static ServerConnector serverConnector;
+    private List<Parameter> clientParams;
 
     @DataProvider(name = "protocols")
 
@@ -72,8 +70,8 @@ public class SSLProtocolsTest {
 
         // true = expecting a SSL hand shake failure.
         // false = expecting no errors.
-        return new Object[][] { { "TLSv1.1", "TLSv1.1", false, 9009 },
-                { "TLSv1.1", "TLSv1.2", true, 9007 } };
+        return new Object[][] { { "TLSv1.1", "TLSv1.1", false, TestUtil.SERVER_PORT1 },
+                { "TLSv1.1", "TLSv1.2", true, TestUtil.SERVER_PORT2 } };
     }
 
     @Test(dataProvider = "protocols")
@@ -88,24 +86,12 @@ public class SSLProtocolsTest {
             throws InterruptedException {
 
         Parameter clientprotocols = new Parameter("sslEnabledProtocols", clientProtocol);
-        List<Parameter> clientParams = new ArrayList<>();
+        clientParams = new ArrayList<>();
         clientParams.add(clientprotocols);
 
         Parameter serverProtocols = new Parameter("sslEnabledProtocols", serverProtocol);
         List<Parameter> severParams = new ArrayList<>();
         severParams.add(serverProtocols);
-
-        TransportsConfiguration transportsConfiguration = TestUtil
-                .getConfiguration("/simple-test-config" + File.separator + "netty-transports.yml");
-        Set<SenderConfiguration> senderConfig = transportsConfiguration.getSenderConfigurations();
-        senderConfig.forEach(config -> {
-            if (config.getId().contains(Constants.HTTPS_SCHEME)) {
-                config.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
-                config.setTrustStoreFile(TestUtil.getAbsolutePath(config.getTrustStoreFile()));
-                config.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
-                config.setParameters(clientParams);
-            }
-        });
 
         httpWsConnectorFactory = new DefaultHttpWsConnectorFactory();
         ListenerConfiguration listenerConfiguration = getListenerConfiguration(serverPort, severParams);
@@ -116,9 +102,7 @@ public class SSLProtocolsTest {
         future.setHttpConnectorListener(new EchoMessageListener());
         future.sync();
 
-        httpClientConnector = httpWsConnectorFactory
-                .createHttpClientConnector(HTTPConnectorUtil.getTransportProperties(transportsConfiguration),
-                        HTTPConnectorUtil.getSenderConfiguration(transportsConfiguration, Constants.HTTPS_SCHEME));
+        httpClientConnector = httpWsConnectorFactory.createHttpClientConnector(new HashMap<>(), getSenderConfigs());
 
         testSSLProtocols(hasException, serverPort);
     }
@@ -132,9 +116,20 @@ public class SSLProtocolsTest {
         listenerConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
         listenerConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
         listenerConfiguration.setKeyStorePass(TestUtil.KEY_STORE_PASSWORD);
-        listenerConfiguration.setScheme(Constants.HTTPS_SCHEME);
+        listenerConfiguration.setScheme(HTTPS_SCHEME);
         listenerConfiguration.setParameters(severParams);
         return listenerConfiguration;
+    }
+
+    private SenderConfiguration getSenderConfigs() {
+        SenderConfiguration senderConfiguration = new SenderConfiguration();
+        senderConfiguration.setKeyStoreFile(TestUtil.getAbsolutePath(TestUtil.KEY_STORE_FILE_PATH));
+        senderConfiguration.setTrustStoreFile(TestUtil.getAbsolutePath(TestUtil.TRUST_STORE_FILE_PATH));
+        senderConfiguration.setTrustStorePass(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setKeyStorePassword(TestUtil.KEY_STORE_PASSWORD);
+        senderConfiguration.setParameters(clientParams);
+        senderConfiguration.setScheme(HTTPS_SCHEME);
+        return senderConfiguration;
     }
 
     private void testSSLProtocols(boolean hasException, int serverPort) {
@@ -178,6 +173,7 @@ public class SSLProtocolsTest {
     public void cleanUp() throws ServerConnectorException {
         try {
             serverConnector.stop();
+            httpClientConnector.close();
             httpWsConnectorFactory.shutdown();
         } catch (Exception e) {
             logger.warn("Interrupted while waiting for response two", e);
