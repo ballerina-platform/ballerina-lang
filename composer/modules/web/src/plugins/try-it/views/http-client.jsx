@@ -811,7 +811,7 @@ class HttpClient extends React.Component {
                                                     </Form.Group>
                                                 </Form>
                                             ) : (<p className='response-empty'>
-                                                Hit the send button to see response details.
+                                                Click Send button to send a request.
                                             </p>)
                                         }
 

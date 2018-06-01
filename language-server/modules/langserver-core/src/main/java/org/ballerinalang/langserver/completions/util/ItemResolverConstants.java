@@ -36,7 +36,7 @@ public class ItemResolverConstants {
     public static final String LOCK = "lock";
     public static final String BIND = "bind";
     public static final String ENDPOINT = "endpoint";
-    public static final String NEXT = "next";
+    public static final String CONTINUE = "continue";
     public static final String BREAK = "break";
     public static final String TRIGGER_WORKER = "wtrg   Worker Trigger Statement";
     public static final String WORKER_REPLY = "wrply   Worker Reply Statement";
