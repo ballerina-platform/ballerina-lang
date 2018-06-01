@@ -483,6 +483,21 @@ public class TaintedStatusPropagationTest {
     }
 
     @Test
+    public void testSimpleWorkerInteractionWithTupleAssignment() {
+        CompileResult result = BCompileUtil
+                .compile("test-src/taintchecking/propagation/simple-worker-interaction-with-tuple-assignment.bali");
+        Assert.assertTrue(result.getDiagnostics().length == 0);
+    }
+
+    @Test
+    public void testSimpleWorkerInteractionWithTupleAssignmentNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
+                "simple-worker-interaction-with-tuple-assignment-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 13, 24);
+    }
+
+    @Test
     public void testForkJoin() {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/fork-join.bal");
