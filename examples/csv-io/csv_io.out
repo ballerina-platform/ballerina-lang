@@ -2,10 +2,20 @@
 #`.bal` file and run the `ballerina run` command. 
 $ ballerina run csv_io.bal
 Start processing the CSV file from ./files/sample.csv
-["MATH", "Mathematics", "Mathematic", "CAS", "Department"]
-["MUS", "Music", "Music", "CAS", "Department"]
-["PHY", "Physics", "Physics", "CAS", "Department"]
-["PSY", "Psychology", "Psychology", "CAS", "Department"]
-["CHEM", "Chemistry", "Chemistry", "CAS", "Department"]
+["1", "James", "10000"]
+["2", "Nathan", "150000"]
+["3", "Ronald", "120000"]
+["4", "Roy", "6000"]
+["5", "Oliver", "1100000"]
 Processing completed.
-Source channel closed successfully.
+CSV channel closed successfully.
+Reading  ./files/sample.csv as a table
+Creating `salaryTable` using `select` operation
+CSV channel closed successfully.
+Writing the table to ./files/output.csv
+Record ["1", "10000.0"] was successfully written to ./files/output.csv
+Record ["2", "150000.0"] was successfully written to ./files/output.csv
+Record ["3", "120000.0"] was successfully written to ./files/output.csv
+Record ["4", "6000.0"] was successfully written to ./files/output.csv
+Record ["5", "1100000.0"] was successfully written to ./files/output.csv
+CSV channel closed successfully.
