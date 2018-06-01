@@ -485,7 +485,7 @@ public class TaintedStatusPropagationTest {
     @Test
     public void testSimpleWorkerInteractionWithTupleAssignment() {
         CompileResult result = BCompileUtil
-                .compile("test-src/taintchecking/propagation/simple-worker-interaction-with-tuple-assignment.bali");
+                .compile("test-src/taintchecking/propagation/simple-worker-interaction-with-tuple-assignment.bal");
         Assert.assertTrue(result.getDiagnostics().length == 0);
     }
 
