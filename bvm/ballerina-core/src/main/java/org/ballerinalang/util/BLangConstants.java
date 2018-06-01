@@ -67,4 +67,7 @@ public class BLangConstants {
     
     // Empty value for string
     public static final String STRING_EMPTY_VALUE = "";
+
+    // Empty value for blob
+    public static final byte[] BLOB_EMPTY_VALUE = new byte[0];
 }

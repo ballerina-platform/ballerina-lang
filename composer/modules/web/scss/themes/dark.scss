@@ -1,6 +1,14 @@
 $brand-primary: #2fb8b0;
+$brand-primary-hover: #30a9a2;
 $primaryBackgroundColor: #e7eaeb;
+$primaryBackgroundColorHover: #e7eaeb;
 $secondary-color:#575a5e;
+$secondary-color-hover:#616467;
+
+$white:#fff;
+$diagram-background: #e7eaeb;
+$text-color:#333;
+$statementTextColor:#777;
 
 $header-bgcolor: #1a1b1d;
 $header-brand-color: #fff;
@@ -16,8 +24,7 @@ $menubar-file-dropdown-menu-bgcolor: #3c3c3c;
 $menubar-file-dropdown-menu-link-hover-color: $menubar-file-dropdown-menu-bgcolor;
 $menubar-file-dropdown-menu-link-hover-bgcolor: #d4d4d4;
 
-$breadcrumb-bgcolor: #151515;
-$breadcrumb-active-color: #fff;
+$menu-pop-content-bgcolor:#f8f8f8;
 
 $left-toolbar-bgcolor: #2b2b2b;
 $left-toolbar-link-color: #999999;
@@ -30,18 +37,15 @@ $tab-header-active-inverse-tab-bgcolor: #3c3c3c;
 $tab-content-wrapper-bgcolor: #141414;
 $tab-content-wrapper-grid-color: #202020;
 
+$rc-tabs-tab-hover:#bebebe;
+$rc-tabs-tab-color:#6D6D6D;
+
 $bottom-right-controls-bgcolor: #565656;
 
 $source-editor-color: #F8F8F8;
 $source-editor-bgcolor: $tab-header-active-inverse-tab-bgcolor;
 $source-editor-gutter-color: #E2E2E2;
 $source-editor-gutter-bgcolor: #313131;
-
-$tool-palette-container-bgcolor: #1e1e1e;
-$tool-group-header-bgcolor: #3c3c3c;
-$tool-group-header-text-color: #cccccc;
-$tool-title-color: $tool-group-header-text-color;
-$tool-separator-color: $tool-group-header-bgcolor;
 
 $panel-header-bgcolor: #3c3c3c;
 $panel-header-border-color: $panel-header-bgcolor;

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/crypto;
@@ -87,8 +88,9 @@ public type CallerActions object {
         P{{headers}} The headers, if any, that need to be set
         R{{}} `error` if an error occurred with the update
     }
-    public function publishUpdate(string topic, json payload, string? secret = (), string signatureMethod = "sha256",
-                                  map<string>? headers = ()) returns error?;
+    public function publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload, string? contentType = (),
+                                  string? secret = (), string signatureMethod = "sha256", map<string>? headers = ())
+        returns error?;
 
     documentation {
         Notifies a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
@@ -165,16 +167,24 @@ public function CallerActions::unregisterTopic(string topic, string? secret = ()
     }
 }
 
-public function CallerActions::publishUpdate(string topic, json payload, string? secret = (),
-                                         string signatureMethod = "sha256", map<string>? headers = ()) returns error? {
+public function CallerActions::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+                                             string? contentType = (), string? secret = (),
+                                             string signatureMethod = "sha256", map<string>? headers = ())
+        returns error? {
+
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
-    request.setJsonPayload(payload);
+    request.setPayload(payload);
+
+    match(contentType) {
+        string specifiedContentType => request.setContentType(specifiedContentType);
+        () => {}
+    }
 
     match (secret) {
         string specifiedSecret => {
-            string stringPayload = payload.toString();
+            string stringPayload = request.getPayloadAsString() but { error => "" };
             string publisherSignature = signatureMethod + "=";
             string generatedSignature = "";
             if (SHA1.equalsIgnoreCase(signatureMethod)) {
@@ -201,10 +211,17 @@ public function CallerActions::publishUpdate(string topic, json payload, string?
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
-        http:Response => return;
-        error httpConnectorError => { error webSubError = {
-            message:"Notification failed for topic [" + topic + "]", cause:httpConnectorError};
-        return webSubError;
+        http:Response response => {
+            if (!isSuccessStatusCode(response.statusCode)) {
+                string payload = response.getTextPayload() but { error => "" };
+                error webSubError = {message:"Error occured publishing update: " + payload};
+                return webSubError;
+            }
+            return;
+        }
+        error httpConnectorError => {
+            error webSubError = {message: "Publish failed for topic [" + topic + "]", cause:httpConnectorError};
+            return webSubError;
         }
     }
 }
@@ -225,10 +242,18 @@ public function CallerActions::notifyUpdate(string topic, map<string>? headers =
 
     var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
     match (response) {
-        http:Response => return;
-        error httpConnectorError => { error webSubError = {
-            message:"Update availability notification failed for topic [" + topic + "]", cause:httpConnectorError};
-        return webSubError;
+        http:Response response => {
+            if (!isSuccessStatusCode(response.statusCode)) {
+                string payload = response.getTextPayload() but { error => "" };
+                error webSubError = {message:"Error occured notifying update availability: " + payload};
+                return webSubError;
+            }
+            return;
+        }
+        error httpConnectorError => {
+            error webSubError = {message:"Update availability notification failed for topic [" + topic + "]",
+                                 cause:httpConnectorError};
+            return webSubError;
         }
     }
 }

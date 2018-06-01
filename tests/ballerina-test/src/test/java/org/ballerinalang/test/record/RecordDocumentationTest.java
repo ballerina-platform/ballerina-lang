@@ -100,19 +100,19 @@ public class RecordDocumentationTest {
         BAssertUtil.validateWarning(compileResult, 4,
                 "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
         BAssertUtil.validateWarning(compileResult, 5,
-                "already documented attribute 'file'", 45, 1);
+                "already documented attribute 'accessMode'", 45, 1);
 //        BAssertUtil.validateWarning(compileResult, 6,
 //                "no such documentable attribute 'successfuls' with doc prefix 'R'", 47, 1);
         BAssertUtil.validateWarning(compileResult, 6,
-                "already documented attribute 'url'", 89, 1);
+                "already documented attribute 'url'", 92, 1);
         BAssertUtil.validateWarning(compileResult, 7,
-                "no such documentable attribute 'urls' with doc prefix 'P'", 90, 1);
+                "no such documentable attribute 'urls' with doc prefix 'P'", 93, 1);
         BAssertUtil.validateWarning(compileResult, 8,
-                "no such documentable attribute 'conn' with doc prefix 'P'", 104, 1);
+                "no such documentable attribute 'conn' with doc prefix 'P'", 107, 1);
         BAssertUtil.validateWarning(compileResult, 9,
-                "already documented attribute 'req'", 110, 5);
+                "already documented attribute 'req'", 113, 5);
         BAssertUtil.validateWarning(compileResult, 10,
-                "no such documentable attribute 'reqest' with doc prefix 'P'", 111, 5);
+                "no such documentable attribute 'reqest' with doc prefix 'P'", 114, 5);
 //        BAssertUtil.validateWarning(compileResult, 8,
 //                "no such documentable attribute 'pa' with doc prefix 'T'", 63, 2);
 //        BAssertUtil.validateWarning(compileResult, 9,

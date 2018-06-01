@@ -174,6 +174,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -183,7 +184,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -729,7 +729,8 @@ public class BLangPackageBuilder {
         if (retParamsAvail) {
             BLangVariable varNode = (BLangVariable) this.varStack.pop();
             returnTypeNode = varNode.getTypeNode();
-            returnTypeNode.addWS(varNode.getWS());
+            // set returns keyword to invocation node.
+            invNode.addWS(varNode.getWS());
             varNode.getAnnotationAttachments().forEach(invNode::addReturnTypeAnnotationAttachment);
         } else {
             BLangValueType nillTypeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
@@ -1256,8 +1257,16 @@ public class BLangPackageBuilder {
         }
 
         if (isReceiverAttached) {
-            BLangVariable receiver = (BLangVariable) this.varStack.pop();
+            //Get type node for this attached function
+            TypeNode typeNode = this.typeNodeStack.pop();
+            //Create and add receiver to attached functions
+            BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+            receiver.pos = pos;
+
+            IdentifierNode name = createIdentifier(Names.SELF.getValue());
+            receiver.setName(name);
             receiver.docTag = DocTag.RECEIVER;
+            receiver.setTypeNode(typeNode);
             function.receiver = receiver;
             function.flagSet.add(Flag.ATTACHED);
         }
@@ -1641,6 +1650,7 @@ public class BLangPackageBuilder {
         endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
+        function.addWS(invocationWsStack.pop());
 
         if (publicFunc) {
             function.flagSet.add(Flag.PUBLIC);
@@ -1664,7 +1674,6 @@ public class BLangPackageBuilder {
 
         IdentifierNode name = createIdentifier(Names.SELF.getValue());
         receiver.setName(name);
-        receiver.addWS(ws);
 
         receiver.docTag = DocTag.RECEIVER;
         receiver.setTypeNode(objectType);
@@ -2071,8 +2080,8 @@ public class BLangPackageBuilder {
         addStmtToCurrentBlock(lockNode);
     }
 
-    public void addNextStatement(DiagnosticPos pos, Set<Whitespace> ws) {
-        BLangNext nextNode = (BLangNext) TreeBuilder.createNextNode();
+    public void addContinueStatement(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangContinue nextNode = (BLangContinue) TreeBuilder.createContinueNode();
         nextNode.pos = pos;
         nextNode.addWS(ws);
         addStmtToCurrentBlock(nextNode);
@@ -2213,14 +2222,12 @@ public class BLangPackageBuilder {
         ((BLangIf) elseIfNode).pos = pos;
         elseIfNode.setCondition(exprNodeStack.pop());
         elseIfNode.setBody(blockNodeStack.pop());
-        Set<Whitespace> elseWS = removeNthFromStart(ws, 0);
         elseIfNode.addWS(ws);
 
         IfNode parentIfNode = ifElseStatementStack.peek();
         while (parentIfNode.getElseStatement() != null) {
             parentIfNode = (IfNode) parentIfNode.getElseStatement();
         }
-        parentIfNode.addWS(elseWS);
         parentIfNode.setElseStatement(elseIfNode);
     }
 
@@ -2229,8 +2236,8 @@ public class BLangPackageBuilder {
         while (ifNode.getElseStatement() != null) {
             ifNode = (IfNode) ifNode.getElseStatement();
         }
-        ifNode.addWS(ws);
         BlockNode elseBlock = blockNodeStack.pop();
+        elseBlock.addWS(ws);
         ((BLangBlockStmt) elseBlock).pos = pos;
         ifNode.setElseStatement(elseBlock);
     }
@@ -3160,7 +3167,8 @@ public class BLangPackageBuilder {
     public void endPatternStreamingInputNode(DiagnosticPos pos, Set<Whitespace> ws, boolean isFollowedBy,
                                              boolean enclosedInParenthesis, boolean andWithNotAvailable,
                                              boolean forWithNotAvailable, boolean onlyAndAvailable,
-                                             boolean onlyOrAvailable, boolean commaSeparated) {
+                                             boolean onlyOrAvailable, boolean commaSeparated,
+                                             String timeDurationValue, String timeScale) {
         if (!this.patternStreamingInputStack.empty()) {
             PatternStreamingInputNode patternStreamingInputNode = this.patternStreamingInputStack.pop();
 
@@ -3188,7 +3196,7 @@ public class BLangPackageBuilder {
             }
 
             if (forWithNotAvailable) {
-                processNegationPatternWithTimeDuration(patternStreamingInputNode);
+                processNegationPatternWithTimeDuration(patternStreamingInputNode, timeDurationValue, timeScale);
             }
 
             if (commaSeparated) {
@@ -3215,10 +3223,12 @@ public class BLangPackageBuilder {
         this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
-    private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode) {
+    private void processNegationPatternWithTimeDuration(PatternStreamingInputNode patternStreamingInputNode,
+                                                        String timeDurationValue, String timeScale) {
         patternStreamingInputNode.setForWithNot(true);
         patternStreamingInputNode.addPatternStreamingEdgeInput(this.patternStreamingEdgeInputStack.pop());
-        patternStreamingInputNode.setTimeExpr(this.exprNodeStack.pop());
+        patternStreamingInputNode.setTimeDurationValue(timeDurationValue);
+        patternStreamingInputNode.setTimeScale(timeScale);
         this.recentStreamingPatternInputNode = patternStreamingInputNode;
     }
 
@@ -3318,11 +3328,12 @@ public class BLangPackageBuilder {
         this.withinClauseStack.push(withinClause);
     }
 
-    public void endWithinClause(DiagnosticPos pos, Set<Whitespace> ws) {
+    public void endWithinClause(DiagnosticPos pos, Set<Whitespace> ws, String timeDurationValue, String timeScale) {
         WithinClause withinClause = this.withinClauseStack.peek();
         ((BLangWithinClause) withinClause).pos = pos;
         withinClause.addWS(ws);
-        withinClause.setWithinTimePeriod(exprNodeStack.pop());
+        withinClause.setTimeDurationValue(timeDurationValue);
+        withinClause.setTimeScale(timeScale);
     }
 
     public void startPatternClause(DiagnosticPos pos) {

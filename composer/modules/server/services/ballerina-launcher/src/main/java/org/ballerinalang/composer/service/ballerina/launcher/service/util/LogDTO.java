@@ -28,6 +28,7 @@ public class LogDTO {
     private String path;
     private String contentType;
     private String payload;
+    private String headerType;
 
     public void setId(String id) {
         this.id = id;
@@ -83,5 +84,13 @@ public class LogDTO {
 
     public String getPayload() {
         return payload;
+    }
+
+    public void setHeaderType(String headerType) {
+        this.headerType = headerType;
+    }
+
+    public String getHeaderType() {
+        return headerType;
     }
 }

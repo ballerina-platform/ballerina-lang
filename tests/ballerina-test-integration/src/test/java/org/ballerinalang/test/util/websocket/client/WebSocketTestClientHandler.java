@@ -25,6 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -55,6 +56,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     private boolean isPing;
     private CountDownLatch countDownLatch = null;
     private ChannelHandlerContext ctx;
+    private HttpHeaders headers;
 
     public WebSocketTestClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
@@ -88,7 +90,9 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel ch = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
-            handshaker.finishHandshake(ch, (FullHttpResponse) msg);
+            FullHttpResponse fullHttpResponse = (FullHttpResponse) msg;
+            headers = fullHttpResponse.headers();
+            handshaker.finishHandshake(ch, fullHttpResponse);
             logger.info("WebSocket Client connected!");
             handshakeFuture.setSuccess();
             return;
@@ -133,7 +137,6 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
             }
         }
     }
-
 
 
     /**
@@ -195,4 +198,13 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
         ctx.close();
     }
 
+    /**
+     * Gets the header value from the response headers.
+     *
+     * @param headerName the header name
+     * @return the header value from the response headers.
+     */
+    public String getHeader(String headerName) {
+        return headers.get(headerName);
+    }
 }

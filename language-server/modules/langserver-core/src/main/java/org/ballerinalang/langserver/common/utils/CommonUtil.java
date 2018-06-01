@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.types.FiniteType;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
@@ -67,6 +68,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +83,15 @@ public class CommonUtil {
     private static final String OPEN_BRACKET_KEY_WORD = "(";
     
     public static final String LINE_SEPARATOR = System.lineSeparator();
+
+    public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
+
+    public static final boolean LS_DEBUG_ENABLED;
+
+    static {
+        String debugLogStr = System.getProperty("ballerina.debugLog");
+        LS_DEBUG_ENABLED =  debugLogStr != null && Boolean.parseBoolean(debugLogStr);
+    }
 
     /**
      * Get the package URI to the given package name.
@@ -288,7 +299,7 @@ public class CommonUtil {
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
         LSDocument document = new LSDocument(identifier.getUri());
         String fileContent = docManager.getFileContent(getPath(document));
-        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR);
+        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
         if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
             String lineContent = splitedFileContent[startPosition.getLine()];
             List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
@@ -431,7 +442,10 @@ public class CommonUtil {
                 typeString = "{}";
                 break;
             case FINITE:
-                typeString = bType.toString();
+                List<String> types = new ArrayList<>();
+                ((FiniteType) bType).getValueSpace().forEach(typeEntry -> types.add(typeEntry.toString()));
+                types.sort(Comparator.naturalOrder());
+                typeString = String.join("|", types);
                 break;
             case UNION:
                 String[] typeNameComps = bType.toString().split(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
