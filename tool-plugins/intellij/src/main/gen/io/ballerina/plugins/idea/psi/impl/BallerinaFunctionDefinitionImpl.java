@@ -67,26 +67,14 @@ public class BallerinaFunctionDefinitionImpl extends BallerinaNamedElementImpl<B
 
   @Override
   @Nullable
-  public BallerinaParameter getParameter() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaParameter.class);
+  public BallerinaTypeName getTypeName() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaTypeName.class);
   }
 
   @Override
   @Nullable
   public PsiElement getDoubleColon() {
     return findChildByType(DOUBLE_COLON);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getGt() {
-    return findChildByType(GT);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getLt() {
-    return findChildByType(LT);
   }
 
   @Override
