@@ -131,6 +131,10 @@ class SourceEditor extends React.Component {
         }
     }
 
+    shouldIgnoreChangeEvt() {
+        return this.ignoreChangeEvt;
+    }
+
     setContent(newContent, ignoreChangeEvt = false) {
         this.preventChangeEvt = ignoreChangeEvt;
         this.getCurrentModel()
@@ -169,7 +173,7 @@ class SourceEditor extends React.Component {
             modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
         }
         modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
-            if (isRedoing || isUndoing || this.preventChangeEvt) {
+            if (this.shouldIgnoreChangeEvt()) {
                 return;
             }
             const changeEvent = {
