@@ -150,12 +150,11 @@ function testGeneratedKeyWithColumn(string jdbcUrl, string userName, string pass
 
     string queryString;
     if (jdbcUrl.contains("postgres")) {
-        queryString = "insert into Customers (firstName,lastName,
-                               registrationID,creditLimit,country) values ('Kathy', 'Williams', 4, 5000.75, 'USA')
-                               RETURNING CUSTOMERID";
-    } else {
         queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
-    ('Kathy', 'Williams', 4, 5000.75, 'USA')";
+        ('Kathy', 'Williams', 4, 5000.75, 'USA') RETURNING CUSTOMERID";
+    } else {
+        queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values ('Kathy',
+        'Williams', 4, 5000.75, 'USA')";
     }
     var x = testDB->updateWithGeneratedKeys(queryString, keyColumns);
     match x {

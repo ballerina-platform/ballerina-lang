@@ -135,13 +135,13 @@ public class SQLDataIterator extends TableIterator {
         String columnName = null;
         int sqlType = -1;
         try {
+            BStructType.StructField[] structFields = this.type.getStructFields();
             for (ColumnDefinition columnDef : columnDefs) {
                 if (columnDef instanceof SQLColumnDefinition) {
                     SQLColumnDefinition def = (SQLColumnDefinition) columnDef;
                     columnName = def.getName();
                     sqlType = def.getSqlType();
                     ++index;
-                    BStructType.StructField[] structFields = this.type.getStructFields();
                     BType fieldType = structFields[index - 1].getFieldType();
                     switch (sqlType) {
                     case Types.ARRAY:
