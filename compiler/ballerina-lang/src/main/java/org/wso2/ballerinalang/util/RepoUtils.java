@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 /**
  * Home repository util methods.
@@ -17,6 +18,8 @@ import java.nio.file.Paths;
 public class RepoUtils {
     private static final String USER_HOME = "user.home";
     private static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
+    private static final String DEFAULT_TERMINAL_SIZE = "80";
+    private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
     private static final String PRODUCTION_URL = "https://api.central.ballerina.io/packages/";
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
@@ -95,6 +98,19 @@ public class RepoUtils {
             }
         }
         return settings;
+    }
+
+    /**
+     * Get the terminal width.
+     *
+     * @return terminal width as a string
+     */
+    public static String getTerminalWidth() {
+        Map<String, String> envVariableMap = System.getenv();
+        if (envVariableMap.containsKey(BALLERINA_CLI_WIDTH)) {
+            return envVariableMap.get(BALLERINA_CLI_WIDTH);
+        }
+        return DEFAULT_TERMINAL_SIZE;
     }
 
     public static Path createAndGetLibsRepoPath() {

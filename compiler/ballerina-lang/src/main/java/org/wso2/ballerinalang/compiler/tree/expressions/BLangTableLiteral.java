@@ -30,10 +30,6 @@ public class BLangTableLiteral extends BLangExpression implements TableLiteralNo
 
     public BLangExpression configurationExpr;
 
-    public BLangTableLiteral() {
-
-    }
-
     @Override
     public ExpressionNode getConfigurationExpression() {
         return configurationExpr;

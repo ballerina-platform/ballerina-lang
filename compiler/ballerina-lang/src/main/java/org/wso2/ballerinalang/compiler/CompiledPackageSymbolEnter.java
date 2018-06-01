@@ -67,6 +67,7 @@ import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo;
 import org.wso2.ballerinalang.programfile.attributes.AttributeInfo.Kind;
+import org.wso2.ballerinalang.programfile.cpentries.BlobCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ConstantPoolEntry;
 import org.wso2.ballerinalang.programfile.cpentries.FloatCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.ForkJoinCPEntry;
@@ -281,6 +282,11 @@ public class CompiledPackageSymbolEnter {
                 cpIndex = dataInStream.readInt();
                 utf8CPEntry = (UTF8CPEntry) constantPool[cpIndex];
                 return new StringCPEntry(cpIndex, utf8CPEntry.getValue());
+            case CP_ENTRY_BLOB:
+                int blobLength = dataInStream.readInt();
+                byte[] blobValue = new byte[blobLength];
+                dataInStream.readFully(blobValue);
+                return new BlobCPEntry(blobValue);
             case CP_ENTRY_PACKAGE:
                 cpIndex = dataInStream.readInt();
                 int versionCPIndex = dataInStream.readInt();

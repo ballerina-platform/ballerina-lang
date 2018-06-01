@@ -1,4 +1,4 @@
-type Person  {
+type Person {
     string name;
     int age;
     string address;
@@ -20,7 +20,7 @@ public function benchmarkJsonStructConstraint() {
 }
 
 public function benchmarkJsonInitializationWithStructConstraint() {
-    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    json<Person> j = { name: "John Doe", age: 30, address: "London" };
 }
 
 public function benchmarkGetPlainJson() {
@@ -32,7 +32,7 @@ public function benchmarkGetConstraintJson() {
 }
 
 public function benchmarkGetPersonJson() {
-    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    json<Person> j = { name: "John Doe", age: 30, address: "London" };
 }
 
 type Employee {
@@ -55,7 +55,8 @@ type PhoneNumber {
 };
 
 public function benchmarkConstrainingWithNestedRecords() {
-    json<Employee> e = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
+    json<Employee> e = { first_name: "John", last_name: "Doe", age: 30, address: { phoneNumber: { number: "1234" },
+        street: "York St" } };
     json address = e.address;
     json phoneNumber = e.address.phoneNumber.number;
 }
@@ -79,30 +80,32 @@ public function benchmarkConstraintJSONToConstraintJsonUnsafePositiveCast() {
 }
 
 public function benchmarkConstraintJSONToConstraintJsonUnsafeNegativeCast() {
-    json<Employee> je = {first_name:"John", last_name:"Doe", age:30, address:{phoneNumber:{number:"1234"}, street:"York St"}};
+    json<Employee> je = { first_name: "John", last_name: "Doe", age: 30, address: { phoneNumber: { number: "1234" },
+        street: "York St" } };
     var js = <json<Student>>je;
 }
 
 public function benchmarkJSONArrayToConstraintJsonArrayCastPositive() {
     json j1 = [getStudent()];
-    var j2 = < json<Student>[]>j1;
+    var j2 = <json<Student>[]>j1;
 }
 
 public function benchmarkJSONArrayToConstraintJsonArrayCastNegative() {
-    json j1 = [{"a":"b"}, {"c":"d"}];
-    var j2 = < json<Student>[]>j1;
+    json j1 = [{ "a": "b" }, { "c": "d" }];
+    var j2 = <json<Student>[]>j1;
 }
 
 public function benchmarkJSONArrayToCJsonArrayCast() {
-    json[] j1 = [{"name":"John Doe", "age":30, "address":"London", "class":"B"}];
+    json[] j1 = [{ "name": "John Doe", "age": 30, "address": "London", "class": "B" }];
     json j2 = j1;
-    var j3 = < json<Student>[]>j2;
+    var j3 = <json<Student>[]>j2;
 }
 
 public function benchmarkJSONArrayToCJsonArrayCastNegative() {
-    json[] j1 = [{name:"John Doe", age:30, address:"London"}]; // one field is missing
+    json[] j1 = [{ name: "John Doe", age: 30, address: "London" }];
+    // one field is missing
     json j2 = j1;
-    var j3 = < json<Student>[]>j2;
+    var j3 = <json<Student>[]>j2;
 }
 
 public function benchmarkCJSONArrayToJsonAssignment() {
@@ -113,33 +116,33 @@ public function benchmarkCJSONArrayToJsonAssignment() {
 }
 
 public function benchmarkMixedTypeJSONArrayToCJsonArrayCastNegative() {
-    json[] j1 = [{name:"John Doe", age:30, address:"London", "class":"B"}, [4, 6]];
+    json[] j1 = [{ name: "John Doe", age: 30, address: "London", "class": "B" }, [4, 6]];
     json j2 = j1;
-    var j3 = < json<Student>[]>j2;
+    var j3 = <json<Student>[]>j2;
 }
 
 public function benchmarkConstrainedJsonWithFunctions() {
-    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    json<Person> j = { name: "John Doe", age: 30, address: "London" };
     string|() result = j.toString();
 }
 
 public function benchmarkConstrainedJsonWithFunctionGetKeys() {
-    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    json<Person> j = { name: "John Doe", age: 30, address: "London" };
     string[]|() result = j.getKeys();
 }
 
 function getPlainJson() returns (json) {
-    json j = {firstName:"John Doe", age:30, address:"London"};
+    json j = { firstName: "John Doe", age: 30, address: "London" };
     return j;
 }
 
 function getPerson() returns (json<Person>) {
-    json<Person> j = {name:"John Doe", age:30, address:"London"};
+    json<Person> j = { name: "John Doe", age: 30, address: "London" };
     return j;
 }
 
 function getStudent() returns (json<Student>) {
-    json<Student> j = {name:"John Doe", age:30, address:"Colombo", class:"5"};
+    json<Student> j = { name: "John Doe", age: 30, address: "Colombo", class: "5" };
     return j;
 }
 

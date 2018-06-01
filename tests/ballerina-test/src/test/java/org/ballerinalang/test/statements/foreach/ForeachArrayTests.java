@@ -243,10 +243,10 @@ public class ForeachArrayTests {
     }
 
     @Test
-    public void testNext() {
-        BValue[] returns = BRunUtil.invoke(program, "testNext");
+    public void testContinue() {
+        BValue[] returns = BRunUtil.invoke(program, "testContinue");
         Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "0:d0 next 2:d2 ");
+        Assert.assertEquals(returns[0].stringValue(), "0:d0 continue 2:d2 ");
     }
 
     @Test
@@ -272,7 +272,7 @@ public class ForeachArrayTests {
 
     @Test
     public void testNestedBreakContinue() {
-        BValue[] returns = BRunUtil.invoke(program, "testNestedWithBreakNext");
+        BValue[] returns = BRunUtil.invoke(program, "testNestedWithBreakContinue");
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "0:d0 13 1:d1 13 2:d2 13 3:d3 13 ");
     }

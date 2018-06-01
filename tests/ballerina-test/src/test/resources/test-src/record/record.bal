@@ -18,6 +18,16 @@ type Family {
     string[] children;
 };
 
+type Employee record {
+    string name = "default first name";
+    string lname;
+    map address;
+    int age = 999;
+    Family family;
+    Person? parent;
+    string designation;
+};
+
 function testStructOfStruct () returns (string) {
 
     map address = {"country":"USA", "state":"CA"};
@@ -132,4 +142,10 @@ function testSetFieldOfNonInitChildStruct () {
 function testSetFieldOfNonInitStruct () {
     Department dpt = {};
     dpt.dptName = "HR";
+}
+
+function testStructWithRecordKeyword() returns Employee {
+    map address = {"country":"USA", "state":"CA"};
+    Employee emp = {name:"John", lname:"Doe", address:address, age:25, designation:"Software Engineer"};
+    return emp;
 }

@@ -35,11 +35,12 @@ import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketService;
 import org.ballerinalang.net.http.WebSocketUtil;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
+import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -67,7 +68,7 @@ public class Start extends BlockingNativeCallableUnit {
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct clientEndpointConfig = clientEndpoint.getStructField(HttpConstants.CLIENT_ENDPOINT_CONFIG);
         Object configs = clientEndpointConfig.getNativeData(WebSocketConstants.CLIENT_CONNECTOR_CONFIGS);
-        if (configs == null || !(configs instanceof WsClientConnectorConfig)) {
+        if (!(configs instanceof WsClientConnectorConfig)) {
             throw new BallerinaConnectorException("Error in initializing: Missing client endpoint configurations");
         }
         WebSocketClientConnector clientConnector =
@@ -75,15 +76,16 @@ public class Start extends BlockingNativeCallableUnit {
         WebSocketClientConnectorListener
                 clientConnectorListener = new WebSocketClientConnectorListener();
         Object serviceConfig = clientEndpointConfig.getNativeData(WebSocketConstants.CLIENT_SERVICE_CONFIG);
-        if (serviceConfig == null || !(serviceConfig instanceof WebSocketService)) {
+        if (!(serviceConfig instanceof WebSocketService)) {
             throw new BallerinaConnectorException("Error in initializing: A callbackService is required");
         }
         WebSocketService wsService = (WebSocketService) serviceConfig;
         boolean readyOnConnect = clientEndpointConfig.getBooleanField(WebSocketConstants.CLIENT_READY_ON_CONNECT);
-        HandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
+        ClientHandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        handshakeFuture.setHandshakeListener(
-                new WsHandshakeListener(context, wsService, clientConnectorListener, readyOnConnect, countDownLatch));
+        handshakeFuture.setClientHandshakeListener(
+                new WebSocketClientHandshakeListener(context, wsService, clientConnectorListener, readyOnConnect,
+                                                     countDownLatch));
         try {
             if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
                 throw new BallerinaConnectorException("Waiting for WebSocket handshake in not successful");
@@ -94,7 +96,7 @@ public class Start extends BlockingNativeCallableUnit {
         }
     }
 
-    static class WsHandshakeListener implements HandshakeListener {
+    static class WebSocketClientHandshakeListener implements ClientHandshakeListener {
 
         private final Context context;
         private final WebSocketService wsService;
@@ -102,9 +104,9 @@ public class Start extends BlockingNativeCallableUnit {
         private final boolean readyOnConnect;
         CountDownLatch countDownLatch;
 
-        WsHandshakeListener(Context context, WebSocketService wsService,
-                            WebSocketClientConnectorListener clientConnectorListener, boolean readyOnConnect,
-                            CountDownLatch countDownLatch) {
+        WebSocketClientHandshakeListener(Context context, WebSocketService wsService,
+                                         WebSocketClientConnectorListener clientConnectorListener,
+                                         boolean readyOnConnect, CountDownLatch countDownLatch) {
             this.context = context;
             this.wsService = wsService;
             this.clientConnectorListener = clientConnectorListener;
@@ -113,9 +115,11 @@ public class Start extends BlockingNativeCallableUnit {
         }
 
         @Override
-        public void onSuccess(WebSocketConnection webSocketConnection) {
+        public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
             //using only one service endpoint in the client as there can be only one connection.
             BStruct webSocketClientEndpoint = ((BStruct) context.getRefArgument(0));
+            webSocketClientEndpoint.setRefField(WebSocketConstants.CLIENT_RESPONSE_INDEX,
+                                                HttpUtil.createResponseStruct(context, carbonResponse));
             BStruct webSocketConnector = BLangConnectorSPIUtil.createObject(
                     wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                     PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
@@ -124,7 +128,7 @@ public class Start extends BlockingNativeCallableUnit {
             webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
             WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClientEndpoint);
             clientConnectorListener.setConnectionInfo(connectionInfo);
-            webSocketClientEndpoint.setRefField(1, webSocketConnector);
+            webSocketClientEndpoint.setRefField(WebSocketConstants.CLIENT_CONNECTOR_INDEX, webSocketConnector);
             context.setReturnValues();
             if (readyOnConnect) {
                 webSocketConnection.readNextFrame();
@@ -133,9 +137,14 @@ public class Start extends BlockingNativeCallableUnit {
         }
 
         @Override
-        public void onError(Throwable t) {
+        public void onError(Throwable throwable, HttpCarbonResponse response) {
+            if (response != null) {
+                BStruct webSocketClientEndpoint = ((BStruct) context.getRefArgument(0));
+                webSocketClientEndpoint.setRefField(WebSocketConstants.CLIENT_RESPONSE_INDEX,
+                                                    HttpUtil.createResponseStruct(context, response));
+            }
             countDownLatch.countDown();
-            throw new BallerinaConnectorException("Error occurred: " + t.getMessage());
+            throw new BallerinaConnectorException("Error occurred: " + throwable.getMessage());
         }
     }
 }

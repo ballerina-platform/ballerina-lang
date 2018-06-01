@@ -43,7 +43,7 @@ class ResourceNode extends AbstractResourceNode {
                 annotationNode.getExpression().keyValuePairs &&
                 annotationNode.getExpression().keyValuePairs[0]) {
 
-                annotationNode.getExpression().keyValuePairs.forEach((node)=>{
+                annotationNode.getExpression().keyValuePairs.forEach((node) => {
                     if (node.value.kind === 'Literal') {
                         pathValue = node.value.value;
                     }
@@ -68,7 +68,7 @@ class ResourceNode extends AbstractResourceNode {
             let resourceConfigAnnotation;
             this.getAnnotationAttachments().forEach((annotationNode) => {
                 if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
-                    annotationNode.getAnnotationName().getValue() === 'resourceConfig') {
+                    annotationNode.getAnnotationName().getValue() === 'ResourceConfig') {
                     resourceConfigAnnotation = annotationNode;
                 }
             });
@@ -78,7 +78,7 @@ class ResourceNode extends AbstractResourceNode {
                         value: 'http',
                     }),
                     annotationName: NodeFactory.createLiteral({
-                        value: 'resourceConfig',
+                        value: 'ResourceConfig',
                     }),
                 });
                 this.addAnnotationAttachments(resourceConfigAnnotation);
@@ -103,7 +103,7 @@ class ResourceNode extends AbstractResourceNode {
         const httpMethods = [];
         this.getAnnotationAttachments().forEach((annotationNode) => {
             if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
-                annotationNode.getAnnotationName().getValue() === 'resourceConfig') {
+                annotationNode.getAnnotationName().getValue() === 'ResourceConfig') {
                 annotationNode.getAttributes().forEach((annotationAttribute) => {
                     if (annotationAttribute.getName().getValue() === 'methods') {
                         const httpMethodsArray = annotationAttribute.getValue();
@@ -137,7 +137,7 @@ class ResourceNode extends AbstractResourceNode {
             let resourceConfigAnnotation;
             this.getAnnotationAttachments().forEach((annotationNode) => {
                 if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
-                    annotationNode.getAnnotationName().getValue() === 'resourceConfig') {
+                    annotationNode.getAnnotationName().getValue() === 'ResourceConfig') {
                     resourceConfigAnnotation = annotationNode;
                 }
             });
@@ -147,7 +147,7 @@ class ResourceNode extends AbstractResourceNode {
                         value: 'http',
                     }),
                     annotationName: NodeFactory.createLiteral({
-                        value: 'resourceConfig',
+                        value: 'ResourceConfig',
                     }),
                 });
                 this.addAnnotationAttachments(resourceConfigAnnotation);
@@ -169,7 +169,7 @@ class ResourceNode extends AbstractResourceNode {
         const httpMethods = [];
         this.getAnnotationAttachments().forEach((annotationNode) => {
             if (annotationNode.getPackageAlias().getValue() === httpPackageAlias &&
-                annotationNode.getAnnotationName().getValue() === 'resourceConfig') {
+                annotationNode.getAnnotationName().getValue() === 'ResourceConfig') {
                 annotationNode.getAttributes().forEach((annotationAttribute) => {
                     if (annotationAttribute.getName().getValue() === 'consumes') {
                         const httpMethodsArray = annotationAttribute.getValue();
@@ -207,8 +207,11 @@ class ResourceNode extends AbstractResourceNode {
         } else {
             path = _.trim(path, '"/');
         }
-
-        url += '/' + path;
+        if (url === '/') {
+            url += path;
+        } else {
+            url += '/' + path;
+        }
 
         // Generating query params.
         let queryParams = '';

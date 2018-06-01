@@ -13,17 +13,17 @@ public function File::open (string accessMode) returns boolean {
     return true;
 }
 
-documentation { Documentation for File struct
-F{{path}} struct `field path` documentation}
+documentation { Documentation for File object
+F{{path}} file path documentation. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``}
 deprecated {
-  This Struct is deprecated use `File2` instead.
+  This Object is deprecated use `File2` instead.
 }
 public type File object {
     public {
         string path;
     }
 
-    public function open (string accessMode) returns (boolean);
+    public function open(string accessMode) returns boolean;
 };
 
 documentation { PizzaService HTTP Service }

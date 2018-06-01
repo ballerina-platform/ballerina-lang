@@ -220,13 +220,13 @@ function testBreak () returns (string) {
     return output;
 }
 
-function testNext () returns (string) {
+function testContinue () returns (string) {
     string[] sArray = ["d0", "d1", "d2"];
     output = "";
     foreach i, v in sArray {
         if (i == 1) {
-            output = output + "next ";
-            next;
+            output = output + "continue ";
+            continue;
         }
         concatString(i, v);
     }
@@ -293,7 +293,7 @@ function testEmptyStringCallee () {
     }
 }
 
-function testNestedWithBreakNext () returns (string){
+function testNestedWithBreakContinue () returns (string){
     output = "";
     string[] sArray = ["d0", "d1", "d2", "d3"];
     foreach i, v in sArray {
@@ -302,7 +302,7 @@ function testNestedWithBreakNext () returns (string){
             if (j == 4) {
                 break;
             } else if (j == 2) {
-                next;
+                continue;
             }
             output = output + j;
         }

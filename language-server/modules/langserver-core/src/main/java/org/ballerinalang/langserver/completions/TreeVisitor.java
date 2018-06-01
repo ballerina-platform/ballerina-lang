@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBracedOrTupleExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAbort;
@@ -83,13 +84,13 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -118,7 +119,7 @@ import java.util.stream.Collectors;
  * @since 0.94
  */
 public class TreeVisitor extends LSNodeVisitor {
-    
+
     private boolean terminateVisitor = false;
     private int loopCount = 0;
     private int transactionCount = 0;
@@ -158,8 +159,8 @@ public class TreeVisitor extends LSNodeVisitor {
         // Then visit each top-level element sorted using the compilation unit
         String fileName = documentServiceContext.get(DocumentServiceKeys.FILE_NAME_KEY);
         List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes.stream().filter(node ->
-                    node.getPosition().getSource().getCompilationUnitName().equals(fileName)
-            ).collect(Collectors.toList());
+                node.getPosition().getSource().getCompilationUnitName().equals(fileName)
+        ).collect(Collectors.toList());
 
         if (topLevelNodes.isEmpty()) {
             this.setTerminateVisitor(true);
@@ -194,16 +195,16 @@ public class TreeVisitor extends LSNodeVisitor {
 
         String functionName = funcNode.getName().getValue();
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcSymbol.scope, symbolEnv);
-        
+
         if (isWithinParameterContext(functionName, UtilSymbolKeys.FUNCTION_KEYWORD_KEY)) {
             this.populateSymbols(this.resolveAllVisibleSymbols(funcEnv), funcEnv);
             setTerminateVisitor(true);
         } else if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(funcNode.getPosition(), funcNode, this, this.documentServiceContext)) {
-            
+
             // Visit the endpoints
             funcNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, funcEnv));
-            
+
             this.blockOwnerStack.push(funcNode);
             // Cursor position is calculated against the Block statement scope resolver
             cursorPositionResolver = BlockStatementScopeResolver.class;
@@ -214,7 +215,7 @@ public class TreeVisitor extends LSNodeVisitor {
             if (terminateVisitor && !funcNode.workers.isEmpty()) {
                 this.setTerminateVisitor(false);
             }
-            
+
             funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
             funcNode.workers.forEach(e -> this.acceptNode(e, funcEnv));
         }
@@ -422,7 +423,7 @@ public class TreeVisitor extends LSNodeVisitor {
         String connectorName = connectorNode.getName().getValue();
         BSymbol connectorSymbol = connectorNode.symbol;
         SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, symbolEnv);
-        
+
         if (isWithinParameterContext(connectorName, UtilSymbolKeys.CONNECTOR_KEYWORD_KEY)) {
             this.populateSymbols(this.resolveAllVisibleSymbols(connectorEnv), connectorEnv);
             setTerminateVisitor(true);
@@ -434,10 +435,10 @@ public class TreeVisitor extends LSNodeVisitor {
             // TODO: Handle Annotation attachments
             if (!(connectorNode.actions.isEmpty() && connectorNode.varDefs.isEmpty()
                     && connectorNode.endpoints.isEmpty())) {
-                
+
                 // Visit the endpoints
                 connectorNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, connectorEnv));
-                
+
                 // Since the connector def does not contains a block statement, we consider the block owner only.
                 // Here it is Connector Definition
                 this.blockOwnerStack.push(connectorNode);
@@ -465,7 +466,7 @@ public class TreeVisitor extends LSNodeVisitor {
         String actionName = actionNode.getName().getValue();
         BSymbol actionSymbol = actionNode.symbol;
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, symbolEnv);
-        
+
         if (this.isWithinParameterContext(actionName, UtilSymbolKeys.ACTION_KEYWORD_KEY)) {
             this.populateSymbols(this.resolveAllVisibleSymbols(actionEnv), actionEnv);
             setTerminateVisitor(true);
@@ -475,7 +476,7 @@ public class TreeVisitor extends LSNodeVisitor {
             // TODO: Handle Annotation attachments
             // Visit the endpoints
             actionNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, actionEnv));
-            
+
             // Cursor position is calculated against the resource parameter scope resolver since both are similar
             cursorPositionResolver = ResourceParamScopeResolver.class;
             actionNode.workers.forEach(w -> this.acceptNode(w, actionEnv));
@@ -490,18 +491,18 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangService serviceNode) {
         BSymbol serviceSymbol = serviceNode.symbol;
         SymbolEnv serviceEnv = SymbolEnv.createPkgLevelSymbolEnv(serviceNode, serviceSymbol.scope, symbolEnv);
-        
+
         serviceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, serviceEnv));
-        
+
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(serviceNode.getPosition(), serviceNode, this, this.documentServiceContext)) {
-            
+
             // Reset the previous node
             this.setPreviousNode(null);
             if (!(serviceNode.resources.isEmpty() && serviceNode.vars.isEmpty() && serviceNode.endpoints.isEmpty())) {
                 // Visit the endpoints
                 serviceNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, serviceEnv));
-                
+
                 // Since the service does not contains a block statement, we consider the block owner only.
                 // Here it is service
                 this.blockOwnerStack.push(serviceNode);
@@ -529,7 +530,7 @@ public class TreeVisitor extends LSNodeVisitor {
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceSymbol.scope, symbolEnv);
 
         resourceNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, resourceEnv));
-        
+
         if (isWithinParameterContext(resourceName, UtilSymbolKeys.RESOURCE_KEYWORD_KEY)) {
             this.populateSymbols(this.resolveAllVisibleSymbols(resourceEnv), resourceEnv);
             setTerminateVisitor(true);
@@ -541,7 +542,7 @@ public class TreeVisitor extends LSNodeVisitor {
             // TODO:Handle Annotation attachments
             // Visit the endpoints
             resourceNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, resourceEnv));
-            
+
             // Cursor position is calculated against the resource parameter scope resolver
             cursorPositionResolver = ResourceParamScopeResolver.class;
             resourceNode.workers.forEach(w -> this.acceptNode(w, resourceEnv));
@@ -671,9 +672,9 @@ public class TreeVisitor extends LSNodeVisitor {
         }
     }
 
-    public void visit(BLangNext nextNode) {
+    public void visit(BLangContinue continueNode) {
         ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(nextNode.getPosition(), nextNode, this, this.documentServiceContext);
+                .isCursorBeforeNode(continueNode.getPosition(), continueNode, this, this.documentServiceContext);
     }
 
     @Override
@@ -775,7 +776,7 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangMatchExpression bLangMatchExpression) {
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(bLangMatchExpression.getPosition(), bLangMatchExpression, this,
-                                    this.documentServiceContext)) {
+                        this.documentServiceContext)) {
             final TreeVisitor visitor = this;
             Class fallbackCursorPositionResolver = this.cursorPositionResolver;
             this.cursorPositionResolver = MatchExpressionScopeResolver.class;
@@ -799,7 +800,7 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangMatchExpression.BLangMatchExprPatternClause matchExprPatternClause) {
         if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(matchExprPatternClause.getPosition(), matchExprPatternClause, this,
-                                    this.documentServiceContext)) {
+                        this.documentServiceContext)) {
             if (matchExprPatternClause.expr != null) {
                 this.acceptNode(matchExprPatternClause.expr, symbolEnv);
             }
@@ -810,6 +811,12 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangSimpleVarRef simpleVarRef) {
         ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
                 .isCursorBeforeNode(simpleVarRef.getPosition(), simpleVarRef, this, this.documentServiceContext);
+    }
+
+    @Override
+    public void visit(BLangRecordLiteral recordLiteral) {
+        SymbolEnv annotationAttachmentEnv = new SymbolEnv(recordLiteral, symbolEnv.scope);
+        this.isCursorWithinBlock(recordLiteral.getPosition(), annotationAttachmentEnv);
     }
 
     public void setPreviousNode(BLangNode previousNode) {
@@ -905,7 +912,7 @@ public class TreeVisitor extends LSNodeVisitor {
 
         return false;
     }
-    
+
     private boolean isWithinEndpointContext(DiagnosticPos diagnosticPos, SymbolEnv symbolEnv, String epName) {
         if (documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                 .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY) == null) {
@@ -918,7 +925,7 @@ public class TreeVisitor extends LSNodeVisitor {
                     .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY);
             String name = documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
                     .get(CompletionKeys.META_CONTEXT_ENDPOINT_NAME_KEY);
-            
+
             if (isWithinEndpoint && epName.equals(name)) {
                 // Evaluating the particular Endpoint
                 this.populateSymbols(new HashMap<>(), symbolEnv);
@@ -927,7 +934,7 @@ public class TreeVisitor extends LSNodeVisitor {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -942,13 +949,13 @@ public class TreeVisitor extends LSNodeVisitor {
         ParserRuleContext parserRuleContext = documentServiceContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
         TokenStream tokenStream = documentServiceContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         String terminalToken = "";
-        
+
         // If the parser rule context is not parameter context or parameter list context, we skipp the calculation
         if (!(parserRuleContext instanceof BallerinaParser.ParameterContext
                 || parserRuleContext instanceof BallerinaParser.ParameterListContext)) {
             return false;
         }
-        
+
         int startTokenIndex = parserRuleContext.getStart().getTokenIndex();
         ArrayList<String> terminalKeywords = new ArrayList<>(
                 Arrays.asList(UtilSymbolKeys.ACTION_KEYWORD_KEY, UtilSymbolKeys.CONNECTOR_KEYWORD_KEY,
@@ -957,7 +964,7 @@ public class TreeVisitor extends LSNodeVisitor {
         ArrayList<Token> filteredTokens = new ArrayList<>();
         Token openBracket = null;
         boolean isWithinParams = false;
-        
+
         // Find the index of the closing bracket
         while (true) {
             if (startTokenIndex > tokenStream.size()) {
@@ -972,7 +979,7 @@ public class TreeVisitor extends LSNodeVisitor {
             }
             startTokenIndex++;
         }
-        
+
         // Backtrack the token stream to find a terminal token
         while (true) {
             if (startTokenIndex < 0) {
@@ -991,7 +998,7 @@ public class TreeVisitor extends LSNodeVisitor {
         }
 
         Collections.reverse(filteredTokens);
-        
+
         /*
         This particular logic identifies a matching pair of closing and opening bracket and then check whether the
         cursor is within those bracket pair
@@ -1010,7 +1017,7 @@ public class TreeVisitor extends LSNodeVisitor {
                     int closeBCol = token.getCharPositionInLine();
                     int cursorLine = cursorPos.getLine();
                     int cursorCol = cursorPos.getCharacter();
-                    
+
                     isWithinParams =  (cursorLine > openBLine && cursorLine < closeBLine)
                             || (cursorLine == openBLine && cursorCol > openBCol && cursorLine < closeBLine)
                             || (cursorLine > openBLine && cursorCol < closeBCol && cursorLine == closeBLine)
@@ -1024,7 +1031,7 @@ public class TreeVisitor extends LSNodeVisitor {
                 }
             }
         }
-        
+
         return isWithinParams;
     }
 
