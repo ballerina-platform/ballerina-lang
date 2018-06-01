@@ -97,10 +97,11 @@ public type CSVChannel object {
     documentation {
         Writes record to a given CSV file.
 
+        P{{csvRecord}} A record to be written to the channel
         R{{}} Returns an error if the record could not be written properly
     }
-    public function write(string[] record) returns error? {
-        return dc.write(record);
+    public function write(string[] csvRecord) returns error? {
+        return dc.write(csvRecord);
     }
 
     documentation {

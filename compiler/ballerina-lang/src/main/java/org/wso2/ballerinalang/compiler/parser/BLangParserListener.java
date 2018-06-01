@@ -1272,12 +1272,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitNextStatement(BallerinaParser.NextStatementContext ctx) {
+    public void exitContinueStatement(BallerinaParser.ContinueStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.addNextStatement(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addContinueStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**

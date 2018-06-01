@@ -775,7 +775,7 @@ function retain2xxWarnings(Response cachedResponse) {
             if (warningHeader.contains("214") || warningHeader.contains("299")) {
                 log:printDebug("Adding warning header: " + warningHeader);
                 cachedResponse.addHeader(WARNING, warningHeader);
-                next;
+                continue;
             }
         }
     }

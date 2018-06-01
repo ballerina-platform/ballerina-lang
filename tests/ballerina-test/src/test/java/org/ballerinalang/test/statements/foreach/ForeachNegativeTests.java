@@ -43,6 +43,6 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, 6, "too many variables are defined for iterable type 'string[]'", 49, 24);
         BAssertUtil.validateError(compile, 7, "unreachable code", 68, 9);
         BAssertUtil.validateError(compile, 8, "unreachable code", 73, 9);
-        BAssertUtil.validateError(compile, 9, "next cannot be used outside of a loop", 75, 5);
+        BAssertUtil.validateError(compile, 9, "continue cannot be used outside of a loop", 75, 5);
     }
 }

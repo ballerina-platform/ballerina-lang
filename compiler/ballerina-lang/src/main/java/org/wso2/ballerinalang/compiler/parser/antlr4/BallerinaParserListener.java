@@ -844,15 +844,15 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitWhileStatement(BallerinaParser.WhileStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#nextStatement}.
+	 * Enter a parse tree produced by {@link BallerinaParser#continueStatement}.
 	 * @param ctx the parse tree
 	 */
-	void enterNextStatement(BallerinaParser.NextStatementContext ctx);
+	void enterContinueStatement(BallerinaParser.ContinueStatementContext ctx);
 	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#nextStatement}.
+	 * Exit a parse tree produced by {@link BallerinaParser#continueStatement}.
 	 * @param ctx the parse tree
 	 */
-	void exitNextStatement(BallerinaParser.NextStatementContext ctx);
+	void exitContinueStatement(BallerinaParser.ContinueStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#breakStatement}.
 	 * @param ctx the parse tree
