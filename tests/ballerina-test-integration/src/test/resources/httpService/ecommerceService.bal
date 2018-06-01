@@ -45,7 +45,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     productsInfo (endpoint caller, http:Request req, string prodId) {
         string reqPath = "/productsservice/" + untaint prodId;
         http:Request clientRequest = new;
-        var clientResponse = productsService -> get(untaint reqPath, request = clientRequest);
+        var clientResponse = productsService -> get(untaint reqPath, message = clientRequest);
 
         match clientResponse {
             error err => {
@@ -93,7 +93,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     }
     ordersInfo (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService -> get("/orderservice/orders", request = clientRequest);
+        var clientResponse = productsService -> get("/orderservice/orders", message = clientRequest);
         match clientResponse {
             error err => {
                 io:println("Error occurred while reading orders response");
@@ -128,7 +128,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
     }
     customersInfo (endpoint caller, http:Request req) {
         http:Request clientRequest = new;
-        var clientResponse = productsService -> get("/customerservice/customers", request = clientRequest);
+        var clientResponse = productsService -> get("/customerservice/customers", message = clientRequest);
         match clientResponse {
             error err => {
                 io:println("Error occurred while reading customers response");
