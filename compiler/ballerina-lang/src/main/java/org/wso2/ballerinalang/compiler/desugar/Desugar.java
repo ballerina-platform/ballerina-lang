@@ -2034,13 +2034,11 @@ public class Desugar extends BLangNodeVisitor {
         // Re-order the named arguments
         List<BLangExpression> args = new ArrayList<>();
         for (BVarSymbol param : invokableSymbol.defaultableParams) {
-            String paramName = param.field ? param.originalName.value : param.name.value;
-
             // If some named parameter is not passed when invoking the function, get the 
             // default value for that parameter from the parameter symbol.
             BLangExpression expr;
-            if (namedArgs.containsKey(paramName)) {
-                expr = namedArgs.get(paramName);
+            if (namedArgs.containsKey(param.name.value)) {
+                expr = namedArgs.get(param.name.value);
             } else {
                 expr = getDefaultValueLiteral(param.defaultValue);
                 expr = addConversionExprIfRequired(expr, param.type);
