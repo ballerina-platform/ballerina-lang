@@ -45,6 +45,6 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, 8, "incompatible types: expected 'int', found 'string'", 55, 25);
         BAssertUtil.validateError(compile, 9, "unreachable code", 74, 9);
         BAssertUtil.validateError(compile, 10, "unreachable code", 79, 9);
-        BAssertUtil.validateError(compile, 11, "next cannot be used outside of a loop", 81, 5);
+        BAssertUtil.validateError(compile, 11, "continue cannot be used outside of a loop", 81, 5);
     }
 }

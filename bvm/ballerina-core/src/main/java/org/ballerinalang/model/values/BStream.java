@@ -21,8 +21,7 @@ package org.ballerinalang.model.values;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
-import io.netty.buffer.UnpooledByteBufAllocator;
-import io.netty.buffer.UnpooledHeapByteBuf;
+import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BIndexedType;
@@ -114,7 +113,7 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("incompatible types: value of type:" + dataType.getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
-        BrokerUtils.publish(topicName, new BallerinaStreamByteBuf(data));
+        BrokerUtils.publish(topicName, new BallerinaBrokerByteBuf(data));
     }
 
     /**
@@ -154,7 +153,7 @@ public class BStream implements BRefType<Object> {
         @Override
         protected void send(Message message) throws BrokerException {
             BValue data =
-                    ((BallerinaStreamByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).streamEvent;
+                    ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
             BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), new BValue[] { data });
         }
 
@@ -194,7 +193,7 @@ public class BStream implements BRefType<Object> {
         @Override
         protected void send(Message message) throws BrokerException {
             BValue data =
-                    ((BallerinaStreamByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).streamEvent;
+                    ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
             Object[] event = createEvent((BStruct) data);
             try {
                 inputHandler.send(event);
@@ -253,19 +252,6 @@ public class BStream implements BRefType<Object> {
         @Override
         public boolean isReady() {
             return true;
-        }
-    }
-
-    /**
-     * Implementation of {@link io.netty.buffer.ByteBuf} for Ballerina Streams, to hold a {@link BValue}
-     */
-    private class BallerinaStreamByteBuf extends UnpooledHeapByteBuf {
-
-        private final BValue streamEvent;
-
-        BallerinaStreamByteBuf(BValue streamEvent) {
-            super(UnpooledByteBufAllocator.DEFAULT, 0, 0);
-            this.streamEvent = streamEvent;
         }
     }
 }

@@ -60,10 +60,12 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends IntegrationT
     private static final String INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG =
             "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"internal-hub-two\"}";
 
-    private LogLeecher intentVerificationLogLeecherOne;
-    private LogLeecher intentVerificationLogLeecherTwo;
-    private LogLeecher internalHubNotificationLogLeecherOne;
-    private LogLeecher internalHubNotificationLogLeecherTwo;
+    private LogLeecher intentVerificationLogLeecherOne = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG);
+    private LogLeecher intentVerificationLogLeecherTwo = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG);
+    private LogLeecher internalHubNotificationLogLeecherOne =
+                                                    new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
+    private LogLeecher internalHubNotificationLogLeecherTwo =
+                                                    new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
 
     private ServerInstance ballerinaWebSubPublisherService;
     private ServerInstance ballerinaWebSubSubscriber;
@@ -76,11 +78,6 @@ public class WebSubDiscoveryWithMultipleSubscribersTestCase extends IntegrationT
                           + File.separator + "websub" + File.separator + "websub_test_publisher.bal").getAbsolutePath(),
                           "-e b7a.websub.hub.port=9494", "-e b7a.websub.hub.remotepublish=true",
                           "-e test.hub.url=" + hubUrl};
-
-        intentVerificationLogLeecherOne = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_ONE_LOG);
-        intentVerificationLogLeecherTwo = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_TWO_LOG);
-        internalHubNotificationLogLeecherOne = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_ONE_LOG);
-        internalHubNotificationLogLeecherTwo = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_TWO_LOG);
 
         ballerinaWebSubPublisherService = ServerInstance.initBallerinaServer(9290);
         String publisherServiceBal = new File("src" + File.separator + "test" + File.separator + "resources"

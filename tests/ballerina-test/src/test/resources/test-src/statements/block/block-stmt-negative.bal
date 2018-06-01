@@ -80,8 +80,8 @@ function testUnreachableTryCatch() returns (string){
 
 function testUnreachableNext() returns (string){
     while (true) {
-        return "unreachable next";
-        next;
+        return "unreachable continue";
+        continue;
     }
     return "done";
 }

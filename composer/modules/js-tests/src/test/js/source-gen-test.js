@@ -58,8 +58,8 @@ function replaceLastDir(file, dir) {
 function debugPrint(node, name = '', l = 1) {
     const wsSimbols = { '"': '', ' ': '\u2022', '\n': '\u21B5', '\t': '\u21E5' };
     const wsStr = (node.ws || []).map(ws => (ws.static ? chalk.gray : chalk.magenta)((ws.ws ?
-            ws.ws.replace(/\s/g, c => (wsSimbols[c]) || c.codePointAt(0)) :
-            '\u26AC') +
+        ws.ws.replace(/\s/g, c => (wsSimbols[c]) || c.codePointAt(0)) :
+        '\u26AC') +
         JSON.stringify(ws.text).slice(1, -1) +
         String(ws.i).split('')
             .map(i => subScriptChars[Number(i)])
@@ -99,7 +99,7 @@ function ballerinaASTDeserializer(filePath, pretty, content) {
             path: path.dirname(filePath),
             name: fileName[0],
             extension: fileName[1],
-        }
+        };
         cached = new Promise((resolve, reject) => {
             parseFile(file)
                 .then((parsedJson) => {
@@ -144,7 +144,9 @@ describe('Ballerina Composer Test Suite', () => {
     // fetch configs before proceeding
     let backEndProcess;
     let projectVersion;
-    let moveFailingFiles; 
+    let moveFailingFiles;
+
+    // Before running test suit.
     before(function (beforeAllDone) {
         this.timeout(10000);
         process.argv.forEach((arg) => {
@@ -176,24 +178,57 @@ describe('Ballerina Composer Test Suite', () => {
     const testFiles = findBalFilesInDirSync(testResDir);
     _.sortBy(testFiles, f => fs.statSync(f).size).slice(0, 1000).forEach((testFile) => {
         const relPath = path.relative('.', testFile);
+        // Example Parse test
         it(relPath + ' parse', (done) => {
             ballerinaASTDeserializer(testFile)
                 .then(({ tree, err }) => {
                     if (!err && tree && tree.topLevelNodes) {
                         done();
                     } else {
-                        done(err || new Error('Backend parser error'));
+                        if (moveFailingFiles) {
+                            fse.move(testFile, testFile.replace('passing', 'failing'), {overwrite: true})
+                                .then(() => {
+                                    done(err || new Error('Backend parser error'));
+                                })
+                                .catch(() => {
+                                    done(err || new Error('Backend parser error'));
+                                });
+                        } else {
+                            done(err || new Error('Backend parser error'));
+                        }
                     }
                 })
                 .catch((error) => {
-                    done(error);
+                    if (moveFailingFiles) {
+                        fse.move(testFile, testFile.replace('passing', 'failing'), {overwrite: true})
+                            .then(() => {
+                                done(error);
+                            })
+                            .catch(() => {
+                                done(error);
+                            });
+                    } else {
+                        done(error);
+                    }
                 });
         });
+
+        // Source generation test
         it(relPath + ' file serialize/deserialize test', function (done) {
             ballerinaASTDeserializer(testFile)
                 .then(({ generatedSource, fileContent, tree, err }) => {
                     if (err || !tree || !tree.topLevelNodes) {
-                        this.skip();
+                        if (moveFailingFiles) {
+                            fse.move(testFile, testFile.replace('passing', 'failing'), {overwrite: true})
+                                .then(() => {
+                                    done(err || new Error('Failed to serialize/deserialize ' + testFile));
+                                })
+                                .catch(() => {
+                                    done(err || new Error('Failed to serialize/deserialize ' + testFile));
+                                });
+                        } else {
+                            done(err || new Error('Failed to serialize/deserialize ' + testFile));
+                        }
                         return;
                     }
                     // if (generatedSource.replace(/\s/g, '') !== fileContent.replace(/\s/g, '')) {
@@ -214,7 +249,17 @@ describe('Ballerina Composer Test Suite', () => {
                             expect(generatedSource).to.equal(fileContent);
                         }
                     } else {
-                        this.skip();
+                        if (moveFailingFiles) {
+                            fse.move(testFile, testFile.replace('passing', 'failing'), {overwrite: true})
+                                .then(() => {
+                                    done(new Error('Failed to serialize/deserialize ' + testFile));
+                                })
+                                .catch(() => {
+                                    done(new Error('Failed to serialize/deserialize ' + testFile));
+                                });
+                        } else {
+                            done(new Error('Failed to serialize/deserialize ' + testFile));
+                        }
                     }
                     done();
                 })
@@ -223,72 +268,19 @@ describe('Ballerina Composer Test Suite', () => {
                         this.skip();
                     } else {
                         if (moveFailingFiles) {
-                            fse.move(testFile, testFile.replace('passing', 'failing'), { overwrite: true })
-                                .then(done)
-                                .catch(done);
+                            fse.move(testFile, testFile.replace('passing', 'failing'), {overwrite: true})
+                                .then(() => {
+                                    done(error);
+                                })
+                                .catch(() => {
+                                    done(error);
+                                });
                         } else {
                             done(error);
                         }
                     }
                 });
         });
-        it(relPath + ' default ws syntax test', function (done) {
-            // Skipping until formatting works with comments
-            this.skip();
-            return;
-            
-            ballerinaASTDeserializer(testFile, true)
-                .then(({ generatedSource, fileContent, tree, err }) => {
-                    if (err || !tree || !tree.topLevelNodes ||
-                        generatedSource.replace(/\s/g, '') !== fileContent.replace(/\s/g, '')) {
-                        this.skip();
-                        return;
-                    }
-                    ballerinaASTDeserializer(testFile + 'formatted', true, generatedSource)
-                        .then((restult) => {
-                            expect(fileContent.replace(/\s/g, ''))
-                                .to.equal(restult.generatedSource.replace(/\s/g, ''));
-                            done();
-                        })
-                        .catch((error) => {
-                            console.log(generatedSource);
-                            done(error);
-                        });
-                })
-                .catch((error) => {
-                    done(error);
-                });
-        });
-
-        it(relPath + ' default ws (formatting) test [' + replaceLastDir(relPath, 'formatted') + ']',
-            function (done) {
-                ballerinaASTDeserializer(testFile, true)
-                    .then(({ generatedSource, fileContent, tree, err }) => {
-                        if (err || !tree || !tree.topLevelNodes ||
-                        generatedSource.replace(/\s/g, '') !== fileContent.replace(/\s/g, '')) {
-                            this.skip();
-                            return;
-                        }
-                        const formattedPath = replaceLastDir(testFile, 'formatted');
-
-                        if (generatedSource !== '' && fs.existsSync(formattedPath)) {
-                            if (generatedSource.replace(/\s/g, '') !== fileContent.replace(/\s/g, '')) {
-                                this.skip();
-                            } else {
-                                const formatted = readFile(formattedPath);
-                                expect(tree.getSource(true).replace(/^\s*\n/mg, '').replace(/\s?,\s?/g, ',')
-                                .replace(/return ;/g, 'return;').trim())
-                                .to.equal(formatted.replace(/^\s*\n/mg, '').replace(/\s?,\s?/g, ',').trim());
-                            }
-                        } else {
-                            this.skip();
-                        }
-                        done();
-                    })
-                .catch((error) => {
-                    done(error);
-                });
-            });
     });
 
     after((done) => {
