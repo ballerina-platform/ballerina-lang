@@ -223,13 +223,13 @@ documentation {
     P{{resourceUrl}} The resource URL advertising hub and topic URLs
     R{{}} `(string, string)` (hub, topic) URLs if successful, `error` if not
 }
-function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? secureSocket,
+function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
 
     endpoint http:Client resourceEP {
         url:resourceUrl,
         auth:auth,
-        secureSocket:secureSocket,
+        secureSocket: localSecureSocket,
         followRedirects:followRedirects
     };
 
@@ -342,11 +342,11 @@ documentation {
     P{{hub}} The hub to which the subscription request is to be sent
     P{{subscriptionDetails}} Map containing subscription details
 }
-function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? secureSocket,
+function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
     endpoint Client websubHubClientEP {
         url:hub,
-        secureSocket:secureSocket,
+        secureSocket: localSecureSocket,
         auth:auth,
         followRedirects:followRedirects
     };
