@@ -82,6 +82,19 @@ public class DataInputOutputTest {
         Assert.assertEquals(readFloat, value);
     }
 
+    @Test(description = "Test boolean read/write")
+    public void testBooleanValue() throws IOException {
+        String filePath = currentDirectoryPath + "/sample.bin";
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        Channel channel = new MockByteChannel(byteChannel);
+        DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        dataChannel.writeBoolean(false);
+        byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        channel = new MockByteChannel(byteChannel);
+        dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        Assert.assertFalse(dataChannel.readBoolean());
+    }
+
     @DataProvider(name = "LongValues")
     public static Object[][] signedLongValues() {
         return new Object[][]{

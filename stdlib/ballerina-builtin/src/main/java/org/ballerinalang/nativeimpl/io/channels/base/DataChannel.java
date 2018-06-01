@@ -129,4 +129,18 @@ public class DataChannel {
             return Double.longBitsToDouble(lValue);
         }
     }
+
+    public void writeBoolean(boolean value) throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(1);
+        byte booleanValue = (byte) (value ? 1 : 0);
+        buffer.put(booleanValue);
+        channel.write(buffer);
+    }
+
+    public boolean readBoolean() throws IOException {
+        ByteBuffer buffer = ByteBuffer.allocate(1);
+        readFull(buffer);
+        buffer.flip();
+        return buffer.get() == 1;
+    }
 }
