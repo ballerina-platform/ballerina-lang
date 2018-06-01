@@ -30,6 +30,8 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test HTTP client actions with direct payload.
@@ -70,6 +72,32 @@ public class HTTPClientActionsTestCase extends IntegrationTestCase {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "Sample TextSample Xml{\"name\":\"apple\",\"color\":\"red\"}",
                 "Message content mismatched");
+    }
+
+    @Test
+    public void testPostWithBlob() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                "test2/handleBinary"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Sample Text", "Message content mismatched");
+    }
+
+    @Test
+    public void testPostWithByteChannel() throws IOException {
+        Map<String, String> headers = new HashMap<>();
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+        HttpResponse response = HttpClientRequest.doPost(ballerinaServer.getServiceURLHttp(
+                "test2/handleByteChannel"), "Sample Text", headers);
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Sample Text", "Message content mismatched");
+    }
+
+    @Test
+    public void testPostWithBodyParts() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                "test2/handleMultiparts"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "Sample Text", "Message content mismatched");
     }
 
     @AfterClass

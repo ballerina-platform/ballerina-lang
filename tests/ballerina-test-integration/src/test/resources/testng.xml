@@ -23,7 +23,7 @@
         <listener class-name="org.ballerinalang.test.listener.TestNGListener"/>
     </listeners>
 
-    <!-- Below tests should run sequentially since it will use same port in each test -->
+  <!--  &lt;!&ndash; Below tests should run sequentially since it will use same port in each test &ndash;&gt;
     <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <groups>
             <run>
@@ -84,6 +84,12 @@
         <classes>
             <class name="org.ballerinalang.test.packaging.PackagingPullTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingPushTestCase"/>
+        </classes>
+    </test>-->
+
+    <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.service.http.sample.HTTPClientActionsTestCase"/>
         </classes>
     </test>
 

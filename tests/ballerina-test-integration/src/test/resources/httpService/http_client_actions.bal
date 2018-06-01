@@ -22,6 +22,15 @@ service<http:Service> backEndService bind { port: 9091 } {
 
     @http:ResourceConfig {
         methods: ["POST"],
+        path: "/byteChannel"
+    }
+    sendByteChannel(endpoint client, http:Request req) {
+        io:ByteChannel byteChannel = check req.getByteChannel();
+        _ = client->respond(byteChannel);
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"],
         path: "/directPayload"
     }
     postReply(endpoint client, http:Request req) {
@@ -36,12 +45,9 @@ service<http:Service> backEndService bind { port: 9091 } {
             } else if (mime:APPLICATION_JSON == contentType) {
                 json jsonValue = check req.getJsonPayload();
                 _ = client->respond(jsonValue);
-            } else if ("text/customSubType1" == contentType) {
+            } else if (mime:APPLICATION_OCTET_STREAM == contentType) {
                 blob blobValue = check req.getBinaryPayload();
                 _ = client->respond(blobValue);
-            } else if (mime:APPLICATION_OCTET_STREAM == contentType) {
-                io:ByteChannel byteChannel = check req.getByteChannel();
-                _ = client->respond(byteChannel);
             } else if (mime:MULTIPART_FORM_DATA == contentType) {
                 mime:Entity[] bodyParts = check req.getBodyParts();
                 _ = client->respond(bodyParts);
@@ -109,7 +115,6 @@ service<http:Service> testService bind { port: 9090 } {
     }
     testPostWithBody(endpoint client, http:Request req) {
         string value;
-        //string payload
         http:Response textResponse = check clientEP->post("/test1/directPayload", "Sample Text");
         value = check textResponse.getTextPayload();
 
@@ -121,6 +126,63 @@ service<http:Service> testService bind { port: 9090 } {
         json jsonValue = check jsonResponse.getJsonPayload();
         value = value + jsonValue.toString();
 
+        _ = client->respond(value);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/handleBinary"
+    }
+    testPostWithBinaryData(endpoint client, http:Request req) {
+        string value;
+        string textVal = "Sample Text";
+        blob binaryValue = textVal.toBlob("UTF-8");
+        http:Response textResponse = check clientEP->post("/test1/directPayload", binaryValue);
+        value = check textResponse.getPayloadAsString();
+
+        _ = client->respond(value);
+    }
+
+    @http:ResourceConfig {
+        methods: ["POST"],
+        path: "/handleByteChannel"
+    }
+    testPostWithByteChannel(endpoint client, http:Request req) {
+        string value;
+        io:ByteChannel byteChannel = check req.getByteChannel();
+        http:Response res = check clientEP->post("/test1/byteChannel", byteChannel);
+        value = check res.getPayloadAsString();
+
+        _ = client->respond(value);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/handleMultiparts"
+    }
+    testPostWithBodyParts(endpoint client, http:Request req) {
+        string value;
+        mime:Entity part1 = new;
+        part1.setJson({ "name": "wso2" });
+        mime:Entity part2 = new;
+        part2.setText("Hello");
+        mime:Entity[] bodyParts = [part1, part2];
+
+        http:Response res = check clientEP->post("/test1/directPayload", bodyParts);
+        mime:Entity[] returnParts = check res.getBodyParts();
+
+        foreach bodyPart in returnParts {
+            mime:MediaType mediaType = check mime:getMediaType(bodyPart.getContentType());
+            string baseType = mediaType.getBaseType();
+            if (mime:APPLICATION_JSON == baseType) {
+                json payload = check bodyPart.getJson();
+                value = payload.toString();
+            }
+            if (mime:TEXT_PLAIN == baseType) {
+                string textVal = check bodyPart.getText();
+                value = value + textVal;
+            }
+        }
         _ = client->respond(value);
     }
 }
