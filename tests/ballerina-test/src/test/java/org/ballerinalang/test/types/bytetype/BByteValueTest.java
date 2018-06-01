@@ -110,37 +110,6 @@ public class BByteValueTest {
         Assert.assertEquals(bByte.byteValue(), (byte) input, "Invalid byte value returned.");
     }
 
-    public void testByteToAnyCast() {
-        byte input = 45;
-        BValue[] args = {new BByte(input)};
-        BValue[] returns = BRunUtil.invoke(result, "testByteToAnyCast", args);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BTypeDescValue.class);
-        Assert.assertSame(returns[1].getClass(), BByte.class);
-        BByte bByte = (BByte) returns[1];
-        Assert.assertEquals(bByte.byteValue(), input, "Invalid byte value returned.");
-    }
-
-
-    public void testByteArrayToAnyCast() {
-        byte input1 = 34;
-        byte input2 = 56;
-
-        BByteArray bByteArrayIn = new BByteArray();
-        bByteArrayIn.add(0, input1);
-        bByteArrayIn.add(1, input2);
-        BValue[] args = {bByteArrayIn};
-
-        BValue[] returns = BRunUtil.invoke(result, "testByteArrayToAny", args);
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BTypeDescValue.class);
-        Assert.assertSame(returns[1].getClass(), BByteArray.class);
-
-        BByteArray bByteArrayOut = (BByteArray) returns[1];
-        Assert.assertEquals(bByteArrayOut.get(0), input1);
-        Assert.assertEquals(bByteArrayOut.get(1), input2);
-    }
-
     @Test(description = "Test integer to byte conversion")
     public void testIntToByteConversion() {
         int input = 123;

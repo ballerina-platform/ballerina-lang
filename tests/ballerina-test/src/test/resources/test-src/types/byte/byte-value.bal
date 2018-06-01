@@ -17,11 +17,11 @@ function testGlobalByte(byte b) returns byte {
     return globalByte;
 }
 
-//function testByteAddition() returns byte {
-//    byte a = 14;
-//    byte b = 23;
-//    return (a + b);
-//}
+function testByteAddition() returns byte {
+    byte a = 14;
+    byte b = 23;
+    return (a + b);
+}
 
 function testIntToByteCast(int b) returns byte {
     byte a = <byte> b;
@@ -80,8 +80,7 @@ function testByteArrayOfArray() returns (int, int) {
     byte[][] aa = [[4, 6, 27, 75], [3, 7, 1], [5, 32, 98]];
     int[][] ab = [[4, 6, 27, 75], [3, 7, 1], [5, 32, 98]];
     int a = (lengthof aa);
-//    int b = (lengthof aa[0]);
-    int b = (lengthof aa);
+    int b = (lengthof aa[0]);
     return (a, b);
 }
 
@@ -97,18 +96,17 @@ function testByteBinaryNotEqualOperation(byte a, byte b, byte c) returns (boolea
     return (b1, b2);
 }
 
-//function testWorkerWithByteVariable() {
-//   worker w1 {
-//     int a = 10;
-//     int b = 3;
-//     (a, b) -> w2;
-//     b <- w2;
-//   }
-//   worker w2 {
-//     int a = 0;
-//     int b = 15;
-//     int c = 7;
-//     (a, c) <- w1;
-//     c -> w1;
-//   }
-//}
+function testWorkerWithByteVariable() {
+   worker w1 {
+    byte a = 10;
+    byte b = 12;
+    a -> w2;
+    b <- w2;
+  }
+  worker w2 {
+    byte a = 0;
+    byte b = 15;
+    a <- w1;
+    b -> w1;
+  }
+}
