@@ -24,6 +24,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
@@ -84,6 +85,7 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     private boolean closeFrameReceived;
     private ChannelPromise closePromise;
     private HttpCarbonResponse httpCarbonResponse;
+    private boolean caughtException;
 
     public WebSocketTargetHandler(WebSocketClientHandshaker handshaker,
                                   WebSocketFramesBlockingHandler framesBlockingHandler, boolean isSecure,
@@ -132,7 +134,7 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws URISyntaxException {
+    public void channelActive(ChannelHandlerContext ctx) {
         this.ctx = ctx;
         handshaker.handshake(ctx.channel());
     }
@@ -148,7 +150,7 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
             return;
         }
 
-        if (closePromise != null && !closePromise.isDone()) {
+        if (!caughtException && closePromise != null && !closePromise.isDone()) {
             String errMsg = "Connection is closed by remote endpoint without echoing a close frame";
             closePromise.setFailure(new IllegalStateException(errMsg));
         }
@@ -177,7 +179,7 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
                     WebSocketUtil.getWebSocketConnection(ctx, this, blockingHandler, isSecure, requestedUri);
             if (!autoRead) {
                 ctx.channel().pipeline().addBefore(Constants.WEBSOCKET_FRAME_HANDLER,
-                                                   Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER, blockingHandler);
+                        Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER, blockingHandler);
             }
             handshakeFuture.setSuccess();
             fullHttpResponse.release();
@@ -237,7 +239,7 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
     private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment,
                                      ChannelHandlerContext ctx) {
         DefaultWebSocketMessage webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content,
-                                                                                           finalFragment);
+                finalFragment);
         setupCommonProperties(webSocketBinaryMessage, ctx);
         connectorListener.onMessage((WebSocketBinaryMessage) webSocketBinaryMessage);
     }
@@ -296,7 +298,7 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
 
         defaultWebSocketMessage.setProperty(Constants.SRC_HANDLER, this);
         defaultWebSocketMessage.setProperty(Constants.LISTENER_PORT,
-                                            ((InetSocketAddress) ctx.channel().localAddress()).getPort());
+                ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         defaultWebSocketMessage.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         defaultWebSocketMessage.setProperty(
                 Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
@@ -304,14 +306,18 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
+        caughtException = true;
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
         } else {
-            ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
-                    Constants.WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION, "Encountered an unexpected condition"));
-            closeFrameFuture.addListener(future -> {
-                ctx.close().addListener(closeFuture -> connectorListener.onError(cause));
-            });
+            if (!(cause instanceof CorruptedFrameException)) {
+                ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
+                        Constants.WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION, "Encountered an unexpected condition"));
+                closeFrameFuture.addListener(future ->
+                        ctx.close().addListener(closeFuture -> connectorListener.onError(webSocketConnection, cause)));
+                return;
+            }
+            connectorListener.onError(webSocketConnection, cause);
         }
     }
 

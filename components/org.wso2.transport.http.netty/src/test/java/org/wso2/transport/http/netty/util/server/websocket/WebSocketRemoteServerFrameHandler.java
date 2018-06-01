@@ -25,6 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
@@ -43,6 +44,7 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     private static final String PING = "ping";
     private static final String CLOSE = "close";
     private static final String CLOSE_WITHOUT_FRAME = "close-without-frame";
+    private static final String SEND_CORRUPTED_FRAME = "send-corrupted-frame";
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
@@ -68,6 +70,9 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
                     break;
                 case CLOSE_WITHOUT_FRAME:
                     ctx.close();
+                    break;
+                case SEND_CORRUPTED_FRAME:
+                    ctx.writeAndFlush(new ContinuationWebSocketFrame(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4})));
                     break;
                 default:
                     ctx.channel().writeAndFlush(new TextWebSocketFrame(text));

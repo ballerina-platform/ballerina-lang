@@ -111,7 +111,7 @@ public class WebSocketServerHandshakeFunctionalityListener implements WebSocketC
     }
 
     @Override
-    public void onError(Throwable throwable) {
+    public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
 
     }
 

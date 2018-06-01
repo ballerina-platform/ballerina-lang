@@ -19,6 +19,7 @@
 package org.wso2.transport.http.netty.websocket.client;
 
 import io.netty.channel.ChannelFuture;
+import io.netty.handler.codec.CorruptedFrameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
@@ -39,12 +40,12 @@ import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_REMOTE_SERVER_PORT;
 import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_REMOTE_SERVER_URL;
 import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_TEST_IDLE_TIMEOUT;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Test cases for the WebSocket Client implementation.
@@ -119,7 +120,7 @@ public class WebSocketClientFunctionalityTestCase {
                 Assert.fail(t.getMessage());
             }
         });
-        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
         return connectorListener;
     }
 
@@ -150,7 +151,7 @@ public class WebSocketClientFunctionalityTestCase {
                 Assert.fail(t.getMessage());
             }
         });
-        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
         return connectorListener;
     }
 
@@ -179,7 +180,7 @@ public class WebSocketClientFunctionalityTestCase {
                 Assert.fail(t.getMessage());
             }
         });
-        pongLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        pongLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
         return pongConnectorListener;
     }
 
@@ -190,7 +191,7 @@ public class WebSocketClientFunctionalityTestCase {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ChannelFuture closeFuture = webSocketConnection.terminateConnection().addListener(
                 future -> countDownLatch.countDown());
-        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 
         Assert.assertNull(closeFuture.cause());
         Assert.assertTrue(closeFuture.isDone());
@@ -204,7 +205,7 @@ public class WebSocketClientFunctionalityTestCase {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ChannelFuture closeFuture = webSocketConnection.initiateConnectionClosure(1001, "Going away").addListener(
                 future -> countDownLatch.countDown());
-        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 
         Assert.assertNull(closeFuture.cause());
         Assert.assertTrue(closeFuture.isDone());
@@ -218,11 +219,26 @@ public class WebSocketClientFunctionalityTestCase {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ChannelFuture closeFuture = webSocketConnection.initiateConnectionClosure(1001, "Going away").addListener(
                 future -> countDownLatch.countDown());
-        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 
         Assert.assertNull(closeFuture.cause());
         Assert.assertTrue(closeFuture.isDone());
         Assert.assertTrue(closeFuture.isSuccess());
+    }
+
+    @Test
+    public void testExceptionCaught() throws Throwable {
+        WebSocketTestClientConnectorListener connectorListener = new WebSocketTestClientConnectorListener();
+        WebSocketConnection webSocketConnection = getWebSocketConnectionSync(connectorListener);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        connectorListener.setCountDownLatch(countDownLatch);
+        webSocketConnection.pushText("send-corrupted-frame");
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
+        Throwable throwable = connectorListener.getError();
+
+        Assert.assertNotNull(throwable);
+        Assert.assertTrue(throwable instanceof CorruptedFrameException);
+        Assert.assertEquals(throwable.getMessage(), "received continuation data frame outside fragmented message");
     }
 
     @AfterClass
@@ -253,7 +269,7 @@ public class WebSocketClientFunctionalityTestCase {
                 countDownLatch.countDown();
             }
         });
-        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
         if (throwableAtomicReference.get() != null) {
             throw throwableAtomicReference.get();
         }

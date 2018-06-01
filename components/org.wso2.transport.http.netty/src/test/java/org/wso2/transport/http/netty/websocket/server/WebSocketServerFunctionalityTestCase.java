@@ -18,6 +18,7 @@
 
 package org.wso2.transport.http.netty.websocket.server;
 
+import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -34,6 +35,7 @@ import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
 
+import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_TEST_IDLE_TIMEOUT;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
@@ -41,7 +43,6 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class WebSocketServerFunctionalityTestCase {
 
-    private final int latchCountDownInSecs = 10;
     private final int defaultStatusCode = 1001;
     private final String defaultCloseReason = "Going away";
     private DefaultHttpWsConnectorFactory httpConnectorFactory;
@@ -69,7 +70,7 @@ public class WebSocketServerFunctionalityTestCase {
         client.setCountDownLatch(latch);
         String textSent = "test";
         client.sendText(textSent);
-        latch.await(latchCountDownInSecs, SECONDS);
+        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 
         Assert.assertEquals(client.getTextReceived(), textSent);
 
@@ -85,7 +86,7 @@ public class WebSocketServerFunctionalityTestCase {
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         client.sendBinary(bufferSent);
-        latch.await(latchCountDownInSecs, SECONDS);
+        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 
         Assert.assertEquals(client.getBufferReceived(), bufferSent);
 
@@ -100,7 +101,7 @@ public class WebSocketServerFunctionalityTestCase {
         pingCheckClient.handshake();
         pingCheckClient.setCountDownLatch(pingLatch);
         pingCheckClient.sendText(ping);
-        pingLatch.await(latchCountDownInSecs, SECONDS);
+        pingLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
         ByteBuffer expectedBuffer = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
 
         Assert.assertTrue(pingCheckClient.isPingReceived(), "Should receive a ping from the server");
@@ -120,7 +121,7 @@ public class WebSocketServerFunctionalityTestCase {
         byte[] bytes = {6, 7, 8, 9, 10, 11};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         pongCheckClient.sendPing(bufferSent);
-        pongLatch.await(latchCountDownInSecs, SECONDS);
+        pongLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 
         Assert.assertTrue(pongCheckClient.isPongReceived(), "Should receive a pong from the server");
         Assert.assertEquals(pongCheckClient.getBufferReceived(), bufferSent);
@@ -137,8 +138,8 @@ public class WebSocketServerFunctionalityTestCase {
         client.handshake();
         client.setCountDownLatch(clientLatch);
         client.sendText("close-forcefully");
-        serverLatch.await(latchCountDownInSecs, SECONDS);
-        clientLatch.await(latchCountDownInSecs, SECONDS);
+        serverLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
+        clientLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 
         Assert.assertNull(client.getReceivedCloseFrame());
         Assert.assertFalse(client.isOpen());
@@ -168,21 +169,21 @@ public class WebSocketServerFunctionalityTestCase {
 
     private void acknowledgeServerClosure(WebSocketTestClient client, int statusCode) throws InterruptedException {
         CountDownLatch closeDoneLatch = new CountDownLatch(1);
-        serverConnectorListener.setCloseDoneLatch(closeDoneLatch);
+        serverConnectorListener.setMethodDoneLatch(closeDoneLatch);
         client.sendCloseFrame(statusCode, null);
-        closeDoneLatch.await(latchCountDownInSecs, SECONDS);
+        closeDoneLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
     }
 
     private WebSocketTestClient commandServerInitiatedClosure() throws URISyntaxException, InterruptedException {
-        CountDownLatch clientLatch = new CountDownLatch(1);
         CountDownLatch serverLatch = new CountDownLatch(1);
         serverConnectorListener.setReturnFutureLatch(serverLatch);
         WebSocketTestClient client = new WebSocketTestClient();
         client.handshake();
+        CountDownLatch clientLatch = new CountDownLatch(1);
         client.setCountDownLatch(clientLatch);
         client.sendText("send-and-wait");
-        clientLatch.await(latchCountDownInSecs, SECONDS);
-        serverLatch.await(latchCountDownInSecs, SECONDS);
+        clientLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
+        serverLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
         return client;
     }
 
@@ -224,7 +225,7 @@ public class WebSocketServerFunctionalityTestCase {
         int statusCode = 1001;
         String closeReason = "Test finish closure";
         client.sendCloseFrame(statusCode, closeReason);
-        latch.await(latchCountDownInSecs, SECONDS);
+        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
         CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
 
         Assert.assertNotNull(closeWebSocketFrame);
@@ -232,6 +233,33 @@ public class WebSocketServerFunctionalityTestCase {
         Assert.assertEquals(closeWebSocketFrame.reasonText(), closeReason);
 
         closeWebSocketFrame.release();
+    }
+
+    @Test(description = "If exception is caught then if should be reflected in onError of " +
+            "WebSocketTestServerConnectorListener and a close WebSocket frame should be received to the client.")
+    public void testExceptionCaught() throws URISyntaxException, InterruptedException {
+        CountDownLatch methodDoneLatch = new CountDownLatch(1);
+        serverConnectorListener.setMethodDoneLatch(methodDoneLatch);
+        WebSocketTestClient client = new WebSocketTestClient();
+        client.handshake();
+        CountDownLatch clientDoneLatch = new CountDownLatch(1);
+        client.setCountDownLatch(clientDoneLatch);
+        client.sendCorruptedFrame();
+        methodDoneLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
+        clientDoneLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
+
+        Throwable currentError = serverConnectorListener.getCurrentError();
+
+        Assert.assertNotNull(currentError);
+        Assert.assertTrue(currentError instanceof CorruptedFrameException);
+        Assert.assertEquals(currentError.getMessage(), "received a frame that is not masked as expected");
+
+        CloseWebSocketFrame clientReceivedCloseFrame = client.getReceivedCloseFrame();
+
+        Assert.assertNotNull(clientReceivedCloseFrame);
+        Assert.assertEquals(clientReceivedCloseFrame.statusCode(), 1002);
+
+        clientReceivedCloseFrame.release();
     }
 
     @AfterClass

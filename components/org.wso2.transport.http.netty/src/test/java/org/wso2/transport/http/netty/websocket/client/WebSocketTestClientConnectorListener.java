@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
@@ -112,7 +113,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     }
 
     @Override
-    public void onError(Throwable throwable) {
+    public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         errorsQueue.add(throwable);
         log.error("Error handler received: " + throwable.getMessage());
         for (int i = 0; i < latch.getCount(); i++) {
@@ -214,6 +215,15 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      */
     public WebSocketCloseMessage getCloseMessage() {
         return closeMessage;
+    }
+
+    /**
+     * Retrieve the available error.
+     *
+     * @return the available error.
+     */
+    public Throwable getError() {
+        return errorsQueue.remove();
     }
 
     private void countDownLatch() {
