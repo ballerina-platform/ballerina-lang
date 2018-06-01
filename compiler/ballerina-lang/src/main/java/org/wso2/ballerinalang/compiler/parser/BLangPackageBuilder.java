@@ -2222,14 +2222,12 @@ public class BLangPackageBuilder {
         ((BLangIf) elseIfNode).pos = pos;
         elseIfNode.setCondition(exprNodeStack.pop());
         elseIfNode.setBody(blockNodeStack.pop());
-        Set<Whitespace> elseWS = removeNthFromStart(ws, 0);
         elseIfNode.addWS(ws);
 
         IfNode parentIfNode = ifElseStatementStack.peek();
         while (parentIfNode.getElseStatement() != null) {
             parentIfNode = (IfNode) parentIfNode.getElseStatement();
         }
-        parentIfNode.addWS(elseWS);
         parentIfNode.setElseStatement(elseIfNode);
     }
 
@@ -2238,8 +2236,8 @@ public class BLangPackageBuilder {
         while (ifNode.getElseStatement() != null) {
             ifNode = (IfNode) ifNode.getElseStatement();
         }
-        ifNode.addWS(ws);
         BlockNode elseBlock = blockNodeStack.pop();
+        elseBlock.addWS(ws);
         ((BLangBlockStmt) elseBlock).pos = pos;
         ifNode.setElseStatement(elseBlock);
     }
