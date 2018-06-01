@@ -370,7 +370,7 @@ public class MimeUtil {
      * @return A byte array
      * @throws IOException In case an error occurs while reading input stream
      */
-    static byte[] getByteArray(InputStream input) throws IOException {
+    public static byte[] getByteArray(InputStream input) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[READABLE_BUFFER_SIZE];
             for (int len; (len = input.read(buffer)) != -1; ) {

@@ -127,6 +127,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -136,7 +137,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -1237,7 +1237,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return analyzeNode(node, env, symTable.noType, null);
     }
 
-    public void visit(BLangNext nextNode) {
+    public void visit(BLangContinue continueNode) {
         /* ignore */
     }
 
@@ -2020,18 +2020,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                                    BLangStatement streamingQueryStatement,
                                                    BStructType.BStructField outputStructField) {
 
-        if (structField == null) {
-            dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement)
-                            streamingQueryStatement).
-                            getSelectClause()).pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE,
-                    attributeName);
-        } else {
+        if (structField != null) {
             this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
                             streamingQueryStatement).getStreamingAction()).pos,
                     outputStructField.getType(), structField.getType(),
                     DiagnosticCode.INCOMPATIBLE_TYPES);
         }
-
     }
 
     private Map<String, List<BStructType.BStructField>> createInputStreamSpecificFieldMap

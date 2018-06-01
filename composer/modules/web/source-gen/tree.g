@@ -63,8 +63,8 @@ Bind
    ;
 
 Block
-   : <statements>*
-   | 
+   : <isElseBlock?> else { <statements>* }
+   |                       <statements>*
    ;
 
 Break
@@ -212,9 +212,11 @@ Having
    ;
 
 If
-   : <ladderParent?> if ( <condition.source> ) { <body.source> } else   <elseStatement.source>
-   |                 if ( <condition.source> ) { <body.source> } else { <elseStatement.source> }
-   |                 if ( <condition.source> ) { <body.source> }
+   : <ladderParent?> <isElseIfBlock?> else if <condition.source> { <body.source> } <elseStatement.source>
+   |                 <isElseIfBlock?> else if <condition.source> { <body.source> } <elseStatement.source>
+   |                 <isElseIfBlock?> else if <condition.source> { <body.source> }
+   | <ladderParent?>                       if <condition.source> { <body.source> } <elseStatement.source>
+   |                                       if <condition.source> { <body.source> }
    ;
 
 IndexBasedAccessExpr

@@ -82,8 +82,8 @@ transformer <Person p, Employee e> Foo_4() {
     }
     
     Foo_1();
-    
-    next;
+
+    continue;
 }
 
 

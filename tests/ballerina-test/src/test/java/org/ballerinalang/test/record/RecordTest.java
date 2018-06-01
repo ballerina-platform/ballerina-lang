@@ -167,4 +167,13 @@ public class RecordTest {
         BAssertUtil.validateError(result, 0, "cannot attach function 'getName' to record type 'Person'", 7, 1);
         BAssertUtil.validateError(result, 1, "undefined symbol 'self'", 8, 12);
     }
+
+    @Test(description = "Test for records defined using the 'record' keyword")
+    public void testRecordDefinedWithKeyword() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testStructWithRecordKeyword");
+
+        Assert.assertEquals(returns[0].stringValue(), "{name:\"John\", lname:\"Doe\", address:{\"country\":\"USA\", " +
+                "\"state\":\"CA\"}, age:25, family:{spouse:\"\", noOfChildren:0, children:[]}, parent:null, " +
+                "designation:\"Software Engineer\"}");
+    }
 }
