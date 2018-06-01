@@ -25,6 +25,12 @@
 
     <fileSets>
         <fileSet>
+            <directory>
+                ${project.build.directory}/lib
+            </directory>
+            <outputDirectory>lib</outputDirectory>
+        </fileSet>
+        <fileSet>
             <directory>./</directory>
             <outputDirectory>.</outputDirectory>
             <includes>
