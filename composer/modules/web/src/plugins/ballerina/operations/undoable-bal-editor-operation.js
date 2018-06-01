@@ -46,6 +46,7 @@ class UndoableBalEditorOperation extends UndoableOperation {
     }
 
     undo() {
+        this.originEvt.data.sourceEditor.undo(this.getTitle());
         this.getFile().setContent(this.getOldContent(), {
             type: EVENTS.UNDO_EVENT,
             originEvt: this.originEvt,
@@ -57,6 +58,7 @@ class UndoableBalEditorOperation extends UndoableOperation {
     }
 
     redo() {
+        this.originEvt.data.sourceEditor.redo(this.getTitle());
         this.getFile().setContent(this.getNewContent(), {
             type: EVENTS.REDO_EVENT,
             originEvt: this.originEvt,
