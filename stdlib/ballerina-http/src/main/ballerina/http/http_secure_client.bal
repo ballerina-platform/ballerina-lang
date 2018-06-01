@@ -16,12 +16,11 @@
 
 
 import ballerina/io;
-import ballerina/runtime;
 import ballerina/mime;
+import ballerina/runtime;
 
 @final string EMPTY_STRING = "";
 @final string WHITE_SPACE = " ";
-@final string CONTENT_TYPE_HEADER = "Content-Type";
 
 public type AUTH_SCHEME "basic"|"oauth2"|"jwt";
 
@@ -335,7 +334,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
         } else {
             req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
         }
-    } else if (scheme == JWT){
+    } else if (scheme == JWT) {
         string authToken = runtime:getInvocationContext().authContext.authToken;
         if (authToken == EMPTY_STRING) {
             error err;
