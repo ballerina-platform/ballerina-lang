@@ -3,10 +3,6 @@ import ballerina/jdbc;
 import ballerina/time;
 import ballerina/io;
 
-type Dummy {
-    string someVal,
-};
-
 type ResultCustomers {
     string FIRSTNAME,
 };
@@ -151,12 +147,15 @@ function testGeneratedKeyWithColumn(string jdbcUrl, string userName, string pass
     string[] generatedID;
     string[] keyColumns = ["CUSTOMERID"];
     string returnVal;
-    string queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
-    ('Kathy', 'Williams', 4, 5000.75, 'USA')";
+
+    string queryString;
     if (jdbcUrl.contains("postgres")) {
         queryString = "insert into Customers (firstName,lastName,
                                registrationID,creditLimit,country) values ('Kathy', 'Williams', 4, 5000.75, 'USA')
                                RETURNING CUSTOMERID";
+    } else {
+        queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
+    ('Kathy', 'Williams', 4, 5000.75, 'USA')";
     }
     var x = testDB->updateWithGeneratedKeys(queryString, keyColumns);
     match x {
@@ -812,16 +811,6 @@ function testINOutParameters(string jdbcUrl, string userName, string password) r
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction: sql
     :
     DIRECTION_INOUT };
-
-    if (jdbcUrl.contains("postgres")) {
-        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, value: 1 };
-        paraClob = { sqlType: sql:TYPE_VARCHAR, value: "very long text", direction: sql:DIRECTION_INOUT };
-        // TODO: Until handling postgresql bytea and oid is figured out properly, just to make sure this testcase runs
-        // smoothly on postgresql, binary type is used in place of blob. Note that in "TestOutParams" also bytea type
-        // is used in place of blob type argument. Please refer
-        // https://github.com/ballerina-platform/ballerina-lang/issues/8759
-        paraBlob = { sqlType: sql:TYPE_BINARY, value: "YmxvYiBkYXRh" };
-    }
 
     _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,

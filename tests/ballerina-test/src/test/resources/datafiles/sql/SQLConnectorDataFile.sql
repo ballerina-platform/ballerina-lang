@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS Customers(
-  customerid INTEGER NOT NULL IDENTITY,
-  firstname  VARCHAR(300),
-  lastname  VARCHAR(300),
-  registrationid INTEGER,
-  creditlimit DOUBLE,
+  customerId INTEGER NOT NULL IDENTITY,
+  firstName  VARCHAR(300),
+  lastName  VARCHAR(300),
+  registrationId INTEGER,
+  creditLimit DOUBLE,
   country  VARCHAR(300),
-  PRIMARY KEY (CUSTOMERID)
+  PRIMARY KEY (customerId)
 );
 /
 CREATE TABLE IF NOT EXISTS DataTypeTable(

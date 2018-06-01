@@ -345,7 +345,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 paramStruct = (BStruct) typeValue;
             } else {
                 paramStruct = getSQLParameter(context);
-                paramStruct.setRefField(0, new BString(SQLDatasourceUtils.getSQLType(typeValue)));
+                paramStruct.setRefField(0, new BString(SQLDatasourceUtils.getSQLType(typeValue.getType())));
                 paramStruct.setRefField(1, typeValue);
                 paramStruct.setRefField(2, new BString(Constants.QueryParamDirection.DIR_IN));
             }

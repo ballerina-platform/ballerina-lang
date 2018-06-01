@@ -727,14 +727,16 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest", description = "Test failure scenario in adding data to mirrored table")
     public void testAddToMirrorTableNegative() throws Exception {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableNegative", connectionArgs);
-        String errorMessage = "execute update failed: integrity constraint violation: unique constraint or index "
-                + "violation";
+        String errorMessage;
         if (dbType == MYSQL) {
             errorMessage = "execute update failed: Duplicate entry '1' for key 'PRIMARY'";
         } else if (dbType == POSTGRES) {
             errorMessage = "{message:\"execute update failed: ERROR: duplicate key value violates unique constraint "
                     + "\"employeeaddnegative_pkey\"\n"
                     + "  Detail: Key (id)=(1) already exists.\", cause:null}";
+        } else {
+            errorMessage = "execute update failed: integrity constraint violation: unique constraint or index "
+                    + "violation";
         }
         Assert.assertNotNull(returns);
         Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
