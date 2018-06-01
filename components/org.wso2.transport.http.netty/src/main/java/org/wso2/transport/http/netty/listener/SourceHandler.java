@@ -190,8 +190,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (serverConnectorFuture != null) {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
-                outboundRespFuture.setHttpConnectorListener(
-                        new HttpOutboundRespListener(ctx, httpRequestMsg, chunkConfig, keepAliveConfig, serverName));
+                outboundRespFuture.setHttpConnectorListener(new HttpOutboundRespListener(ctx, httpRequestMsg,
+                        chunkConfig, keepAliveConfig, serverName, sourceHandlerErrorHandler));
                 this.serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
                 log.error("Error while notifying listeners", e);
