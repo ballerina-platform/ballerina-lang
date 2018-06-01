@@ -97,7 +97,7 @@ function testByteBinaryNotEqualOperation(byte a, byte b, byte c) returns (boolea
 }
 
 function testWorkerWithByteVariable() {
-   worker w1 {
+  worker w1 {
     byte a = 10;
     byte b = 12;
     a -> w2;

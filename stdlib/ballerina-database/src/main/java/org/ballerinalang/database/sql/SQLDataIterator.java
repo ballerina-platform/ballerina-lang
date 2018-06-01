@@ -24,7 +24,6 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -470,7 +469,8 @@ public class SQLDataIterator extends TableIterator {
         Blob blobValue = rs.getBlob(index);
         if (fieldTypeTag == TypeTags.UNION_TAG) {
             //TODO fix for byte
-//            BRefType refValue = blobValue == null ? null : new BBlob(blobValue.getBytes(1L, (int) blobValue.length()));
+//            BRefType refValue = blobValue == null ? null :
+//                    new BBlob(blobValue.getBytes(1L, (int) blobValue.length()));
 //            validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.BLOB_TAG,
 //                    retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
