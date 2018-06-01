@@ -37,6 +37,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.listener.RequestDataHolder;
+import org.wso2.transport.http.netty.listener.SourceHandlerErrorHandler;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.Http2PushPromise;
 
@@ -61,6 +62,7 @@ import static org.wso2.transport.http.netty.common.Util.shouldEnforceChunkingfor
 public class HttpOutboundRespListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(HttpOutboundRespListener.class);
+    private final SourceHandlerErrorHandler sourceHandlerErrorHandler;
 
     private ChannelHandlerContext sourceContext;
     private RequestDataHolder requestDataHolder;
@@ -76,7 +78,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
     public HttpOutboundRespListener(ChannelHandlerContext channelHandlerContext, HTTPCarbonMessage requestMsg,
                                     ChunkConfig chunkConfig,
                                     KeepAliveConfig keepAliveConfig,
-                                    String serverName) {
+                                    String serverName, SourceHandlerErrorHandler sourceHandlerErrorHandler) {
         this.sourceContext = channelHandlerContext;
         this.requestDataHolder = new RequestDataHolder(requestMsg);
         this.inboundRequestMsg = requestMsg;
@@ -84,6 +86,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
         this.handlerExecutor = HTTPTransportContextHolder.getInstance().getHandlerExecutor();
         this.chunkConfig = chunkConfig;
         this.serverName = serverName;
+        this.sourceHandlerErrorHandler = sourceHandlerErrorHandler;
     }
 
     @Override
@@ -150,6 +153,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             } else {
                 outboundChannelFuture = writeOutboundResponseBody(httpContent);
             }
+            sourceHandlerErrorHandler.setComplete();
 
             if (!keepAlive) {
                 outboundChannelFuture.addListener(ChannelFutureListener.CLOSE);

@@ -24,7 +24,6 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
@@ -36,8 +35,6 @@ import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGE
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION;
 import static org.wso2.transport.http.netty.listener.InboundState.CONNECTED;
-import static org.wso2.transport.http.netty.listener.InboundState.ENTITY_BODY_RECEIVED;
-import static org.wso2.transport.http.netty.listener.InboundState.RECEIVING_ENTITY_BODY;
 
 /**
  * Handle all the errors related to source-handler.
@@ -49,6 +46,7 @@ public class SourceHandlerErrorHandler {
     private HTTPCarbonMessage inboundRequestMsg;
     private final ServerConnectorFuture serverConnectorFuture;
     private InboundState state;
+    private boolean complete = false;
 
     public SourceHandlerErrorHandler(ServerConnectorFuture serverConnectorFuture) {
         this.serverConnectorFuture = serverConnectorFuture;
@@ -56,6 +54,9 @@ public class SourceHandlerErrorHandler {
     }
 
     void handleErrorCloseScenario(HTTPCarbonMessage inboundRequestMsg, HttpResponseFuture httpOutboundRespFuture) {
+        if (complete) {
+            return;
+        }
         this.inboundRequestMsg = inboundRequestMsg;
         try {
             switch (state) {
@@ -118,17 +119,14 @@ public class SourceHandlerErrorHandler {
     }
 
     public void exceptionCaught(Throwable cause) {
-        if (state == RECEIVING_ENTITY_BODY) {
-            handleIncompleteInboundRequest(Constants.EXCEPTION_CAUGHT_WHILE_READING_REQUEST);
-        }
-        try {
-            serverConnectorFuture.notifyErrorListener(cause);
-        } catch (ServerConnectorException e) {
-            log.error("Couldn't notify error state to application layer");
-        }
+        log.warn("Exception occurred :" + cause);
     }
 
     public void setState(InboundState inboundState) {
         state = inboundState;
+    }
+
+    public void setComplete() {
+        complete = true;
     }
 }
