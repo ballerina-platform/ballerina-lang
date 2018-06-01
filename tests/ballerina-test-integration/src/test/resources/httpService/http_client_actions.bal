@@ -2,14 +2,6 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:Listener testEP1 {
-    port: 9090
-};
-
-endpoint http:Listener testEP2 {
-    port: 9091
-};
-
 endpoint http:Client clientEP {
     url: "http://localhost:9091",
     cache: { enabled: false }
@@ -18,7 +10,7 @@ endpoint http:Client clientEP {
 @http:ServiceConfig {
     basePath: "/test1"
 }
-service<http:Service> backEndService bind testEP2 {
+service<http:Service> backEndService bind { port: 9091 } {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -30,7 +22,7 @@ service<http:Service> backEndService bind testEP2 {
 
     @http:ResourceConfig {
         methods: ["POST"],
-        path: "/123"
+        path: "/directPayload"
     }
     postReply(endpoint client, http:Request req) {
         if (req.hasHeader("content-type")) {
@@ -63,7 +55,7 @@ service<http:Service> backEndService bind testEP2 {
 @http:ServiceConfig {
     basePath: "/test2"
 }
-service<http:Service> testService bind testEP1 {
+service<http:Service> testService bind { port: 9090 } {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -86,23 +78,48 @@ service<http:Service> testService bind testEP1 {
 
     @http:ResourceConfig {
         methods: ["GET"],
-        path: "/clientPost"
+        path: "/clientPostWithoutBody"
     }
     testPost(endpoint client, http:Request req) {
         string value;
         //No Payload
-        var clientResponse = clientEP->post("/test1/123", ());
+        var clientResponse = clientEP->post("/test1/directPayload", ());
         match clientResponse {
-            error err => {value = err.message;}
+            error err => {
+                value = err.message;
+            }
             http:Response res => {
                 match res.getTextPayload() {
                     string returnValue => {
                         value = returnValue;
                     }
-                    error payloadErr => { value = payloadErr.message;}
+                    error payloadErr => {
+                        value = payloadErr.message;
+                    }
                 }
             }
         }
+
+        _ = client->respond(value);
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/clientPostWithBody"
+    }
+    testPostWithBody(endpoint client, http:Request req) {
+        string value;
+        //string payload
+        http:Response textResponse = check clientEP->post("/test1/directPayload", "Sample Text");
+        value = check textResponse.getTextPayload();
+
+        http:Response xmlResponse = check clientEP->post("/test1/directPayload", xml `<yy>Sample Xml</yy>`);
+        xml xmlValue = check xmlResponse.getXmlPayload();
+        value = value + xmlValue.getTextValue();
+
+        http:Response jsonResponse = check clientEP->post("/test1/directPayload", { name: "apple", color: "red" });
+        json jsonValue = check jsonResponse.getJsonPayload();
+        value = value + jsonValue.toString();
 
         _ = client->respond(value);
     }
