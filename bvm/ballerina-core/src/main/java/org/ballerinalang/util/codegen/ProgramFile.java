@@ -56,6 +56,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
     private Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();
+    private List<PackageInfo> initPkgList = new ArrayList<>();
 
     private int entryPkgCPIndex;
     private String entryPkgName;
@@ -191,6 +192,18 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     public void addPackageInfo(String packageName, PackageInfo packageInfo) {
         packageInfoMap.put(packageName, packageInfo);
+    }
+
+    public PackageInfo[] getImportPackageInfoEntries() {
+        return initPkgList.toArray(new PackageInfo[0]);
+    }
+
+    public void addImportPackageInfo(PackageInfo packageInfo) {
+        initPkgList.add(packageInfo);
+    }
+
+    public boolean importPackageAlreadyExist(PackageInfo packageInfo) {
+        return initPkgList.contains(packageInfo);
     }
 
     public LockableStructureType getGlobalMemoryBlock() {
