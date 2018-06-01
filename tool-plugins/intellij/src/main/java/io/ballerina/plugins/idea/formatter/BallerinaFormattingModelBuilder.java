@@ -60,6 +60,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.COLON;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMMA;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPLETE_PACKAGE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.COMPOUND_OPERATOR;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.CONTINUE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DAY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DECIMAL_INTEGER_LITERAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.DEPRECATED;
@@ -141,7 +142,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.NAMED_PATTERN;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NAME_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NATIVE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NEW;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.NEXT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NOT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NOT_EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.NULLABLE_TYPE_NAME;
@@ -268,8 +268,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(ELSE).spaceIf(true)
                 .around(FOREACH).spaceIf(true)
                 .around(WHILE).spaceIf(true)
-                .before(NEXT).spaceIf(true)
-                .after(NEXT).spaceIf(false)
+                .before(CONTINUE).spaceIf(true)
+                .after(CONTINUE).spaceIf(false)
                 .around(BREAK).spaceIf(false)
                 .around(JOIN).spaceIf(true)
                 .around(SOME).spaceIf(true) // Todo
