@@ -456,7 +456,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.get(1), 1);
         Assert.assertEquals(retValue.get(2), -3);
         Assert.assertEquals(retValue.get(3), -3);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test(groups = "ConnectorTest")
