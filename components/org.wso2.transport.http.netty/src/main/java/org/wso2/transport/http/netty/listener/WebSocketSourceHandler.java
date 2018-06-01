@@ -224,8 +224,8 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
         if (closePromise == null) {
             DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage);
-            connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
             closeFrameReceived = true;
+            connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
         } else {
             if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
                 String errMsg = String.format(

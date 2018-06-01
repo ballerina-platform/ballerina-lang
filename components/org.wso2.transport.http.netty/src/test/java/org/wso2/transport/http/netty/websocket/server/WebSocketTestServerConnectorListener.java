@@ -52,7 +52,6 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     private ChannelFuture closeFuture;
 
 
-
     public WebSocketTestServerConnectorListener() {
     }
 
@@ -133,7 +132,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
             webSocketConnection.pong(controlMessage.getPayload()).addListener(future -> {
                 if (!future.isSuccess()) {
                     Assert.fail("Could not send the message. "
-                                        + future.cause().getMessage());
+                            + future.cause().getMessage());
                 }
             });
         }
@@ -141,6 +140,8 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
+        closeMessage.getWebSocketConnection().finishConnectionClosure(closeMessage.getCloseCode(),
+                closeMessage.getCloseReason());
     }
 
     @Override
@@ -153,12 +154,12 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
         ChannelFuture channelFuture = webSocketConnection.initiateConnectionClosure(1001, "Connection timeout");
         channelFuture.addListener(future -> {
-           if (!future.isSuccess()) {
-               log.error("Error occurred while closing the connection: " + future.cause().getMessage());
-           }
-           if (channelFuture.channel().isOpen()) {
-               channelFuture.channel().close();
-           }
+            if (!future.isSuccess()) {
+                log.error("Error occurred while closing the connection: " + future.cause().getMessage());
+            }
+            if (channelFuture.channel().isOpen()) {
+                channelFuture.channel().close();
+            }
         });
     }
 

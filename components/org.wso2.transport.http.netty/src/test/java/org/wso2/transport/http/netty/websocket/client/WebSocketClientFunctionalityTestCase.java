@@ -82,6 +82,8 @@ public class WebSocketClientFunctionalityTestCase {
         Assert.assertTrue(connectorListener.isClosed());
         Assert.assertEquals(closeMessage.getCloseCode(), 1000);
         Assert.assertEquals(closeMessage.getCloseReason(), "Close on request");
+
+        closeMessage.getWebSocketConnection().finishConnectionClosure(closeMessage.getCloseCode(), null);
     }
 
     @Test
@@ -197,6 +199,20 @@ public class WebSocketClientFunctionalityTestCase {
 
     @Test
     public void testClientInitiatedClosure() throws Throwable {
+        WebSocketConnection webSocketConnection =
+                getWebSocketConnectionSync(new WebSocketTestClientConnectorListener());
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ChannelFuture closeFuture = webSocketConnection.initiateConnectionClosure(1001, "Going away").addListener(
+                future -> countDownLatch.countDown());
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, TimeUnit.SECONDS);
+
+        Assert.assertNull(closeFuture.cause());
+        Assert.assertTrue(closeFuture.isDone());
+        Assert.assertTrue(closeFuture.isSuccess());
+    }
+
+    @Test
+    public void testFinishClosure() throws Throwable {
         WebSocketConnection webSocketConnection =
                 getWebSocketConnectionSync(new WebSocketTestClientConnectorListener());
         CountDownLatch countDownLatch = new CountDownLatch(1);

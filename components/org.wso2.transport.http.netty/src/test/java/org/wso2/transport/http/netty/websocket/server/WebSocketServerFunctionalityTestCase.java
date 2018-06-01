@@ -63,9 +63,9 @@ public class WebSocketServerFunctionalityTestCase {
 
     @Test
     public void testTextReceiveAndEchoBack() throws URISyntaxException, InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
         WebSocketTestClient client = new WebSocketTestClient();
         client.handshake();
+        CountDownLatch latch = new CountDownLatch(1);
         client.setCountDownLatch(latch);
         String textSent = "test";
         client.sendText(textSent);
@@ -78,9 +78,9 @@ public class WebSocketServerFunctionalityTestCase {
 
     @Test
     public void testBinaryReceiveAndEchoBack() throws URISyntaxException, InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
         WebSocketTestClient client = new WebSocketTestClient();
         client.handshake();
+        CountDownLatch latch = new CountDownLatch(1);
         client.setCountDownLatch(latch);
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
@@ -213,6 +213,25 @@ public class WebSocketServerFunctionalityTestCase {
                                                   "endpoint",
                                           closeFrame.statusCode(), closeFrame.statusCode() + 1));
         closeFrame.release();
+    }
+
+    @Test(description = "Test finish closure from server side")
+    public void testFinishClosure() throws URISyntaxException, InterruptedException {
+        WebSocketTestClient client = new WebSocketTestClient();
+        client.handshake();
+        CountDownLatch latch = new CountDownLatch(1);
+        client.setCountDownLatch(latch);
+        int statusCode = 1001;
+        String closeReason = "Test finish closure";
+        client.sendCloseFrame(statusCode, closeReason);
+        latch.await(latchCountDownInSecs, SECONDS);
+        CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
+
+        Assert.assertNotNull(closeWebSocketFrame);
+        Assert.assertEquals(closeWebSocketFrame.statusCode(), statusCode);
+        Assert.assertEquals(closeWebSocketFrame.reasonText(), closeReason);
+
+        closeWebSocketFrame.release();
     }
 
     @AfterClass
