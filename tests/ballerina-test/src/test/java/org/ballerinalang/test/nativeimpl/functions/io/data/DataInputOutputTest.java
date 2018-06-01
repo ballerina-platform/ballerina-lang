@@ -26,12 +26,17 @@ import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.ByteOrder;
 import java.nio.channels.ByteChannel;
+
+import static org.ballerinalang.nativeimpl.io.channels.base.Representation.BIT_16;
+import static org.ballerinalang.nativeimpl.io.channels.base.Representation.BIT_32;
+import static org.ballerinalang.nativeimpl.io.channels.base.Representation.BIT_64;
 
 /**
  * Test data i/o
@@ -48,20 +53,58 @@ public class DataInputOutputTest {
     }
 
 
-    @Test(description = "Test ''ReadInteger")
-    public void testReadInteger() throws IOException, URISyntaxException {
+    @Test(description = "Test fixed long values ranges", dataProvider = "signedLongValues")
+    public void testSignedFixedLong(long value, Representation representation) throws IOException, URISyntaxException {
         String filePath = currentDirectoryPath + "/sample.bin";
-        long writtenInt = -3939;
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
         Channel channel = new MockByteChannel(byteChannel);
         DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        dataChannel.writeFixedInt(writtenInt, Representation.BIT_32);
+        dataChannel.writeFixedLong(value, representation);
         channel.close();
         byteChannel = TestUtil.openForReadingAndWriting(filePath);
         channel = new MockByteChannel(byteChannel);
         dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        long readInt = dataChannel.readFixedInt(Representation.BIT_32);
-        Assert.assertEquals(readInt, writtenInt);
+        long readInt = dataChannel.readFixedLong(representation);
+        Assert.assertEquals(readInt, value);
+    }
+
+    @Test(description = "Test floating point values", dataProvider = "DoubleValues")
+    public void testFloatingValues(double value, Representation representation) throws IOException {
+        String filePath = currentDirectoryPath + "/sample.bin";
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        Channel channel = new MockByteChannel(byteChannel);
+        DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        dataChannel.writeDouble(value, representation);
+        byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        channel = new MockByteChannel(byteChannel);
+        dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        double readFloat = dataChannel.readDouble(representation);
+        Assert.assertEquals(readFloat, value);
+    }
+
+    @DataProvider(name = "LongValues")
+    public static Object[][] signedLongValues() {
+        return new Object[][]{
+                {0, BIT_16}, {0, BIT_32}, {0, BIT_64},
+                {-1, BIT_16}, {-1, BIT_32}, {-1, BIT_64},
+                {Short.MIN_VALUE, BIT_16}, {Short.MIN_VALUE, BIT_32}, {Short.MIN_VALUE, BIT_64},
+                {Short.MAX_VALUE, BIT_16}, {Short.MAX_VALUE, BIT_32}, {Short.MAX_VALUE, BIT_64},
+                {Integer.MIN_VALUE, BIT_32}, {Integer.MIN_VALUE, BIT_64},
+                {Integer.MAX_VALUE, BIT_32}, {Integer.MAX_VALUE, BIT_64},
+                {Long.MIN_VALUE, BIT_64},
+                {Long.MAX_VALUE, BIT_64}
+        };
+    }
+
+    @DataProvider(name = "DoubleValues")
+    public static Object[][] doubleValues() {
+        return new Object[][]{
+                {0.0f, BIT_32}, {0.0f, BIT_64},
+                {-1.0f, BIT_32}, {-1.0f, BIT_64},
+                {Float.MIN_VALUE, BIT_32}, {Float.MIN_VALUE, BIT_64},
+                {Float.MAX_VALUE, BIT_32}, {Float.MAX_VALUE, BIT_64},
+                {Double.MIN_VALUE, BIT_64}, {Double.MAX_VALUE, BIT_64}
+        };
     }
 
 }

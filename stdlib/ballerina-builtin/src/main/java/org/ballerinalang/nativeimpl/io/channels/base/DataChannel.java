@@ -47,11 +47,12 @@ public class DataChannel {
         } while (buffer.hasRemaining() && !channel.hasReachedEnd());
     }
 
-    private long decodeInt(Representation representation) throws IOException {
+    private long decodeLong(Representation representation) throws IOException {
         ByteBuffer buffer;
         long value = 0;
         int totalNumberOfBits;
         int requiredNumberOfBytes;
+        int maxNumberOfBits = 0xFFFF;
         if (Representation.VARIABLE.equals(representation)) {
             throw new UnsupportedOperationException();
         } else {
@@ -63,13 +64,25 @@ public class DataChannel {
         buffer.flip();
         totalNumberOfBits = (buffer.limit() - 1) * Byte.SIZE;
         do {
-            value = value + (long) ((buffer.get() & 0xFF) << totalNumberOfBits);
+            long shiftedValue = 0L;
+            if (Representation.BIT_64.equals(representation)) {
+                long flippedValue = (buffer.get() & maxNumberOfBits);
+                shiftedValue = flippedValue << totalNumberOfBits;
+            } else if (Representation.BIT_32.equals(representation)) {
+                int flippedValue = (buffer.get() & maxNumberOfBits);
+                shiftedValue = flippedValue << totalNumberOfBits;
+            } else if (Representation.BIT_16.equals(representation)) {
+                short flippedValue = (short) (buffer.get() & maxNumberOfBits);
+                shiftedValue = flippedValue << totalNumberOfBits;
+            }
+            maxNumberOfBits = 0xFF;
+            value = value + shiftedValue;
             totalNumberOfBits = totalNumberOfBits - Byte.SIZE;
         } while (buffer.hasRemaining());
         return value;
     }
 
-    private byte[] encodeInt(long value, Representation representation) {
+    private byte[] encodeLong(long value, Representation representation) {
         byte[] content;
         int nBytes;
         int totalNumberOfBits;
@@ -88,13 +101,32 @@ public class DataChannel {
         return content;
     }
 
-    public void writeFixedInt(long value, Representation representation) throws IOException {
-        byte[] bytes = encodeInt(value, representation);
+    public void writeFixedLong(long value, Representation representation) throws IOException {
+        byte[] bytes = encodeLong(value, representation);
         channel.write(ByteBuffer.wrap(bytes));
     }
 
-    public long readFixedInt(Representation representation) throws IOException {
-        return decodeInt(representation);
+    public long readFixedLong(Representation representation) throws IOException {
+        return decodeLong(representation);
     }
 
+    public void writeDouble(double value, Representation representation) throws IOException {
+        long lValue;
+        if (Representation.BIT_32.equals(representation)) {
+            lValue = Float.floatToIntBits((float) value);
+        } else {
+            lValue = Double.doubleToRawLongBits(value);
+        }
+        writeFixedLong(lValue, representation);
+    }
+
+    public double readDouble(Representation representation) throws IOException {
+        if (Representation.BIT_32.equals(representation)) {
+            int fValue = (int) readFixedLong(Representation.BIT_32);
+            return Float.intBitsToFloat(fValue);
+        } else {
+            long lValue = readFixedLong(representation);
+            return Double.longBitsToDouble(lValue);
+        }
+    }
 }
