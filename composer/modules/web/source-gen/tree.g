@@ -285,7 +285,7 @@ NamedArgsExpr
    ;
 
 Next
-   : next ;
+   : continue ;
    ;
 
 Object
@@ -570,7 +570,7 @@ Where
    ;
 
 While
-   : while ( <condition.source> ) { <body.source> }
+   : while <condition.source> { <body.source> }
    ;
 
 WindowClause

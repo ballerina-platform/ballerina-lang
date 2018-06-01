@@ -1027,7 +1027,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return w() + node.name.valueWithBar + w(' ') + '=' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'Next':
-            return dent() + w() + 'next' + w() + ';';
+            return dent() + w() + 'continue' + w() + ';';
         case 'Object':
             if (node.noFieldsAvailable && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
@@ -1944,10 +1944,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return w() + 'where'
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'While':
-            return dent() + w() + 'while' + w(' ') + '('
-                 + getSourceOf(node.condition, pretty, l, replaceLambda) + w() + ')' + w(' ') + '{'
-                 + indent() + getSourceOf(node.body, pretty, l, replaceLambda) + outdent()
-                 + w() + '}';
+            return dent() + w() + 'while'
+                 + getSourceOf(node.condition, pretty, l, replaceLambda) + w(' ') + '{' + indent()
+                 + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
         case 'WindowClause':
             return w() + 'window'
                  + getSourceOf(node.functionInvocation, pretty, l, replaceLambda);
