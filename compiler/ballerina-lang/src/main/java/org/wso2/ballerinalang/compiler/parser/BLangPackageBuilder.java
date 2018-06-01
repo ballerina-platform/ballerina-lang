@@ -970,6 +970,24 @@ public class BLangPackageBuilder {
         addExpressionNode(litExpr);
     }
 
+    public void createByteArrayLiteralExprNode(DiagnosticPos pos, Set<Whitespace> ws, int typeTag,
+                                                               byte[] blob) {
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        List<ExpressionNode> byteArrayLiteral = new ArrayList<>();
+        for (byte b : blob) {
+            BLangLiteral litExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            litExpr.addWS(ws);
+            litExpr.pos = pos;
+            litExpr.typeTag = typeTag;
+            litExpr.value = b;
+            byteArrayLiteral.add(litExpr);
+        }
+        arrayLiteral.exprs = byteArrayLiteral.stream().map(expr -> (BLangExpression) expr).collect(Collectors.toList());
+        arrayLiteral.pos = pos;
+        arrayLiteral.addWS(ws);
+        addExpressionNode(arrayLiteral);
+    }
+
     public void addArrayInitExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean argsAvailable) {
         List<ExpressionNode> argExprList;
         BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();

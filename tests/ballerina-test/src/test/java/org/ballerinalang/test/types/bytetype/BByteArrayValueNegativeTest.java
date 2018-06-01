@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.types.blob;
+package org.ballerinalang.test.types.bytetype;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
@@ -25,11 +25,11 @@ import org.testng.annotations.Test;
 /**
  * This test class will test the blob value negative test cases.
  */
-public class BBlobValueNegativeTest {
+public class BByteArrayValueNegativeTest {
 
     @Test(description = "Test blob value negative")
     public void testBlobValueNegative() {
-        CompileResult result = BCompileUtil.compile("test-src/types/blob/blob-value-negative.bal");
+        CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-array-value-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 40);
     }
 }

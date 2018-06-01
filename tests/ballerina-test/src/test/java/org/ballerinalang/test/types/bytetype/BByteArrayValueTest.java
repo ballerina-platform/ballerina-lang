@@ -15,13 +15,12 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.test.types.blob;
+package org.ballerinalang.test.types.bytetype;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BBlobArray;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
@@ -34,19 +33,19 @@ import java.util.Base64;
 /**
  * This test class will test the blob values.
  */
-public class BBlobValueTest {
+public class BByteArrayValueTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/blob/blob-value.bal");
+        result = BCompileUtil.compile("test-src/types/byte/byte-array-value.bal");
     }
 
     @Test(description = "Test blob value assignment")
     public void testBlobParameter() {
         byte[] bytes = "string".getBytes();
-        BValue[] args = {new BBlob(bytes)};
+        BValue[] args = {createBByteArray(bytes)};
         BValue[] returns = BRunUtil.invoke(result, "testBlobParameter", args);
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
@@ -56,21 +55,37 @@ public class BBlobValueTest {
     public void testBlobArray() {
         byte[] bytes1 = "string1".getBytes();
         byte[] bytes2 = "string2".getBytes();
-        BValue[] args = {new BBlob(bytes1), new BBlob(bytes2)};
+        BByteArray byteArray1 = createBByteArray(bytes1);
+        BByteArray byteArray2 = createBByteArray(bytes2);
+        BValue[] args = {byteArray1, byteArray2};
         BValue[] returns = BRunUtil.invoke(result, "testBlobParameterArray", args);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBlob.class);
-        Assert.assertSame(returns[1].getClass(), BBlob.class);
-        BBlob blob1 = (BBlob) returns[0];
-        BBlob blob2 = (BBlob) returns[1];
-        Assert.assertEquals(blob1.blobValue(), bytes1, "Invalid byte value returned.");
-        Assert.assertEquals(blob2.blobValue(), bytes2, "Invalid byte value returned.");
+        Assert.assertSame(returns[0].getClass(), BByteArray.class);
+        Assert.assertSame(returns[1].getClass(), BByteArray.class);
+        BByteArray blob1 = (BByteArray) returns[0];
+        BByteArray blob2 = (BByteArray) returns[1];
+        assertJBytesWithBBytes(bytes1, blob1);
+        assertJBytesWithBBytes(bytes2, blob2);
+    }
+
+    private BByteArray createBByteArray(byte[] bytes) {
+        BByteArray byteArray = new BByteArray();
+        for (int i = 0; i < bytes.length ; i++) {
+            byteArray.add(i, bytes[i]);
+        }
+        return byteArray;
+    }
+
+    private void assertJBytesWithBBytes(byte[] jBytes, BByteArray bBytes) {
+        for (int i = 0; i < jBytes.length ; i++) {
+            Assert.assertEquals(bBytes.get(i), jBytes[i], "Invalid byte value returned.");
+        }
     }
 
     @Test(description = "Test blob global variable1")
     public void testBlobGlobalVariable1() {
         byte[] bytes = "string".getBytes();
-        BValue[] args = {new BBlob(bytes)};
+        BValue[] args = {createBByteArray(bytes)};
         BValue[] returns = BRunUtil.invoke(result, "testGlobalVariable1", args);
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
@@ -102,12 +117,12 @@ public class BBlobValueTest {
         byte[] bytes2 = decode(b2);
         BValue[] returns = BRunUtil.invoke(result, "testBlobReturnTuple1", new BValue[]{});
         Assert.assertEquals(returns.length, 2);
-        Assert.assertSame(returns[0].getClass(), BBlob.class);
-        Assert.assertSame(returns[1].getClass(), BBlob.class);
-        BBlob blob1 = (BBlob) returns[0];
-        BBlob blob2 = (BBlob) returns[1];
-        Assert.assertEquals(blob1.blobValue(), bytes1, "Invalid byte value returned.");
-        Assert.assertEquals(blob2.blobValue(), bytes2, "Invalid byte value returned.");
+        Assert.assertSame(returns[0].getClass(), BByteArray.class);
+        Assert.assertSame(returns[1].getClass(), BByteArray.class);
+        BByteArray blob1 = (BByteArray) returns[0];
+        BByteArray blob2 = (BByteArray) returns[1];
+        assertJBytesWithBBytes(bytes1, blob1);
+        assertJBytesWithBBytes(bytes2, blob2);
     }
 
     @Test(description = "Test blob tuple return 2")
@@ -129,9 +144,9 @@ public class BBlobValueTest {
     }
 
     private void assertResult(byte[] bytes, BValue aReturn) {
-        Assert.assertSame(aReturn.getClass(), BBlob.class);
-        BBlob blob = (BBlob) aReturn;
-        Assert.assertEquals(blob.blobValue(), bytes, "Invalid byte value returned.");
+        Assert.assertSame(aReturn.getClass(), BByteArray.class);
+        BByteArray blob = (BByteArray) aReturn;
+        assertJBytesWithBBytes(bytes, blob);
     }
 
     @Test(description = "Test return blob array")
@@ -141,17 +156,19 @@ public class BBlobValueTest {
         byte[] bytes1 = hexStringToByteArray(b1);
         byte[] bytes2 = decode(b2);
         BValue[] returns = BRunUtil.invoke(result, "testBlobReturnArray", new BValue[]{});
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBlobArray.class);
-        BBlobArray blobArray = (BBlobArray) returns[0];
-        Assert.assertEquals(blobArray.get(0), bytes1, "Invalid byte value returned.");
-        Assert.assertEquals(blobArray.get(1), bytes2, "Invalid byte value returned.");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BByteArray.class);
+        Assert.assertSame(returns[1].getClass(), BByteArray.class);
+        BByteArray blobArray1 = (BByteArray) returns[0];
+        BByteArray blobArray2 = (BByteArray) returns[1];
+        assertJBytesWithBBytes(bytes1, blobArray1);
+        assertJBytesWithBBytes(bytes2, blobArray2);
     }
 
     @Test(description = "Test blob field variable 1")
     public void testBlobField1() {
         byte[] bytes = "string".getBytes();
-        BValue[] args = {new BBlob(bytes)};
+        BValue[] args = {createBByteArray(bytes)};
         BValue[] returns = BRunUtil.invoke(result, "testBlobField1", args);
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
@@ -189,10 +206,10 @@ public class BBlobValueTest {
         byte[] bytes2 = decode(b64);
         BValue[] returns = BRunUtil.invoke(result, "testBlobAssign", new BValue[]{});
         Assert.assertEquals(returns.length, 2);
-        BBlob blob1 = (BBlob) returns[0];
-        BBlob blob2 = (BBlob) returns[1];
-        Assert.assertEquals(blob1.blobValue(), bytes2, "Invalid value returned.");
-        Assert.assertEquals(blob2.blobValue(), bytes1, "Invalid value returned.");
+        BByteArray blob1 = (BByteArray) returns[0];
+        BByteArray blob2 = (BByteArray) returns[1];
+        assertJBytesWithBBytes(bytes2, blob1);
+        assertJBytesWithBBytes(bytes1, blob2);
     }
 
     @Test(description = "Test blob default value")

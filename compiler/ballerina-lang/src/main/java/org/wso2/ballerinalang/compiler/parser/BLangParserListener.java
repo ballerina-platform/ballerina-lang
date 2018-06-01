@@ -2076,7 +2076,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null);
         } else if (ctx.blobLiteral() != null) {
             byte[] blobValue = getBlobLiteral(ctx.blobLiteral());
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BLOB, blobValue);
+            this.pkgBuilder.createByteArrayLiteralExprNode(pos, ws, TypeTags.BYTE, blobValue);
         }
     }
 
