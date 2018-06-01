@@ -230,6 +230,7 @@ public class HttpDispatcher {
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bxml);
                     return bxml;
                 case TypeTags.BLOB_TAG:
+                    //TODO fic for byte
                     BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                     return new BBlob(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);

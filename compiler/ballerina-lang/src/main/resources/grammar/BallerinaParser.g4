@@ -229,6 +229,7 @@ userDefineTypeName
 valueTypeName
     :   TYPE_BOOL
     |   TYPE_INT
+    |   TYPE_BYTE
     |   TYPE_FLOAT
     |   TYPE_STRING
     |   TYPE_BLOB

@@ -43,7 +43,7 @@ public interface InstructionCodes {
     int BCONST_0 = 17;
     int BCONST_1 = 18;
     int RCONST_NULL = 19;
-    int LCONST = 20;
+    int BICONST = 20;
 
     int IMOVE = 21;
     int FMOVE = 22;
@@ -51,37 +51,41 @@ public interface InstructionCodes {
     int BMOVE = 24;
     int LMOVE = 25;
     int RMOVE = 26;
-    int IALOAD = 27;
-    int FALOAD = 28;
-    int SALOAD = 29;
-    int BALOAD = 30;
-    int LALOAD = 31;
-    int RALOAD = 32;
-    int JSONALOAD = 33;
-    int IGLOAD = 34;
-    int FGLOAD = 35;
-    int SGLOAD = 36;
-    int BGLOAD = 37;
-    int LGLOAD = 38;
-    int RGLOAD = 39;
+    int BIALOAD = 27;
+    int IALOAD = 28;
+    int FALOAD = 29;
+    int SALOAD = 30;
+    int BALOAD = 31;
+    int LALOAD = 32;
+    int RALOAD = 33;
+    int JSONALOAD = 34;
 
-    int IFIELDLOAD = 40;
-    int FFIELDLOAD = 41;
-    int SFIELDLOAD = 42;
-    int BFIELDLOAD = 43;
-    int LFIELDLOAD = 44;
-    int RFIELDLOAD = 45;
+    int IGLOAD = 35;
+    int FGLOAD = 36;
+    int SGLOAD = 37;
+    int BGLOAD = 38;
+    int LGLOAD = 39;
+    int RGLOAD = 40;
 
-    int MAPLOAD = 46;
-    int JSONLOAD = 47;
+    int IFIELDLOAD = 41;
+    int FFIELDLOAD = 42;
+    int SFIELDLOAD = 43;
+    int BFIELDLOAD = 44;
+    int LFIELDLOAD = 45;
+    int RFIELDLOAD = 46;
 
-    int IASTORE = 55;
-    int FASTORE = 56;
-    int SASTORE = 57;
-    int BASTORE = 58;
-    int LASTORE = 59;
-    int RASTORE = 60;
-    int JSONASTORE = 61;
+    int MAPLOAD = 47;
+    int JSONLOAD = 48;
+
+    int BIASTORE = 50;
+    int IASTORE = 51;
+    int FASTORE = 52;
+    int SASTORE = 53;
+    int BASTORE = 54;
+    int LASTORE = 55;
+    int RASTORE = 56;
+    int JSONASTORE = 57;
+
     int IGSTORE = 62;
     int FGSTORE = 63;
     int SGSTORE = 64;
@@ -190,7 +194,6 @@ public interface InstructionCodes {
     int JSON2XML = 157;
     int S2XML = 158;
     int XML2S = 159;
-    int ANY2SCONV = 175;
 
     // Type cast
     int I2ANY = 160;
@@ -208,7 +211,7 @@ public interface InstructionCodes {
     int ANY2MAP = 172;
     int ANY2STM = 173;
     int ANY2DT = 174;
-
+    int ANY2SCONV = 175;
     int ANY2E = 177;
     int ANY2T = 178;
     int ANY2C = 179;
@@ -240,15 +243,16 @@ public interface InstructionCodes {
     int ARRAY2JSON = 198;
     int JSON2ARRAY = 199;
 
-    int INEWARRAY = 200;
-    int FNEWARRAY = 201;
-    int SNEWARRAY = 202;
-    int BNEWARRAY = 203;
-    int LNEWARRAY = 204;
-    int RNEWARRAY = 205;
-    int JSONNEWARRAY = 206;
-    int ARRAYLEN = 207;
-    int LENGTHOF = 208;
+    int BINEWARRAY = 200;
+    int INEWARRAY = 201;
+    int FNEWARRAY = 202;
+    int SNEWARRAY = 203;
+    int BNEWARRAY = 204;
+    int LNEWARRAY = 205;
+    int RNEWARRAY = 206;
+    int JSONNEWARRAY = 207;
+    int ARRAYLEN = 208;
+    int LENGTHOF = 209;
 
     int NEWSTRUCT = 210;
     int NEWMAP = 212;
@@ -260,6 +264,11 @@ public interface InstructionCodes {
     int ITR_NEW = 220;
     int ITR_HAS_NEXT = 221;
     int ITR_NEXT = 222;
+
+    int I2BI = 223;
+    int BI2I = 224;
+    int ANY2BI = 225;
+    int BI2ANY = 226;
 
     int IRET = 229;
     int FRET = 230;

@@ -22,6 +22,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BRefType;
@@ -91,6 +92,18 @@ public class BLangVMStructs {
                         structureType.setIntField(index, (Long) value);
                     } else if (value instanceof BInteger) {
                         structureType.setIntField(index, ((BInteger) value).intValue());
+                    }
+                }
+                break;
+            case TypeTags.BYTE_TAG:
+                index = ++regIndexes[4];
+                if (value != null) {
+                    if (value instanceof Byte) {
+                        structureType.setBooleanField(index, (Byte) value);
+                    } else if (value instanceof Integer) {
+                        structureType.setBooleanField(index, (Integer) value);
+                    } else if (value instanceof BByte) {
+                        structureType.setBooleanField(index, ((BByte) value).byteValue());
                     }
                 }
                 break;

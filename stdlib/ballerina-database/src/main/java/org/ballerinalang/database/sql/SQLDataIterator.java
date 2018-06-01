@@ -469,9 +469,10 @@ public class SQLDataIterator extends TableIterator {
         int fieldTypeTag = getFieldTypeTag(structFields, index);
         Blob blobValue = rs.getBlob(index);
         if (fieldTypeTag == TypeTags.UNION_TAG) {
-            BRefType refValue = blobValue == null ? null : new BBlob(blobValue.getBytes(1L, (int) blobValue.length()));
-            validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.BLOB_TAG,
-                    retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
+            //TODO fix for byte
+//            BRefType refValue = blobValue == null ? null : new BBlob(blobValue.getBytes(1L, (int) blobValue.length()));
+//            validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.BLOB_TAG,
+//                    retrieveNonNilTypeTag(structFields, index - 1), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);
         } else {
             if (blobValue != null) {
                 bStruct.setBlobField(blobRegIndex.incrementAndGet(), blobValue.getBytes(1L, (int) blobValue.length()));

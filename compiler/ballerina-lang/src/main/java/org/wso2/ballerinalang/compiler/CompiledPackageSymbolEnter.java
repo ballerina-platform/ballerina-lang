@@ -629,6 +629,9 @@ public class CompiledPackageSymbolEnter {
             case 'I':
                 typeStack.push(this.symTable.intType);
                 return index + 1;
+            case 'W':
+                typeStack.push(this.symTable.byteType);
+                return index + 1;
             case 'F':
                 typeStack.push(this.symTable.floatType);
                 return index + 1;
@@ -765,6 +768,8 @@ public class CompiledPackageSymbolEnter {
         switch (ch) {
             case 'I':
                 return this.symTable.intType;
+            case 'W':
+                return this.symTable.byteType;
             case 'F':
                 return this.symTable.floatType;
             case 'S':

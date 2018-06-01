@@ -85,6 +85,7 @@ ASCENDING   : 'ascending' ;
 DESCENDING  : 'descending' ;
 
 TYPE_INT        : 'int' ;
+TYPE_BYTE       : 'byte' ;
 TYPE_FLOAT      : 'float' ;
 TYPE_BOOL       : 'boolean' ;
 TYPE_STRING     : 'string' ;

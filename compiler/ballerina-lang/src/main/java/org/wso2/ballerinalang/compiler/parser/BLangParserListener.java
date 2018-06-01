@@ -2062,7 +2062,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Long longObject;
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
         if (integerLiteralContext != null && (longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
+            if (longObject >= 0 && longObject <= 255) {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE, longObject.byteValue());
+            } else {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
+            }
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
         } else if ((node = ctx.BooleanLiteral()) != null) {

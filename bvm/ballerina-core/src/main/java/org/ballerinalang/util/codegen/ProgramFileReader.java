@@ -36,6 +36,7 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
@@ -62,6 +63,7 @@ import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -216,6 +218,10 @@ public class ProgramFileReader {
             case CP_ENTRY_INTEGER:
                 long longVal = dataInStream.readLong();
                 return new IntegerCPEntry(longVal);
+
+            case CP_ENTRY_BYTE:
+                int byteVal = dataInStream.readInt();
+                return new ByteCPEntry(byteVal);
 
             case CP_ENTRY_FLOAT:
                 double doubleVal = dataInStream.readDouble();
@@ -821,6 +827,9 @@ public class ProgramFileReader {
             case 'I':
                 typeStack.push(BTypes.typeInt);
                 return index + 1;
+            case 'W':
+                typeStack.push(BTypes.typeByte);
+                return index + 1;
             case 'F':
                 typeStack.push(BTypes.typeFloat);
                 return index + 1;
@@ -961,6 +970,8 @@ public class ProgramFileReader {
         switch (ch) {
             case 'I':
                 return BTypes.typeInt;
+            case 'W':
+                return BTypes.typeByte;
             case 'F':
                 return BTypes.typeFloat;
             case 'S':
@@ -1396,7 +1407,7 @@ public class ProgramFileReader {
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
-                case InstructionCodes.LCONST:
+                case InstructionCodes.BICONST:
                 case InstructionCodes.IMOVE:
                 case InstructionCodes.FMOVE:
                 case InstructionCodes.SMOVE:
@@ -1413,6 +1424,7 @@ public class ProgramFileReader {
                 case InstructionCodes.TR_END:
                 case InstructionCodes.ARRAYLEN:
                 case InstructionCodes.INEWARRAY:
+                case InstructionCodes.BINEWARRAY:
                 case InstructionCodes.FNEWARRAY:
                 case InstructionCodes.SNEWARRAY:
                 case InstructionCodes.BNEWARRAY:
@@ -1439,11 +1451,13 @@ public class ProgramFileReader {
                 case InstructionCodes.NEWJSON:
                 case InstructionCodes.NEWMAP:
                 case InstructionCodes.I2ANY:
+                case InstructionCodes.BI2ANY:
                 case InstructionCodes.F2ANY:
                 case InstructionCodes.S2ANY:
                 case InstructionCodes.B2ANY:
                 case InstructionCodes.L2ANY:
                 case InstructionCodes.ANY2I:
+                case InstructionCodes.ANY2BI:
                 case InstructionCodes.ANY2F:
                 case InstructionCodes.ANY2S:
                 case InstructionCodes.ANY2B:
@@ -1457,7 +1471,9 @@ public class ProgramFileReader {
                 case InstructionCodes.I2F:
                 case InstructionCodes.I2S:
                 case InstructionCodes.I2B:
+                case InstructionCodes.I2BI:
                 case InstructionCodes.I2JSON:
+                case InstructionCodes.BI2I:
                 case InstructionCodes.F2I:
                 case InstructionCodes.F2S:
                 case InstructionCodes.F2B:
@@ -1495,6 +1511,7 @@ public class ProgramFileReader {
                     break;
 
                 case InstructionCodes.IALOAD:
+                case InstructionCodes.BIALOAD:
                 case InstructionCodes.FALOAD:
                 case InstructionCodes.SALOAD:
                 case InstructionCodes.BALOAD:
@@ -1502,6 +1519,7 @@ public class ProgramFileReader {
                 case InstructionCodes.RALOAD:
                 case InstructionCodes.JSONALOAD:
                 case InstructionCodes.IASTORE:
+                case InstructionCodes.BIASTORE:
                 case InstructionCodes.FASTORE:
                 case InstructionCodes.SASTORE:
                 case InstructionCodes.BASTORE:
@@ -1823,6 +1841,11 @@ public class ProgramFileReader {
                 IntegerCPEntry integerCPEntry = (IntegerCPEntry) constantPool.getCPEntry(valueCPIndex);
                 defaultValue.setIntValue(integerCPEntry.getValue());
                 break;
+            case TypeSignature.SIG_BYTE:
+                valueCPIndex = dataInStream.readInt();
+                ByteCPEntry byteCPEntry = (ByteCPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue.setByteValue(byteCPEntry.getValue());
+                break;
             case TypeSignature.SIG_FLOAT:
                 valueCPIndex = dataInStream.readInt();
                 FloatCPEntry floatCPEntry = (FloatCPEntry) constantPool.getCPEntry(valueCPIndex);
@@ -1859,6 +1882,10 @@ public class ProgramFileReader {
             case TypeSignature.SIG_INT:
                 long intValue = defaultValue.getIntValue();
                 value = new BInteger(intValue);
+                break;
+            case TypeSignature.SIG_BYTE:
+                int byteValue = defaultValue.getByteValue();
+                value = new BByte(byteValue);
                 break;
             case TypeSignature.SIG_FLOAT:
                 double floatValue = defaultValue.getFloatValue();

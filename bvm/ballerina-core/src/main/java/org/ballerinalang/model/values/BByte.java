@@ -1,12 +1,12 @@
 /*
- *  Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
  *  in compliance with the License.
  *  You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
  *  Unless required by applicable law or agreed to in writing,
  *  software distributed under the License is distributed on an
@@ -15,32 +15,33 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
+
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 
 /**
- * The {@code BInteger} represents a int value in Ballerina.
+ * The {@code BByte} represents a byte value in Ballerina.
  *
- * @since 0.8.0
+ * @since 0.975
  */
-public final class BInteger extends BValueType implements BRefType<Long> {
+public final class BByte extends BValueType implements BRefType<Integer> {
 
-    private long value;
+    private int value;
 
-    public BInteger(long value) {
+    public BByte(int value) {
         this.value = value;
+    }
+
+    @Override
+    public int byteValue() {
+        return this.value;
     }
 
     @Override
     public long intValue() {
         return this.value;
-    }
-
-    @Override
-    public int byteValue() {
-        return (byte) this.value;
     }
 
     @Override
@@ -60,41 +61,40 @@ public final class BInteger extends BValueType implements BRefType<Long> {
 
     @Override
     public String stringValue() {
-        return Long.toString(value);
+        return String.valueOf((byte) value);
     }
 
     @Override
     public BType getType() {
-        return BTypes.typeInt;
+        return BTypes.typeByte;
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        BInteger bInteger = (BInteger) o;
-
-        return value == bInteger.value;
-
+        BByte that = (BByte) obj;
+        return value == that.value;
     }
 
     @Override
-    public int hashCode() {
-        return (int) (value ^ (value >>> 32));
-    }
-
-    @Override
-    public Long value() {
-        return value;
+    public Integer value() {
+        return this.value;
     }
 
     @Override
     public BValue copy() {
-        return new BInteger(value);
+        return new BByte(value);
+    }
+
+    @Override
+    public int hashCode() {
+        return Integer.hashCode(value);
     }
 }

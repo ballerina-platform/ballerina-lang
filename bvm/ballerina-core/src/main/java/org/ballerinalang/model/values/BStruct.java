@@ -104,6 +104,8 @@ public final class BStruct implements BRefType, LockableStructureType {
                     fieldVal = "\"" + stringFields[stringIndex++] + "\"";
                 } else if (fieldType == BTypes.typeInt) {
                     fieldVal = longFields[longIndex++];
+                } else if (fieldType == BTypes.typeByte) {
+                    fieldVal = (byte) intFields[intIndex++];
                 } else if (fieldType == BTypes.typeFloat) {
                     fieldVal = doubleFields[doubleIndex++];
                 } else if (fieldType == BTypes.typeBoolean) {
