@@ -317,7 +317,7 @@ public class PackageInfoReader {
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read import package entries
-        readImportPackageInfoEntries();
+        readImportPackageInfoEntries(packageInfo);
 
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
@@ -355,12 +355,18 @@ public class PackageInfoReader {
         packageInfo.complete();
     }
 
-    private void readImportPackageInfoEntries() throws IOException {
+    private void readImportPackageInfoEntries(PackageInfo packageInfo) throws IOException {
         int impPkgCount = dataInStream.readShort();
         for (int i = 0; i < impPkgCount; i++) {
             // TODO populate import package info structure
-            dataInStream.readInt();
-            dataInStream.readInt();
+            int pkgNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
+
+            int pkgVersionCPIndex = dataInStream.readInt();
+            UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
+            ImportPackageInfo importPackageInfo = new ImportPackageInfo(pkgNameCPIndex,
+                    pkgNameCPEntry.getValue(), pkgVersionCPIndex, pkgVersionCPEntry.getValue());
+            packageInfo.importPkgInfoList.add(importPackageInfo);
         }
     }
 
