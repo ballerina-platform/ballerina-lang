@@ -1013,8 +1013,23 @@ public class CodeGenerator extends BLangNodeVisitor {
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
             int opCode = binaryExpr.opSymbol.opcode;
             if (opCode == InstructionCodes.INT_RANGE) {
-                emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex,
-                        getOperand(IntegerRangeOperator.valueOf(binaryExpr.opKind.name()).value()));
+                if (binaryExpr.parent instanceof BLangForeach) {
+                    if (OperatorKind.HALF_OPEN_RANGE.equals(binaryExpr.opKind)) {
+                        RegIndex constOneRegIndex = getRegIndex(TypeTags.INT);
+                        RegIndex modifiedEndValRegIndex = getRegIndex(TypeTags.INT);
+                        emit(InstructionCodes.ICONST_1, constOneRegIndex);
+                        emit(InstructionCodes.ISUB, binaryExpr.rhsExpr.regIndex, constOneRegIndex,
+                             modifiedEndValRegIndex);
+                        emit(InstructionCodes.NEW_INT_RANGE, binaryExpr.lhsExpr.regIndex, modifiedEndValRegIndex,
+                             regIndex);
+                    } else {
+                        emit(InstructionCodes.NEW_INT_RANGE, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex,
+                             regIndex);
+                    }
+                } else {
+                    emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex,
+                         getOperand(IntegerRangeOperator.valueOf(binaryExpr.opKind.name()).value()));
+                }
             } else {
                 emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
             }
