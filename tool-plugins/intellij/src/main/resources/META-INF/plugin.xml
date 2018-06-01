@@ -10,11 +10,8 @@
 
     <change-notes><![CDATA[
       <ul>
-        <li>Ballerina 0.972.1-SNAPSHOT grammar support.</li>
-        <li>Auto import support.</li>
-        <li>Code completion improvements.</li>
-        <li>New live templates.</li>
-        <li>New code inspections.</li>
+        <li>Ballerina 0.973.0 grammar support.</li>
+        <li>Improve performance.</li>
       </ul>
     ]]>
     </change-notes>
