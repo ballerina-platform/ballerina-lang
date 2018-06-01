@@ -547,6 +547,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 nonOverridingAnalysis = true;
                 updatedVarRefTaintedState(fieldBasedAccessExpr, varTaintedStatus);
                 nonOverridingAnalysis = false;
+            } else if (varRefExpr.getKind() == NodeKind.BRACED_TUPLE_EXPR) {
+                BLangBracedOrTupleExpr bracedOrTupleExpr = (BLangBracedOrTupleExpr) varRefExpr;
+                // Propagate tainted status to fields, when field symbols are present (Example: struct).
+                bracedOrTupleExpr.expressions.forEach(expr -> visitAssignment(expr, varTaintedStatus,
+                        bracedOrTupleExpr.pos));
             } else {
                 setTaintedStatus((BLangVariableReference) varRefExpr, varTaintedStatus);
             }
