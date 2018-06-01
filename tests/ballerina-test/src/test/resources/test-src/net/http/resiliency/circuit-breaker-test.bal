@@ -277,7 +277,7 @@ public type MockClient object {
 
     public function get(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                             message = ()) returns http:Response|error {
-        http:Request req = http:buildRequest(message);
+        http:Request req = buildRequest(message);
         http:Response response = new;
         actualRequestNumber = actualRequestNumber + 1;
         string scenario = req.getHeader(TEST_SCENARIO_HEADER);
@@ -434,3 +434,19 @@ function getMockErrorStruct() returns error {
     error err = {message:"Internal Server Error"};
     return err;
 }
+
+function buildRequest(http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns http:Request {
+    http:Request request = new;
+    match message {
+        () => {}
+        http:Request req => {request = req;}
+        string textContent => {request.setTextPayload(textContent);}
+        xml xmlContent => {request.setXmlPayload(xmlContent);}
+        json jsonContent => {request.setJsonPayload(jsonContent);}
+        blob blobContent => {request.setBinaryPayload(blobContent);}
+        io:ByteChannel byteChannelContent => {request.setByteChannel(byteChannelContent);}
+        mime:Entity[] bodyParts => {request.setBodyParts(bodyParts);}
+    }
+    return request;
+}
+

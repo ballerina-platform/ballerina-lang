@@ -126,7 +126,7 @@ documentation {
 //TODO: Make the error nillable
 public native function parseHeader (string headerValue) returns (string, map)|error;
 
-public function buildRequest(Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Request {
+function buildRequest(Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Request {
     Request request = new;
     match message {
         () => {}
@@ -141,7 +141,7 @@ public function buildRequest(Request|string|xml|json|blob|io:ByteChannel|mime:En
     return request;
 }
 
-public function buildResponse(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Response {
+function buildResponse(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Response {
     Response response = new;
     match message {
         () => {}
