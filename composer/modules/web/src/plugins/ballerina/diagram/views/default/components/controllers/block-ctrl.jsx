@@ -52,21 +52,14 @@ class BlockCtrl extends React.Component {
             if (
                 TreeUtil.isFunction(parentNode) ||
                 TreeUtil.isResource(parentNode) ||
-                TreeUtil.isAction(parentNode)
+                TreeUtil.isAction(parentNode) ||
+                TreeUtil.isObject(parentNode)
             ) {
                 break;
             }
         }
 
-        let objectNode = node;
-        while (parentNode.parent) {
-            objectNode = objectNode.parent;
-            if (TreeUtil.isCompilationUnit(objectNode) || TreeUtil.isObject(objectNode)) {
-                break;
-            }
-        }
-
-        if(TreeUtil.isObject(objectNode)){
+        if (TreeUtil.isObject(parentNode)) {
             return null;
         }
 
