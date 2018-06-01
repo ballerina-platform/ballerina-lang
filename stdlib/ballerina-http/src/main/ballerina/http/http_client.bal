@@ -35,11 +35,12 @@ public type CallerActions object {
         The `post()` function can be used to send HTTP POST requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload
+        P{{message}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or
+                     mime:Entity[]
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function post(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
-                            message) returns Response|error {
+                                                    message) returns Response|error {
         Request req = buildRequest(message);
         return nativePost(self, path, req);
     }
@@ -48,7 +49,8 @@ public type CallerActions object {
         The `head()` function can be used to send HTTP HEAD requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload
+        P{{message}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or
+                     mime:Entity[]
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function head(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -61,7 +63,8 @@ public type CallerActions object {
         The `put()` function can be used to send HTTP PUT requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload
+        P{{message}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or
+                     mime:Entity[]
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function put(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -75,7 +78,8 @@ public type CallerActions object {
 
         P{{httpVerb}} HTTP verb value
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or
+                     mime:Entity[]
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function execute(@sensitive string httpVerb, @sensitive string path, Request|string|xml|json|blob
@@ -88,7 +92,8 @@ public type CallerActions object {
         The `patch()` function can be used to send HTTP PATCH requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload
+        P{{message}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or
+                     mime:Entity[]
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function patch(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -101,7 +106,8 @@ public type CallerActions object {
         The `delete()` function can be used to send HTTP DELETE requests to HTTP endpoints.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload
+        P{{message}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or
+                     mime:Entity[]
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function delete(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -114,7 +120,8 @@ public type CallerActions object {
         The `get()` function can be used to send HTTP GET requests to HTTP endpoints.
 
         P{{path}} Request path
-        P{{message}} An HTTP outbound request message or any payload
+        P{{message}} An optional HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or
+                     mime:Entity[]
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function get(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -127,7 +134,8 @@ public type CallerActions object {
         The `options()` function can be used to send HTTP OPTIONS requests to HTTP endpoints.
 
         P{{path}} Request path
-        P{{message}} An HTTP outbound request message or any payload
+        P{{message}} An optional HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or
+                     mime:Entity[]
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function options(@sensitive string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -152,7 +160,8 @@ public type CallerActions object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{message}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or
+                     mime:Entity[]
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
     public function submit(@sensitive string httpVerb, string path, Request|string|xml|json|blob|
@@ -215,7 +224,7 @@ public type HttpTimeoutError {
     int statusCode,
 };
 
-//Since the struct equivalency doesn't work with private following functions are defined outside the object
+//Since the struct equivalency doesn't work with private keyword, following functions are defined outside the object
 native function nativePost(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
 
 native function nativeHead(CallerActions callerActions, @sensitive string path, Request req) returns Response|error;
