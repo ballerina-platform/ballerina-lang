@@ -132,20 +132,6 @@
       "sortText":"120",
       "insertText":"rejectPromise(${1:promise})",
       "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"endpoint",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"worker",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"worker ${1:name} {\n\t${2}\n}",
-      "insertTextFormat":"Snippet"
     }
   ]
 }
