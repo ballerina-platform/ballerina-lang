@@ -97,7 +97,7 @@ public class HTTPClientActionsTestCase extends IntegrationTestCase {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
                 "test2/handleMultiparts"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "Sample Text", "Message content mismatched");
+        Assert.assertEquals(response.getData(), "{\"name\":\"wso2\"}Hello", "Message content mismatched");
     }
 
     @AfterClass

@@ -35,20 +35,21 @@ service<http:Service> backEndService bind { port: 9091 } {
     }
     postReply(endpoint client, http:Request req) {
         if (req.hasHeader("content-type")) {
-            string contentType = req.getContentType();
-            if (mime:TEXT_PLAIN == contentType) {
+            mime:MediaType mediaType = check mime:getMediaType(req.getContentType());
+            string baseType = mediaType.getBaseType();
+            if (mime:TEXT_PLAIN == baseType) {
                 string textValue = check req.getTextPayload();
                 _ = client->respond(textValue);
-            } else if (mime:APPLICATION_XML == contentType) {
+            } else if (mime:APPLICATION_XML == baseType) {
                 xml xmlValue = check req.getXmlPayload();
                 _ = client->respond(xmlValue);
-            } else if (mime:APPLICATION_JSON == contentType) {
+            } else if (mime:APPLICATION_JSON == baseType) {
                 json jsonValue = check req.getJsonPayload();
                 _ = client->respond(jsonValue);
-            } else if (mime:APPLICATION_OCTET_STREAM == contentType) {
+            } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
                 blob blobValue = check req.getBinaryPayload();
                 _ = client->respond(blobValue);
-            } else if (mime:MULTIPART_FORM_DATA == contentType) {
+            } else if (mime:MULTIPART_FORM_DATA == baseType) {
                 mime:Entity[] bodyParts = check req.getBodyParts();
                 _ = client->respond(bodyParts);
             }
