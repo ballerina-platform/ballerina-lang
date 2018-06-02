@@ -54,8 +54,14 @@ public type CallerActions object {
         The batchUpdate operation implementation for SQL connector to batch data insert.
 
         P{{sqlQuery}} SQL statement to execute
-        R{{}} An `int[]` array of updated row count by each of statements in batch and
-                else `error` will be returned if there is any error
+        R{{}} An `int[]` - The elements in the array returned by the operation may be one of the following  or else
+              an`error` will be returned if there is any error.
+           A number greater than or equal to zero - indicates that the command was processed successfully
+                          and is an update count giving the number of rows
+           A value of -2 - Indicates that the command was processed successfully but that the number of rows affected
+                          is unknown
+           A value of -3 - Indicates that the command failed to execute successfully and occurs only if a driver
+                          continues to process commands after a command fails
     }
     public native function batchUpdate(@sensitive string sqlQuery, Param[]... parameters) returns int[]|error;
 

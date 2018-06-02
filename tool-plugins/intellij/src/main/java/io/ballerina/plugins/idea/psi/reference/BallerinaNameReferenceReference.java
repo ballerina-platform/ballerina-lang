@@ -362,10 +362,8 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                     if (!processor.execute(originalFile, resolveState)) {
                         return false;
                     }
-                    boolean useRecursiveReferenceSearch =
-                            BallerinaRecursiveReferenceSearchSettings.getInstance().useRecursiveReferenceSearch();
                     // Recursively find definitions in the project starting from the current directory.
-                    if (originalFile.getContainingDirectory() != null && useRecursiveReferenceSearch) {
+                    if (originalFile.getContainingDirectory() != null) {
                         recursivelyFindOutwards(processor, originalFile.getContainingDirectory(), originalFile);
                     }
                 }

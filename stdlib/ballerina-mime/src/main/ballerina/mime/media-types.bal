@@ -40,6 +40,11 @@ documentation {
 @final public string APPLICATION_XHTML_XML = "application/xhtml+xml";
 
 documentation {
+    Represent 'application/soap+xml' media type.
+}
+@final public string APPLICATION_SOAP_XML = "application/soap+xml";
+
+documentation {
     Represent 'application/x-www-form-urlencoded' media type.
 }
 @final public string APPLICATION_FORM_URLENCODED = "application/x-www-form-urlencoded";

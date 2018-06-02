@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/crypto;
@@ -87,8 +88,9 @@ public type CallerActions object {
         P{{headers}} The headers, if any, that need to be set
         R{{}} `error` if an error occurred with the update
     }
-    public function publishUpdate(string topic, json payload, string? secret = (), string signatureMethod = "sha256",
-                                  map<string>? headers = ()) returns error?;
+    public function publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload, string? contentType = (),
+                                  string? secret = (), string signatureMethod = "sha256", map<string>? headers = ())
+        returns error?;
 
     documentation {
         Notifies a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
@@ -165,16 +167,24 @@ public function CallerActions::unregisterTopic(string topic, string? secret = ()
     }
 }
 
-public function CallerActions::publishUpdate(string topic, json payload, string? secret = (),
-                                         string signatureMethod = "sha256", map<string>? headers = ()) returns error? {
+public function CallerActions::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+                                             string? contentType = (), string? secret = (),
+                                             string signatureMethod = "sha256", map<string>? headers = ())
+        returns error? {
+
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
-    request.setJsonPayload(payload);
+    request.setPayload(payload);
+
+    match(contentType) {
+        string specifiedContentType => request.setContentType(specifiedContentType);
+        () => {}
+    }
 
     match (secret) {
         string specifiedSecret => {
-            string stringPayload = payload.toString();
+            string stringPayload = request.getPayloadAsString() but { error => "" };
             string publisherSignature = signatureMethod + "=";
             string generatedSignature = "";
             if (SHA1.equalsIgnoreCase(signatureMethod)) {
@@ -409,8 +419,4 @@ function getRedirectionMaxCount(http:FollowRedirects? followRedirects) returns i
         () => {}
     }
     return 0;
-}
-
-function isSuccessStatusCode(int statusCode) returns boolean {
-    return (200 <= statusCode && statusCode < 300);
 }

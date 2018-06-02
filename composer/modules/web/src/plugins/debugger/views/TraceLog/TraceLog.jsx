@@ -29,12 +29,12 @@ import './index.scss';
 
 const directionToIcon = {
     INBOUND: {
-        'http.tracelog.downstream': 'fw fw-downstream-inbound direction-icon',
-        'http.tracelog.upstream': 'fw fw-upstream-inbound direction-icon',
+        'http.tracelog.downstream': 'fw fw-downstream-inbound direction-icon inbound downstream',
+        'http.tracelog.upstream': 'fw fw-upstream-inbound direction-icon inbound upstream',
     },
     OUTBOUND: {
-        'http.tracelog.downstream': 'fw fw-downstream-outbound direction-icon',
-        'http.tracelog.upstream': 'fw fw-upstream-outbound direction-icon',
+        'http.tracelog.downstream': 'fw fw-downstream-outbound direction-icon outbound downstream',
+        'http.tracelog.upstream': 'fw fw-upstream-outbound direction-icon outbound upstream',
     },
 };
 
@@ -67,7 +67,7 @@ class LogsConsole extends React.Component {
         });
 
         props.LaunchManager.on('print-trace-message', (message) => {
-            if (!message.message.meta.direction) {
+            if (!message.message.meta.direction || !message.message.meta.headers) {
                 return;
             }
             this.setState({
@@ -103,16 +103,16 @@ class LogsConsole extends React.Component {
         for (let index = 0; index < messages.length; index++) {
             let message1 = messages[index];
             let message2 = messages[index + 1];
-            if (message1.message.meta.headers.startsWith('DefaultHttpRequest')
+            if (message1.message.meta.headerType.startsWith('DefaultHttpRequest')
                 && message2
                 && message1.message.record.thread === message2.message.record.thread
-                && (message2.message.meta.headers.startsWith('DefaultLastHttpContent')
-                    || message2.message.meta.headers.startsWith('EmptyLastHttpContent'))) {
+                && (message2.message.meta.headerType.startsWith('DefaultLastHttpContent')
+                    || message2.message.meta.headerType.startsWith('EmptyLastHttpContent'))) {
 
                 message1.message.meta.payload = message2.message.meta.payload;
                 newMessages.push(message1);
-            } else if (message1.message.meta.headers.startsWith('DefaultLastHttpContent') ||
-            message1.message.meta.headers.startsWith('EmptyLastHttpContent')) {
+            } else if (message1.message.meta.headerType.startsWith('DefaultLastHttpContent') ||
+            message1.message.meta.headerType.startsWith('EmptyLastHttpContent')) {
                 // do nothing
             } else {
                 newMessages.push(message1);

@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaNextStatementImpl extends BallerinaCompositeElementImpl implements BallerinaNextStatement {
+public class BallerinaContinueStatementImpl extends BallerinaCompositeElementImpl implements BallerinaContinueStatement {
 
-  public BallerinaNextStatementImpl(ASTNode node) {
+  public BallerinaContinueStatementImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitNextStatement(this);
+    visitor.visitContinueStatement(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -49,8 +49,8 @@ public class BallerinaNextStatementImpl extends BallerinaCompositeElementImpl im
 
   @Override
   @NotNull
-  public PsiElement getNext() {
-    return notNullChild(findChildByType(NEXT));
+  public PsiElement getContinue() {
+    return notNullChild(findChildByType(CONTINUE));
   }
 
 }
