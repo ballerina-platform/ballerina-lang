@@ -26,7 +26,6 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.util.FunctionFlags;
-import org.ballerinalang.util.IntegerRangeOperator;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -1013,22 +1012,18 @@ public class CodeGenerator extends BLangNodeVisitor {
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
             int opCode = binaryExpr.opSymbol.opcode;
             if (opCode == InstructionCodes.INT_RANGE) {
+                RegIndex endValRegIndex = binaryExpr.rhsExpr.regIndex;
+                if (OperatorKind.HALF_OPEN_RANGE.equals(binaryExpr.opKind)) {
+                    endValRegIndex = getRegIndex(TypeTags.INT);
+                    RegIndex constOneRegIndex = getRegIndex(TypeTags.INT);
+                    emit(InstructionCodes.ICONST_1, constOneRegIndex);
+                    emit(InstructionCodes.ISUB, binaryExpr.rhsExpr.regIndex, constOneRegIndex, endValRegIndex);
+                }
                 if (binaryExpr.parent instanceof BLangForeach) {
-                    if (OperatorKind.HALF_OPEN_RANGE.equals(binaryExpr.opKind)) {
-                        RegIndex constOneRegIndex = getRegIndex(TypeTags.INT);
-                        RegIndex modifiedEndValRegIndex = getRegIndex(TypeTags.INT);
-                        emit(InstructionCodes.ICONST_1, constOneRegIndex);
-                        emit(InstructionCodes.ISUB, binaryExpr.rhsExpr.regIndex, constOneRegIndex,
-                             modifiedEndValRegIndex);
-                        emit(InstructionCodes.NEW_INT_RANGE, binaryExpr.lhsExpr.regIndex, modifiedEndValRegIndex,
-                             regIndex);
-                    } else {
-                        emit(InstructionCodes.NEW_INT_RANGE, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex,
-                             regIndex);
-                    }
+                    // Avoid creating an array if the range is only used in a foreach statement
+                    emit(InstructionCodes.NEW_INT_RANGE, binaryExpr.lhsExpr.regIndex, endValRegIndex, regIndex);
                 } else {
-                    emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex,
-                         getOperand(IntegerRangeOperator.valueOf(binaryExpr.opKind.name()).value()));
+                    emit(opCode, binaryExpr.lhsExpr.regIndex, endValRegIndex, regIndex);
                 }
             } else {
                 emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);

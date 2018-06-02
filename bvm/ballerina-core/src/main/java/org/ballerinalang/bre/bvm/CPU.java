@@ -67,7 +67,6 @@ import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.util.BLangConstants;
-import org.ballerinalang.util.IntegerRangeOperator;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
@@ -1075,13 +1074,7 @@ public class CPU {
         int i = operands[0];
         int j = operands[1];
         int k = operands[2];
-        int h = operands[3];
-
-        if (h == IntegerRangeOperator.CLOSED_RANGE.value()) {
-            sf.refRegs[k] = new BIntArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
-        } else if (h == IntegerRangeOperator.HALF_OPEN_RANGE.value()) {
-            sf.refRegs[k] = new BIntArray(LongStream.range(sf.longRegs[i], sf.longRegs[j]).toArray());
-        }
+        sf.refRegs[k] = new BIntArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
