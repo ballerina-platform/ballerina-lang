@@ -1,0 +1,2 @@
+//Ballerina supports different payload types to be directly embedded with HTTP client actions
+//(eg: POST, PUT, DELETE etc..) and service respond calls.
