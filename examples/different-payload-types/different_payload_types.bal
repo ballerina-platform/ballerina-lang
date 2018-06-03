@@ -46,7 +46,7 @@ service<http:Service> actionService bind { port: 9090 } {
 
         //Get a byte channel to a given file.
         io:Mode permission = "r";
-        io:ByteChannel byteChannel = io:openFile("./files/BallerinaLang.pdf",
+        io:ByteChannel byteChannel = io:openFile("./files/logo.png",
             permission);
 
         //POST action with byte channel as payload.
@@ -135,7 +135,7 @@ service<http:Service> backEndService bind { port: 9091 } {
     sendByteChannel(endpoint client, http:Request req) {
         io:ByteChannel byteChannel = check req.getByteChannel();
         http:Response response = new;
-        response.setByteChannel(byteChannel, contentType = mime:APPLICATION_PDF);
+        response.setByteChannel(byteChannel, contentType = mime:IMAGE_PNG);
         client->respond(response) but {
             error err => log:printError(err.message, err = err)
         };
@@ -170,8 +170,8 @@ function handleResponse(http:Response|error returnValue) {
                     mime:Entity[] returnParts = check response.getBodyParts();
                     handleBodyParts(returnParts);
 
-                } else if (mime:APPLICATION_PDF == baseType) {
-                    log:printInfo("Response contains a pdf");
+                } else if (mime:IMAGE_PNG == baseType) {
+                    log:printInfo("Response contains an image");
                 }
             } else {
                 log:printInfo("There's no body in response");
