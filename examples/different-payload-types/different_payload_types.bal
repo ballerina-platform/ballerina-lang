@@ -46,7 +46,8 @@ service<http:Service> actionService bind { port: 9090 } {
 
         //Get a byte channel to a given file.
         io:Mode permission = "r";
-        io:ByteChannel byteChannel = io:openFile("./files/BallerinaLang.pdf", permission);
+        io:ByteChannel byteChannel = io:openFile("./files/BallerinaLang.pdf",
+            permission);
 
         //POST action with byte channel as payload.
         response = check clientEP->post("/channel", byteChannel);
@@ -161,7 +162,8 @@ function handleResponse(http:Response|error returnValue) {
                     log:printInfo("Json data: " +  jsonData.toString());
 
                 } else if (mime:APPLICATION_OCTET_STREAM == baseType) {
-                    log:printInfo("Response contains binary data: " + check response.getPayloadAsString());
+                    log:printInfo("Response contains binary data: " +
+                            check response.getPayloadAsString());
 
                 } else if (mime:MULTIPART_FORM_DATA == baseType) {
                     log:printInfo("Response contains body parts: ");
