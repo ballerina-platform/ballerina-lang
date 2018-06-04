@@ -27,27 +27,29 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Test cases for file functions in the ballerina/internal package.
  */
 public class InternalFileTest {
     private CompileResult fileOperationProgramFile;
-    private Path currentDirectoryPath = Paths.get("/tmp");
+    private Path workingDirPath;
+    private static final boolean IS_WINDOWS = System.getProperty("os.name").toLowerCase().contains("win");
     
     @BeforeClass
-    public void setup() {
+    public void setup() throws IOException {
         fileOperationProgramFile = BCompileUtil.compile("test-src/file.internal/file-test.bal");
-        currentDirectoryPath = Paths.get(System.getProperty("user.dir")).resolve("target").resolve("file-tests");
-        File workingDir = new File(currentDirectoryPath.toString());
+        workingDirPath = Files.createTempDirectory("internal-package-file-test-");
+        File workingDir = new File(workingDirPath.toString());
         FileUtils.deleteQuietly(workingDir);
     }
     
     @Test(description = "Test folder creation and existence")
     public void testFolderCreation() {
-        BValue[] args = {new BString(currentDirectoryPath.toString())};
+        BValue[] args = {new BString(workingDirPath.toString())};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "createSourceAndTargetDirs", args);
         BBoolean returnVal = (BBoolean) returns[0];
         Assert.assertTrue(returnVal.booleanValue(), "'source' and 'target' directories could not be created.");
@@ -55,7 +57,7 @@ public class InternalFileTest {
     
     @Test(description = "Test folder and file creation", dependsOnMethods = "testFolderCreation")
     public void testFolderAndFileCreation() {
-        BValue[] args = {new BString(currentDirectoryPath.resolve("source").toString())};
+        BValue[] args = {new BString(workingDirPath.resolve("source").toString())};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "createFolderStructure", args);
         BBoolean returnVal = (BBoolean) returns[0];
         Assert.assertTrue(returnVal.booleanValue(), "Expected files and folders were not created.");
@@ -63,7 +65,7 @@ public class InternalFileTest {
     
     @Test(description = "Test content created by ", dependsOnMethods = "testFolderAndFileCreation")
     public void testContentCreatedInFolder() {
-        BValue[] args = {new BString(currentDirectoryPath.resolve("source").toString())};
+        BValue[] args = {new BString(workingDirPath.resolve("source").toString())};
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testFolderContent", args);
         BBoolean returnVal = (BBoolean) returns[0];
         Assert.assertTrue(returnVal.booleanValue(), "Invalid folder content found.");
@@ -72,8 +74,8 @@ public class InternalFileTest {
     @Test(description = "Test the copyTo function", dependsOnMethods = "testContentCreatedInFolder")
     public void testCopyFunction() {
         BValue[] args = {
-                new BString(currentDirectoryPath.resolve("source").toString()),
-                new BString(currentDirectoryPath.resolve("target").toString())
+                new BString(workingDirPath.resolve("source").toString()),
+                new BString(workingDirPath.resolve("target").toString())
         };
         BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testCopyToFunction", args);
         BBoolean returnVal = (BBoolean) returns[0];
@@ -82,20 +84,24 @@ public class InternalFileTest {
     
     @Test(description = "Test the delete folder function", dependsOnMethods = "testCopyFunction")
     public void testDeleteFolder() {
-        BValue[] args = {new BString(currentDirectoryPath.resolve("target").toString())};
-        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testFolderDelete", args);
-        BBoolean returnVal = (BBoolean) returns[0];
-        Assert.assertTrue(returnVal.booleanValue(), "Folder could not be delete.");
+        if (!IS_WINDOWS) {
+            BValue[] args = {new BString(workingDirPath.resolve("target").toString())};
+            BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testFolderDelete", args);
+            BBoolean returnVal = (BBoolean) returns[0];
+            Assert.assertTrue(returnVal.booleanValue(), "Folder could not be delete.");
+        }
     }
     
     @Test(description = "Test the moveTo function", dependsOnMethods = "testDeleteFolder")
     public void testMoveToFunction() {
-        BValue[] args = {
-                new BString(currentDirectoryPath.resolve("source").toString()),
-                new BString(currentDirectoryPath.resolve("target").toString())
-        };
-        BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testMoveToFunction", args);
-        BBoolean returnVal = (BBoolean) returns[0];
-        Assert.assertTrue(returnVal.booleanValue(), "moveTo function did not work correctly.");
+        if (!IS_WINDOWS) {
+            BValue[] args = {
+                    new BString(workingDirPath.resolve("source").toString()),
+                    new BString(workingDirPath.resolve("target").toString())
+            };
+            BValue[] returns = BRunUtil.invoke(fileOperationProgramFile, "testMoveToFunction", args);
+            BBoolean returnVal = (BBoolean) returns[0];
+            Assert.assertTrue(returnVal.booleanValue(), "moveTo function did not work correctly.");
+        }
     }
 }

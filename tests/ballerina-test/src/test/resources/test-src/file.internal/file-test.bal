@@ -109,9 +109,7 @@ function testGetModifiedTime(string pathValue) returns (string) {
 
 function testCopyToFunction(string source, string target) returns boolean {
     internal:Path sourcePath = new(source);
-    io:println(source);
     internal:Path targetPath = new(target);
-    io:println(target);
     match sourcePath.copyTo(targetPath) {
         () => {
             return testFolderContent(targetPath.getPathValue());
