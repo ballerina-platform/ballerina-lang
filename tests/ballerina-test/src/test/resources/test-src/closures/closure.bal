@@ -534,4 +534,35 @@ function testLocalVarModifyWithinClosureScope() returns (float){
     return (fsum);
 }
 
+function testByteAndBoolean() returns (function (int, byte) returns
+                    ((function (byte, float, boolean) returns byte[][]))) {
+    boolean boo1 = true;
+    return (int a, byte b) => (function (byte, float, boolean) returns byte[][]) {
+        boolean boo2 = false;
+        return (byte c, float f, boolean booF) => (byte[][]) {
+            int i = <int> f;
+            byte[][] bArr = [];
+            if !boo2 {
+                bArr[0] = [c, b, 4, i];
+            }
+
+            if boo1 {
+                bArr[1] = [i, c, 5, b, 3];
+            }
+
+            if !booF {
+                bArr[2] = [1, 2, 3, c, b];
+            }
+
+            return bArr;
+        };
+    };
+}
+
+function test27() returns byte[][] {
+    var foo = testByteAndBoolean();
+    var bar = foo(34, 7);
+    return bar(13, 3.6, false);
+}
+
 
