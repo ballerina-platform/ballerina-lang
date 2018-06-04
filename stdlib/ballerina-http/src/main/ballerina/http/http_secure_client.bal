@@ -22,11 +22,11 @@ import ballerina/runtime;
 @final string EMPTY_STRING = "";
 @final string WHITE_SPACE = " ";
 
-public type AUTH_SCHEME "basic"|"oauth2"|"jwt";
+public type AuthScheme "Basic"|"OAuth2"|"JWT";
 
-@final public AUTH_SCHEME BASIC = "basic";
-@final public AUTH_SCHEME OAUTH2 = "oauth2";
-@final public AUTH_SCHEME JWT = "jwt";
+@final public AuthScheme BASIC = "Basic";
+@final public AuthScheme OAUTH2 = "OAuth2";
+@final public AuthScheme JWT = "JWT";
 
 documentation {
     Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
@@ -320,32 +320,36 @@ documentation {
     R{{}} The Error occured during HTTP client invocation
 }
 function generateSecureRequest(Request req, ClientEndpointConfig config) returns (()|error) {
-    string scheme = config.auth.scheme but { () => EMPTY_STRING };
-    if (scheme == BASIC) {
-        string username = config.auth.username but { () => EMPTY_STRING };
-        string password = config.auth.password but { () => EMPTY_STRING };
-        string str = username + ":" + password;
-        string token = check str.base64Encode();
-        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
-    } else if (scheme == OAUTH2) {
-        string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
-        if (accessToken == EMPTY_STRING) {
-            return updateRequestAndConfig(req, config);
-        } else {
-            req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+    match config.auth.scheme {
+        AuthScheme scheme => {
+            if (scheme == BASIC) {
+                string username = config.auth.username but { () => EMPTY_STRING };
+                string password = config.auth.password but { () => EMPTY_STRING };
+                string str = username + ":" + password;
+                string token = check str.base64Encode();
+                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + token);
+            } else if (scheme == OAUTH2) {
+                string accessToken = config.auth.accessToken but { () => EMPTY_STRING };
+                if (accessToken == EMPTY_STRING) {
+                    return updateRequestAndConfig(req, config);
+                } else {
+                    req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
+                }
+            } else if (scheme == JWT) {
+                string authToken = runtime:getInvocationContext().authContext.authToken;
+                if (authToken == EMPTY_STRING) {
+                    error err;
+                    err.message = "Authentication token is not set at invocation context";
+                    return err;
+                }
+                req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
+            } else {
+                error err;
+                err.message = "Invalid authentication scheme. It should be basic, oauth2 or jwt";
+                return err;
+            }
         }
-    } else if (scheme == JWT) {
-        string authToken = runtime:getInvocationContext().authContext.authToken;
-        if (authToken == EMPTY_STRING) {
-            error err;
-            err.message = "Authentication token is not set at invocation context";
-            return err;
-        }
-        req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + authToken);
-    } else {
-        error err;
-        err.message = "Invalid authentication scheme. It should be basic, oauth2 or jwt";
-        return err;
+        () => return ();
     }
     return ();
 }
@@ -418,9 +422,13 @@ documentation {
     R{{}} Whether the client should retry or not
 }
 function isRetryRequired(Response response, ClientEndpointConfig config) returns boolean {
-    string scheme = config.auth.scheme but { () => EMPTY_STRING };
-    if (scheme == OAUTH2 && response.statusCode == UNAUTHORIZED_401) {
-        return true;
+    match config.auth.scheme {
+        AuthScheme scheme => {
+            if (scheme == OAUTH2 && response.statusCode == UNAUTHORIZED_401) {
+                return true;
+            }
+        }
+        () => return false;
     }
     return false;
 }
