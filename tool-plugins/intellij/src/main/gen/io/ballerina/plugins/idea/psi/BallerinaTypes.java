@@ -66,6 +66,7 @@ public interface BallerinaTypes {
   IElementType COMPOUND_ASSIGNMENT_STATEMENT = new BallerinaCompositeElementType("COMPOUND_ASSIGNMENT_STATEMENT");
   IElementType COMPOUND_OPERATOR = new BallerinaCompositeElementType("COMPOUND_OPERATOR");
   IElementType CONTENT = new BallerinaCompositeElementType("CONTENT");
+  IElementType CONTINUE_STATEMENT = new BallerinaCompositeElementType("CONTINUE_STATEMENT");
   IElementType DEFAULTABLE_PARAMETER = new BallerinaCompositeElementType("DEFAULTABLE_PARAMETER");
   IElementType DEFINITION = new BallerinaCompositeElementType("DEFINITION");
   IElementType DEPRECATED_ATTACHMENT = new BallerinaCompositeElementType("DEPRECATED_ATTACHMENT");
@@ -150,7 +151,6 @@ public interface BallerinaTypes {
   IElementType NAMESPACE_DECLARATION = BallerinaElementTypeFactory.stubFactory("NAMESPACE_DECLARATION");
   IElementType NAMESPACE_DECLARATION_STATEMENT = new BallerinaCompositeElementType("NAMESPACE_DECLARATION_STATEMENT");
   IElementType NAME_REFERENCE = BallerinaElementTypeFactory.stubFactory("NAME_REFERENCE");
-  IElementType NEXT_STATEMENT = new BallerinaCompositeElementType("NEXT_STATEMENT");
   IElementType NULLABLE_TYPE_NAME = new BallerinaCompositeElementType("NULLABLE_TYPE_NAME");
   IElementType OBJECT_BODY = new BallerinaCompositeElementType("OBJECT_BODY");
   IElementType OBJECT_CALLABLE_UNIT_SIGNATURE = new BallerinaCompositeElementType("OBJECT_CALLABLE_UNIT_SIGNATURE");
@@ -318,6 +318,7 @@ public interface BallerinaTypes {
   IElementType COMPOUND_DIV = new BallerinaTokenType("/=");
   IElementType COMPOUND_MUL = new BallerinaTokenType("*=");
   IElementType COMPOUND_SUB = new BallerinaTokenType("-=");
+  IElementType CONTINUE = new BallerinaTokenType("continue");
   IElementType DAY = new BallerinaTokenType("day");
   IElementType DAYS = new BallerinaTokenType("days");
   IElementType DB_DEPRECATED_INLINE_CODE_START = new BallerinaTokenType("DB_DEPRECATED_INLINE_CODE_START");
@@ -406,7 +407,6 @@ public interface BallerinaTypes {
   IElementType MUL = new BallerinaTokenType("*");
   IElementType NATIVE = new BallerinaTokenType("native");
   IElementType NEW = new BallerinaTokenType("new");
-  IElementType NEXT = new BallerinaTokenType("next");
   IElementType NOT = new BallerinaTokenType("!");
   IElementType NOT_EQUAL = new BallerinaTokenType("!=");
   IElementType NULL_LITERAL = new BallerinaTokenType("NULL_LITERAL");
@@ -429,6 +429,7 @@ public interface BallerinaTypes {
   IElementType QUOTED_STRING_LITERAL = new BallerinaTokenType("QUOTED_STRING_LITERAL");
   IElementType RANGE = new BallerinaTokenType("..");
   IElementType RARROW = new BallerinaTokenType("->");
+  IElementType RECORD = new BallerinaTokenType("record");
   IElementType RESOURCE = new BallerinaTokenType("resource");
   IElementType RETRIES = new BallerinaTokenType("retries");
   IElementType RETRY = new BallerinaTokenType("retry");
@@ -633,6 +634,9 @@ public interface BallerinaTypes {
       }
       else if (type == CONTENT) {
         return new BallerinaContentImpl(node);
+      }
+      else if (type == CONTINUE_STATEMENT) {
+        return new BallerinaContinueStatementImpl(node);
       }
       else if (type == DEFAULTABLE_PARAMETER) {
         return new BallerinaDefaultableParameterImpl(node);
@@ -885,9 +889,6 @@ public interface BallerinaTypes {
       }
       else if (type == NAME_REFERENCE) {
         return new BallerinaNameReferenceImpl(node);
-      }
-      else if (type == NEXT_STATEMENT) {
-        return new BallerinaNextStatementImpl(node);
       }
       else if (type == NULLABLE_TYPE_NAME) {
         return new BallerinaNullableTypeNameImpl(node);

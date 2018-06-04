@@ -29,7 +29,7 @@ public type WebSocketConnector object {
         P{{final}} True if this is a final frame of a (long) message
         R{{}} `error` if an error occurs when sending
     }
-    public native function pushText(string text, boolean final = true) returns error|();
+    public native function pushText(string text, boolean final = true) returns error?;
 
     documentation {
         Push binary data to the connection.
@@ -38,7 +38,7 @@ public type WebSocketConnector object {
         P{{final}} True if this is a final frame of a (long) message
         R{{}} `error` if an error occurs when sending
     }
-    public native function pushBinary(blob data, boolean final = true) returns error|();
+    public native function pushBinary(blob data, boolean final = true) returns error?;
 
     documentation {
         Ping the connection.
@@ -46,7 +46,7 @@ public type WebSocketConnector object {
         P{{data}} Binary data to be sent.
         R{{}} `error` if an error occurs when sending
     }
-    public native function ping(blob data) returns error|();
+    public native function ping(blob data) returns error?;
 
     documentation {
         Send pong message to the connection.
@@ -54,22 +54,21 @@ public type WebSocketConnector object {
         P{{data}} Binary data to be sent
         R{{}} `error` if an error occurs when sending
     }
-    public native function pong(blob data) returns error|();
+    public native function pong(blob data) returns error?;
 
     documentation {
         Close the connection.
 
         P{{statusCode}} Status code for closing the connection
         P{{reason}} Reason for closing the connection
-        P{{timeoutInSecs}} timeout which waits for the close frame from remote endpoint to close the connection.
-                           If the timeout exceeds then the connection will be terminated even though a close frame
-                           is not received from the remote backend. If the value is -1 the connection will wait until
-                           a close frame is received.
-                           Default value 0: After sending the close frame connection will be closed automatically
-                           (Timeout is 0).
+        P{{timeoutInSecs}} Time to waits for the close frame from the remote endpoint before closing the connection.
+                           If the timeout exceeds then the connection is terminated even though a close frame
+                           is not received from the remote endpoint. If the value < 0 (eg: -1) the connection waits
+                           until a close frame is received. If WebSocket frame is received from the remote endpoint
+                           within waiting period the connection is terminated immediately.
         R{{}} `error` if an error occurs when sending
     }
-    public native function close(int statusCode, string reason, int timeoutInSecs = 0) returns error|();
+    public native function close(int statusCode, string reason, int timeoutInSecs = 60) returns error?;
 
     documentation {
         Called when the endpoint is ready to receive messages. Can be called only once per endpoint. For the
@@ -77,7 +76,7 @@ public type WebSocketConnector object {
 
         R{{}} `error` if an error occurs when sending
     }
-    public native function ready() returns error|();
+    public native function ready() returns error?;
 
 };
 
