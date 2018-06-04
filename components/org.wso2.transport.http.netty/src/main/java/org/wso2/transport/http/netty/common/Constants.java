@@ -213,12 +213,13 @@ public final class Constants {
     public static final String HTTP_CLIENT_CODEC = "codec";
     public static final String HTTP_SERVER_CODEC = "ServerCodec";
     public static final String HTTP2_SOURCE_HANDLER = "Http2SourceHandler";
+    public static final String HTTP2_SOURCE_CONNECTION_HANDLER = "Http2SourceConnectionHandler";
     public static final String HTTP2_ALPN_HANDLER = "Http2ALPNHandler";
     public static final String PROXY_HANDLER = "proxyServerHandler";
     public static final String SSL_COMPLETION_HANDLER = "sslHandshakeCompletionHandler";
     public static final String HTTP_CERT_VALIDATION_HANDLER = "certificateValidation";
     public static final String CONNECTION_HANDLER = "connectionHandler";
-    public static final String OUTBOUND_HANDLER = "outboundHandler";
+    public static final String HTTP2_TARGET_HANDLER = "http2TargetHandler";
     public static final String TARGET_HANDLER = "targetHandler";
     public static final String HTTP2_TIMEOUT_HANDLER = "Http2TimeoutHandler";
     public static final String HTTP2_UPGRADE_HANDLER = "Http2UpgradeHandler";

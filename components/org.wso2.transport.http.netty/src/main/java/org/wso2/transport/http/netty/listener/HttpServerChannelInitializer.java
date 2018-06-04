@@ -49,6 +49,9 @@ import org.wso2.transport.http.netty.config.ChunkConfig;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.RequestSizeValidationConfig;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
+import org.wso2.transport.http.netty.listener.http2.Http2SourceConnectionHandlerBuilder;
+import org.wso2.transport.http.netty.listener.http2.Http2ToHttpFallbackHandler;
+import org.wso2.transport.http.netty.listener.http2.Http2WithPriorKnowledgeHandler;
 import org.wso2.transport.http.netty.sender.CertificateValidationHandler;
 
 import java.io.IOException;
@@ -169,7 +172,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
      * @param serverPipeline the channel pipeline
      * @param initialHttpScheme initial http scheme
      */
-    void configureHttpPipeline(ChannelPipeline serverPipeline, String initialHttpScheme) {
+    public void configureHttpPipeline(ChannelPipeline serverPipeline, String initialHttpScheme) {
 
         if (initialHttpScheme.equals(Constants.HTTP_SCHEME)) {
             serverPipeline.addLast(Constants.HTTP_ENCODER, new HttpResponseEncoder());
@@ -223,8 +226,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         final HttpServerUpgradeHandler.UpgradeCodecFactory upgradeCodecFactory = protocol -> {
             if (AsciiString.contentEquals(Http2CodecUtil.HTTP_UPGRADE_PROTOCOL_NAME, protocol)) {
                 return new Http2ServerUpgradeCodec(
-                        Constants.HTTP2_SOURCE_HANDLER,
-                        new Http2SourceHandlerBuilder(
+                        Constants.HTTP2_SOURCE_CONNECTION_HANDLER,
+                        new Http2SourceConnectionHandlerBuilder(
                                 interfaceId, serverConnectorFuture, serverName, this).build());
             } else {
                 return null;
@@ -263,7 +266,7 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
         this.httpAccessLogEnabled = httpAccessLogEnabled;
     }
 
-    boolean isHttpTraceLogEnabled() {
+    public boolean isHttpTraceLogEnabled() {
         return httpTraceLogEnabled;
     }
 
@@ -340,8 +343,8 @@ public class HttpServerChannelInitializer extends ChannelInitializer<SocketChann
             if (ApplicationProtocolNames.HTTP_2.equals(protocol)) {
                 // handles pipeline for HTTP/2 requests after SSL handshake
                 ctx.pipeline().addLast(
-                        Constants.HTTP2_SOURCE_HANDLER,
-                        new Http2SourceHandlerBuilder(
+                        Constants.HTTP2_SOURCE_CONNECTION_HANDLER,
+                        new Http2SourceConnectionHandlerBuilder(
                                 interfaceId, serverConnectorFuture, serverName, channelInitializer).build());
             } else if (ApplicationProtocolNames.HTTP_1_1.equals(protocol)) {
                 // handles pipeline for HTTP/1.x requests after SSL handshake

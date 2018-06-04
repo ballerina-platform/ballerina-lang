@@ -23,9 +23,8 @@ import io.netty.handler.codec.http2.Http2Error;
 /**
  * {@code Http2Reset} represents a HTTP/2 RST_STREAM frame.
  */
-public class Http2Reset {
+public class Http2Reset extends Http2Frame {
 
-    private int streamId;
     private Http2Error error;
 
     /**
@@ -35,7 +34,7 @@ public class Http2Reset {
      * @param error error to be written as the cause for reset
      */
     public Http2Reset(int streamId, Http2Error error) {
-        this.streamId = streamId;
+        setStreamId(streamId);
         this.error = error;
     }
 
@@ -46,17 +45,8 @@ public class Http2Reset {
      * @param streamId id of the stream need to be reset
      */
     public Http2Reset(int streamId) {
-        this.streamId = streamId;
+        setStreamId(streamId);
         this.error = Http2Error.REFUSED_STREAM;
-    }
-
-    /**
-     * Gets the id of the stream to be reset.
-     *
-     * @return id of the stream to be reset
-     */
-    public int getStreamId() {
-        return streamId;
     }
 
     /**

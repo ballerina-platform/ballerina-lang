@@ -16,12 +16,13 @@
  * under the License.
  */
 
-package org.wso2.transport.http.netty.listener;
+package org.wso2.transport.http.netty.listener.http2;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
 import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.listener.HttpServerChannelInitializer;
 
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 

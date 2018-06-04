@@ -34,23 +34,20 @@ import java.util.List;
  * suppose to be delivered to a client.
  * A PUSH_PROMISE should not be sent by a client.
  */
-public class Http2PushPromise {
+public class Http2PushPromise extends Http2Frame {
 
-    private int streamId;
     private int promisedStreamId;
     private boolean rejected = false;
     private HttpRequest httpRequest;
     private OutboundMsgHolder outboundMsgHolder;
 
     /**
-     * Constructor to create {@code Http2PushPromise} with initial {@code HttpRequest} and {@link OutboundMsgHolder}.
+     * Constructor to create {@code Http2PushPromise} with initial {@code HttpRequest}.
      *
      * @param httpRequest   the HttpRequest
-     * @param outboundMsgHolder the outbound message holder which related to this Http2PushPromise
      */
-    public Http2PushPromise(HttpRequest httpRequest, OutboundMsgHolder outboundMsgHolder) {
+    public Http2PushPromise(HttpRequest httpRequest) {
         this.httpRequest = httpRequest;
-        this.outboundMsgHolder = outboundMsgHolder;
     }
 
     /**
@@ -161,24 +158,6 @@ public class Http2PushPromise {
     }
 
     /**
-     * Gets the id of the stream which push promise belongs to.
-     *
-     * @return  id of the stream which the push promise is received or delivered
-     */
-    public int getStreamId() {
-        return streamId;
-    }
-
-    /**
-     * Sets the id of the stream which push promise belongs to.
-     *
-     * @param streamId id of the stream which the push promise is received or delivered
-     */
-    public void setStreamId(int streamId) {
-        this.streamId = streamId;
-    }
-
-    /**
      * Sets the promised stream id of the push promise.
      *
      * @param promisedStreamId promised stream id
@@ -206,9 +185,18 @@ public class Http2PushPromise {
     /**
      * Gets the {@code OutboundMsgHolder} associated with this {@code Http2PushPromise}.
      *
-     * @return the {@code OutboundMsgHolder} associated with this {@code Http2PushPromise}.
+     * @return the {@code OutboundMsgHolder} associated with this {@code Http2PushPromise}
      */
     public OutboundMsgHolder getOutboundMsgHolder() {
         return outboundMsgHolder;
+    }
+
+    /**
+     * Sets the {@code OutboundMsgHolder} associated with {@code Http2PushPromise}.
+     *
+     * @param outboundMsgHolder the {@code OutboundMsgHolder} associated with this {@code Http2PushPromise}
+     */
+    public void setOutboundMsgHolder(OutboundMsgHolder outboundMsgHolder) {
+        this.outboundMsgHolder = outboundMsgHolder;
     }
 }

@@ -50,10 +50,10 @@ import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.listener.HTTPTraceLoggingHandler;
 import org.wso2.transport.http.netty.sender.channel.pool.ConnectionManager;
-import org.wso2.transport.http.netty.sender.http2.ClientInboundHandler;
-import org.wso2.transport.http.netty.sender.http2.ClientOutboundHandler;
+import org.wso2.transport.http.netty.sender.http2.ClientFrameListener;
 import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
+import org.wso2.transport.http.netty.sender.http2.Http2TargetHandler;
 
 import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
@@ -80,8 +80,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     private Http2ConnectionManager http2ConnectionManager;
     private boolean http2 = false;
     private Http2ConnectionHandler http2ConnectionHandler;
-    private ClientInboundHandler clientInboundHandler;
-    private ClientOutboundHandler clientOutboundHandler;
+    private ClientFrameListener clientFrameListener;
+    private Http2TargetHandler http2TargetHandler;
     private Http2Connection connection;
     private SSLConfig sslConfig;
     private HttpRoute httpRoute;
@@ -110,15 +110,15 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             http2 = true;
         }
         connection = new DefaultHttp2Connection(false);
-        clientInboundHandler = new ClientInboundHandler();
-        Http2FrameListener frameListener = new DelegatingDecompressorFrameListener(connection, clientInboundHandler);
+        clientFrameListener = new ClientFrameListener();
+        Http2FrameListener frameListener = new DelegatingDecompressorFrameListener(connection, clientFrameListener);
 
         Http2ConnectionHandlerBuilder connectionHandlerBuilder = new Http2ConnectionHandlerBuilder();
         if (httpTraceLogEnabled) {
             connectionHandlerBuilder.frameLogger(new FrameLogger(TRACE, Constants.TRACE_LOG_UPSTREAM));
         }
         http2ConnectionHandler = connectionHandlerBuilder.connection(connection).frameListener(frameListener).build();
-        clientOutboundHandler = new ClientOutboundHandler(connection, http2ConnectionHandler.encoder());
+        http2TargetHandler = new Http2TargetHandler(connection, http2ConnectionHandler.encoder());
     }
 
     @Override
@@ -129,7 +129,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         configureProxyServer(clientPipeline);
         HttpClientCodec sourceCodec = new HttpClientCodec();
         targetHandler = new TargetHandler();
-        targetHandler.setHttp2ClientOutboundHandler(clientOutboundHandler);
+        targetHandler.setHttp2TargetHandler(http2TargetHandler);
         targetHandler.setKeepAliveConfig(getKeepAliveConfig());
         if (http2) {
             SSLConfig sslConfig = senderConfiguration.getSSLConfig();
@@ -251,7 +251,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      */
     private void configureHttp2Pipeline(ChannelPipeline pipeline) {
         pipeline.addLast(Constants.CONNECTION_HANDLER, http2ConnectionHandler);
-        pipeline.addLast(Constants.OUTBOUND_HANDLER, clientOutboundHandler);
+        pipeline.addLast(Constants.HTTP2_TARGET_HANDLER, http2TargetHandler);
         pipeline.addLast(Constants.DECOMPRESSOR_HANDLER, new HttpContentDecompressor());
     }
 
@@ -341,8 +341,8 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     }
 
     public void setHttp2ClientChannel(Http2ClientChannel http2ClientChannel) {
-        clientOutboundHandler.setHttp2ClientChannel(http2ClientChannel);
-        clientInboundHandler.setHttp2ClientChannel(http2ClientChannel);
+        http2TargetHandler.setHttp2ClientChannel(http2ClientChannel);
+        clientFrameListener.setHttp2ClientChannel(http2ClientChannel);
     }
 
     /**
