@@ -43,6 +43,12 @@ public class BallerinaReservedWordImpl extends BallerinaCompositeElementImpl imp
 
   @Override
   @Nullable
+  public PsiElement getContinue() {
+    return findChildByType(CONTINUE);
+  }
+
+  @Override
+  @Nullable
   public PsiElement getForeach() {
     return findChildByType(FOREACH);
   }

@@ -59,4 +59,10 @@ public class BallerinaRecordTypeNameImpl extends BallerinaTypeNameImpl implement
     return notNullChild(findChildByType(RIGHT_BRACE));
   }
 
+  @Override
+  @Nullable
+  public PsiElement getRecord() {
+    return findChildByType(RECORD);
+  }
+
 }

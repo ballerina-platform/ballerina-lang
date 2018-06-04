@@ -21,17 +21,16 @@ package org.ballerinalang.net.websub.hub;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
-import org.ballerinalang.broker.BrokerUtils;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.websub.WebSubSubscriberConstants;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
+
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
  * WebSub Subscriber representation for the Broker.
@@ -55,11 +54,10 @@ class HubSubscriber extends Consumer {
     @Override
     protected void send(Message message) throws BrokerException {
         ProgramFile programFile = Hub.getInstance().getHubProgramFile();
-        byte[] bytes = BrokerUtils.retrieveBytes(message);
-        BValue[] args = {new BString(callback),
-                subscriptionDetails,
-                new BJSON(new String(bytes, StandardCharsets.UTF_8))};
-        BLangFunctions.invokeCallable(programFile.getPackageInfo(WebSubSubscriberConstants.WEBSUB_PACKAGE)
+        BValue content =
+                ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
+        BValue[] args = {new BString(callback), subscriptionDetails, content};
+        BLangFunctions.invokeCallable(programFile.getPackageInfo(WEBSUB_PACKAGE)
                                      .getFunctionInfo("distributeContent"), args);
     }
 

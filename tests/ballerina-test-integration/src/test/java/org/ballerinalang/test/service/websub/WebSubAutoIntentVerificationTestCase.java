@@ -63,20 +63,12 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
             + "{\"action\":\"publish\",\"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_LOG = "WebSub Notification Received: "
             + "{\"action\":\"publish\",\"mode\":\"remote-hub\"}";
-    private static final String INTERNAL_HUB_NOTIFICATION_FROM_REQUEST_LOG = "WebSub Notification from Request: "
-            + "{\"action\":\"publish\",\"mode\":\"internal-hub\"}";
-    private static final String REMOTE_HUB_NOTIFICATION_FROM_REQUEST_LOG = "WebSub Notification from Request: "
-            + "{\"action\":\"publish\",\"mode\":\"remote-hub\"}";
     private static final String INTENT_VERIFICATION_DENIAL_LOG = "ballerina: Intent Verification denied - Mode "
             + "[subscribe], Topic [http://websubpubtopictwo.com]";
 
     private LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_LOG);
     private LogLeecher internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_LOG);
     private LogLeecher remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_LOG);
-    private LogLeecher internalHubNotificationFromRequestLogLeecher = new LogLeecher(
-            INTERNAL_HUB_NOTIFICATION_FROM_REQUEST_LOG);
-    private LogLeecher remoteHubNotificationFromRequestLogLeecher = new LogLeecher(
-            REMOTE_HUB_NOTIFICATION_FROM_REQUEST_LOG);
     private LogLeecher intentVerificationDenialLogLeecher = new LogLeecher(INTENT_VERIFICATION_DENIAL_LOG);
 
     private ServerInstance ballerinaWebSubSubscriber;
@@ -94,9 +86,7 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
         ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
         ballerinaWebSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationFromRequestLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationFromRequestLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(intentVerificationDenialLogLeecher);
 
         Executors.newSingleThreadExecutor().execute(() -> {
@@ -140,18 +130,8 @@ public class WebSubAutoIntentVerificationTestCase extends IntegrationTestCase {
     }
 
     @Test(dependsOnMethods = "testContentReceiptForDirectHubNotification")
-    public void testContentReceiptAsRequestForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationFromRequestLogLeecher.waitForText(45000);
-    }
-
-    @Test(dependsOnMethods = "testContentReceiptAsRequestForDirectHubNotification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationLogLeecher.waitForText(45000);
-    }
-
-    @Test(dependsOnMethods = "testContentReceiptForRemoteHubNotification")
-    public void testContentReceiptAsRequestForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationFromRequestLogLeecher.waitForText(45000);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")

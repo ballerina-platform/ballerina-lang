@@ -222,13 +222,13 @@ BlockWithEndpointAndWorker ::= EndpointDefinition* WorkerDefinition+ {elementTyp
 NonEmptyBlock ::= Statement+ {elementType=Block}
 //private StatementRecover ::= !(int | string | '}' | '=')
 
-//private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /* switch | var | next |try |*/ int )
+//private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /* switch | var | continue |try |*/ int )
 
 // Todo - Need getIdentifier?
 FunctionDefinition ::= (public)? (native)? function (FunctionWithoutReceiver | FunctionWithReceiver) {
     pin=3 methods=[getIdentifier getName] stubClass="io.ballerina.plugins.idea.stubs.BallerinaFunctionDefinitionStub"
 }
-private FunctionWithReceiver ::=  (LT Parameter GT)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
+private FunctionWithReceiver ::=  (TypeName DOUBLE_COLON)? CallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=2}
 private FunctionWithoutReceiver ::= AttachedObject DOUBLE_COLON CallableUnitSignature CallableUnitBody {pin=2}
 
 AttachedObject ::= identifier
@@ -350,7 +350,7 @@ UnionTypeName ::= TypeName (PIPE TypeName)+
 GroupTypeName ::= LEFT_PARENTHESIS <<isGroupType>> TypeName RIGHT_PARENTHESIS
 TupleTypeName ::= LEFT_PARENTHESIS TypeName (COMMA TypeName)* RIGHT_PARENTHESIS
 ObjectTypeName ::= object LEFT_BRACE ObjectBody RIGHT_BRACE {pin=1}
-RecordTypeName ::= LEFT_BRACE FieldDefinitionList RIGHT_BRACE
+RecordTypeName ::= record? LEFT_BRACE FieldDefinitionList RIGHT_BRACE
 
 FieldDefinitionList ::= fieldDefinition*
 
@@ -399,7 +399,7 @@ AnnotationAttachment ::= AT NameReference RecordLiteral? {pin=1}
 Statement ::=
         WhileStatement
     |   ForeverStatement
-    |   NextStatement
+    |   ContinueStatement
     |   ForeachStatement
     |   matchStatement
     |   BreakStatement
@@ -427,9 +427,9 @@ Statement ::=
 // Todo - Add more tokens
 // Note - Literals are added for worker interactions - 10 -> w2;
 // NULL_LITERAL is added for match pattern -  null => return "error";
-private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|next|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier)
+private StatementRecover ::= !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier)
 
-//private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /*struct | switch | var | next |try |*/ int )
+//private StatementRecover ::= !(/*'!' | '&' | '(' | '*' | '+' | '-' |*/ ';' /*| '<-' | '^' | 'type' |*/ /*'{' | '|' |*/ '|=' | '||' | '}' | /*break | case | char | continue | decimali | default | defer | else | fallthrough | float | floati | for | func | go | goto | hex |*/ identifier | /* if | interface | map | oct | return | select |*/ string  | /*struct | switch | var | continue |try |*/ int )
 
 // Note - VariableDefinitionStatementInService
 VariableDefinitionStatement ::= TypeName identifier VariableAssignment? SEMICOLON {
@@ -503,7 +503,7 @@ WhileStatement ::= while (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS WhileSta
 
 WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 
-NextStatement ::= next SEMICOLON {pin=1}
+ContinueStatement ::= continue SEMICOLON {pin=1}
 
 BreakStatement ::= break SEMICOLON {pin=1}
 
@@ -670,7 +670,7 @@ TableQueryExpression ::= TableQuery
 
 TableLiteralExpression ::= TableLiteral
 
-private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|blob|any|map|table|function|stream|'}'|';'|var |while|match|foreach|next|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check)
+private ExpressionRecover ::= !(NULL_LITERAL|int|string|float|boolean|blob|any|map|table|function|stream|'}'|';'|var |while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check)
 
 fake BinaryExpression ::= Expression {
   methods=[left="Expression[0]" right="Expression[1]" getOperator]
@@ -816,7 +816,7 @@ private StringTemplateTextContent ::= STRING_TEMPLATE_TEXT
 
 AnyIdentifierName ::= identifier | ReservedWord
 
-ReservedWord ::= foreach | map | start
+ReservedWord ::= foreach | map | start | continue
 
 
 //Siddhi Streams and Tables related

@@ -120,6 +120,9 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     else if (t == CONTENT) {
       r = Content(b, 0);
     }
+    else if (t == CONTINUE_STATEMENT) {
+      r = ContinueStatement(b, 0);
+    }
     else if (t == DEFAULTABLE_PARAMETER) {
       r = DefaultableParameter(b, 0);
     }
@@ -293,9 +296,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     }
     else if (t == NAMESPACE_DECLARATION_STATEMENT) {
       r = NamespaceDeclarationStatement(b, 0);
-    }
-    else if (t == NEXT_STATEMENT) {
-      r = NextStatement(b, 0);
     }
     else if (t == OBJECT_BODY) {
       r = ObjectBody(b, 0);
@@ -1570,6 +1570,19 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
+  // continue SEMICOLON
+  public static boolean ContinueStatement(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "ContinueStatement")) return false;
+    if (!nextTokenIs(b, CONTINUE)) return false;
+    boolean r, p;
+    Marker m = enter_section_(b, l, _NONE_, CONTINUE_STATEMENT, null);
+    r = consumeTokens(b, 1, CONTINUE, SEMICOLON);
+    p = r; // pin = 1
+    exit_section_(b, l, m, r, p, null);
+    return r || p;
+  }
+
+  /* ********************************************************** */
   // Parameter ASSIGN Expression
   public static boolean DefaultableParameter(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "DefaultableParameter")) return false;
@@ -1933,7 +1946,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !(NULL_LITERAL|int|string|float|boolean|blob|any|map|table|function|stream|'}'|';'|var |while|match|foreach|next|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check)
+  // !(NULL_LITERAL|int|string|float|boolean|blob|any|map|table|function|stream|'}'|';'|var |while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check)
   static boolean ExpressionRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ExpressionRecover")) return false;
     boolean r;
@@ -1943,7 +1956,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // NULL_LITERAL|int|string|float|boolean|blob|any|map|table|function|stream|'}'|';'|var |while|match|foreach|next|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check
+  // NULL_LITERAL|int|string|float|boolean|blob|any|map|table|function|stream|'}'|';'|var |while|match|foreach|continue|break|fork|try|throw|return|abort|fail|lock|xmlns|transaction|but|if|forever|object|check
   private static boolean ExpressionRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ExpressionRecover_0")) return false;
     boolean r;
@@ -1965,7 +1978,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, WHILE);
     if (!r) r = consumeToken(b, MATCH);
     if (!r) r = consumeToken(b, FOREACH);
-    if (!r) r = consumeToken(b, NEXT);
+    if (!r) r = consumeToken(b, CONTINUE);
     if (!r) r = consumeToken(b, BREAK);
     if (!r) r = consumeToken(b, FORK);
     if (!r) r = consumeToken(b, TRY);
@@ -2496,7 +2509,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // (LT Parameter GT)? CallableUnitSignature (CallableUnitBody | SEMICOLON)
+  // (TypeName DOUBLE_COLON)? CallableUnitSignature (CallableUnitBody | SEMICOLON)
   static boolean FunctionWithReceiver(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionWithReceiver")) return false;
     boolean r, p;
@@ -2509,21 +2522,20 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // (LT Parameter GT)?
+  // (TypeName DOUBLE_COLON)?
   private static boolean FunctionWithReceiver_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionWithReceiver_0")) return false;
     FunctionWithReceiver_0_0(b, l + 1);
     return true;
   }
 
-  // LT Parameter GT
+  // TypeName DOUBLE_COLON
   private static boolean FunctionWithReceiver_0_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "FunctionWithReceiver_0_0")) return false;
     boolean r;
     Marker m = enter_section_(b);
-    r = consumeToken(b, LT);
-    r = r && Parameter(b, l + 1);
-    r = r && consumeToken(b, GT);
+    r = TypeName(b, l + 1, -1);
+    r = r && consumeToken(b, DOUBLE_COLON);
     exit_section_(b, m, null, r);
     return r;
   }
@@ -3432,19 +3444,6 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = NamespaceDeclaration(b, l + 1);
     exit_section_(b, m, NAMESPACE_DECLARATION_STATEMENT, r);
     return r;
-  }
-
-  /* ********************************************************** */
-  // next SEMICOLON
-  public static boolean NextStatement(PsiBuilder b, int l) {
-    if (!recursion_guard_(b, l, "NextStatement")) return false;
-    if (!nextTokenIs(b, NEXT)) return false;
-    boolean r, p;
-    Marker m = enter_section_(b, l, _NONE_, NEXT_STATEMENT, null);
-    r = consumeTokens(b, 1, NEXT, SEMICOLON);
-    p = r; // pin = 1
-    exit_section_(b, l, m, r, p, null);
-    return r || p;
   }
 
   /* ********************************************************** */
@@ -4629,7 +4628,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // foreach | map | start
+  // foreach | map | start | continue
   public static boolean ReservedWord(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "ReservedWord")) return false;
     boolean r;
@@ -4637,6 +4636,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     r = consumeToken(b, FOREACH);
     if (!r) r = consumeToken(b, MAP);
     if (!r) r = consumeToken(b, START);
+    if (!r) r = consumeToken(b, CONTINUE);
     exit_section_(b, l, m, r, false, null);
     return r;
   }
@@ -5286,7 +5286,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   /* ********************************************************** */
   // WhileStatement
   //     |   ForeverStatement
-  //     |   NextStatement
+  //     |   ContinueStatement
   //     |   ForeachStatement
   //     |   matchStatement
   //     |   BreakStatement
@@ -5315,7 +5315,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     Marker m = enter_section_(b, l, _NONE_, STATEMENT, "<statement>");
     r = WhileStatement(b, l + 1);
     if (!r) r = ForeverStatement(b, l + 1);
-    if (!r) r = NextStatement(b, l + 1);
+    if (!r) r = ContinueStatement(b, l + 1);
     if (!r) r = ForeachStatement(b, l + 1);
     if (!r) r = matchStatement(b, l + 1);
     if (!r) r = BreakStatement(b, l + 1);
@@ -5343,7 +5343,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
   }
 
   /* ********************************************************** */
-  // !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|next|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier)
+  // !(BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier)
   static boolean StatementRecover(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover")) return false;
     boolean r;
@@ -5353,7 +5353,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r;
   }
 
-  // BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|next|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier
+  // BOOLEAN_LITERAL|QUOTED_STRING_LITERAL|DECIMAL_INTEGER_LITERAL|HEX_INTEGER_LITERAL|OCTAL_INTEGER_LITERAL|BINARY_INTEGER_LITERAL|NULL_LITERAL|int|string|float|boolean|blob|any|json|xml|xmlns|map|table|function|stream|'('|'}'|';'|typedesc|future|await|var|while|match|foreach|continue|break|fork|try|throw|return|abort|retry|fail|lock|transaction|if|forever|object|check|from|worker|done|identifier
   private static boolean StatementRecover_0(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "StatementRecover_0")) return false;
     boolean r;
@@ -5388,7 +5388,7 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     if (!r) r = consumeToken(b, WHILE);
     if (!r) r = consumeToken(b, MATCH);
     if (!r) r = consumeToken(b, FOREACH);
-    if (!r) r = consumeToken(b, NEXT);
+    if (!r) r = consumeToken(b, CONTINUE);
     if (!r) r = consumeToken(b, BREAK);
     if (!r) r = consumeToken(b, FORK);
     if (!r) r = consumeToken(b, TRY);
@@ -8555,17 +8555,25 @@ public class BallerinaParser implements PsiParser, LightPsiParser {
     return r || p;
   }
 
-  // LEFT_BRACE FieldDefinitionList RIGHT_BRACE
+  // record? LEFT_BRACE FieldDefinitionList RIGHT_BRACE
   public static boolean RecordTypeName(PsiBuilder b, int l) {
     if (!recursion_guard_(b, l, "RecordTypeName")) return false;
-    if (!nextTokenIsSmart(b, LEFT_BRACE)) return false;
+    if (!nextTokenIsSmart(b, LEFT_BRACE, RECORD)) return false;
     boolean r;
-    Marker m = enter_section_(b);
-    r = consumeTokenSmart(b, LEFT_BRACE);
+    Marker m = enter_section_(b, l, _NONE_, RECORD_TYPE_NAME, "<record type name>");
+    r = RecordTypeName_0(b, l + 1);
+    r = r && consumeToken(b, LEFT_BRACE);
     r = r && FieldDefinitionList(b, l + 1);
     r = r && consumeToken(b, RIGHT_BRACE);
-    exit_section_(b, m, RECORD_TYPE_NAME, r);
+    exit_section_(b, l, m, r, false, null);
     return r;
+  }
+
+  // record?
+  private static boolean RecordTypeName_0(PsiBuilder b, int l) {
+    if (!recursion_guard_(b, l, "RecordTypeName_0")) return false;
+    consumeTokenSmart(b, RECORD);
+    return true;
   }
 
   /* ********************************************************** */

@@ -170,30 +170,33 @@ public type CircuitBreakerClient object {
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function post(string path, Request? request = ()) returns Response|error;
+    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
 
     documentation {
         The HEAD action implementation of the Circuit Breaker. This wraps the `head()` function of the underlying
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
      }
-    public function head(string path, Request? request = ()) returns Response|error;
+    public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
 
     documentation {
         The PUT action implementation of the Circuit Breaker. This wraps the `put()` function of the underlying
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function put(string path, Request? request = ()) returns Response|error;
+    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
 
     documentation {
         This wraps the `post()` function of the underlying HTTP actions provider. The `execute()` function can be used
@@ -201,50 +204,57 @@ public type CircuitBreakerClient object {
 
         P{{httpVerb}} HTTP verb to be used for the request
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function execute(string httpVerb, string path, Request request) returns Response|error;
+    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error;
 
     documentation {
         The PATCH action implementation of the Circuit Breaker. This wraps the `patch()` function of the underlying
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function patch(string path, Request? request = ()) returns Response|error;
+    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns Response|error;
 
     documentation {
         The DELETE action implementation of the Circuit Breaker. This wraps the `delete()` function of the underlying
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} A Request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel` or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function delete(string path, Request? request = ()) returns Response|error;
+    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns Response|error;
 
     documentation {
         The GET action implementation of the Circuit Breaker. This wraps the `get()` function of the underlying
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function get(string path, Request? request = ()) returns Response|error;
+    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
 
     documentation {
         The OPTIONS action implementation of the Circuit Breaker. This wraps the `options()` function of the underlying
         HTTP actions provider.
 
         P{{path}} Resource path
-        P{{request}} A Request struct
+        P{{message}} An optional HTTP Request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function options(string path, Request? request = ()) returns Response|error;
+    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message = ()) returns Response|error;
 
     documentation {
         This wraps the `forward()` function of the underlying HTTP actions provider. The Forward action can be used to
@@ -261,10 +271,12 @@ public type CircuitBreakerClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
+    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns HttpFuture|error;
 
     documentation {
         Circuit breaking not supported. Defaults to the `getResponse()` function of the underlying HTTP
@@ -322,29 +334,33 @@ public type CircuitBreakerClient object {
     public function forceOpen();
 };
 
-public function CircuitBreakerClient::post(string path, Request? request = ()) returns Response|error {
-   CallerActions httpClient = self.httpClient;
-   CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
-   self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
+public function CircuitBreakerClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns Response|error {
+    Request req = buildRequest(message);
+    CallerActions httpClient = self.httpClient;
+    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
+    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
 
-   if (self.currentCircuitState == CB_OPEN_STATE) {
-       // TODO: Allow the user to handle this scenario. Maybe through a user provided function
-       return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
-   } else {
-       match httpClient.post(path, request = request) {
+    if (self.currentCircuitState == CB_OPEN_STATE) {
+        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
+        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
+    } else {
+        match httpClient.post(path, req) {
             Response service_response => {
-                                    updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
-                                    return service_response;
-                                }
+                updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
+                return service_response;
+            }
             error serviceError => {
-                                    updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
-                                    return serviceError;
-                                }
+                updateCircuitHealthFailure(self.circuitHealth, serviceError, self.circuitBreakerInferredConfig);
+                return serviceError;
+            }
         }
     }
 }
 
-public function CircuitBreakerClient::head(string path, Request? request = ()) returns Response|error {
+public function CircuitBreakerClient::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message = ()) returns Response|error {
+   Request request = buildRequest(message);
    CallerActions httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -353,7 +369,7 @@ public function CircuitBreakerClient::head(string path, Request? request = ()) r
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.head(path, request = request) {
+       match httpClient.head(path, message = request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
@@ -366,7 +382,9 @@ public function CircuitBreakerClient::head(string path, Request? request = ()) r
      }
 }
 
-public function CircuitBreakerClient::put(string path, Request? request = ()) returns Response|error {
+public function CircuitBreakerClient::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+   Request request = buildRequest(message);
    CallerActions httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -375,7 +393,7 @@ public function CircuitBreakerClient::put(string path, Request? request = ()) re
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.put(path, request = request) {
+       match httpClient.put(path, request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
@@ -388,8 +406,9 @@ public function CircuitBreakerClient::put(string path, Request? request = ()) re
      }
 }
 
-public function CircuitBreakerClient::execute(string httpVerb, string path, Request request) returns Response|
-        error {
+public function CircuitBreakerClient::execute(string httpVerb, string path, Request|string|xml|json|blob|
+                                                    io:ByteChannel|mime:Entity[]|() message) returns Response|error {
+   Request request = buildRequest(message);
    CallerActions httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -411,7 +430,9 @@ public function CircuitBreakerClient::execute(string httpVerb, string path, Requ
     }
 }
 
-public function CircuitBreakerClient::patch(string path, Request? request = ()) returns Response|error {
+public function CircuitBreakerClient::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+   Request request = buildRequest(message);
    CallerActions httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -420,7 +441,7 @@ public function CircuitBreakerClient::patch(string path, Request? request = ()) 
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.patch(path, request = request) {
+       match httpClient.patch(path, request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
@@ -433,7 +454,9 @@ public function CircuitBreakerClient::patch(string path, Request? request = ()) 
     }
 }
 
-public function CircuitBreakerClient::delete(string path, Request? request = ()) returns Response|error {
+public function CircuitBreakerClient::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error {
+   Request request = buildRequest(message);
    CallerActions httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -442,7 +465,7 @@ public function CircuitBreakerClient::delete(string path, Request? request = ())
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.delete(path, request = request) {
+       match httpClient.delete(path, request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
@@ -455,7 +478,9 @@ public function CircuitBreakerClient::delete(string path, Request? request = ())
     }
 }
 
-public function CircuitBreakerClient::get(string path, Request? request = ()) returns Response|error {
+public function CircuitBreakerClient::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message = ()) returns Response|error {
+    Request request = buildRequest(message);
     CallerActions httpClient = self.httpClient;
     CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
     self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -464,7 +489,7 @@ public function CircuitBreakerClient::get(string path, Request? request = ()) re
         // TODO: Allow the user to handle this scenario. Maybe through a user provided function
         return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
     } else {
-       match httpClient.get(path, request = request) {
+       match httpClient.get(path, message = request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
@@ -477,7 +502,9 @@ public function CircuitBreakerClient::get(string path, Request? request = ()) re
     }
 }
 
-public function CircuitBreakerClient::options(string path, Request? request = ()) returns Response|error {
+public function CircuitBreakerClient::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                                message = ()) returns Response|error {
+   Request request = buildRequest(message);
    CallerActions httpClient = self.httpClient;
    CircuitBreakerInferredConfig cbic = self.circuitBreakerInferredConfig;
    self.currentCircuitState = updateCircuitState(self.circuitHealth, self.currentCircuitState, cbic);
@@ -486,7 +513,7 @@ public function CircuitBreakerClient::options(string path, Request? request = ()
        // TODO: Allow the user to handle this scenario. Maybe through a user provided function
        return handleOpenCircuit(self.circuitHealth, self.circuitBreakerInferredConfig);
    } else {
-       match httpClient.options(path, request = request) {
+       match httpClient.options(path, message = request) {
             Response service_response => {
                                     updateCircuitHealthSuccess(self.circuitHealth, service_response, self.circuitBreakerInferredConfig);
                                     return service_response;
@@ -521,7 +548,9 @@ public function CircuitBreakerClient::forward(string path, Request request) retu
    }
 }
 
-public function CircuitBreakerClient::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+public function CircuitBreakerClient::submit(string httpVerb, string path, Request|string|xml|json|blob|
+                                                    io:ByteChannel|mime:Entity[]|() message) returns HttpFuture|error {
+    Request request = buildRequest(message);
     return self.httpClient.submit(httpVerb, path, request);
 }
 
