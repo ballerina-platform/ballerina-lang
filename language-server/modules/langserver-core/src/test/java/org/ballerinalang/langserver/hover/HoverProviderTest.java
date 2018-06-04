@@ -36,6 +36,7 @@ import java.nio.file.Path;
 /**
  * Test hover feature in language server.
  */
+@Test(groups = "broken")
 public class HoverProviderTest {
     private static final String METHOD = "textDocument/hover";
     private Path balPath = FileUtils.RES_DIR.resolve("hover").resolve("hover.bal");
