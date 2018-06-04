@@ -22,7 +22,7 @@ function testFunc() {
     http:Request req = new;
     req.setJsonPayload(payload);
     // Send a `GET` request to the specified endpoint.
-    var response = httpEndpoint->post("/foo/bar", request = req);
+    var response = httpEndpoint->post("/foo/bar", req);
     match response {
         http:Response resp => {
             var jsonRes = check resp.getJsonPayload();

@@ -39,7 +39,7 @@ function testFunc() {
     http:Request req = new;
     req.setJsonPayload(payload);
     // Send a GET request to the specified endpoint
-    var response = httpEndpoint->post("/cbr/route", request = req);
+    var response = httpEndpoint->post("/cbr/route", req);
     match response {
         http:Response resp => {
             var jsonRes = check resp.getJsonPayload();
@@ -51,7 +51,7 @@ function testFunc() {
     http:Request req2 = new;
     req2.setJsonPayload(payload2);
     // Send a GET request to the specified endpoint
-    var respnc = httpEndpoint->post("/cbr/route", request = req2);
+    var respnc = httpEndpoint->post("/cbr/route", req2);
     match respnc {
         http:Response resp => {
             var jsonRes = check resp.getJsonPayload();

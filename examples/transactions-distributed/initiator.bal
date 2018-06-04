@@ -74,7 +74,7 @@ function callBusinessService() returns boolean {
     json bizReq = { symbol: "GOOG", price: price };
     http:Request req = new;
     req.setJsonPayload(bizReq);
-    var result = participantEP->post("", request = req);
+    var result = participantEP->post("", req);
     log:printInfo("Got response from bizservice");
     match result {
         http:Response res => {

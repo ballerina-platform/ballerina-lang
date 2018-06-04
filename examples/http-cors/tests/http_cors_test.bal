@@ -23,7 +23,7 @@ function testFunc() {
     http:Request req = new;
     req.setHeader("Origin", "http://www.bbc.com");
     // Send a `GET` request to the specified endpoint.
-    var response = httpEndpoint->get("/crossOriginService/company", request = req);
+    var response = httpEndpoint->get("/crossOriginService/company", message = req);
     match response {
         http:Response resp => {
             var res = check resp.getJsonPayload();
@@ -36,7 +36,7 @@ function testFunc() {
     req2.setHeader("Origin", "http://www.m3.com");
     req2.setHeader("Access-Control-Request-Method", "POST");
     // Send a `GET` request to the specified endpoint.
-    var response2 = httpEndpoint->options("/crossOriginService/lang", request = req2);
+    var response2 = httpEndpoint->options("/crossOriginService/lang", message = req2);
     match response2 {
         http:Response resp => {
             var res = check resp.getTextPayload();

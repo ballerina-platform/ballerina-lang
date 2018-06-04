@@ -41,13 +41,13 @@ service<http:Service> headerBasedRouting bind { port: 9090 } {
         if (nameString == "location") {
             //`post()` represent the POST action of HTTP connector. Route payload to relevant service.
             response = locationEP->post("/v2/5adddd66300000bd2a4b2912",
-                                        request = newRequest);
+                                        newRequest);
 
         } else {
             //`get()` action can be used to make http GET call.
             response =
                 weatherEP->get("/data/2.5/weather?lat=35&lon=139&appid=b1b1",
-                                request = newRequest);
+                                message = newRequest);
 
         }
 

@@ -27,7 +27,7 @@ function testFunc() {
     http:Request req = new;
     req.setHeader("x-type", "location");
     // Send a GET request to the specified endpoint.
-    var response = httpEndpoint->get("/hbr/route", request = req);
+    var response = httpEndpoint->get("/hbr/route", message = req);
     match response {
         http:Response resp => {
             var realResponse = check resp.getJsonPayload();

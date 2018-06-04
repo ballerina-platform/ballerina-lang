@@ -74,8 +74,7 @@ service<http:Service> multipartDemoService bind {port: 9090} {
         // You need to pass the content type that suit your requirement.
         request.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
 
-        var returnResponse = clientEP->post("/multiparts/decode",
-                                            request = request);
+        var returnResponse = clientEP->post("/multiparts/decode", request);
         match returnResponse {
             error err => {
                 http:Response response = new;

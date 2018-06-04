@@ -24,7 +24,7 @@ function testFunc() {
     http:Request req = new;
     req.setJsonPayload({ "name": "Teak", "amount": 1000.0 });
     // Send a `GET` request to the specified endpoint.
-    var response = httpEndpoint->post("/rawmaterial", request = req);
+    var response = httpEndpoint->post("/rawmaterial", req);
     match response {
         http:Response resp => {
             var res = check resp.getJsonPayload();
@@ -36,7 +36,7 @@ function testFunc() {
     http:Request req2 = new;
     req2.setJsonPayload({ "name": "Teak", "amount": 500.0 });
     // Send a `GET` request to the specified endpoint.
-    var response2 = httpEndpoint->post("/productionmaterial", request = req2);
+    var response2 = httpEndpoint->post("/productionmaterial", req2);
     match response2 {
         http:Response resp => {
             var res = check resp.getJsonPayload();
