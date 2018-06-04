@@ -20,7 +20,7 @@ import org.ballerinalang.connector.api.Annotation;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.StructField;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BIterator;
 import org.ballerinalang.model.values.BMap;
@@ -43,14 +43,14 @@ import java.util.Map;
 public class StructImpl extends AnnotatableNode implements Struct {
 
     private BStruct value;
-    private BStructType type;
+    private BStructureType type;
     private Map<String, StructFieldImpl> structFields = new LinkedHashMap<>();
     private int[] indexes = new int[] {-1, -1, -1, -1, -1, -1};
 
     StructImpl(BStruct value) {
         this.value = value;
         type = value.getType();
-        Arrays.stream(value.getType().getStructFields()).forEach(sf -> {
+        Arrays.stream(value.getType().getFields()).forEach(sf -> {
             final StructFieldImpl structField = new StructFieldImpl(sf.fieldName, sf.fieldType.getTag());
             setIndex(structField, indexes);
             structFields.put(sf.fieldName, structField);

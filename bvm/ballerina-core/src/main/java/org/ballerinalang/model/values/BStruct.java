@@ -18,8 +18,8 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.VarLock;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.BStructType.StructField;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.Flags;
@@ -52,14 +52,14 @@ public final class BStruct implements BRefType, LockableStructureType {
     private BRefType[] refFields;
     private VarLock[] refLocks;
 
-    private BStructType structType;
+    private BStructureType structType;
 
     /**
      * Creates a struct with a single memory block.
      *
      * @param structType type of the struct
      */
-    public BStruct(BStructType structType) {
+    public BStruct(BStructureType structType) {
         this.structType = structType;
 
         int[] fieldCount = this.structType.getFieldTypeCount();
@@ -95,7 +95,7 @@ public final class BStruct implements BRefType, LockableStructureType {
                 refValIndex = 0;
 
         StringJoiner sj = new StringJoiner(", ", "{", "}");
-        for (StructField field : structType.getStructFields()) {
+        for (BField field : structType.getFields()) {
             if (Flags.isFlagOn(field.flags, Flags.PUBLIC)) {
                 String fieldName = field.getFieldName();
                 Object fieldVal;
@@ -122,7 +122,7 @@ public final class BStruct implements BRefType, LockableStructureType {
     }
 
     @Override
-    public BStructType getType() {
+    public BStructureType getType() {
         return structType;
     }
 

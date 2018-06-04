@@ -33,14 +33,14 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
         orgName = "ballerina", packageName = "http",
         functionName = "nativeDelete",
         args = {
-                @Argument(name = "callerActions", type = TypeKind.STRUCT),
+                @Argument(name = "callerActions", type = TypeKind.OBJECT),
                 @Argument(name = "path", type = TypeKind.STRING),
-                @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
+                @Argument(name = "req", type = TypeKind.OBJECT, structType = "Request",
                         structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.http"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+                @ReturnType(type = TypeKind.OBJECT, structType = "Response", structPackage = "ballerina.http"),
+                @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                         structPackage = "ballerina.http"),
         }
 )

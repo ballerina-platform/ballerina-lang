@@ -2084,24 +2084,6 @@ public class BallerinaParser extends Parser {
 		public ObjectFunctionDefinitionContext objectFunctionDefinition(int i) {
 			return getRuleContext(ObjectFunctionDefinitionContext.class,i);
 		}
-		public List<AnnotationAttachmentContext> annotationAttachment() {
-			return getRuleContexts(AnnotationAttachmentContext.class);
-		}
-		public AnnotationAttachmentContext annotationAttachment(int i) {
-			return getRuleContext(AnnotationAttachmentContext.class,i);
-		}
-		public List<DocumentationAttachmentContext> documentationAttachment() {
-			return getRuleContexts(DocumentationAttachmentContext.class);
-		}
-		public DocumentationAttachmentContext documentationAttachment(int i) {
-			return getRuleContext(DocumentationAttachmentContext.class,i);
-		}
-		public List<DeprecatedAttachmentContext> deprecatedAttachment() {
-			return getRuleContexts(DeprecatedAttachmentContext.class);
-		}
-		public DeprecatedAttachmentContext deprecatedAttachment(int i) {
-			return getRuleContext(DeprecatedAttachmentContext.class,i);
-		}
 		public ObjectFunctionsContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -2123,49 +2105,17 @@ public class BallerinaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(675); 
+			setState(663); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(665);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-				while (_la==AT) {
-					{
-					{
-					setState(662);
-					annotationAttachment();
-					}
-					}
-					setState(667);
-					_errHandler.sync(this);
-					_la = _input.LA(1);
-				}
-				setState(669);
-				_la = _input.LA(1);
-				if (_la==DocumentationTemplateStart) {
-					{
-					setState(668);
-					documentationAttachment();
-					}
-				}
-
-				setState(672);
-				_la = _input.LA(1);
-				if (_la==DeprecatedTemplateStart) {
-					{
-					setState(671);
-					deprecatedAttachment();
-					}
-				}
-
-				setState(674);
+				setState(662);
 				objectFunctionDefinition();
 				}
 				}
-				setState(677); 
+				setState(665); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( (((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << PUBLIC) | (1L << NATIVE) | (1L << FUNCTION))) != 0) || ((((_la - 151)) & ~0x3f) == 0 && ((1L << (_la - 151)) & ((1L << (AT - 151)) | (1L << (DocumentationTemplateStart - 151)) | (1L << (DeprecatedTemplateStart - 151)))) != 0) );
@@ -2220,36 +2170,36 @@ public class BallerinaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(682);
+			setState(670);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==AT) {
 				{
 				{
-				setState(679);
+				setState(667);
 				annotationAttachment();
 				}
 				}
-				setState(684);
+				setState(672);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(685);
+			setState(673);
 			typeName(0);
-			setState(686);
+			setState(674);
 			match(Identifier);
-			setState(689);
+			setState(677);
 			_la = _input.LA(1);
 			if (_la==ASSIGN) {
 				{
-				setState(687);
+				setState(675);
 				match(ASSIGN);
-				setState(688);
+				setState(676);
 				expression(0);
 				}
 			}
 
-			setState(691);
+			setState(679);
 			_la = _input.LA(1);
 			if ( !(_la==SEMICOLON || _la==COMMA) ) {
 			_errHandler.recoverInline(this);
@@ -2309,49 +2259,49 @@ public class BallerinaParser extends Parser {
 		int _la;
 		try {
 			int _alt;
-			setState(712);
+			setState(700);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,60,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,57,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(695);
+				setState(683);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,56,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,53,_ctx) ) {
 				case 1:
 					{
-					setState(693);
+					setState(681);
 					objectParameter();
 					}
 					break;
 				case 2:
 					{
-					setState(694);
+					setState(682);
 					objectDefaultableParameter();
 					}
 					break;
 				}
-				setState(704);
+				setState(692);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,58,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,55,_ctx);
 				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
-						setState(697);
+						setState(685);
 						match(COMMA);
-						setState(700);
+						setState(688);
 						_errHandler.sync(this);
-						switch ( getInterpreter().adaptivePredict(_input,57,_ctx) ) {
+						switch ( getInterpreter().adaptivePredict(_input,54,_ctx) ) {
 						case 1:
 							{
-							setState(698);
+							setState(686);
 							objectParameter();
 							}
 							break;
 						case 2:
 							{
-							setState(699);
+							setState(687);
 							objectDefaultableParameter();
 							}
 							break;
@@ -2359,17 +2309,17 @@ public class BallerinaParser extends Parser {
 						}
 						} 
 					}
-					setState(706);
+					setState(694);
 					_errHandler.sync(this);
-					_alt = getInterpreter().adaptivePredict(_input,58,_ctx);
+					_alt = getInterpreter().adaptivePredict(_input,55,_ctx);
 				}
-				setState(709);
+				setState(697);
 				_la = _input.LA(1);
 				if (_la==COMMA) {
 					{
-					setState(707);
+					setState(695);
 					match(COMMA);
-					setState(708);
+					setState(696);
 					restParameter();
 					}
 				}
@@ -2379,7 +2329,7 @@ public class BallerinaParser extends Parser {
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(711);
+				setState(699);
 				restParameter();
 				}
 				break;
@@ -2428,31 +2378,31 @@ public class BallerinaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(717);
+			setState(705);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==AT) {
 				{
 				{
-				setState(714);
+				setState(702);
 				annotationAttachment();
 				}
 				}
-				setState(719);
+				setState(707);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(721);
+			setState(709);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,62,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,59,_ctx) ) {
 			case 1:
 				{
-				setState(720);
+				setState(708);
 				typeName(0);
 				}
 				break;
 			}
-			setState(723);
+			setState(711);
 			match(Identifier);
 			}
 		}
@@ -2495,11 +2445,11 @@ public class BallerinaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(725);
+			setState(713);
 			objectParameter();
-			setState(726);
+			setState(714);
 			match(ASSIGN);
-			setState(727);
+			setState(715);
 			expression(0);
 			}
 		}
@@ -2523,6 +2473,18 @@ public class BallerinaParser extends Parser {
 			return getRuleContext(CallableUnitBodyContext.class,0);
 		}
 		public TerminalNode SEMICOLON() { return getToken(BallerinaParser.SEMICOLON, 0); }
+		public List<AnnotationAttachmentContext> annotationAttachment() {
+			return getRuleContexts(AnnotationAttachmentContext.class);
+		}
+		public AnnotationAttachmentContext annotationAttachment(int i) {
+			return getRuleContext(AnnotationAttachmentContext.class,i);
+		}
+		public DocumentationAttachmentContext documentationAttachment() {
+			return getRuleContext(DocumentationAttachmentContext.class,0);
+		}
+		public DeprecatedAttachmentContext deprecatedAttachment() {
+			return getRuleContext(DeprecatedAttachmentContext.class,0);
+		}
 		public TerminalNode PUBLIC() { return getToken(BallerinaParser.PUBLIC, 0); }
 		public TerminalNode NATIVE() { return getToken(BallerinaParser.NATIVE, 0); }
 		public ObjectFunctionDefinitionContext(ParserRuleContext parent, int invokingState) {
@@ -2546,6 +2508,38 @@ public class BallerinaParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
+			setState(720);
+			_errHandler.sync(this);
+			_la = _input.LA(1);
+			while (_la==AT) {
+				{
+				{
+				setState(717);
+				annotationAttachment();
+				}
+				}
+				setState(722);
+				_errHandler.sync(this);
+				_la = _input.LA(1);
+			}
+			setState(724);
+			_la = _input.LA(1);
+			if (_la==DocumentationTemplateStart) {
+				{
+				setState(723);
+				documentationAttachment();
+				}
+			}
+
+			setState(727);
+			_la = _input.LA(1);
+			if (_la==DeprecatedTemplateStart) {
+				{
+				setState(726);
+				deprecatedAttachment();
+				}
+			}
+
 			setState(730);
 			_la = _input.LA(1);
 			if (_la==PUBLIC) {
@@ -15371,19 +15365,19 @@ public class BallerinaParser extends Parser {
 		"\23\u0275\13\23\3\23\3\23\3\24\3\24\3\24\7\24\u027c\n\24\f\24\16\24\u027f"+
 		"\13\24\3\24\3\24\3\25\7\25\u0284\n\25\f\25\16\25\u0287\13\25\3\25\5\25"+
 		"\u028a\n\25\3\25\5\25\u028d\n\25\3\25\3\25\3\25\3\25\3\26\3\26\5\26\u0295"+
-		"\n\26\3\26\3\26\3\27\7\27\u029a\n\27\f\27\16\27\u029d\13\27\3\27\5\27"+
-		"\u02a0\n\27\3\27\5\27\u02a3\n\27\3\27\6\27\u02a6\n\27\r\27\16\27\u02a7"+
-		"\3\30\7\30\u02ab\n\30\f\30\16\30\u02ae\13\30\3\30\3\30\3\30\3\30\5\30"+
-		"\u02b4\n\30\3\30\3\30\3\31\3\31\5\31\u02ba\n\31\3\31\3\31\3\31\5\31\u02bf"+
-		"\n\31\7\31\u02c1\n\31\f\31\16\31\u02c4\13\31\3\31\3\31\5\31\u02c8\n\31"+
-		"\3\31\5\31\u02cb\n\31\3\32\7\32\u02ce\n\32\f\32\16\32\u02d1\13\32\3\32"+
-		"\5\32\u02d4\n\32\3\32\3\32\3\33\3\33\3\33\3\33\3\34\5\34\u02dd\n\34\3"+
-		"\34\5\34\u02e0\n\34\3\34\3\34\3\34\3\34\5\34\u02e6\n\34\3\35\3\35\3\35"+
-		"\5\35\u02eb\n\35\3\35\3\35\5\35\u02ef\n\35\3\36\5\36\u02f2\n\36\3\36\3"+
-		"\36\3\36\3\36\3\36\7\36\u02f9\n\36\f\36\16\36\u02fc\13\36\3\36\3\36\5"+
-		"\36\u0300\n\36\3\36\3\36\5\36\u0304\n\36\3\36\3\36\3\37\5\37\u0309\n\37"+
-		"\3\37\3\37\3\37\3\37\5\37\u030f\n\37\3\37\3\37\3 \3 \3!\3!\3!\7!\u0318"+
-		"\n!\f!\16!\u031b\13!\3!\3!\3\"\3\"\3\"\3#\5#\u0323\n#\3#\3#\3$\7$\u0328"+
+		"\n\26\3\26\3\26\3\27\6\27\u029a\n\27\r\27\16\27\u029b\3\30\7\30\u029f"+
+		"\n\30\f\30\16\30\u02a2\13\30\3\30\3\30\3\30\3\30\5\30\u02a8\n\30\3\30"+
+		"\3\30\3\31\3\31\5\31\u02ae\n\31\3\31\3\31\3\31\5\31\u02b3\n\31\7\31\u02b5"+
+		"\n\31\f\31\16\31\u02b8\13\31\3\31\3\31\5\31\u02bc\n\31\3\31\5\31\u02bf"+
+		"\n\31\3\32\7\32\u02c2\n\32\f\32\16\32\u02c5\13\32\3\32\5\32\u02c8\n\32"+
+		"\3\32\3\32\3\33\3\33\3\33\3\33\3\34\7\34\u02d1\n\34\f\34\16\34\u02d4\13"+
+		"\34\3\34\5\34\u02d7\n\34\3\34\5\34\u02da\n\34\3\34\5\34\u02dd\n\34\3\34"+
+		"\5\34\u02e0\n\34\3\34\3\34\3\34\3\34\5\34\u02e6\n\34\3\35\3\35\3\35\5"+
+		"\35\u02eb\n\35\3\35\3\35\5\35\u02ef\n\35\3\36\5\36\u02f2\n\36\3\36\3\36"+
+		"\3\36\3\36\3\36\7\36\u02f9\n\36\f\36\16\36\u02fc\13\36\3\36\3\36\5\36"+
+		"\u0300\n\36\3\36\3\36\5\36\u0304\n\36\3\36\3\36\3\37\5\37\u0309\n\37\3"+
+		"\37\3\37\3\37\3\37\5\37\u030f\n\37\3\37\3\37\3 \3 \3!\3!\3!\7!\u0318\n"+
+		"!\f!\16!\u031b\13!\3!\3!\3\"\3\"\3\"\3#\5#\u0323\n#\3#\3#\3$\7$\u0328"+
 		"\n$\f$\16$\u032b\13$\3$\3$\3$\3$\5$\u0331\n$\3$\3$\3%\3%\3&\3&\3&\5&\u033a"+
 		"\n&\3\'\3\'\3\'\7\'\u033f\n\'\f\'\16\'\u0342\13\'\3(\3(\5(\u0346\n(\3"+
 		")\3)\3)\3)\3)\3)\3)\3)\3)\3)\7)\u0352\n)\f)\16)\u0355\13)\3)\3)\3)\3)"+
@@ -15542,9 +15536,9 @@ public class BallerinaParser extends Parser {
 		"\3\2\2\2\f\u01c6\3\2\2\2\16\u01c8\3\2\2\2\20\u01e0\3\2\2\2\22\u01e2\3"+
 		"\2\2\2\24\u01fb\3\2\2\2\26\u0213\3\2\2\2\30\u0231\3\2\2\2\32\u0234\3\2"+
 		"\2\2\34\u0246\3\2\2\2\36\u0251\3\2\2\2 \u025b\3\2\2\2\"\u0263\3\2\2\2"+
-		"$\u026e\3\2\2\2&\u0278\3\2\2\2(\u0285\3\2\2\2*\u0292\3\2\2\2,\u02a5\3"+
-		"\2\2\2.\u02ac\3\2\2\2\60\u02ca\3\2\2\2\62\u02cf\3\2\2\2\64\u02d7\3\2\2"+
-		"\2\66\u02dc\3\2\2\28\u02e7\3\2\2\2:\u02f1\3\2\2\2<\u0308\3\2\2\2>\u0312"+
+		"$\u026e\3\2\2\2&\u0278\3\2\2\2(\u0285\3\2\2\2*\u0292\3\2\2\2,\u0299\3"+
+		"\2\2\2.\u02a0\3\2\2\2\60\u02be\3\2\2\2\62\u02c3\3\2\2\2\64\u02cb\3\2\2"+
+		"\2\66\u02d2\3\2\2\28\u02e7\3\2\2\2:\u02f1\3\2\2\2<\u0308\3\2\2\2>\u0312"+
 		"\3\2\2\2@\u0314\3\2\2\2B\u031e\3\2\2\2D\u0322\3\2\2\2F\u0329\3\2\2\2H"+
 		"\u0334\3\2\2\2J\u0339\3\2\2\2L\u033b\3\2\2\2N\u0345\3\2\2\2P\u0364\3\2"+
 		"\2\2R\u037e\3\2\2\2T\u0386\3\2\2\2V\u038a\3\2\2\2X\u038c\3\2\2\2Z\u038e"+
@@ -15683,61 +15677,61 @@ public class BallerinaParser extends Parser {
 		"\2\2\u028e\u028f\7X\2\2\u028f\u0290\5*\26\2\u0290\u0291\5\30\r\2\u0291"+
 		")\3\2\2\2\u0292\u0294\7\u0082\2\2\u0293\u0295\5\60\31\2\u0294\u0293\3"+
 		"\2\2\2\u0294\u0295\3\2\2\2\u0295\u0296\3\2\2\2\u0296\u0297\7\u0083\2\2"+
-		"\u0297+\3\2\2\2\u0298\u029a\5d\63\2\u0299\u0298\3\2\2\2\u029a\u029d\3"+
-		"\2\2\2\u029b\u0299\3\2\2\2\u029b\u029c\3\2\2\2\u029c\u029f\3\2\2\2\u029d"+
-		"\u029b\3\2\2\2\u029e\u02a0\5\u0178\u00bd\2\u029f\u029e\3\2\2\2\u029f\u02a0"+
-		"\3\2\2\2\u02a0\u02a2\3\2\2\2\u02a1\u02a3\5\u016c\u00b7\2\u02a2\u02a1\3"+
-		"\2\2\2\u02a2\u02a3\3\2\2\2\u02a3\u02a4\3\2\2\2\u02a4\u02a6\5\66\34\2\u02a5"+
-		"\u029b\3\2\2\2\u02a6\u02a7\3\2\2\2\u02a7\u02a5\3\2\2\2\u02a7\u02a8\3\2"+
-		"\2\2\u02a8-\3\2\2\2\u02a9\u02ab\5d\63\2\u02aa\u02a9\3\2\2\2\u02ab\u02ae"+
-		"\3\2\2\2\u02ac\u02aa\3\2\2\2\u02ac\u02ad\3\2\2\2\u02ad\u02af\3\2\2\2\u02ae"+
-		"\u02ac\3\2\2\2\u02af\u02b0\5P)\2\u02b0\u02b3\7\u00b0\2\2\u02b1\u02b2\7"+
-		"\u0087\2\2\u02b2\u02b4\5\u00e6t\2\u02b3\u02b1\3\2\2\2\u02b3\u02b4\3\2"+
-		"\2\2\u02b4\u02b5\3\2\2\2\u02b5\u02b6\t\2\2\2\u02b6/\3\2\2\2\u02b7\u02ba"+
-		"\5\62\32\2\u02b8\u02ba\5\64\33\2\u02b9\u02b7\3\2\2\2\u02b9\u02b8\3\2\2"+
-		"\2\u02ba\u02c2\3\2\2\2\u02bb\u02be\7\177\2\2\u02bc\u02bf\5\62\32\2\u02bd"+
-		"\u02bf\5\64\33\2\u02be\u02bc\3\2\2\2\u02be\u02bd\3\2\2\2\u02bf\u02c1\3"+
-		"\2\2\2\u02c0\u02bb\3\2\2\2\u02c1\u02c4\3\2\2\2\u02c2\u02c0\3\2\2\2\u02c2"+
-		"\u02c3\3\2\2\2\u02c3\u02c7\3\2\2\2\u02c4\u02c2\3\2\2\2\u02c5\u02c6\7\177"+
-		"\2\2\u02c6\u02c8\5\u0100\u0081\2\u02c7\u02c5\3\2\2\2\u02c7\u02c8\3\2\2"+
-		"\2\u02c8\u02cb\3\2\2\2\u02c9\u02cb\5\u0100\u0081\2\u02ca\u02b9\3\2\2\2"+
-		"\u02ca\u02c9\3\2\2\2\u02cb\61\3\2\2\2\u02cc\u02ce\5d\63\2\u02cd\u02cc"+
-		"\3\2\2\2\u02ce\u02d1\3\2\2\2\u02cf\u02cd\3\2\2\2\u02cf\u02d0\3\2\2\2\u02d0"+
-		"\u02d3\3\2\2\2\u02d1\u02cf\3\2\2\2\u02d2\u02d4\5P)\2\u02d3\u02d2\3\2\2"+
-		"\2\u02d3\u02d4\3\2\2\2\u02d4\u02d5\3\2\2\2\u02d5\u02d6\7\u00b0\2\2\u02d6"+
-		"\63\3\2\2\2\u02d7\u02d8\5\62\32\2\u02d8\u02d9\7\u0087\2\2\u02d9\u02da"+
-		"\5\u00e6t\2\u02da\65\3\2\2\2\u02db\u02dd\7\5\2\2\u02dc\u02db\3\2\2\2\u02dc"+
-		"\u02dd\3\2\2\2\u02dd\u02df\3\2\2\2\u02de\u02e0\7\7\2\2\u02df\u02de\3\2"+
-		"\2\2\u02df\u02e0\3\2\2\2\u02e0\u02e1\3\2\2\2\u02e1\u02e2\7\n\2\2\u02e2"+
-		"\u02e5\58\35\2\u02e3\u02e6\5\30\r\2\u02e4\u02e6\7{\2\2\u02e5\u02e3\3\2"+
-		"\2\2\u02e5\u02e4\3\2\2\2\u02e6\67\3\2\2\2\u02e7\u02e8\5\u0132\u009a\2"+
-		"\u02e8\u02ea\7\u0082\2\2\u02e9\u02eb\5\u0102\u0082\2\u02ea\u02e9\3\2\2"+
-		"\2\u02ea\u02eb\3\2\2\2\u02eb\u02ec\3\2\2\2\u02ec\u02ee\7\u0083\2\2\u02ed"+
-		"\u02ef\5\u00f2z\2\u02ee\u02ed\3\2\2\2\u02ee\u02ef\3\2\2\2\u02ef9\3\2\2"+
-		"\2\u02f0\u02f2\7\5\2\2\u02f1\u02f0\3\2\2\2\u02f1\u02f2\3\2\2\2\u02f2\u02f3"+
-		"\3\2\2\2\u02f3\u02ff\7\r\2\2\u02f4\u02f5\7\u0092\2\2\u02f5\u02fa\5> \2"+
-		"\u02f6\u02f7\7\177\2\2\u02f7\u02f9\5> \2\u02f8\u02f6\3\2\2\2\u02f9\u02fc"+
-		"\3\2\2\2\u02fa\u02f8\3\2\2\2\u02fa\u02fb\3\2\2\2\u02fb\u02fd\3\2\2\2\u02fc"+
-		"\u02fa\3\2\2\2\u02fd\u02fe\7\u0091\2\2\u02fe\u0300\3\2\2\2\u02ff\u02f4"+
-		"\3\2\2\2\u02ff\u0300\3\2\2\2\u0300\u0301\3\2\2\2\u0301\u0303\7\u00b0\2"+
-		"\2\u0302\u0304\5X-\2\u0303\u0302\3\2\2\2\u0303\u0304\3\2\2\2\u0304\u0305"+
-		"\3\2\2\2\u0305\u0306\7{\2\2\u0306;\3\2\2\2\u0307\u0309\7\5\2\2\u0308\u0307"+
-		"\3\2\2\2\u0308\u0309\3\2\2\2\u0309\u030a\3\2\2\2\u030a\u030b\5P)\2\u030b"+
-		"\u030e\7\u00b0\2\2\u030c\u030d\7\u0087\2\2\u030d\u030f\5\u00e6t\2\u030e"+
-		"\u030c\3\2\2\2\u030e\u030f\3\2\2\2\u030f\u0310\3\2\2\2\u0310\u0311\7{"+
-		"\2\2\u0311=\3\2\2\2\u0312\u0313\t\3\2\2\u0313?\3\2\2\2\u0314\u0315\5B"+
-		"\"\2\u0315\u0319\7\u0080\2\2\u0316\u0318\5f\64\2\u0317\u0316\3\2\2\2\u0318"+
-		"\u031b\3\2\2\2\u0319\u0317\3\2\2\2\u0319\u031a\3\2\2\2\u031a\u031c\3\2"+
-		"\2\2\u031b\u0319\3\2\2\2\u031c\u031d\7\u0081\2\2\u031dA\3\2\2\2\u031e"+
-		"\u031f\7\20\2\2\u031f\u0320\7\u00b0\2\2\u0320C\3\2\2\2\u0321\u0323\7\5"+
-		"\2\2\u0322\u0321\3\2\2\2\u0322\u0323\3\2\2\2\u0323\u0324\3\2\2\2\u0324"+
-		"\u0325\5F$\2\u0325E\3\2\2\2\u0326\u0328\5d\63\2\u0327\u0326\3\2\2\2\u0328"+
-		"\u032b\3\2\2\2\u0329\u0327\3\2\2\2\u0329\u032a\3\2\2\2\u032a\u032c\3\2"+
-		"\2\2\u032b\u0329\3\2\2\2\u032c\u032d\7\21\2\2\u032d\u032e\5H%\2\u032e"+
-		"\u0330\7\u00b0\2\2\u032f\u0331\5J&\2\u0330\u032f\3\2\2\2\u0330\u0331\3"+
-		"\2\2\2\u0331\u0332\3\2\2\2\u0332\u0333\7{\2\2\u0333G\3\2\2\2\u0334\u0335"+
-		"\5\u00eex\2\u0335I\3\2\2\2\u0336\u033a\5j\66\2\u0337\u0338\7\u0087\2\2"+
-		"\u0338\u033a\5\u00b6\\\2\u0339\u0336\3\2\2\2\u0339\u0337\3\2\2\2\u033a"+
+		"\u0297+\3\2\2\2\u0298\u029a\5\66\34\2\u0299\u0298\3\2\2\2\u029a\u029b"+
+		"\3\2\2\2\u029b\u0299\3\2\2\2\u029b\u029c\3\2\2\2\u029c-\3\2\2\2\u029d"+
+		"\u029f\5d\63\2\u029e\u029d\3\2\2\2\u029f\u02a2\3\2\2\2\u02a0\u029e\3\2"+
+		"\2\2\u02a0\u02a1\3\2\2\2\u02a1\u02a3\3\2\2\2\u02a2\u02a0\3\2\2\2\u02a3"+
+		"\u02a4\5P)\2\u02a4\u02a7\7\u00b0\2\2\u02a5\u02a6\7\u0087\2\2\u02a6\u02a8"+
+		"\5\u00e6t\2\u02a7\u02a5\3\2\2\2\u02a7\u02a8\3\2\2\2\u02a8\u02a9\3\2\2"+
+		"\2\u02a9\u02aa\t\2\2\2\u02aa/\3\2\2\2\u02ab\u02ae\5\62\32\2\u02ac\u02ae"+
+		"\5\64\33\2\u02ad\u02ab\3\2\2\2\u02ad\u02ac\3\2\2\2\u02ae\u02b6\3\2\2\2"+
+		"\u02af\u02b2\7\177\2\2\u02b0\u02b3\5\62\32\2\u02b1\u02b3\5\64\33\2\u02b2"+
+		"\u02b0\3\2\2\2\u02b2\u02b1\3\2\2\2\u02b3\u02b5\3\2\2\2\u02b4\u02af\3\2"+
+		"\2\2\u02b5\u02b8\3\2\2\2\u02b6\u02b4\3\2\2\2\u02b6\u02b7\3\2\2\2\u02b7"+
+		"\u02bb\3\2\2\2\u02b8\u02b6\3\2\2\2\u02b9\u02ba\7\177\2\2\u02ba\u02bc\5"+
+		"\u0100\u0081\2\u02bb\u02b9\3\2\2\2\u02bb\u02bc\3\2\2\2\u02bc\u02bf\3\2"+
+		"\2\2\u02bd\u02bf\5\u0100\u0081\2\u02be\u02ad\3\2\2\2\u02be\u02bd\3\2\2"+
+		"\2\u02bf\61\3\2\2\2\u02c0\u02c2\5d\63\2\u02c1\u02c0\3\2\2\2\u02c2\u02c5"+
+		"\3\2\2\2\u02c3\u02c1\3\2\2\2\u02c3\u02c4\3\2\2\2\u02c4\u02c7\3\2\2\2\u02c5"+
+		"\u02c3\3\2\2\2\u02c6\u02c8\5P)\2\u02c7\u02c6\3\2\2\2\u02c7\u02c8\3\2\2"+
+		"\2\u02c8\u02c9\3\2\2\2\u02c9\u02ca\7\u00b0\2\2\u02ca\63\3\2\2\2\u02cb"+
+		"\u02cc\5\62\32\2\u02cc\u02cd\7\u0087\2\2\u02cd\u02ce\5\u00e6t\2\u02ce"+
+		"\65\3\2\2\2\u02cf\u02d1\5d\63\2\u02d0\u02cf\3\2\2\2\u02d1\u02d4\3\2\2"+
+		"\2\u02d2\u02d0\3\2\2\2\u02d2\u02d3\3\2\2\2\u02d3\u02d6\3\2\2\2\u02d4\u02d2"+
+		"\3\2\2\2\u02d5\u02d7\5\u0178\u00bd\2\u02d6\u02d5\3\2\2\2\u02d6\u02d7\3"+
+		"\2\2\2\u02d7\u02d9\3\2\2\2\u02d8\u02da\5\u016c\u00b7\2\u02d9\u02d8\3\2"+
+		"\2\2\u02d9\u02da\3\2\2\2\u02da\u02dc\3\2\2\2\u02db\u02dd\7\5\2\2\u02dc"+
+		"\u02db\3\2\2\2\u02dc\u02dd\3\2\2\2\u02dd\u02df\3\2\2\2\u02de\u02e0\7\7"+
+		"\2\2\u02df\u02de\3\2\2\2\u02df\u02e0\3\2\2\2\u02e0\u02e1\3\2\2\2\u02e1"+
+		"\u02e2\7\n\2\2\u02e2\u02e5\58\35\2\u02e3\u02e6\5\30\r\2\u02e4\u02e6\7"+
+		"{\2\2\u02e5\u02e3\3\2\2\2\u02e5\u02e4\3\2\2\2\u02e6\67\3\2\2\2\u02e7\u02e8"+
+		"\5\u0132\u009a\2\u02e8\u02ea\7\u0082\2\2\u02e9\u02eb\5\u0102\u0082\2\u02ea"+
+		"\u02e9\3\2\2\2\u02ea\u02eb\3\2\2\2\u02eb\u02ec\3\2\2\2\u02ec\u02ee\7\u0083"+
+		"\2\2\u02ed\u02ef\5\u00f2z\2\u02ee\u02ed\3\2\2\2\u02ee\u02ef\3\2\2\2\u02ef"+
+		"9\3\2\2\2\u02f0\u02f2\7\5\2\2\u02f1\u02f0\3\2\2\2\u02f1\u02f2\3\2\2\2"+
+		"\u02f2\u02f3\3\2\2\2\u02f3\u02ff\7\r\2\2\u02f4\u02f5\7\u0092\2\2\u02f5"+
+		"\u02fa\5> \2\u02f6\u02f7\7\177\2\2\u02f7\u02f9\5> \2\u02f8\u02f6\3\2\2"+
+		"\2\u02f9\u02fc\3\2\2\2\u02fa\u02f8\3\2\2\2\u02fa\u02fb\3\2\2\2\u02fb\u02fd"+
+		"\3\2\2\2\u02fc\u02fa\3\2\2\2\u02fd\u02fe\7\u0091\2\2\u02fe\u0300\3\2\2"+
+		"\2\u02ff\u02f4\3\2\2\2\u02ff\u0300\3\2\2\2\u0300\u0301\3\2\2\2\u0301\u0303"+
+		"\7\u00b0\2\2\u0302\u0304\5X-\2\u0303\u0302\3\2\2\2\u0303\u0304\3\2\2\2"+
+		"\u0304\u0305\3\2\2\2\u0305\u0306\7{\2\2\u0306;\3\2\2\2\u0307\u0309\7\5"+
+		"\2\2\u0308\u0307\3\2\2\2\u0308\u0309\3\2\2\2\u0309\u030a\3\2\2\2\u030a"+
+		"\u030b\5P)\2\u030b\u030e\7\u00b0\2\2\u030c\u030d\7\u0087\2\2\u030d\u030f"+
+		"\5\u00e6t\2\u030e\u030c\3\2\2\2\u030e\u030f\3\2\2\2\u030f\u0310\3\2\2"+
+		"\2\u0310\u0311\7{\2\2\u0311=\3\2\2\2\u0312\u0313\t\3\2\2\u0313?\3\2\2"+
+		"\2\u0314\u0315\5B\"\2\u0315\u0319\7\u0080\2\2\u0316\u0318\5f\64\2\u0317"+
+		"\u0316\3\2\2\2\u0318\u031b\3\2\2\2\u0319\u0317\3\2\2\2\u0319\u031a\3\2"+
+		"\2\2\u031a\u031c\3\2\2\2\u031b\u0319\3\2\2\2\u031c\u031d\7\u0081\2\2\u031d"+
+		"A\3\2\2\2\u031e\u031f\7\20\2\2\u031f\u0320\7\u00b0\2\2\u0320C\3\2\2\2"+
+		"\u0321\u0323\7\5\2\2\u0322\u0321\3\2\2\2\u0322\u0323\3\2\2\2\u0323\u0324"+
+		"\3\2\2\2\u0324\u0325\5F$\2\u0325E\3\2\2\2\u0326\u0328\5d\63\2\u0327\u0326"+
+		"\3\2\2\2\u0328\u032b\3\2\2\2\u0329\u0327\3\2\2\2\u0329\u032a\3\2\2\2\u032a"+
+		"\u032c\3\2\2\2\u032b\u0329\3\2\2\2\u032c\u032d\7\21\2\2\u032d\u032e\5"+
+		"H%\2\u032e\u0330\7\u00b0\2\2\u032f\u0331\5J&\2\u0330\u032f\3\2\2\2\u0330"+
+		"\u0331\3\2\2\2\u0331\u0332\3\2\2\2\u0332\u0333\7{\2\2\u0333G\3\2\2\2\u0334"+
+		"\u0335\5\u00eex\2\u0335I\3\2\2\2\u0336\u033a\5j\66\2\u0337\u0338\7\u0087"+
+		"\2\2\u0338\u033a\5\u00b6\\\2\u0339\u0336\3\2\2\2\u0339\u0337\3\2\2\2\u033a"+
 		"K\3\2\2\2\u033b\u0340\5N(\2\u033c\u033d\7\u009d\2\2\u033d\u033f\5N(\2"+
 		"\u033e\u033c\3\2\2\2\u033f\u0342\3\2\2\2\u0340\u033e\3\2\2\2\u0340\u0341"+
 		"\3\2\2\2\u0341M\3\2\2\2\u0342\u0340\3\2\2\2\u0343\u0346\5\u0104\u0083"+
@@ -16278,8 +16272,8 @@ public class BallerinaParser extends Parser {
 		"\u01ac\u01b5\u01ba\u01c6\u01cd\u01d1\u01db\u01e0\u01e6\u01eb\u01ed\u01f3"+
 		"\u01fb\u01ff\u0202\u0207\u0210\u0213\u0219\u021f\u0227\u022d\u0231\u0234"+
 		"\u0237\u023c\u023f\u0244\u0248\u024d\u0254\u0258\u025b\u0263\u0266\u0269"+
-		"\u026c\u0273\u027d\u0285\u0289\u028c\u0294\u029b\u029f\u02a2\u02a7\u02ac"+
-		"\u02b3\u02b9\u02be\u02c2\u02c7\u02ca\u02cf\u02d3\u02dc\u02df\u02e5\u02ea"+
+		"\u026c\u0273\u027d\u0285\u0289\u028c\u0294\u029b\u02a0\u02a7\u02ad\u02b2"+
+		"\u02b6\u02bb\u02be\u02c3\u02c7\u02d2\u02d6\u02d9\u02dc\u02df\u02e5\u02ea"+
 		"\u02ee\u02f1\u02fa\u02ff\u0303\u0308\u030e\u0319\u0322\u0329\u0330\u0339"+
 		"\u0340\u0345\u0353\u035e\u0364\u036b\u0372\u0376\u0378\u037e\u0386\u038a"+
 		"\u0395\u039c\u03a4\u03a9\u03b0\u03b7\u03be\u03c1\u03c7\u03cb\u03d4\u03ef"+

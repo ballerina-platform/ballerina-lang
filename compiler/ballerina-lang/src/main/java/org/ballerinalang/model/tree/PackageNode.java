@@ -54,14 +54,6 @@ public interface PackageNode extends Node {
 
     void addFunction(FunctionNode function);
 
-    List<? extends StructNode> getStructs();
-
-    void addStruct(StructNode struct);
-
-    List<? extends ObjectNode> getObjects();
-
-    void addObject(ObjectNode object);
-
     List<? extends TypeDefinition> getTypeDefinitions();
 
     void addTypeDefinition(TypeDefinition typeDefinition);
@@ -78,7 +70,4 @@ public interface PackageNode extends Node {
 
     void addTransformer(TransformerNode transformer);
 
-    List<? extends RecordNode> getRecords();
-
-    void addRecord(RecordNode recordNode);
 }

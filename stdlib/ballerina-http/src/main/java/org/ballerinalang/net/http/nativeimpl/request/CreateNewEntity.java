@@ -38,10 +38,10 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "createNewEntity",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Request",
                 structPackage = "ballerina.http"),
-        args = {@Argument(name = "request", type = TypeKind.STRUCT)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        args = {@Argument(name = "request", type = TypeKind.OBJECT)},
+        returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = false
 )
 public class CreateNewEntity extends BlockingNativeCallableUnit {

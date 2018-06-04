@@ -31,15 +31,15 @@ import org.ballerinalang.net.http.DataContext;
         orgName = "ballerina", packageName = "http",
         functionName = "nativeSubmit",
         args = {
-                @Argument(name = "callerActions", type = TypeKind.STRUCT),
+                @Argument(name = "callerActions", type = TypeKind.OBJECT),
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
-                @Argument(name = "req", type = TypeKind.STRUCT, structType = "OutRequest",
+                @Argument(name = "req", type = TypeKind.OBJECT, structType = "OutRequest",
                         structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "HttpFuture", structPackage = "ballerina.http"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+                @ReturnType(type = TypeKind.OBJECT, structType = "HttpFuture", structPackage = "ballerina.http"),
+                @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                         structPackage = "ballerina.http"),
         }
 )

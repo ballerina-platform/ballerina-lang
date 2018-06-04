@@ -117,12 +117,13 @@ public class PackageID {
             samePkg = true;
         }
 
-        return samePkg && name.equals(other.name) && version.equals(other.version);
+        return samePkg && orgName.equals(other.orgName) && name.equals(other.name) && version.equals(other.version);
     }
 
     @Override
     public int hashCode() {
-        int result = nameComps.hashCode();
+        int result = orgName != null ? orgName.hashCode() : 0;
+        result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + version.hashCode();
         return result;
     }
