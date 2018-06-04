@@ -64,6 +64,7 @@ public class PushUtils {
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
+    private static Manifest manifest = new Manifest();
     private static PrintStream outStream = System.err;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
 
@@ -76,7 +77,7 @@ public class PushUtils {
      */
     public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        Manifest manifest = readManifestConfigurations(prjDirPath);
+        manifest = readManifestConfigurations(prjDirPath);
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
@@ -324,7 +325,7 @@ public class PushUtils {
             throw new BLangCompilerException("Package.md in the artifact is empty");
         }
 
-        Optional<String> result = Arrays.asList(mdFileContent.split("\n")).stream()
+        Optional<String> result = Arrays.stream(mdFileContent.split("\n"))
                                         .filter(line -> !line.isEmpty() && !line.startsWith("#"))
                                         .findFirst();
 
@@ -337,5 +338,26 @@ public class PushUtils {
             throw new BLangCompilerException("Summary of the package exceeds 50 characters");
         }
         return firstLine;
+    }
+
+    /**
+     * Push all packages to central.
+     *
+     * @param sourceRoot source root or project root
+     * @param home       if it should be pushed to central or home
+     */
+    public static void pushAllPackages(String sourceRoot, String home) {
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        manifest = readManifestConfigurations(sourceRootPath);
+
+        Path projectRepoPath = Paths.get(sourceRootPath.toString(),
+                                         ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
+                                         ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME,
+                                         manifest.getName());
+        try {
+            Files.list(projectRepoPath).forEach(path -> pushPackages(path.toFile().getName(), sourceRoot, home));
+        } catch (IOException ex) {
+            throw new BLangCompilerException("no packages found to push in " + projectRepoPath);
+        }
     }
 }
