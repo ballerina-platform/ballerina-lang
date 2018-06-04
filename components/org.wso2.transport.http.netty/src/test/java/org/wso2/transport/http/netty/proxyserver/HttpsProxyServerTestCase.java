@@ -37,8 +37,11 @@ import java.nio.charset.Charset;
 
 import static org.mockserver.integration.ClientAndProxy.startClientAndProxy;
 import static org.wso2.transport.http.netty.common.Constants.HTTPS_SCHEME;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_HOST;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_METHOD;
-
+import static org.wso2.transport.http.netty.common.Constants.HTTP_PORT;
+import static org.wso2.transport.http.netty.common.Constants.HTTP_POST_METHOD;
+import static org.wso2.transport.http.netty.common.Constants.PROTOCOL;
 
 /**
  * A test for connecting to a proxy server over HTTPS.
@@ -69,8 +72,12 @@ public class HttpsProxyServerTestCase {
             String testValue = "Test";
             ByteBuffer byteBuffer = ByteBuffer.wrap(testValue.getBytes(Charset.forName("UTF-8")));
             HTTPCarbonMessage msg = new HttpCarbonRequest(
-                    new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, "https://localhost:9091"));
+                    new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.POST, ""));
             msg.setProperty(HTTP_METHOD, HttpMethod.POST.toString());
+            msg.setProperty(HTTP_PORT, TestUtil.SERVER_PORT1);
+            msg.setProperty(PROTOCOL, HTTPS_SCHEME);
+            msg.setProperty(HTTP_HOST, TestUtil.TEST_HOST);
+            msg.setProperty(HTTP_METHOD, HTTP_POST_METHOD);
             msg.setHeader("Host", "localhost:9001");
             msg.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
             ProxyServerUtil.sendRequest(msg, testValue);
