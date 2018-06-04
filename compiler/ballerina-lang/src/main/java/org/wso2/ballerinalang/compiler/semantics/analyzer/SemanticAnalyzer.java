@@ -1274,15 +1274,17 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     //Streaming related methods.
 
     public void visit(BLangForever foreverStatement) {
+
+        foreverStatement.setEnv(env);
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
             analyzeStmt((BLangStatement) streamingQueryStatement, env);
         }
 
-        //Validate output attribute names with stream/struct
-        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
-            checkOutputAttributes((BLangStatement) streamingQueryStatement);
-            validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
-        }
+//        //Validate output attribute names with stream/struct
+//        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
+//            checkOutputAttributes((BLangStatement) streamingQueryStatement);
+//            validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
+//        }
     }
 
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
@@ -1473,7 +1475,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangStreamAction streamAction) {
         BLangLambdaFunction function = (BLangLambdaFunction) streamAction.getInvokableBody();
         typeChecker.checkExpr(function, env);
-        validateStreamingActionFunctionParameters(streamAction);
+        //validateStreamingActionFunctionParameters(streamAction);
     }
 
     @Override
