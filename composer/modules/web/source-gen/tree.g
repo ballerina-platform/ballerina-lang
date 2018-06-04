@@ -143,7 +143,8 @@ ExpressionStatement
    ;
 
 FieldBasedAccessExpr
-   : <expression.source> . <fieldName.value>
+   : <errorLifting?> <expression.source> ! <fieldName.value>
+   |                 <expression.source> . <fieldName.value>
    ;
 
 Foreach
