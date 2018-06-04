@@ -32,6 +32,7 @@ import java.nio.file.Path;
 /**
  * Test goto definition language server feature.
  */
+@Test(groups = "broken")
 public class DefinitionTest {
     private static final String METHOD = "textDocument/definition";
     private Path balPath1 = FileUtils.RES_DIR.resolve("definition").resolve("test.definition.pkg")

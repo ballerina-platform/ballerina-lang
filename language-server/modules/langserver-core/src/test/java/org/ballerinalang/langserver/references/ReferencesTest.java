@@ -36,6 +36,7 @@ import java.nio.file.Path;
 /**
  * Test suit for testing find all references.
  */
+@Test(groups = "broken")
 public class ReferencesTest {
     private static final String METHOD = "textDocument/references";
     private Path balPath1 = FileUtils.RES_DIR.resolve("references").resolve("project").resolve("references1.bal");

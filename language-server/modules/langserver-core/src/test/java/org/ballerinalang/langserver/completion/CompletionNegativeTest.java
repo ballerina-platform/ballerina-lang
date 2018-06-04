@@ -31,6 +31,7 @@ import java.util.List;
 /**
  * Abstract negative test class for completions.
  */
+@Test(groups = "broken")
 public abstract class CompletionNegativeTest extends CompletionTest {
     @Override
     @Test(dataProvider = "completion-negative-data-provider")
