@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * Documentable node for type definitions.
  */
-public class TypeDefinitionDoc extends Documentable {
+public class EnumDoc extends Documentable {
     public final boolean isType;
     public final String valueSet;
     /**
@@ -32,7 +32,7 @@ public class TypeDefinitionDoc extends Documentable {
      * @param children children if any.
      * @param valueSet values of the type.
      */
-    public TypeDefinitionDoc(String name, String description, List<Documentable> children, String valueSet) {
+    public EnumDoc(String name, String description, List<Documentable> children, String valueSet) {
         super(name, "fw-type", description, children);
         this.valueSet = valueSet;
         isType = true;

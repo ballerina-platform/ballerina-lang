@@ -19,7 +19,6 @@ package org.ballerinalang.docgen.model;
 
 
 import org.apache.commons.lang3.EnumUtils;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +31,6 @@ public class EndpointDoc extends Documentable {
     public final boolean isObject;
     public final boolean hasConstructor;
     public final List<Field> fields;
-    private BLangObject object;
 
     private enum FilteredFunctions { init, register, start, stop, getCallerActions }
 
@@ -74,14 +72,6 @@ public class EndpointDoc extends Documentable {
 
         children.clear();
         children.addAll(filteredChildren);
-    }
-
-    public BLangObject getObject() {
-        return object;
-    }
-
-    public void setObject(BLangObject object) {
-        this.object = object;
     }
 
     private boolean isNotAFilteredFunction(String name) {

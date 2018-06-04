@@ -31,11 +31,11 @@ import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.model.AnnotationDoc;
 import org.ballerinalang.docgen.model.Documentable;
 import org.ballerinalang.docgen.model.EndpointDoc;
+import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
 import org.ballerinalang.docgen.model.RecordDoc;
-import org.ballerinalang.docgen.model.TypeDefinitionDoc;
 
 import java.io.File;
 import java.io.IOException;
@@ -82,8 +82,8 @@ public class Writer {
                             return context.stream().anyMatch(c -> c instanceof PrimitiveTypeDoc) ? options.fn(this) :
                                     options.inverse(this);
                         case "type":
-                            return context.stream().anyMatch(c -> c instanceof TypeDefinitionDoc) ? options.fn(this)
-                                    : options.inverse(this);
+                            return context.stream().anyMatch(c -> c instanceof EnumDoc) ? options.fn(this)
+                                                                                        : options.inverse(this);
                         case "annotation":
                             return context.stream().anyMatch(c -> c instanceof AnnotationDoc) ? options.fn(this) :
                                     options.inverse(this);
