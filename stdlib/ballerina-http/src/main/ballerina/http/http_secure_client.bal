@@ -126,11 +126,11 @@ public type HttpSecureClient object {
     public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
                                              message) returns (Response|error) {
         Request req = buildRequest(message);
-        check generateSecureRequest(request, config);
+        check generateSecureRequest(req, config);
         Response response = check httpClient.execute(httpVerb, path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            check updateRequestAndConfig(request, config);
+            check updateRequestAndConfig(req, config);
             return httpClient.execute(httpVerb, path, req);
         }
         return response;
