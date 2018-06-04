@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -122,7 +122,7 @@ abstract class MethodListener {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BType errorType = paramDetails.get(1).getVarType();
-        BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
+        BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, t);
         signatureParams[1] = errorStruct;
         BStruct headerStruct = getHeaderStruct(resource);
         if (headerStruct != null && MessageHeaders.isPresent()) {

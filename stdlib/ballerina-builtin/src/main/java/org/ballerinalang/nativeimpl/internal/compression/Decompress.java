@@ -40,12 +40,12 @@ import java.nio.file.Path;
         orgName = "ballerina", packageName = "internal",
         functionName = "decompress",
         args = {
-                @Argument(name = "dirPath", type = TypeKind.STRUCT, structType = "Path",
+                @Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
                         structPackage = "ballerina.file"),
-                @Argument(name = "destDir", type = TypeKind.STRUCT, structType = "Path",
+                @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
                         structPackage = "ballerina.file")
         },
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class Decompress extends BlockingNativeCallableUnit {

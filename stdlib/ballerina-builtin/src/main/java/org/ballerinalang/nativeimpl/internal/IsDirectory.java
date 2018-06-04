@@ -40,7 +40,7 @@ import java.nio.file.Path;
         orgName = "ballerina", packageName = "internal",
         functionName = "isDirectory",
         args = {
-                @Argument(name = "path", type = TypeKind.STRUCT, structType = "Path",
+                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path",
                 structPackage = "ballerina.file")
         },
         returnType = {

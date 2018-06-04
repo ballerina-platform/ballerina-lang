@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.972.1-SNAPSHOT</version>
+    <version>0.973.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -171,6 +171,12 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mime</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-http</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -184,6 +190,12 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-transactions</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-transactions</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -228,13 +240,31 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-websub</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-database</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-database</artifactId>
                 <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -311,6 +341,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>toml-parser</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>stdlib-compile</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
 
@@ -787,6 +822,12 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-grpc</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-grpc</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
 
             <!-- Siddhi Stream Dependencies -->
@@ -1522,7 +1563,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.972.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.973.1-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>

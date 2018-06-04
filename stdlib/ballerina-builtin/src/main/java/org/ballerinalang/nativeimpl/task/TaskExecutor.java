@@ -50,7 +50,7 @@ public class TaskExecutor {
             //Call the onError function in case of error.
             if (onErrorFunction != null && !isErrorFnCalled) {
                 BLangFunctions.invokeCallable(onErrorFunction.getFunctionInfo(),
-                        new BValue[] { BLangVMErrors.createError(parentCtx, 0, e.getMessage()) });
+                        new BValue[] { BLangVMErrors.createError(parentCtx, e.getMessage()) });
             }
         }
     }

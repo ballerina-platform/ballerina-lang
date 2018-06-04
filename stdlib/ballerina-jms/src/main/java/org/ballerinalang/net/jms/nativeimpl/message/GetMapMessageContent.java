@@ -50,7 +50,7 @@ import javax.jms.Message;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jms",
         functionName = "getMapMessageContent",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Message", structPackage = "ballerina.jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Message", structPackage = "ballerina.jms"),
         returnType = {@ReturnType(type = TypeKind.MAP)},
         isPublic = true
 )

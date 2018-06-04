@@ -17,7 +17,7 @@
 */
 package org.ballerinalang.util.codegen.cpentries;
 
-import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.codegen.CustomTypeInfo;
 
 import java.util.Objects;
 
@@ -34,7 +34,7 @@ public class StructureRefCPEntry implements ConstantPoolEntry {
     private int nameCPIndex;
     private String structureName;
 
-    private StructureTypeInfo structureTypeInfo;
+    private CustomTypeInfo structureTypeInfo;
 
     public StructureRefCPEntry(int packageCPIndex, String packagePath, int nameCPIndex, String structureName) {
         this.packageCPIndex = packageCPIndex;
@@ -59,11 +59,11 @@ public class StructureRefCPEntry implements ConstantPoolEntry {
         return structureName;
     }
 
-    public StructureTypeInfo getStructureTypeInfo() {
+    public CustomTypeInfo getStructureTypeInfo() {
         return structureTypeInfo;
     }
 
-    public void setStructureTypeInfo(StructureTypeInfo structureTypeInfo) {
+    public void setStructureTypeInfo(CustomTypeInfo structureTypeInfo) {
         this.structureTypeInfo = structureTypeInfo;
     }
 

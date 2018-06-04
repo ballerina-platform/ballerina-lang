@@ -33,10 +33,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -47,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -55,6 +53,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Utility class for Hover functionality of language server.
@@ -76,42 +75,46 @@ public class HoverUtil {
                         .filter(function -> function.name.getValue()
                                 .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
-
+                List<BLangObjectTypeNode> objectTypeNodes = bLangPackage.typeDefinitions.stream()
+                        .filter(typeDefinition -> typeDefinition.typeNode instanceof BLangObjectTypeNode)
+                        .map(typeDefinition -> (BLangObjectTypeNode) typeDefinition.typeNode)
+                        .collect(Collectors.toList());
                 bLangFunction = bLangFunction == null ?
                         getMatchingObjectFunctions(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY),
-                                bLangPackage.objects) : bLangFunction;
+                                objectTypeNodes) : bLangFunction;
 
                 hover = bLangFunction != null
                         ? getHoverResultForGivenDocs(bLangFunction.docAttachments, bLangFunction.annAttachments)
                         : getDefaultHoverObject();
                 break;
-            case ContextConstants.STRUCT:
-                BLangStruct bLangStruct = bLangPackage.structs.stream()
-                        .filter(struct -> struct.name.getValue()
-                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                hover = bLangStruct != null
-                        ? getHoverResultForGivenDocs(bLangStruct.docAttachments, bLangStruct.annAttachments)
-                        : getDefaultHoverObject();
-                break;
-            case ContextConstants.OBJECT:
-                BLangObject bLangObject = bLangPackage.objects.stream()
-                        .filter(object -> object.name.getValue()
-                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                hover = bLangObject != null
-                        ? getHoverResultForGivenDocs(bLangObject.docAttachments, bLangObject.annAttachments)
-                        : getDefaultHoverObject();
-                break;
-            case ContextConstants.RECORD:
-                BLangRecord bLangRecord = bLangPackage.records.stream()
-                        .filter(record -> record.name.getValue()
-                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                hover = bLangRecord != null ?
-                        getHoverResultForGivenDocs(bLangRecord.docAttachments, bLangRecord.annAttachments)
-                        : getDefaultHoverObject();
-                break;
+            // TODO: Revamop the following case logic with the new struct remove changes
+//            case ContextConstants.STRUCT:
+//                BLangStruct bLangStruct = bLangPackage.structs.stream()
+//                        .filter(struct -> struct.name.getValue()
+//                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+//                        .findAny().orElse(null);
+//                hover = bLangStruct != null
+//                        ? getHoverResultForGivenDocs(bLangStruct.docAttachments, bLangStruct.annAttachments)
+//                        : getDefaultHoverObject();
+//                break;
+//            case ContextConstants.OBJECT:
+//                BLangObject bLangObject = bLangPackage.objects.stream()
+//                        .filter(object -> object.name.getValue()
+//                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+//                        .findAny().orElse(null);
+//                hover = bLangObject != null
+//                        ? getHoverResultForGivenDocs(bLangObject.docAttachments, bLangObject.annAttachments)
+//                        : getDefaultHoverObject();
+//                break;
+//            case ContextConstants.RECORD:
+//                BLangRecord bLangRecord = bLangPackage.records.stream()
+//                        .filter(record -> record.name.getValue()
+//                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+//                        .findAny().orElse(null);
+//                hover = bLangRecord != null ?
+//                        getHoverResultForGivenDocs(bLangRecord.docAttachments, bLangRecord.annAttachments)
+//                        : getDefaultHoverObject();
+//                break;
             case ContextConstants.TYPE_DEF:
                 BLangTypeDefinition bLangTypeDefinition = bLangPackage.typeDefinitions.stream()
                         .filter(typeDef -> typeDef.name.getValue()
@@ -431,10 +434,10 @@ public class HoverUtil {
      * @param objects objects to be searched
      * @return {@link BLangFunction} matching function | null
      */
-    private static BLangFunction getMatchingObjectFunctions(String name, List<BLangObject> objects) {
+    private static BLangFunction getMatchingObjectFunctions(String name, List<BLangObjectTypeNode> objects) {
         BLangFunction bLangFunction = null;
         outOfLoop:
-        for (BLangObject bLangObject : objects) {
+        for (BLangObjectTypeNode bLangObject : objects) {
             for (BLangFunction function : bLangObject.functions) {
                 if (function.name.getValue().equals(name)) {
                     bLangFunction = function;

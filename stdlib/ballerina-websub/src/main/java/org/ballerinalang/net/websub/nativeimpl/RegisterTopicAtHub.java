@@ -39,7 +39,7 @@ import org.ballerinalang.net.websub.hub.Hub;
         args = {@Argument(name = "topic", type = TypeKind.STRING),
                 @Argument(name = "secret", type = TypeKind.STRING),
                 @Argument(name = "loadingOnStartUp", type = TypeKind.BOOLEAN)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
 public class RegisterTopicAtHub extends BlockingNativeCallableUnit {

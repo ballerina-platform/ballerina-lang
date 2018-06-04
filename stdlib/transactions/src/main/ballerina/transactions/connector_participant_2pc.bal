@@ -63,7 +63,7 @@ public type Participant2pcClient object {
         PrepareRequest prepareReq = {transactionId:transactionId};
         json j = check <json>prepareReq;
         req.setJsonPayload(j);
-        var result = httpClient->post("/prepare", request = req);
+        var result = httpClient->post("/prepare", req);
         http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode == http:NOT_FOUND_404) {
@@ -86,7 +86,7 @@ public type Participant2pcClient object {
         NotifyRequest notifyReq = {transactionId:transactionId, message:message};
         json j = check <json>notifyReq;
         req.setJsonPayload(j);
-        var result = httpClient->post("/notify", request = req);
+        var result = httpClient->post("/notify", req);
         http:Response res = check result;
         json payload = check res.getJsonPayload();
         NotifyResponse notifyRes = <NotifyResponse>payload;

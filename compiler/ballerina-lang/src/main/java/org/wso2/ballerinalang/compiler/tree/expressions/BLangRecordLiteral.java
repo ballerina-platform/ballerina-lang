@@ -19,7 +19,8 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
@@ -136,12 +137,12 @@ public class BLangRecordLiteral extends BLangExpression implements RecordLiteral
      * @since 0.94
      */
     public static class BLangStructLiteral extends BLangRecordLiteral {
-        public BStructSymbol.BAttachedFunction initializer;
+        public BAttachedFunction initializer;
 
         public BLangStructLiteral(List<BLangRecordKeyValue> keyValuePairs, BType structType) {
             this.keyValuePairs = keyValuePairs;
             this.type = structType;
-            this.initializer = ((BStructSymbol) structType.tsymbol).initializerFunc;
+            this.initializer = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
         }
 
         @Override

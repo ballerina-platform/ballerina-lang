@@ -23,11 +23,12 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -72,11 +73,11 @@ public class BLangMatchContextResolver extends AbstractItemResolver {
             }).collect(Collectors.toList());
             this.populateCompletionItemList(filteredBasicTypes, completionItems);
         } else {
-            if (bLangMatch.expr.type instanceof BStructType) {
+            if (bLangMatch.expr.type instanceof BRecordType) {
                 List<SymbolInfo> structSymbols = visibleSymbols.stream()
                         .filter(symbolInfo -> {
                             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                            return bSymbol instanceof BStructSymbol
+                            return (bSymbol instanceof BObjectTypeSymbol || bSymbol instanceof BRecordTypeSymbol)
                                     && !bSymbol.getName().getValue().startsWith(UtilSymbolKeys.ANON_STRUCT_CHECKER);
                         })
                         .collect(Collectors.toList());

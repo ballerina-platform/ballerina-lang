@@ -24,8 +24,8 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -47,10 +47,10 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
     @Override
     public boolean isCursorBeforeNode(DiagnosticPos nodePosition, BLangNode node, TreeVisitor treeVisitor,
                                       LSServiceOperationContext completionContext) {
-        if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangObject)) {
+        if (!(treeVisitor.getBlockOwnerStack().peek() instanceof BLangObjectTypeNode)) {
             return false;
         }
-        BLangObject ownerObject = (BLangObject) treeVisitor.getBlockOwnerStack().peek();
+        BLangObjectTypeNode ownerObject = (BLangObjectTypeNode) treeVisitor.getBlockOwnerStack().peek();
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         DiagnosticPos blockOwnerPos = CommonUtil
                 .toZeroBasedPosition((DiagnosticPos) treeVisitor.getBlockOwnerStack().peek().getPosition());

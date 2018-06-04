@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "builtin",
         functionName = "xml.toJSON",
-        args = {@Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
+        args = {@Argument(name = "options", type = TypeKind.RECORD, structType = "Options",
                           structPackage = "ballerina.lang.xmls")},
         returnType = {@ReturnType(type = TypeKind.JSON)},
         isPublic = true
