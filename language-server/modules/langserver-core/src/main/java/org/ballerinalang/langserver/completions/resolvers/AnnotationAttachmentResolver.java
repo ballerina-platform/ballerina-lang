@@ -31,7 +31,8 @@ import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
@@ -185,17 +186,17 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
             }
         }
 
-        if (filteredAnnotation == null || !(filteredAnnotation.typeNode.type instanceof BStructType)) {
+        if (filteredAnnotation == null || !(filteredAnnotation.typeNode.type instanceof BRecordType)) {
             return null;
         }
         
         if (!fieldStack.isEmpty()) {            
             completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(
-                    findAllStructFields((BStructType) filteredAnnotation.typeNode.type, fieldStack.pop(), fieldStack)
+                    findAllStructFields((BRecordType) filteredAnnotation.typeNode.type, fieldStack.pop(), fieldStack)
             ));
         } else {
             completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(
-                    ((BStructType) filteredAnnotation.typeNode.type).fields)
+                    ((BRecordType) filteredAnnotation.typeNode.type).fields)
             );
         }
         
@@ -254,23 +255,23 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
 
     /**
      * Find all the struct fields from the field stack found going through the token stream.
-     * @param structType    BLang Struct
+     * @param recordType    BLang Record
      * @param fieldName     Field name to find
      * @param fieldStack    Field stack containing the field hierarchy
-     * @return {@link org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField} list of fields
+     * @return {@link org.wso2.ballerinalang.compiler.semantics.model.types.BField} list of fields
      */
-    private List<BStructType.BStructField> findAllStructFields(BStructType structType, String fieldName,
-                                                               Stack<String> fieldStack) {
-        for (BStructType.BStructField field : structType.fields) {
+    private List<BField> findAllStructFields(BRecordType recordType, String fieldName,
+                                             Stack<String> fieldStack) {
+        for (BField field : recordType.fields) {
             BType bType = field.getType();
-            if (!(bType instanceof BStructType)) {
+            if (!(bType instanceof BRecordType)) {
                 continue;
             }
             if (field.getName().getValue().equals(fieldName)) {
                 if (fieldStack.isEmpty()) {
-                    return ((BStructType) bType).fields;
+                    return ((BRecordType) bType).fields;
                 }
-                return findAllStructFields((BStructType) bType, fieldStack.pop(), fieldStack);
+                return findAllStructFields((BRecordType) bType, fieldStack.pop(), fieldStack);
             }
         }
         
@@ -307,7 +308,7 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
         int nodeEndLine = nodePos.getEndLine();
 
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            if (keyValuePair.valueExpr.type instanceof BStructType) {
+            if (keyValuePair.valueExpr.type instanceof BRecordType) {
                 DiagnosticPos exprPos = CommonUtil.toZeroBasedPosition(keyValuePair.valueExpr.getPosition());
                 int exprStartLine = exprPos.getStartLine();
                 int exprEndLine = exprPos.getEndLine();
@@ -319,11 +320,11 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
             }
         }
         
-        if (nodeStartLine < line && nodeEndLine > line && recordLiteral.type instanceof BStructType) {
+        if (nodeStartLine < line && nodeEndLine > line && recordLiteral.type instanceof BRecordType) {
             completionItems.addAll(
-                    CommonUtil.getStructFieldPopulateCompletionItems(((BStructType) recordLiteral.type).fields)
+                    CommonUtil.getStructFieldPopulateCompletionItems(((BRecordType) recordLiteral.type).fields)
             );
-            completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BStructType) recordLiteral.type).fields));
+            completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BRecordType) recordLiteral.type).fields));
         }
         
         return completionItems;

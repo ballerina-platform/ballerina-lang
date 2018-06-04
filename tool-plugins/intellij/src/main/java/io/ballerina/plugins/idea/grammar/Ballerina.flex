@@ -334,6 +334,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
     "catch"                                     { return CATCH; }
     "check"                                     { return CHECK; }
+    "continue"                                  { return CONTINUE; }
 
     "documentation"                             { return DOCUMENTATION; }
     "done"                                      { return DONE; }
@@ -367,7 +368,6 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
     "native"                                    { return NATIVE; }
     "new"                                       { return NEW; }
-    "next"                                      { return NEXT; }
 
     "object"                                    { return OBJECT; }
     "onabort"                                   { return ONABORT; }
@@ -378,6 +378,7 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
     "private"                                   { return PRIVATE; }
     "public"                                    { return PUBLIC; }
 
+    "record"                                    { return RECORD; }
     "resource"                                  { return RESOURCE; }
     "retry"                                     { return RETRY; }
     "retries"                                   { return RETRIES; }

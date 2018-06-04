@@ -46,9 +46,9 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "getCallerActions",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = CALLER_ACTION, structPackage =
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = CALLER_ACTION, structPackage =
                 PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )

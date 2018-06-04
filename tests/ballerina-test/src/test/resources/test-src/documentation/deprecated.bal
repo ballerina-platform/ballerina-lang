@@ -18,7 +18,7 @@ F{{path}} file path documentation. Example: ``C:\users\OddThinking\Documents\My 
 deprecated {
   This Object is deprecated use `File2` instead.
 }
-public type File object{
+public type File object {
     public {
         string path;
     }

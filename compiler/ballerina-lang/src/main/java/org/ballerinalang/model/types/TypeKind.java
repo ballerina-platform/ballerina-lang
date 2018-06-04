@@ -57,7 +57,6 @@ public enum TypeKind {
     MAP("map"),
     FUTURE("future"),
     PACKAGE("package"),
-    STRUCT("struct"),
     ENUM("enum"),
     SERVICE("service"),
     CONNECTOR("connector"),
@@ -74,6 +73,7 @@ public enum TypeKind {
     XML_ATTRIBUTES("xml-attributes"),
     INTERMEDIATE_COLLECTION("intermediate_collection"),
     TUPLE("tuple"),
+    OBJECT("object"),
     RECORD("record"),
     FINITE("finite"),
     ;

@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.io.File;
@@ -218,11 +217,12 @@ public class TextDocumentFormatUtil {
                     if (listPropItem instanceof Node) {
                         /* Remove top level anon func and struct */
                         if (node.getKind() == NodeKind.COMPILATION_UNIT) {
-                            if (listPropItem instanceof BLangStruct && ((BLangStruct) listPropItem).isAnonymous) {
-                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
-                                                ((BLangStruct) listPropItem));
-                                continue;
-                            }
+                            // TODO: 5/21/18 BLangStruct Has been removed and need to revisit the following logic
+//                            if (listPropItem instanceof BLangStruct && ((BLangStruct) listPropItem).isAnonymous) {
+//                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
+//                                                ((BLangStruct) listPropItem));
+//                                continue;
+//                            }
                             if (listPropItem instanceof BLangFunction
                                     && (((BLangFunction) listPropItem)).name.value.startsWith("$lambda$")) {
                                 continue;

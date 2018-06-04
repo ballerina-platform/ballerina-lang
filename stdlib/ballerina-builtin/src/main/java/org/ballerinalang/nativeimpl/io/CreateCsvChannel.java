@@ -47,9 +47,9 @@ import org.slf4j.LoggerFactory;
                 @Argument(name = "charset", type = TypeKind.STRING)
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
+                @ReturnType(type = TypeKind.OBJECT, structType = "DelimitedRecordChannel",
                         structPackage = "ballerina.io"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CreateCsvChannel extends BlockingNativeCallableUnit {

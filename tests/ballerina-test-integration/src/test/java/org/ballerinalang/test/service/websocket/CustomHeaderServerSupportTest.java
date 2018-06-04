@@ -55,7 +55,7 @@ public class CustomHeaderServerSupportTest extends WebSocketIntegrationTest {
     }
 
     @Test(description = "Tests reception of custom header by the server")
-    public void testServerRecievedCustomHeader() throws InterruptedException {
+    public void testServerReceivedCustomHeader() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
         client.sendText("custom-headers");

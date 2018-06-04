@@ -67,6 +67,12 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
 
   @Override
   @Nullable
+  public BallerinaContinueStatement getContinueStatement() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaContinueStatement.class);
+  }
+
+  @Override
+  @Nullable
   public BallerinaDoneStatement getDoneStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaDoneStatement.class);
   }
@@ -111,12 +117,6 @@ public class BallerinaStatementImpl extends BallerinaCompositeElementImpl implem
   @Nullable
   public BallerinaNamespaceDeclarationStatement getNamespaceDeclarationStatement() {
     return PsiTreeUtil.getChildOfType(this, BallerinaNamespaceDeclarationStatement.class);
-  }
-
-  @Override
-  @Nullable
-  public BallerinaNextStatement getNextStatement() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaNextStatement.class);
   }
 
   @Override

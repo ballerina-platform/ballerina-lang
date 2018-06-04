@@ -21,7 +21,8 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
@@ -37,11 +38,11 @@ public class BLangRecordLiteralContextResolver extends AbstractItemResolver {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode bLangNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         BType recordType = bLangNode.type;
-        
-        if (recordType instanceof BStructType) {
-            List<BStructType.BStructField> structFields = ((BStructType) recordType).getFields();
-            completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(structFields));
-            completionItems.add(CommonUtil.getFillAllStructFieldsItem(structFields));
+        // TODO: test the completion item with new BField type.
+        if (recordType instanceof BStructureType) {
+            List<BField> fields = ((BStructureType) recordType).getFields();
+            completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(fields));
+            completionItems.add(CommonUtil.getFillAllStructFieldsItem(fields));
         }
 
         return completionItems;

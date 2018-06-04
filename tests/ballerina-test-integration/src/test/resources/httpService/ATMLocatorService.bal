@@ -41,7 +41,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
         }
 
         http:Response locatorResponse = new;
-        var locatorRes = branchLocatorService -> post("", request = backendServiceReq);
+        var locatorRes = branchLocatorService -> post("", backendServiceReq);
         match locatorRes {
             http:Response locRes => {
                 locatorResponse = locRes;
@@ -67,7 +67,7 @@ service<http:Service> ATMLocator bind serviceEnpoint {
         }
 
         http:Response infomationResponse = new;
-        var infoRes = bankInfoService -> post("", request = backendServiceReq);
+        var infoRes = bankInfoService -> post("", backendServiceReq);
         match infoRes {
             http:Response res => {
                 infomationResponse = res;

@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemEvent;
@@ -38,9 +38,9 @@ public class FSListener implements LocalFileSystemListener {
     private static final Logger log = LoggerFactory.getLogger(FSListener.class);
 
     private Map<String, Resource> resourceRegistry;
-    private StructInfo structInfo;
+    private StructureTypeInfo structInfo;
 
-    public FSListener(Map<String, Resource> resourceRegistry, StructInfo structInfo) {
+    public FSListener(Map<String, Resource> resourceRegistry, StructureTypeInfo structInfo) {
         this.resourceRegistry = resourceRegistry;
         this.structInfo = structInfo;
     }

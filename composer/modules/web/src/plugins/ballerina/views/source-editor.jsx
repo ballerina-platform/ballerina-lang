@@ -146,7 +146,7 @@ class SourceEditor extends React.Component {
                 }],
                 () => []);
         this.getCurrentModel().pushStackElement();
-        this.preventChangeEvt = !ignoreChangeEvt;
+        this.preventChangeEvt = false;
     }
 
     getCurrentModel() {

@@ -143,7 +143,8 @@ ExpressionStatement
    ;
 
 FieldBasedAccessExpr
-   : <expression.source> . <fieldName.value>
+   : <errorLifting?> <expression.source> ! <fieldName.value>
+   |                 <expression.source> . <fieldName.value>
    ;
 
 Foreach
@@ -285,7 +286,7 @@ NamedArgsExpr
    ;
 
 Next
-   : next ;
+   : continue ;
    ;
 
 Object
@@ -570,7 +571,7 @@ Where
    ;
 
 While
-   : while ( <condition.source> ) { <body.source> }
+   : while <condition.source> { <body.source> }
    ;
 
 WindowClause

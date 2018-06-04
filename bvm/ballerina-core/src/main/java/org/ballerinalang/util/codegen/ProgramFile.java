@@ -19,7 +19,8 @@ package org.ballerinalang.util.codegen;
 
 import org.ballerinalang.bre.bvm.GlobalMemoryArea;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -55,6 +56,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
     private List<ConstantPoolEntry> constPool = new ArrayList<>();
     private Map<String, PackageInfo> packageInfoMap = new LinkedHashMap<>();
+    private List<PackageInfo> initPkgList = new ArrayList<>();
 
     private int entryPkgCPIndex;
     private String entryPkgName;
@@ -192,6 +194,18 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
         packageInfoMap.put(packageName, packageInfo);
     }
 
+    public PackageInfo[] getImportPackageInfoEntries() {
+        return initPkgList.toArray(new PackageInfo[0]);
+    }
+
+    public void addImportPackageInfo(PackageInfo packageInfo) {
+        initPkgList.add(packageInfo);
+    }
+
+    public boolean importPackageAlreadyExist(PackageInfo packageInfo) {
+        return initPkgList.contains(packageInfo);
+    }
+
     public LockableStructureType getGlobalMemoryBlock() {
         return globalMemoryBlock;
     }
@@ -222,7 +236,7 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
 
             // TODO Introduce an abstraction for memory blocks
             // Initialize global memory block
-            BStructType dummyType = new BStructType(null, "", "", 0);
+            BStructureType dummyType = new BRecordType(null, "", "", 0);
             dummyType.setFieldTypeCount(globalVarCount);
             this.globalMemoryBlock = new BStruct(dummyType);
         }

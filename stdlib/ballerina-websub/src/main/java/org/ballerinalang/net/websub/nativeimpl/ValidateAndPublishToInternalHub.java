@@ -40,8 +40,8 @@ import org.ballerinalang.net.websub.hub.Hub;
         functionName = "validateAndPublishToInternalHub",
         args = {@Argument(name = "hubUrl", type = TypeKind.STRING),
                 @Argument(name = "topic", type = TypeKind.STRING),
-                @Argument(name = "content", type = TypeKind.STRUCT)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)}
+                @Argument(name = "content", type = TypeKind.OBJECT)},
+        returnType = {@ReturnType(type = TypeKind.OBJECT)}
 )
 public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit {
 

@@ -36,16 +36,10 @@ public interface BallerinaFunctionDefinition extends BallerinaNamedElement, Ball
   BallerinaCallableUnitSignature getCallableUnitSignature();
 
   @Nullable
-  BallerinaParameter getParameter();
+  BallerinaTypeName getTypeName();
 
   @Nullable
   PsiElement getDoubleColon();
-
-  @Nullable
-  PsiElement getGt();
-
-  @Nullable
-  PsiElement getLt();
 
   @Nullable
   PsiElement getSemicolon();

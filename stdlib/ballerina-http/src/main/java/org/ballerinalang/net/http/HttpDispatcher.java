@@ -20,7 +20,7 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.mime.util.EntityBodyHandler;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
@@ -233,11 +233,12 @@ public class HttpDispatcher {
                     BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, blobDataSource);
                     return new BBlob(blobDataSource != null ? blobDataSource.getValue() : new byte[0]);
-                case TypeTags.STRUCT_TAG:
+                case TypeTags.OBJECT_TYPE_TAG:
+                case TypeTags.RECORD_TYPE_TAG:
                     bjson = EntityBodyHandler.constructJsonDataSource(inRequestEntity);
                     EntityBodyHandler.addMessageDataSource(inRequestEntity, bjson);
                     try {
-                        return JSONUtils.convertJSONToStruct(bjson, (BStructType) entityBodyType);
+                        return JSONUtils.convertJSONToStruct(bjson, (BStructureType) entityBodyType);
                     } catch (NullPointerException ex) {
                         throw new BallerinaConnectorException("cannot convert payload to struct type: " +
                                 entityBodyType.getName());
