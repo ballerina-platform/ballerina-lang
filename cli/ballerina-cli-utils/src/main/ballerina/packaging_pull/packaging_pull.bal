@@ -311,8 +311,14 @@ documentation {
 function createDirectories(string directoryPath) returns (boolean) {
     internal:Path dirPath = new(directoryPath);
     if (!dirPath.exists()){
-        boolean directoryCreationStatus = check (dirPath.createDirectory());
-        return directoryCreationStatus;
+        match dirPath.createDirectory() {
+            () => {
+                return true;
+            }
+            error => {
+                return false;
+            }
+        }
     } else {
         return false;
     }
