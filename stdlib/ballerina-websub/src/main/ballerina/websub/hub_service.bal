@@ -359,7 +359,7 @@ function verifyIntent(string callback, string topic, map<string> params) {
         queryParams = queryParams + "&" + HUB_LEASE_SECONDS + "=" + leaseSeconds;
     }
 
-    var subscriberResponse = callbackEp->get(untaint ("?" + queryParams), request = request);
+    var subscriberResponse = callbackEp->get(untaint ("?" + queryParams), message = request);
 
     match (subscriberResponse) {
         http:Response response => {
@@ -584,7 +584,7 @@ function fetchTopicUpdate(string topic) returns http:Response|error {
 
     http:Request request = new;
 
-    var fetchResponse = topicEp->get("", request = request);
+    var fetchResponse = topicEp->get("", message = request);
     return fetchResponse;
 }
 
@@ -634,7 +634,7 @@ function distributeContent(string callback, SubscriptionDetails subscriptionDeta
         request.setHeader(X_HUB_UUID, system:uuid());
         request.setHeader(X_HUB_TOPIC, subscriptionDetails.topic);
         request.setHeader("Link", buildWebSubLinkHeader(hubPublicUrl, subscriptionDetails.topic));
-        var contentDistributionRequest = callbackEp->post("", request = request);
+        var contentDistributionRequest = callbackEp->post("", request);
         match (contentDistributionRequest) {
             http:Response response => {
                 int respStatusCode = response.statusCode;
