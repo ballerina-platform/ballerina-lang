@@ -6,6 +6,11 @@ function testByteValue() returns byte {
     return a;
 }
 
+function testByteDefaultValue() returns byte {
+    byte a;
+    return a;
+}
+
 function testByteParam(byte b) returns byte {
     byte a;
     a = b;

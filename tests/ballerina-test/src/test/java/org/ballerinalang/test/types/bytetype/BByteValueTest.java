@@ -56,6 +56,15 @@ public class BByteValueTest {
         Assert.assertEquals(byteValue.byteValue(), 34, "Invalid byte value returned.");
     }
 
+    @Test(description = "Test byte default value")
+    public void testByteDefaultValue() {
+        BValue[] returns = BRunUtil.invoke(result, "testByteDefaultValue");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BByte.class);
+        BByte byteValue = (BByte) returns[0];
+        Assert.assertEquals(byteValue.byteValue(), 0, "Invalid byte value returned.");
+    }
+
     @Test(description = "Test byte function parameter")
     public void testByteParameter() {
         invokeByteInputFunction("testByteParam");
