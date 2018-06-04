@@ -16,7 +16,7 @@
 
 package org.ballerinalang.net.http.actions.websocketconnector;
 
-import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelFuture;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
@@ -30,6 +30,9 @@ import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
 /**
  * {@code Get} is the GET action implementation of the HTTP Connector.
  */
@@ -37,7 +40,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
         orgName = "ballerina", packageName = "http",
         functionName = "close",
         receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                             structPackage = "ballerina.http"),
+                structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.STRUCT),
                 @Argument(name = "statusCode", type = TypeKind.INT),
@@ -49,29 +52,53 @@ public class Close implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        try {
-            BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
-            int statusCode = (int) context.getIntArgument(0);
-            String reason = context.getStringArgument(0);
-            int timeoutInSecs = (int) context.getIntArgument(1);
-            WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
-                    .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
-            WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-            webSocketConnection.initiateConnectionClosure(statusCode, reason, timeoutInSecs)
-                    .addListener((ChannelFutureListener) future -> {
-                Throwable cause = future.cause();
-                if (!future.isSuccess() && cause != null) {
-                    context.setReturnValues(HttpUtil.getError(context, cause));
-                } else {
-                    connectionInfo.setCloseStatusCode(statusCode);
-                    connectionInfo.getWebSocketEndpoint().setBooleanField(WebSocketConstants.LISTENER_IS_OPEN_INDEX, 0);
-                    context.setReturnValues();
-                }
-                callback.notifySuccess();
-            });
-        } catch (Throwable throwable) {
-            context.setReturnValues(HttpUtil.getError(context, throwable));
+        BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
+        int statusCode = (int) context.getIntArgument(0);
+        String reason = context.getStringArgument(0);
+        int timeoutInSecs = (int) context.getIntArgument(1);
+        WebSocketOpenConnectionInfo connectionInfo = (WebSocketOpenConnectionInfo) webSocketConnector
+                .getNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO);
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ChannelFuture closeFuture =
+                initiateConnectionClosure(context, statusCode, reason, connectionInfo, countDownLatch);
+        waitForTimeout(context, timeoutInSecs, countDownLatch);
+        closeFuture.channel().close().addListener(future -> {
+            connectionInfo.getWebSocketEndpoint().setBooleanField(WebSocketConstants.LISTENER_IS_OPEN_INDEX, 0);
             callback.notifySuccess();
+        });
+
+    }
+
+    private ChannelFuture initiateConnectionClosure(Context context, int statusCode, String reason,
+                                                    WebSocketOpenConnectionInfo connectionInfo, CountDownLatch latch) {
+        WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
+        return webSocketConnection.initiateConnectionClosure(statusCode, reason).addListener(future -> {
+            Throwable cause = future.cause();
+            if (!future.isSuccess() && cause != null) {
+                context.setReturnValues(HttpUtil.getError(context, cause));
+            } else {
+                connectionInfo.setCloseStatusCode(statusCode);
+                context.setReturnValues();
+            }
+            latch.countDown();
+        });
+    }
+
+    private void waitForTimeout(Context context, int timeoutInSecs, CountDownLatch latch) {
+        try {
+            if (timeoutInSecs < 0) {
+                latch.await();
+            } else {
+                boolean countDownReached = latch.await(timeoutInSecs, TimeUnit.SECONDS);
+                if (!countDownReached) {
+                    String errMsg = String.format(
+                            "Could not receive a WebSocket close frame from remote endpoint within %d seconds",
+                            timeoutInSecs);
+                    context.setReturnValues(HttpUtil.getError(context, errMsg));
+                }
+            }
+        } catch (InterruptedException err) {
+            context.setReturnValues(HttpUtil.getError(context, "Connection interrupted while closing the connection"));
         }
     }
 

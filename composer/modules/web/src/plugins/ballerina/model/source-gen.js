@@ -225,7 +225,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w(' ') + 'with' + b(' ')
                  + getSourceOf(node.variable, pretty, l, replaceLambda) + w() + ';';
         case 'Block':
-            return join(node.statements, pretty, replaceLambda, l, w, '');
+            if (node.isElseBlock && node.statements) {
+                return dent() + w() + 'else' + w() + '{' + indent()
+                 + join(node.statements, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
+            } else {
+                return join(node.statements, pretty, replaceLambda, l, w, '');
+            }
         case 'Break':
             return dent() + w() + 'break' + w() + ';';
         case 'BracedTupleExpr':
@@ -877,27 +882,37 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return w() + 'having'
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'If':
-            if (node.ladderParent && node.condition && node.body
-                         && node.elseStatement) {
-                return (node.parent.kind === 'If' ? '' : dent()) + w() + 'if' + w(' ')
-                 + '(' + getSourceOf(node.condition, pretty, l, replaceLambda)
-                 + w() + ')' + a(' ') + w() + '{' + indent()
-                 + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}' + w(' ')
-                 + 'else' + a(' ')
+            if (node.ladderParent && node.isElseIfBlock && node.condition
+                         && node.body && node.elseStatement) {
+                return (node.parent.kind === 'If' ? '' : dent()) + w(' ') + 'else'
+                 + a(' ') + w() + 'if'
+                 + getSourceOf(node.condition, pretty, l, replaceLambda) + w() + '{' + indent()
+                 + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}'
                  + getSourceOf(node.elseStatement, pretty, l, replaceLambda);
-            } else if (node.condition && node.body && node.elseStatement) {
-                return (node.parent.kind === 'If' ? '' : dent())
-                 + (node.parent.kind === 'If' ? '' : dent()) + w() + 'if' + w(' ') + '('
-                 + getSourceOf(node.condition, pretty, l, replaceLambda) + w() + ')' + a(' ')
-                 + w() + '{' + indent()
-                 + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}' + w(' ') + 'else' + a(' ') + w()
-                 + '{' + indent()
-                 + getSourceOf(node.elseStatement, pretty, l, replaceLambda) + outdent() + w() + '}';
-            } else {
-                return (node.parent.kind === 'If' ? '' : dent()) + w() + 'if' + w(' ')
-                 + '(' + getSourceOf(node.condition, pretty, l, replaceLambda)
-                 + w() + ')' + a(' ') + w() + '{' + indent()
+            } else if (node.isElseIfBlock && node.condition && node.body
+                         && node.elseStatement) {
+                return (node.parent.kind === 'If' ? '' : dent()) + w(' ') + 'else'
+                 + a(' ') + w() + 'if'
+                 + getSourceOf(node.condition, pretty, l, replaceLambda) + w() + '{' + indent()
+                 + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}'
+                 + getSourceOf(node.elseStatement, pretty, l, replaceLambda);
+            } else if (node.isElseIfBlock && node.condition && node.body) {
+                return (node.parent.kind === 'If' ? '' : dent()) + w(' ') + 'else'
+                 + a(' ') + w() + 'if'
+                 + getSourceOf(node.condition, pretty, l, replaceLambda) + w() + '{' + indent()
                  + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
+            } else if (node.ladderParent && node.condition && node.body
+                         && node.elseStatement) {
+                return (node.parent.kind === 'If' ? '' : dent()) + w() + 'if'
+                 + getSourceOf(node.condition, pretty, l, replaceLambda) + w() + '{'
+                 + indent() + getSourceOf(node.body, pretty, l, replaceLambda)
+                 + outdent() + w() + '}'
+                 + getSourceOf(node.elseStatement, pretty, l, replaceLambda);
+            } else {
+                return (node.parent.kind === 'If' ? '' : dent()) + w() + 'if'
+                 + getSourceOf(node.condition, pretty, l, replaceLambda) + w() + '{'
+                 + indent() + getSourceOf(node.body, pretty, l, replaceLambda)
+                 + outdent() + w() + '}';
             }
         case 'IndexBasedAccessExpr':
             return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
@@ -1012,7 +1027,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return w() + node.name.valueWithBar + w(' ') + '=' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'Next':
-            return dent() + w() + 'next' + w() + ';';
+            return dent() + w() + 'continue' + w() + ';';
         case 'Object':
             if (node.noFieldsAvailable && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
@@ -1929,10 +1944,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return w() + 'where'
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'While':
-            return dent() + w() + 'while' + w(' ') + '('
-                 + getSourceOf(node.condition, pretty, l, replaceLambda) + w() + ')' + w(' ') + '{'
-                 + indent() + getSourceOf(node.body, pretty, l, replaceLambda) + outdent()
-                 + w() + '}';
+            return dent() + w() + 'while'
+                 + getSourceOf(node.condition, pretty, l, replaceLambda) + w(' ') + '{' + indent()
+                 + getSourceOf(node.body, pretty, l, replaceLambda) + outdent() + w() + '}';
         case 'WindowClause':
             return w() + 'window'
                  + getSourceOf(node.functionInvocation, pretty, l, replaceLambda);

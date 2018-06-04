@@ -233,7 +233,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 context.setReturnValues();
             }
         } catch (Throwable e) {
-            SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
+            SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
             throw new BallerinaException("execute stored procedure failed: " + e.getMessage(), e);
         }
     }
@@ -253,7 +253,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     protected void executeBatchUpdate(Context context, SQLDatasource datasource, String query,
-            BRefValueArray parameters) {
+            BRefValueArray parameters) throws SQLException {
         Connection conn = null;
         PreparedStatement stmt = null;
         int[] updatedCount;
@@ -261,7 +261,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         try {
             conn = datasource.getSQLConnection();
             stmt = conn.prepareStatement(query);
-            setConnectionAutoCommit(conn, false);
+            conn.setAutoCommit(false);
             if (parameters != null) {
                 paramArrayCount = (int) parameters.size();
                 if (paramArrayCount == 0) {
@@ -279,11 +279,12 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             updatedCount = stmt.executeBatch();
             conn.commit();
         } catch (BatchUpdateException e) {
+            conn.rollback();
             updatedCount = e.getUpdateCounts();
         } catch (SQLException e) {
+            conn.rollback();
             throw new BallerinaException("execute batch update failed: " + e.getMessage(), e);
         } finally {
-            setConnectionAutoCommit(conn, true);
             SQLDatasourceUtils.cleanupConnection(null, stmt, conn, false);
         }
         //After a command in a batch update fails to execute properly and a BatchUpdateException is thrown, the driver
@@ -429,16 +430,6 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             }
         }
         return builder.toString();
-    }
-
-    private void setConnectionAutoCommit(Connection conn, boolean status) {
-        try {
-            if (conn != null) {
-                conn.setAutoCommit(status);
-            }
-        } catch (SQLException e) {
-            throw new BallerinaException("set connection commit status failed: " + e.getMessage(), e);
-        }
     }
 
     protected void closeConnections(SQLDatasource datasource) {

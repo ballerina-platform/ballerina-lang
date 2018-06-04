@@ -29,7 +29,9 @@ import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -102,10 +104,12 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
             SymbolInfo symbolInfo = new SymbolInfo(packageSymbolInfo.getSymbolName(), packageEntry);
 
             symbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, value) -> {
-                if ((value.symbol instanceof BInvokableSymbol
-                        && ((BInvokableSymbol) value.symbol).receiverSymbol == null)
-                        || (value.symbol instanceof BTypeSymbol && !(value.symbol instanceof BPackageSymbol))) {
-                    actionFunctionList.add(new SymbolInfo(name.toString(), value));
+                BSymbol symbol = value.symbol;
+                if ((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
+                        || (symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol))
+                        || symbol instanceof BVarSymbol) {
+                    SymbolInfo entry = new SymbolInfo(name.toString(), value);
+                    actionFunctionList.add(entry);
                 }
             });
         }

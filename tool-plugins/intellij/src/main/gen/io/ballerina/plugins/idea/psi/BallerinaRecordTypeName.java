@@ -32,4 +32,7 @@ public interface BallerinaRecordTypeName extends BallerinaTypeName {
   @NotNull
   PsiElement getRightBrace();
 
+  @Nullable
+  PsiElement getRecord();
+
 }

@@ -356,7 +356,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         // TODO remove when removing struct
-        boolean isReceiverAttached = ctx.parameter() != null;
+        boolean isReceiverAttached = ctx.typeName() != null;
 
         this.pkgBuilder.endFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc,
                 bodyExists, isReceiverAttached, false);
@@ -1272,12 +1272,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
      * {@inheritDoc}
      */
     @Override
-    public void exitNextStatement(BallerinaParser.NextStatementContext ctx) {
+    public void exitContinueStatement(BallerinaParser.ContinueStatementContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
-        this.pkgBuilder.addNextStatement(getCurrentPos(ctx), getWS(ctx));
+        this.pkgBuilder.addContinueStatement(getCurrentPos(ctx), getWS(ctx));
     }
 
     /**
@@ -2076,7 +2076,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null);
         } else if (ctx.blobLiteral() != null) {
             byte[] blobValue = getBlobLiteral(ctx.blobLiteral());
-            this.pkgBuilder.createByteArrayLiteralExprNode(pos, ws, TypeTags.BYTE, blobValue);
+            this.pkgBuilder.addByteArrayLiteralExprNode(pos, ws, TypeTags.BYTE, blobValue);
         }
     }
 

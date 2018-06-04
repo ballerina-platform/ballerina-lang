@@ -99,8 +99,14 @@ class TreeBuilder {
 
     static modifyNode(node, parentKind) {
         const kind = node.kind;
-        if (kind === 'If' && node.elseStatement && node.elseStatement.kind === 'If') {
-            node.ladderParent = true;
+        if (kind === 'If') {
+            if (node.elseStatement) {
+                node.ladderParent = true;
+            }
+
+            if (node.ws && node.ws[0].text === 'else' && node.ws[1].text === 'if') {
+                node.isElseIfBlock = true;
+            }
         }
 
         if (kind === 'Transaction') {
@@ -542,6 +548,10 @@ class TreeBuilder {
                     }
                 }
             }
+        }
+
+        if (node.kind === 'Block' && node.ws && node.ws[0].text === 'else') {
+            node.isElseBlock = true;
         }
     }
 
