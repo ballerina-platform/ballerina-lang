@@ -41,7 +41,9 @@ class Editor extends EventChannel {
     }
 
     /**
-     * Returns undo manager
+     * Gets current undo manager
+     *
+     * @returns {UndoManager} current undo manager
      */
     get undoManager() {
         return this._undoManager;
@@ -49,6 +51,8 @@ class Editor extends EventChannel {
 
     /**
      * Sets undo manager
+     *
+     * @param {UndoManager} undoManager
      */
     set undoManager(undoManager) {
         this._undoManager = undoManager;
