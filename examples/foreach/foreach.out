@@ -27,7 +27,10 @@ Iterating over an xml:-
 xml at 0: <name>Sherlock Holmes</name>
 xml at 1: <author>Sir Arthur Conan Doyle</author>
 
-Iterating over an integer range:-
-# This prints the sum of the integers for the defined range.
+Iterating over a Closed Integer Range:-
+# This prints the sum of the values of the integer range including the start and end values
 summation from 1 to 10 is 55
 
+Iterating over a Half Open Integer Range:-
+# This prints the sum of the values of the integer range including the start value but excluding the end value
+summation from 1 to 10 excluding 10 is 45

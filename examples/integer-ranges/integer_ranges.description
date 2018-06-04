@@ -1,0 +1,2 @@
+`Integer Range` binary operators create arrays of integers.
+These integer range operators could also be used in `foreach` loops to iterate over a range of integers.
