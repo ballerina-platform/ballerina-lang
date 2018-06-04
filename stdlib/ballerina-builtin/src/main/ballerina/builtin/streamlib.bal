@@ -17,18 +17,16 @@
 documentation {
     Publishes data to the stream.
 
-    T{{s}} The stream to which publishing is to be done
     P{{data}} Data to be published to the stream
 }
-public native function<stream s> publish(any data);
+public native function stream::publish(any data);
 
 documentation {
     Subscribes to data from the stream.
 
-    T{{s}} The stream to which subscription is to be done
     P{{func}} The function pointer for the subscription, which will be invoked with data published to the stream
 }
-public native function<stream s> subscribe(function (any) func);
+public native function stream::subscribe(function (any) func);
 
 documentation {
     Creates the forever runtime.

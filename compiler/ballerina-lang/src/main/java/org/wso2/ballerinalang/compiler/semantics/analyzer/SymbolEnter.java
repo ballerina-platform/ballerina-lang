@@ -84,15 +84,12 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -103,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -196,10 +192,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         // And maintain a list of created package symbols.
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
 
-        // Define service and resource nodes.
-        pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
-
-//        // Define type definitions.
+        // Define type definitions.
         defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def fields (if any)
@@ -207,6 +200,13 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define type def members (if any)
         defineMembers(pkgNode.typeDefinitions, pkgEnv);
+
+        // Enabled logging errors after type def visit.
+        // TODO: Do this in a cleaner way
+        pkgEnv.logErrors = true;
+
+        // Define service and resource nodes.
+        pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
 
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
@@ -304,8 +304,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                     importPkgNode.getQualifiedPackageName());
             return;
         }
-
-        populateInitFunctionInvocation(importPkgNode, pkgSymbol);
 
         // define the import package symbol in the current package scope
         importPkgNode.symbol = pkgSymbol;
@@ -706,13 +704,13 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_OBJECT_FIELD, varName, env.enclTypeDefinition.name);
             }
             varNode.type = symbol.type;
-            BVarSymbol varSymbol = createVarSymbol(varNode.flagSet, varNode.type, varName, env);
+            Name updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
+            BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, updatedVarName, env);
 
-            // This is to identify variable when passing parameters TODO any alternative?
-            varSymbol.field = true;
-            varSymbol.originalName = names.fromIdNode(varNode.name);
+            // Reset the name of the symbol to the original var name
+            varSymbol.name = varName;
 
-            //This means enclosing type definition is a object type defintion
+            // This means enclosing type definition is a object type defintion
             BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
             objectTypeNode.initFunction.initFunctionStmts.put(symbol,
                     (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
@@ -1204,41 +1202,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         return assignmentStmt;
     }
 
-    private StatementNode createAssignmentStmt(BLangVariable variable) {
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
-                .createSimpleVariableReferenceNode();
-        varRef.pos = variable.pos;
-        varRef.variableName = variable.name;
-        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-
-        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentStmt.expr = variable.expr;
-        assignmentStmt.pos = variable.pos;
-        assignmentStmt.setVariable(varRef);
-        return assignmentStmt;
-    }
-
-    private StatementNode createObjectAssignmentStmt(BLangVariable variable, BLangVariable receiver) {
-        BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder
-                .createSimpleVariableReferenceNode();
-        varRef.pos = variable.pos;
-        varRef.variableName = receiver.name;
-        varRef.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-
-        BLangFieldBasedAccess fieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
-        fieldBasedAccess.pos = variable.pos;
-        fieldBasedAccess.field = variable.name;
-        fieldBasedAccess.expr = varRef;
-        fieldBasedAccess.fieldKind = FieldKind.SINGLE;
-        fieldBasedAccess.safeNavigate = false;
-
-        BLangAssignment assignmentStmt = (BLangAssignment) TreeBuilder.createAssignmentNode();
-        assignmentStmt.expr = variable.expr;
-        assignmentStmt.pos = variable.pos;
-        assignmentStmt.setVariable(fieldBasedAccess);
-        return assignmentStmt;
-    }
-
     private BLangVariable createReceiver(DiagnosticPos pos, BLangIdentifier name) {
         BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
         receiver.pos = pos;
@@ -1251,23 +1214,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         structTypeNode.typeName = name;
         receiver.setTypeNode(structTypeNode);
         return receiver;
-    }
-
-    private BLangExpressionStmt createInitFuncInvocationStmt(BLangImportPackage importPackage,
-                                                             BInvokableSymbol initFunctionSymbol) {
-        BLangInvocation invocationNode = (BLangInvocation) TreeBuilder.createInvocationNode();
-        invocationNode.pos = importPackage.pos;
-        invocationNode.addWS(importPackage.getWS());
-        BLangIdentifier funcName = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        funcName.value = initFunctionSymbol.name.value;
-        invocationNode.name = funcName;
-        invocationNode.pkgAlias = importPackage.alias;
-
-        BLangExpressionStmt exprStmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
-        exprStmt.pos = importPackage.pos;
-        exprStmt.addWS(importPackage.getWS());
-        exprStmt.expr = invocationNode;
-        return exprStmt;
     }
 
     private void definePackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
@@ -1315,14 +1261,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         body.pos = pos;
         initFunction.setBody(body);
         return initFunction;
-    }
-
-    private BLangAction createNativeInitAction(DiagnosticPos pos) {
-        BLangAction initAction = (BLangAction) TreeBuilder.createActionNode();
-        initAction.setName(createIdentifier(Names.INIT_ACTION_SUFFIX.getValue()));
-        initAction.flagSet = EnumSet.of(Flag.NATIVE, Flag.PUBLIC);
-        initAction.pos = pos;
-        return initAction;
     }
 
     private IdentifierNode createIdentifier(String value) {
@@ -1391,31 +1329,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         return names.fromIdNode(funcNode.name);
     }
 
-    private Name getFieldSymbolName(BLangVariable receiver, BLangVariable variable) {
-        return names.fromString(Symbols.getAttachedFuncSymbolName(
-                receiver.type.tsymbol.name.value, variable.name.value));
-    }
-
     private Name getTransformerSymbolName(BLangTransformer transformerNode) {
         if (transformerNode.name.value.isEmpty()) {
             return names.fromString(Names.TRANSFORMER.value + "<" + transformerNode.source.type + ","
                     + transformerNode.retParams.get(0).type + ">");
         }
         return names.fromIdNode(transformerNode.name);
-    }
-
-    private void populateInitFunctionInvocation(BLangImportPackage importPkgNode, BPackageSymbol pkgSymbol) {
-        if (pkgSymbol.initFunctionsInvoked) {
-            return;
-        }
-
-        ((BLangPackage) env.node).initFunction.body
-                .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.initFunctionSymbol));
-        ((BLangPackage) env.node).startFunction.body
-                .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.startFunctionSymbol));
-        ((BLangPackage) env.node).stopFunction.body
-                .addStatement(createInitFuncInvocationStmt(importPkgNode, pkgSymbol.stopFunctionSymbol));
-        pkgSymbol.initFunctionsInvoked = true;
     }
 
     private void validateTransformerMappingTypes(BLangTransformer transformerNode) {
@@ -1434,5 +1353,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformer, transformer.symbol.scope, pkgEnv);
             defineInvokableSymbolParams(transformer, transformer.symbol, transformerEnv);
         });
+    }
+
+    private Name getFieldSymbolName(BLangVariable receiver, BLangVariable variable) {
+        return names.fromString(Symbols.getAttachedFuncSymbolName(
+                receiver.type.tsymbol.name.value, variable.name.value));
     }
 }

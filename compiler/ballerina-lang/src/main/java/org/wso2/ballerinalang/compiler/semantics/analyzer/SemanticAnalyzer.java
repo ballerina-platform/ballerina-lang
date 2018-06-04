@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
@@ -127,6 +126,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -136,7 +136,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -382,55 +381,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         Set<BLangIdentifier> visitedAttributes = new HashSet<>();
         for (BLangDocumentationAttribute attribute : docNode.attributes) {
             attribute.type = symTable.errType;
-            if (attribute.docTag == DocTag.ENDPOINT) {
-                if (!((BLangObjectTypeNode) this.env.enclTypeDefinition.typeNode).getFunctions()
-                        .stream().anyMatch(bLangFunction -> Names.EP_SPI_GET_CALLER_ACTIONS.value
-                                .equals(bLangFunction.getName().toString()))) {
-                    this.dlog.warning(attribute.pos, DiagnosticCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE,
-                            attribute.docTag.getValue());
-                }
-                continue;
+
+            switch (attribute.docTag) {
+                case ENDPOINT:
+                    if (!((BLangObjectTypeNode) this.env.enclTypeDefinition.typeNode).getFunctions()
+                            .stream().anyMatch(bLangFunction -> Names.EP_SPI_GET_CALLER_ACTIONS.value
+                                    .equals(bLangFunction.getName().toString()))) {
+                        this.dlog.warning(attribute.pos, DiagnosticCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE,
+                                attribute.docTag.getValue());
+                    }
+                    break;
+                case RETURN:
+                    attribute.type = this.env.enclInvokable.returnTypeNode.type;
+                    // return params can't have names, hence can't validate
+                    break;
+                case RECEIVER:
+                    // fall through
+                    // TODO: should not allow variables as a receiver
+                default:
+                    if (!visitedAttributes.add(attribute.documentationField)) {
+                        this.dlog.warning(attribute.pos, DiagnosticCode.DUPLICATE_DOCUMENTED_ATTRIBUTE,
+                                attribute.documentationField);
+                        continue;
+                    }
+                    validateDocAttribute(attribute);
+                    break;
             }
-            if (attribute.docTag == DocTag.RETURN) {
-                attribute.type = this.env.enclInvokable.returnTypeNode.type;
-                // return params can't have names, hence can't validate
-                continue;
-            }
-            if (!visitedAttributes.add(attribute.documentationField)) {
-                this.dlog.warning(attribute.pos, DiagnosticCode.DUPLICATE_DOCUMENTED_ATTRIBUTE,
-                        attribute.documentationField);
-                continue;
-            }
-            Name attributeName = names.fromIdNode(attribute.documentationField);
-            BSymbol attributeSymbol = this.env.scope.lookup(attributeName).symbol;
-            if (attributeSymbol == null && this.env.enclTypeDefinition != null) {
-                // check whether the parameter is an inherited one
-                String originalParam = this.env.enclTypeDefinition.getName().getValue()
-                        + "." + attribute.documentationField.getValue();
-                attributeSymbol = this.env.scope.lookup(names.fromString(originalParam)).symbol;
-            }
-            if (attributeSymbol == null) {
-                this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                        attribute.documentationField, attribute.docTag.getValue());
-                continue;
-            }
-            int ownerSymTag = env.scope.owner.tag;
-            if ((ownerSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
-                if (attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE
-                        || ((BAnnotationAttributeSymbol) attributeSymbol).docTag != attribute.docTag) {
-                    this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
-                            attribute.documentationField, attribute.docTag.getValue());
-                    continue;
-                }
-            } else {
-                if (!(attributeSymbol.tag == SymTag.VARIABLE || attributeSymbol.tag == SymTag.ENDPOINT) || (
-                        (BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
-                    this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE, attribute
-                            .documentationField, attribute.docTag.getValue());
-                    continue;
-                }
-            }
-            attribute.type = attributeSymbol.type;
         }
     }
 
@@ -488,6 +464,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangVariable varNode) {
+        // This will prevent cases Eg:- int _ = 100;
+        // We have prevented '_' from registering variable symbol at SymbolEnter, Hence this validation added.
+        Name varName = names.fromIdNode(varNode.name);
+        if (varName == Names.IGNORE) {
+            dlog.error(varNode.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+            return;
+        }
+
         int ownerSymTag = env.scope.owner.tag;
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE) {
             // This is a variable declared in a function, an action or a resource
@@ -717,6 +701,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangIf ifNode) {
         typeChecker.checkExpr(ifNode.expr, env, symTable.booleanType);
+
+        BType actualType = ifNode.expr.type;
+        if (TypeTags.TUPLE == actualType.tag) {
+            dlog.error(ifNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
+        }
+
         analyzeStmt(ifNode.body, env);
 
         if (ifNode.elseStmt != null) {
@@ -762,6 +752,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangWhile whileNode) {
         typeChecker.checkExpr(whileNode.expr, env, symTable.booleanType);
+
+        BType actualType = whileNode.expr.type;
+        if (TypeTags.TUPLE == actualType.tag) {
+            dlog.error(whileNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.booleanType, actualType);
+        }
+
         analyzeStmt(whileNode.body, env);
     }
 
@@ -892,8 +888,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 continue;
             }
             defaultableStatus = false;
-            if (objectTypeNode.initFunction.symbol.params.stream().filter(p -> p.field ? p.originalName.equals(field
-                    .symbol.name) : p.name.equals(field.symbol.name)).collect(Collectors.toList()).size() == 0) {
+            if (objectTypeNode.initFunction.symbol.params.stream().filter(p -> p.name.equals(field.symbol.name))
+                    .collect(Collectors.toList()).size() == 0) {
                 dlog.error(typeDef.pos, DiagnosticCode.OBJECT_UN_INITIALIZABLE_FIELD, field);
             }
         }
@@ -1199,7 +1195,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return analyzeNode(node, env, symTable.noType, null);
     }
 
-    public void visit(BLangNext nextNode) {
+    public void visit(BLangContinue continueNode) {
         /* ignore */
     }
 
@@ -1571,7 +1567,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(simpleVarRef.pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
                 return;
             }
+        } else {
+            dlog.error(simpleVarRef.pos, DiagnosticCode.UNDERSCORE_NOT_ALLOWED);
+            return;
         }
+
         // Define the new variable
         BVarSymbol varSymbol = this.symbolEnter.defineVarSymbol(simpleVarRef.pos,
                 Collections.emptySet(), rhsType, varName, env);
@@ -1979,18 +1979,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                                                    BLangStatement streamingQueryStatement,
                                                    BField outputStructField) {
 
-        if (structField == null) {
-            dlog.error(((BLangSelectClause) ((BLangStreamingQueryStatement)
-                            streamingQueryStatement).
-                            getSelectClause()).pos, DiagnosticCode.UNDEFINED_STREAM_ATTRIBUTE,
-                    attributeName);
-        } else {
+        if (structField != null) {
             this.types.checkType(((BLangStreamAction) ((BLangStreamingQueryStatement)
                             streamingQueryStatement).getStreamingAction()).pos,
                     outputStructField.getType(), structField.getType(),
                     DiagnosticCode.INCOMPATIBLE_TYPES);
         }
-
     }
 
     private Map<String, List<BField>> createInputStreamSpecificFieldMap
@@ -2024,5 +2018,39 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error((streamAction).pos,
                     DiagnosticCode.INVALID_STREAM_ACTION_ARGUMENT_TYPE);
         }
+    }
+
+    private void validateDocAttribute(BLangDocumentationAttribute attribute) {
+        Name attributeName = names.fromIdNode(attribute.documentationField);
+        BSymbol attributeSymbol = this.env.scope.lookup(attributeName).symbol;
+        if (attributeSymbol == null && this.env.enclTypeDefinition != null) {
+            // check whether the parameter is an inherited one
+            String originalParam = this.env.enclTypeDefinition.getName().getValue()
+                    + "." + attribute.documentationField.getValue();
+            attributeSymbol = this.env.scope.lookup(names.fromString(originalParam)).symbol;
+        }
+
+        if (attributeSymbol == null) {
+            this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
+                    attribute.documentationField, attribute.docTag.getValue());
+            return;
+        }
+        int ownerSymTag = env.scope.owner.tag;
+        if ((ownerSymTag & SymTag.ANNOTATION) == SymTag.ANNOTATION) {
+            if (attributeSymbol.tag != SymTag.ANNOTATION_ATTRIBUTE
+                    || ((BAnnotationAttributeSymbol) attributeSymbol).docTag != attribute.docTag) {
+                this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE,
+                        attribute.documentationField, attribute.docTag.getValue());
+                return;
+            }
+        } else {
+            if (!(attributeSymbol.tag == SymTag.VARIABLE || attributeSymbol.tag == SymTag.ENDPOINT) || (
+                    (BVarSymbol) attributeSymbol).docTag != attribute.docTag) {
+                this.dlog.warning(attribute.pos, DiagnosticCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE, attribute
+                        .documentationField, attribute.docTag.getValue());
+                return;
+            }
+        }
+        attribute.type = attributeSymbol.type;
     }
 }

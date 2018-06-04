@@ -19,10 +19,12 @@
 package org.ballerinalang.cli.utils;
 
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -48,5 +50,10 @@ public class GenerateBalx {
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.build();
+
+        BLangDiagnosticLog diagnosticLog = BLangDiagnosticLog.getInstance(context);
+        if (diagnosticLog.errorCount > 0) {
+            throw new BLangCompilerException("failed to generate executable for " + args[0]);
+        }
     }
 }

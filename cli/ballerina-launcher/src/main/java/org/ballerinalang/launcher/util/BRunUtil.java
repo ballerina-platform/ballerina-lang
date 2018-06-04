@@ -130,12 +130,11 @@ public class BRunUtil {
             throw new IllegalStateException(compileResult.toString());
         }
         ProgramFile programFile = compileResult.getProgFile();
-        PackageInfo packageInfo = programFile.getPackageInfo(packageName);
         WorkerExecutionContext context = new WorkerExecutionContext(programFile);
         Debugger debugger = new Debugger(programFile);
         programFile.setDebugger(debugger);
         compileResult.setContext(context);
-        BLangFunctions.invokePackageInitFunction(packageInfo.getInitFunctionInfo(), context);
+        BLangFunctions.invokePackageInitFunctions(programFile, context);
     }
 
     /**

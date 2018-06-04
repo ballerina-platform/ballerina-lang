@@ -73,7 +73,7 @@ public class TableSqlQueryTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-    @Test(dependsOnGroups = "TableQueryTest")
+    @Test(dependsOnGroups = "TableQueryTest", enabled = false)
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);

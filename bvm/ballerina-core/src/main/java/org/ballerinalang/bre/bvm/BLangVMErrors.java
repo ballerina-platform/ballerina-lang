@@ -44,7 +44,7 @@ public class BLangVMErrors {
     private static final String MSG_CALL_FAILED = "call failed";
     private static final String MSG_CALL_CANCELLED = "call cancelled";
     public static final String PACKAGE_BUILTIN = "ballerina.builtin";
-    private static final String PACKAGE_RUNTIME = "ballerina.runtime";
+    public static final String PACKAGE_RUNTIME = "ballerina.runtime";
     public static final String STRUCT_GENERIC_ERROR = "error";
     private static final String STRUCT_NULL_REF_EXCEPTION = "NullReferenceException";
     private static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";
@@ -150,7 +150,7 @@ public class BLangVMErrors {
     }
 
     public static BStruct createCallCancelledException(WorkerExecutionContext context) {
-        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_BUILTIN);
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
         StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
         if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaConnectorException("record - " + STRUCT_CALL_FAILED_EXCEPTION + " does not exist");

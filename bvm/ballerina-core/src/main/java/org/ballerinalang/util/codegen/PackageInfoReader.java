@@ -38,6 +38,7 @@ import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeSignature;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.Flags;
+import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -64,6 +65,7 @@ import org.ballerinalang.util.codegen.attributes.ParamDefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.TaintTableAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.VarTypeCountAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.ActionRefCPEntry;
+import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ConstantPool;
 import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
@@ -148,6 +150,15 @@ public class PackageInfoReader {
                     strValue = dataInStream.readUTF();
                 }
                 return new UTF8CPEntry(strValue);
+
+            case CP_ENTRY_BLOB:
+                int blobLength = dataInStream.readInt();
+                byte[] blobValue = null;
+                if (blobLength >= 0) {
+                    blobValue = new byte[blobLength];
+                    dataInStream.readFully(blobValue);
+                }
+                return new BlobCPEntry(blobValue);
 
             case CP_ENTRY_INTEGER:
                 long longVal = dataInStream.readLong();
@@ -317,7 +328,7 @@ public class PackageInfoReader {
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read import package entries
-        readImportPackageInfoEntries();
+        readImportPackageInfoEntries(packageInfo);
 
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
@@ -355,12 +366,18 @@ public class PackageInfoReader {
         packageInfo.complete();
     }
 
-    private void readImportPackageInfoEntries() throws IOException {
+    private void readImportPackageInfoEntries(PackageInfo packageInfo) throws IOException {
         int impPkgCount = dataInStream.readShort();
         for (int i = 0; i < impPkgCount; i++) {
             // TODO populate import package info structure
-            dataInStream.readInt();
-            dataInStream.readInt();
+            int pkgNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
+
+            int pkgVersionCPIndex = dataInStream.readInt();
+            UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
+            ImportPackageInfo importPackageInfo = new ImportPackageInfo(pkgNameCPIndex,
+                    pkgNameCPEntry.getValue(), pkgVersionCPIndex, pkgVersionCPEntry.getValue());
+            packageInfo.importPkgInfoList.add(importPackageInfo);
         }
     }
 
@@ -1180,6 +1197,7 @@ public class PackageInfoReader {
                 case InstructionCodes.ICONST:
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
+                case InstructionCodes.LCONST:
                 case InstructionCodes.IMOVE:
                 case InstructionCodes.FMOVE:
                 case InstructionCodes.SMOVE:
@@ -1621,6 +1639,11 @@ public class PackageInfoReader {
                 UTF8CPEntry stringCPEntry = (UTF8CPEntry) constantPool.getCPEntry(valueCPIndex);
                 defaultValue.setStringValue(stringCPEntry.getValue());
                 break;
+            case TypeSignature.SIG_BLOB:
+                valueCPIndex = dataInStream.readInt();
+                BlobCPEntry blobCPEntry = (BlobCPEntry) constantPool.getCPEntry(valueCPIndex);
+                defaultValue.setBlobValue(blobCPEntry.getValue());
+                break;
             case TypeSignature.SIG_NULL:
                 break;
             default:
@@ -1650,6 +1673,10 @@ public class PackageInfoReader {
             case TypeSignature.SIG_STRING:
                 String stringValue = defaultValue.getStringValue();
                 value = new BString(stringValue);
+                break;
+            case TypeSignature.SIG_BLOB:
+                byte[] blobValue = defaultValue.getBlobValue();
+                value = new BBlob(blobValue);
                 break;
             case TypeSignature.SIG_NULL:
                 value = null;

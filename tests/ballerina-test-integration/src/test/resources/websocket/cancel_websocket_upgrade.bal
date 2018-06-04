@@ -18,7 +18,7 @@ import ballerina/log;
 import ballerina/http;
 
 endpoint http:Listener ep {
-    port:9090
+    port: 9090
 };
 
 service<http:Service> simple bind ep {

@@ -110,7 +110,7 @@ public class HeaderUtil {
         for (String param : paramList) {
             if (param.contains("=")) {
                 String[] keyValuePair = param.split("=", 2);
-                if (keyValuePair.length != 2 || keyValuePair[0].isEmpty()) {
+                if (keyValuePair.length != 2 || keyValuePair[0].isEmpty() || keyValuePair[1].isEmpty()) {
                     throw new BallerinaException("invalid header parameter: " + param);
                 }
                 paramMap.put(keyValuePair[0].trim(), new BString(keyValuePair[1].trim()));

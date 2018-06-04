@@ -2,7 +2,6 @@ documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
 Example:
 ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
-T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 P{{accessMode}} read or write mode
 R{{}} success or not
 }
@@ -11,14 +10,14 @@ public function File::open (string accessMode) returns (boolean) {
 }
 
 documentation { Documentation for File type
-F{{path}} type `field path` documentation
+F{{path}} file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 }
 public type File object {
     public {
         string path;
     }
 
-    function open (string accessMode) returns (boolean);
+    public function open(string accessMode) returns boolean;
 };
 
 documentation {

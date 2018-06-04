@@ -46,3 +46,14 @@ function testWhileScopeWithIf() returns (int, float) {
     }
     return (j, sum);
 }
+
+function testWhileStmtWithoutBraces(int x, int y) returns (int) {
+    int z;
+    int a = y;
+
+    while x >= a {
+        a = a + 1;
+        z = z + 10;
+    }
+    return z;
+}

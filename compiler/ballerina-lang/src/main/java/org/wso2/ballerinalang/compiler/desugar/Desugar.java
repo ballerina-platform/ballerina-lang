@@ -135,6 +135,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -144,7 +145,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -751,7 +751,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangNext nextNode) {
+    public void visit(BLangContinue nextNode) {
         result = nextNode;
     }
 
@@ -996,6 +996,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
+        if (tableLiteral.configurationExpr == null) {
+            tableLiteral.configurationExpr = ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.nilType, null);
+        }
         tableLiteral.configurationExpr = rewriteExpr(tableLiteral.configurationExpr);
         result = tableLiteral;
     }
@@ -1134,7 +1137,7 @@ public class Desugar extends BLangNodeVisitor {
                     indexAccessExpr.expr, (BVarSymbol) indexAccessExpr.symbol);
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
-                    indexAccessExpr.expr, indexAccessExpr.indexExpr);
+                    indexAccessExpr.expr, indexAccessExpr.indexExpr, !indexAccessExpr.type.isNullable());
         } else if (varRefType.tag == TypeTags.JSON || getElementType(varRefType).tag == TypeTags.JSON) {
             targetVarRef = new BLangJSONAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
                     indexAccessExpr.indexExpr);
@@ -2031,13 +2034,11 @@ public class Desugar extends BLangNodeVisitor {
         // Re-order the named arguments
         List<BLangExpression> args = new ArrayList<>();
         for (BVarSymbol param : invokableSymbol.defaultableParams) {
-            String paramName = param.field ? param.originalName.value : param.name.value;
-
             // If some named parameter is not passed when invoking the function, get the 
             // default value for that parameter from the parameter symbol.
             BLangExpression expr;
-            if (namedArgs.containsKey(paramName)) {
-                expr = namedArgs.get(paramName);
+            if (namedArgs.containsKey(param.name.value)) {
+                expr = namedArgs.get(param.name.value);
             } else {
                 expr = getDefaultValueLiteral(param.defaultValue);
                 expr = addConversionExprIfRequired(expr, param.type);
@@ -2361,6 +2362,13 @@ public class Desugar extends BLangNodeVisitor {
                 return createTypeInitNode(type);
             case TypeTags.RECORD:
                 return new BLangStructLiteral(new ArrayList<>(), type);
+            case TypeTags.TABLE:
+                if (((BTableType) type).getConstraint().tag == TypeTags.RECORD) {
+                    BLangTableLiteral table = new BLangTableLiteral();
+                    table.type = type;
+                    return rewriteExpr(table);
+                }
+                break;
             case TypeTags.ARRAY:
                 BLangArrayLiteral array = new BLangArrayLiteral();
                 array.exprs = new ArrayList<>();

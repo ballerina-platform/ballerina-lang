@@ -18,8 +18,11 @@
 
 package org.ballerinalang.test.service.websocket;
 
+import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 
+import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -27,10 +30,26 @@ import java.util.concurrent.TimeUnit;
  * Facilitate the common functionality of WebSocket integration tests.
  */
 public class WebSocketIntegrationTest {
-
+    private ServerInstance ballerinaServerInstance;
     protected static final int TIMEOUT_IN_SECS = 10;
     protected static final int REMOTE_SERVER_PORT = 15500;
 
+
+    /**
+     * Initializes Ballerina with the given bal file.
+     *
+     * @param fileName the filename to initialize the Ballerina server with
+     * @throws BallerinaTestException on Ballerina related issues
+     */
+    public void initBallerinaServer(String fileName) throws BallerinaTestException {
+        String balPath = new File("src/test/resources/websocket/" + fileName).getAbsolutePath();
+        ballerinaServerInstance = ServerInstance.initBallerinaServer();
+        ballerinaServerInstance.startBallerinaServer(balPath);
+    }
+
+    public void stopBallerinaServerInstance() throws BallerinaTestException {
+        ballerinaServerInstance.stopServer();
+    }
     /**
      * This method is only used when ack is needed from Ballerina WebSocket Proxy in order to sync ballerina
      * WebSocket Server and Client after the handshake in initiated from the {@link WebSocketTestClient}.

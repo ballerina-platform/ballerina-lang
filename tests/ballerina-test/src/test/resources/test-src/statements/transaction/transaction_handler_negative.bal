@@ -127,13 +127,29 @@ function abortFunction6(string transactionid) {
 
 function testTransactionHandlers7() {
     int i = 0;
-    //function (string) func = commitFunction6;
     var func = commitFunction6;
     try {
         transaction with retries = 4, oncommit = func, onabort = abortFunction6 {
             i = 2;
         } onretry {
             i = i + 1;
+        }
+    } catch (error err) {
+        i = -1;
+    }
+    i = 2;
+}
+
+function testTransactionHandlers8() {
+    int i = 0;
+    try {
+        transaction with retries = 4 {
+            i = 2;
+        } onretry {
+            i = i + 1;
+            transaction {
+                i = 3;
+            }
         }
     } catch (error err) {
         i = -1;
