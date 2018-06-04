@@ -50,7 +50,7 @@ service<http:Service> actionService bind { port: 9090 } {
             permission);
 
         //POST action with byte channel as payload.
-        response = check clientEP->post("/channel", byteChannel);
+        response = check clientEP->post("/image", byteChannel);
         handleResponse(response);
 
         //Create a json body part.
@@ -130,12 +130,12 @@ service<http:Service> backEndService bind { port: 9091 } {
 
     @http:ResourceConfig {
         methods: ["POST"],
-        path: "/channel"
+        path: "/image"
     }
     sendByteChannel(endpoint client, http:Request req) {
-        io:ByteChannel byteChannel = check req.getByteChannel();
+        blob bytes = check req.getBinaryPayload();
         http:Response response = new;
-        response.setByteChannel(byteChannel, contentType = mime:IMAGE_PNG);
+        response.setBinaryPayload(bytes, contentType = mime:IMAGE_PNG);
         client->respond(response) but {
             error err => log:printError(err.message, err = err)
         };
