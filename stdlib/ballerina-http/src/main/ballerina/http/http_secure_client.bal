@@ -52,7 +52,8 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{message}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
     public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -73,7 +74,8 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{message}} An optional HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
     public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -94,11 +96,13 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function put(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function put(string path,  Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
         Response response = check httpClient.put(path, req);
         boolean isRetry = isRetryRequired(response, config);
@@ -115,16 +119,19 @@ public type HttpSecureClient object {
 
         P{{httpVerb}} HTTP verb value
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function execute(string httpVerb, string path, Request request) returns (Response|error) {
+    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                             message) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(request, config);
-        Response response = check httpClient.execute(httpVerb, path, request);
+        Response response = check httpClient.execute(httpVerb, path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(request, config);
-            return httpClient.execute(httpVerb, path, request);
+            return httpClient.execute(httpVerb, path, req);
         }
         return response;
     }
@@ -134,11 +141,13 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function patch(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function patch(string path,  Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
         Response response = check httpClient.patch(path, req);
         boolean isRetry = isRetryRequired(response, config);
@@ -154,11 +163,13 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function delete(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
         Response response = check httpClient.delete(path, req);
         boolean isRetry = isRetryRequired(response, config);
@@ -174,7 +185,8 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Request path
-        P{{message}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
     public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -195,7 +207,8 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Request path
-        P{{message}} An optional HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
     public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -236,7 +249,8 @@ public type HttpSecureClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{message}} An HTTP outbound request message or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
     public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()

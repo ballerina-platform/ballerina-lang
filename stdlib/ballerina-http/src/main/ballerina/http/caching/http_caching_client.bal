@@ -114,7 +114,8 @@ public type HttpCachingClient object {
         origin server. Responses received for POST requests invalidate the cached responses for the same resource.
 
         P{{path}} Resource path
-        P{{message}} HTTP request or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -125,7 +126,8 @@ public type HttpCachingClient object {
         suitable response cannot be found will the request be directed to the origin server.
 
         P{{path}} Resource path
-        P{{message}} An optional HTTP request or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -136,7 +138,8 @@ public type HttpCachingClient object {
         origin server. In addition, PUT requests invalidate the currently stored responses for the given path.
 
         P{{path}} Resource path
-        P{{message}} An optional HTTP request or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -148,7 +151,8 @@ public type HttpCachingClient object {
 
         P{{httpMethod}} HTTP method to be used for the request
         P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function execute(string httpMethod, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -159,7 +163,8 @@ public type HttpCachingClient object {
         the origin server. Responses received for PATCH requests invalidate the cached responses for the same resource.
 
         P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -170,7 +175,8 @@ public type HttpCachingClient object {
         origin server. Responses received for DELETE requests invalidate the cached responses for the same resource.
 
         P{{path}} Resource path
-        P{{message}} An HTTP request or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -181,7 +187,8 @@ public type HttpCachingClient object {
         response cannot be found will the request be directed to the origin server.
 
         P{{path}} Request path
-        P{{message}} An optional HTTP request or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -192,7 +199,8 @@ public type HttpCachingClient object {
         origin server. Responses received for OPTIONS requests invalidate the cached responses for the same resource.
 
         P{{path}} Request path
-        P{{message}} An optional HTTP request or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
     public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -213,7 +221,8 @@ public type HttpCachingClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{message}} An HTTP request or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
     public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()

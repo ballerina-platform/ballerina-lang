@@ -23,7 +23,8 @@ public type Connection object {
     documentation {
         Sends the outbound response to the caller.
 
-        P{{message}} The outbound response or any payload of type string, xml, json, blob, io:ByteChannel or mime:Entity[]
+        P{{message}} The outbound response or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} Returns an `error` if failed to respond
     }
     public function respond(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns error? {
