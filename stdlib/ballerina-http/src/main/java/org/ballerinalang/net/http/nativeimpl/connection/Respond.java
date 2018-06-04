@@ -26,7 +26,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
@@ -50,10 +49,9 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "respond",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection",
-                structPackage = "ballerina.http"),
-        args = {@Argument(name = "res", type = TypeKind.OBJECT, structType = "Response",
+        functionName = "nativeRespond",
+        args = { @Argument(name = "connection", type = TypeKind.OBJECT),
+                @Argument(name = "res", type = TypeKind.OBJECT, structType = "Response",
                 structPackage = "ballerina.http")},
         returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                 structPackage = "ballerina.http"),

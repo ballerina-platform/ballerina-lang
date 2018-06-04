@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.websub.hub;
 
+import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BInteger;
@@ -176,10 +177,28 @@ public class Hub {
     }
 
     /**
+     * Method to publish to a topic on MB, a request to send to subscribers.
+     *
+     * @param topic             the topic to which the update should happen
+     * @param content           the content to send, with payload and content type set
+     * @throws BallerinaWebSubException if the hub service is not started or topic registration is required, but the
+     *                                  topic is not registered
+     */
+    public void publish(String topic, BStruct content) throws BallerinaWebSubException {
+        if (!started) {
+            throw new BallerinaWebSubException("Hub Service not started: publish failed");
+        } else if (!topics.containsKey(topic) && hubTopicRegistrationRequired) {
+            throw new BallerinaWebSubException("Publish call ignored for unregistered topic[" + topic + "]");
+        } else {
+            BrokerUtils.publish(topic, new BallerinaBrokerByteBuf(content));
+        }
+    }
+
+    /**
      * Method to publish to a topic on MB.
      *
      * @param topic             the topic to which the update should happen
-     * @param stringPayload     the update payload
+     * @param stringPayload     the update payload as a string
      * @throws BallerinaWebSubException if the hub service is not started or topic registration is required, but the
      *                                  topic is not registered
      */

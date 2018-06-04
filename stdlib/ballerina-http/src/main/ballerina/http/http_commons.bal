@@ -125,3 +125,33 @@ documentation {
 }
 //TODO: Make the error nillable
 public native function parseHeader (string headerValue) returns (string, map)|error;
+
+function buildRequest(Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Request {
+    Request request = new;
+    match message {
+        () => {}
+        Request req => {request = req;}
+        string textContent => {request.setTextPayload(textContent);}
+        xml xmlContent => {request.setXmlPayload(xmlContent);}
+        json jsonContent => {request.setJsonPayload(jsonContent);}
+        blob blobContent => {request.setBinaryPayload(blobContent);}
+        io:ByteChannel byteChannelContent => {request.setByteChannel(byteChannelContent);}
+        mime:Entity[] bodyParts => {request.setBodyParts(bodyParts);}
+    }
+    return request;
+}
+
+function buildResponse(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns Response {
+    Response response = new;
+    match message {
+        () => {}
+        Response res => {response = res;}
+        string textContent => {response.setTextPayload(textContent);}
+        xml xmlContent => {response.setXmlPayload(xmlContent);}
+        json jsonContent => {response.setJsonPayload(jsonContent);}
+        blob blobContent => {response.setBinaryPayload(blobContent);}
+        io:ByteChannel byteChannelContent => {response.setByteChannel(byteChannelContent);}
+        mime:Entity[] bodyParts => {response.setBodyParts(bodyParts);}
+    }
+    return response;
+}

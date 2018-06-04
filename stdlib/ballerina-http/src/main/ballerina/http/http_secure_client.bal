@@ -52,17 +52,19 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function post(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.post(path, request = req);
+        Response response = check httpClient.post(path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.post(path, request = req);
+            return httpClient.post(path, req);
         }
         return response;
     }
@@ -72,17 +74,19 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function head(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.head(path, request = req);
+        Response response = check httpClient.head(path, message = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.head(path, request = req);
+            return httpClient.head(path, message = req);
         }
         return response;
     }
@@ -92,17 +96,19 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function put(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function put(string path,  Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.put(path, request = req);
+        Response response = check httpClient.put(path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.put(path, request = req);
+            return httpClient.put(path, req);
         }
         return response;
     }
@@ -113,16 +119,19 @@ public type HttpSecureClient object {
 
         P{{httpVerb}} HTTP verb value
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function execute(string httpVerb, string path, Request request) returns (Response|error) {
-        check generateSecureRequest(request, config);
-        Response response = check httpClient.execute(httpVerb, path, request);
+    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                             message) returns (Response|error) {
+        Request req = buildRequest(message);
+        check generateSecureRequest(req, config);
+        Response response = check httpClient.execute(httpVerb, path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
-            check updateRequestAndConfig(request, config);
-            return httpClient.execute(httpVerb, path, request);
+            check updateRequestAndConfig(req, config);
+            return httpClient.execute(httpVerb, path, req);
         }
         return response;
     }
@@ -132,17 +141,19 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function patch(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function patch(string path,  Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.patch(path, request = req);
+        Response response = check httpClient.patch(path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.patch(path, request = req);
+            return httpClient.patch(path, req);
         }
         return response;
     }
@@ -152,17 +163,19 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function delete(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.delete(path, request = req);
+        Response response = check httpClient.delete(path, req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.delete(path, request = req);
+            return httpClient.delete(path, req);
         }
         return response;
     }
@@ -172,17 +185,19 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Request path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function get(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.get(path, request = req);
+        Response response = check httpClient.get(path, message = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.get(path, request = req);
+            return httpClient.get(path, message = req);
         }
         return response;
     }
@@ -192,17 +207,19 @@ public type HttpSecureClient object {
         to the request and send the request to actual network call.
 
         P{{path}} Request path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} The inbound response message or an error occurred while attempting to fulfill the HTTP request
     }
-    public function options(string path, Request? request = ()) returns (Response|error) {
-        Request req = request ?: new;
+    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message = ()) returns (Response|error) {
+        Request req = buildRequest(message);
         check generateSecureRequest(req, config);
-        Response response = check httpClient.options(path, request = req);
+        Response response = check httpClient.options(path, message = req);
         boolean isRetry = isRetryRequired(response, config);
         if (isRetry) {
             check updateRequestAndConfig(req, config);
-            return httpClient.options(path, request = req);
+            return httpClient.options(path, message = req);
         }
         return response;
     }
@@ -232,12 +249,15 @@ public type HttpSecureClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns (HttpFuture|error) {
-        check generateSecureRequest(request, config);
-        return httpClient.submit(httpVerb, path, request);
+    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns (HttpFuture|error) {
+        Request req = buildRequest(message);
+        check generateSecureRequest(req, config);
+        return httpClient.submit(httpVerb, path, req);
     }
 
     documentation {
@@ -394,7 +414,7 @@ function getAccessTokenFromRefreshToken(ClientEndpointConfig config) returns (st
     refreshTokenRequest.addHeader(AUTH_HEADER, AUTH_SCHEME_BASIC + WHITE_SPACE + base64ClientIdSecret);
     refreshTokenRequest.setTextPayload("grant_type=refresh_token&refresh_token=" + refreshToken,
         contentType = mime:APPLICATION_FORM_URLENCODED);
-    Response refreshTokenResponse = check refreshTokenClient.post(EMPTY_STRING, request = refreshTokenRequest);
+    Response refreshTokenResponse = check refreshTokenClient.post(EMPTY_STRING, refreshTokenRequest);
 
     json generatedToken = check refreshTokenResponse.getJsonPayload();
     if (refreshTokenResponse.statusCode == OK_200) {

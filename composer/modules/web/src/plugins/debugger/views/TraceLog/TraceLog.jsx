@@ -29,12 +29,12 @@ import './index.scss';
 
 const directionToIcon = {
     INBOUND: {
-        'http.tracelog.downstream': 'fw fw-downstream-inbound direction-icon',
-        'http.tracelog.upstream': 'fw fw-upstream-inbound direction-icon',
+        'http.tracelog.downstream': 'fw fw-downstream-inbound direction-icon inbound downstream',
+        'http.tracelog.upstream': 'fw fw-upstream-inbound direction-icon inbound upstream',
     },
     OUTBOUND: {
-        'http.tracelog.downstream': 'fw fw-downstream-outbound direction-icon',
-        'http.tracelog.upstream': 'fw fw-upstream-outbound direction-icon',
+        'http.tracelog.downstream': 'fw fw-downstream-outbound direction-icon outbound downstream',
+        'http.tracelog.upstream': 'fw fw-upstream-outbound direction-icon outbound upstream',
     },
 };
 

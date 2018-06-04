@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package io.ballerina.plugins.idea.parser;
@@ -24,6 +23,9 @@ import com.intellij.psi.TokenType;
 import com.intellij.psi.tree.IElementType;
 import io.ballerina.plugins.idea.psi.BallerinaTypes;
 
+/**
+ * Parser util class which will be used to handle custom rules.
+ */
 public class BallerinaParserUtil extends GeneratedParserUtilBase {
 
     public static boolean isPackageExpected(PsiBuilder builder, int level) {
@@ -111,6 +113,8 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                                 && !(rawLookup == BallerinaTypes.LINE_COMMENT &&
                                 rawLookup2 == BallerinaTypes.LEFT_BRACE)
                                 && !(rawLookup == BallerinaTypes.LINE_COMMENT && rawLookup2 == BallerinaTypes.COMMA)
+                                && !(rawLookup == BallerinaTypes.LEFT_BRACE
+                                && rawLookup2 == BallerinaTypes.RIGHT_BRACKET)
                                 ) {
                             return true;
                         } else {
