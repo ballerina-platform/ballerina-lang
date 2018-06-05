@@ -98,6 +98,8 @@ public enum Snippet {
 
     VAR_KEYWORD_SNIPPET("var "),
 
+    PUBLIC_KEYWORD_SNIPPET("public "),
+
     WHILE("while (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
 
     WORKER_REPLY("${1} <- ${2};"),
