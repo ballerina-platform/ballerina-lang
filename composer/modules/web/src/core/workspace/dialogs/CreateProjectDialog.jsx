@@ -230,7 +230,8 @@ class CreateProjectDialog extends React.Component {
                                         content='Select'
                                         onClick={(evt) => {
                                             const { ipcRenderer } = require('electron');
-                                            ipcRenderer.send('show-folder-open-dialog');
+                                            ipcRenderer.send('show-folder-open-dialog', 'Select Project Path',
+                                                'select parent folder for the project');
                                             ipcRenderer.once('folder-open-wizard-closed', (e, dirPath) => {
                                                 if (dirPath) {
                                                     this.updateState({

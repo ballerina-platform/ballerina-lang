@@ -1,38 +1,38 @@
 CREATE TABLE IF NOT EXISTS Customers(
-  customerId INTEGER NOT NULL IDENTITY,
-  firstName  VARCHAR(300),
-  lastName  VARCHAR(300),
-  registrationId INTEGER,
-  creditLimit DOUBLE,
-  country  VARCHAR(300),
-  PRIMARY KEY (customerId)
+  CUSTOMERID SERIAL NOT NULL,
+  FIRSTNAME  VARCHAR(300),
+  LASTNAME  VARCHAR(300),
+  REGISTRATIONID INTEGER,
+  CREDITLIMIT  double precision,
+  COUNTRY  VARCHAR(300),
+  PRIMARY KEY (CUSTOMERID)
 );
 /
 CREATE TABLE IF NOT EXISTS DataTypeTable(
-  row_id       INTEGER,
-  int_type     INTEGER,
-  long_type    BIGINT,
-  float_type   FLOAT,
-  double_type  DOUBLE,
-  boolean_type BOOLEAN,
-  string_type  VARCHAR(50),
-  numeric_type NUMERIC(10,3),
-  decimal_type DECIMAL(10,3),
-  real_type    REAL,
-  tinyint_type TINYINT,
-  smallint_type SMALLINT,
-  clob_type    CLOB,
-  blob_type    BLOB,
-  binary_type  BINARY(27),
+  ROW_ID       INTEGER,
+  INT_TYPE     INTEGER,
+  LONG_TYPE    BIGINT,
+  FLOAT_TYPE   FLOAT(4),
+  DOUBLE_TYPE  DOUBLE PRECISION,
+  BOOLEAN_TYPE BOOLEAN,
+  STRING_TYPE  VARCHAR(50),
+  NUMERIC_TYPE NUMERIC(10,3),
+  DECIMAL_TYPE DECIMAL(10,3),
+  REAL_TYPE    REAL,
+  TINYINT_TYPE SMALLINT,
+  SMALLINT_TYPE SMALLINT,
+  CLOB_TYPE    TEXT,
+  BLOB_TYPE    BYTEA, --TODO: this should have been OID type..
+  BINARY_TYPE  BYTEA,
   PRIMARY KEY (row_id)
 );
 /
 CREATE TABLE IF NOT EXISTS DateTimeTypes(
-  row_id         INTEGER,
-  date_type      DATE,
-  time_type      TIME,
-  datetime_type  DATETIME,
-  timestamp_type TIMESTAMP
+  ROW_ID         INTEGER,
+  DATE_TYPE      TIMESTAMP,
+  TIME_TYPE      TIME,
+  DATETIME_TYPE  TIMESTAMP,
+  TIMESTAMP_TYPE TIMESTAMPTZ
 );
 /
 insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values
@@ -41,8 +41,8 @@ insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestam
 insert into DataTypeTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
   numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type) values
   (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567, 1234.567, 1234.567, 1, 5555,
-  CONVERT('very long text', CLOB), X'77736F322062616C6C6572696E6120626C6F6220746573742E',
-  X'77736F322062616C6C6572696E612062696E61727920746573742E');
+  'very long text', E'\\x77736F322062616C6C6572696E6120626C6F6220746573742E',
+  E'\\x77736F322062616C6C6572696E612062696E61727920746573742E');
 /
 insert into DataTypeTable (row_id) values (2);
 /
@@ -52,36 +52,26 @@ insert into Customers (firstName,lastName,registrationID,creditLimit,country)
 insert into Customers (firstName,lastName,registrationID,creditLimit,country)
   values ('John', 'Watson', 2, 2348.93, 'UK');
 /
-CREATE PROCEDURE InsertPersonData(IN p_RegID INTEGER, IN p_PersonName VARCHAR(50))
-  MODIFIES SQL DATA
-  BEGIN ATOMIC
-  INSERT INTO Customers(registrationID, firstName,lastName, creditLimit,country)
-    VALUES (p_RegID, p_PersonName, p_PersonName, 25000, 'UK');
-  END
+CREATE FUNCTION InsertPersonData(IN p_RegID INT, IN p_PersonName VARCHAR(50)) RETURNS VOID AS '
+    BEGIN
+    INSERT INTO Customers(registrationID, firstName,lastName, creditLimit,country)
+    VALUES (p_RegID, p_PersonName, p_PersonName, 25000, ''UK'');
+    END;
+' LANGUAGE plpgsql;
 /
-CREATE PROCEDURE SelectPersonData()
-  READS SQL DATA DYNAMIC RESULT SETS 1
-  BEGIN ATOMIC
-  DECLARE result CURSOR WITH RETURN FOR SELECT firstName FROM Customers where registrationID = 1 FOR READ ONLY;
-  open result;
-  END
+CREATE FUNCTION SelectPersonData() RETURNS refcursor AS '
+    DECLARE ref refcursor;
+    BEGIN
+    OPEN ref FOR SELECT firstName FROM Customers where registrationID = 1;
+    RETURN ref;
+    END;
+' LANGUAGE plpgsql;
 /
-CREATE PROCEDURE SelectPersonDataMultiple()
-  READS SQL DATA DYNAMIC RESULT SETS 2
-  BEGIN ATOMIC
-  DECLARE result1 CURSOR WITH RETURN FOR SELECT firstName FROM Customers where registrationID = 1 FOR READ ONLY;
-  DECLARE result2 CURSOR WITH RETURN FOR SELECT firstName, lastName FROM Customers where registrationID = 2 FOR READ
-  ONLY;
-  open result1;
-  open result2;
-  END
-/
-CREATE PROCEDURE TestOutParams (IN id INT, OUT paramInt INT, OUT paramBigInt BIGINT, OUT paramFloat FLOAT,
-  OUT paramDouble DOUBLE, OUT paramBool BOOLEAN, OUT paramString VARCHAR(50),OUT paramNumeric NUMERIC(10,3),
-  OUT paramDecimal DECIMAL(10,3), OUT paramReal REAL, OUT paramTinyInt TINYINT,
-  OUT paramSmallInt SMALLINT, OUT paramClob CLOB, OUT paramBlob BLOB, OUT paramBinary BINARY(27))
-  READS SQL DATA
-  BEGIN ATOMIC
+CREATE FUNCTION TestOutParams (IN id BIGINT, OUT paramInt INTEGER, OUT paramBigInt BIGINT, OUT paramFloat FLOAT(4),
+  OUT paramDouble DOUBLE PRECISION, OUT paramBool BOOLEAN, OUT paramString VARCHAR(50),OUT paramNumeric NUMERIC(10,3),
+  OUT paramDecimal DECIMAL(10,3), OUT paramReal REAL, OUT paramTinyInt SMALLINT,
+  OUT paramSmallInt SMALLINT, OUT paramClob TEXT, OUT paramBlob BYTEA, OUT paramBinary BYTEA) AS '
+  BEGIN
   SELECT int_type INTO paramInt FROM DataTypeTable where row_id = id;
   SELECT long_type INTO paramBigInt FROM DataTypeTable where row_id = id;
   SELECT float_type INTO paramFloat FROM DataTypeTable where row_id = id;
@@ -97,13 +87,13 @@ CREATE PROCEDURE TestOutParams (IN id INT, OUT paramInt INT, OUT paramBigInt BIG
   SELECT blob_type INTO paramBlob FROM DataTypeTable where row_id = id;
   SELECT binary_type INTO paramBinary FROM DataTypeTable where row_id = id;
   END
+' LANGUAGE plpgsql;
 /
-CREATE PROCEDURE TestINOUTParams (IN id INT, INOUT paramInt INT, INOUT paramBigInt BIGINT, INOUT paramFloat FLOAT,
-  INOUT paramDouble DOUBLE, INOUT paramBool BOOLEAN, INOUT paramString VARCHAR(50),
-  INOUT paramNumeric NUMERIC(10,3), INOUT paramDecimal DECIMAL(10,3), INOUT paramReal REAL, INOUT paramTinyInt TINYINT,
-  INOUT paramSmallInt SMALLINT, INOUT paramClob CLOB, INOUT paramBlob BLOB, INOUT paramBinary BINARY(27))
-  MODIFIES SQL DATA
-  BEGIN ATOMIC
+CREATE FUNCTION TestINOUTParams (IN id BIGINT, INOUT paramInt INTEGER, INOUT paramBigInt BIGINT, INOUT paramFloat
+  FLOAT(2), INOUT paramDouble DOUBLE PRECISION, INOUT paramBool BOOLEAN, INOUT paramString VARCHAR(50),
+  INOUT paramNumeric NUMERIC(10,3), INOUT paramDecimal DECIMAL(10,3), INOUT paramReal REAL, INOUT paramTinyInt
+  SMALLINT, INOUT paramSmallInt SMALLINT, INOUT paramClob TEXT, INOUT paramBlob BYTEA, INOUT paramBinary BYTEA) AS '
+  BEGIN
   INSERT INTO DataTypeTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
      numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type)
      VALUES (id, paramInt, paramBigInt, paramFloat, paramDouble, paramBool, paramString, paramNumeric, paramDecimal,
@@ -124,26 +114,26 @@ CREATE PROCEDURE TestINOUTParams (IN id INT, INOUT paramInt INT, INOUT paramBigI
   SELECT blob_type INTO paramBlob FROM DataTypeTable where row_id = id;
   SELECT binary_type INTO paramBinary FROM DataTypeTable where row_id = id;
   END
+' LANGUAGE plpgsql;
 /
 CREATE TABLE IF NOT EXISTS ArrayTypes(
   row_id        INTEGER,
   int_array     INTEGER ARRAY,
   long_array    BIGINT ARRAY,
   float_array   FLOAT ARRAY,
-  double_array  DOUBLE ARRAY,
+  double_array  DOUBLE PRECISION ARRAY,
   boolean_array BOOLEAN ARRAY,
   string_array  VARCHAR(50) ARRAY,
   PRIMARY KEY (row_id)
 );
 /
 INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
-  VALUES 1, ARRAY[1, 2, 3], ARRAY [100000000, 200000000, 300000000], ARRAY [245.23, 5559.49, 8796.123],
-  ARRAY [245.23, 5559.49, 8796.123], ARRAY [TRUE, FALSE, TRUE], ARRAY ['Hello', 'Ballerina'];
+  VALUES (1, ARRAY[1, 2, 3], ARRAY [100000000, 200000000, 300000000], ARRAY [245.23, 5559.49, 8796.123],
+  ARRAY [245.23, 5559.49, 8796.123], ARRAY [TRUE, FALSE, TRUE], ARRAY ['Hello', 'Ballerina']);
 /
-CREATE PROCEDURE TestArrayOutParams (OUT intArray INTEGER ARRAY, OUT longArray BIGINT ARRAY, OUT floatArray FLOAT ARRAY,
-  OUT doubleArray DOUBLE ARRAY, OUT boolArray BOOLEAN ARRAY, OUT varcharArray VARCHAR(50) ARRAY)
-  READS SQL DATA
-  BEGIN ATOMIC
+CREATE FUNCTION TestArrayOutParams (OUT intArray INTEGER ARRAY, OUT longArray BIGINT ARRAY, OUT floatArray FLOAT ARRAY,
+  OUT doubleArray DOUBLE PRECISION ARRAY, OUT boolArray BOOLEAN ARRAY, OUT varcharArray VARCHAR(50) ARRAY) AS '
+  BEGIN
   SELECT int_array INTO intArray FROM ArrayTypes where row_id = 1;
   SELECT long_array INTO longArray FROM ArrayTypes where row_id = 1;
   SELECT float_array INTO floatArray FROM ArrayTypes where row_id = 1;
@@ -151,11 +141,12 @@ CREATE PROCEDURE TestArrayOutParams (OUT intArray INTEGER ARRAY, OUT longArray B
   SELECT boolean_array INTO boolArray FROM ArrayTypes where row_id = 1;
   SELECT string_array INTO varcharArray FROM ArrayTypes where row_id = 1;
   END
+' LANGUAGE plpgsql;
 /
-CREATE PROCEDURE TestDateTimeOutParams (IN id INT, IN dateVal DATE, IN timeVal TIME, IN datetimeVal DATETIME,
-  IN timestampVal TIMESTAMP, OUT dateValOUT DATE, OUT timeValOUT TIME, OUT datetmOut DATETIME, OUT timestOut TIMESTAMP)
-  MODIFIES SQL DATA
-  BEGIN ATOMIC
+CREATE FUNCTION TestDateTimeOutParams (IN id BIGINT, IN dateVal DATE, IN timeVal TIME, IN datetimeVal TIMESTAMP,
+  IN timestampVal TIMESTAMPTZ, OUT dateValOUT DATE, OUT timeValOUT TIME, OUT datetmOut TIMESTAMP, OUT timestOut
+  TIMESTAMPTZ) AS '
+  BEGIN
   insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values
   (id, dateVal, timeVal, datetimeVal, timestampVal);
   SELECT date_type INTO dateValOUT FROM DateTimeTypes where row_id = id;
@@ -163,11 +154,11 @@ CREATE PROCEDURE TestDateTimeOutParams (IN id INT, IN dateVal DATE, IN timeVal T
   SELECT datetime_type INTO datetmOut FROM DateTimeTypes where row_id = id;
   SELECT timestamp_type INTO timestOut FROM DateTimeTypes where row_id = id;
   END
+' LANGUAGE plpgsql;
 /
-CREATE PROCEDURE TestDateINOUTParams (IN id INT, INOUT dateVal DATE, INOUT timeVal TIME, INOUT datetimeVal DATETIME,
-  INOUT timestampVal TIMESTAMP)
-  MODIFIES SQL DATA
-  BEGIN ATOMIC
+CREATE FUNCTION TestDateINOUTParams (IN id BIGINT, INOUT dateVal DATE, INOUT timeVal TIME, INOUT datetimeVal
+TIMESTAMP, INOUT timestampVal TIMESTAMPTZ) AS '
+  BEGIN
   insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestamp_type) values
   (id, dateVal, timeVal, datetimeVal, timestampVal);
 
@@ -176,12 +167,12 @@ CREATE PROCEDURE TestDateINOUTParams (IN id INT, INOUT dateVal DATE, INOUT timeV
   SELECT datetime_type INTO datetimeVal FROM DateTimeTypes where row_id = id;
   SELECT timestamp_type INTO timestampVal FROM DateTimeTypes where row_id = id;
   END
+' LANGUAGE plpgsql;
 /
-CREATE PROCEDURE TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INOUT intArray INTEGER ARRAY,
-  INOUT longArray BIGINT ARRAY, INOUT floatArray FLOAT ARRAY, INOUT doubleArray DOUBLE ARRAY,
-  INOUT boolArray BOOLEAN ARRAY, INOUT varcharArray VARCHAR(50) ARRAY)
-  MODIFIES SQL DATA
-  BEGIN ATOMIC
+CREATE FUNCTION TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INOUT intArray INTEGER ARRAY,
+  INOUT longArray BIGINT ARRAY, INOUT floatArray FLOAT ARRAY, INOUT doubleArray DOUBLE PRECISION ARRAY,
+  INOUT boolArray BOOLEAN ARRAY, INOUT varcharArray VARCHAR(50) ARRAY) AS '
+  BEGIN
   INSERT INTO ArrayTypes (row_id, int_array, long_array, float_array, double_array, boolean_array, string_array)
   VALUES (id, intArray, longArray, floatArray, doubleArray, boolArray, varcharArray);
 
@@ -194,26 +185,27 @@ CREATE PROCEDURE TestArrayINOutParams (IN id INT, OUT insertedCount INTEGER, INO
   SELECT boolean_array INTO boolArray FROM ArrayTypes where row_id = 1;
   SELECT string_array INTO varcharArray FROM ArrayTypes where row_id = 1;
   END
+' LANGUAGE plpgsql;
 /
-CREATE TYPE customtype AS INTEGER;
+CREATE DOMAIN customtype AS INTEGER;
 /
 CREATE TABLE structdatatable(id INTEGER, structdata customtype);
 /
 INSERT INTO structdatatable(id,structdata) VALUES (1,10);
 /
-CREATE PROCEDURE TestStructOut (OUT var customtype)
-  READS SQL DATA
-  BEGIN ATOMIC
+CREATE FUNCTION TestStructOut (OUT var customtype) AS '
+  BEGIN
   SELECT structdata INTO var from structdatatable where id = 1;
   END
+' LANGUAGE plpgsql;
 /
-CREATE PROCEDURE TestStructInOut (OUT countVal INTEGER, INOUT var customtype)
-  MODIFIES SQL DATA
-  BEGIN ATOMIC
+CREATE FUNCTION TestStructInOut (OUT countVal INTEGER, INOUT var customtype) AS '
+  BEGIN
   INSERT INTO structdatatable(id,structdata) VALUES (2,var);
   select count(*) into countVal from structdatatable where id = 2;
  SELECT structdata INTO var from structdatatable where id = 1;
   END
+' LANGUAGE plpgsql;
 /
 CREATE TABLE employeeItr (id INTEGER NOT NULL, name VARCHAR(20), address VARCHAR(20));
 /

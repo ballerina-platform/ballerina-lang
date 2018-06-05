@@ -73,6 +73,10 @@ class FunctionCtrl extends React.Component {
             });
         }
 
+        if (TreeUtil.isObject(node.parent)) {
+            return null;
+        }
+
         if (TreeUtil.isInitFunction(node)) {
             return <span />;
         }

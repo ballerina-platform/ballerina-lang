@@ -898,7 +898,7 @@ public class SQLDatasourceUtils {
         int tag = value.getTag();
         switch (tag) {
         case TypeTags.INT_TAG:
-            return Constants.SQLDataTypes.INTEGER;
+            return Constants.SQLDataTypes.BIGINT;
         case TypeTags.STRING_TAG:
             return Constants.SQLDataTypes.VARCHAR;
         case TypeTags.FLOAT_TAG:
