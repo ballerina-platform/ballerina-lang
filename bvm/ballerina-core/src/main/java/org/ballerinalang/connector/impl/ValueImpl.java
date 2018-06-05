@@ -91,7 +91,8 @@ public class ValueImpl implements Value {
             case BOOLEAN:
                 val.booleanValue = ((BValueType) value).booleanValue();
                 break;
-            case STRUCT:
+            case OBJECT:
+            case RECORD:
                 val.structValue = new StructImpl((BStruct) value);
                 break;
             case NULL:

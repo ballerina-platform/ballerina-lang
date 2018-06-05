@@ -19,14 +19,12 @@
 package org.ballerinalang.test.service.websocket;
 
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.net.URISyntaxException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -36,14 +34,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketIntegrationTest {
 
-    private ServerInstance ballerinaServerInstance;
-
     @BeforeClass(description = "Initializes Ballerina")
     public void setup() throws BallerinaTestException {
-
-        String balPath = new File("src/test/resources/websocket/query_and_path_param_support.bal").getAbsolutePath();
-        ballerinaServerInstance = ServerInstance.initBallerinaServer();
-        ballerinaServerInstance.startBallerinaServer(balPath);
+        initBallerinaServer("query_and_path_param_support.bal");
     }
 
     @Test(description = "Tests path and query parameters support for WebSockets in Ballerina")
@@ -66,6 +59,6 @@ public class WebSocketQueryAndPathParamSupportTestCase extends WebSocketIntegrat
 
     @AfterClass(description = "Stops Ballerina")
     public void cleanup() throws BallerinaTestException {
-        ballerinaServerInstance.stopServer();
+        stopBallerinaServerInstance();
     }
 }

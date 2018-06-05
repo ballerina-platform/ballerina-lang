@@ -208,7 +208,6 @@ class DesignView extends React.Component {
                         />
                     }
                 </div>
-                <div className='tool-palette-container' ref={this.setToolPaletteContainer} />
             </div>
         );
     }

@@ -21,6 +21,10 @@ under the License.
 
 <suite name="ballerina-testerina-test-suite">
 
+    <listeners>
+        <listener class-name="org.ballerinalang.launcher.util.BallerinaTestListener"/>
+    </listeners>
+
     <!-- ballerina.test Related Test Cases. -->
     <test name="ballerina-test-functions-unit-tests" parallel="false">
         <classes>

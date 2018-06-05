@@ -62,6 +62,14 @@ public native function openSecureSocket(@sensitive string host,
                                         SocketProperties options) returns @tainted Socket|error;
 
 documentation {
+    Creates an in-memory channel which will reference stream of bytes.
+
+    P{{content}} Content which should be exposed as channel
+    R{{}} ByteChannel represenation to read the memory content
+}
+public native function createMemoryChannel(blob content) returns ByteChannel;
+
+documentation {
     Retrieves a CSV channel from a give file path.
 
     P{{path}} File path which describes the location of the CSV

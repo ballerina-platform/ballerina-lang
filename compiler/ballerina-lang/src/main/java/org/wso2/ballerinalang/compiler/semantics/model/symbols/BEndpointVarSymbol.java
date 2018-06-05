@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public class BEndpointVarSymbol extends BVarSymbol {
 
-    public BStructSymbol clientSymbol = null;
+    public BObjectTypeSymbol clientSymbol = null;
 
     public BInvokableSymbol initFunction = null;
 

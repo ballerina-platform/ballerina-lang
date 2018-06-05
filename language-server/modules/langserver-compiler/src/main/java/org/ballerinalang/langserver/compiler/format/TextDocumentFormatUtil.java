@@ -44,7 +44,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.io.File;
@@ -86,7 +85,7 @@ public class TextDocumentFormatUtil {
         String[] uriParts = documentUri.split(Pattern.quote(File.separator));
         String fileName = uriParts[uriParts.length - 1];
         final BLangPackage bLangPackage = LSCompiler.getBLangPackage(context, documentManager, 
-                true, LSCustomErrorStrategy.class, false, null).get(0);
+                true, LSCustomErrorStrategy.class, false).get(0);
         context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY, bLangPackage.symbol.getName().getValue());
         final List<Diagnostic> diagnostics = new ArrayList<>();
         JsonArray errors = new JsonArray();
@@ -218,11 +217,12 @@ public class TextDocumentFormatUtil {
                     if (listPropItem instanceof Node) {
                         /* Remove top level anon func and struct */
                         if (node.getKind() == NodeKind.COMPILATION_UNIT) {
-                            if (listPropItem instanceof BLangStruct && ((BLangStruct) listPropItem).isAnonymous) {
-                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
-                                                ((BLangStruct) listPropItem));
-                                continue;
-                            }
+                            // TODO: 5/21/18 BLangStruct Has been removed and need to revisit the following logic
+//                            if (listPropItem instanceof BLangStruct && ((BLangStruct) listPropItem).isAnonymous) {
+//                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
+//                                                ((BLangStruct) listPropItem));
+//                                continue;
+//                            }
                             if (listPropItem instanceof BLangFunction
                                     && (((BLangFunction) listPropItem)).name.value.startsWith("$lambda$")) {
                                 continue;

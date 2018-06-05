@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
@@ -121,7 +122,7 @@ abstract class MethodListener {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BType errorType = paramDetails.get(1).getVarType();
-        BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
+        BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, t);
         signatureParams[1] = errorStruct;
         BStruct headerStruct = getHeaderStruct(resource);
         if (headerStruct != null && MessageHeaders.isPresent()) {
@@ -132,7 +133,7 @@ abstract class MethodListener {
         if (headerStruct != null && signatureParams.length == 3) {
             signatureParams[2] = headerStruct;
         }
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(resource, callback, null, null, signatureParams);
     }
     
@@ -159,4 +160,43 @@ abstract class MethodListener {
         }
         return signatureParams;
     }
+
+    class DefaultStreamObserver implements StreamObserver<Message> {
+
+        private final Map<String, Resource> resourceMap;
+        private final StreamObserver<Message> responseObserver;
+
+        DefaultStreamObserver(Map<String, Resource> resourceMap, StreamObserver<Message> responseObserver) {
+            this.resourceMap = resourceMap;
+            this.responseObserver = responseObserver;
+        }
+
+        @Override
+        public void onNext(Message value) {
+            Resource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
+            CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
+            Executor.submit(onMessage, callback, null, null, computeMessageParams
+                    (onMessage, value, responseObserver));
+        }
+
+        @Override
+        public void onError(Throwable t) {
+            Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
+            onErrorInvoke(onError, responseObserver, t);
+        }
+
+        @Override
+        public void onCompleted() {
+            Resource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
+            if (onCompleted == null) {
+                String message = "Error in listener service definition. onError resource does not exists";
+                LOG.error(message);
+                throw new RuntimeException(message);
+            }
+
+            CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
+            Executor.submit(onCompleted, callback, null, null, computeMessageParams
+                    (onCompleted, null, responseObserver));
+        }
+    };
 }

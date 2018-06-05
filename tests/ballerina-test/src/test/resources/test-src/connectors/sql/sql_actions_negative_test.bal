@@ -28,7 +28,7 @@ function testSelectData() returns (string) {
 
         match x {
             table dt => {
-                var j = check <json>dt;
+                json j = check <json>dt;
                 returnData = io:sprintf("%j", j);
             }
             error err1 => {
@@ -82,7 +82,7 @@ function testCallProcedure() returns (string) {
         var x = testDB->call("{call InsertPersonDataInfo(100,'James')}", ());
         match x {
             table[] dt => {
-                var j = check <json>dt[0];
+                json j = check <json>dt[0];
                 returnData = io:sprintf("%j", j);
             }
             () => returnData = "";
@@ -156,7 +156,7 @@ function testInvalidArrayofQueryParameters() returns (string) {
 
         match x {
             table dt => {
-                var j = check <json>dt;
+                json j = check <json>dt;
                 returnData = io:sprintf("%j", j);
             }
             error err1 => {

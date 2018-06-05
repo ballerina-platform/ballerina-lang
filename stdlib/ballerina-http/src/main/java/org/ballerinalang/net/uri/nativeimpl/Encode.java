@@ -40,7 +40,7 @@ import java.net.URLEncoder;
         functionName = "encode",
         args = {@Argument(name = "url", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),
-                      @ReturnType(type = TypeKind.STRUCT, structType = "Error")},
+                      @ReturnType(type = TypeKind.RECORD, structType = "Error")},
         isPublic = true
 )
 public class Encode extends BlockingNativeCallableUnit {
@@ -52,7 +52,7 @@ public class Encode extends BlockingNativeCallableUnit {
         try {
             context.setReturnValues(new BString(encode(url, charset)));
         } catch (Throwable e) {
-            context.setReturnValues(HttpUtil.getGenericError(context, "Error occurred while encoding the url. " + e
+            context.setReturnValues(HttpUtil.getError(context, "Error occurred while encoding the url. " + e
                     .getMessage()));
         }
     }

@@ -40,7 +40,7 @@ import java.net.URLDecoder;
         functionName = "decode",
         args = {@Argument(name = "url", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),
-                      @ReturnType(type = TypeKind.STRUCT, structType = "Error")},
+                      @ReturnType(type = TypeKind.RECORD, structType = "Error")},
         isPublic = true
 )
 public class Decode extends BlockingNativeCallableUnit {
@@ -52,7 +52,7 @@ public class Decode extends BlockingNativeCallableUnit {
         try {
             context.setReturnValues(new BString(URLDecoder.decode(url, charset)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(HttpUtil.getGenericError(context, "Error occurred while decoding the url. " + e
+            context.setReturnValues(HttpUtil.getError(context, "Error occurred while decoding the url. " + e
                     .getMessage()));
         }
     }

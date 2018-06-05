@@ -66,24 +66,25 @@ public class DefinitionUtil {
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;
-            case ContextConstants.STRUCT:
-                bLangNode = bLangPackage.structs.stream()
-                        .filter(struct -> struct.name.getValue()
-                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                break;
-            case ContextConstants.OBJECT:
-                bLangNode = bLangPackage.objects.stream()
-                        .filter(object -> object.name.getValue()
-                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                break;
-            case ContextConstants.RECORD:
-                bLangNode = bLangPackage.records.stream()
-                        .filter(record -> record.name.getValue()
-                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                break;
+            
+//            case ContextConstants.STRUCT:
+//                bLangNode = bLangPackage.structs.stream()
+//                        .filter(struct -> struct.name.getValue()
+//                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+//                        .findAny().orElse(null);
+//                break;
+//            case ContextConstants.OBJECT:
+//                bLangNode = bLangPackage.objects.stream()
+//                        .filter(object -> object.name.getValue()
+//                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+//                        .findAny().orElse(null);
+//                break;
+//            case ContextConstants.RECORD:
+//                bLangNode = bLangPackage.records.stream()
+//                        .filter(record -> record.name.getValue()
+//                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
+//                        .findAny().orElse(null);
+//                break;
             case ContextConstants.TYPE_DEF:
                 bLangNode = bLangPackage.typeDefinitions.stream()
                         .filter(typeDef -> typeDef.name.getValue()

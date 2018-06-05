@@ -58,7 +58,7 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
                              structPackage = "ballerina.http"),
         isPublic = true
 )
@@ -88,7 +88,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
             context.setReturnValues((BValue) null);
         } catch (Throwable throwable) {
-            BStruct errorStruct = HttpUtil.getHttpConnectorError(context, throwable);
+            BStruct errorStruct = HttpUtil.getError(context, throwable);
             context.setReturnValues(errorStruct);
         }
 

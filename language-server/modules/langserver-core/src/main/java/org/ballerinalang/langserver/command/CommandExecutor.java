@@ -25,6 +25,7 @@ import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
 import org.ballerinalang.model.tree.Node;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
 import org.eclipse.lsp4j.Position;
@@ -35,15 +36,16 @@ import org.eclipse.lsp4j.VersionedTextDocumentIdentifier;
 import org.eclipse.lsp4j.WorkspaceEdit;
 import org.eclipse.lsp4j.services.LanguageClient;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangEnum;
+import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.net.URI;
@@ -107,13 +109,13 @@ public class CommandExecutor {
         if (documentUri != null && context.get(ExecuteCommandKeys.PKG_NAME_KEY) != null) {
             String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                         .getFileContent(Paths.get(URI.create(documentUri)));
-            String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+            String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
             int totalLines = contentComponents.length;
             int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
             int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
             BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
-                    context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false,
-                    null).get(0);
+                    context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
+                    false).get(0);
             context.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                     bLangPackage.symbol.getName().getValue());
             String pkgName = context.get(ExecuteCommandKeys.PKG_NAME_KEY);
@@ -176,8 +178,8 @@ public class CommandExecutor {
         }
 
         BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false,
-                null).get(0);
+                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class,
+                false).get(0);
 
         CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNodeByPosition(topLevelNodeType,
                 bLangPackage, line);
@@ -185,7 +187,7 @@ public class CommandExecutor {
         if (docAttachmentInfo != null) {
             String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                     .getFileContent(Paths.get(URI.create(documentUri)));
-            String[] contentComponents = fileContent.split(System.lineSeparator());
+            String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
             int replaceEndCol = contentComponents[line - 1].length();
             String replaceText = String.join(System.lineSeparator(),
                     Arrays.asList(Arrays.copyOfRange(contentComponents, 0, line)))
@@ -214,12 +216,11 @@ public class CommandExecutor {
             }
         }
         BLangPackage bLangPackage = LSCompiler.getBLangPackage(context,
-                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false, null)
-                .get(0);
+                context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY), false, LSCustomErrorStrategy.class, false).get(0);
 
         String fileContent = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY)
                 .getFileContent(Paths.get(URI.create(documentUri)));
-        String[] contentComponents = fileContent.split(System.lineSeparator());
+        String[] contentComponents = fileContent.split(CommonUtil.LINE_SEPARATOR_SPLIT);
         List<TextEdit> textEdits = new ArrayList<>();
         bLangPackage.topLevelNodes.forEach(topLevelNode -> {
             CommandUtil.DocAttachmentInfo docAttachmentInfo = getDocumentEditForNode(topLevelNode);
@@ -270,19 +271,19 @@ public class CommandExecutor {
                 docAttachmentInfo = CommandUtil.getFunctionDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.STRUCT_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getStructDocumentationByPosition(bLangPackage, line);
+                docAttachmentInfo = CommandUtil.getRecordOrObjectDocumentationByPosition(bLangPackage, line);
                 break;
-            case UtilSymbolKeys.ENUM_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getEnumDocumentationByPosition(bLangPackage, line);
-                break;
-            case UtilSymbolKeys.TRANSFORMER_KEYWORD_KEY:
-                docAttachmentInfo = CommandUtil.getTransformerDocumentationByPosition(bLangPackage, line);
+            case UtilSymbolKeys.ENDPOINT_KEYWORD_KEY:
+                docAttachmentInfo = CommandUtil.getEndpointDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.RESOURCE_KEYWORD_KEY:
                 docAttachmentInfo = CommandUtil.getResourceDocumentationByPosition(bLangPackage, line);
                 break;
             case UtilSymbolKeys.SERVICE_KEYWORD_KEY:
                 docAttachmentInfo = CommandUtil.getServiceDocumentationByPosition(bLangPackage, line);
+                break;
+            case UtilSymbolKeys.TYPE_KEYWORD_KEY:
+                docAttachmentInfo = CommandUtil.getTypeNodeDocumentationByPosition(bLangPackage, line);
                 break;
             default:
                 break;
@@ -306,25 +307,25 @@ public class CommandExecutor {
                     docAttachmentInfo = CommandUtil.getFunctionNodeDocumentation((BLangFunction) node, replaceFrom);
                 }
                 break;
-            case STRUCT:
-                if (((BLangStruct) node).docAttachments.isEmpty()) {
-                    replaceFrom = CommonUtil.toZeroBasedPosition(((BLangStruct) node).getPosition()).getStartLine();
-                    docAttachmentInfo = CommandUtil.getStructNodeDocumentation((BLangStruct) node, replaceFrom);
+            case TYPE_DEFINITION:
+                if (((BLangTypeDefinition) node).docAttachments.isEmpty()
+                        && (((BLangTypeDefinition) node).typeNode instanceof BLangRecordTypeNode
+                        || ((BLangTypeDefinition) node).typeNode instanceof BLangObjectTypeNode)) {
+                    replaceFrom = CommonUtil
+                            .toZeroBasedPosition(((BLangTypeDefinition) node).getPosition()).getStartLine();
+                    docAttachmentInfo = CommandUtil
+                            .getRecordOrObjectDocumentation((BLangTypeDefinition) node, replaceFrom);
                 }
                 break;
-            case ENUM:
-                if (((BLangEnum) node).docAttachments.isEmpty()) {
-                    replaceFrom = CommonUtil.toZeroBasedPosition(((BLangEnum) node).getPosition()).getStartLine();
-                    docAttachmentInfo = CommandUtil.getEnumNodeDocumentation((BLangEnum) node, replaceFrom);
-                }
+            case ENDPOINT:
+                // TODO: Here we need to check for the doc attachments of the endpoint.
+                replaceFrom = CommonUtil.toZeroBasedPosition(((BLangEndpoint) node).getPosition()).getStartLine();
+                docAttachmentInfo = CommandUtil.getEndpointNodeDocumentation((BLangEndpoint) node, replaceFrom);
                 break;
-            case TRANSFORMER:
-                if (((BLangTransformer) node).docAttachments.isEmpty()) {
-                    replaceFrom =
-                            CommonUtil.toZeroBasedPosition(((BLangTransformer) node).getPosition()).getStartLine();
-                    docAttachmentInfo = CommandUtil.getTransformerNodeDocumentation((BLangTransformer) node,
-                            replaceFrom);
-                }
+            case OBJECT_TYPE:
+            case RECORD_TYPE:
+                replaceFrom = CommonUtil.toZeroBasedPosition((DiagnosticPos) node.getPosition()).getStartLine();
+                docAttachmentInfo = CommandUtil.getTypeNodeDocumentation((TopLevelNode) node, replaceFrom);
                 break;
             case RESOURCE:
                 if (((BLangResource) node).docAttachments.isEmpty()) {

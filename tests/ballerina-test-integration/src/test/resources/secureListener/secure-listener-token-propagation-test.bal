@@ -2,7 +2,7 @@ import ballerina/http;
 
 http:AuthProvider basicAuthProvider = {
     scheme:"basic",
-    authProvider:"config",
+    authStoreProvider:"config",
     propagateToken: true,
     issuer:"ballerina",
     keyAlias:"ballerina",
@@ -32,7 +32,7 @@ service<http:Service> passthroughService bind listener {
         path:"/"
     }
     passthrough (endpoint caller, http:Request clientRequest) {
-        var response = nyseEP -> get("/nyseStock/stocks", request = clientRequest);
+        var response = nyseEP -> get("/nyseStock/stocks", message = clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);

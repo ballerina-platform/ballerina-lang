@@ -39,16 +39,16 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DelimitedTextRecordChannel",
                 structPackage = "ballerina.io"),
-        args = {@Argument(name = "channel", type = TypeKind.STRUCT, structType = "CharacterChannel",
+        args = {@Argument(name = "channel", type = TypeKind.OBJECT, structType = "CharacterChannel",
                 structPackage = "ballerina.io"),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "DelimitedRecordChannel",
                 structPackage = "ballerina.io"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {

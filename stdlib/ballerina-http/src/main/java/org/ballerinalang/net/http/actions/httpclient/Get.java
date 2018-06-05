@@ -21,13 +21,9 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
-import org.ballerinalang.net.http.HttpUtil;
-import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 
@@ -36,18 +32,16 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "get",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
-                structPackage = "ballerina.http"),
+        functionName = "nativeGet",
         args = {
-                @Argument(name = "client", type = TypeKind.STRUCT),
+                @Argument(name = "callerActions", type = TypeKind.OBJECT),
                 @Argument(name = "path", type = TypeKind.STRING),
-                @Argument(name = "req", type = TypeKind.STRUCT, structType = "Request",
+                @Argument(name = "req", type = TypeKind.OBJECT, structType = "Request",
                         structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Response", structPackage = "ballerina.http"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+                @ReturnType(type = TypeKind.OBJECT, structType = "Response", structPackage = "ballerina.http"),
+                @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                         structPackage = "ballerina.http"),
         }
 )
@@ -56,14 +50,7 @@ public class Get extends AbstractHTTPAction {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         DataContext dataContext = new DataContext(context, callback, createOutboundRequestMsg(context));
-        try {
-            executeNonBlockingAction(dataContext);
-        } catch (ClientConnectorException clientConnectorException) {
-            // This is should be a JavaError. Need to handle this properly.
-            BallerinaException exception = new BallerinaException("Failed to invoke 'get' action in " +
-                    HttpConstants.CALLER_ACTIONS + ". " + clientConnectorException.getMessage(), context);
-            dataContext.notifyReply(null, HttpUtil.getHttpConnectorError(context, exception));
-        }
+        executeNonBlockingAction(dataContext, false);
     }
 
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {

@@ -1,31 +1,31 @@
 import ballerina/auth;
 
-function testCreateConfigAuthProvider() returns (auth:ConfigAuthProvider) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    return configAuthProvider;
+function testCreateConfigAuthProvider() returns (auth:ConfigAuthStoreProvider) {
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    return configAuthStoreProvider;
 }
 
 function testAuthenticationOfNonExistingUser () returns (boolean) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    return configAuthProvider.authenticate("amila", "abc");
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    return configAuthStoreProvider.authenticate("amila", "abc");
 }
 
 function testAuthenticationOfNonExistingPassword () returns (boolean) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    return configAuthProvider.authenticate("isuru", "xxy");
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    return configAuthStoreProvider.authenticate("isuru", "xxy");
 }
 
 function testAuthentication () returns (boolean) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    return configAuthProvider.authenticate("isuru", "xxx");
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    return configAuthStoreProvider.authenticate("isuru", "xxx");
 }
 
 function testReadScopesOfNonExistingUser() returns (string[]) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    return configAuthProvider.getScopes("amila");
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    return configAuthStoreProvider.getScopes("amila");
 }
 
 function testReadScopesOfUser() returns (string[]) {
-    auth:ConfigAuthProvider configAuthProvider = new;
-    return configAuthProvider.getScopes("ishara");
+    auth:ConfigAuthStoreProvider configAuthStoreProvider = new;
+    return configAuthStoreProvider.getScopes("ishara");
 }

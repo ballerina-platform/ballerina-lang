@@ -22,17 +22,17 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.970.1-SNAPSHOT</version>
+    <version>0.973.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
-        Ballerina is a general purpose, concurrent and strongly typed programming language
-        with both textual and graphical syntaxes, optimized for integration.
+        Ballerina is a compiled, transactional, statically and strongly typed programming language
+        with textual and graphical syntaxes.
     </description>
-    <url>http://ballerinalang.org/</url>
+    <url>https://ballerina.io/</url>
     <organization>
         <name>WSO2</name>
-        <url>http://www.wso2.org/</url>
+        <url>http://wso2.org/</url>
     </organization>
     <licenses>
         <license>
@@ -171,6 +171,12 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mime</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-http</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -184,6 +190,12 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-transactions</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-transactions</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -228,13 +240,31 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-websub</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-database</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-database</artifactId>
                 <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -311,6 +341,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>toml-parser</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>stdlib-compile</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
 
@@ -788,6 +823,12 @@
                 <artifactId>ballerina-grpc</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-grpc</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
 
             <!-- Siddhi Stream Dependencies -->
             <dependency>
@@ -968,6 +1009,11 @@
                 <groupId>org.wso2.transport.file</groupId>
                 <artifactId>org.wso2.transport.local-file-system</artifactId>
                 <version>${file.transport.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.chewiebug</groupId>
+                <artifactId>gcviewer</artifactId>
+                <version>${chewiebug.gcviewer.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1217,18 +1263,6 @@
             </modules>
             <properties>
                 <skipBenchmarks>true</skipBenchmarks>
-            </properties>
-        </profile>
-        <profile>
-            <id>platform-windows</id>
-            <activation>
-                <os>
-                    <family>windows</family>
-                </os>
-            </activation>
-            <properties>
-                <!-- Override the executable names for Windows -->
-                <npm.executable>npm.cmd</npm.executable>
             </properties>
         </profile>
     </profiles>
@@ -1529,8 +1563,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.970.1-SNAPSHOT</ballerina.version>
-        <npm.executable>npm</npm.executable>
+        <ballerina.version>0.973.1-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -1553,7 +1586,7 @@
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.165</transport.http.version>
+        <transport.http.version>6.0.184</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1682,6 +1715,7 @@
         <wso2.securevault.version>1.0.0-wso2v2</wso2.securevault.version>
 
         <file.transport.version>6.0.53</file.transport.version>
+        <chewiebug.gcviewer.version>1.35</chewiebug.gcviewer.version>
 
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
 

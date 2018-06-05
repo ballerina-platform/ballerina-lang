@@ -185,7 +185,7 @@ function testBreak1 () returns (Test4Val) {
     return data;
 }
 
-function testNext1 () returns (Test4Val) {
+function testContinue1 () returns (Test4Val) {
     int i = 0;
     Test4Val data = {value:"s"};
     while (i < 5) {
@@ -193,7 +193,7 @@ function testNext1 () returns (Test4Val) {
         try {
             data.value = data.value + " t";
             if (i == 3) {
-                next;
+                continue;
             }
             data.value = data.value + "-";
         }finally {

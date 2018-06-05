@@ -26,7 +26,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -73,10 +73,11 @@ public class TransactionUtils {
     }
 
     private static void checkTransactionCoordinatorError(BValue value, WorkerExecutionContext ctx, String errMsg) {
-        if (value.getType().getTag() == TypeTags.STRUCT_TAG) {
+        if (value.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
+                || value.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
             PackageInfo errorPackageInfo = ctx.programFile.getPackageInfo(PACKAGE_BUILTIN);
-            StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-            if (((BStruct) value).getType().structInfo.equals(errorStructInfo)) {
+            StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+            if (((BStruct) value).getType().getTypeInfo().equals(errorStructInfo)) {
                 throw new BallerinaException(errMsg + ((BStruct) value).getStringField(0));
             }
         }

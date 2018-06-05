@@ -468,11 +468,11 @@ function testJsonToStructConversionStructWithConstrainedMap () returns (string, 
                  parent:{
                             name:"Parent",
                             age:50,
-                            parent:null,
-                            address:null,
-                            info:null,
-                            marks:null,
-                            a:null,
+                            parent:{},
+                            address:{},
+                            info:{},
+                            marks:[],
+                            a:{},
                             score:4.57,
                             alive:false
                         },
@@ -506,11 +506,11 @@ function testJsonToStructConversionStructWithConstrainedMapNegative () returns (
                  parent:{
                             name:"Parent",
                             age:50,
-                            parent:null,
-                            address:null,
-                            info:null,
-                            marks:null,
-                            a:null,
+                            parent:{},
+                            address:{},
+                            info:{},
+                            marks:[],
+                            a:{},
                             score:4.57,
                             alive:false
                         },
@@ -595,8 +595,6 @@ type Participant {
     Protocol[] participantProtocols;
 };
 
-
-
 type Protocol {
     string name,
     string url,
@@ -614,10 +612,49 @@ type TwoPhaseCommitTransaction {
     boolean possibleMixedOutcome;
 };
 
-
 function testRuntimeStructEquivalencyWithNestedConstrainedMaps () returns (string) {
     map<Transaction> initiatedTransactions;
     TwoPhaseCommitTransaction tpc = {transactionId:"TR-ID", coordinationType:"2pc"};
     initiatedTransactions["Foo"] = tpc;
     return initiatedTransactions["Foo"].transactionId;
 }
+
+function testMapConstrainedToUnion () returns (string|int) {
+    map<string|int> testMap;
+    testMap["test"] = "test-value";
+    return testMap["test"];
+}
+
+function testMapConstrainedToUnionCaseTwo () returns (string|int) {
+    map<string|int> testMap;
+    testMap["test"] = 2;
+    return testMap["test"];
+}
+
+function testMapConstrainedToUnionCaseThree () returns (string|int) {
+    map<string|int> testMap;
+    return testMap["non-existing-key"];
+}
+
+function testMapConstrainedStringNonExistingKeyRetrieve () returns (string?) {
+    map<string> testMap;
+    return testMap["nonexist-key"];
+}
+
+function testMapConstrainedToNullableUnion () returns (string?) {
+    map<string?> testMap;
+    testMap["test"] = "test-nullable-union";
+    return testMap["test"];
+}
+
+function testMapConstrainedToNullableUnionNonExistingKey () returns (string?) {
+    map<string?> testMap;
+    return testMap.nonexist;
+}
+
+function testMapConstrainedToNullableUnionNonExistingKeyWithIndexAccess () returns (string?) {
+    map<string?> testMap;
+    return testMap["nonexist"];
+}
+
+

@@ -294,6 +294,20 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testINParametersWithDirectVariables() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectVariables");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039.1D);
+        Assert.assertEquals(returns[5].stringValue(), "Hello");
+        Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D);
+        Assert.assertTrue(returns[9].stringValue().equals(returns[10].stringValue()));
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testNullINParameterValues() {
         BValue[] returns = BRunUtil.invoke(result, "testNullINParameterValues");
         BInteger retValue = (BInteger) returns[0];
@@ -419,6 +433,22 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testBatchUpdateWithValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithValues");
+        BIntArray retValue = (BIntArray) returns[0];
+        Assert.assertEquals(retValue.get(0), 1);
+        Assert.assertEquals(retValue.get(1), 1);
+    }
+
+    @Test(groups = "ConnectorTest", description = "Test batch update operation with variable parameters")
+    public void testBatchUpdateWithVariables() {
+        BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithVariables");
+        BIntArray retValue = (BIntArray) returns[0];
+        Assert.assertEquals(retValue.get(0), 1);
+        Assert.assertEquals(retValue.get(1), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testBatchUpdateWithFailure() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithFailure");
         BIntArray retValue = (BIntArray) returns[0];
@@ -426,7 +456,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.get(1), 1);
         Assert.assertEquals(retValue.get(2), -3);
         Assert.assertEquals(retValue.get(3), -3);
-        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
     @Test(groups = "ConnectorTest")

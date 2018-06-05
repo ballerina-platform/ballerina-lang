@@ -19,6 +19,7 @@ package org.ballerinalang.model.types;
 
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 
 /**
  * {@code BBlob} represents a byte[].
@@ -27,23 +28,27 @@ import org.ballerinalang.model.values.BValue;
  */
 public class BBlobType extends BType {
 
-    protected BBlobType(String typeName, String pkgPath) {
+    BBlobType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BBlob.class);
     }
 
-    @Override public <V extends BValue> V getZeroValue() {
-        return (V) new BBlob(new byte[0]);
+    @Override
+    public <V extends BValue> V getZeroValue() {
+        return (V) new BBlob(BLangConstants.BLOB_EMPTY_VALUE);
     }
 
-    @Override public <V extends BValue> V getEmptyValue() {
-        return (V) new BBlob(new byte[0]);
+    @Override
+    public <V extends BValue> V getEmptyValue() {
+        return (V) new BBlob(BLangConstants.BLOB_EMPTY_VALUE);
     }
 
-    @Override public TypeSignature getSig() {
+    @Override
+    public TypeSignature getSig() {
         return new TypeSignature(TypeSignature.SIG_BLOB);
     }
 
-    @Override public int getTag() {
+    @Override
+    public int getTag() {
         return TypeTags.BLOB_TAG;
     }
 }

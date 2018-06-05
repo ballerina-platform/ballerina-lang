@@ -50,22 +50,12 @@ public class Symbols {
         return pkgSymbol;
     }
 
-    public static BTypeSymbol createStructSymbol(int flags,
-                                                 Name name,
-                                                 PackageID pkgID,
-                                                 BType type,
-                                                 BSymbol owner) {
-        BTypeSymbol typeSymbol = new BStructSymbol(SymTag.STRUCT, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.STRUCT;
-        return typeSymbol;
-    }
-
     public static BTypeSymbol createObjectSymbol(int flags,
                                                  Name name,
                                                  PackageID pkgID,
                                                  BType type,
                                                  BSymbol owner) {
-        BStructSymbol typeSymbol = new BStructSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
+        BObjectTypeSymbol typeSymbol = new BObjectTypeSymbol(SymTag.OBJECT, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.OBJECT;
         return typeSymbol;
     }
@@ -75,7 +65,7 @@ public class Symbols {
                                                  PackageID pkgID,
                                                  BType type,
                                                  BSymbol owner) {
-        BStructSymbol typeSymbol = new BStructSymbol(SymTag.RECORD, flags, name, pkgID, type, owner);
+        BRecordTypeSymbol typeSymbol = new BRecordTypeSymbol(SymTag.RECORD, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.RECORD;
         return typeSymbol;
     }
@@ -87,16 +77,6 @@ public class Symbols {
                                                BSymbol owner) {
         BTypeSymbol typeSymbol = createTypeSymbol(SymTag.ENUM, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.ENUM;
-        return typeSymbol;
-    }
-
-    public static BTypeSymbol createTypeDefinitionSymbol(int flags,
-                                                         Name name,
-                                                         PackageID pkgID,
-                                                         BType type,
-                                                         BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.TYPE_DEF, flags, name, pkgID, type, owner);
-        typeSymbol.kind = SymbolKind.TYPE_DEF;
         return typeSymbol;
     }
 

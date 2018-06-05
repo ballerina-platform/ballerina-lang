@@ -108,3 +108,20 @@ p:last-child {
 body{
   font-weight: 300;
 }
+
+/*******************************
+          Highlighting
+*******************************/
+/* Site */
+::-webkit-selection {
+  background-color: #f1f1f1;
+  color: rgba(0, 0, 0, 0.87);
+}
+::-moz-selection {
+  background-color: #f1f1f1;
+  color: rgba(0, 0, 0, 0.87);
+}
+::selection {
+  background-color: #f1f1f1;
+  color: rgba(0, 0, 0, 0.87);
+}

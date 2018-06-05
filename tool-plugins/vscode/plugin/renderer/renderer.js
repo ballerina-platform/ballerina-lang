@@ -1,12 +1,14 @@
 const request = require('request-promise');
 const { getParserService } = require('../serverStarter');
+const log = require('../logger');
 
-const RETRY_COUNT = 10;
-const RETRY_WAIT = 2000;
+const RETRY_COUNT = 5;
+const RETRY_WAIT = 1000;
 
 let jsonModel;
 
-function render (content, retries=0) {
+
+function render (content, retries=1) {
     const parseOpts = {
         content,
         filename: 'file.bal',
@@ -31,14 +33,16 @@ function render (content, retries=0) {
         return renderDiagram(jsonModel, stale);
     })
     .catch((e) => {
+        log(`Error in parser service`);
         return new Promise((res, rej) => {
             if (retries > RETRY_COUNT) {
+                log.append('Could not render');
                 res(renderError());
                 return;
             }
 
             setTimeout(() => {
-                console.log('Retrying rendering');
+                log(`Retrying rendering ${retries}/${RETRY_COUNT}\n`);
                 res(render(content, retries + 1));
             }, RETRY_WAIT);
         });
@@ -121,6 +125,7 @@ function renderDiagram(jsonModelObj, stale) {
                     ballerinaDiagram.renderDiagram(document.getElementById("diagram"), json, {
                         width: window.innerWidth - 6, height: window.innerHeight
                     });
+                    console.log('Successfully rendered')
                 } catch(e) {
                     console.log(e.stack);
                     drawError('Oops. Something went wrong.');
@@ -172,4 +177,6 @@ function renderError() {
 }
 
 module.exports.render = render;
-module.exports.activate = getParserService;
+module.exports.activate = () => {
+    return getParserService();
+}

@@ -25,7 +25,6 @@ function testTransactionStmt(int i) returns (string) {
                     TrxError err = { message: " trxErr", data: "test" };
                     throw err;
                 }
-
             } catch (TrxError err) {
                 a = a + err.message;
             }
@@ -365,13 +364,13 @@ function transactionWithBreak() returns (string) {
     return "done";
 }
 
-function transactionWithNext() returns (string) {
+function transactionWithContinue() returns (string) {
     int i = 0;
     transaction {
         while (i < 5) {
             i = i + 1;
             if (i == 2) {
-                next;
+                continue;
             }
         }
     }

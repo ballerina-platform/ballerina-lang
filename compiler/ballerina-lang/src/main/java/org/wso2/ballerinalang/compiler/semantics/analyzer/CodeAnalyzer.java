@@ -46,12 +46,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -103,6 +100,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
@@ -112,7 +110,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmtPatternClause;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
@@ -130,6 +127,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -146,6 +145,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Stack;
 
@@ -169,6 +169,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int transactionCount;
     private boolean statementReturns;
     private boolean lastStatement;
+    private boolean withinRetryBlock;
     private int forkJoinCount;
     private int workerCount;
     private SymbolTable symTable;
@@ -179,6 +180,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private Stack<Boolean> loopWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> returnWithintransactionCheckStack = new Stack<>();
     private Stack<Boolean> doneWithintransactionCheckStack = new Stack<>();
+    private Stack<Boolean> transactionWithinHandlerCheckStack = new Stack<>();
     private BLangNode parent;
     private Names names;
     private SymbolEnv env;
@@ -246,6 +248,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
+        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
+                || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+            analyzeNode(typeDefinition.typeNode, env);
+        }
         if (!Symbols.isPublic(typeDefinition.symbol) ||
                 typeDefinition.symbol.type != null && TypeKind.FINITE.equals(typeDefinition.symbol.type.getKind())) {
             return;
@@ -261,6 +267,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     
     @Override
     public void visit(BLangFunction funcNode) {
+        if (funcNode.symbol.isTransactionHandler) {
+            transactionWithinHandlerCheckStack.push(true);
+        }
         this.returnWithintransactionCheckStack.push(true);
         this.doneWithintransactionCheckStack.push(true);
         this.validateMainFunction(funcNode);
@@ -268,6 +277,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.visitInvocable(funcNode, funcEnv);
         this.returnWithintransactionCheckStack.pop();
         this.doneWithintransactionCheckStack.pop();
+        if (funcNode.symbol.isTransactionHandler) {
+            transactionWithinHandlerCheckStack.pop();
+        }
     }
 
     private void visitInvocable(BLangInvokableNode invNode, SymbolEnv invokableEnv) {
@@ -368,6 +380,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTransaction transactionNode) {
         this.checkStatementExecutionValidity(transactionNode);
+        //Check whether transaction is within a handler function or retry block. This can check for single level only.
+        // We need data flow analysis to check for further levels.
+        if (!isValidTransactionBlock()) {
+            this.dlog.error(transactionNode.pos, DiagnosticCode.TRANSACTION_CANNOT_BE_USED_WITHIN_HANDLER);
+            return;
+        }
         this.loopWithintransactionCheckStack.push(false);
         this.returnWithintransactionCheckStack.push(false);
         this.doneWithintransactionCheckStack.push(false);
@@ -376,9 +394,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.transactionCount--;
         this.resetLastStatement();
         if (transactionNode.onRetryBody != null) {
+            this.withinRetryBlock = true;
             analyzeNode(transactionNode.onRetryBody, env);
             this.resetStatementReturns();
             this.resetLastStatement();
+            this.withinRetryBlock = false;
         }
         this.returnWithintransactionCheckStack.pop();
         this.loopWithintransactionCheckStack.pop();
@@ -500,8 +520,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 } else if (exprType.tag == TypeTags.JSON &&
                         this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.STRUCT &&
-                        this.types.isAssignable(patternType, exprType)) {
+                } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
+                        && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
                 } else {
                     // TODO Support other assignable types
@@ -580,14 +600,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangNext nextNode) {
-        this.checkStatementExecutionValidity(nextNode);
+    public void visit(BLangContinue continueNode) {
+        this.checkStatementExecutionValidity(continueNode);
         if (this.loopCount == 0) {
-            this.dlog.error(nextNode.pos, DiagnosticCode.NEXT_CANNOT_BE_OUTSIDE_LOOP);
+            this.dlog.error(continueNode.pos, DiagnosticCode.CONTINUE_CANNOT_BE_OUTSIDE_LOOP);
             return;
         }
         if (checkNextBreakValidityInTransaction()) {
-            this.dlog.error(nextNode.pos, DiagnosticCode.NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
+            this.dlog.error(continueNode.pos, DiagnosticCode.CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION);
             return;
         }
         this.lastStatement = true;
@@ -629,17 +649,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* not used, covered with functions */
     }
 
-    public void visit(BLangStruct structNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangObject objectNode) {
-        if (objectNode.isFieldAnalyseRequired && Symbols.isPublic(objectNode.symbol)) {
-            objectNode.fields.stream()
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        if (objectTypeNode.isFieldAnalyseRequired && Symbols.isPublic(objectTypeNode.symbol)) {
+            objectTypeNode.fields.stream()
                     .filter(field -> (Symbols.isPublic(field.symbol)))
                     .forEach(field -> analyzeNode(field, this.env));
         }
-        objectNode.functions.forEach(e -> this.analyzeNode(e, this.env));
+        objectTypeNode.functions.forEach(e -> this.analyzeNode(e, this.env));
     }
 
     private void analyseType(BType type, DiagnosticPos pos) {
@@ -652,9 +668,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangRecord record) {
-        if (record.isFieldAnalyseRequired && Symbols.isPublic(record.symbol)) {
-            record.fields.stream()
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        if (recordTypeNode.isFieldAnalyseRequired && Symbols.isPublic(recordTypeNode.symbol)) {
+            recordTypeNode.fields.stream()
                     .filter(field -> (Symbols.isPublic(field.symbol)))
                     .forEach(field -> analyzeNode(field, this.env));
         }
@@ -667,7 +683,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangVariable varNode) {
         analyzeExpr(varNode.expr);
 
-        if (!Symbols.isPublic(varNode.symbol)) {
+        if (Objects.isNull(varNode.symbol) || !Symbols.isPublic(varNode.symbol)) {
             return;
         }
 
@@ -1120,7 +1136,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     pattern.matchedTypesIndirect.add(exprType);
                 } else if (exprType.tag == TypeTags.JSON && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.STRUCT && this.types.isAssignable(patternType, exprType)) {
+                } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
+                        && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
                 } else {
                     // TODO Support other assignable types
@@ -1303,6 +1320,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean checkReturnValidityInTransaction() {
         return (this.returnWithintransactionCheckStack.empty() || !this.returnWithintransactionCheckStack.peek())
                 && transactionCount > 0;
+    }
+
+    private boolean isValidTransactionBlock() {
+        return (this.transactionWithinHandlerCheckStack.empty() || !this.transactionWithinHandlerCheckStack.peek()) &&
+                !this.withinRetryBlock;
     }
 
     private boolean checkDoneValidityInTransaction() {

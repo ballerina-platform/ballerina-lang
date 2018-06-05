@@ -31,8 +31,6 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.mime.util.Constants;
-import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
@@ -46,6 +44,8 @@ import org.ballerinalang.net.uri.URIUtil;
 import org.ballerinalang.net.websub.util.WebSubUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.PrintStream;
@@ -65,13 +65,14 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBS
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIBE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.UNSUBSCRIBE;
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE_PATH;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
  * HTTP Connection Listener for Ballerina WebSub services.
  */
 public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorListener {
 
+    private static final Logger log = LoggerFactory.getLogger(BallerinaWebSubConnectionListener.class);
     private WebSubServicesRegistry webSubServicesRegistry;
     private PrintStream console = System.out;
 
@@ -81,34 +82,38 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     }
 
     @Override
-    public void onMessage(HTTPCarbonMessage httpCarbonMessage) {
+    public void onMessage(HTTPCarbonMessage inboundMessage) {
         try {
             HttpResource httpResource;
-            if (accessed(httpCarbonMessage)) {
-                if (httpCarbonMessage.getProperty(HTTP_RESOURCE) instanceof String) {
-                    if (httpCarbonMessage.getProperty(HTTP_RESOURCE).equals(ANNOTATED_TOPIC)) {
-                        autoRespondToIntentVerification(httpCarbonMessage);
+            if (accessed(inboundMessage)) {
+                if (inboundMessage.getProperty(HTTP_RESOURCE) instanceof String) {
+                    if (inboundMessage.getProperty(HTTP_RESOURCE).equals(ANNOTATED_TOPIC)) {
+                        autoRespondToIntentVerification(inboundMessage);
                         return;
                     } else {
-                        httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, httpCarbonMessage);
+                        httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, inboundMessage);
                     }
                 } else {
-                    httpResource = (HttpResource) httpCarbonMessage.getProperty(HTTP_RESOURCE);
+                    httpResource = (HttpResource) inboundMessage.getProperty(HTTP_RESOURCE);
                 }
-                extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
+                extractPropertiesAndStartResourceExecution(inboundMessage, httpResource);
                 return;
             }
-            httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, httpCarbonMessage);
+            httpResource = WebSubDispatcher.findResource(webSubServicesRegistry, inboundMessage);
             //TODO: fix to avoid defering on GET, when onIntentVerification is included
-            if (httpCarbonMessage.getProperty(HTTP_RESOURCE) == null) {
-                httpCarbonMessage.setProperty(HTTP_RESOURCE, httpResource);
+            if (inboundMessage.getProperty(HTTP_RESOURCE) == null) {
+                inboundMessage.setProperty(HTTP_RESOURCE, httpResource);
                 return;
-            } else if (httpCarbonMessage.getProperty(HTTP_RESOURCE) instanceof String) {
+            } else if (inboundMessage.getProperty(HTTP_RESOURCE) instanceof String) {
                 return;
             }
-            extractPropertiesAndStartResourceExecution(httpCarbonMessage, httpResource);
+            extractPropertiesAndStartResourceExecution(inboundMessage, httpResource);
         } catch (BallerinaException ex) {
-            HttpUtil.handleFailure(httpCarbonMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+            try {
+                HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
+            } catch (Exception e) {
+                log.error("Cannot handle error using the error handler for: " + e.getMessage(), e);
+            }
         }
     }
 
@@ -162,16 +167,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
             response.addHttpContent(new DefaultLastHttpContent());
             HttpUtil.sendOutboundResponse(httpCarbonMessage, response);
             BStruct notificationRequestStruct = createNotificationRequestStruct(balResource);
-            BStruct entityStruct = MimeUtil.extractEntity((BStruct) httpRequest);
-            if (entityStruct != null) {
-                if (entityStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE) instanceof BJSON) {
-                    BJSON jsonBody = (BJSON) (entityStruct.getNativeData(Constants.MESSAGE_DATA_SOURCE));
-                    notificationRequestStruct.setRefField(0, jsonBody);
-                } else {
-                    console.println("ballerina: Non-JSON payload received as WebSub Notification");
-                }
-            }
-            notificationRequestStruct.setRefField(1, (BRefType) httpRequest);
+            notificationRequestStruct.setRefField(0, (BRefType) httpRequest);
             signatureParams[0] = notificationRequestStruct;
         }
 
@@ -210,7 +206,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      */
     private BStruct createSubscriberServiceEndpointStruct(Resource resource) {
         return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                                                    WEBSUB_PACKAGE_PATH, SERVICE_ENDPOINT);
+                             WEBSUB_PACKAGE, SERVICE_ENDPOINT);
     }
 
     /**
@@ -219,7 +215,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      */
     private BStruct createIntentVerificationRequestStruct(Resource resource) {
         return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                                                   WEBSUB_PACKAGE_PATH, STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
+                             WEBSUB_PACKAGE, STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
     }
 
     /**
@@ -227,7 +223,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      */
     private BStruct createNotificationRequestStruct(Resource resource) {
         return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                                                    WEBSUB_PACKAGE_PATH, STRUCT_WEBSUB_NOTIFICATION_REQUEST);
+                             WEBSUB_PACKAGE, STRUCT_WEBSUB_NOTIFICATION_REQUEST);
     }
 
     private BStruct createBStruct(ProgramFile programFile, String packagePath, String structName) {

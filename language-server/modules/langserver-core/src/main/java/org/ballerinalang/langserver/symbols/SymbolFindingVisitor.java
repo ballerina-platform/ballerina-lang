@@ -41,7 +41,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -78,11 +77,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangNext;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -126,9 +125,10 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         funcNode.getBody().accept(this);
     }
 
-    public void visit(BLangStruct structNode) {
-        this.addSymbol(structNode, structNode.symbol, null);
-    }
+    // TODO: Fix the following with the new struct remove changes
+//    public void visit(BLangStruct structNode) {
+//        this.addSymbol(structNode, structNode.symbol, null);
+//    }
 
     public void visit(BLangService serviceNode) {
         this.addSymbol(serviceNode, serviceNode.symbol, SymbolKind.Function);
@@ -248,7 +248,7 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
         // ignore
     }
 
-    public void visit(BLangNext continueNode) {
+    public void visit(BLangContinue continueNode) {
         // ignore
     }
 

@@ -229,14 +229,14 @@ public class SwaggerConverterUtils {
         String swaggerFile;
 
         if (StringUtils.isNotBlank(serviceName)) {
-            swaggerFile = serviceName + SwaggerBallerinaConstants.SWAGGER_SUFFIX;
+            swaggerFile = serviceName + ConverterConstants.SWAGGER_SUFFIX;
         } else {
             swaggerFile = file != null ?
-                    FilenameUtils.removeExtension(file.toString()) + SwaggerBallerinaConstants.SWAGGER_SUFFIX :
+                    FilenameUtils.removeExtension(file.toString()) + ConverterConstants.SWAGGER_SUFFIX :
                     null;
         }
 
-        return swaggerFile + SwaggerBallerinaConstants.YAML_EXTENSION;
+        return swaggerFile + ConverterConstants.YAML_EXTENSION;
     }
 
     /**

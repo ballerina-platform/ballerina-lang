@@ -35,9 +35,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getCallerActions",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
                              structPackage = "ballerina.http"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class GetCallerActions extends BlockingNativeCallableUnit {
@@ -45,7 +45,8 @@ public class GetCallerActions extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct endpoint = (BStruct) context.getRefArgument(0);
-        BStruct connection = (BStruct) endpoint.getRefField(0);
+        BStruct connection = (BStruct) endpoint.getRefField(
+                                        org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX);
         context.setReturnValues(connection);
     }
 }

@@ -57,9 +57,9 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration",
+        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ServiceEndpointConfiguration",
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )

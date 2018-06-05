@@ -4,23 +4,26 @@ documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
 Example:
 ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
-T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 P{{accessMode}} read or write mode
 R{{successful}} boolean `true` or `false`}
 deprecated {
   This function is deprecated use `openFile(string accessMode){}` instead.
 }
-public function <File file> open (string accessMode) returns boolean {
+public function File::open (string accessMode) returns boolean {
     return true;
 }
 
-documentation { Documentation for File struct
-F{{path}} struct `field path` documentation}
+documentation { Documentation for File object
+F{{path}} file path documentation. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``}
 deprecated {
-  This Struct is deprecated use `File2` instead.
+  This Object is deprecated use `File2` instead.
 }
-public type File {
-    string path;
+public type File object {
+    public {
+        string path;
+    }
+
+    public function open(string accessMode) returns boolean;
 };
 
 documentation { PizzaService HTTP Service }
