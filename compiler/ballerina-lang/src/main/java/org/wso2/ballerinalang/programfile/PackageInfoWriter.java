@@ -42,7 +42,6 @@ import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
@@ -132,11 +131,6 @@ public class PackageInfoWriter {
                 case CP_ENTRY_WRKR_DATA_CHNL_REF:
                     WorkerDataChannelRefCPEntry workerDataChannelCPEntry = (WorkerDataChannelRefCPEntry) cpEntry;
                     dataOutStream.writeInt(workerDataChannelCPEntry.getUniqueNameCPIndex());
-                    break;
-                case CP_ENTRY_TRANSFORMER_REF:
-                    TransformerRefCPEntry transformerRefEntry = (TransformerRefCPEntry) cpEntry;
-                    dataOutStream.writeInt(transformerRefEntry.packageCPIndex);
-                    dataOutStream.writeInt(transformerRefEntry.nameCPIndex);
                     break;
             }
         }
@@ -235,7 +229,7 @@ public class PackageInfoWriter {
     }
 
     /**
-     * Write function info and transformer info entries to the compiling file.
+     * Write function info entries to the compiling file.
      *
      * @param dataOutStream    Output stream to write
      * @param callableUnitInfo Info object of the callable unit

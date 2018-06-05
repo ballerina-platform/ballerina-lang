@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -44,7 +43,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
@@ -139,13 +137,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
         notifyProcessors(attachmentList, (processor, list) -> processor.process(annotationNode, list));
     }
 
-    public void visit(BLangConnector connectorNode) {
-        List<BLangAnnotationAttachment> attachmentList = connectorNode.getAnnotationAttachments();
-        notifyProcessors(attachmentList, (processor, list) -> processor.process(connectorNode, list));
-        connectorNode.actions.forEach(action -> action.accept(this));
-        connectorNode.endpoints.forEach(endpoint -> endpoint.accept(this));
-    }
-
     public void visit(BLangEnum enumNode) {
         List<BLangAnnotationAttachment> attachmentList = enumNode.getAnnotationAttachments();
         notifyProcessors(attachmentList, (processor, list) -> processor.process(enumNode, list));
@@ -187,11 +178,6 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
-    }
-
-    public void visit(BLangTransformer transformerNode) {
-        List<BLangAnnotationAttachment> attachmentList = transformerNode.getAnnotationAttachments();
-        notifyProcessors(attachmentList, (processor, list) -> processor.process(transformerNode, list));
     }
 
     public void visit(BLangResource resourceNode) {
