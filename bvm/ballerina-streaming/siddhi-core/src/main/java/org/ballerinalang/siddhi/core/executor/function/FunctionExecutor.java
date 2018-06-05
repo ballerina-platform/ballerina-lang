@@ -79,7 +79,7 @@ public abstract class FunctionExecutor implements ExpressionExecutor, Snapshotab
     }
 
     /**
-     * The initialization method for FunctionExecutor, this method will be called before the other methods
+     * The initialization method for FunctionExecutor, this method will be called before the other methods.
      *
      * @param attributeExpressionExecutors are the executors of each function parameters
      * @param configReader                 This hold the {@link FunctionExecutor} extensions configuration reader.

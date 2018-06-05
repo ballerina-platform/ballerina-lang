@@ -30,6 +30,9 @@ import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase to find absent patterns.
+ */
 public class AbsentPatternTestCase {
 
     @Test(expectedExceptions = SiddhiParserException.class)

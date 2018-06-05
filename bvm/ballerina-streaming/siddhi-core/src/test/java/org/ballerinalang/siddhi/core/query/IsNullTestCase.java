@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for IsNull queries.
+ */
 public class IsNullTestCase {
     private static final Logger log = LoggerFactory.getLogger(IsNullTestCase.class);
     private int count;

@@ -37,7 +37,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created on 1/17/15.
+ * Testcase for defining tables.
  */
 public class DefineTableTestCase {
     private static final Logger log = LoggerFactory.getLogger(DefineTableTestCase.class);

@@ -20,6 +20,9 @@ import java.util.zip.ZipOutputStream;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
+/**
+ * Jar integration testcase.
+ */
 public class JarIntegrationTest {
 
     private static final byte[] BAL_CONTENT = "good bal".getBytes(StandardCharsets.UTF_8);

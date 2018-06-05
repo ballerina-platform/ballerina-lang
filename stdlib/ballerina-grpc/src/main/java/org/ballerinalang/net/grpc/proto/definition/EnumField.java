@@ -46,7 +46,7 @@ public class EnumField {
     }
 
     /**
-     * Enum Field Definition.Builder
+     * Enum Field Definition.Builder.
      */
     public static class Builder {
         private DescriptorProtos.EnumValueDescriptorProto.Builder fieldDescriptorBuilder;
