@@ -99,7 +99,7 @@ export function getHandlerDefinitions(workspaceManager) {
                 if (!targetFile.isPersisted) {
                     if (isOnElectron()) {
                         const { ipcRenderer } = require('electron');
-                        ipcRenderer.send('show-file-save-dialog');
+                        ipcRenderer.send('show-file-save-dialog', 'Save File', 'select where to save the file');
                         ipcRenderer.once('file-save-wizard-closed', (e, filePath) => {
                             if (!filePath) {
                                 return;
@@ -146,7 +146,7 @@ export function getHandlerDefinitions(workspaceManager) {
                 if (activeEditor && activeEditor.file) {
                     if (isOnElectron()) {
                         const { ipcRenderer } = require('electron');
-                        ipcRenderer.send('show-file-save-dialog');
+                        ipcRenderer.send('show-file-save-dialog', 'Save File', 'select where to save the file');
                         ipcRenderer.once('file-save-wizard-closed', (e, filePath) => {
                             saveFile(activeEditor.file, filePath, workspaceManager.appContext);
                         });
@@ -168,7 +168,7 @@ export function getHandlerDefinitions(workspaceManager) {
                 const { command: { dispatch } } = workspaceManager.appContext;
                 if (isOnElectron()) {
                     const { ipcRenderer } = require('electron');
-                    ipcRenderer.send('show-file-open-dialog');
+                    ipcRenderer.send('show-file-open-dialog', 'Open File in Composer', 'select a file to open');
                     ipcRenderer.once('file-open-wizard-closed', (e, file) => {
                         if (file) {
                             dispatch(COMMANDS.OPEN_FILE, {
@@ -188,7 +188,7 @@ export function getHandlerDefinitions(workspaceManager) {
                 const { command: { dispatch } } = workspaceManager.appContext;
                 if (isOnElectron()) {
                     const { ipcRenderer } = require('electron');
-                    ipcRenderer.send('show-folder-open-dialog');
+                    ipcRenderer.send('show-folder-open-dialog', 'Open Folder in Composer', 'select a folder to open');
                     ipcRenderer.once('folder-open-wizard-closed', (e, folder) => {
                         if (folder) {
                             dispatch(COMMANDS.OPEN_FOLDER, { folderPath: folder });
