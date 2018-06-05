@@ -82,7 +82,7 @@ public class LockFileWriter {
     private static List<StringBuilder> generatePkgDependencies(BPackageSymbol packageNode, int depth) {
         List<StringBuilder> result = new LinkedList<>();
         if (depth > 0) {
-            result.add(new StringBuilder().append("[\"").append(packageNode.pkgID.name).append("/")
+            result.add(new StringBuilder().append("[\"").append(packageNode.pkgID.orgName).append("/")
                                           .append(packageNode.pkgID.name).append("\"]"));
         }
         List<BPackageSymbol> importPackages = getImportPackages(packageNode);
@@ -123,7 +123,7 @@ public class LockFileWriter {
             result.add(new StringBuilder().append(LockFileConstants.VERSION + "= \"").append(pkgVersion).append("\"\n")
                                           .insert(0, "    "));
             while (iterator.hasNext()) {
-                result.add(iterator.next().insert(0, "    "));
+                result.add(iterator.next());
             }
         }
     }
