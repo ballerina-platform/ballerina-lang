@@ -147,7 +147,6 @@ public class WebSocketCompilationTest {
                 "The second parameter should be an error");
     }
 
-
     @Test(description = "Invalid resource in WebSocketService")
     public void testInValidResource() {
         CompileResult compileResult = BCompileUtil.compile(

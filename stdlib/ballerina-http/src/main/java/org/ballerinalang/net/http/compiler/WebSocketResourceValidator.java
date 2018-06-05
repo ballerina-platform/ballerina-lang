@@ -150,10 +150,9 @@ public class WebSocketResourceValidator {
         validateParamDetailsSize(paramDetails, 2, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"error".equals(paramDetails.get(1).type.toString())) {
-            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                    "Invalid resource signature for " + resource.getName().getValue() +
-                            " resource in service " +
-                            serviceName + ": The second parameter should be an error");
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, String.format("Invalid resource signature for " +
+                            "%s resource in service %s: The second parameter should be an error",
+                    resource.getName().getValue(),serviceName ));
         }
     }
 
