@@ -555,13 +555,15 @@ public class CommandUtil {
          * @return
          */
         public static String createFunction(String name, String returnType, String returnDefaultValue) {
-            String funcBody = "\r\n";
+            String funcBody = CommonUtil.LINE_SEPARATOR;
             String funcReturnSignature = "";
             if (returnType != null) {
                 funcBody = returnDefaultValue + funcBody;
                 funcReturnSignature = " returns " + returnType + " ";
             }
-            return "\r\n\r\nfunction " + name + "()" + funcReturnSignature + "{\r\n" + funcBody + "}\r\n";
+            return CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + "function " + name + "()"
+                    + funcReturnSignature + "{" + CommonUtil.LINE_SEPARATOR + funcBody + "}"
+                    + CommonUtil.LINE_SEPARATOR;
         }
 
         private static String getFuncReturnDefaultStatement(BLangNode bLangNode, String returnStatement) {
@@ -601,7 +603,8 @@ public class CommandUtil {
                 String name = constraintType.tsymbol.name.getValue();
                 String mapName = name.toLowerCase(Locale.ROOT) + "Map";
                 String mapDef = "map<" + name + "> " + mapName + " = "
-                        + "{key: " + getFuncReturnDefaultStatement(constraintType, "{%1}") + "};" + "\r\n";
+                        + "{key: " + getFuncReturnDefaultStatement(constraintType, "{%1}") + "};"
+                        + CommonUtil.LINE_SEPARATOR;
                 return returnStatement
                         .replace("return", mapDef + "    return")
                         .replace("{%1}", mapName);
