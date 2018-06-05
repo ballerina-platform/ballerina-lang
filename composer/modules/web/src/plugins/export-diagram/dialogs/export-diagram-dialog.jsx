@@ -441,7 +441,8 @@ class ExportDiagramDialog extends React.Component {
                                         content='Select'
                                         onClick={(evt) => {
                                             const { ipcRenderer } = require('electron');
-                                            ipcRenderer.send('show-folder-open-dialog');
+                                            ipcRenderer.send('show-folder-open-dialog', 'Select Directory to Export',
+                                                'select directory to export the image');
                                             ipcRenderer.once('folder-open-wizard-closed', (e, filePath) => {
                                                 if (filePath) {
                                                     this.setState({
