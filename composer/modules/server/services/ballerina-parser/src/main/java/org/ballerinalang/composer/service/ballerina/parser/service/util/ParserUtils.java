@@ -16,6 +16,7 @@
 package org.ballerinalang.composer.service.ballerina.parser.service.util;
 
 import com.google.common.io.Files;
+
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BuiltInType;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.SymbolInformation;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Action;
@@ -50,12 +51,10 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -254,7 +253,6 @@ public class ParserUtils {
         if (pkg != null) {
             pkg.getFunctions().forEach((function) -> extractFunction(packages, packageName, function));
             pkg.getAnnotations().forEach((annotation) -> extractAnnotation(packages, packageName, annotation));
-            pkg.getConnectors().forEach((connector) -> extractConnector(packages, packageName, connector));
             // TODO: need to decide whether we extract objects, enums, records from here or from client side.
             //pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
             //pkg.objects.forEach((object) -> extractObjects(packages, packageName, object));
@@ -280,47 +278,6 @@ public class ParserUtils {
             modelPackage.setName(packagePath);
 
             modelPackage.addAnnotationsItem(AnnotationDef.convertToPackageModel(annotation));
-            packages.put(packagePath, modelPackage);
-        }
-    }
-
-    /**
-     * Extract connectors from ballerina lang.
-     *
-     * @param packages  packages to send
-     * @param connector connector
-     */
-    private static void extractConnector(Map<String, ModelPackage> packages, String packagePath,
-                                         BLangConnector connector) {
-        String fileName = connector.getPosition().getSource().getCompilationUnitName();
-        if (packages.containsKey(packagePath)) {
-            ModelPackage modelPackage = packages.get(packagePath);
-            List<Parameter> parameters = new ArrayList<>();
-            addParameters(parameters, connector.getParameters());
-
-            List<AnnotationAttachment> annotations = new ArrayList<>();
-            addAnnotations(annotations, connector.getAnnotationAttachments());
-
-            List<Action> actions = new ArrayList<>();
-            addActions(actions, connector.getActions());
-
-            modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
-                    annotations, actions, parameters, null, fileName));
-        } else {
-            ModelPackage modelPackage = new ModelPackage();
-            modelPackage.setName(packagePath);
-
-            List<Parameter> parameters = new ArrayList<>();
-            addParameters(parameters, connector.getParameters());
-
-            List<AnnotationAttachment> annotations = new ArrayList<>();
-            addAnnotations(annotations, connector.getAnnotationAttachments());
-
-            List<Action> actions = new ArrayList<>();
-            addActions(actions, connector.getActions());
-
-            modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
-                    annotations, actions, parameters, null, fileName));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -586,10 +543,6 @@ public class ParserUtils {
         parameter.setType(type);
         parameter.setName(name);
         BType bType = typeNode.type;
-        if (bType instanceof BConnectorType) {
-            parameter.setPkgAlias(((BLangUserDefinedType) typeNode).pkgAlias.toString());
-            parameter.setConnector(true);
-        }
         return parameter;
     }
 

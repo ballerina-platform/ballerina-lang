@@ -23,8 +23,6 @@ under the License.
 
     <listeners>
         <listener class-name="org.ballerinalang.test.utils.BLogInitializer"/>
-        <listener class-name="org.ballerinalang.launcher.util.BallerinaTestListener"/>
-        <listener class-name="org.ballerinalang.test.balo.BaloTestListener"/>
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 

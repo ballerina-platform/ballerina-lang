@@ -806,7 +806,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         resultType = types.checkType(conversionExpr, actualType, expType);
     }
-        @Override
+
+    @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.type, expType);
