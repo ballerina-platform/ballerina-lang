@@ -12,6 +12,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -36,15 +38,20 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<Path> latest(Path path) {
+    public Stream<Path> latest(Path path, PackageID packageID) {
         if (Files.isDirectory(path)) {
             try {
-                return Files.list(path)
-                            .map(SortablePath::new)
-                            .filter(SortablePath::valid)
-                            .sorted(Comparator.reverseOrder())
-                            .limit(1)
-                            .map(SortablePath::getPath);
+                List<Path> pathList = Files.list(path)
+                                           .map(SortablePath::new)
+                                           .filter(SortablePath::valid)
+                                           .sorted(Comparator.reverseOrder())
+                                           .limit(1)
+                                           .map(SortablePath::getPath)
+                                           .collect(Collectors.toList());
+                if (!packageID.orgName.value.equals("ballerina") && packageID.version.value.isEmpty()) {
+                    packageID.version.value = pathList.get(0).toFile().getName();
+                }
+                return pathList.stream();
 
             } catch (IOException ignore) {
             }
