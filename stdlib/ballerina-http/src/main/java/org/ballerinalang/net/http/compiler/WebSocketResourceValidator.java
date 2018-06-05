@@ -48,7 +48,10 @@ public class WebSocketResourceValidator {
                 validateOnPingPongResource(serviceName, resource, dlog, isClient);
                 break;
             case WebSocketConstants.RESOURCE_NAME_ON_CLOSE:
-                validateCloseResource(serviceName, resource, dlog, isClient);
+                validateOnCloseResource(serviceName, resource, dlog, isClient);
+                break;
+            case WebSocketConstants.RESOURCE_NAME_ON_ERROR:
+                validateOnErrorResource(serviceName, resource, dlog, isClient);
                 break;
             default:
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
@@ -122,8 +125,8 @@ public class WebSocketResourceValidator {
         }
     }
 
-    private static void validateCloseResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
-                                              boolean isClient) {
+    private static void validateOnCloseResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
+                                                boolean isClient) {
         List<BLangVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 3, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
@@ -138,6 +141,19 @@ public class WebSocketResourceValidator {
                                "Invalid resource signature for " + resource.getName().getValue() +
                                        " resource in service " +
                                        serviceName + ": The third parameter should be a string");
+        }
+    }
+
+    private static void validateOnErrorResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
+                                                boolean isClient) {
+        List<BLangVariable> paramDetails = resource.getParameters();
+        validateParamDetailsSize(paramDetails, 2, serviceName, resource, dlog);
+        validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
+        if (paramDetails.size() < 2 || !"error".equals(paramDetails.get(1).type.toString())) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": The second parameter should be an error");
         }
     }
 
