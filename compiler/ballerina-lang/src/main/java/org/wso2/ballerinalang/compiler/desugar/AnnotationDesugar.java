@@ -22,9 +22,7 @@ import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -91,14 +89,6 @@ public class AnnotationDesugar {
         // Handle Function Annotations.
         for (BLangFunction function : pkgNode.functions) {
             generateAnnotations(function, function.symbol.name.value, initFunction, annotationMap);
-        }
-        // Handle Connector Annotations.
-        for (BLangConnector connector : pkgNode.connectors) {
-            generateAnnotations(connector, connector.name.value, initFunction, annotationMap);
-            for (BLangAction action : connector.actions) {
-                String key = connector.name.value + DOT + action.name.value;
-                generateAnnotations(connector, key, initFunction, annotationMap);
-            }
         }
 
         for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {

@@ -23,7 +23,7 @@ import org.ballerinalang.siddhi.query.api.definition.Attribute;
 
 
 /**
- * Utility class to convert Object to the desired type using {@link Attribute.Type}
+ * Utility class to convert Object to the desired type using {@link Attribute.Type}.
  */
 public class AttributeConverter {
 

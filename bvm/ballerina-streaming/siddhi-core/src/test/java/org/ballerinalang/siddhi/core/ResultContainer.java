@@ -26,6 +26,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+/**
+ * Test util class to hold results.
+ */
 public class ResultContainer {
     private static final Logger log = LoggerFactory.getLogger(ResultContainer.class);
     private CountDownLatch latch;

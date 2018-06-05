@@ -73,7 +73,7 @@ public class UserDefinedEnumMessage extends Message {
     }
 
     /**
-     * MessageDefinition.Builder
+     * MessageDefinition.Builder.
      */
     public static class Builder {
         private DescriptorProtos.EnumDescriptorProto.Builder messageDescriptorBuilder;

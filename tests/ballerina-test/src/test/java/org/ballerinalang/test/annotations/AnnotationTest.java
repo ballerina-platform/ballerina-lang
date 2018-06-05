@@ -198,16 +198,6 @@ public class AnnotationTest {
                 .compile("test-src/lang/annotations/constant-as-attribute-value.bal").getProgFile());
     }
 
-    @Test(description = "Test transformer annotation", enabled = false)
-    public void testTransformerAnnotation() {
-        AnnotationAttributeInfo annotationInfo = (AnnotationAttributeInfo) compileResult.getProgFile()
-                .getEntryPackage().getTransformerInfo("Bar")
-                .getAttributeInfo(AttributeInfo.Kind.ANNOTATIONS_ATTRIBUTE);
-        AnnAttachmentInfo[] attachmentInfos = annotationInfo.getAttachmentInfoEntries();
-        String attributeValue = attachmentInfos[0].getAttributeValue("value").getStringValue();
-        Assert.assertEquals(attributeValue, "User defined transformer: from string to Person");
-    }
-
     // Negative tests
 
     @Test(description = "Test child annotation from a wrong package")

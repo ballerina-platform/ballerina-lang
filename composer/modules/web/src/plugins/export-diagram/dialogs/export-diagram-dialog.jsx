@@ -28,6 +28,7 @@ import { createOrUpdate, exists as checkFileExists } from 'core/workspace/fs-uti
 import { DIALOGS } from 'core/workspace/constants';
 import { COMMANDS as LAYOUT_COMMANDS } from 'core/layout/constants';
 import ScrollBarsWithContextAPI from 'core/view/scroll-bars/ScrollBarsWithContextAPI';
+import { isOnElectron } from 'core/utils/client-info';
 
 
 const FILE_TYPE = 'file';
@@ -425,7 +426,7 @@ class ExportDiagramDialog extends React.Component {
                             <Form.Input
                                 fluid
                                 className='inverted'
-                                label='File Path'
+                                label='Directory'
                                 placeholder='eg: /home/user/diagrams'
                                 value={this.state.filePath}
                                 onChange={(evt) => {
@@ -434,6 +435,26 @@ class ExportDiagramDialog extends React.Component {
                                         filePath: evt.target.value,
                                     });
                                 }}
+                                action={isOnElectron() &&
+                                    <Button
+                                        icon='folder open'
+                                        content='Select'
+                                        onClick={(evt) => {
+                                            const { ipcRenderer } = require('electron');
+                                            ipcRenderer.send('show-folder-open-dialog', 'Select Directory to Export',
+                                                'select directory to export the image');
+                                            ipcRenderer.once('folder-open-wizard-closed', (e, filePath) => {
+                                                if (filePath) {
+                                                    this.setState({
+                                                        error: '',
+                                                        filePath,
+                                                    });
+                                                }
+                                            });
+                                            evt.preventDefault();
+                                        }}
+                                    />
+                                }
                             />
                         </Form.Group>
                         <Form.Group controlId='fileName' inline className='inverted'>
@@ -467,33 +488,35 @@ class ExportDiagramDialog extends React.Component {
 
                         </Form.Group>
                     </Form>
-                    <ScrollBarsWithContextAPI
-                        style={{
-                            height: 300,
-                        }}
-                        autoHide
-                    >
-                        <FileTree
-                            activeKey={this.state.filePath}
-                            onSelect={
-                                (node) => {
-                                    let filePath = node.id;
-                                    let fileName = this.state.fileName;
-                                    if (node.type === FILE_TYPE) {
-                                        filePath = node.filePath;
-                                        fileName = node.fileName + '.' + node.extension;
+                    {!isOnElectron() &&
+                        <ScrollBarsWithContextAPI
+                            style={{
+                                height: 300,
+                            }}
+                            autoHide
+                        >
+                            <FileTree
+                                activeKey={this.state.filePath}
+                                onSelect={
+                                    (node) => {
+                                        let filePath = node.id;
+                                        let fileName = this.state.fileName;
+                                        if (node.type === FILE_TYPE) {
+                                            filePath = node.filePath;
+                                            fileName = node.fileName + '.' + node.extension;
+                                        }
+                                        const { history } = this.props.appContext.pref;
+                                        history.put(HISTORY_LAST_ACTIVE_PATH, filePath);
+                                        this.setState({
+                                            error: '',
+                                            filePath,
+                                            fileName,
+                                        });
                                     }
-                                    const { history } = this.props.appContext.pref;
-                                    history.put(HISTORY_LAST_ACTIVE_PATH, filePath);
-                                    this.setState({
-                                        error: '',
-                                        filePath,
-                                        fileName,
-                                    });
                                 }
-                            }
-                        />
-                    </ScrollBarsWithContextAPI>
+                            />
+                        </ScrollBarsWithContextAPI>
+                    }
                 </Dialog>
             </div>
         );

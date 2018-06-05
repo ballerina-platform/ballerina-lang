@@ -16,10 +16,11 @@ type ResultCustomers2 {
     string LASTNAME,
 };
 
-function testSelectData() returns (string) {
+function testSelectData(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
     string returnData;
@@ -42,10 +43,11 @@ function testSelectData() returns (string) {
     return returnData;
 }
 
-function testGeneratedKeyOnInsert() returns (string) {
+function testGeneratedKeyOnInsert(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -71,10 +73,11 @@ function testGeneratedKeyOnInsert() returns (string) {
     return id;
 }
 
-function testCallProcedure() returns (string) {
+function testCallProcedure(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
     string returnData;
@@ -96,10 +99,11 @@ function testCallProcedure() returns (string) {
     return returnData;
 }
 
-function testBatchUpdate() returns (string) {
+function testBatchUpdate(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -127,7 +131,13 @@ function testBatchUpdate() returns (string) {
         match x {
             int[] data => {
                 updateCount = data;
-                returnVal = "success";
+                // In postgresql and mysql, when batch update fails, "-3" is returned for update count instead of an
+                // error
+                if (updateCount[0] == -3 && updateCount[1] == -3) {
+                    returnVal = "failure";
+                } else {
+                    returnVal = "success";
+                }
             }
             error err1 => {
                 returnVal = err1.message;
@@ -139,10 +149,11 @@ function testBatchUpdate() returns (string) {
     return returnVal;
 }
 
-function testInvalidArrayofQueryParameters() returns (string) {
+function testInvalidArrayofQueryParameters(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -170,10 +181,12 @@ function testInvalidArrayofQueryParameters() returns (string) {
     return returnData;
 }
 
-function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() returns ((string, string)|error) {
+function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(string jdbcUrl, string userName, string password
+             ) returns ((string, string)|error) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -205,10 +218,12 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() return
     }
 }
 
-function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() returns ((string, string)|error) {
+function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string jdbcUrl, string userName, string
+    password) returns ((string, string)|error) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -240,10 +255,12 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() retur
     }
 }
 
-function testCallProcedureWithMultipleResultSetsAndNilConstraintCount() returns ((string, string)|error) {
+function testCallProcedureWithMultipleResultSetsAndNilConstraintCount(string jdbcUrl, string userName, string password)
+             returns ((string, string)|error) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 

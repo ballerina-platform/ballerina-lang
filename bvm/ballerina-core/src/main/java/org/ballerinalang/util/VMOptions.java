@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 /**
- * A holder for BVM options (specified as -B arguments)
+ * A holder for BVM options (specified as -B arguments).
  *
  * @since 0.966.0
  */

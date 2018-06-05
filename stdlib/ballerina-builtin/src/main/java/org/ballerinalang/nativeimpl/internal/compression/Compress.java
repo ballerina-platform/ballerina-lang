@@ -56,7 +56,7 @@ import java.util.zip.ZipOutputStream;
 public class Compress extends BlockingNativeCallableUnit {
 
     /**
-     * File path defined in ballerina.compression
+     * File path defined in ballerina.compression.
      */
     private static final int SRC_PATH_FIELD_INDEX = 0;
 

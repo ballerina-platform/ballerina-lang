@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationAttributeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConnectorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -46,7 +45,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTransformerSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BXMLAttributeSymbol;
@@ -65,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum.BLangEnumerator;
@@ -78,7 +75,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -112,6 +108,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -210,9 +207,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
-
-        // Define transformer params
-        defineTransformerMembers(pkgNode.transformers, pkgEnv);
 
         // Define service resource nodes.
         defineServiceMembers(pkgNode.services, pkgEnv);
@@ -412,16 +406,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 names.fromIdNode(workerNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
         workerNode.symbol = workerSymbol;
         defineSymbolWithCurrentEnvOwner(workerNode.pos, workerSymbol);
-    }
-
-    @Override
-    public void visit(BLangConnector connectorNode) {
-        BConnectorSymbol conSymbol = Symbols.createConnectorSymbol(Flags.asMask(connectorNode.flagSet),
-                names.fromIdNode(connectorNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
-        connectorNode.symbol = conSymbol;
-        defineSymbol(connectorNode.pos, conSymbol);
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, conSymbol.scope, env);
-        connectorNode.endpoints.forEach(ep -> defineNode(ep, connectorEnv));
     }
 
     @Override
@@ -636,38 +620,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTransformer transformerNode) {
-        validateTransformerMappingTypes(transformerNode);
-
-        boolean safeConversion = transformerNode.retParams.size() == 1;
-        Name name = getTransformerSymbolName(transformerNode);
-        BTransformerSymbol transformerSymbol = Symbols.createTransformerSymbol(Flags.asMask(transformerNode.flagSet),
-                name, env.enclPkg.symbol.pkgID, null, safeConversion, env.scope.owner);
-        transformerNode.symbol = transformerSymbol;
-
-        // If this is a default transformer, check whether this transformer conflicts with a built-in conversion
-        if (transformerNode.name.value.isEmpty()) {
-            BType targetType = transformerNode.retParams.get(0).type;
-            BSymbol symbol = symResolver.resolveConversionOperator(transformerNode.source.type, targetType);
-            if (symbol != symTable.notFoundSymbol) {
-                dlog.error(transformerNode.pos, DiagnosticCode.TRANSFORMER_CONFLICTS_WITH_CONVERSION,
-                        transformerNode.source.type, targetType);
-                return;
-            }
-        }
-
-        // Define the transformer
-        SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerSymbol.scope, env);
-
-        transformerNode.symbol = transformerSymbol;
-        defineSymbol(transformerNode.pos, transformerSymbol);
-        transformerEnv.scope = transformerSymbol.scope;
-
-        // Define transformer source.
-        defineNode(transformerNode.source, transformerEnv);
-    }
-
-    @Override
     public void visit(BLangAction actionNode) {
         BInvokableSymbol actionSymbol = Symbols
                 .createActionSymbol(Flags.asMask(actionNode.flagSet), names.fromIdNode(actionNode.name),
@@ -857,9 +809,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             case TYPE_DEFINITION:
                 pkgNode.typeDefinitions.add((BLangTypeDefinition) node);
                 break;
-            case CONNECTOR:
-                pkgNode.connectors.add((BLangConnector) node);
-                break;
             case SERVICE:
                 pkgNode.services.add((BLangService) node);
                 break;
@@ -873,9 +822,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case XMLNS:
                 pkgNode.xmlnsList.add((BLangXMLNS) node);
-                break;
-            case TRANSFORMER:
-                pkgNode.transformers.add((BLangTransformer) node);
                 break;
             case ENDPOINT:
                 pkgNode.globalEndpoints.add((BLangEndpoint) node);
@@ -1327,32 +1273,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                     funcNode.receiver.type.tsymbol.name.value, funcNode.name.value));
         }
         return names.fromIdNode(funcNode.name);
-    }
-
-    private Name getTransformerSymbolName(BLangTransformer transformerNode) {
-        if (transformerNode.name.value.isEmpty()) {
-            return names.fromString(Names.TRANSFORMER.value + "<" + transformerNode.source.type + ","
-                    + transformerNode.retParams.get(0).type + ">");
-        }
-        return names.fromIdNode(transformerNode.name);
-    }
-
-    private void validateTransformerMappingTypes(BLangTransformer transformerNode) {
-        BType varType = symResolver.resolveTypeNode(transformerNode.source.typeNode, env);
-        transformerNode.source.type = varType;
-
-        symResolver.resolveTypeNode(transformerNode.returnTypeNode, env);
-//        transformerNode.retParams.forEach(returnParams -> {
-//            BType targetType = symResolver.resolveTypeNode(returnParams.typeNode, env);
-//            returnParams.type = targetType;
-//        });
-    }
-
-    private void defineTransformerMembers(List<BLangTransformer> transformers, SymbolEnv pkgEnv) {
-        transformers.forEach(transformer -> {
-            SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformer, transformer.symbol.scope, pkgEnv);
-            defineInvokableSymbolParams(transformer, transformer.symbol, transformerEnv);
-        });
     }
 
     private Name getFieldSymbolName(BLangVariable receiver, BLangVariable variable) {

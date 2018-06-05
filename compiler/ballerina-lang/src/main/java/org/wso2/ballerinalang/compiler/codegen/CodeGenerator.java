@@ -53,7 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
@@ -65,7 +64,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -94,7 +92,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -188,7 +185,6 @@ import org.wso2.ballerinalang.programfile.RecordTypeInfo;
 import org.wso2.ballerinalang.programfile.ResourceInfo;
 import org.wso2.ballerinalang.programfile.ServiceInfo;
 import org.wso2.ballerinalang.programfile.StructFieldInfo;
-import org.wso2.ballerinalang.programfile.TransformerInfo;
 import org.wso2.ballerinalang.programfile.TypeDefInfo;
 import org.wso2.ballerinalang.programfile.ValueSpaceItemInfo;
 import org.wso2.ballerinalang.programfile.WorkerDataChannelInfo;
@@ -215,7 +211,6 @@ import org.wso2.ballerinalang.programfile.cpentries.IntegerCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.PackageRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StringCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.StructureRefCPEntry;
-import org.wso2.ballerinalang.programfile.cpentries.TransformerRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.TypeRefCPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.UTF8CPEntry;
 import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
@@ -230,6 +225,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
+
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -512,13 +508,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             rhsExpr.regIndex = varSymbol.varIndex;
             genNode(rhsExpr, this.env);
         }
-    }
-
-    public void visit(BLangTransformer transformerNode) {
-        SymbolEnv transformerEnv =
-                SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, this.env);
-        currentCallableUnitInfo = currentPkgInfo.transformerInfoMap.get(transformerNode.symbol.name.value);
-        visitInvokableNode(transformerNode, currentCallableUnitInfo, transformerEnv);
     }
 
     // Statements
@@ -1150,18 +1139,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         } else {
             emit(InstructionCodes.CALL, operands);
         }
-    }
-
-    public void visit(BLangTransformerInvocation iExpr) {
-        BInvokableSymbol transformerSymbol = (BInvokableSymbol) iExpr.symbol;
-        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, transformerSymbol.pkgID);
-        int transformerNameCPIndex = addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
-        TransformerRefCPEntry transformerRefCPEntry = new TransformerRefCPEntry(pkgRefCPIndex, transformerNameCPIndex);
-
-        int transformerRefCPIndex = currentPkgInfo.addCPEntry(transformerRefCPEntry);
-        Operand[] operands = getFuncOperands(iExpr, transformerRefCPIndex);
-
-        emit(InstructionCodes.TCALL, operands);
     }
 
     public void visit(BFunctionPointerInvocation iExpr) {
@@ -1994,31 +1971,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         this.currentPkgInfo.functionInfoMap.put(funcSymbol.name.value, funcInfo);
     }
 
-    private void createTransformerInfoEntry(BLangInvokableNode invokable) {
-        BInvokableSymbol transformerSymbol = invokable.symbol;
-        BInvokableType transformerType = (BInvokableType) transformerSymbol.type;
-
-        // Add transformer name as an UTFCPEntry to the constant pool
-        int transformerNameCPIndex = this.addUTF8CPEntry(currentPkgInfo, transformerSymbol.name.value);
-
-        TransformerInfo transformerInfo = new TransformerInfo(currentPackageRefCPIndex, transformerNameCPIndex);
-        transformerInfo.paramTypes = transformerType.paramTypes.toArray(new BType[0]);
-        populateInvokableSignature(transformerType, transformerInfo);
-
-        transformerInfo.retParamTypes = new BType[1];
-        transformerInfo.retParamTypes[0] = transformerType.retType;
-        transformerInfo.flags = transformerSymbol.flags;
-
-        this.addWorkerInfoEntries(transformerInfo, invokable.getWorkers());
-
-        // Add parameter default value info
-        addParameterAttributeInfo(invokable, transformerInfo);
-        this.currentPkgInfo.transformerInfoMap.put(transformerSymbol.name.value, transformerInfo);
-
-        // Add documentation attributes
-        addDocumentAttachmentAttrInfo(invokable.docAttachments, transformerInfo);
-    }
-
     private void populateInvokableSignature(BInvokableType bInvokableType, CallableUnitInfo callableUnitInfo) {
         if (bInvokableType.retType == symTable.nilType) {
             callableUnitInfo.retParamTypes = new BType[0];
@@ -2444,9 +2396,6 @@ public class CodeGenerator extends BLangNodeVisitor {
             this.genNode(lExpr, this.env);
             this.varAssignment = false;
         }
-    }
-
-    public void visit(BLangConnector connectorNode) {
     }
 
     public void visit(BLangAction actionNode) {

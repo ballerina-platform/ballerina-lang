@@ -47,7 +47,7 @@ public abstract class DistributedTransport extends Sink {
     private String[] supportedDynamicOptions;
 
     /**
-     * Will be called for initialing the {@link Sink}
+     * Will be called for initialing the {@link Sink}.
      *
      * @param outputStreamDefinition The stream definition this Output transport/sink is attached to
      * @param optionHolder           Option holder containing static and dynamic options related to the
@@ -65,7 +65,7 @@ public abstract class DistributedTransport extends Sink {
     }
 
     /**
-     * This is method contains the additional parameters which require to initialize distributed transport
+     * This is method contains the additional parameters which require to initialize distributed transport.
      *
      * @param streamDefinition         Definition of the stream this sink instance is publishing to
      * @param type                     Type of the transport that (e.g., TCP, JMS)
