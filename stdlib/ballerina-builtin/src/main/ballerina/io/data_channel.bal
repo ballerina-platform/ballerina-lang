@@ -14,82 +14,101 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation{
+    Represents network byte order.
 
-public type ByteOrder BIG_ENDIAN|LITTLE_ENDIAN|DEFAULT;
+    BIG_ENDIAN - specifies the bytes to be in the order of most significant byte first
 
-public type BitLength 16_BIT|32_BIT|64_BIT;
+    LITTLE_ENDIAN - specifies the byte order to be the least significant byte first
 
-public type DataChannel {
-    public {
-      ByteChannel byteChannel;
-      ByteOrder byteOrder;
+    NATIVE - specifies the byte order to be in the native order defined by the platform of execusion
+}
+public type ByteOrder "BI"|"LI"|"NATIVE";
+@final public ByteOrder BIG_ENDIAN = "BI";
+@final public ByteOrder LITTLE_ENDIAN = "LI";
+@final public ByteOrder NATIVE = "NATIVE";
+
+documentation{
+    Represents supported bit lengths.
+
+    BIT_16 - for 16 bit(2 byte) representation
+
+    BIT_32 - for 32 bit (4 byte) representation
+
+    BIT_64 - for 64 bit (8 byte) representation
+}
+public type BitLength "16b"|"32b"|"64b";
+@final public BitLength BIT_16 = "16b";
+@final public BitLength BIT_32 = "32b";
+@final public BitLength BIT_64 = "64b";
+
+documentation {
+    Represents a data channel for reading/writing data.
+}
+public type DataChannel object {
+    private {
+        ByteChannel byteChannel;
     }
 
-    new(ByteChannel ch,ByteOrder byteOrder="default"){
-
+    public new(byteChannel, ByteOrder bOrder = "NATIVE") {
+        init(byteChannel, bOrder);
     }
+
+    documentation{
+        Initializes data channel
+
+        P{{byteChannel}} channel which would represent the source to read/write data
+        P{{bOrder}} network byte order the bytes will be represented in source
+    }
+    native function init(ByteChannel byteChannel, ByteOrder bOrder);
 
     documentation {
-        Reads an integer based on the specified bit length.
+        Reads an integer for the specified bit length.
 
         P{{len}}        Length of the integer in bits
-        P{{signed}} True if the integer is signed else would be unsigned
-
+        P{{signed}}     True if the integer is signed else would be unsigned
         R{{}} Value of the integer which is read or an error
     }
-    function readInt(BitLength len = 16_BIT, boolean signed = true) returns int | error;
+    public native function readInt(BitLength len = "64b", boolean signed = true) returns int|error;
 
     documentation {
-        Writes the value of the integer.
-
-        The bit length and the signed status will be identified from the input value
+        Writes integer for the specified bit length.
 
         P{{value}}   Integer which will be written
+        P{{len}}     length which should be allocated for int
+        R{{}} nill if the content is written successfully or error
     }
-    function writeInt(int value) returns error?;
+    public native function writeInt(int value, BitLength len = "64b") returns error?;
 
     documentation {
         Reads float value based on the specified bit length.
 
         P{{len}}        Length of the float in bits
-        P{{signed}} True if the integer is signed else would be unsigned
-
         R{{}} Value of the float which is read or an error.
     }
-    function readFloat(BitLength len = 32_BIT) returns float | error;
+    public native function readFloat(BitLength len = "64b") returns float|error;
 
     documentation {
-        Writes the value of the float.
-
-        The bit length and the signed status will be identified from the input value
+        Writes float for the specified bit length.
 
         P{{value}}   float which will be written
+        P{{len}}     length which should be allocated to float
+        R{{}} Value of the float which is read or an error.
     }
-    function writeFloat(float value) returns error?;
+    public native function writeFloat(float value, BitLength len = "64b") returns error?;
 
     documentation {
-        Reads 8bits (1 byte) and convert it's value to bool.
+        Reads 1 byte and convert it's value to boolean.
 
         R{{}} True if the value of the byte is 1 or an error
     }
-    function readBool() returns boolean | error;
+    public native function readBool() returns boolean|error;
 
     documentation {
-        Writes the provided boolean value.
+        Writes boolean.
+
+        P{{value}}   boolean which will be written
+        R{{}} nill if the content is written successfully or an error
     }
-    function writeBool(bool value) returns error?;
-
-    documentation {
-        Skips the specified number of bytes.
-
-        P{{nBytes}}   Number of bytes which should be skipped
-    }
-    function skip(int nBytes) returns error?;
-
-    documentation {
-        Reads the specified number of bytes.
-
-        P{{nBytes}}   Number of bytes which should be read
-    }
-    function readBytes(int nBytes) returns blob | error;
+    public native function writeBool(boolean value) returns error?;
 };

@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -14,28 +14,28 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
 package org.ballerinalang.nativeimpl.io.events.data;
 
 import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.Representation;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
-import org.ballerinalang.nativeimpl.io.events.result.LongResult;
+import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 /**
- * Reads integer from a given channel.
+ * Writes boolean to a given source.
  */
-public class ReadIntegerEvent implements Event {
+public class WriteBoolEvent implements Event {
     /**
-     * Will be used to read int.
+     * Will be used to write bool.
      */
     private DataChannel channel;
     /**
@@ -43,16 +43,16 @@ public class ReadIntegerEvent implements Event {
      */
     private EventContext context;
     /**
-     * Holds the representation.
+     * Represents the value which will be written.
      */
-    private Representation representation;
+    private boolean value;
 
     private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
 
-    public ReadIntegerEvent(DataChannel channel, Representation representation, EventContext context) {
-        this.channel = channel;
+    public WriteBoolEvent(DataChannel dataChannel, boolean value, EventContext context) {
+        this.channel = dataChannel;
         this.context = context;
-        this.representation = representation;
+        this.value = value;
     }
 
     /**
@@ -60,19 +60,20 @@ public class ReadIntegerEvent implements Event {
      */
     @Override
     public EventResult get() {
-        LongResult result;
+        NumericResult result;
         try {
-            long numericResult = channel.readFixedLong(representation);
-            result = new LongResult(numericResult, context);
+            channel.writeBoolean(value);
+            result = new NumericResult(context);
         } catch (IOException e) {
-            log.error("Error occurred while reading integer", e);
+            log.error("Error occurred while writing boolean", e);
             context.setError(e);
-            result = new LongResult(context);
+            result = new NumericResult(context);
         } catch (Throwable e) {
-            log.error("Unidentified error occurred while reading integer", e);
+            log.error("Unidentified error occurred while writing boolean", e);
             context.setError(e);
-            result = new LongResult(context);
+            result = new NumericResult(context);
         }
         return result;
     }
+
 }

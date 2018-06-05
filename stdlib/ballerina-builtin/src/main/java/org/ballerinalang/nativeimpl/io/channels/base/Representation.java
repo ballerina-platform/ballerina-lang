@@ -19,21 +19,53 @@
 
 package org.ballerinalang.nativeimpl.io.channels.base;
 
-import com.sun.org.apache.regexp.internal.RE;
-
+/**
+ * Defines how the bytes will be represented for different data types.
+ */
 public enum Representation {
+    /**
+     * Represents a 64 bit value.
+     */
     BIT_64(8),
+    /**
+     * Represents a 32 bit value.
+     */
     BIT_32(4),
+    /**
+     * Represents a 16 bit value.
+     */
     BIT_16(2),
+    /**
+     * Represents a variable value which does not have s size defined.
+     */
     VARIABLE(-1);
 
     private int numberOfBytes;
 
-    Representation(int numberOfBytes){
+    Representation(int numberOfBytes) {
         this.numberOfBytes = numberOfBytes;
     }
 
     public int getNumberOfBytes() {
         return numberOfBytes;
+    }
+
+    /**
+     * finds a matching representation for the provided input string.
+     *
+     * @param representation the size representation string.
+     * @return the corresponding representation.
+     */
+    public static Representation find(String representation) {
+        switch (representation) {
+            case "64b":
+                return BIT_64;
+            case "32b":
+                return BIT_32;
+            case "16b":
+                return BIT_16;
+            default:
+                return BIT_64;
+        }
     }
 }

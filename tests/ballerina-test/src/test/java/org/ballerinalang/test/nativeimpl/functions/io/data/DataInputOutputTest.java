@@ -19,6 +19,7 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io.data;
 
+import org.apache.commons.codec.CharEncoding;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Representation;
@@ -53,7 +54,7 @@ public class DataInputOutputTest {
     }
 
 
-    @Test(description = "Test fixed long values ranges", dataProvider = "signedLongValues")
+    @Test(description = "Test fixed long value ranges", dataProvider = "signedLongValues")
     public void testSignedFixedLong(long value, Representation representation) throws IOException, URISyntaxException {
         String filePath = currentDirectoryPath + "/sample.bin";
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
@@ -69,7 +70,7 @@ public class DataInputOutputTest {
     }
 
     @Test(description = "Test floating point values", dataProvider = "DoubleValues")
-    public void testFloatingValues(double value, Representation representation) throws IOException {
+    public void testFloat(double value, Representation representation) throws IOException {
         String filePath = currentDirectoryPath + "/sample.bin";
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
         Channel channel = new MockByteChannel(byteChannel);
@@ -83,7 +84,7 @@ public class DataInputOutputTest {
     }
 
     @Test(description = "Test boolean read/write")
-    public void testBooleanValue() throws IOException {
+    public void testBoolean() throws IOException {
         String filePath = currentDirectoryPath + "/sample.bin";
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
         Channel channel = new MockByteChannel(byteChannel);
@@ -95,17 +96,39 @@ public class DataInputOutputTest {
         Assert.assertFalse(dataChannel.readBoolean());
     }
 
-    @DataProvider(name = "LongValues")
+    @Test(description = "Test string read/write", dataProvider = "StringValues")
+    public void testString(String content, String encoding) throws IOException {
+        String filePath = currentDirectoryPath + "/sample.bin";
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        Channel channel = new MockByteChannel(byteChannel);
+        DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        dataChannel.writeString(content, encoding);
+        byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        channel = new MockByteChannel(byteChannel);
+        dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        String readStr = dataChannel.readString(content.getBytes().length, encoding);
+        Assert.assertEquals(readStr, content);
+    }
+
+    @DataProvider(name = "StringValues")
+    public static Object[][] stringValues() {
+        return new Object[][]{
+                {"Test", CharEncoding.UTF_8},
+                {"aaabbǊ", CharEncoding.UTF_8}
+        };
+    }
+
+    @DataProvider(name = "signedLongValues")
     public static Object[][] signedLongValues() {
         return new Object[][]{
                 {0, BIT_16}, {0, BIT_32}, {0, BIT_64},
                 {-1, BIT_16}, {-1, BIT_32}, {-1, BIT_64},
-                {Short.MIN_VALUE, BIT_16}, {Short.MIN_VALUE, BIT_32}, {Short.MIN_VALUE, BIT_64},
-                {Short.MAX_VALUE, BIT_16}, {Short.MAX_VALUE, BIT_32}, {Short.MAX_VALUE, BIT_64},
+                {Short.MIN_VALUE, BIT_16}, {Short.MIN_VALUE, BIT_32},
+                {Short.MIN_VALUE, BIT_64}, {Short.MAX_VALUE, BIT_16},
+                {Short.MAX_VALUE, BIT_32}, {Short.MAX_VALUE, BIT_64},
                 {Integer.MIN_VALUE, BIT_32}, {Integer.MIN_VALUE, BIT_64},
                 {Integer.MAX_VALUE, BIT_32}, {Integer.MAX_VALUE, BIT_64},
-                {Long.MIN_VALUE, BIT_64},
-                {Long.MAX_VALUE, BIT_64}
+                {Long.MIN_VALUE, BIT_64}, {Long.MAX_VALUE, BIT_64}
         };
     }
 

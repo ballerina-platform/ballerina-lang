@@ -18,7 +18,8 @@
 
 package org.ballerinalang.nativeimpl.io.events.data;
 
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Representation;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
@@ -28,34 +29,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 
 /**
- * Writes integer to a given source
+ * Writes integer to a given source.
  */
 public class WriteIntegerEvent implements Event {
     /**
      * Will be used to read bytes.
      */
-    private Channel channel;
+    private DataChannel channel;
     /**
      * Holds context to the event.
      */
     private EventContext context;
     /**
-     * The reference to the content which should be written.
+     * Represents the value which will be written.
      */
-    private ByteBuffer writeBuffer;
+    private long value;
+    /**
+     * Holds the representation of the value which should be written.
+     */
+    private Representation representation;
 
     private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
 
-    public WriteIntegerEvent(Channel byteChannel, int value, EventContext context) {
-        this.channel = byteChannel;
-        writeBuffer = ByteBuffer.allocate(4);
-        writeBuffer.putInt(value);
-        writeBuffer.flip();
+    public WriteIntegerEvent(DataChannel dataChannel, long value, Representation representation, EventContext context) {
+        this.channel = dataChannel;
         this.context = context;
+        this.value = value;
+        this.representation = representation;
     }
 
     /**
@@ -65,14 +67,14 @@ public class WriteIntegerEvent implements Event {
     public EventResult get() {
         NumericResult result;
         try {
-            int numberOfBytesWritten = channel.write(writeBuffer);
-            result = new NumericResult(numberOfBytesWritten,context);
+            channel.writeFixedLong(value, representation);
+            result = new NumericResult(context);
         } catch (IOException e) {
-            log.error("Error occurred while reading bytes", e);
+            log.error("Error occurred while writing int", e);
             context.setError(e);
             result = new NumericResult(context);
         } catch (Throwable e) {
-            log.error("Unidentified error occurred while reading bytes", e);
+            log.error("Unidentified error occurred while writing int", e);
             context.setError(e);
             result = new NumericResult(context);
         }

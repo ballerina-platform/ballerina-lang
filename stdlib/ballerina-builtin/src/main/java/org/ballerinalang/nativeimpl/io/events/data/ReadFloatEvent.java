@@ -6,7 +6,7 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -14,6 +14,7 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
 package org.ballerinalang.nativeimpl.io.events.data;
@@ -24,18 +25,18 @@ import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
-import org.ballerinalang.nativeimpl.io.events.result.LongResult;
+import org.ballerinalang.nativeimpl.io.events.result.DoubleResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 /**
- * Reads integer from a given channel.
+ * Represents the event to read float values.
  */
-public class ReadIntegerEvent implements Event {
+public class ReadFloatEvent implements Event {
     /**
-     * Will be used to read int.
+     * Will be used to read float.
      */
     private DataChannel channel;
     /**
@@ -49,7 +50,7 @@ public class ReadIntegerEvent implements Event {
 
     private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
 
-    public ReadIntegerEvent(DataChannel channel, Representation representation, EventContext context) {
+    public ReadFloatEvent(DataChannel channel, Representation representation, EventContext context) {
         this.channel = channel;
         this.context = context;
         this.representation = representation;
@@ -60,19 +61,20 @@ public class ReadIntegerEvent implements Event {
      */
     @Override
     public EventResult get() {
-        LongResult result;
+        DoubleResult result;
         try {
-            long numericResult = channel.readFixedLong(representation);
-            result = new LongResult(numericResult, context);
+            double numericResult = channel.readDouble(representation);
+            result = new DoubleResult(numericResult, context);
         } catch (IOException e) {
-            log.error("Error occurred while reading integer", e);
+            log.error("Error occurred while reading float", e);
             context.setError(e);
-            result = new LongResult(context);
+            result = new DoubleResult(context);
         } catch (Throwable e) {
-            log.error("Unidentified error occurred while reading integer", e);
+            log.error("Unidentified error occurred while reading float", e);
             context.setError(e);
-            result = new LongResult(context);
+            result = new DoubleResult(context);
         }
         return result;
     }
+
 }

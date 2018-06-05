@@ -21,29 +21,76 @@ package org.ballerinalang.nativeimpl.io;
 
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.data.WriteBoolEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
- * Native function ballerina.io#writeInt
+ * Native function ballerina.io#writeBool
  *
- * @since 0.970.0-alpha1
+ * @since 0.973.1
  */
 @BallerinaFunction(
-  orgName = "ballerina", packageName = "io",
-  functionName = "DataChannel.writeBool",
-  receiver = @Receiver(type = TypeKind.STRUCT, structType = "DataChannel", structPackage = "ballerina.io"),
-  isPublic = true
+        orgName = "ballerina", packageName = "io",
+        functionName = "writeBool",
+        receiver = @Receiver(type = TypeKind.STRUCT, structType = "DataChannel", structPackage = "ballerina.io"),
+        args = {@Argument(name = "value", type = TypeKind.BOOLEAN)},
+        isPublic = true
 )
-public class WriteBool extends BlockingNativeCallableUnit{
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public void execute(Context context) {
-                BValue refArgument = context.getRefArgument(0);
+public class WriteBool implements NativeCallableUnit {
+    /**
+     * Represents data channel.
+     */
+    private static final int DATA_CHANNEL_INDEX = 0;
+    /**
+     * Index which holds the value of the data read.
+     */
+    private static final int VALUE_INDEX = 0;
+
+    /**
+     * Triggers upon receiving the response.
+     *
+     * @param result the response received after writing boolean
+     */
+    private static EventResult writeBooleanResponse(EventResult<Integer, EventContext> result) {
+        EventContext eventContext = result.getContext();
+        Context context = eventContext.getContext();
+        Throwable error = eventContext.getError();
+        CallableUnitCallback callback = eventContext.getCallback();
+        if (null != error) {
+            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
+            context.setReturnValues(errorStruct);
         }
+        callback.notifySuccess();
+        return result;
+    }
+
+
+    @Override
+    public void execute(Context context, CallableUnitCallback callback) {
+        BStruct dataChannelStruct = (BStruct) context.getRefArgument(DATA_CHANNEL_INDEX);
+        DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
+        boolean value = context.getBooleanArgument(VALUE_INDEX);
+        EventContext eventContext = new EventContext(context, callback);
+        WriteBoolEvent writeIntegerEvent = new WriteBoolEvent(channel, value, eventContext);
+        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
+        publish.thenApply(WriteBool::writeBooleanResponse);
+    }
+
+    @Override
+    public boolean isBlocking() {
+        return false;
+    }
 }
