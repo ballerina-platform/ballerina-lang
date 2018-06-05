@@ -327,8 +327,14 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return dent() + getSourceOf(node.expression, pretty, l, replaceLambda)
                  + w() + ';';
         case 'FieldBasedAccessExpr':
-            return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
+            if (node.errorLifting && node.expression
+                         && node.fieldName.valueWithBar) {
+                return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
+                 + '!' + w() + node.fieldName.valueWithBar;
+            } else {
+                return getSourceOf(node.expression, pretty, l, replaceLambda) + w()
                  + '.' + w() + node.fieldName.valueWithBar;
+            }
         case 'Foreach':
             if (node.withParantheses && node.variables && node.collection
                          && node.body) {
