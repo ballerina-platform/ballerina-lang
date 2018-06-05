@@ -547,10 +547,8 @@ public class CommonUtil {
             }
 
             entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BInvokableSymbol
-                        && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
-                    String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
-                            .receiverSymbol.getType().toString();
+                if (scopeEntry.symbol instanceof BInvokableSymbol && scopeEntry.symbol.owner != null) {
+                    String symbolBoundedName = scopeEntry.symbol.owner.toString();
 
                     if (symbolBoundedName.equals(bTypeValue)) {
                         // TODO: Need to handle the name in a proper manner
