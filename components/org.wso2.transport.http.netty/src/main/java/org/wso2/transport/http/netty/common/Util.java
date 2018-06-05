@@ -58,7 +58,6 @@ import java.util.regex.Pattern;
 import static org.wso2.transport.http.netty.common.Constants.COLON;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_HOST;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_PORT;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.common.Constants.IS_PROXY_ENABLED;
 import static org.wso2.transport.http.netty.common.Constants.PROTOCOL;
 import static org.wso2.transport.http.netty.common.Constants.TO;
@@ -166,8 +165,8 @@ public class Util {
             outboundRequestMsg.setProperty(TO, "");
         }
         // Return absolute url if proxy is enabled
-        if (outboundRequestMsg.getProperty(IS_PROXY_ENABLED) != null && (boolean) outboundRequestMsg
-                .getProperty(IS_PROXY_ENABLED) && outboundRequestMsg.getProperty(PROTOCOL).equals(HTTP_SCHEME)) {
+        if (outboundRequestMsg.getProperty(IS_PROXY_ENABLED) != null &&
+                (boolean) outboundRequestMsg.getProperty(IS_PROXY_ENABLED)) {
             return outboundRequestMsg.getProperty(PROTOCOL) + URL_AUTHORITY
                     + outboundRequestMsg.getProperty(HTTP_HOST) + COLON
                     + outboundRequestMsg.getProperty(HTTP_PORT)
