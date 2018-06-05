@@ -3046,17 +3046,22 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(endExpr, env);
         rangeExpr.regIndex = calcAndGetExprRegIndex(rangeExpr);
 
+        RegIndex startExprRegIndex = startExpr.regIndex;
+        RegIndex endExprRegIndex = endExpr.regIndex;
+
         if (!rangeExpr.includeStart || !rangeExpr.includeEnd) {
             RegIndex const1RegIndex = getRegIndex(TypeTags.INT);
             emit(InstructionCodes.ICONST_1, const1RegIndex);
             if (!rangeExpr.includeStart) {
-                emit(InstructionCodes.IADD, startExpr.regIndex, const1RegIndex, startExpr.regIndex);
+                startExprRegIndex = getRegIndex(TypeTags.INT);
+                emit(InstructionCodes.IADD, startExpr.regIndex, const1RegIndex, startExprRegIndex);
             }
             if (!rangeExpr.includeEnd) {
-                emit(InstructionCodes.ISUB, endExpr.regIndex, const1RegIndex, endExpr.regIndex);
+                endExprRegIndex = getRegIndex(TypeTags.INT);
+                emit(InstructionCodes.ISUB, endExpr.regIndex, const1RegIndex, endExprRegIndex);
             }
         }
-        emit(InstructionCodes.NEW_INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
+        emit(InstructionCodes.NEW_INT_RANGE, startExprRegIndex, endExprRegIndex, rangeExpr.regIndex);
     }
 
     // private helper methods of visitors.
