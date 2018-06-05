@@ -1785,6 +1785,7 @@ public class BLangPackageBuilder {
             stmt.expr = (BLangExpression) exprNodeStack.pop();
             List<ExpressionNode> lExprList = exprNodeListStack.pop();
             lExprList.forEach(expressionNode -> stmt.varRefs.add((BLangVariableReference) expressionNode));
+            stmt.addWS(commaWsStack.pop());
         }
         // TODO: handle ParamList Destructure.
         addStmtToCurrentBlock(stmt);
