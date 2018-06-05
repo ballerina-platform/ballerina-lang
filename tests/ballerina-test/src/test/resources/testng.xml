@@ -30,12 +30,6 @@ under the License.
 
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
-        <parameter name="dataClientTestDBType" value="HSQLDB"/>
-        <groups>
-            <run>
-                <exclude name="HSQLDBNotSupported"/>
-            </run>
-        </groups>
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>

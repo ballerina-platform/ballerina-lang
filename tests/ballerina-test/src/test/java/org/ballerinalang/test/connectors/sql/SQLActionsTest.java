@@ -192,7 +192,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "HSQLDBNotSupported"})
+    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "HSQLDBNotSupported"}, enabled = false)
     public void testCallFunctionWithRefCursor() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testCallFunctionWithReturningRefcursor", connectionArgs);
         BString retValue = (BString) returns[0];
