@@ -19,7 +19,6 @@
 
 package org.ballerinalang.nativeimpl.io;
 
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
@@ -82,7 +81,6 @@ public class ReadFloat implements NativeCallableUnit {
         callback.notifySuccess();
         return result;
     }
-
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {

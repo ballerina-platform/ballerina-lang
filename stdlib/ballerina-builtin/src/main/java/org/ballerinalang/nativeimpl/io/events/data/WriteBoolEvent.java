@@ -75,5 +75,4 @@ public class WriteBoolEvent implements Event {
         }
         return result;
     }
-
 }

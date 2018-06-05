@@ -19,7 +19,6 @@
 
 package org.ballerinalang.nativeimpl.io;
 
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;

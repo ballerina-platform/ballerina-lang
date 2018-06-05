@@ -19,7 +19,6 @@
 
 package org.ballerinalang.nativeimpl.io;
 
-
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
@@ -83,7 +82,6 @@ public class WriteFloat implements NativeCallableUnit {
         return result;
     }
 
-
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BStruct dataChannelStruct = (BStruct) context.getRefArgument(DATA_CHANNEL_INDEX);
@@ -101,4 +99,3 @@ public class WriteFloat implements NativeCallableUnit {
         return false;
     }
 }
-

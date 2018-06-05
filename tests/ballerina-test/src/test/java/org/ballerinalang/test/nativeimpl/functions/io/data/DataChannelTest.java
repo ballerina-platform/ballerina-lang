@@ -85,5 +85,4 @@ public class DataChannelTest {
 
         Assert.assertEquals(value, ((BBoolean) result[0]).booleanValue());
     }
-
 }

@@ -53,7 +53,6 @@ public class DataInputOutputTest {
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
-
     @Test(description = "Test fixed long value ranges", dataProvider = "signedLongValues")
     public void testSignedFixedLong(long value, Representation representation) throws IOException, URISyntaxException {
         String filePath = currentDirectoryPath + "/sample.bin";
@@ -142,5 +141,4 @@ public class DataInputOutputTest {
                 {Double.MIN_VALUE, BIT_64}, {Double.MAX_VALUE, BIT_64}
         };
     }
-
 }
