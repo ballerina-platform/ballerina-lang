@@ -34,7 +34,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSocketClient",
                              structPackage = "ballerina.http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true

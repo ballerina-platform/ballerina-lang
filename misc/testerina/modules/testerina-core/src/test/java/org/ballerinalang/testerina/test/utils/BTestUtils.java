@@ -19,12 +19,12 @@ package org.ballerinalang.testerina.test.utils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -313,8 +313,8 @@ public class BTestUtils {
 
     public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
         PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
-        StructInfo structInfo = structPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
+        StructureTypeInfo structInfo = structPackageInfo.getStructInfo(structName);
+        BStructureType structType = structInfo.getType();
         return new BStruct(structType);
     }
 }

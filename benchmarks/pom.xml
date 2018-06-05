@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.972.1-SNAPSHOT</version>
+        <version>0.973.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -91,7 +91,7 @@
                         <configuration>
                             <skip>${skipBenchmarks}</skip>
                             <target>
-                                <mkdir dir="${project.basedir}/.ballerina"/>
+                                <mkdir dir="${project.basedir}/.ballerina" />
                             </target>
                         </configuration>
                     </execution>

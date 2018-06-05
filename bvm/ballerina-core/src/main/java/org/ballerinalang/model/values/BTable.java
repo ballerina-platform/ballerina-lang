@@ -20,7 +20,7 @@ package org.ballerinalang.model.values;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.DataIterator;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -44,7 +44,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private boolean nextPrefetched;
     private TableProvider tableProvider;
     private String tableName;
-    protected BStructType constraintType;
+    protected BStructureType constraintType;
     private BStringArray primaryKeys;
     private BStringArray indices;
     private boolean tableClosed;
@@ -58,7 +58,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.constraintType = null;
     }
 
-    public BTable(String tableName, BStructType constraintType) {
+    public BTable(String tableName, BStructureType constraintType) {
         this.nextPrefetched = false;
         this.hasNextVal = false;
         this.tableProvider = null;
@@ -66,7 +66,8 @@ public class BTable implements BRefType<Object>, BCollection {
         this.constraintType = constraintType;
     }
 
-    public BTable(String query, BTable fromTable, BTable joinTable, BStructType constraintType, BRefValueArray params) {
+    public BTable(String query, BTable fromTable, BTable joinTable,
+                  BStructureType constraintType, BRefValueArray params) {
         this.tableProvider = TableProvider.getInstance();
         if (joinTable != null) {
             this.tableName = tableProvider.createTable(fromTable.tableName, joinTable.tableName, query,
@@ -93,7 +94,7 @@ public class BTable implements BRefType<Object>, BCollection {
         }
         this.tableProvider = TableProvider.getInstance();
         this.tableName = tableProvider.createTable(constrainedType, primaryKeys, indexColumns);
-        this.constraintType = (BStructType) constrainedType;
+        this.constraintType = (BStructureType) constrainedType;
         this.primaryKeys = primaryKeys;
         this.indices = indexColumns;
         //Insert initial data
@@ -290,7 +291,7 @@ public class BTable implements BRefType<Object>, BCollection {
         return iterator.getColumnDefinitions();
     }
 
-    public BStructType getStructType() {
+    public BStructureType getStructType() {
         return iterator.getStructType();
     }
 

@@ -133,7 +133,10 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -177,18 +180,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangAction actionNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangStruct structNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangObject objectNode) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangRecord record) {
         throw new AssertionError();
     }
 
@@ -636,6 +627,18 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangUnionTypeNode unionTypeNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
         throw new AssertionError();
     }
 

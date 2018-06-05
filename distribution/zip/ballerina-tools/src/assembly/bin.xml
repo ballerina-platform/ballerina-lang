@@ -26,6 +26,12 @@
     <fileSets>
         <fileSet>
             <directory>
+                ${project.build.directory}/lib
+            </directory>
+            <outputDirectory>lib</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}
             </directory>
             <outputDirectory>.</outputDirectory>

@@ -23,6 +23,9 @@ import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.PackageFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PACKAGE;
 
 /**
@@ -31,12 +34,12 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.PAC
 public class BPackageSymbol extends BTypeSymbol {
 
     public BInvokableSymbol initFunctionSymbol, startFunctionSymbol, stopFunctionSymbol;
+    public List<BPackageSymbol> imports = new ArrayList<>();
     public PackageFile packageFile;
     public CompiledPackage compiledPackage;
 
     // TODO Refactor following two flags
     public boolean entryPointExists = false;
-    public boolean initFunctionsInvoked = false;
 
     public BPackageSymbol(PackageID pkgID, BSymbol owner) {
         super(PACKAGE, 0, pkgID.name, pkgID, null, owner);
@@ -65,5 +68,17 @@ public class BPackageSymbol extends BTypeSymbol {
     @Override
     public int hashCode() {
         return pkgID.hashCode();
+    }
+
+    @Override
+    public BPackageSymbol copy() {
+        BPackageSymbol copy = new BPackageSymbol(pkgID, owner);
+        copy.initFunctionSymbol = initFunctionSymbol;
+        copy.startFunctionSymbol = startFunctionSymbol;
+        copy.stopFunctionSymbol = stopFunctionSymbol;
+        copy.packageFile = packageFile;
+        copy.compiledPackage = compiledPackage;
+        copy.entryPointExists = entryPointExists;
+        return copy;
     }
 }

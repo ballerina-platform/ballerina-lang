@@ -17,7 +17,7 @@
 package org.ballerinalang.nativeimpl.reflect;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -36,10 +36,10 @@ public class GetStructAnnotations extends AbstractAnnotationReader {
     @Override
     public void execute(Context context) {
         BTypeDescValue bTypeValue = (BTypeDescValue) context.getRefArgument(0);
-        if (!(bTypeValue.value() instanceof BStructType)) {
+        if (!(bTypeValue.value() instanceof BStructureType)) {
             context.setReturnValues((BValue) null);
         }
-        BStructType structType = (BStructType) bTypeValue.value();
+        BStructureType structType = (BStructureType) bTypeValue.value();
         context.setReturnValues(getAnnotationValue(context, structType.getPackagePath(), structType.getName()));
     }
 }

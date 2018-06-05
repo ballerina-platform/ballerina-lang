@@ -53,9 +53,9 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public Map<String, FunctionInfo> functionInfoMap = new LinkedHashMap<>();
 
-    private Map<String, StructInfo> structInfoMap = new HashMap<>();
+    public Map<String, TypeDefInfo> typeDefInfoMap = new HashMap<>();
 
-    public Map<String, TypeDefinitionInfo> typeDefInfoMap = new HashMap<>();
+    public Map<String, AnnotationInfo> annotationInfoMap = new HashMap<>();
 
     public Map<String, ServiceInfo> serviceInfoMap = new HashMap<>();
 
@@ -94,26 +94,17 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
         return pkgVarInfoMap.values().toArray(new PackageVarInfo[0]);
     }
 
-    public StructInfo getStructInfo(String structName) {
-        return structInfoMap.get(structName);
+    public void addTypeDefInfo(String typeDefinitionName, TypeDefInfo typeDefInfo) {
+        typeDefInfoMap.put(typeDefinitionName, typeDefInfo);
+        structureTypeInfoMap.put(typeDefinitionName, typeDefInfo);
     }
 
-    public void addStructInfo(String structName, StructInfo structInfo) {
-        structInfoMap.put(structName, structInfo);
-        structureTypeInfoMap.put(structName, structInfo);
+    public TypeDefInfo[] getTypeDefInfoEntries() {
+        return typeDefInfoMap.values().toArray(new TypeDefInfo[0]);
     }
 
-    public StructInfo[] getStructInfoEntries() {
-        return structInfoMap.values().toArray(new StructInfo[0]);
-    }
-
-    public void addTypeDefinitionInfo(String typeDefinitionName, TypeDefinitionInfo typeDefinitionInfo) {
-        typeDefInfoMap.put(typeDefinitionName, typeDefinitionInfo);
-        structureTypeInfoMap.put(typeDefinitionName, typeDefinitionInfo);
-    }
-
-    public TypeDefinitionInfo[] getTypeDefinitionInfoEntries() {
-        return typeDefInfoMap.values().toArray(new TypeDefinitionInfo[0]);
+    public AnnotationInfo[] getAnnotationInfoEntries() {
+        return annotationInfoMap.values().toArray(new AnnotationInfo[0]);
     }
 
     public ServiceInfo[] getServiceInfoEntries() {

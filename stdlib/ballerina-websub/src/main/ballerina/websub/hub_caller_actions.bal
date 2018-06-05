@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
 import ballerina/crypto;
@@ -87,8 +88,9 @@ public type CallerActions object {
         P{{headers}} The headers, if any, that need to be set
         R{{}} `error` if an error occurred with the update
     }
-    public function publishUpdate(string topic, json payload, string? secret = (), string signatureMethod = "sha256",
-                                  map<string>? headers = ()) returns error?;
+    public function publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload, string? contentType = (),
+                                  string? secret = (), string signatureMethod = "sha256", map<string>? headers = ())
+        returns error?;
 
     documentation {
         Notifies a remote WebSub Hub that an update is available to fetch, for hubs that require publishing to
@@ -106,7 +108,7 @@ public function CallerActions::subscribe(SubscriptionChangeRequest subscriptionR
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
-    var response = httpClientEndpoint->post("", request = builtSubscriptionRequest);
+    var response = httpClientEndpoint->post("", builtSubscriptionRequest);
     int redirectCount = getRedirectionMaxCount(self.followRedirects);
     return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint,
                               redirectCount);
@@ -117,7 +119,7 @@ public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscript
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
-    var response = httpClientEndpoint->post("", request = builtUnsubscriptionRequest);
+    var response = httpClientEndpoint->post("", builtUnsubscriptionRequest);
     int redirectCount = getRedirectionMaxCount(self.followRedirects);
     return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint,
                               redirectCount);
@@ -126,7 +128,7 @@ public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscript
 public function CallerActions::registerTopic(string topic, string? secret = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic, secret = secret);
-    var registrationResponse = httpClientEndpoint->post("", request = request);
+    var registrationResponse = httpClientEndpoint->post("", request);
     match (registrationResponse) {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
@@ -147,7 +149,7 @@ public function CallerActions::registerTopic(string topic, string? secret = ()) 
 public function CallerActions::unregisterTopic(string topic, string? secret = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic, secret = secret);
-    var unregistrationResponse = httpClientEndpoint->post("", request = request);
+    var unregistrationResponse = httpClientEndpoint->post("", request);
     match (unregistrationResponse) {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
@@ -165,16 +167,24 @@ public function CallerActions::unregisterTopic(string topic, string? secret = ()
     }
 }
 
-public function CallerActions::publishUpdate(string topic, json payload, string? secret = (),
-                                         string signatureMethod = "sha256", map<string>? headers = ()) returns error? {
+public function CallerActions::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+                                             string? contentType = (), string? secret = (),
+                                             string signatureMethod = "sha256", map<string>? headers = ())
+        returns error? {
+
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = new;
     string queryParams = HUB_MODE + "=" + MODE_PUBLISH + "&" + HUB_TOPIC + "=" + topic;
-    request.setJsonPayload(payload);
+    request.setPayload(payload);
+
+    match(contentType) {
+        string specifiedContentType => request.setContentType(specifiedContentType);
+        () => {}
+    }
 
     match (secret) {
         string specifiedSecret => {
-            string stringPayload = payload.toString();
+            string stringPayload = request.getPayloadAsString() but { error => "" };
             string publisherSignature = signatureMethod + "=";
             string generatedSignature = "";
             if (SHA1.equalsIgnoreCase(signatureMethod)) {
@@ -199,7 +209,7 @@ public function CallerActions::publishUpdate(string topic, json payload, string?
         () => {}
     }
 
-    var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
+    var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
     match (response) {
         http:Response response => {
             if (!isSuccessStatusCode(response.statusCode)) {
@@ -230,7 +240,7 @@ public function CallerActions::notifyUpdate(string topic, map<string>? headers =
         () => {}
     }
 
-    var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
+    var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
     match (response) {
         http:Response response => {
             if (!isSuccessStatusCode(response.statusCode)) {
@@ -382,7 +392,7 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
         auth:auth
     };
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
-    var response = clientEndpoint->post("", request = builtSubscriptionRequest);
+    var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
                               remainingRedirects);
 }
@@ -394,7 +404,7 @@ function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubsc
         auth:auth
     };
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
-    var response = clientEndpoint->post("", request = builtSubscriptionRequest);
+    var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, clientEndpoint,
                               remainingRedirects);
 }
@@ -409,8 +419,4 @@ function getRedirectionMaxCount(http:FollowRedirects? followRedirects) returns i
         () => {}
     }
     return 0;
-}
-
-function isSuccessStatusCode(int statusCode) returns boolean {
-    return (200 <= statusCode && statusCode < 300);
 }

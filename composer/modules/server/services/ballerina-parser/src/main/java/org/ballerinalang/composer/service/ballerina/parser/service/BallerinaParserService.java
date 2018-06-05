@@ -44,7 +44,6 @@ import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocument
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.Flag;
-import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
@@ -58,7 +57,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 import java.io.IOException;
@@ -306,18 +304,18 @@ public class BallerinaParserService implements ComposerService {
                         .forEach(attachmentPoints::add);
                 nodeJson.add("attachmentPoints", attachmentPoints);
             }
-
-            if (node.getKind() == NodeKind.USER_DEFINED_TYPE && jsonName.equals("typeName")) {
-                IdentifierNode typeNode = (IdentifierNode) prop;
-                Node structNode;
-                if (typeNode.getValue().startsWith("$anonStruct$") &&
-                        (structNode = anonStructs.remove(typeNode.getValue())) != null) {
-                    JsonObject anonStruct = generateJSON(structNode, anonStructs).getAsJsonObject();
-                    anonStruct.addProperty("anonStruct", true);
-                    nodeJson.add("anonStruct", anonStruct);
-                    continue;
-                }
-            }
+            // TODO: revisit logic for user defined types
+//            if (node.getKind() == NodeKind.USER_DEFINED_TYPE && jsonName.equals("typeName")) {
+//                IdentifierNode typeNode = (IdentifierNode) prop;
+//                Node structNode;
+//                if (typeNode.getValue().startsWith("$anonStruct$") &&
+//                        (structNode = anonStructs.remove(typeNode.getValue())) != null) {
+//                    JsonObject anonStruct = generateJSON(structNode, anonStructs).getAsJsonObject();
+//                    anonStruct.addProperty("anonStruct", true);
+//                    nodeJson.add("anonStruct", anonStruct);
+//                    continue;
+//                }
+//            }
 
             if (prop instanceof List && jsonName.equals("types")) {
                 // Currently we don't need any Symbols for the UI. So skipping for now.
@@ -336,11 +334,6 @@ public class BallerinaParserService implements ComposerService {
                     if (listPropItem instanceof Node) {
                         /* Remove top level anon func and struct */
                         if (node.getKind() == NodeKind.COMPILATION_UNIT) {
-                            if (listPropItem instanceof BLangStruct && ((BLangStruct) listPropItem).isAnonymous) {
-                                anonStructs.put(((BLangStruct) listPropItem).getName().getValue(),
-                                        ((BLangStruct) listPropItem));
-                                continue;
-                            }
                             if (listPropItem instanceof BLangFunction
                                     && (((BLangFunction) listPropItem)).name.value.startsWith("$lambda$")) {
                                 continue;
@@ -420,7 +413,7 @@ public class BallerinaParserService implements ComposerService {
      * @return List of errors if any
      */
     private synchronized JsonObject validateAndParse(BFile bFileRequest) throws InvocationTargetException,
-                                                                                IllegalAccessException {
+            IllegalAccessException {
         final String fileName = bFileRequest.getFileName();
         final String content = bFileRequest.getContent();
 
