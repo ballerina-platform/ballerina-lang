@@ -39,7 +39,6 @@ import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketMessage;
 
 import java.util.List;
 

@@ -10,27 +10,27 @@ endpoint http:WebSocketListener echoEP {
     path:"/echo"
 }
 service<http:WebSocketService> echo bind echoEP {
-    onOpen(endpoint conn) {
+    onOpen(endpoint caller) {
     }
 
-    onText(endpoint conn, string text) {
+    onText(endpoint caller, string text) {
     }
 
-    onBinary(endpoint conn, blob text, boolean final) {
-
+    onBinary(endpoint caller, blob text, boolean final) {
     }
 
-    onClose(endpoint conn, int val, string text) {
-
+    onClose(endpoint caller, int val, string text) {
     }
 
-    onIdleTimeout(endpoint conn) {
-
+    onIdleTimeout(endpoint caller) {
     }
-    onPing(endpoint conn, blob so) {
 
+    onPing(endpoint caller, blob so) {
     }
-    onPong(endpoint conn, blob yes) {
 
+    onPong(endpoint caller, blob yes) {
+    }
+
+    onError(endpoint caller, error err) {
     }
 }

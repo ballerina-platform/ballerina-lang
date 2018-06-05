@@ -135,6 +135,19 @@ public class WebSocketCompilationTest {
                                     "string");
     }
 
+    @Test(description = "Invalid signature for onError resources")
+    public void testFailOnError() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/net/websocket/compilation/fail_onError.bal");
+        Diagnostic[] diag = compileResult.getDiagnostics();
+        Assert.assertEquals(diag.length, 2);
+        Assert.assertEquals(diag[0].getMessage(), "Invalid resource signature for onError resource in service echo: " +
+                "Expected parameter count = 2");
+        Assert.assertEquals(diag[1].getMessage(), "Invalid resource signature for onError resource in service echo: " +
+                "The second parameter should be an error");
+    }
+
+
     @Test(description = "Invalid resource in WebSocketService")
     public void testInValidResource() {
         CompileResult compileResult = BCompileUtil.compile(
