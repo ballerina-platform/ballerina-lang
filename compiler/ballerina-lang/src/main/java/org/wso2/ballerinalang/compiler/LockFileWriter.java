@@ -18,9 +18,7 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.toml.model.Manifest;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
@@ -46,7 +44,6 @@ public class LockFileWriter {
     private static final CompilerContext.Key<LockFileWriter> LOCK_FILE_WRITER_KEY = new CompilerContext.Key<>();
     private static List<StringBuilder> builderList = new ArrayList<>();
     private final SourceDirectory sourceDirectory;
-    private SymbolTable symbolTable;
 
     /**
      * Constructor of LockFileWriter.
@@ -59,7 +56,6 @@ public class LockFileWriter {
         if (this.sourceDirectory == null) {
             throw new IllegalArgumentException("source directory has not been initialized");
         }
-        symbolTable = SymbolTable.getInstance(context);
     }
 
     /**
@@ -80,24 +76,20 @@ public class LockFileWriter {
      * Generate list of dependencies of package.
      *
      * @param packageNode package node
-     * @param symbolTable symbol table
      * @param depth       depth
      * @return list of dependencies of the package node
      */
-    private static List<StringBuilder> generatePkgDependencies(BLangPackage packageNode, SymbolTable symbolTable,
-                                                               int depth) {
+    private static List<StringBuilder> generatePkgDependencies(BPackageSymbol packageNode, int depth) {
         List<StringBuilder> result = new LinkedList<>();
         if (depth > 0) {
-            result.add(new StringBuilder().append("[\"").append(packageNode.packageID.name).append("/")
-                                          .append(packageNode.packageID.name).append("\"]"));
+            result.add(new StringBuilder().append("[\"").append(packageNode.pkgID.name).append("/")
+                                          .append(packageNode.pkgID.name).append("\"]"));
         }
-        List<BLangImportPackage> importPackages = getImportPackages(packageNode);
+        List<BPackageSymbol> importPackages = getImportPackages(packageNode);
         if (importPackages.size() > 0) {
-            for (BLangImportPackage importPackage : importPackages) {
-                SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(importPackage.symbol);
-                BLangPackage enclPkg = symbolEnv.enclPkg;
-                List<StringBuilder> subtree = generatePkgDependencies(enclPkg, symbolTable, 1);
-                generateDependancyStr(result, subtree, enclPkg.packageID.version.getValue());
+            for (BPackageSymbol importPackage : importPackages) {
+                List<StringBuilder> subtree = generatePkgDependencies(importPackage, 1);
+                generateDependancyStr(result, subtree, importPackage.pkgID.version.getValue());
             }
         }
         return result;
@@ -109,11 +101,11 @@ public class LockFileWriter {
      * @param packageNode packafe node
      * @return import package list
      */
-    private static List<BLangImportPackage> getImportPackages(BLangPackage packageNode) {
-        return packageNode.getImports().stream()
-                          .filter(pkg -> !pkg.symbol.pkgID.orgName.value
-                                  .equals(LockFileConstants.BALLERINA))
-                          .collect(Collectors.toList());
+    private static List<BPackageSymbol> getImportPackages(BPackageSymbol packageNode) {
+        return packageNode.imports.stream()
+                                  .filter(pkg -> !pkg.pkgID.orgName.value
+                                          .equals(LockFileConstants.BALLERINA))
+                                  .collect(Collectors.toList());
     }
 
     /**
@@ -175,7 +167,7 @@ public class LockFileWriter {
     void generatePkgDependencies(BLangPackage packageNode) {
         builderList.add(new StringBuilder().append("[" + LockFileConstants.DEPENDENCIES + ".")
                                            .append(packageNode.packageID.name).append("] \n"));
-        builderList.addAll(generatePkgDependencies(packageNode, symbolTable, 0));
+        builderList.addAll(generatePkgDependencies(packageNode.symbol, 0));
     }
 
     /**

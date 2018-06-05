@@ -18,9 +18,9 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
@@ -80,8 +80,9 @@ public class Compiler {
     }
 
     public void build() {
-        compilePackages().forEach(this.binaryFileWriter::write);
-        compilePackages().forEach(this.lockFileWriter::generatePkgDependencies);
+        List<BLangPackage> packageList = compilePackages();
+        packageList.forEach(this.binaryFileWriter::write);
+        packageList.forEach(this.lockFileWriter::generatePkgDependencies);
         this.lockFileWriter.writeLockFile(this.manifest);
     }
 
