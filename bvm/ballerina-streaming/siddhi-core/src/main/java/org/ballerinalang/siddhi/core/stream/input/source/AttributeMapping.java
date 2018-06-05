@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.core.stream.input.source;
 
 /**
- * Holder object to store mapping information for a given Siddhi Attribute
+ * Holder object to store mapping information for a given Siddhi Attribute.
  * {@link org.ballerinalang.siddhi.query.api.definition.Attribute}
  */
 public class AttributeMapping {

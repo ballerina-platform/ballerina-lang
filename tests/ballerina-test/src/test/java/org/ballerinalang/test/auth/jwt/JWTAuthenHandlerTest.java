@@ -53,32 +53,32 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class JWTAuthenHandlerTest {
 
     /**
-     * #JWT Authenticator configurations
+     * #JWT Authenticator configurations.
      * [authenticator_jwt]
-     * issuer=<jwt token issuer>
-     * audience=<audience>
-     * certificateAlias=<public certificate of the issuer>
+     * issuer=&lt;jwt token issuer>
+     * audience=&lt;audience>
+     * certificateAlias=&lt;public certificate of the issuer>
      * <p>
      * #JWT Authenticator cache configuration
      * [jwt_auth_cache]
-     * enabled=<true of false>
-     * expiryTime=<expiry time in milliseconds>
-     * capacity=<capacity eg: 100>
-     * evictionFactor=<evictionFactor eg: 0.25>
+     * enabled=&lt;true of false>
+     * expiryTime=&lt;expiry time in milliseconds>
+     * capacity=&lt;capacity eg: 100>
+     * evictionFactor=&lt;evictionFactor eg: 0.25>
      * <p>
      * #Keystore configuration
      * [keyStore]
-     * location=<keyStore location>
-     * type=<keystore type eg: PKCS12>
-     * keyStorePassword=<keystore password>
-     * keyAlias=<default private key alias>
-     * keyPassword=<default private key password>
+     * location=&lt;keyStore location>
+     * type=&lt;keystore type eg: PKCS12>
+     * keyStorePassword=&lt;keystore password>
+     * keyAlias=&lt;default private key alias>
+     * keyPassword=&lt;default private key password>
      * <p>
      * #Truststore configuration
      * [trustStore]
-     * location=<trustStore location>
-     * type=<trustStore type eg: PKCS12>
-     * trustStorePassword=<trustStore password>
+     * location=&lt;trustStore location>
+     * type=&lt;trustStore type eg: PKCS12>
+     * trustStorePassword=&lt;trustStore password>
      */
 
     private Path ballerinaKeyStoreCopyPath;

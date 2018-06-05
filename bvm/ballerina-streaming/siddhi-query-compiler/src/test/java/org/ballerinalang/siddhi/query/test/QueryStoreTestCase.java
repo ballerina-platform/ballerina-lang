@@ -29,6 +29,9 @@ import org.ballerinalang.siddhi.query.compiler.exception.SiddhiParserException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase to validate store queries.
+ */
 public class QueryStoreTestCase {
 
     @Test

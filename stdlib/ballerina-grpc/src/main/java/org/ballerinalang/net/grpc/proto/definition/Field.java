@@ -61,7 +61,7 @@ public class Field {
     }
 
     /**
-     * FieldDefinition.Builder
+     * FieldDefinition.Builder.
      */
     public static class Builder {
         private DescriptorProtos.FieldDescriptorProto.Builder fieldDescriptorBuilder;

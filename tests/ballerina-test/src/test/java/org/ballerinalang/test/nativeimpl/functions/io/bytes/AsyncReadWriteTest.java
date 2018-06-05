@@ -33,7 +33,7 @@ import java.nio.channels.ByteChannel;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Tests operations through the async io framework
+ * Tests operations through the async io framework.
  */
 public class AsyncReadWriteTest {
 

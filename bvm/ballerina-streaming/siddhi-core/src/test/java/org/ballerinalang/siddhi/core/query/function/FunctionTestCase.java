@@ -39,6 +39,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for queries with function calls.
+ */
 public class FunctionTestCase {
     private static final Logger log = LoggerFactory.getLogger(FunctionTestCase.class);
     private int count;

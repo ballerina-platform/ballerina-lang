@@ -29,7 +29,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This class contains nullable types related test cases
+ * This class contains nullable types related test cases.
  */
 public class NullableTypeTest {
 
