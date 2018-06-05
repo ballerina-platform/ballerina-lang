@@ -34,7 +34,7 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -106,7 +106,7 @@ public class Util {
      * @return BRefValueArray representing an array of entities
      */
     static BRefValueArray getArrayOfBodyParts(ArrayList<BStruct> bodyParts) {
-        BStructType typeOfBodyPart = bodyParts.get(0).getType();
+        BStructureType typeOfBodyPart = bodyParts.get(0).getType();
         BStruct[] result = bodyParts.toArray(new BStruct[bodyParts.size()]);
         return new BRefValueArray(result, typeOfBodyPart);
     }

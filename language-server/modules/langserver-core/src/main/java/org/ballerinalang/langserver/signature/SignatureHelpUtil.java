@@ -29,8 +29,9 @@ import org.eclipse.lsp4j.SignatureInformation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
@@ -168,13 +169,12 @@ public class SignatureHelpUtil {
         CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
         BLangPackage bLangPackage = LSPackageLoader.getPackageById(compilerContext, bInvokableSymbol.pkgID);
         
-        // Check for the action invocations. In an action invocation, function/action is bound to object (owner)
-        if (SymbolKind.OBJECT.equals(bInvokableSymbol.owner.kind)) {
-            BLangObject filteredObject = bLangPackage.getObjects().stream()
+        if (bInvokableSymbol.owner.kind.equals(SymbolKind.OBJECT)) {
+            BLangTypeDefinition filteredObject = bLangPackage.typeDefinitions.stream()
                     .filter(object -> object.name.getValue().equals(bInvokableSymbol.owner.name.getValue()))
                     .findFirst()
                     .orElse(null);
-            functionList = filteredObject.getFunctions();
+            functionList = ((BLangObjectTypeNode) filteredObject.typeNode).getFunctions();
         } else {
             functionList = bLangPackage.getFunctions();
         }

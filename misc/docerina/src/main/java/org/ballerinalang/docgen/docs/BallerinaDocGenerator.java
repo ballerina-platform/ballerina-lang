@@ -286,10 +286,8 @@ public class BallerinaDocGenerator {
     private static void sortPackageConstructs(BLangPackage bLangPackage) {
         bLangPackage.getFunctions().sort(Comparator.comparing(f -> (f.getReceiver() == null ? "" : f
                 .getReceiver().getName()) + f.getName().getValue()));
-        bLangPackage.getObjects().sort(Comparator.comparing(c -> c.getName().getValue()));
         bLangPackage.getAnnotations().sort(Comparator.comparing(a -> a.getName().getValue()));
         bLangPackage.getTypeDefinitions().sort(Comparator.comparing(a -> a.getName().getValue()));
-        bLangPackage.getRecords().sort(Comparator.comparing(a -> a.getName().getValue()));
         bLangPackage.getGlobalVariables().sort(Comparator.comparing(a -> a.getName().getValue()));
     }
 

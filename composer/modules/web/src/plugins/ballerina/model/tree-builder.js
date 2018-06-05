@@ -553,6 +553,10 @@ class TreeBuilder {
         if (node.kind === 'Block' && node.ws && node.ws[0].text === 'else') {
             node.isElseBlock = true;
         }
+
+        if (node.kind === 'FieldBasedAccessExpr' && node.ws && node.ws[0].text === '!') {
+            node.errorLifting = true;
+        }
     }
 
     static modify(tree, parentKind = null) {

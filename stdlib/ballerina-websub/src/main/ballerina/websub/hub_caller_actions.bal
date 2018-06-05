@@ -108,7 +108,7 @@ public function CallerActions::subscribe(SubscriptionChangeRequest subscriptionR
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
-    var response = httpClientEndpoint->post("", request = builtSubscriptionRequest);
+    var response = httpClientEndpoint->post("", builtSubscriptionRequest);
     int redirectCount = getRedirectionMaxCount(self.followRedirects);
     return processHubResponse(self.hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, httpClientEndpoint,
                               redirectCount);
@@ -119,7 +119,7 @@ public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscript
 
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request builtUnsubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
-    var response = httpClientEndpoint->post("", request = builtUnsubscriptionRequest);
+    var response = httpClientEndpoint->post("", builtUnsubscriptionRequest);
     int redirectCount = getRedirectionMaxCount(self.followRedirects);
     return processHubResponse(self.hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, httpClientEndpoint,
                               redirectCount);
@@ -128,7 +128,7 @@ public function CallerActions::unsubscribe(SubscriptionChangeRequest unsubscript
 public function CallerActions::registerTopic(string topic, string? secret = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_REGISTER, topic, secret = secret);
-    var registrationResponse = httpClientEndpoint->post("", request = request);
+    var registrationResponse = httpClientEndpoint->post("", request);
     match (registrationResponse) {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
@@ -149,7 +149,7 @@ public function CallerActions::registerTopic(string topic, string? secret = ()) 
 public function CallerActions::unregisterTopic(string topic, string? secret = ()) returns error? {
     endpoint http:Client httpClientEndpoint = self.httpClientEndpoint;
     http:Request request = buildTopicRegistrationChangeRequest(MODE_UNREGISTER, topic, secret = secret);
-    var unregistrationResponse = httpClientEndpoint->post("", request = request);
+    var unregistrationResponse = httpClientEndpoint->post("", request);
     match (unregistrationResponse) {
         http:Response response => {
             if (response.statusCode != http:ACCEPTED_202) {
@@ -209,7 +209,7 @@ public function CallerActions::publishUpdate(string topic, string|xml|json|blob|
         () => {}
     }
 
-    var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
+    var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
     match (response) {
         http:Response httpResponse => {
             if (!isSuccessStatusCode(httpResponse.statusCode)) {
@@ -240,7 +240,7 @@ public function CallerActions::notifyUpdate(string topic, map<string>? headers =
         () => {}
     }
 
-    var response = httpClientEndpoint->post(untaint ("?" + queryParams), request = request);
+    var response = httpClientEndpoint->post(untaint ("?" + queryParams), request);
     match (response) {
         http:Response httpResponse => {
             if (!isSuccessStatusCode(httpResponse.statusCode)) {
@@ -392,7 +392,7 @@ function subscribeWithRetries(string hubUrl, SubscriptionChangeRequest subscript
         auth:auth
     };
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_SUBSCRIBE, subscriptionRequest);
-    var response = clientEndpoint->post("", request = builtSubscriptionRequest);
+    var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_SUBSCRIBE, subscriptionRequest, response, clientEndpoint,
                               remainingRedirects);
 }
@@ -404,7 +404,7 @@ function unsubscribeWithRetries(string hubUrl, SubscriptionChangeRequest unsubsc
         auth:auth
     };
     http:Request builtSubscriptionRequest = buildSubscriptionChangeRequest(MODE_UNSUBSCRIBE, unsubscriptionRequest);
-    var response = clientEndpoint->post("", request = builtSubscriptionRequest);
+    var response = clientEndpoint->post("", builtSubscriptionRequest);
     return processHubResponse(hubUrl, MODE_UNSUBSCRIBE, unsubscriptionRequest, response, clientEndpoint,
                               remainingRedirects);
 }

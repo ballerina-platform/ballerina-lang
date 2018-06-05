@@ -53,7 +53,7 @@ public function File::open (string accessMode) returns (boolean) {
 documentation { Documentation for File object
 F{{path}} file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 }
-public type File object{
+public type File object {
     public {
         string path;
     }

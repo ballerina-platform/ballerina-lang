@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BStruct;
 
 import java.util.List;
@@ -55,5 +55,5 @@ public interface DataIterator {
 
     List<ColumnDefinition> getColumnDefinitions();
 
-    BStructType getStructType();
+    BStructureType getStructType();
 }

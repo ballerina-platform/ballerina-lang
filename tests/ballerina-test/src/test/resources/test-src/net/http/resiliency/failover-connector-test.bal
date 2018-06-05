@@ -38,7 +38,7 @@ function testSuccessScenario () returns (http:Response | error) {
 
     while (counter < 2) {
        http:Request request = new;
-       match foClient.get("/hello", request = request) {
+       match foClient.get("/hello", message = request) {
             http:Response res => {
                 clientResponse = res;
             }
@@ -68,7 +68,7 @@ function testFailureScenario () returns (http:Response | error) {
 io:println(counter);
     while (counter < 1) {
        http:Request request = new;
-       match foClient.get("/hello", request = request) {
+       match foClient.get("/hello", message = request) {
             http:Response res => {
             }
             error httpConnectorError => {

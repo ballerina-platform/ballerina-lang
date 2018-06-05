@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -29,15 +30,18 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 /**
@@ -96,12 +100,24 @@ public class AnnotationDesugar {
                 generateAnnotations(connector, key, initFunction, annotationMap);
             }
         }
-        // Handle Struct Annotations.
-        for (BLangStruct struct : pkgNode.structs) {
-            generateAnnotations(struct, struct.name.value, initFunction, annotationMap);
-            for (BLangVariable field : struct.fields) {
-                String key = struct.name.value + DOT + field.name.value;
-                generateAnnotations(field, key, initFunction, annotationMap);
+
+        for (BLangTypeDefinition typeDef : pkgNode.typeDefinitions) {
+            generateAnnotations(typeDef, typeDef.name.value, initFunction, annotationMap);
+            if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
+                continue;
+            }
+            if (typeDef.symbol.type.tag == TypeTags.OBJECT) {
+                BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDef.typeNode;
+                for (BLangVariable field : objectTypeNode.fields) {
+                    String key = typeDef.name.value + DOT + field.name.value;
+                    generateAnnotations(field, key, initFunction, annotationMap);
+                }
+            } else if (typeDef.symbol.type.tag == TypeTags.RECORD) {
+                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
+                for (BLangVariable field : recordTypeNode.fields) {
+                    String key = typeDef.name.value + DOT + field.name.value;
+                    generateAnnotations(field, key, initFunction, annotationMap);
+                }
             }
         }
 

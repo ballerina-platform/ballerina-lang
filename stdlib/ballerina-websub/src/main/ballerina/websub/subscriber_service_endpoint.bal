@@ -234,7 +234,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
     };
 
     http:Request request = new;
-    var discoveryResponse = resourceEP->get("", request = request);
+    var discoveryResponse = resourceEP->get("", message = request);
     error websubError = {};
     match (discoveryResponse) {
         http:Response response => {

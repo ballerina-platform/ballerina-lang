@@ -19,16 +19,29 @@ package org.ballerinalang.stdlib.utils;
 
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.repository.CompiledPackage;
+import org.wso2.ballerinalang.compiler.BinaryFileWriter;
 import org.wso2.ballerinalang.compiler.Compiler;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
+import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_DIR_NAME;
+import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MANIFEST_FILE_NAME;
 
 /**
  * Class providing utility methods to generate balx from bal.
@@ -37,21 +50,55 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
  */
 public class GenerateBalo {
 
+    private static final String MANIFEST = "[project]\n" +
+                                           "org-name = \"ballerina\"\n" +
+                                           "version = \"0.0.0\"\n";
+
     public static void main(String[] args) throws IOException {
         String sourceRoot = args[0];
-        Files.createDirectories(Paths.get(sourceRoot).resolve(".ballerina"));
+        String targetDir = args[1];
+
+        Path sourceRootDir = Paths.get(sourceRoot);
+        Files.write(sourceRootDir.resolve(MANIFEST_FILE_NAME), MANIFEST.getBytes(StandardCharsets.UTF_8));
+        Files.createDirectories(sourceRootDir.resolve(DOT_BALLERINA_DIR_NAME));
+        Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
+        context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRoot, targetDir));
+
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRoot);
+        options.put(OFFLINE, Boolean.TRUE.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
 
+        SymbolTable symbolTable = SymbolTable.getInstance(context);
+
         Compiler compiler = Compiler.getInstance(context);
-        try {
-            compiler.build();
-        } catch (Exception ex) {
-            // TODO: remove exception catching after fixing
-            ex.printStackTrace();
+        compiler.build();
+
+        BinaryFileWriter writer = BinaryFileWriter.getInstance(context);
+        BPackageSymbol symbol = symbolTable.builtInPackageSymbol;
+        writer.writeLibraryPackage(symbol, Names.BUILTIN_PACKAGE.getValue());
+    }
+
+    private static class MvnSourceDirectory extends FileSystemProjectDirectory {
+
+        private final String targetDir;
+
+        MvnSourceDirectory(String sourceRoot, String targetDir) {
+            super(Paths.get(sourceRoot));
+            this.targetDir = targetDir;
+        }
+
+        @Override
+        public void saveCompiledPackage(CompiledPackage compiledPackage,
+                                        Path dirPath,
+                                        String fileName) throws IOException {
+            String dirName = fileName.endsWith(BLANG_COMPILED_PKG_EXT) ?
+                             fileName.substring(0, fileName.length() - BLANG_COMPILED_PKG_EXT.length()) :
+                             fileName;
+            Path path = Paths.get(targetDir, dirName, Names.DEFAULT_VERSION.getValue());
+            super.saveCompiledPackage(compiledPackage, path, fileName);
         }
     }
 }

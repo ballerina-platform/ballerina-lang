@@ -47,7 +47,7 @@ import java.security.interfaces.RSAPublicKey;
                 @Argument(name = "data", type = TypeKind.STRING),
                 @Argument(name = "signature", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING),
-                @Argument(name = "trustStore", type = TypeKind.STRUCT, structType = "TrustStoreHolder",
+                @Argument(name = "trustStore", type = TypeKind.RECORD, structType = "TrustStoreHolder",
                         structPackage = "ballerina.internal")
         },
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
@@ -72,7 +72,7 @@ public class VerifySignature extends BlockingNativeCallableUnit {
             context.setReturnValues(new BBoolean(validSignature));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
-            context.setReturnValues(new BBoolean(false), BLangVMErrors.createError(context, 0, e.getMessage()));
+            context.setReturnValues(new BBoolean(false), BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 }

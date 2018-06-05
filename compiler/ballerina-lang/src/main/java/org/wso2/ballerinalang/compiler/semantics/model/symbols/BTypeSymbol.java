@@ -28,8 +28,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
  */
 public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
-    public BTypeSymbol(int kind, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        super(kind, flags, name, pkgID, type, owner);
+    public BTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
+        super(symTag, flags, name, pkgID, type, owner);
     }
 
     @Override
@@ -40,5 +40,10 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
             return this.name.value;
         }
         return this.pkgID.bvmAlias() + ":" + this.name;
+    }
+
+    @Override
+    public BTypeSymbol copy() {
+        return Symbols.createTypeSymbol(SymTag.TYPE_DEF, flags, Names.EMPTY, pkgID, type, owner);
     }
 }

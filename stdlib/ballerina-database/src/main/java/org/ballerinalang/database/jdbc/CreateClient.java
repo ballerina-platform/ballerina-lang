@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jdbc",
         functionName = "createClient",
-        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfig")},
+        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ClientEndpointConfig")},
         isPublic = true
 )
 public class CreateClient extends BlockingNativeCallableUnit {

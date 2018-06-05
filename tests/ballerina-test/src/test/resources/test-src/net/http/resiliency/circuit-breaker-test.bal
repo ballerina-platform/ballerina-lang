@@ -15,6 +15,8 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/io;
+import ballerina/mime;
 import ballerina/runtime;
 
 @final string TEST_SCENARIO_HEADER = "test-scenario";
@@ -50,7 +52,7 @@ function testTypicalScenario() returns (http:Response[], error[]) {
     while (counter < 8) {
        http:Request request = new;
        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TYPICAL);
-       match cbClient.get("/hello", request = request) {
+       match cbClient.get("/hello", message = request) {
             http:Response res => {
                 responses[counter] = res;
             }
@@ -92,7 +94,7 @@ function testTrialRunFailure() returns (http:Response[], error[]) {
     while (counter < 8) {
         http:Request request = new;
        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_TRIAL_RUN_FAILURE);
-       match cbClient.get("/hello", request = request) {
+       match cbClient.get("/hello", message = request) {
             http:Response res => {
                 responses[counter] = res;
             }
@@ -134,7 +136,7 @@ function testHttpStatusCodeFailure() returns (http:Response[], error[]) {
     while (counter < 8) {
         http:Request request = new;
        request.setHeader(TEST_SCENARIO_HEADER, SCENARIO_HTTP_SC_FAILURE);
-       match cbClient.get("/hello", request = request) {
+       match cbClient.get("/hello", message = request) {
             http:Response res => {
                 responses[counter] = res;
             }
@@ -175,7 +177,7 @@ function testForceOpenScenario() returns (http:Response[], error[]) {
         if (counter > 3) {
             cbClient.forceOpen();
         }
-        match cbClient.get("/hello", request = request) {
+        match cbClient.get("/hello", message = request) {
             http:Response res => {
                 responses[counter] = res;
             }
@@ -216,7 +218,7 @@ function testForceCloseScenario() returns (http:Response[], error[]) {
         if (counter > 2) {
             cbClient.forceClose();
         }
-        match cbClient.get("/hello", request = request) {
+        match cbClient.get("/hello", message = request) {
             http:Response res => {
                 responses[counter] = res;
             }
@@ -237,37 +239,45 @@ public type MockClient object {
         http:ClientEndpointConfig config;
     }
 
-    public function post(string path, http:Request req) returns http:Response|error {
+    public function post(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function head(string path, http:Request req) returns http:Response|error {
+    public function head(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function put(string path, http:Request req) returns http:Response|error {
+    public function put(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function execute(string httpVerb, string path, http:Request req) returns http:Response|error {
+    public function execute(string httpVerb, string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function patch(string path, http:Request req) returns http:Response|error {
+    public function patch(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function delete(string path, http:Request req) returns http:Response|error {
+    public function delete(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
 
-    public function get(string path, http:Request req) returns http:Response|error {
+    public function get(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message = ()) returns http:Response|error {
+        http:Request req = buildRequest(message);
         http:Response response = new;
         actualRequestNumber = actualRequestNumber + 1;
         string scenario = req.getHeader(TEST_SCENARIO_HEADER);
@@ -278,9 +288,9 @@ public type MockClient object {
                     response = res;
                 }
                 error httpConnectorError => {
-                    string message = httpConnectorError.message;
+                    string errMessage = httpConnectorError.message;
                     response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    response.setTextPayload(message);
+                    response.setTextPayload(errMessage);
                 }
             }
         } else if (scenario == SCENARIO_TRIAL_RUN_FAILURE) {
@@ -289,9 +299,9 @@ public type MockClient object {
                     response = res;
                 }
                 error httpConnectorError => {
-                    string message = httpConnectorError.message;
+                    string errMessage = httpConnectorError.message;
                     response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    response.setTextPayload(message);
+                    response.setTextPayload(errMessage);
                 }
             }
         } else if (scenario == SCENARIO_HTTP_SC_FAILURE) {
@@ -300,9 +310,9 @@ public type MockClient object {
                     response = res;
                 }
                 error httpConnectorError => {
-                    string message = httpConnectorError.message;
+                    string errMessage = httpConnectorError.message;
                     response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    response.setTextPayload(message);
+                    response.setTextPayload(errMessage);
                 }
             }
         } else if (scenario == SCENARIO_CB_FORCE_OPEN) {
@@ -313,16 +323,17 @@ public type MockClient object {
                     response = res;
                 }
                 error httpConnectorError => {
-                    string message = httpConnectorError.message;
+                    string errMessage = httpConnectorError.message;
                     response.statusCode = http:INTERNAL_SERVER_ERROR_500;
-                    response.setTextPayload(message);
+                    response.setTextPayload(errMessage);
                 }
             }
         }
         return response;
     }
 
-    public function options(string path, http:Request req) returns http:Response|error {
+    public function options(string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message = ()) returns http:Response|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
@@ -332,7 +343,8 @@ public type MockClient object {
         return httpConnectorError;
     }
 
-    public function submit(string httpVerb, string path, http:Request req) returns http:HttpFuture|error {
+    public function submit(string httpVerb, string path, http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns http:HttpFuture|error {
         error httpConnectorError = {message:"Unsupported fuction for MockClient"};
         return httpConnectorError;
     }
@@ -422,3 +434,19 @@ function getMockErrorStruct() returns error {
     error err = {message:"Internal Server Error"};
     return err;
 }
+
+function buildRequest(http:Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns http:Request {
+    http:Request request = new;
+    match message {
+        () => {}
+        http:Request req => {request = req;}
+        string textContent => {request.setTextPayload(textContent);}
+        xml xmlContent => {request.setXmlPayload(xmlContent);}
+        json jsonContent => {request.setJsonPayload(jsonContent);}
+        blob blobContent => {request.setBinaryPayload(blobContent);}
+        io:ByteChannel byteChannelContent => {request.setByteChannel(byteChannelContent);}
+        mime:Entity[] bodyParts => {request.setBodyParts(bodyParts);}
+    }
+    return request;
+}
+

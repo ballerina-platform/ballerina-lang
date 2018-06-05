@@ -40,7 +40,7 @@ import java.net.URLEncoder;
         functionName = "encode",
         args = {@Argument(name = "url", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.STRING),
-                      @ReturnType(type = TypeKind.STRUCT, structType = "Error")},
+                      @ReturnType(type = TypeKind.RECORD, structType = "Error")},
         isPublic = true
 )
 public class Encode extends BlockingNativeCallableUnit {

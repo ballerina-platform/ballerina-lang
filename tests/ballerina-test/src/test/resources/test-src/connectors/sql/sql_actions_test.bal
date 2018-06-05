@@ -66,10 +66,11 @@ type Employee {
     string address,
 };
 
-function testInsertTableData() returns (int) {
+function testInsertTableData(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -79,10 +80,11 @@ function testInsertTableData() returns (int) {
     return insertCount;
 }
 
-function testCreateTable() returns (int) {
+function testCreateTable(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -91,10 +93,11 @@ function testCreateTable() returns (int) {
     return returnValue;
 }
 
-function testUpdateTableData() returns (int) {
+function testUpdateTableData(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -103,10 +106,11 @@ function testUpdateTableData() returns (int) {
     return updateCount;
 }
 
-function testGeneratedKeyOnInsert() returns (string) {
+function testGeneratedKeyOnInsert(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -131,10 +135,11 @@ function testGeneratedKeyOnInsert() returns (string) {
     return returnVal;
 }
 
-function testGeneratedKeyWithColumn() returns (string) {
+function testGeneratedKeyWithColumn(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -142,9 +147,16 @@ function testGeneratedKeyWithColumn() returns (string) {
     string[] generatedID;
     string[] keyColumns = ["CUSTOMERID"];
     string returnVal;
-    var x = testDB->updateWithGeneratedKeys("insert into Customers (firstName,lastName,
-                               registrationID,creditLimit,country) values ('Kathy', 'Williams', 4, 5000.75, 'USA')",
-        keyColumns);
+
+    string queryString;
+    if (jdbcUrl.contains("postgres")) {
+        queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values
+        ('Kathy', 'Williams', 4, 5000.75, 'USA') RETURNING CUSTOMERID";
+    } else {
+        queryString = "insert into Customers (firstName,lastName,registrationID,creditLimit,country) values ('Kathy',
+        'Williams', 4, 5000.75, 'USA')";
+    }
+    var x = testDB->updateWithGeneratedKeys(queryString, keyColumns);
     match x {
         (int, string[]) y => {
             int a;
@@ -161,10 +173,11 @@ function testGeneratedKeyWithColumn() returns (string) {
     return returnVal;
 }
 
-function testSelectData() returns (string) {
+function testSelectData(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -179,10 +192,11 @@ function testSelectData() returns (string) {
     return firstName;
 }
 
-function testSelectIntFloatData() returns (int, int, float, float) {
+function testSelectIntFloatData(string jdbcUrl, string userName, string password) returns (int, int, float, float) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -203,11 +217,12 @@ function testSelectIntFloatData() returns (int, int, float, float) {
     return (int_type, long_type, float_type, double_type);
 }
 
-function testCallProcedure() returns (string, string) {
+function testCallProcedure(string jdbcUrl, string userName, string password) returns (string, string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
-        poolOptions: { maximumPoolSize: 1 }
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 2 }
     };
 
     string returnValue;
@@ -227,10 +242,11 @@ function testCallProcedure() returns (string, string) {
     return (firstName, returnValue);
 }
 
-function testCallProcedureWithResultSet() returns (string) {
+function testCallProcedureWithResultSet(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -250,10 +266,36 @@ function testCallProcedureWithResultSet() returns (string) {
     return firstName;
 }
 
-function testCallProcedureWithMultipleResultSets() returns (string, string, string) {
+function testCallFunctionWithReturningRefcursor(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    sql:Parameter para1 = { sqlType: sql:TYPE_REFCURSOR, direction: sql:DIRECTION_OUT, recordType: ResultCustomers };
+
+    string firstName;
+    table dt;
+    transaction {
+        var ret = check testDB->call("{? = call SelectPersonData()}", [ResultCustomers], para1);
+    }
+    dt = check <table>para1.value;
+    while (dt.hasNext()) {
+        ResultCustomers rs = check <ResultCustomers>dt.getNext();
+        firstName = rs.FIRSTNAME;
+    }
+    testDB.stop();
+    return firstName;
+}
+
+function testCallProcedureWithMultipleResultSets(string jdbcUrl, string userName, string password) returns (string,
+            string, string) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -283,10 +325,11 @@ function testCallProcedureWithMultipleResultSets() returns (string, string, stri
     return (firstName1, firstName2, lastName);
 }
 
-function testQueryParameters() returns (string) {
+function testQueryParameters(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -302,10 +345,11 @@ function testQueryParameters() returns (string) {
     return firstName;
 }
 
-function testQueryParameters2() returns (string) {
+function testQueryParameters2(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -323,10 +367,11 @@ function testQueryParameters2() returns (string) {
     return firstName;
 }
 
-function testInsertTableDataWithParameters() returns (int) {
+function testInsertTableDataWithParameters(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -343,10 +388,11 @@ function testInsertTableDataWithParameters() returns (int) {
     return insertCount;
 }
 
-function testInsertTableDataWithParameters2() returns (int) {
+function testInsertTableDataWithParameters2(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -357,10 +403,11 @@ function testInsertTableDataWithParameters2() returns (int) {
     return insertCount;
 }
 
-function testInsertTableDataWithParameters3() returns (int) {
+function testInsertTableDataWithParameters3(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -372,10 +419,11 @@ function testInsertTableDataWithParameters3() returns (int) {
     return insertCount;
 }
 
-function testArrayofQueryParameters() returns (string) {
+function testArrayofQueryParameters(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -400,10 +448,11 @@ function testArrayofQueryParameters() returns (string) {
     return firstName;
 }
 
-function testBoolArrayofQueryParameters() returns (int) {
+function testBoolArrayofQueryParameters(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -436,10 +485,12 @@ function testBoolArrayofQueryParameters() returns (int) {
     return value;
 }
 
-function testArrayInParameters() returns (int, int[], int[], float[], string[], boolean[], float[]) {
+function testArrayInParameters(string jdbcUrl, string userName, string password) returns (int, int[], int[], float[],
+            string[], boolean[], float[]) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -484,10 +535,12 @@ function testArrayInParameters() returns (int, int[], int[], float[], string[], 
     return (insertCount, int_arr, long_arr, double_arr, string_arr, boolean_arr, float_arr);
 }
 
-function testOutParameters() returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any, any,
+            any, any, any, any, any, any, any) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -518,10 +571,12 @@ function testOutParameters() returns (any, any, any, any, any, any, any, any, an
     paraBlob.value, paraBinary.value);
 }
 
-function testNullOutParameters() returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testNullOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any,
+            any, any, any, any, any, any, any, any) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -550,10 +605,11 @@ function testNullOutParameters() returns (any, any, any, any, any, any, any, any
     paraBlob.value, paraBinary.value);
 }
 
-function testINParameters() returns (int) {
+function testINParameters(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -582,11 +638,12 @@ function testINParameters() returns (int) {
     return insertCount;
 }
 
-function testINParametersWithDirectValues() returns (int, int, float, float, boolean, string, float, float, float, blob,
-        blob) {
+function testINParametersWithDirectValues(string jdbcUrl, string userName, string password) returns (int, int, float,
+        float, boolean, string, float, float, float, blob, blob) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -632,11 +689,12 @@ function testINParametersWithDirectValues() returns (int, int, float, float, boo
     return (i, l, f, d, b, s, n, dec, real, blobInsert, blobReturn);
 }
 
-function testINParametersWithDirectVariables() returns (int, int, float, float, boolean, string, float, float, float,
-        blob, blob) {
+function testINParametersWithDirectVariables(string jdbcUrl, string userName, string password) returns (int, int, float,
+        float, boolean, string, float, float, float, blob, blob) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -693,10 +751,11 @@ function testINParametersWithDirectVariables() returns (int, int, float, float, 
     return (i, l, f, d, b, s, n, dec, real, blobInsert, blobReturn);
 }
 
-function testNullINParameterValues() returns (int) {
+function testNullINParameterValues(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -725,10 +784,12 @@ function testNullINParameterValues() returns (int) {
     return insertCount;
 }
 
-function testINOutParameters() returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testINOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any,
+            any, any, any, any, any, any, any, any) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -759,10 +820,12 @@ function testINOutParameters() returns (any, any, any, any, any, any, any, any, 
     paraBlob.value, paraBinary.value);
 }
 
-function testNullINOutParameters() returns (any, any, any, any, any, any, any, any, any, any, any, any, any, any) {
+function testNullINOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any
+            , any, any, any, any, any, any, any, any) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -791,10 +854,11 @@ function testNullINOutParameters() returns (any, any, any, any, any, any, any, a
     paraBlob.value, paraBinary.value);
 }
 
-function testEmptySQLType() returns (int) {
+function testEmptySQLType(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -804,10 +868,12 @@ function testEmptySQLType() returns (int) {
     return insertCount;
 }
 
-function testArrayOutParameters() returns (any, any, any, any, any, any) {
+function testArrayOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any)
+{
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -823,10 +889,12 @@ function testArrayOutParameters() returns (any, any, any, any, any, any) {
     return (para1.value, para2.value, para3.value, para4.value, para5.value, para6.value);
 }
 
-function testArrayInOutParameters() returns (any, any, any, any, any, any, any) {
+function testArrayInOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any,
+            any, any) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -844,14 +912,16 @@ function testArrayInOutParameters() returns (any, any, any, any, any, any, any) 
 
     _ = testDB->call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", (),
         para1, para2, para3, para4, para5, para6, para7, para8);
+
     testDB.stop();
     return (para2.value, para3.value, para4.value, para5.value, para6.value, para7.value, para8.value);
 }
 
-function testBatchUpdate() returns (int[]) {
+function testBatchUpdate(string jdbcUrl, string userName, string password) returns (int[]) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -879,10 +949,11 @@ function testBatchUpdate() returns (int[]) {
 
 type myBatchType string|int|float;
 
-function testBatchUpdateWithValues() returns int[] {
+function testBatchUpdateWithValues(string jdbcUrl, string userName, string password) returns int[] {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -898,10 +969,11 @@ function testBatchUpdateWithValues() returns int[] {
     return updateCount;
 }
 
-function testBatchUpdateWithVariables() returns int[] {
+function testBatchUpdateWithVariables(string jdbcUrl, string userName, string password) returns int[] {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -923,10 +995,11 @@ function testBatchUpdateWithVariables() returns int[] {
     return updateCount;
 }
 
-function testBatchUpdateWithFailure() returns (int[], int) {
+function testBatchUpdateWithFailure(string jdbcUrl, string userName, string password) returns (int[], int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -982,10 +1055,11 @@ function testBatchUpdateWithFailure() returns (int[], int) {
     return (updateCount, count);
 }
 
-function testBatchUpdateWithNullParam() returns (int[]) {
+function testBatchUpdateWithNullParam(string jdbcUrl, string userName, string password) returns (int[]) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -996,10 +1070,11 @@ function testBatchUpdateWithNullParam() returns (int[]) {
     return updateCount;
 }
 
-function testDateTimeInParameters() returns (int[]) {
+function testDateTimeInParameters(string jdbcUrl, string userName, string password) returns (int[]) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1041,10 +1116,11 @@ function testDateTimeInParameters() returns (int[]) {
     return returnValues;
 }
 
-function testDateTimeNullInValues() returns (string) {
+function testDateTimeNullInValues(string jdbcUrl, string userName, string password) returns (string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1071,10 +1147,11 @@ function testDateTimeNullInValues() returns (string) {
     return data;
 }
 
-function testDateTimeNullOutValues() returns (int) {
+function testDateTimeNullOutValues(string jdbcUrl, string userName, string password) returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1103,10 +1180,11 @@ function testDateTimeNullOutValues() returns (int) {
     return count;
 }
 
-function testDateTimeNullInOutValues() returns (any, any, any, any) {
+function testDateTimeNullInOutValues(string jdbcUrl, string userName, string password) returns (any, any, any, any) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1121,10 +1199,12 @@ function testDateTimeNullInOutValues() returns (any, any, any, any) {
     return (para2.value, para3.value, para4.value, para5.value);
 }
 
-function testDateTimeOutParams(int time, int date, int timestamp) returns (int) {
+function testDateTimeOutParams(int time, int date, int timestamp, string jdbcUrl, string userName, string password)
+             returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1155,10 +1235,11 @@ function testDateTimeOutParams(int time, int date, int timestamp) returns (int) 
     return count;
 }
 
-function testStructOutParameters() returns (any) {
+function testStructOutParameters(string jdbcUrl, string userName, string password) returns (any) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1168,10 +1249,12 @@ function testStructOutParameters() returns (any) {
     return para1.value;
 }
 
-function testComplexTypeRetrieval() returns (string, string, string, string) {
+function testComplexTypeRetrieval(string jdbcUrl, string userName, string password) returns (string, string, string,
+            string) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1200,10 +1283,12 @@ function testComplexTypeRetrieval() returns (string, string, string, string) {
     return (s1, s2, s3, s4);
 }
 
-function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
+function testSelectLoadToMemory(string jdbcUrl, string userName, string password) returns (Employee[], Employee[],
+            Employee[]) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1240,10 +1325,12 @@ function testSelectLoadToMemory() returns (Employee[], Employee[], Employee[]) {
     return (employeeArray1, employeeArray2, employeeArray3);
 }
 
-function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[], error) {
+function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, string password) returns (Employee[],
+            Employee[], error) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -1283,14 +1370,16 @@ function testLoadToMemorySelectAfterTableClose() returns (Employee[], Employee[]
     return (employeeArray1, employeeArray2, e);
 }
 
-function testCloseConnectionPool() returns (int) {
+function testCloseConnectionPool(string jdbcUrl, string userName, string password, string connectionCountQuery)
+             returns (int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount);
+    table dt = check testDB->select(connectionCountQuery, ResultCount);
 
     int count;
     while (dt.hasNext()) {

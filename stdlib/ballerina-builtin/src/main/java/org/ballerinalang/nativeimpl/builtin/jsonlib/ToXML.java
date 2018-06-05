@@ -39,9 +39,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         orgName = "ballerina", packageName = "builtin",
         functionName = "json.toXML",
         args = {@Argument(name = "j", type = TypeKind.JSON),
-                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
+                @Argument(name = "options", type = TypeKind.RECORD, structType = "Options",
                           structPackage = "ballerina.builtin")},
-        returnType = { @ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.STRUCT) },
+        returnType = { @ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.RECORD) },
         isPublic = true
 )
 public class ToXML extends BlockingNativeCallableUnit {

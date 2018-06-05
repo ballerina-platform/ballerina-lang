@@ -43,7 +43,7 @@ import static org.ballerinalang.nativeimpl.io.IOConstants.BYTE_CHANNEL_NAME;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "constructBlob",
-        args = {@Argument(name = "byteChannel", type = TypeKind.STRUCT)},
+        args = {@Argument(name = "byteChannel", type = TypeKind.OBJECT)},
         returnType = {@ReturnType(type = TypeKind.BLOB)}
 )
 public class ConstructBlob extends BlockingNativeCallableUnit {

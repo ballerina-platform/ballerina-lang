@@ -41,7 +41,7 @@ import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "exists",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Headers",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Headers",
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "headerName", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},

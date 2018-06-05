@@ -52,11 +52,11 @@ import javax.jms.Session;
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "jms",
         functionName = "createMapMessage",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
                 structPackage = "ballerina.jms"),
         args = {@Argument(name = "content", type = TypeKind.MAP)},
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structPackage = "ballerina.jms", structType = "Message")
+                @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina.jms", structType = "Message")
         },
         isPublic = true)
 public class CreateMapMessage extends AbstractBlockinAction {
