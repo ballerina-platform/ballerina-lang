@@ -47,7 +47,7 @@ import java.util.concurrent.CompletableFuture;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "readFloat",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "DataChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "len", type = TypeKind.STRING)},
         isPublic = true
 )
