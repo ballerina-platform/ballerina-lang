@@ -21,7 +21,9 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -36,6 +38,7 @@ public class FunctionPointersTest {
 
     @BeforeClass
     public void setup() {
+        BaloCreator.createAndSetupBalo("test-src/balo/test_project", "testorg", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/functions/test_global_function_pointers.bal");
     }
 
@@ -96,5 +99,10 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "truetest6");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.cleaPackageFromRepository("testorg", "foo");
     }
 }
