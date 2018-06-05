@@ -63,8 +63,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
-
     public int addCPEntry(ConstantPoolEntry cpEntry) {
         if (constantPoolEntries.contains(cpEntry)) {
             return constantPoolEntries.indexOf(cpEntry);

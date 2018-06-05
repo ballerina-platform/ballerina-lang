@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.util.ScopeResolverConstants;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.BlockStatementScopeResolver;
-import org.ballerinalang.langserver.completions.util.positioning.resolvers.ConnectorScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.CursorPositionResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.InvocationParameterScopeResolver;
 import org.ballerinalang.langserver.completions.util.positioning.resolvers.MatchExpressionScopeResolver;
@@ -56,7 +55,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -65,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -402,63 +399,6 @@ public class TreeVisitor extends LSNodeVisitor {
             this.acceptNode(whileNode.body, symbolEnv);
             loopCount--;
             this.blockOwnerStack.pop();
-        }
-    }
-
-    public void visit(BLangTransformer transformerNode) {
-        if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(transformerNode.getPosition(), transformerNode, this,
-                        this.documentServiceContext)) {
-            SymbolEnv transformerEnv = SymbolEnv
-                    .createTransformerEnv(transformerNode, transformerNode.symbol.scope, symbolEnv);
-            this.blockOwnerStack.push(transformerNode);
-            // Cursor position is calculated against the Block statement scope resolver
-            cursorPositionResolver = BlockStatementScopeResolver.class;
-            this.acceptNode(transformerNode.body, transformerEnv);
-            this.blockOwnerStack.pop();
-        }
-    }
-
-    public void visit(BLangConnector connectorNode) {
-        String connectorName = connectorNode.getName().getValue();
-        BSymbol connectorSymbol = connectorNode.symbol;
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, symbolEnv);
-
-        if (isWithinParameterContext(connectorName, UtilSymbolKeys.CONNECTOR_KEYWORD_KEY)) {
-            this.populateSymbols(this.resolveAllVisibleSymbols(connectorEnv), connectorEnv);
-            setTerminateVisitor(true);
-        } else if (!ScopeResolverConstants.getResolverByClass(cursorPositionResolver)
-                .isCursorBeforeNode(connectorNode.getPosition(), connectorNode, this, this.documentServiceContext)) {
-
-            // Reset the previous node
-            this.setPreviousNode(null);
-            // TODO: Handle Annotation attachments
-            if (!(connectorNode.actions.isEmpty() && connectorNode.varDefs.isEmpty()
-                    && connectorNode.endpoints.isEmpty())) {
-
-                // Visit the endpoints
-                connectorNode.endpoints.forEach(bLangEndpoint -> this.acceptNode(bLangEndpoint, connectorEnv));
-
-                // Since the connector def does not contains a block statement, we consider the block owner only.
-                // Here it is Connector Definition
-                this.blockOwnerStack.push(connectorNode);
-                connectorNode.varDefs.forEach(varDef -> {
-                    // Cursor position is calculated against the Connector scope resolver
-                    cursorPositionResolver = ConnectorScopeResolver.class;
-                    this.acceptNode(varDef, connectorEnv);
-                });
-                connectorNode.actions.forEach(action -> {
-                    // Cursor position is calculated against the Connector scope resolver
-                    cursorPositionResolver = ConnectorScopeResolver.class;
-                    this.acceptNode(action, connectorEnv);
-                });
-                if (terminateVisitor) {
-                    this.acceptNode(null, null);
-                }
-                this.blockOwnerStack.pop();
-            } else {
-                this.isCursorWithinBlock(connectorNode.getPosition(), connectorEnv);
-            }
         }
     }
 

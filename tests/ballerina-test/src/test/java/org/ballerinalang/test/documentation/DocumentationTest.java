@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -207,28 +206,6 @@ public class DocumentationTest {
                 111, 5);
         BAssertUtil.validateWarning(compileResult, 10,
                 "no such documentable attribute 'testConstd' with doc prefix " + "'V'", 120, 1);
-    }
-
-    //    @Test(description = "Test doc transformer.")
-    public void testDocTransformer() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/transformer.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 0, getErrorString(compileResult.getDiagnostics()));
-        Assert.assertEquals(compileResult.getWarnCount(), 0, getErrorString(compileResult.getDiagnostics()));
-        PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangTransformer) packageNode.getTransformers().get(0)).docAttachments;
-        BLangDocumentation dNode = docNodes.get(0);
-        Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, "\n" + " Transformer Foo Person -> Employee\n" + " ");
-        Assert.assertEquals(dNode.getAttributes().size(), 3);
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "p");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " input struct Person source used for " +
-                "transformation\n ");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "e");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText, " output struct Employee struct which " +
-                "Person transformed to\n ");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "defaultAddress");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText, " address which serves Eg: `POSTCODE " +
-                "112`\n");
     }
 
     @Test(description = "Test doc service.")
@@ -476,35 +453,6 @@ public class DocumentationTest {
         Assert.assertEquals(dNode.documentationText, "This Resource is deprecated use `PizzaHutService.orderFromPizza" +
                 "()` instead.");
 
-    }
-
-    //    @Test(description = "Test doc deprecated Transformer.")
-    public void testDeprecatedTransformer() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/documentation/deprecated_transformer.bal");
-        Assert.assertEquals(compileResult.getWarnCount(), 0);
-        PackageNode packageNode = compileResult.getAST();
-        List<BLangDeprecatedNode> dNodes = ((BLangTransformer) packageNode.getTransformers().get(0))
-                .deprecatedAttachments;
-        BLangDeprecatedNode dNode = dNodes.get(0);
-        Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, "\n" + "  This Transformer is deprecated use\n" + "  " +
-                "`transformer <Person p, Employee e> Bar(any defaultAddress) { e.name = p.firstName; }\n" + "  ` " +
-                "instead.\n");
-
-        List<BLangDocumentation> docNodes = ((BLangTransformer) packageNode.getTransformers().get(0)).docAttachments;
-        BLangDocumentation docNode = docNodes.get(0);
-        Assert.assertNotNull(docNode);
-        Assert.assertEquals(docNode.documentationText, "\n Transformer Foo Person -> Employee\n ");
-        Assert.assertEquals(docNode.getAttributes().size(), 3);
-        Assert.assertEquals(docNode.getAttributes().get(0).documentationField.getValue(), "p");
-        Assert.assertEquals(docNode.getAttributes().get(0).documentationText, " input struct Person source used for " +
-                "transformation\n ");
-        Assert.assertEquals(docNode.getAttributes().get(1).documentationField.getValue(), "e");
-        Assert.assertEquals(docNode.getAttributes().get(1).documentationText, " output struct Employee struct which " +
-                "Person transformed to\n ");
-        Assert.assertEquals(docNode.getAttributes().get(2).documentationField.getValue(), "defaultAddress");
-        Assert.assertEquals(docNode.getAttributes().get(2).documentationText, " address which serves Eg: `POSTCODE " +
-                "112`\n");
     }
 
     @Test(description = "Test doc native function.")

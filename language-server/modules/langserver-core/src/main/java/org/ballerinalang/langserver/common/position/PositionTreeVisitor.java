@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -45,7 +44,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -418,56 +416,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
         }
     }
 
-    public void visit(BLangTransformer transformerNode) {
-        addTopLevelNodeToContext(transformerNode, transformerNode.name.getValue(), transformerNode.symbol.pkgID,
-                transformerNode.symbol.kind.name(), transformerNode.symbol.kind.name(),
-                transformerNode.symbol.owner.name.getValue(), transformerNode.symbol.owner.pkgID);
-
-        setPreviousNode(transformerNode);
-        this.addToNodeStack(transformerNode);
-
-        if (transformerNode.source != null) {
-            acceptNode(transformerNode.source);
-        }
-
-        if (transformerNode.requiredParams != null) {
-            transformerNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (transformerNode.retParams != null) {
-            transformerNode.retParams.forEach(this::acceptNode);
-        }
-
-        if (transformerNode.body != null) {
-            acceptNode(transformerNode.body);
-        }
-
-        if (transformerNode.workers != null) {
-            transformerNode.workers.forEach(this::acceptNode);
-        }
-    }
-
-    public void visit(BLangConnector connectorNode) {
-        addTopLevelNodeToContext(connectorNode, connectorNode.name.getValue(), connectorNode.symbol.pkgID,
-                connectorNode.symbol.kind.name(), connectorNode.symbol.kind.name(),
-                connectorNode.symbol.owner.name.getValue(), connectorNode.symbol.owner.pkgID);
-
-        setPreviousNode(connectorNode);
-        this.addToNodeStack(connectorNode);
-
-        if (connectorNode.params != null) {
-            connectorNode.params.forEach(this::acceptNode);
-        }
-
-        if (connectorNode.varDefs != null) {
-            connectorNode.varDefs.forEach(this::acceptNode);
-        }
-
-        if (connectorNode.actions != null) {
-            connectorNode.actions.forEach(this::acceptNode);
-        }
-    }
-
     public void visit(BLangAction actionNode) {
         addTopLevelNodeToContext(actionNode, actionNode.name.getValue(), actionNode.symbol.pkgID,
                 actionNode.symbol.kind.name(), actionNode.symbol.kind.name(),
@@ -738,10 +686,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
 
         if (conversionExpr.typeNode != null) {
             acceptNode(conversionExpr.typeNode);
-        }
-
-        if (conversionExpr.transformerInvocation != null) {
-            acceptNode(conversionExpr.transformerInvocation);
         }
     }
 
