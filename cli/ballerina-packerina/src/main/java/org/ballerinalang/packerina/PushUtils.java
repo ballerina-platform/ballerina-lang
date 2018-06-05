@@ -247,7 +247,7 @@ public class PushUtils {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
         }
         Converter<URI> converter = remoteRepo.getConverterInstance();
-        List<URI> uris = patten.convert(converter).collect(Collectors.toList());
+        List<URI> uris = patten.convert(converter, packageID).collect(Collectors.toList());
         if (uris.isEmpty()) {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
         }
