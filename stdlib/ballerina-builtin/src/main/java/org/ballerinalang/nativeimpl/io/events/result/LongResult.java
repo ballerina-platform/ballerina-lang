@@ -22,7 +22,7 @@ import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 
 /**
- * Will represent long value as response.
+ * Will represent long value response.
  */
 public class LongResult implements EventResult<Long, EventContext> {
     /**

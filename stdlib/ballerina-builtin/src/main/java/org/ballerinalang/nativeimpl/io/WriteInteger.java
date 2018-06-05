@@ -61,7 +61,7 @@ public class WriteInteger implements NativeCallableUnit {
      */
     private static final int REPRESENTATION_INDEX = 0;
     /**
-     * Index which holds the value of the data read.
+     * Index which holds the value of the data to be written.
      */
     private static final int VALUE_INDEX = 0;
 
@@ -82,7 +82,6 @@ public class WriteInteger implements NativeCallableUnit {
         callback.notifySuccess();
         return result;
     }
-
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {

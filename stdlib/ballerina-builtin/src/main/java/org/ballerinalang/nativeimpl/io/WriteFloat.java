@@ -61,7 +61,7 @@ public class WriteFloat implements NativeCallableUnit {
      */
     private static final int REPRESENTATION_INDEX = 0;
     /**
-     * Index which holds the value of the data read.
+     * Index which holds the value of the data to be written.
      */
     private static final int VALUE_INDEX = 0;
 

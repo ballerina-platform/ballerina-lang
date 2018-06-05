@@ -46,19 +46,16 @@ documentation {
     Represents a data channel for reading/writing data.
 }
 public type DataChannel object {
-    private {
-        ByteChannel byteChannel;
-    }
 
-    public new(byteChannel, ByteOrder bOrder = "NATIVE") {
+    public new(ByteChannel byteChannel, ByteOrder bOrder = "NATIVE") {
         init(byteChannel, bOrder);
     }
 
     documentation{
-        Initializes data channel
+        Initializes data channel.
 
         P{{byteChannel}} channel which would represent the source to read/write data
-        P{{bOrder}} network byte order the bytes will be represented in source
+        P{{bOrder}} network byte order
     }
     native function init(ByteChannel byteChannel, ByteOrder bOrder);
 
@@ -76,7 +73,7 @@ public type DataChannel object {
 
         P{{value}}   Integer which will be written
         P{{len}}     length which should be allocated for int
-        R{{}} nill if the content is written successfully or error
+        R{{}} nill if the content is written successfully or an error
     }
     public native function writeInt(int value, BitLength len = "64b") returns error?;
 
@@ -84,7 +81,7 @@ public type DataChannel object {
         Reads float value based on the specified bit length.
 
         P{{len}}        Length of the float in bits
-        R{{}} Value of the float which is read or an error.
+        R{{}} Value of the float which is read or an error
     }
     public native function readFloat(BitLength len = "64b") returns float|error;
 
@@ -93,14 +90,14 @@ public type DataChannel object {
 
         P{{value}}   float which will be written
         P{{len}}     length which should be allocated to float
-        R{{}} Value of the float which is read or an error.
+        R{{}} Value of the float which is read or an error
     }
     public native function writeFloat(float value, BitLength len = "64b") returns error?;
 
     documentation {
         Reads 1 byte and convert it's value to boolean.
 
-        R{{}} True if the value of the byte is 1 or an error
+        R{{}} boolean value which is read or an error
     }
     public native function readBool() returns boolean|error;
 

@@ -229,7 +229,7 @@ public class CharacterChannel {
      * Reads bytes asynchronously from the channel.
      *
      * @param numberOfBytesRequired number of bytes required from the channel.
-     * @throws IOException errors occur while reading and encoding characters.
+     * @throws IOException if an error occurs while reading and encoding characters.
      */
     private String asyncReadBytesFromChannel(int numberOfBytesRequired)
             throws IOException {
@@ -315,7 +315,7 @@ public class CharacterChannel {
 
     /**
      * <p>
-     * Reads all characters to the specified byte length.
+     * Reads all characters to the provided number of bytes.
      * </p>
      *
      * @param nBytes number of bytes.

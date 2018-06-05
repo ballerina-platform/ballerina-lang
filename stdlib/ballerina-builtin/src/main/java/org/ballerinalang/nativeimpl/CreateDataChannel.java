@@ -95,7 +95,7 @@ public class CreateDataChannel extends BlockingNativeCallableUnit {
             DataChannel dataChannel = new DataChannel(channel, byteOrder);
             dataChannelStruct.addNativeData(IOConstants.DATA_CHANNEL_NAME, dataChannel);
         } catch (Exception e) {
-            String message = "Error while creating data channel" + e.getMessage();
+            String message = "Error while creating data channel:" + e.getMessage();
             log.error(message, e);
             throw new BallerinaIOException(message, e);
         }

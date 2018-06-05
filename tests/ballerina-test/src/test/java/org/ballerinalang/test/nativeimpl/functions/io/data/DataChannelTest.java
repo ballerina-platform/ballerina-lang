@@ -74,7 +74,7 @@ public class DataChannelTest {
 
     @Test(description = "read and write bool")
     public void processBool() {
-        String sourceToWrite = currentDirectoryPath + "/float.bin";
+        String sourceToWrite = currentDirectoryPath + "/boolean.bin";
         //Will initialize the channel
         boolean value = false;
         BValue[] args = {new BBoolean(value), new BString(sourceToWrite)};

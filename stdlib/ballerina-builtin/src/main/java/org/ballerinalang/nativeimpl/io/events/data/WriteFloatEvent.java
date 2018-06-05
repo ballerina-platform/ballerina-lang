@@ -36,7 +36,7 @@ import java.io.IOException;
  */
 public class WriteFloatEvent implements Event {
     /**
-     * Will be used to read float.
+     * Will be used to write float.
      */
     private DataChannel channel;
     /**

@@ -35,7 +35,7 @@ import java.io.IOException;
  */
 public class WriteIntegerEvent implements Event {
     /**
-     * Will be used to read bytes.
+     * Will be used to write integer.
      */
     private DataChannel channel;
     /**

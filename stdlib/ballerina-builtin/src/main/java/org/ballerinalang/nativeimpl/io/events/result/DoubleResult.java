@@ -52,9 +52,6 @@ public class DoubleResult implements EventResult<Double, EventContext> {
         return context;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Double getResponse() {
         return value;

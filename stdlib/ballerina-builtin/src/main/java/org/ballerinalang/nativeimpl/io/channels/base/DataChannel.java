@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Represents a channel which will allow to perform data i/o operations.
+ * Represents a channel which will allow performing data i/o operations.
  */
 public class DataChannel {
     /**
@@ -32,7 +32,7 @@ public class DataChannel {
      */
     private Channel channel;
     /**
-     * Represents the byte order.
+     * Represents network byte order.
      */
     private ByteOrder order;
 
@@ -44,7 +44,7 @@ public class DataChannel {
     /**
      * Recursively read bytes until the buffer is filled.
      *
-     * @param buffer the buffer which will hold the read bytes.
+     * @param buffer buffer which will hold the read bytes.
      * @throws IOException during i/o error.
      */
     private void readFull(ByteBuffer buffer) throws IOException {
@@ -57,7 +57,7 @@ public class DataChannel {
      * Decodes the long from a provided input channel.
      *
      * @param representation specified size representation of the long value.
-     * @return the decoded long.
+     * @return the decoded long value.
      * @throws IOException during i/o error.
      */
     private long decodeLong(Representation representation) throws IOException {
@@ -98,8 +98,8 @@ public class DataChannel {
     /**
      * Splits the long between several bytes.
      *
-     * @param value          the value of the long which should be split
-     * @param representation the size of the long in bits
+     * @param value          the value of the long which should be split.
+     * @param representation the size of the long in bits.
      * @return the encoded long value.
      */
     private byte[] encodeLong(long value, Representation representation) {
@@ -148,7 +148,7 @@ public class DataChannel {
      * Writes double value.
      *
      * @param value          value which should be written.
-     * @param representation the size of the double in bits
+     * @param representation the size of the double in bits.
      * @throws IOException during i/o error.
      */
     public void writeDouble(double value, Representation representation) throws IOException {
@@ -188,6 +188,7 @@ public class DataChannel {
         ByteBuffer buffer = ByteBuffer.allocate(1);
         byte booleanValue = (byte) (value ? 1 : 0);
         buffer.put(booleanValue);
+        buffer.flip();
         channel.write(buffer);
     }
 
@@ -217,7 +218,7 @@ public class DataChannel {
     }
 
     /**
-     * Reads a string.
+     * Reads a string for the specified number of bytes.
      *
      * @param nBytes   number of bytes representing the string.
      * @param encoding encoding which should be used to represent the string.

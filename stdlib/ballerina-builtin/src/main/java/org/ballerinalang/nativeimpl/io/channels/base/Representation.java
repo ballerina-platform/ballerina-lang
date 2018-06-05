@@ -36,7 +36,7 @@ public enum Representation {
      */
     BIT_16(2),
     /**
-     * Represents a variable value which does not have s size defined.
+     * Represents a variable value which does not have a size defined.
      */
     VARIABLE(-1);
 

@@ -84,7 +84,6 @@ public class ReadInteger implements NativeCallableUnit {
         return result;
     }
 
-
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BStruct dataChannelStruct = (BStruct) context.getRefArgument(DATA_CHANNEL_INDEX);
