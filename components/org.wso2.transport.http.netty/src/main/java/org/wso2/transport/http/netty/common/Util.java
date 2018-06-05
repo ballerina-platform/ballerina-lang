@@ -614,7 +614,6 @@ public class Util {
                 if (throwable instanceof ClosedChannelException) {
                     throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
                 }
-                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             } else {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
@@ -636,7 +635,6 @@ public class Util {
                 if (throwable instanceof ClosedChannelException) {
                     throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
                 }
-                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             }
         });

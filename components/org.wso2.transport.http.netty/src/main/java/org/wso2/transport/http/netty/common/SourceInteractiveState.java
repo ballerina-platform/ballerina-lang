@@ -21,9 +21,10 @@ package org.wso2.transport.http.netty.common;
 /**
  * Inbound request state.
  */
-public enum InboundState {
+public enum SourceInteractiveState {
     CONNECTED,
     RECEIVING_ENTITY_BODY,
     ENTITY_BODY_RECEIVED,
-    COMPLETED
+    SENDING_HEADERS,
+    SENDING_ENTITY_BODY
 }

@@ -24,44 +24,44 @@ import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.wso2.transport.http.netty.common.InboundState;
+import org.wso2.transport.http.netty.common.SourceInteractiveState;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_REQUEST;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUT_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_BEFORE_INITIATING_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION_WITHOUT_COMPLETING_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION;
-import static org.wso2.transport.http.netty.listener.InboundState.CONNECTED;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSE_CONNECTION_BEFORE_INITIATING_REQUEST;
-import static org.wso2.transport.http.netty.common.InboundState.CONNECTED;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSE_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
 
 /**
  * Handle all the errors related to source-handler.
  */
-public class SourceHandlerErrorHandler {
+public class SourceErrorHandler {
 
-    private static Logger log = LoggerFactory.getLogger(SourceHandlerErrorHandler.class);
+    private static Logger log = LoggerFactory.getLogger(SourceErrorHandler.class);
 
     private HTTPCarbonMessage inboundRequestMsg;
     private final ServerConnectorFuture serverConnectorFuture;
-    private InboundState inboundState;
+    private SourceInteractiveState state;
 
-    public SourceHandlerErrorHandler(ServerConnectorFuture serverConnectorFuture) {
+    public SourceErrorHandler(ServerConnectorFuture serverConnectorFuture) {
         this.serverConnectorFuture = serverConnectorFuture;
-        this.inboundState = CONNECTED;
+        this.state = CONNECTED;
     }
 
     void handleErrorCloseScenario(HTTPCarbonMessage inboundRequestMsg, HttpResponseFuture httpOutboundRespFuture) {
-        if (complete) {
-            return;
-        }
         this.inboundRequestMsg = inboundRequestMsg;
         try {
-            switch (inboundState) {
+            switch (state) {
                 case CONNECTED:
                     serverConnectorFuture.notifyErrorListener(
                             new ServerConnectorException(REMOTE_CLIENT_CLOSE_CONNECTION_BEFORE_INITIATING_REQUEST));
@@ -71,24 +71,32 @@ public class SourceHandlerErrorHandler {
                     break;
                 case ENTITY_BODY_RECEIVED:
                     serverConnectorFuture.notifyErrorListener(
-                            new ServerConnectorException(REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION));
+                            new ServerConnectorException(REMOTE_CLIENT_ABRUPTLY_CLOSE_BEFORE_INITIATING_RESPONSE));
+                    httpOutboundRespFuture.notifyHttpListener(
+                            new ServerConnectorException(REMOTE_CLIENT_ABRUPTLY_CLOSE_BEFORE_INITIATING_RESPONSE));
+                    break;
+                case SENDING_HEADERS:
+                    log.error(REMOTE_CLIENT_CLOSE_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS);
+                    httpOutboundRespFuture.notifyHttpListener(
+                            new ServerConnectorException(REMOTE_CLIENT_CLOSE_WHILE_WRITING_OUTBOUND_RESPONSE_HEADERS));
+                    break;
+                case SENDING_ENTITY_BODY:
+                    log.error(REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
                     httpOutboundRespFuture.notifyHttpListener(
                             new ServerConnectorException(REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION));
                     break;
-                case COMPLETED:
-                    break;
                 default:
-                    log.error("Unexpected inboundState detected ", inboundState);
+                    log.error("Unexpected state detected ", state);
             }
         } catch (ServerConnectorException e) {
-            log.error("Error while notifying error inboundState to server-connector listener");
+            log.error("Error while notifying error state to server-connector listener");
         }
     }
 
     void handleIdleErrorScenario(HTTPCarbonMessage inboundRequestMsg, HttpResponseFuture httpOutboundRespFuture) {
         this.inboundRequestMsg = inboundRequestMsg;
         try {
-            switch (inboundState) {
+            switch (state) {
                 case CONNECTED:
                     serverConnectorFuture.notifyErrorListener(
                             new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_REQUEST));
@@ -100,17 +108,25 @@ public class SourceHandlerErrorHandler {
                     // This means we have received the complete inbound request. But nothing happened
                     // after that.
                     serverConnectorFuture.notifyErrorListener(
-                            new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
+                            new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
 
                     // This is to stop application layer writing response after
                     // idle timeout is triggered.
                     httpOutboundRespFuture.notifyHttpListener(
-                            new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE));
+                            new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
                     break;
-                case COMPLETED:
+                case SENDING_HEADERS:
+                    log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUT_RESPONSE_HEADERS);
+                    httpOutboundRespFuture.notifyHttpListener(
+                            new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUT_RESPONSE_HEADERS));
+                    break;
+                case SENDING_ENTITY_BODY:
+                    log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE);
+                    httpOutboundRespFuture.notifyHttpListener(
+                            new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE));
                     break;
                 default:
-                    log.error("Unexpected state detected ", inboundState);
+                    log.error("Unexpected state detected ", state);
             }
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
@@ -128,11 +144,7 @@ public class SourceHandlerErrorHandler {
         log.warn("Exception occurred :" + cause);
     }
 
-    public void setInboundState(InboundState inboundState) {
-        this.inboundState = inboundState;
-    }
-
-    public void setComplete() {
-        complete = true;
+    public void setState(SourceInteractiveState state) {
+        this.state = state;
     }
 }
