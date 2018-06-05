@@ -24,9 +24,9 @@ import ballerina/runtime;
 
 public type AuthScheme "Basic"|"OAuth2"|"JWT";
 
-@final public AuthScheme BASIC = "Basic";
+@final public AuthScheme BASIC_AUTH = "Basic";
 @final public AuthScheme OAUTH2 = "OAuth2";
-@final public AuthScheme JWT = "JWT";
+@final public AuthScheme JWT_AUTH = "JWT";
 
 documentation {
     Provides secure HTTP actions for interacting with HTTP endpoints. This will make use of the authentication schemes
@@ -342,7 +342,7 @@ documentation {
 function generateSecureRequest(Request req, ClientEndpointConfig config) returns (()|error) {
     match config.auth.scheme {
         AuthScheme scheme => {
-            if (scheme == BASIC) {
+            if (scheme == BASIC_AUTH) {
                 string username = config.auth.username but { () => EMPTY_STRING };
                 string password = config.auth.password but { () => EMPTY_STRING };
                 string str = username + ":" + password;
@@ -355,7 +355,7 @@ function generateSecureRequest(Request req, ClientEndpointConfig config) returns
                 } else {
                     req.setHeader(AUTH_HEADER, AUTH_SCHEME_BEARER + WHITE_SPACE + accessToken);
                 }
-            } else if (scheme == JWT) {
+            } else if (scheme == JWT_AUTH) {
                 string authToken = runtime:getInvocationContext().authContext.authToken;
                 if (authToken == EMPTY_STRING) {
                     error err;
