@@ -26,7 +26,9 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,6 +45,7 @@ public class GlobalVarFunctionInBaloTest {
 
     @BeforeClass
     public void setup() throws IOException {
+        BaloCreator.createAndSetupBalo("test-src/balo/test_project", "testorg", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/globalvar/test_global_var_function.bal");
     }
 
@@ -111,5 +114,10 @@ public class GlobalVarFunctionInBaloTest {
 
         Assert.assertEquals(((BJSON) returns[0]).stringValue(), "{\"name\":\"James\",\"age\":30}");
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 3432.3423);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.cleaPackageFromRepository("testorg", "foo");
     }
 }

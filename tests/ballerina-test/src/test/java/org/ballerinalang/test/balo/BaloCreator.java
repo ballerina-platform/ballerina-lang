@@ -45,7 +45,7 @@ public class BaloCreator {
      * @param orgName Organization name
      * @throws IOException If any error occurred while reading the source files
      */
-    public static void create(Path projectPath, String packageId, String orgName) throws IOException {
+    private static void create(Path projectPath, String packageId, String orgName) throws IOException {
         Path baloPath = Paths.get(USER_REPO_DEFAULT_DIRNAME);
         projectPath = Paths.get("src", "test", "resources").resolve(projectPath);
 
@@ -60,5 +60,29 @@ public class BaloCreator {
         // copy the balo to the temp-ballerina-home/libs/
         BFileUtil.delete(Paths.get(TARGET, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName));
         BFileUtil.copy(projectPath.resolve(baloPath), Paths.get(TARGET, BALLERINA_HOME_LIB));
+    }
+
+    /**
+     * Helper method to create balo from the source and setup the repository.
+     *
+     * @param projectRoot   root folder location.
+     * @param orgName       org name.
+     * @param pkgName       package name.
+     */
+    public static void createAndSetupBalo(String projectRoot, String orgName, String pkgName) {
+        try {
+            create(Paths.get(projectRoot), pkgName, orgName);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * Method to clean up pkg from the ballerina repository after tests are run.
+     * @param orgName   organization name.
+     * @param pkgName   package name.
+     */
+    public static void cleaPackageFromRepository(String orgName, String pkgName) {
+        BFileUtil.delete(Paths.get(TARGET, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, pkgName));
     }
 }
