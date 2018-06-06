@@ -418,7 +418,7 @@ class SizingUtil {
         }
 
         if (TreeUtil.isFunction(node) && !TreeUtil.isMainFunction(node)) {
-            if (node.getReceiver()) {
+            if (node.getReceiver() && node.getReceiver().getTypeNode()) {
                 cmp.receiver.w = this.getTextWidth(node.getReceiver().getTypeNode().getTypeName().value, 0).w + 50;
             }
         }
