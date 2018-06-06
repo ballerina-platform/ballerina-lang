@@ -255,8 +255,8 @@ public class WebSocketTargetHandler extends WebSocketInboundFrameHandler {
         if (closePromise == null) {
             DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage, ctx);
-            connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
             closeFrameReceived = true;
+            connectorListener.onMessage((WebSocketCloseMessage) webSocketCloseMessage);
         } else {
             if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
                 String errMsg = String.format(
