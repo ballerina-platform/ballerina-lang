@@ -219,7 +219,6 @@ public class WebSocketDispatcher {
         Resource onErrorResource = webSocketService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_ERROR);
         if (isUnexpectedError(throwable)) {
             log.error("Unexpected error", throwable);
-            return;
         }
         if (onErrorResource == null) {
             ErrorHandlerUtils.printError(throwable);
@@ -242,15 +241,21 @@ public class WebSocketDispatcher {
         Executor.submit(onErrorResource, onErrorCallback, null, null, bValues);
     }
 
-    private static boolean isUnexpectedError(Throwable throwable) {
-        return !(throwable instanceof CorruptedFrameException);
-    }
-
     private static BStruct getError(WebSocketService webSocketService, Throwable throwable) {
         ProgramFile programFile = webSocketService.getServiceInfo().getPackageInfo().getProgramFile();
         PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangVMErrors.PACKAGE_BUILTIN);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
-        return BLangVMStructs.createBStruct(errorStructInfo, throwable.getMessage());
+        String errMsg;
+        if (isUnexpectedError(throwable)) {
+            errMsg = "Unexpected internal error. Please check internal-log for more details!";
+        } else {
+            errMsg = throwable.getMessage();
+        }
+        return BLangVMStructs.createBStruct(errorStructInfo, errMsg);
+    }
+
+    private static boolean isUnexpectedError(Throwable throwable) {
+        return !(throwable instanceof CorruptedFrameException);
     }
 
     public static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo,
