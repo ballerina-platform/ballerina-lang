@@ -20,10 +20,8 @@ documentation {
     BIG_ENDIAN - specifies the bytes to be in the order of most significant byte first
 
     LITTLE_ENDIAN - specifies the byte order to be the least significant byte first
-
-    NATIVE - specifies the byte order to be in the native order defined by the platform of execution
 }
-public type ByteOrder "BI"|"LI"|"NATIVE";
+public type ByteOrder "BI"|"LI";
 @final public ByteOrder BIG_ENDIAN = "BI";
 @final public ByteOrder LITTLE_ENDIAN = "LI";
 
