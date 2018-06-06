@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#writeFloat
+ * Native function ballerina.io#writeFloat.
  *
  * @since 0.973.1
  */
@@ -67,7 +67,7 @@ public class WriteFloat implements NativeCallableUnit {
     /**
      * Triggers upon receiving the response.
      *
-     * @param result the response received after writing double
+     * @param result the response received after writing double.
      */
     private static EventResult writeFloatResponse(EventResult<Integer, EventContext> result) {
         EventContext eventContext = result.getContext();

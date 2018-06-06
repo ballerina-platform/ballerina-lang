@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#writeBool
+ * Native function ballerina.io#writeBool.
  *
  * @since 0.973.1
  */
@@ -61,7 +61,7 @@ public class WriteBool implements NativeCallableUnit {
     /**
      * Triggers upon receiving the response.
      *
-     * @param result the response received after writing boolean
+     * @param result the response received after writing boolean.
      */
     private static EventResult writeBooleanResponse(EventResult<Integer, EventContext> result) {
         EventContext eventContext = result.getContext();

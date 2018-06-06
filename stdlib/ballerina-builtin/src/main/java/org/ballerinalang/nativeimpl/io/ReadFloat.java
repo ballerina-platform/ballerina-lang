@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#readFloat
+ * Native function ballerina.io#readFloat.
  *
  * @since 0.973.1
  */
@@ -63,8 +63,8 @@ public class ReadFloat implements NativeCallableUnit {
     /**
      * Triggers upon receiving the response.
      *
-     * @param result the response received after reading double
-     * @return read double value
+     * @param result the response received after reading double.
+     * @return read double value.
      */
     private static EventResult readResponse(EventResult<Double, EventContext> result) {
         EventContext eventContext = result.getContext();

@@ -38,7 +38,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#writeInt
+ * Native function ballerina.io#writeInt.
  *
  * @since 0.973.1
  */
@@ -67,7 +67,7 @@ public class WriteInteger implements NativeCallableUnit {
     /**
      * Triggers upon receiving the response.
      *
-     * @param result the response received after writing int
+     * @param result the response received after writing int.
      */
     private static EventResult writeIntegerResponse(EventResult<Long, EventContext> result) {
         EventContext eventContext = result.getContext();

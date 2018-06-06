@@ -37,7 +37,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#readBool
+ * Native function ballerina.io#readBool.
  *
  * @since 0.973.1
  */
@@ -56,8 +56,8 @@ public class ReadBool implements NativeCallableUnit {
     /**
      * Triggers upon receiving the response.
      *
-     * @param result the response received after reading bool
-     * @return read bool value
+     * @param result the response received after reading bool.
+     * @return read bool value.
      */
     private static EventResult readResponse(EventResult<Boolean, EventContext> result) {
         EventContext eventContext = result.getContext();

@@ -40,7 +40,7 @@ import static org.ballerinalang.nativeimpl.io.channels.base.Representation.BIT_3
 import static org.ballerinalang.nativeimpl.io.channels.base.Representation.BIT_64;
 
 /**
- * Test data i/o
+ * Test data i/o.
  */
 public class DataInputOutputTest {
     /**

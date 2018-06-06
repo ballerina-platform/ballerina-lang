@@ -71,8 +71,8 @@ public class CreateDataChannel extends BlockingNativeCallableUnit {
     /**
      * Returns the relevant byte order.
      *
-     * @param byteOrder byte order defined through ballerina api
-     * @return byte order mapped with java equivalent
+     * @param byteOrder byte order defined through ballerina api.
+     * @return byte order mapped with java equivalent.
      */
     private ByteOrder getByteOrder(String byteOrder) {
         switch (byteOrder) {

@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#readInt
+ * Native function ballerina.io#readInt.
  *
  * @since 0.973.1
  */
@@ -64,8 +64,8 @@ public class ReadInteger implements NativeCallableUnit {
     /**
      * Triggers upon receiving the response.
      *
-     * @param result the response received after reading int
-     * @return read int value
+     * @param result the response received after reading int.
+     * @return read int value.
      */
     private static EventResult readResponse(EventResult<Long, EventContext> result) {
         EventContext eventContext = result.getContext();
