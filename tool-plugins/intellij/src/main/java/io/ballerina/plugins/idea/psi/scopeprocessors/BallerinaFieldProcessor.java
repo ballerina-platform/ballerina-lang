@@ -231,6 +231,14 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                                 }
                             }
                         }
+
+                        // Resolve type from an array type.
+                        BallerinaTypeName typeName = ((BallerinaArrayTypeName) type).getTypeName();
+                        PsiElement typeDefinition = BallerinaPsiImplUtil.resolveTypeToDefinition(typeName);
+                        if (typeDefinition != null && typeDefinition.getParent() instanceof BallerinaTypeDefinition) {
+                            processTypeDefinition(((BallerinaTypeDefinition) typeDefinition.getParent()),
+                                    typeDefinition);
+                        }
                     }
                 } else if (type.getParent().getParent() instanceof BallerinaBuiltInReferenceTypeName) {
                     // Note - Built-in functions for xml literals in var assignments are handled from here.
