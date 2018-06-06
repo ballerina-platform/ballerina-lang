@@ -31,7 +31,7 @@ class DiagramMenu extends React.Component {
 
     render() {
         return (
-            <Menu className='top-menu' style={{ width: this.props.width }}>
+            <Menu className={'top-menu ' + (this.props.width > 460 ? '' : 'hidden' )} style={{ width: this.props.width }}>
                 { !this.props.fitToWidth &&
                 <Menu.Menu position='left'>
                     <Menu.Item>
@@ -44,7 +44,7 @@ class DiagramMenu extends React.Component {
                 }
                 { !this.props.fitToWidth &&
                 <Menu.Menu position='right'>
-                    <DefinitionViewMenu model={this.props.model} />
+                    <DefinitionViewMenu on model={this.props.model} width={this.props.width} />
                     { this.props.mode === 'action' &&
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'default', fitToWidth: false }); }}>
                         <Icon name='fw fw-zoom-in menu-icon-right' />

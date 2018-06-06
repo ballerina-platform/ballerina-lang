@@ -80,6 +80,7 @@ class BallerinaFileEditor extends React.Component {
             splitSize: this.fetchState('splitSize', (this.props.width / 2)),
             diagramMode: this.fetchState('diagramMode', 'action'),
             diagramFitToWidth: this.fetchState('diagramFitToWidth', true),
+            isDiagramOnEditMode: false,
             lastRenderedTimestamp: undefined,
         };
         this.skipLoadingOverlay = false;
@@ -290,6 +291,23 @@ class BallerinaFileEditor extends React.Component {
     }
 
     handleSplitChange(size) {
+        const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
+            this.props.width - this.state.splitSize;
+
+        if(designWidth < 460 && !this.fetchState('diagramFitToWidth', true)){
+            this.setState({
+                isDiagramOnEditMode: true,
+            });
+            this.onModeChange({ mode: 'action', fitToWidth: true });
+        }
+
+        if(this.state.isDiagramOnEditMode && designWidth > 450){
+            this.setState({
+                isDiagramOnEditMode: false,
+            });
+            this.onModeChange({ mode: 'action', fitToWidth: false });
+        }
+
         this.setState({ splitSize: size });
     }
     /**

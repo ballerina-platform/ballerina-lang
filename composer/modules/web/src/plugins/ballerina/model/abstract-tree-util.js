@@ -179,6 +179,10 @@ class AbstractTreeUtil {
         return node.kind === 'RecordLiteralExpr';
     }
 
+    isRecord(node) {
+        return node.kind === 'Record';
+    }
+
     isSimpleVariableRef(node) {
         return node.kind === 'SimpleVariableRef';
     }
