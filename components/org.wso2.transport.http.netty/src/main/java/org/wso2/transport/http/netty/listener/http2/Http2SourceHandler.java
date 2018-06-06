@@ -142,10 +142,10 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
             HTTPCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
             if (sourceReqCMsg != null) {
                 if (dataFrame.isEndOfStream()) {
-                    sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data.retain()));
+                    sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
                     streamIdRequestMap.remove(streamId);
                 } else {
-                    sourceReqCMsg.addHttpContent(new DefaultHttpContent(data.retain()));
+                    sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));
                 }
             } else {
                 log.warn("Inconsistent state detected : data has received before headers");
