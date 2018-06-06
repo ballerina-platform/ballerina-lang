@@ -17,9 +17,6 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
-import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.OperatorKind;
-import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -28,14 +25,9 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableContext;
-import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
-import org.wso2.ballerinalang.compiler.semantics.model.iterable.Operation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -47,24 +39,19 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 /**
  * Class responsible for desugar an iterable chain into actual Ballerina code.
@@ -87,18 +74,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private int lambdaFunctionCount = 0;
     private BLangFunction funcNode;
     private BLangIf ifNode;
-    private SymbolEnv env;
     private BLangExpressionStmt foreverReplaceStatement;
-
-
-    public static StreamingCodeDesugar getInstance(CompilerContext context) {
-        StreamingCodeDesugar desugar = context.get(STREAMING_DESUGAR_KEY);
-        if (desugar == null) {
-            desugar = new StreamingCodeDesugar(context);
-        }
-
-        return desugar;
-    }
 
     private StreamingCodeDesugar(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
@@ -109,6 +85,14 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         this.types = Types.getInstance(context);
     }
 
+    public static StreamingCodeDesugar getInstance(CompilerContext context) {
+        StreamingCodeDesugar desugar = context.get(STREAMING_DESUGAR_KEY);
+        if (desugar == null) {
+            desugar = new StreamingCodeDesugar(context);
+        }
+
+        return desugar;
+    }
 
     public BLangExpressionStmt desugar(BLangForever foreverStatement, Desugar desugar) {
 
@@ -119,45 +103,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         generateStreamConsumerFunction(foreverStatement);
         statementNodes.forEach(statementNode -> ((BLangStatement) statementNode).accept(this));
         return foreverReplaceStatement;
-    }
-
-    private void generateStreamConsumerFunction(BLangForever foreverStatement) {
-
-        // Here we generate an function and function call for the forever statement.
-        // Here is an example query
-
-        // -- Below is the sample Ballerina query
-        // from employeeStream
-        // where age > 30
-        // select *
-        // => (Teacher[] emp) {
-        //      outputEmployeeStream.publish(emp);
-        //}
-
-        // Above Ballerina query is desugared to below statements
-
-        // employeeStream.subscribe(processEmployees);
-
-        // -- Desugared version
-        // function processEmployees(Teacher e) {
-        //
-        //      if(e.age > 25) {
-        //          outputEmployeeStream.publish(e);
-        //      }
-        //
-        // }
-
-        final DiagnosticPos pos = foreverStatement.pos;
-        this.env = foreverStatement.getEnv();
-        funcNode = ASTBuilderUtil.createFunction(pos, getFunctionName(FUNC_CALLER));
-
-        funcNode.requiredParams.add((BLangVariable) foreverStatement.getStreamingQueryStatements().get(0).
-                getStreamingAction().getInvokableBody().getFunctionNode().getParameters().get(0));
-
-        final BType returnType = symTable.nilType;
-        funcNode.returnTypeNode = ASTBuilderUtil.createTypeNode(returnType);
-        funcNode.desugaredReturnType = true;
-        defineFunction(funcNode, foreverStatement.getEnv().enclPkg);
     }
 
     @Override
@@ -173,7 +118,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     .symbol;
             BVarSymbol functionVarSymbol = funcNode.symbol;
             BLangSimpleVarRef simpleVarRef = new BLangSimpleVarRef.BLangFunctionVarRef(functionVarSymbol);
-            simpleVarRef.type = ((BInvokableSymbol) ((BLangFunction) funcNode).symbol).type;
+            simpleVarRef.type = ((funcNode).symbol).type;
 
             List<BLangSimpleVarRef> variables = new ArrayList<>(1);
             variables.add(simpleVarRef);
@@ -211,7 +156,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangWhere where) {
+
         //Create IF Clause
+
         ifNode = ASTBuilderUtil.createIfStmt(where.pos, funcNode.body);
         final BLangBinaryExpr equality = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         equality.pos = where.pos;
@@ -219,39 +166,69 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         equality.opKind = ((BLangBinaryExpr) where.getExpression()).getOperatorKind();
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(where.pos, (funcNode).requiredParams.get(0).symbol);
         equality.lhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
-                ((BLangSimpleVarRef) ((BLangBinaryExpr) where.getExpression()).lhsExpr).variableName);
-        ((BLangFieldBasedAccess) equality.lhsExpr).symbol = symResolver.
-                resolveStructField(where.pos, env, new Name("age"), ((BLangSimpleVarRef) varRef).type.tsymbol);
-        equality.rhsExpr = ((BLangBinaryExpr) where.getExpression()).rhsExpr;
-        equality.rhsExpr.type = symTable.intType;
-        ((BLangFieldBasedAccess) equality.lhsExpr).type = symTable.intType;
+                ((BLangFieldBasedAccess) ((BLangBinaryExpr) where.getExpression()).lhsExpr).field);
+        ((BLangFieldBasedAccess) equality.lhsExpr).symbol = ((BLangFieldBasedAccess) ((BLangBinaryExpr) where.
+                getExpression()).lhsExpr).symbol;
 
-        equality.opSymbol = (BOperatorSymbol) symResolver.
-                resolveBinaryOperator(OperatorKind.GREATER_THAN, symTable.intType, symTable.intType);
+        if (((BLangBinaryExpr) where.getExpression()).rhsExpr instanceof BLangLiteral) {
+            equality.rhsExpr = ((BLangBinaryExpr) where.getExpression()).rhsExpr;
+        } else {
+            equality.rhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
+                    ((BLangFieldBasedAccess) ((BLangBinaryExpr) where.getExpression()).rhsExpr).field);
+        }
 
+        ((BLangFieldBasedAccess) equality.lhsExpr).type = equality.rhsExpr.type;
+        equality.opSymbol = ((BLangBinaryExpr) where.getExpression()).opSymbol;
         ifNode.expr = equality;
         ifNode.body = ASTBuilderUtil.createBlockStmt(where.pos);
     }
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        final BLangExpressionStmt exprStmt = ASTBuilderUtil.createExpressionStmt(bLangLambdaFunction.pos, ifNode.body);
-        BInvokableSymbol publishMethodSymbol = (BInvokableSymbol) symTable.rootScope.
-                lookup(names.fromString("stream.publish")).symbol;
-        List<BLangVariable> variables = new ArrayList<>(1);
-        for (VariableNode v : bLangLambdaFunction.getFunctionNode().getParameters()) {
-            variables.add((BLangVariable) v);
+        for (int i = 0; i < bLangLambdaFunction.getFunctionNode().getBody().getStatements().size() - 1; i++) {
+            StatementNode statementNode = bLangLambdaFunction.getFunctionNode().getBody().getStatements().get(i);
+            final BLangExpressionStmt exprStmt = ASTBuilderUtil.createExpressionStmt(bLangLambdaFunction.pos, ifNode.body);
+            exprStmt.expr = ((BLangExpressionStmt) statementNode).expr;
         }
+    }
 
-        BLangInvocation invocationExpr = ASTBuilderUtil.
-                createInvocationExpr(bLangLambdaFunction.pos, publishMethodSymbol, variables, symResolver);
 
-        BVarSymbol varSymbol = ((BLangSimpleVarRef.BLangPackageVarRef)
-                ((BLangInvocation.BLangAttachedFunctionInvocation)
-                ((BLangExpressionStmt) bLangLambdaFunction.getFunctionNode().getBody().getStatements().get(0)).
-                        expr).expr).varSymbol;
-        invocationExpr.expr = ASTBuilderUtil.createVariableRef(bLangLambdaFunction.pos, varSymbol);
-        exprStmt.expr = invocationExpr;
+    //-------------------------------------- Private methods ----------------------------------------------
+
+    private void generateStreamConsumerFunction(BLangForever foreverStatement) {
+
+        // Here we generate an function and function call for the forever statement.
+        // Here is an example query
+
+        // -- Below is the sample Ballerina query
+        // from employeeStream
+        // where age > 30
+        // select *
+        // => (Teacher[] emp) {
+        //      outputEmployeeStream.publish(emp);
+        //}
+
+        // Above Ballerina query is desugared to below statements
+
+        // employeeStream.subscribe(processEmployees);
+
+        // -- Desugared version
+        // function processEmployees(Teacher e) {
+        //
+        //      if(e.age > 25) {
+        //          outputEmployeeStream.publish(e);
+        //      }
+        //
+        // }
+
+        final DiagnosticPos pos = foreverStatement.pos;
+        funcNode = ASTBuilderUtil.createFunction(pos, getFunctionName(FUNC_CALLER));
+
+        funcNode.requiredParams.add((BLangVariable) foreverStatement.getStreamingQueryStatements().get(0).
+                getStreamingAction().getInvokableBody().getFunctionNode().getParameters().get(0));
+        funcNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.nilType);
+        funcNode.desugaredReturnType = true;
+        defineFunction(funcNode, foreverStatement.getEnv().enclPkg);
     }
 
     private String getFunctionName(String name) {
@@ -264,80 +241,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         symbolEnter.defineNode(funcNode, packageEnv);
         packageEnv.enclPkg.functions.add(funcNode);
         packageEnv.enclPkg.topLevelNodes.add(funcNode);
-    }
-
-
-    //=========================================================OLD REFERENCE ========================================
-
-    public void desugar(IterableContext ctx) {
-        // Generate Iterable Iteration.
-        generateIteratorFunction(ctx);
-        // Create invocation expression to invoke iterable operation.
-        final BLangInvocation iExpr = ASTBuilderUtil.createInvocationExpr(ctx.collectionExpr.pos,
-                ctx.iteratorFuncSymbol, Collections.emptyList(), symResolver);
-        iExpr.requiredArgs.add(ctx.collectionExpr);
-        if (ctx.getLastOperation().expectedType == symTable.noType
-                || ctx.getLastOperation().expectedType == symTable.nilType) {
-            ctx.iteratorCaller = iExpr;
-        } else {
-            ctx.iteratorCaller = ASTBuilderUtil.wrapToConversionExpr(ctx.getLastOperation().expectedType, iExpr,
-                    symTable, types);
-        }
-    }
-
-
-    private void generateIteratorFunction(IterableContext ctx) {
-        final Operation firstOperation = ctx.getFirstOperation();
-        final DiagnosticPos pos = firstOperation.pos;
-
-        // Create and define function signature.
-        final BLangFunction funcNode = ASTBuilderUtil.createFunction(pos, getFunctionName(FUNC_CALLER));
-        funcNode.requiredParams.add(ctx.collectionVar);
-        final BType returnType;
-//        if (isReturningIteratorFunction(ctx)) {
-//            returnType = ctx.resultType;
-//        } else {
-        returnType = symTable.nilType;
-//        }
-        funcNode.returnTypeNode = ASTBuilderUtil.createTypeNode(returnType);
-        funcNode.desugaredReturnType = true;
-
-        defineFunction(funcNode, ctx.env.enclPkg);
-        ctx.iteratorFuncSymbol = funcNode.symbol;
-
-        LinkedList<Operation> streamableOperations = new LinkedList<>();
-//        ctx.operations.stream().filter(op -> op.kind.isLambdaRequired()).forEach(streamableOperations::add);
-//        if (streamableOperations.isEmpty()) {
-//            // Generate simple iterator function body.
-//            generateSimpleIteratorBlock(ctx, funcNode);
-//            return;
-//        }
-//        // Generate Caller Function.
-//        generateStreamingIteratorBlock(ctx, funcNode, streamableOperations);
-    }
-
-    private void defineRequiredVariables(IterableContext ctx,
-                                         LinkedList<Operation> streamOperations,
-                                         List<BLangVariable> foreachVariables,
-                                         BLangFunction funcNode) {
-        Set<BLangVariable> notDefinedVars = new HashSet<>();
-        streamOperations.forEach(operation -> {
-            notDefinedVars.add(operation.argVar);
-            if (operation.kind != IterableKind.FILTER && operation.retVar != null) {
-                notDefinedVars.add(operation.retVar);
-            }
-        });
-        notDefinedVars.addAll(ctx.iteratorResultVariables);
-        notDefinedVars.removeAll(foreachVariables);
-        notDefinedVars.forEach(var -> defineVariable(var, ctx.env.enclPkg.symbol.pkgID, funcNode));
-        notDefinedVars.forEach(var -> {
-            BLangVariableDef variableDefStmt = ASTBuilderUtil.createVariableDefStmt(funcNode.pos, funcNode.body);
-            variableDefStmt.var = var;
-        });
-    }
-
-    private void defineVariable(BLangVariable variable, PackageID pkgID, BLangFunction funcNode) {
-        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), pkgID, variable.type, funcNode.symbol);
     }
 
 }

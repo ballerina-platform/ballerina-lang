@@ -1408,11 +1408,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        ExpressionNode leftExpression = binaryExpr.getLeftExpression();
-        ((BLangExpression) leftExpression).accept(this);
-
-        ExpressionNode rightExpression = binaryExpr.getRightExpression();
-        ((BLangExpression) rightExpression).accept(this);
+        this.typeChecker.checkExpr(binaryExpr, env);
     }
 
     @Override
@@ -1506,25 +1502,47 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         ((BLangVariableReference) variableReferenceNode).accept(this);
     }
 
+//    @Override
+//    public void visit(BLangIndexBasedAccess indexAccessExpr) {
+//        // ignore
+//    }
+//
+//    @Override
+//    public void visit(BLangSimpleVarRef varRefExpr) {
+//        // ignore
+//    }
+//
+//    @Override
+//    public void visit(BLangLiteral literalExpr) {
+//        //ignore
+//    }
+//
+//    @Override
+//    public void visit(BLangTernaryExpr ternaryExpr) {
+//        //ignore
+//    }
+
+
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        // ignore
+        this.typeChecker.checkExpr(indexAccessExpr, env);
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        // ignore
+        this.typeChecker.checkExpr(varRefExpr, env);
     }
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        //ignore
+        this.typeChecker.checkExpr(literalExpr, env);
     }
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        //ignore
+        this.typeChecker.checkExpr(ternaryExpr, env);
     }
+
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {

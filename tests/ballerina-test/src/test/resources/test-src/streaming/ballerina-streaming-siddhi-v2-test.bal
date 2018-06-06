@@ -32,12 +32,26 @@ stream<Teacher> employeeStream;
 stream<Teacher> outputEmployeeStream;
 
 
+//function testQuery() {
+//
+//    forever {
+//        from employeeStream
+//        where age > 30
+//        select *
+//        => (Teacher emp) {
+//            outputEmployeeStream.publish(emp);
+//        }
+//    }
+//
+//}
+
+
 function testQuery() {
 
     forever {
         from employeeStream
-        where age > 30
-        select *
+        where employeeStream.age > 30
+        select employeeStream.name, employeeStream.age, employeeStream.status, employeeStream.batch, employeeStream.school
         => (Teacher emp) {
             outputEmployeeStream.publish(emp);
         }

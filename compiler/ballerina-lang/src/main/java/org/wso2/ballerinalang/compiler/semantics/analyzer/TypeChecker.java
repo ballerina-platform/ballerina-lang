@@ -50,6 +50,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -127,7 +128,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -1067,7 +1067,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
-        /* ignore */
+        System.out.println("DDDDDD");
     }
 
     @Override
@@ -1825,6 +1825,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.MAP:
                 actualType = ((BMapType) varRefType).getConstraint();
+                break;
+            case TypeTags.STREAM:
+                BType streamConstraintType = ((BStreamType) varRefType).constraint;
+                if (streamConstraintType.tag == TypeTags.STRUCT) {
+                    actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, streamConstraintType);
+                }
+
                 break;
             case TypeTags.JSON:
                 BType constraintType = ((BJSONType) varRefType).constraint;
