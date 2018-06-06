@@ -26,28 +26,13 @@ documentation {
 public type ByteOrder "BI"|"LI"|"NATIVE";
 @final public ByteOrder BIG_ENDIAN = "BI";
 @final public ByteOrder LITTLE_ENDIAN = "LI";
-@final public ByteOrder NATIVE = "NATIVE";
-
-documentation {
-    Represents supported bit lengths.
-
-    BIT_16 - for 16 bit(2 byte) representation
-
-    BIT_32 - for 32 bit (4 byte) representation
-
-    BIT_64 - for 64 bit (8 byte) representation
-}
-public type BitLength "16b"|"32b"|"64b";
-@final public BitLength BIT_16 = "16b";
-@final public BitLength BIT_32 = "32b";
-@final public BitLength BIT_64 = "64b";
 
 documentation {
     Represents a data channel for reading/writing data.
 }
 public type DataChannel object {
 
-    public new(ByteChannel byteChannel, ByteOrder bOrder = "NATIVE") {
+    public new(ByteChannel byteChannel, ByteOrder bOrder = "BI") {
         init(byteChannel, bOrder);
     }
 
@@ -60,39 +45,79 @@ public type DataChannel object {
     native function init(ByteChannel byteChannel, ByteOrder bOrder);
 
     documentation {
-        Reads an integer for the specified bit length.
+        Reads a 16 bit integer.
 
-        P{{len}}        Length of the integer in bits
-        P{{signed}}     True if the integer is signed else would be unsigned
         R{{}} Value of the integer which is read or an error
     }
-    public native function readInt(BitLength len = "64b", boolean signed = true) returns int|error;
+    public native function readInt16() returns int|error;
 
     documentation {
-        Writes integer for the specified bit length.
+        Reads a 32 bit integer.
+
+        R{{}} Value of the integer which is read or an error
+    }
+    public native function readInt32() returns int|error;
+
+    documentation {
+        Reads a 64 bit integer.
+
+        R{{}} Value of the integer which is read or an error
+    }
+    public native function readInt64() returns int|error;
+
+    documentation {
+        Writes 16 bit integer.
 
         P{{value}}   Integer which will be written
-        P{{len}}     length which should be allocated for int
         R{{}} nill if the content is written successfully or an error
     }
-    public native function writeInt(int value, BitLength len = "64b") returns error?;
+    public native function writeInt16(int value) returns error?;
 
     documentation {
-        Reads float value based on the specified bit length.
+        Writes 32 bit integer.
 
-        P{{len}}        Length of the float in bits
-        R{{}} Value of the float which is read or an error
+        P{{value}}   Integer which will be written
+        R{{}} nill if the content is written successfully or an error
     }
-    public native function readFloat(BitLength len = "64b") returns float|error;
+    public native function writeInt32(int value) returns error?;
 
     documentation {
-        Writes float for the specified bit length.
+        Writes 64 bit integer.
 
-        P{{value}}   float which will be written
-        P{{len}}     length which should be allocated to float
+        P{{value}}   Integer which will be written
+        R{{}} nill if the content is written successfully or an error
+    }
+    public native function writeInt64(int value) returns error?;
+
+    documentation {
+        Reads 32 bit float.
+
         R{{}} Value of the float which is read or an error
     }
-    public native function writeFloat(float value, BitLength len = "64b") returns error?;
+    public native function readFloat32() returns float|error;
+
+    documentation {
+        Reads 64 bit float.
+
+        R{{}} Value of the float which is read or an error
+    }
+    public native function readFloat64() returns float|error;
+
+    documentation {
+        Writes 32 bit float.
+
+        P{{value}}   Float which will be written
+        R{{}} Value of the float which is read or an error
+    }
+    public native function writeFloat32(float value) returns error?;
+
+    documentation {
+        Writes 64 bit float.
+
+        P{{value}}   Float which will be written
+        R{{}} Value of the float which is read or an error
+    }
+    public native function writeFloat64(float value) returns error?;
 
     documentation {
         Reads 1 byte and convert it's value to boolean.

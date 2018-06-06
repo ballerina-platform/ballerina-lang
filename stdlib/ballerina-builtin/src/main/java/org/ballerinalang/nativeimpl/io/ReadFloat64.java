@@ -23,13 +23,14 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Representation;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.data.WriteFloatEvent;
+import org.ballerinalang.nativeimpl.io.events.data.ReadFloatEvent;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -38,38 +39,30 @@ import org.ballerinalang.natives.annotations.Receiver;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#writeFloat.
+ * Native function ballerina.io#readFloat64.
  *
  * @since 0.973.1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "writeFloat",
+        functionName = "readFloat64",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina.io"),
-        args = {@Argument(name = "value", type = TypeKind.FLOAT),
-                @Argument(name = "len", type = TypeKind.STRING)},
+        args = {@Argument(name = "len", type = TypeKind.STRING)},
         isPublic = true
 )
-public class WriteFloat implements NativeCallableUnit {
+public class ReadFloat64 implements NativeCallableUnit {
     /**
      * Represents data channel.
      */
     private static final int DATA_CHANNEL_INDEX = 0;
-    /**
-     * Specifies the index for representation.
-     */
-    private static final int REPRESENTATION_INDEX = 0;
-    /**
-     * Index which holds the value of the data to be written.
-     */
-    private static final int VALUE_INDEX = 0;
 
     /**
      * Triggers upon receiving the response.
      *
-     * @param result the response received after writing double.
+     * @param result the response received after reading double.
+     * @return read double value.
      */
-    private static EventResult writeFloatResponse(EventResult<Integer, EventContext> result) {
+    private static EventResult readResponse(EventResult<Double, EventContext> result) {
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
         Throwable error = eventContext.getError();
@@ -77,6 +70,9 @@ public class WriteFloat implements NativeCallableUnit {
         if (null != error) {
             BStruct errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
+        } else {
+            Double readDouble = result.getResponse();
+            context.setReturnValues(new BFloat(readDouble));
         }
         callback.notifySuccess();
         return result;
@@ -86,12 +82,10 @@ public class WriteFloat implements NativeCallableUnit {
     public void execute(Context context, CallableUnitCallback callback) {
         BStruct dataChannelStruct = (BStruct) context.getRefArgument(DATA_CHANNEL_INDEX);
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
-        double value = context.getFloatArgument(VALUE_INDEX);
-        Representation representation = Representation.find(context.getRefArgument(REPRESENTATION_INDEX).stringValue());
         EventContext eventContext = new EventContext(context, callback);
-        WriteFloatEvent writeIntegerEvent = new WriteFloatEvent(channel, value, representation, eventContext);
-        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(writeIntegerEvent);
-        publish.thenApply(WriteFloat::writeFloatResponse);
+        ReadFloatEvent event = new ReadFloatEvent(channel, Representation.BIT_64, eventContext);
+        CompletableFuture<EventResult> publish = EventManager.getInstance().publish(event);
+        publish.thenApply(ReadFloat64::readResponse);
     }
 
     @Override
