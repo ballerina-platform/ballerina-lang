@@ -205,7 +205,10 @@ public class TreeVisitor extends LSNodeVisitor {
             this.blockOwnerStack.push(funcNode);
             // Cursor position is calculated against the Block statement scope resolver
             cursorPositionResolver = BlockStatementScopeResolver.class;
-            this.acceptNode(funcNode.body, funcEnv);
+            // This check is added in order to skip the objects' attached functions which are not having a body
+            if (funcNode.body != null) {
+                this.acceptNode(funcNode.body, funcEnv);
+            }
             this.blockOwnerStack.pop();
 
             // Process workers
