@@ -780,7 +780,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
         // TODO: Improve to include tainted status identification for table literals
-        this.taintedStatus = false;
+        this.taintedStatus = TaintedStatus.UNTAINTED;
     }
 
     @Override
