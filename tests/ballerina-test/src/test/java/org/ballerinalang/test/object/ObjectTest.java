@@ -533,10 +533,9 @@ public class ObjectTest {
     @Test (description = "Negative test to test referring undefined field in constructor")
     public void testReferUndefinedFieldBal() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_access_undefined_field.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "undefined field 'agea' in object 'Person'", 6, 10);
-        BAssertUtil.validateError(result, 1, "undefined symbol '><'", 6, 10);
-        BAssertUtil.validateError(result, 2, "undefined symbol 'abc'", 7, 9);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'abc'", 7, 9);
     }
 
     @Test (description = "Negative test to test nillable initialization")

@@ -37,18 +37,18 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "batchUpdate",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = Constants.CALLER_ACTIONS,
                              structPackage = "ballerina.sql"),
         args = {
-                @Argument(name = "client", type = TypeKind.STRUCT),
+                @Argument(name = "client", type = TypeKind.OBJECT),
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
                 @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.UNION,
                           structType = "Param")
         },
         returnType = {
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
-                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = "ballerina.builtin")
         }
 )
 public class BatchUpdate extends AbstractSQLAction {

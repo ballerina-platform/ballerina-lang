@@ -215,7 +215,7 @@ import static org.ballerinalang.siddhi.core.util.SiddhiConstants.UNKNOWN_STATE;
 public class ExpressionParser {
 
     /**
-     * Parse the given expression and create the appropriate Executor by recursively traversing the expression
+     * Parse the given expression and create the appropriate Executor by recursively traversing the expression.
      *
      * @param expression              Expression to be parsed
      * @param metaEvent               Meta Event
@@ -1399,7 +1399,7 @@ public class ExpressionParser {
     }
 
     /**
-     * Calculate the return type of arithmetic operation executors.(Ex: add, subtract, etc)
+     * Calculate the return type of arithmetic operation executors.(Ex: add, subtract, etc).
      *
      * @param leftExpressionExecutor  left ExpressionExecutor
      * @param rightExpressionExecutor right ExpressionExecutor

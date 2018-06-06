@@ -189,6 +189,18 @@ class TreeBuilder {
             if (node.typeNode && node.typeNode.ws && !node.ws) {
                 node.noVisibleName = true;
             }
+
+            if (node.ws) {
+                for (let i = 0; i < node.ws.length; i++) {
+                    if (node.ws[i].text === ';') {
+                        node.endWithSemicolon = true;
+                    }
+
+                    if (node.ws[i].text === ',') {
+                        node.endWithComma = true;
+                    }
+                }
+            }
         }
 
         if (node.kind === 'Service') {
@@ -306,37 +318,29 @@ class TreeBuilder {
             }
         }
 
-        if (node.kind === 'Record') {
-            let semicolonCount = 0;
-            let commaCount = 0;
+        if (node.kind === 'TypeDefinition' && node.typeNode) {
+            if (node.typeNode.kind === 'ObjectType') {
+                node.isObjectType = true;
+            }
 
-            if (node.ws) {
-                for (let i = 0; i < node.ws.length; i++) {
-                    if (node.ws[i].text === ';') {
-                        semicolonCount += 1;
-                    } else if (node.ws[i].text === ',') {
-                        commaCount += 1;
+            if (node.typeNode.kind === 'RecordType') {
+                node.isRecordType = true;
+                if (node.ws) {
+                    for (let i = 0; i < node.ws.length; i++) {
+                        if (node.ws[i].text === 'record') {
+                            node.isRecordKeywordAvailable = true;
+                        }
                     }
-                }
-
-                if (commaCount > 0) {
-                    node.separateWithComma = true;
-                } else if (semicolonCount > 1) {
-                    node.separateWithSemicolon = true;
                 }
             }
         }
 
-        if (node.kind === 'Object') {
+        if (node.kind === 'ObjectType') {
             node.publicFields = [];
             node.privateFields = [];
             let fields = node.fields;
             let privateFieldBlockVisible = false;
             let publicFieldBlockVisible = false;
-            let publicFieldsSemicolonCount = 0;
-            let privateFieldsSemicolonCount = 0;
-            let publicFieldsCommaCount = 0;
-            let privateFieldsCommaCount = 0;
 
             for (let i = 0; i < fields.length; i++) {
                 if (fields[i].public) {
@@ -355,40 +359,6 @@ class TreeBuilder {
                     if (node.ws[i].text === 'private' && node.ws[i + 1].text === '{') {
                         privateFieldBlockVisible = true;
                     }
-
-                    if (publicFieldBlockVisible) {
-                        if (node.ws[i].text === ',') {
-                            publicFieldsCommaCount += 1;
-                        } else if (node.ws[i].text === ';') {
-                            publicFieldsSemicolonCount += 1;
-                        }
-                    }
-
-                    if (privateFieldBlockVisible) {
-                        if (node.ws[i].text === ',') {
-                            privateFieldsCommaCount += 1;
-                        } else if (node.ws[i].text === ';') {
-                            privateFieldsSemicolonCount += 1;
-                        }
-                    }
-
-                }
-
-                if (publicFieldsCommaCount > 0) {
-                    node.publicCommaSeparator = true;
-                }
-
-                if (publicFieldsSemicolonCount > 1) {
-                    node.publicSemicolonSeparator = true;
-                }
-
-
-                if (privateFieldsCommaCount > 0) {
-                    node.privateCommaSeparator = true;
-                }
-
-                if (privateFieldsSemicolonCount > 1) {
-                    node.privateSemicolonSeparator = true;
                 }
             }
 
@@ -552,6 +522,10 @@ class TreeBuilder {
 
         if (node.kind === 'Block' && node.ws && node.ws[0].text === 'else') {
             node.isElseBlock = true;
+        }
+
+        if (node.kind === 'FieldBasedAccessExpr' && node.ws && node.ws[0].text === '!') {
+            node.errorLifting = true;
         }
     }
 

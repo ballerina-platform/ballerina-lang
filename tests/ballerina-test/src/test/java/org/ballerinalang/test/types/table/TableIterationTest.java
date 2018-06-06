@@ -46,7 +46,7 @@ public class TableIterationTest {
         result = BCompileUtil.compile("test-src/types/table/table_iteration.bal");
         resultNegative = BCompileUtil.compile("test-src/types/table/table_iteration_negative.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/TableIterationTestData.sql");
+        SQLDBUtils.initHSQLDBDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/TableIterationTestData.sql");
     }
 
     @Test(groups = "TableIterTest", description = "Negative tests for select operation")

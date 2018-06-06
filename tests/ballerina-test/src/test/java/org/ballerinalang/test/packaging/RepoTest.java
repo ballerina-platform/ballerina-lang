@@ -13,6 +13,9 @@ import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+/**
+ * Testcase for repo validation.
+ */
 public class RepoTest {
 
     @Test

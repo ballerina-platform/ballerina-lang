@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BRecordType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.LockableStructureType;
@@ -146,7 +147,7 @@ public class GlobalMemoryArea {
             VarTypeCountAttributeInfo varTypeCountAttribInfo = (VarTypeCountAttributeInfo) attributeInfo;
             int[] globalVarCount = varTypeCountAttribInfo.getVarTypeCount();
             // We are using the struct value to hold package-level variable values for the moment.
-            BStructType dummyType = new BStructType(null, "", "", 0);
+            BStructureType dummyType = new BRecordType(null, "", "", 0);
             dummyType.setFieldTypeCount(globalVarCount);
             globalMemBlock[packageInfo.pkgIndex] = new BStruct(dummyType);
         }

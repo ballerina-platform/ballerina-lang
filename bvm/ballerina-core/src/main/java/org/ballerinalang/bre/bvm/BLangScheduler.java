@@ -290,11 +290,11 @@ public class BLangScheduler {
                 BLangVMUtils.populateWorkerResultWithValues(result, this.nativeCtx.getReturnValues(), retTypes);
                 runInCaller = this.respCtx.signal(new WorkerSignal(null, SignalType.RETURN, result));
             } catch (BLangNullReferenceException e) {
-                BStruct error = BLangVMErrors.createNullRefException(this.nativeCtx.getCallableUnitInfo());
+                BStruct error = BLangVMErrors.createNullRefException(this.nativeCtx);
                 runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
                         SignalType.ERROR, result));
             } catch (Throwable e) {
-                BStruct error = BLangVMErrors.createError(this.nativeCtx.getCallableUnitInfo(), e.getMessage());
+                BStruct error = BLangVMErrors.createError(this.nativeCtx, e.getMessage());
                 runInCaller = this.respCtx.signal(new WorkerSignal(new WorkerExecutionContext(error), 
                         SignalType.ERROR, result));
             } finally {

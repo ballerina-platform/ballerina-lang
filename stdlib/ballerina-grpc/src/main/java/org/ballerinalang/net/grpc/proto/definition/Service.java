@@ -57,7 +57,7 @@ public class Service {
     }
     
     /**
-     * ServiceDefinition.Builder
+     * ServiceDefinition.Builder.
      */
     public static class Builder {
         private DescriptorProtos.ServiceDescriptorProto.Builder serviceBuilder;

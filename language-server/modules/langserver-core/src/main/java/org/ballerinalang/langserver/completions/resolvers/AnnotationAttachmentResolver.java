@@ -29,11 +29,14 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
@@ -62,9 +65,10 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
         
         completionContext.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).getImports()
                 .forEach(bLangImportPackage -> {
-                    if (!LSAnnotationCache.containsAnnotationsForPackage(bLangImportPackage.symbol.pkgID)) {
+                    if (!LSAnnotationCache.containsAnnotationsForPackage(bLangImportPackage.symbol.pkgID)
+                            && !bLangImportPackage.symbol.pkgID.getName().getValue().equals("runtime")) {
                         LSAnnotationCache.loadAnnotationsFromPackage(
-                                LSPackageLoader.getPackageById(
+                                LSPackageLoader.getPackageSymbolById(
                                         completionContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
                                         bLangImportPackage.symbol.pkgID));
                     }
@@ -172,31 +176,34 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
             startIndex = token.getTokenIndex();
         }
 
-        HashMap<PackageID, List<BLangAnnotation>> annotationMap =
+        HashMap<PackageID, List<BAnnotationSymbol>> annotationMap =
                 LSAnnotationCache.getInstance().getAnnotationMapForType(attachmentPoint);
-        BLangAnnotation filteredAnnotation = null;
-        for (Map.Entry<PackageID, List<BLangAnnotation>> packageIDListEntry : annotationMap.entrySet()) {
+        BAnnotationSymbol filteredAnnotation = null;
+        for (Map.Entry<PackageID, List<BAnnotationSymbol>> packageIDListEntry : annotationMap.entrySet()) {
             List<Name> pkgNameComps = packageIDListEntry.getKey().getNameComps();
             if (pkgAlias.equals(pkgNameComps.get(pkgNameComps.size() - 1).getValue())) {
                 String finalAnnotationName = annotationName;
-                filteredAnnotation = packageIDListEntry.getValue().stream().filter(annotation ->
-                        annotation.getName().getValue().equals(finalAnnotationName)).findFirst().orElse(null);
+                filteredAnnotation = packageIDListEntry.getValue().stream().filter(annotationSymbol ->
+                        annotationSymbol.getName().getValue().equals(finalAnnotationName)).findFirst().orElse(null);
                 break;
             }
         }
 
-        if (filteredAnnotation == null || !(filteredAnnotation.typeNode.type instanceof BStructType)) {
+        if (filteredAnnotation == null || filteredAnnotation.kind != SymbolKind.ANNOTATION) {
             return null;
         }
-        
-        if (!fieldStack.isEmpty()) {            
-            completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(
-                    findAllStructFields((BStructType) filteredAnnotation.typeNode.type, fieldStack.pop(), fieldStack)
-            ));
-        } else {
-            completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(
-                    ((BStructType) filteredAnnotation.typeNode.type).fields)
-            );
+        if (filteredAnnotation.attachedType instanceof BRecordTypeSymbol
+                && ((BRecordTypeSymbol) filteredAnnotation.attachedType).type instanceof BRecordType) {
+            if (!fieldStack.isEmpty()) {
+                completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(
+                        findAllStructFields((BRecordType) ((BRecordTypeSymbol) filteredAnnotation.attachedType).type,
+                                fieldStack.pop(), fieldStack)
+                ));
+            } else {
+                completionItems.addAll(CommonUtil.getStructFieldPopulateCompletionItems(
+                        ((BRecordType) ((BRecordTypeSymbol) filteredAnnotation.attachedType).type).fields)
+                );
+            }
         }
         
         return completionItems;
@@ -254,23 +261,23 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
 
     /**
      * Find all the struct fields from the field stack found going through the token stream.
-     * @param structType    BLang Struct
+     * @param recordType    BLang Record
      * @param fieldName     Field name to find
      * @param fieldStack    Field stack containing the field hierarchy
-     * @return {@link org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField} list of fields
+     * @return {@link org.wso2.ballerinalang.compiler.semantics.model.types.BField} list of fields
      */
-    private List<BStructType.BStructField> findAllStructFields(BStructType structType, String fieldName,
-                                                               Stack<String> fieldStack) {
-        for (BStructType.BStructField field : structType.fields) {
+    private List<BField> findAllStructFields(BRecordType recordType, String fieldName,
+                                             Stack<String> fieldStack) {
+        for (BField field : recordType.fields) {
             BType bType = field.getType();
-            if (!(bType instanceof BStructType)) {
+            if (!(bType instanceof BRecordType)) {
                 continue;
             }
             if (field.getName().getValue().equals(fieldName)) {
                 if (fieldStack.isEmpty()) {
-                    return ((BStructType) bType).fields;
+                    return ((BRecordType) bType).fields;
                 }
-                return findAllStructFields((BStructType) bType, fieldStack.pop(), fieldStack);
+                return findAllStructFields((BRecordType) bType, fieldStack.pop(), fieldStack);
             }
         }
         
@@ -307,7 +314,7 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
         int nodeEndLine = nodePos.getEndLine();
 
         for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            if (keyValuePair.valueExpr.type instanceof BStructType) {
+            if (keyValuePair.valueExpr.type instanceof BRecordType) {
                 DiagnosticPos exprPos = CommonUtil.toZeroBasedPosition(keyValuePair.valueExpr.getPosition());
                 int exprStartLine = exprPos.getStartLine();
                 int exprEndLine = exprPos.getEndLine();
@@ -319,11 +326,11 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
             }
         }
         
-        if (nodeStartLine < line && nodeEndLine > line && recordLiteral.type instanceof BStructType) {
+        if (nodeStartLine < line && nodeEndLine > line && recordLiteral.type instanceof BRecordType) {
             completionItems.addAll(
-                    CommonUtil.getStructFieldPopulateCompletionItems(((BStructType) recordLiteral.type).fields)
+                    CommonUtil.getStructFieldPopulateCompletionItems(((BRecordType) recordLiteral.type).fields)
             );
-            completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BStructType) recordLiteral.type).fields));
+            completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BRecordType) recordLiteral.type).fields));
         }
         
         return completionItems;

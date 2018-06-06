@@ -27,12 +27,12 @@ import org.ballerinalang.siddhi.query.api.exception.SiddhiAppValidationException
 
 import java.util.Map;
 
-/*
-* concat(string1, string2, ..., stringN)
+/**
+* concat(string1, string2, ..., stringN).
 * Returns a string that is the result of concatenating two or more string values.
 * Accept Type(s): STRING. There should be at least two arguments.
 * Return Type(s): STRING
-* */
+*/
 public class ConcatFunctionExtension extends FunctionExecutor {
 
     private Attribute.Type returnType = Attribute.Type.STRING;

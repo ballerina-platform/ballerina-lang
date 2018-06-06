@@ -15,11 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import _ from 'lodash';
 import EventChannel from 'event_channel';
 
 /**
- * Class to represent undo/redo manager
+ * An undo/redo manager wrapping the functionality of monaco editor's native
+ * implementation.
+ *
  * @class UndoManager
  * @augments EventChannel
  */
@@ -31,13 +32,6 @@ class MonacoBasedUndoManager extends EventChannel {
     constructor(sourceEditor) {
         super();
         this.sourceEditor = sourceEditor;
-    }
-
-    /**
-     * Push a new undoable op to stack
-     * @param {UndoableOperation} undoableOperation Op Instance
-     */
-    push(undoableOperation) {
     }
 
     /**

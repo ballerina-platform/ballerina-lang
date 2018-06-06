@@ -19,6 +19,9 @@ import java.util.stream.Stream;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.LATEST_VERSION_DIR;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
+/**
+ * Integration testcase for path conversion.
+ */
 public class PathConverterIntegrationTest {
 
     private Path tempDirectory;

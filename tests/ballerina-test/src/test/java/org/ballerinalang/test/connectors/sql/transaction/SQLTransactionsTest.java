@@ -43,7 +43,7 @@ public class SQLTransactionsTest {
         result = BCompileUtil.compile("test-src/connectors/sql/transaction/sql_transaction_test.bal");
         resultMirror = BCompileUtil.compile("test-src/connectors/sql/transaction/mirror_table_transaction_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
+        SQLDBUtils.initHSQLDBDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
 
     @Test(groups = "TransactionTest")

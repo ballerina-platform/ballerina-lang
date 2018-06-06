@@ -42,9 +42,9 @@ import java.util.zip.ZipInputStream;
         orgName = "ballerina", packageName = "internal",
         functionName = "decompressFromBlob",
         args = {@Argument(name = "content", type = TypeKind.BLOB),
-                @Argument(name = "destDir", type = TypeKind.STRUCT, structType = "Path",
+                @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
                         structPackage = "ballerina.file")},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class DecompressFromBlob extends BlockingNativeCallableUnit {

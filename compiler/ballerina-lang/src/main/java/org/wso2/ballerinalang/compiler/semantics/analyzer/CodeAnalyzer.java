@@ -27,7 +27,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -37,7 +36,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -46,13 +44,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -70,7 +64,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
@@ -130,6 +123,8 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
@@ -249,6 +244,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypeDefinition typeDefinition) {
+        if (typeDefinition.typeNode.getKind() == NodeKind.OBJECT_TYPE
+                || typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+            analyzeNode(typeDefinition.typeNode, env);
+        }
         if (!Symbols.isPublic(typeDefinition.symbol) ||
                 typeDefinition.symbol.type != null && TypeKind.FINITE.equals(typeDefinition.symbol.type.getKind())) {
             return;
@@ -517,8 +516,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 } else if (exprType.tag == TypeTags.JSON &&
                         this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.STRUCT &&
-                        this.types.isAssignable(patternType, exprType)) {
+                } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
+                        && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
                 } else {
                     // TODO Support other assignable types
@@ -635,9 +634,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         this.visitInvocable(resourceNode, resourceEnv);
     }
 
-    public void visit(BLangConnector connectorNode) {
-    }
-
     public void visit(BLangForever foreverStatement) {
         this.lastStatement = true;
     }
@@ -646,17 +642,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         /* not used, covered with functions */
     }
 
-    public void visit(BLangStruct structNode) {
-        /* ignore */
-    }
-
-    public void visit(BLangObject objectNode) {
-        if (objectNode.isFieldAnalyseRequired && Symbols.isPublic(objectNode.symbol)) {
-            objectNode.fields.stream()
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        if (objectTypeNode.isFieldAnalyseRequired && Symbols.isPublic(objectTypeNode.symbol)) {
+            objectTypeNode.fields.stream()
                     .filter(field -> (Symbols.isPublic(field.symbol)))
                     .forEach(field -> analyzeNode(field, this.env));
         }
-        objectNode.functions.forEach(e -> this.analyzeNode(e, this.env));
+        objectTypeNode.functions.forEach(e -> this.analyzeNode(e, this.env));
     }
 
     private void analyseType(BType type, DiagnosticPos pos) {
@@ -669,9 +661,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
     }
 
-    public void visit(BLangRecord record) {
-        if (record.isFieldAnalyseRequired && Symbols.isPublic(record.symbol)) {
-            record.fields.stream()
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        if (recordTypeNode.isFieldAnalyseRequired && Symbols.isPublic(recordTypeNode.symbol)) {
+            recordTypeNode.fields.stream()
                     .filter(field -> (Symbols.isPublic(field.symbol)))
                     .forEach(field -> analyzeNode(field, this.env));
         }
@@ -717,48 +709,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         /* ignore */
-    }
-
-    public void visit(BLangTransformer transformerNode) {
-        List<BVarSymbol> inputs = new ArrayList<>();
-        inputs.add(transformerNode.source.symbol);
-        transformerNode.requiredParams.forEach(param -> inputs.add(param.symbol));
-
-        List<BVarSymbol> outputs = new ArrayList<>();
-        transformerNode.retParams.forEach(param -> outputs.add(param.symbol));
-
-        for (BLangStatement stmt : transformerNode.body.stmts) {
-            switch (stmt.getKind()) {
-                case VARIABLE_DEF:
-                    BLangVariableDef variableDefStmt = (BLangVariableDef) stmt;
-                    variableDefStmt.var.expr.accept(
-                            new TransformerVarRefValidator(outputs, DiagnosticCode.TRANSFORMER_INVALID_OUTPUT_USAGE));
-                    inputs.add(variableDefStmt.var.symbol);
-                    break;
-                case ASSIGNMENT:
-                    BLangAssignment assignStmt = (BLangAssignment) stmt;
-                    assignStmt.varRef.accept(new TransformerVarRefValidator(inputs,
-                            DiagnosticCode.TRANSFORMER_INVALID_INPUT_UPDATE));
-
-                    // If the stmt is declared using var, all the variable refs on lhs should be treated as inputs
-                    if (assignStmt.declaredWithVar && assignStmt.varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF
-                            && !inputs.contains(((BLangSimpleVarRef) assignStmt.varRef).symbol)) {
-                        inputs.add(((BLangSimpleVarRef) assignStmt.varRef).varSymbol);
-                    }
-                    assignStmt.expr.accept(
-                            new TransformerVarRefValidator(outputs, DiagnosticCode.TRANSFORMER_INVALID_OUTPUT_USAGE));
-                    break;
-                case EXPRESSION_STATEMENT:
-                    // Here we have assumed that the invocation expression is the only expression-statement available.
-                    // TODO: support other types, once they are implemented.
-                    dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER, "invocation");
-                    break;
-                default:
-                    dlog.error(stmt.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
-                            stmt.getKind().name().toLowerCase().replace('_', ' '));
-                    break;
-            }
-        }
     }
 
     public void visit(BLangVariableDef varDefNode) {
@@ -1007,7 +957,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTypeConversionExpr conversionExpr) {
         analyzeExpr(conversionExpr.expr);
-        analyzeExpr(conversionExpr.transformerInvocation);
     }
 
     public void visit(BLangXMLQName xmlQName) {
@@ -1137,7 +1086,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     pattern.matchedTypesIndirect.add(exprType);
                 } else if (exprType.tag == TypeTags.JSON && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
-                } else if (exprType.tag == TypeTags.STRUCT && this.types.isAssignable(patternType, exprType)) {
+                } else if ((exprType.tag == TypeTags.OBJECT || exprType.tag == TypeTags.RECORD)
+                        && this.types.isAssignable(patternType, exprType)) {
                     pattern.matchedTypesIndirect.add(exprType);
                 } else {
                     // TODO Support other assignable types
@@ -1327,11 +1277,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 !this.withinRetryBlock;
     }
 
-    private boolean checkDoneValidityInTransaction() {
-        return (this.doneWithintransactionCheckStack.empty() || !this.doneWithintransactionCheckStack.peek())
-                && transactionCount > 0;
-    }
-
     private void checkDuplicateNamedArgs(List<BLangExpression> args) {
         List<BLangIdentifier> existingArgs = new ArrayList<>();
         args.forEach(arg -> {
@@ -1441,174 +1386,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     return ((BLangWorkerReceive) action).toActionString();
                 }
             }
-        }
-    }
-
-    /**
-     * Visit all the nested expressions and validate variable references against a given set of symbols.
-     * This visitor is used to check whether an expression contains inputs/output variables, that are not
-     * suppose to be there.
-     *
-     * @since 0.94.2
-     */
-    private class TransformerVarRefValidator extends BLangNodeVisitor {
-
-        List<BVarSymbol> symbols;
-        DiagnosticCode errorCode;
-
-        /**
-         * Create a new {@link TransformerVarRefValidator}.
-         *
-         * @param symbols         List of symbols to validate the expression against
-         * @param diagCodeOnError Diagnostic code to be logged on error
-         */
-        public TransformerVarRefValidator(List<BVarSymbol> symbols, DiagnosticCode diagCodeOnError) {
-            this.symbols = symbols;
-            this.errorCode = diagCodeOnError;
-        }
-
-        @Override
-        public void visit(BLangSimpleVarRef expr) {
-            if (symbols.contains(expr.symbol)) {
-                dlog.error(expr.pos, errorCode, expr.symbol.name);
-            }
-        }
-
-        @Override
-        public void visit(BLangInvocation invocationExpr) {
-            if (invocationExpr.expr != null) {
-                if (invocationExpr.isActionInvocation()) {
-                    dlog.error(invocationExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER,
-                            "action invocation");
-                }
-                analyzeExpr(invocationExpr.expr);
-            }
-            invocationExpr.argExprs.forEach(CodeAnalyzer.this::analyzeExpr);
-        }
-
-        @Override
-        public void visit(BLangTernaryExpr ternaryExpr) {
-            analyzeExpr(ternaryExpr.expr);
-            analyzeExpr(ternaryExpr.thenExpr);
-            analyzeExpr(ternaryExpr.elseExpr);
-        }
-
-        @Override
-        public void visit(BLangBinaryExpr binaryExpr) {
-            analyzeExpr(binaryExpr.rhsExpr);
-            analyzeExpr(binaryExpr.lhsExpr);
-        }
-
-        @Override
-        public void visit(BLangBracedOrTupleExpr bracedOrTupleExpr) {
-            bracedOrTupleExpr.expressions.forEach(CodeAnalyzer.this::analyzeExpr);
-        }
-
-        @Override
-        public void visit(BLangUnaryExpr unaryExpr) {
-            analyzeExpr(unaryExpr.expr);
-        }
-
-        @Override
-        public void visit(BLangTypeConversionExpr conversionExpr) {
-            analyzeExpr(conversionExpr.expr);
-            if (conversionExpr.transformerInvocation != null) {
-                analyzeExpr(conversionExpr.transformerInvocation);
-            }
-        }
-
-        @Override
-        public void visit(BLangTypeCastExpr castExpr) {
-            analyzeExpr(castExpr.expr);
-        }
-
-        @Override
-        public void visit(BLangRecordLiteral recordLiteral) {
-            recordLiteral.keyValuePairs.forEach(keyVal -> analyzeExpr(keyVal.valueExpr));
-        }
-
-        public void visit(BLangArrayLiteral arrayLiteral) {
-            arrayLiteral.exprs.forEach(CodeAnalyzer.this::analyzeExpr);
-        }
-
-        public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-            analyzeExpr(fieldAccessExpr.expr);
-        }
-
-        public void visit(BLangIndexBasedAccess indexAccessExpr) {
-            analyzeExpr(indexAccessExpr.expr);
-            analyzeExpr(indexAccessExpr.indexExpr);
-        }
-
-        public void visit(BLangTypeInit connectorInitExpr) {
-            dlog.error(connectorInitExpr.pos, DiagnosticCode.INVALID_STATEMENT_IN_TRANSFORMER, "connector init");
-        }
-
-        public void visit(BLangActionInvocation actionInvocationExpr) {
-            // We should not reach here. Action invocations are captured as a BLangInvocation expr.
-            throw new IllegalStateException();
-        }
-
-        public void visit(BLangXMLQName xmlQName) {
-            // do nothing
-        }
-
-        public void visit(BLangXMLAttribute xmlAttribute) {
-            analyzeExpr(xmlAttribute.name);
-            analyzeExpr(xmlAttribute.value);
-        }
-
-        public void visit(BLangXMLElementLiteral xmlElementLiteral) {
-            analyzeExpr(xmlElementLiteral.startTagName);
-            xmlElementLiteral.attributes.forEach(CodeAnalyzer.this::analyzeExpr);
-            xmlElementLiteral.children.forEach(CodeAnalyzer.this::analyzeExpr);
-            if (xmlElementLiteral.endTagName != null) {
-                analyzeExpr(xmlElementLiteral.endTagName);
-            }
-        }
-
-        public void visit(BLangXMLTextLiteral xmlTextLiteral) {
-            xmlTextLiteral.textFragments.forEach(CodeAnalyzer.this::analyzeExpr);
-        }
-
-        public void visit(BLangXMLCommentLiteral xmlCommentLiteral) {
-            xmlCommentLiteral.textFragments.forEach(CodeAnalyzer.this::analyzeExpr);
-        }
-
-        public void visit(BLangXMLProcInsLiteral xmlProcInsLiteral) {
-            xmlProcInsLiteral.dataFragments.forEach(CodeAnalyzer.this::analyzeExpr);
-            analyzeExpr(xmlProcInsLiteral.target);
-        }
-
-        public void visit(BLangXMLQuotedString xmlQuotedString) {
-            xmlQuotedString.textFragments.forEach(CodeAnalyzer.this::analyzeExpr);
-        }
-
-        public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-            stringTemplateLiteral.exprs.forEach(CodeAnalyzer.this::analyzeExpr);
-        }
-
-        public void visit(BLangWorkerSend workerSendNode) {
-            analyzeExpr(workerSendNode.expr);
-        }
-
-        public void visit(BLangWorkerReceive workerReceiveNode) {
-            analyzeExpr(workerReceiveNode.expr);
-        }
-
-        public void visit(BLangLambdaFunction bLangLambdaFunction) {
-            // TODO: support for lambda
-        }
-
-        public void visit(BLangXMLAttributeAccess xmlAttributeAccessExpr) {
-            analyzeExpr(xmlAttributeAccessExpr.expr);
-            if (xmlAttributeAccessExpr.indexExpr != null) {
-                analyzeExpr(xmlAttributeAccessExpr.indexExpr);
-            }
-        }
-
-        public void visit(BLangLiteral literalExpr) {
-            // do nothing
         }
     }
 }

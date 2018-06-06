@@ -39,10 +39,10 @@ import java.util.concurrent.TimeUnit;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
                 structPackage = "ballerina.http"),
         args = {
-                @Argument(name = "wsConnector", type = TypeKind.STRUCT),
+                @Argument(name = "wsConnector", type = TypeKind.OBJECT),
                 @Argument(name = "statusCode", type = TypeKind.INT),
                 @Argument(name = "reason", type = TypeKind.STRING),
                 @Argument(name = "timeoutInSecs", type = TypeKind.INT)
