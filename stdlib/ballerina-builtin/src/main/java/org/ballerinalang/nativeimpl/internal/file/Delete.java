@@ -15,18 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
-import org.ballerinalang.nativeimpl.io.utils.IOUtils;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,49 +35,48 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+
 /**
  * Deletes a given file or a directory.
  *
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.PACKAGE_NAME,
         functionName = "delete",
-        args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina.file")
-        },
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                             structPackage = Constants.PACKAGE_PATH)
+        ,
         returnType = {
-                @ReturnType(type = TypeKind.BOOLEAN),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.file")
+                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
         },
         isPublic = true
 )
 public class Delete extends BlockingNativeCallableUnit {
-
+    private static final Logger log = LoggerFactory.getLogger(Delete.class);
+    
     @Override
     public void execute(Context context) {
         BStruct pathStruct = (BStruct) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         try {
-            if (!Files.exists(path)) {
-                throw new BallerinaException("failed to delete file: file not found: " + path);
-            }
-            if (!delete(path)) {
-                throw new BallerinaException("failed to delete file: " + path);
+            Files.walk(path)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
+            if (Files.exists(path)) {
+                String msg = "File/Directory could not be properly deleted: " + path;
+                log.error(msg);
+                context.setReturnValues(BLangVMErrors.createError(context, msg));
             }
         } catch (IOException ex) {
-            BStruct errorStruct = IOUtils.createError(context, ex.getMessage());
-            context.setReturnValues(errorStruct);
+            String msg = "IO error occurred while deleting file/directory: " + path;
+            log.error(msg, ex);
+            context.setReturnValues(BLangVMErrors.createError(context, msg));
         }
-        context.setReturnValues();
     }
-
-    private boolean delete(Path path) throws IOException {
-        Files.walk(path)
-                .sorted(Comparator.reverseOrder())
-                .map(Path::toFile)
-                .forEach(File::delete);
-        return !Files.exists(path);
-    }
-
+    
 }

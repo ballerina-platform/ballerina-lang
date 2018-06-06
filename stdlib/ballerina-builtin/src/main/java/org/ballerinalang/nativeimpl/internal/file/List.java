@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -26,9 +26,9 @@ import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,19 +37,25 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+
 /**
  * List out the content in directory.
  *
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.PACKAGE_NAME,
         functionName = "list",
-        args = {@Argument(name = "path", type = TypeKind.RECORD, structType = "Path",
-                structPackage = "ballerina.file")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                             structPackage = Constants.PACKAGE_PATH)
+        ,
         returnType = {
-                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.RECORD),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.file")
+                @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.OBJECT),
+                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR, structPackage =
+                        PACKAGE_BUILTIN)
         },
         isPublic = true
 )
@@ -64,7 +70,7 @@ public class List extends BlockingNativeCallableUnit {
         final BRefValueArray filesList = new BRefValueArray(new BArrayType(pathStruct.getType()));
         try {
             Files.list(path).forEach(p -> {
-                BStruct filePaths = BLangConnectorSPIUtil.createBStruct(context, Constants.FILE_PACKAGE,
+                BStruct filePaths = BLangConnectorSPIUtil.createBStruct(context, Constants.PACKAGE_PATH,
                         Constants.PATH_STRUCT);
                 filePaths.addNativeData(Constants.PATH_DEFINITION_NAME, p);
                 long index = filesList.size();
