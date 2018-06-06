@@ -83,34 +83,8 @@ public class HoverUtil {
                         ? getHoverResultForGivenDocs(bLangFunction.docAttachments, bLangFunction.annAttachments)
                         : getDefaultHoverObject();
                 break;
-            // TODO: Revamop the following case logic with the new struct remove changes
-//            case ContextConstants.STRUCT:
-//                BLangStruct bLangStruct = bLangPackage.structs.stream()
-//                        .filter(struct -> struct.name.getValue()
-//                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-//                        .findAny().orElse(null);
-//                hover = bLangStruct != null
-//                        ? getHoverResultForGivenDocs(bLangStruct.docAttachments, bLangStruct.annAttachments)
-//                        : getDefaultHoverObject();
-//                break;
-//            case ContextConstants.OBJECT:
-//                BLangObject bLangObject = bLangPackage.objects.stream()
-//                        .filter(object -> object.name.getValue()
-//                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-//                        .findAny().orElse(null);
-//                hover = bLangObject != null
-//                        ? getHoverResultForGivenDocs(bLangObject.docAttachments, bLangObject.annAttachments)
-//                        : getDefaultHoverObject();
-//                break;
-//            case ContextConstants.RECORD:
-//                BLangRecord bLangRecord = bLangPackage.records.stream()
-//                        .filter(record -> record.name.getValue()
-//                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-//                        .findAny().orElse(null);
-//                hover = bLangRecord != null ?
-//                        getHoverResultForGivenDocs(bLangRecord.docAttachments, bLangRecord.annAttachments)
-//                        : getDefaultHoverObject();
-//                break;
+            case ContextConstants.OBJECT:
+            case ContextConstants.RECORD:
             case ContextConstants.TYPE_DEF:
                 BLangTypeDefinition bLangTypeDefinition = bLangPackage.typeDefinitions.stream()
                         .filter(typeDef -> typeDef.name.getValue()
