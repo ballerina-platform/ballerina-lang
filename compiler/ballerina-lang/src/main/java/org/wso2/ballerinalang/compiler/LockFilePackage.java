@@ -5,11 +5,11 @@ import java.util.List;
 /**
  * Class to handle packages in Ballerina.lock.
  */
-public class LockPackage {
+public class LockFilePackage {
     private String org;
     private String name;
     private String version;
-    private List<LockPackage> dependencyPackages;
+    private List<LockFilePackage> dependencyPackages;
 
     /**
      * Constructor.
@@ -18,7 +18,7 @@ public class LockPackage {
      * @param name    package name
      * @param version package version
      */
-    LockPackage(String org, String name, String version) {
+    LockFilePackage(String org, String name, String version) {
         this.org = org;
         this.name = name;
         this.version = version;
@@ -47,14 +47,8 @@ public class LockPackage {
      *
      * @return imported packages as a string
      */
-    public List<LockPackage> getDependencies() {
+    public List<LockFilePackage> getDependencies() {
         return dependencyPackages;
-    }
-
-    @Override
-    public String toString() {
-        return "{" + LockFileConstants.ORG_NAME + "=\"" + org + "\", " + LockFileConstants.NAME + "=\""
-                + name + "\"," + LockFileConstants.VERSION + "=\"" + version + "\"}";
     }
 
     /**
@@ -62,7 +56,7 @@ public class LockPackage {
      *
      * @param dependencyPackages dependency package list
      */
-    void setDependencyPackages(List<LockPackage> dependencyPackages) {
+    void setDependencyPackages(List<LockFilePackage> dependencyPackages) {
         this.dependencyPackages = dependencyPackages;
     }
 
