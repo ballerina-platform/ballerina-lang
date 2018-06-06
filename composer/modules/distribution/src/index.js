@@ -40,11 +40,14 @@ let win,
     logger = new log('info'),
     appDir = app.getAppPath(),
     logsDir = path.join(os.homedir(),'.composer', 'logs'),
-    balHome = path.join(appDir, 'resources', 'ballerina-platform')
+    balHome = path.join(appDir, '..', '..', '..', '..', '..', '..', '..')
                     .replace('app.asar', 'app.asar.unpacked'),
     composerHome = path.join(balHome, 'lib', 'resources', 'composer')
-    composerPublicPath = path.join(composerHome, 'web', 'public'),
-    pageURL = `file://${composerPublicPath}/index.html`;
+    composerPublicPath = path.join(composerHome, 'web', 'app'),
+    pageURL = `file://${composerPublicPath}/index.html`,
+    javaHome = path.join(balHome, 'bre', 'lib', 'jre1.8.0_172')
+    javaExec = path.join(javaHome, 'bin', 'java');
+
 
 let  openFilePath = '';
 
@@ -59,7 +62,7 @@ function createLogger(){
 }
 
 function startServer(){
-    let executable = 'java',
+    let executable = javaExec,
         args = [],
         errorWin,
         options = {},
@@ -147,7 +150,7 @@ function startServer(){
 
 function checkJava(callback) {
     let callbackInvoked = false,
-        javaCheck = spawn('java', ['-version']);
+        javaCheck = spawn(javaExec, ['-version']);
     javaCheck.on('error', function(err){
         if(!callbackInvoked) {
             callbackInvoked = true;
