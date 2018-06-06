@@ -45,18 +45,19 @@ class DetailView extends React.Component {
                 <Icon name='close' className='close' onClick={this.props.hideDetailView} />
                 <code>
                     <pre>
-                        {headersArray.map((header) => {
+                        {headersArray.map((header, index) => {
+                            const endChar = headersArray.length - 1 === index ? '' : '\n';
                             const splitIndex = header.indexOf(':');
                             if (splitIndex !== -1) {
                                 return ([
                                     <b>
                                         {header.substring(0, splitIndex)}
                                     </b>,
-                                    `${header.substring(splitIndex)}\n`,
+                                    `${header.substring(splitIndex)}${endChar}`,
                                 ]
                                 );
                             } else {
-                                return (`${header}\n`);
+                                return (`${header}${endChar}`);
                             }
                         })}
                     </pre>

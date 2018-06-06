@@ -25,11 +25,7 @@ install:
   - nvm use 8.9.0
   - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -pl '!tool-plugins/vscode/server,!tool-plugins/vscode/plugin,!tool-plugins/vscode'
 
-script: mvn -B -pl $TEST_SUITE test
-
-env:
-  - TEST_SUITE='tests/ballerina-test,tests/ballerina-test-compiler-plugins,tests/observability-test-utils'
-  - TEST_SUITE='tests/ballerina-test-integration'
+script: mvn test -B -pl '!tool-plugins/vscode/server,!tool-plugins/vscode/plugin,!tool-plugins/vscode'
 
 cache:
   directories:

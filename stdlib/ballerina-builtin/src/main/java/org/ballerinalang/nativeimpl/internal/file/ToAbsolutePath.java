@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.nio.file.Path;
@@ -36,15 +36,28 @@ import java.nio.file.Path;
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
-        functionName = "Path.getPathValue",
-        args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina.file")
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.PACKAGE_NAME,
+        functionName = "toAbsolutePath",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                             structPackage = Constants.PACKAGE_PATH),
+        returnType = {
+                @ReturnType(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                            structPackage = Constants.PACKAGE_PATH)
         },
-        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetPathValue extends BlockingNativeCallableUnit {
+public class ToAbsolutePath extends BlockingNativeCallableUnit {
+
+    /**
+     * Returns the absolute path of the file.
+     *
+     * @param path the path to the file location.
+     * @return the absolute path reference.
+     */
+    private Path getAbsolutePath(Path path) {
+        return path.toAbsolutePath();
+    }
 
     /**
      * {@inheritDoc}
@@ -53,7 +66,9 @@ public class GetPathValue extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct pathStruct = (BStruct) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        String pathValue = path.toString();
-        context.setReturnValues(new BString(pathValue));
+        BStruct absolutePath = BLangConnectorSPIUtil.createBStruct(context, Constants.PACKAGE_PATH, Constants
+                .PATH_STRUCT);
+        absolutePath.addNativeData(Constants.PATH_DEFINITION_NAME, getAbsolutePath(path));
+        context.setReturnValues(absolutePath);
     }
 }

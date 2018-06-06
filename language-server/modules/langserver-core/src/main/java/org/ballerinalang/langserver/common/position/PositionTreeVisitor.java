@@ -623,12 +623,14 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             this.context.put(NodeContextKeys.NODE_KEY, invocationExpr);
             this.context.put(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY, this.previousNode);
             this.context.put(NodeContextKeys.NAME_OF_NODE_KEY, invocationExpr.name.getValue());
-            this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, invocationExpr.symbol.pkgID);
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, invocationExpr.symbol.kind.name());
-            this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, invocationExpr.symbol.kind.name());
-            this.context.put(NodeContextKeys.NODE_OWNER_KEY, invocationExpr.symbol.owner.name.getValue());
-            this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY,
-                    invocationExpr.symbol.owner.pkgID);
+            BSymbol symbol = invocationExpr.symbol;
+            if (symbol != null) {
+                this.context.put(NodeContextKeys.PACKAGE_OF_NODE_KEY, symbol.pkgID);
+                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_PARENT_KEY, symbol.kind.name());
+                this.context.put(NodeContextKeys.SYMBOL_KIND_OF_NODE_KEY, symbol.kind.name());
+                this.context.put(NodeContextKeys.NODE_OWNER_KEY, symbol.owner.name.getValue());
+                this.context.put(NodeContextKeys.NODE_OWNER_PACKAGE_KEY, symbol.owner.pkgID);
+            }
             setTerminateVisitor(true);
         }
     }

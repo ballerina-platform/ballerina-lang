@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * This class is responsible of testing the ballerina samples
+ * This class is responsible of testing the ballerina samples.
  */
 public class TesterinaSamplesTest {
 
