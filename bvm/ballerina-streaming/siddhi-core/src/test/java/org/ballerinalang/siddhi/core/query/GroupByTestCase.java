@@ -29,6 +29,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for group by queries.
+ */
 public class GroupByTestCase {
     private static final Logger log = LoggerFactory.getLogger(GroupByTestCase.class);
     private volatile int count;

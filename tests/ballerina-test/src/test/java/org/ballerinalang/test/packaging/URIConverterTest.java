@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
+/**
+ * Testcase for URI converter.
+ */
 public class URIConverterTest {
 
     @Test

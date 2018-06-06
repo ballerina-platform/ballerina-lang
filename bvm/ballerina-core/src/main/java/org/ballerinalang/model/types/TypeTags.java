@@ -35,7 +35,6 @@ public class TypeTags {
     public static final int MESSAGE_TAG = 10;
     public static final int TABLE_TAG = 11;
     public static final int VOID_TAG = 12;
-    public static final int CONNECTOR_TAG = 13;
     public static final int FUNCTION_POINTER_TAG = 14;
     public static final int ARRAY_TAG = 16;
     public static final int ANNOTATION_TAG = 17;

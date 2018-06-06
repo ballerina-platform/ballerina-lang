@@ -31,7 +31,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
@@ -39,7 +38,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -203,29 +201,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
         if (resourceNode.body != null) {
             this.acceptNode(resourceNode.body);
-        }
-    }
-
-    @Override
-    public void visit(BLangConnector connectorNode) {
-        if (connectorNode.symbol.pkgID.name.getValue()
-                .equals(this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(connectorNode.name.getValue()) &&
-                this.context.get(NodeContextKeys.NODE_OWNER_KEY).equals(connectorNode.symbol.owner.name.getValue())) {
-            addLocation(connectorNode, connectorNode.symbol.pkgID.name.getValue(),
-                        connectorNode.symbol.pkgID.name.getValue());
-        }
-
-        if (connectorNode.params != null) {
-            connectorNode.params.forEach(this::acceptNode);
-        }
-
-        if (connectorNode.varDefs != null) {
-            connectorNode.varDefs.forEach(this::acceptNode);
-        }
-
-        if (connectorNode.actions != null) {
-            connectorNode.actions.forEach(this::acceptNode);
         }
     }
 
@@ -529,38 +504,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
     }
 
     @Override
-    public void visit(BLangTransformer transformerNode) {
-        if (transformerNode.symbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                transformerNode.symbol.owner.pkgID.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
-                        .equals(transformerNode.symbol.pkgID.name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(transformerNode.name.getValue())) {
-            addLocation(transformerNode, transformerNode.symbol.owner.pkgID.name.getValue(),
-                        transformerNode.pos.getSource().pkgID.name.getValue());
-        }
-        if (transformerNode.source != null) {
-            acceptNode(transformerNode.source);
-        }
-
-        if (transformerNode.requiredParams != null) {
-            transformerNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (transformerNode.retParams != null) {
-            transformerNode.retParams.forEach(this::acceptNode);
-        }
-
-        if (transformerNode.body != null) {
-            acceptNode(transformerNode.body);
-        }
-
-        if (transformerNode.workers != null) {
-            transformerNode.workers.forEach(this::acceptNode);
-        }
-    }
-
-    @Override
     public void visit(BLangTypeCastExpr castExpr) {
         if (castExpr.typeNode != null) {
             this.acceptNode(castExpr.typeNode);
@@ -579,10 +522,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
         if (conversionExpr.typeNode != null) {
             acceptNode(conversionExpr.typeNode);
-        }
-
-        if (conversionExpr.transformerInvocation != null) {
-            acceptNode(conversionExpr.transformerInvocation);
         }
     }
 

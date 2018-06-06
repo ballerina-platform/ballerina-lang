@@ -27,8 +27,7 @@ import org.ballerinalang.model.values.BValue;
 public interface Value {
 
     /**
-     * Returns type of the Value;
-     *
+     * Returns the type of the value.
      * @return type of the value.
      */
     Type getType();

@@ -45,7 +45,7 @@ import java.nio.file.Path;
 )
 public class CompressToBlob extends BlockingNativeCallableUnit {
     /**
-     * File path defined in ballerina.compression
+     * File path defined in ballerina.compression.
      */
     private static final int SRC_PATH_FIELD_INDEX = 0;
 

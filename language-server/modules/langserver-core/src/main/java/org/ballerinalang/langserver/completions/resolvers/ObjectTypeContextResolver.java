@@ -62,7 +62,7 @@ public class ObjectTypeContextResolver extends AbstractItemResolver {
         completionItems.add(constructorItem);
 
         CompletionItem publicBlockItem = new CompletionItem();
-        publicBlockItem.setLabel(ItemResolverConstants.PUBLIC);
+        publicBlockItem.setLabel(ItemResolverConstants.PUBLIC_KEYWORD);
         publicBlockItem.setInsertText(Snippet.PUBLIC_BLOCK.toString());
         publicBlockItem.setInsertTextFormat(InsertTextFormat.Snippet);
         publicBlockItem.setDetail(ItemResolverConstants.SNIPPET_TYPE);

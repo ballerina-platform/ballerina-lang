@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Implantation of {@link org.ballerinalang.connector.api.Struct}
+ * Implantation of {@link org.ballerinalang.connector.api.Struct}.
  *
  * @since 0.965.0
  */
@@ -184,7 +184,7 @@ public class StructImpl extends AnnotatableNode implements Struct {
     }
 
     /**
-     * Implementation of {@link StructFieldImpl}
+     * Implementation of {@link StructFieldImpl}.
      *
      * @since 0.965.0
      */

@@ -29,6 +29,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for insert operation in tables.
+ */
 public class InsertIntoTableTestCase {
     private static final Logger log = LoggerFactory.getLogger(InsertIntoTableTestCase.class);
     private int inEventCount;

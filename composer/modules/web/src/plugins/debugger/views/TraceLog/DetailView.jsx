@@ -36,14 +36,29 @@ function isJson(text) {
 
 class DetailView extends React.Component {
     render() {
-        const { meta } = this.props;
+        const { meta, meta: { headers = '' } } = this.props;
         const payload = meta.payload;
+        const headersArray = headers.split('\n');
+
         return (
             <Segment className='detail-view' inverted>
                 <Icon name='close' className='close' onClick={this.props.hideDetailView} />
                 <code>
                     <pre>
-                        {meta.headers}
+                        {headersArray.map((header) => {
+                            const splitIndex = header.indexOf(':');
+                            if (splitIndex !== -1) {
+                                return ([
+                                    <b>
+                                        {header.substring(0, splitIndex)}
+                                    </b>,
+                                    `${header.substring(splitIndex)}\n`,
+                                ]
+                                );
+                            } else {
+                                return (`${header}\n`);
+                            }
+                        })}
                     </pre>
                 </code>
                 {

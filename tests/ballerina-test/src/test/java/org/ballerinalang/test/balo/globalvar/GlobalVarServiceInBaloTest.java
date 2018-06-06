@@ -21,6 +21,7 @@ package org.ballerinalang.test.balo.globalvar;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.test.balo.BaloCreator;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
 import org.ballerinalang.test.services.testutils.MessageUtils;
 import org.ballerinalang.test.services.testutils.Services;
@@ -45,6 +46,7 @@ public class GlobalVarServiceInBaloTest {
 
     @BeforeClass
     public void setup() throws IOException {
+        BaloCreator.createAndSetupBalo("test-src/balo/test_project", "testorg", "foo");
         result = BServiceUtil
                 .setupProgramFile(this, "test-src/balo/test_balo/globalvar/test_global_var_service.bal");
     }
@@ -110,6 +112,6 @@ public class GlobalVarServiceInBaloTest {
 
     @AfterClass
     public void tearDown() {
-        // EnvironmentInitializer.cleanup(result);
+        BaloCreator.cleaPackageFromRepository("testorg", "foo");
     }
 }

@@ -27,6 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for table sql queries.
+ */
 public class TableSqlQueryTest {
 
     private CompileResult result;
