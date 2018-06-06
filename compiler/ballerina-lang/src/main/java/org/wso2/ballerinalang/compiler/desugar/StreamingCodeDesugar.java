@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -75,6 +76,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangFunction funcNode;
     private BLangIf ifNode;
     private BLangExpressionStmt foreverReplaceStatement;
+    private BLangExpression conditionalExpression;
 
     private StreamingCodeDesugar(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
@@ -160,86 +162,46 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         //Create IF Clause
         ifNode = ASTBuilderUtil.createIfStmt(where.pos, funcNode.body);
-        ifNode.expr = getBinaryExpr((BLangBinaryExpr) where.getExpression());
+        final BLangBinaryExpr equality = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        equality.pos = where.pos;
+        equality.type = symTable.booleanType;
+        equality.opKind = ((BLangBinaryExpr) where.getExpression()).getOperatorKind();
+        ((BLangBinaryExpr) where.getExpression()).getLeftExpression().accept(this);
+        equality.lhsExpr = conditionalExpression;
+        ((BLangBinaryExpr) where.getExpression()).getRightExpression().accept(this);
+        equality.rhsExpr = conditionalExpression;
+        equality.opSymbol = ((BLangBinaryExpr) where.getExpression()).opSymbol;
+        ifNode.expr = equality;
         ifNode.body = ASTBuilderUtil.createBlockStmt(where.pos);
     }
 
-    public BLangBinaryExpr getBinaryExpr(BLangBinaryExpr binaryExpr) {
-        final BLangBinaryExpr equality = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-        equality.pos = binaryExpr.pos;
-        equality.type = symTable.booleanType;
-        equality.opKind = (binaryExpr).getOperatorKind();
-        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, (funcNode).requiredParams.get(0).symbol);
-
-        if (binaryExpr.getLeftExpression() instanceof BLangBinaryExpr) {
-            equality.lhsExpr = getBinaryExpr((BLangBinaryExpr) binaryExpr.getLeftExpression());
-        } else {
-            equality.lhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
-                    ((BLangFieldBasedAccess) (binaryExpr).lhsExpr).field);
-            ((BLangFieldBasedAccess) equality.lhsExpr).symbol = ((BLangFieldBasedAccess) (binaryExpr).lhsExpr).symbol;
-            ((BLangFieldBasedAccess) equality.lhsExpr).type = binaryExpr.rhsExpr.type;
-        }
-
-        if (binaryExpr.getRightExpression() instanceof BLangBinaryExpr) {
-            equality.rhsExpr = getBinaryExpr((BLangBinaryExpr) binaryExpr.getRightExpression());
-        } else {
-
-            if ((binaryExpr).rhsExpr instanceof BLangLiteral) {
-                equality.rhsExpr = (binaryExpr).rhsExpr;
-            } else {
-                equality.rhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
-                        ((BLangFieldBasedAccess) (binaryExpr).rhsExpr).field);
-            }
-        }
-        equality.opSymbol = (binaryExpr).opSymbol;
-
-        return equality;
+    @Override
+    public void visit(BLangBinaryExpr binaryExpr) {
+        final BLangBinaryExpr bLangBinaryExpr = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        bLangBinaryExpr.pos = binaryExpr.pos;
+        bLangBinaryExpr.type = symTable.booleanType;
+        bLangBinaryExpr.opKind = (binaryExpr).getOperatorKind();
+        binaryExpr.getLeftExpression().accept(this);
+        bLangBinaryExpr.lhsExpr = conditionalExpression;
+        binaryExpr.getRightExpression().accept(this);
+        bLangBinaryExpr.rhsExpr = conditionalExpression;
+        bLangBinaryExpr.opSymbol = binaryExpr.opSymbol;
+        conditionalExpression = bLangBinaryExpr;
     }
 
+    @Override
+    public void visit(BLangFieldBasedAccess fieldAccessExpr) {
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos, (funcNode).requiredParams.get(0).symbol);
+        conditionalExpression = ASTBuilderUtil.createFieldAccessExpr(varRef,
+                fieldAccessExpr.field);
+        ((BLangFieldBasedAccess) conditionalExpression).symbol = fieldAccessExpr.symbol;
+        (conditionalExpression).type = fieldAccessExpr.type;
+    }
 
-
-
-
-//    @Override
-//    public void visit(BLangWhere where) {
-//
-//        //Create IF Clause
-//        ifNode = ASTBuilderUtil.createIfStmt(where.pos, funcNode.body);
-//        ifNode.expr = getBinaryExpr((BLangBinaryExpr) where.getExpression());
-//        ifNode.body = ASTBuilderUtil.createBlockStmt(where.pos);
-//    }
-//
-//    public BLangBinaryExpr getBinaryExpr(BLangBinaryExpr binaryExpr) {
-//        final BLangBinaryExpr equality = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-//        equality.pos = binaryExpr.pos;
-//        equality.type = symTable.booleanType;
-//        equality.opKind = (binaryExpr).getOperatorKind();
-//        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, (funcNode).requiredParams.get(0).symbol);
-//
-//        if (binaryExpr.getLeftExpression() instanceof BLangBinaryExpr) {
-//            equality.lhsExpr = getBinaryExpr((BLangBinaryExpr) binaryExpr.getLeftExpression());
-//        } else {
-//            equality.lhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
-//                    ((BLangFieldBasedAccess) (binaryExpr).lhsExpr).field);
-//            ((BLangFieldBasedAccess) equality.lhsExpr).symbol = ((BLangFieldBasedAccess) (binaryExpr).lhsExpr).symbol;
-//            ((BLangFieldBasedAccess) equality.lhsExpr).type = binaryExpr.rhsExpr.type;
-//        }
-//
-//        if (binaryExpr.getRightExpression() instanceof BLangBinaryExpr) {
-//            equality.rhsExpr = getBinaryExpr((BLangBinaryExpr) binaryExpr.getRightExpression());
-//        } else {
-//
-//            if ((binaryExpr).rhsExpr instanceof BLangLiteral) {
-//                equality.rhsExpr = (binaryExpr).rhsExpr;
-//            } else {
-//                equality.rhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
-//                        ((BLangFieldBasedAccess) (binaryExpr).rhsExpr).field);
-//            }
-//        }
-//        equality.opSymbol = (binaryExpr).opSymbol;
-//
-//        return equality;
-//    }
+    @Override
+    public void visit(BLangLiteral literalExpr) {
+        conditionalExpression = literalExpr;
+    }
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
