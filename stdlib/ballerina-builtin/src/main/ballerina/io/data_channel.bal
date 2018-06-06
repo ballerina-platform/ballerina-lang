@@ -14,21 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-documentation{
+documentation {
     Represents network byte order.
 
     BIG_ENDIAN - specifies the bytes to be in the order of most significant byte first
 
     LITTLE_ENDIAN - specifies the byte order to be the least significant byte first
 
-    NATIVE - specifies the byte order to be in the native order defined by the platform of execusion
+    NATIVE - specifies the byte order to be in the native order defined by the platform of execution
 }
 public type ByteOrder "BI"|"LI"|"NATIVE";
 @final public ByteOrder BIG_ENDIAN = "BI";
 @final public ByteOrder LITTLE_ENDIAN = "LI";
 @final public ByteOrder NATIVE = "NATIVE";
 
-documentation{
+documentation {
     Represents supported bit lengths.
 
     BIT_16 - for 16 bit(2 byte) representation
@@ -51,7 +51,7 @@ public type DataChannel object {
         init(byteChannel, bOrder);
     }
 
-    documentation{
+    documentation {
         Initializes data channel.
 
         P{{byteChannel}} channel which would represent the source to read/write data
