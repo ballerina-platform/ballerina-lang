@@ -650,24 +650,8 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BSymbol recordSymbol = recordTypeNode.symbol;
-        if (recordSymbol.owner.name.getValue().equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY)) &&
-                recordSymbol.owner.pkgID.name.getValue()
-                        .equals(this.context.get(NodeContextKeys.NODE_OWNER_PACKAGE_KEY).name.getValue()) &&
-                this.context.get(NodeContextKeys.PACKAGE_OF_NODE_KEY).name.getValue()
-                        .equals(recordSymbol.pkgID.name.getValue()) &&
-                this.context.get(NodeContextKeys.NAME_OF_NODE_KEY).equals(recordSymbol.name.getValue())) {
-            addLocation(recordTypeNode, recordSymbol.owner.pkgID.name.getValue(),
-                        recordTypeNode.pos.getSource().pkgID.name.getValue());
-        }
-
         if (recordTypeNode.fields != null) {
             recordTypeNode.fields.forEach(this::acceptNode);
-        }
-
-        if (recordTypeNode.initFunction != null &&
-                !(recordTypeNode.initFunction.returnTypeNode.type instanceof BNilType)) {
-            this.acceptNode(recordTypeNode.initFunction);
         }
     }
 
