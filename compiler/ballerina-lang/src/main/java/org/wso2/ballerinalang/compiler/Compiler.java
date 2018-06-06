@@ -82,7 +82,7 @@ public class Compiler {
     public void build() {
         List<BLangPackage> packageList = compilePackages();
         packageList.forEach(this.binaryFileWriter::write);
-        packageList.forEach(bLangPackage -> lockFileWriter.getPkgDependencies(bLangPackage.symbol));
+        packageList.forEach(bLangPackage -> lockFileWriter.getEntryPkgDependencies(bLangPackage.symbol));
         this.lockFileWriter.writeLockFile(this.manifest);
     }
 
@@ -94,7 +94,7 @@ public class Compiler {
 
         // Code gen and save...
         this.binaryFileWriter.write(bLangPackage, targetFileName);
-        this.lockFileWriter.getPkgDependencies(bLangPackage.symbol);
+        this.lockFileWriter.getEntryPkgDependencies(bLangPackage.symbol);
         this.lockFileWriter.writeLockFile(this.manifest);
     }
 

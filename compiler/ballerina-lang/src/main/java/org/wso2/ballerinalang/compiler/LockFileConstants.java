@@ -25,14 +25,16 @@ package org.wso2.ballerinalang.compiler;
 public class LockFileConstants {
 
     public static final String VERSION = "version";
-    public static final String ORG_NAME = "name";
+    public static final String NAME = "name";
     static final String BALLERINA_LOCK_FILE_NAME = "Ballerina.lock";
     static final String BALLERINA = "ballerina";
     static final String PROJECT = "project";
-    static final String BALLERINA_VERSION = "ballerinaVersion";
+    static final String LOCK_FILE_VERSION = "lockfileversion";
+    static final String PACKAGES = "packages";
+    static final String PACKAGE = "package";
+    static final String ORG_NAME = "org";
+    static final String IMPORTS = "imports";
+    static final String BALLERINA_VERSION = "ballerinaversion";
     static final String BALLERINA_VERSION_PROPERTY = "ballerina.version";
     static final String LAUNCHER_PROPERTIES_FILE = "/META-INF/launcher.properties";
-
-    private LockFileConstants() {
-    }
 }

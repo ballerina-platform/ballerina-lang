@@ -44,8 +44,8 @@ import java.util.stream.Collectors;
 public class LockFileWriter {
     private static final CompilerContext.Key<LockFileWriter> LOCK_FILE_WRITER_KEY = new CompilerContext.Key<>();
     private final SourceDirectory sourceDirectory;
-    private List<StringBuilder> builderList = new ArrayList<>();
     private List<LockPackage> ballerinaLockPackages = new ArrayList<>();
+    private List<String> entryPackages = new ArrayList<>();
 
     /**
      * Constructor of LockFileWriter.
@@ -103,16 +103,29 @@ public class LockFileWriter {
     }
 
     /**
+     * Get entry package dependencies.
+     *
+     * @param packageSymbol package symbol
+     */
+    void getEntryPkgDependencies(BPackageSymbol packageSymbol) {
+        entryPackages.add(packageSymbol.pkgID.name.value);
+        getPkgDependencies(packageSymbol);
+    }
+
+    /**
      * Generate list of dependencies of package.
      *
      * @param packageSymbol package symbol
      */
-    void getPkgDependencies(BPackageSymbol packageSymbol) {
+    private void getPkgDependencies(BPackageSymbol packageSymbol) {
+        LockPackage lockPackage = new LockPackage(packageSymbol.pkgID.orgName.value,
+                                                  packageSymbol.pkgID.name.value,
+                                                  packageSymbol.pkgID.version.value);
+
         List<BPackageSymbol> importPackages = getImportPackages(packageSymbol);
-        ballerinaLockPackages.add(new LockPackage(packageSymbol.pkgID.orgName.value + "/" +
-                                                          packageSymbol.pkgID.name.value,
-                                                  packageSymbol.pkgID.version.value,
-                                                  getImportsAsStr(importPackages)));
+        lockPackage.setDependencyPackages(getImports(importPackages));
+
+        ballerinaLockPackages.add(lockPackage);
         if (importPackages.size() > 0) {
             for (BPackageSymbol importPackage : importPackages) {
                 getPkgDependencies(importPackage);
@@ -121,19 +134,20 @@ public class LockFileWriter {
     }
 
     /**
-     * Get import package info as a string.
+     * Get import package list.
      *
      * @param packageSymbols list of package symbols of imported packages
-     * @return import package info as a string
+     * @return list of packages
      */
-    private String getImportsAsStr(List<BPackageSymbol> packageSymbols) {
-        return packageSymbols.stream().map(bPackageSymbol -> bPackageSymbol.pkgID.orgName.value + "/" +
-                bPackageSymbol.pkgID.name.value + " " + bPackageSymbol.pkgID.version.value)
-                             .collect(Collectors.joining(","));
+    private List<LockPackage> getImports(List<BPackageSymbol> packageSymbols) {
+        return packageSymbols.stream().map(symbol -> new LockPackage(symbol.pkgID.orgName.value,
+                                                                     symbol.pkgID.name.value,
+                                                                     symbol.pkgID.version.value))
+                             .collect(Collectors.toList());
     }
 
     /**
-     * Get import packages of package.
+     * Get external import packages of package.
      *
      * @param packageNode packafe node
      * @return import package list
@@ -153,12 +167,18 @@ public class LockFileWriter {
     private StringBuilder generateProjectDesc(Manifest manifest) {
         return new StringBuilder()
                 .append("[" + LockFileConstants.PROJECT + "]").append("\n")
-                .append(LockFileConstants.ORG_NAME).append(" = ")
+                .append(LockFileConstants.NAME).append(" = ")
                 .append(String.format("\"%s\"", manifest.getName())).append("\n")
                 .append(LockFileConstants.VERSION).append(" = ")
                 .append(String.format("\"%s\"", manifest.getVersion())).append("\n")
+                .append(LockFileConstants.LOCK_FILE_VERSION).append(" = ")
+                .append(String.format("\"%s\"", "1")).append("\n")
                 .append(LockFileConstants.BALLERINA_VERSION).append(" = ")
-                .append(String.format("\"%s\"", getBallerinaVersion())).append("\n");
+                .append(String.format("\"%s\"", getBallerinaVersion())).append("\n")
+                .append(LockFileConstants.PACKAGES).append(" = [")
+                .append(entryPackages.stream()
+                                     .map(str -> " \"" + str + "\" ")
+                                     .collect(Collectors.joining(","))).append("]\n");
     }
 
     /**
@@ -167,21 +187,40 @@ public class LockFileWriter {
      * @param manifest manifest object
      */
     void writeLockFile(Manifest manifest) {
+        List<StringBuilder> builderList = new ArrayList<>();
         List<LockPackage> packageList = ballerinaLockPackages.stream().filter(distinctByKey(LockPackage::toString))
                                                              .collect(Collectors.toList());
         for (LockPackage lockPackage : packageList) {
-            builderList.add(new StringBuilder().append("[[").append("package").append("]] \n")
-                                               .append("name = ")
-                                               .append(String.format("\"%s\"", lockPackage.getName())).append("\n")
-                                               .append("version = ")
-                                               .append(String.format("\"%s\"", lockPackage.getVersion())));
-            if (!lockPackage.getDependencies().isEmpty()) {
-                builderList.add(new StringBuilder().append("dependencies = [")
-                                                   .append(String.format("\"%s\"", lockPackage.getDependencies()))
-                                                   .append("] \n"));
-            } else {
-                builderList.add(new StringBuilder().append(""));
+
+            StringBuilder builder = new StringBuilder().append("[[").append(LockFileConstants.PACKAGE).append("]] \n");
+
+            if (!entryPackages.contains(lockPackage.getName())) {
+                builder.append(LockFileConstants.ORG_NAME)
+                       .append(" = ")
+                       .append(String.format("\"%s\"", lockPackage.getOrg()))
+                       .append("\n");
             }
+            builder.append(LockFileConstants.NAME)
+                   .append(" = ")
+                   .append(String.format("\"%s\"", lockPackage.getName()))
+                   .append("\n")
+                   .append(LockFileConstants.VERSION)
+                   .append(" = ")
+                   .append(String.format("\"%s\"", lockPackage.getVersion()))
+                   .append("\n");
+            if (!lockPackage.getDependencies().isEmpty()) {
+                builder.append(LockFileConstants.IMPORTS)
+                       .append(" = [")
+                       .append(lockPackage.getDependencies()
+                                          .stream()
+                                          .map(LockPackage::toString)
+                                          .collect(Collectors.joining(",")))
+                       .append("]").append("\n");
+
+            } else {
+                builder.append("");
+            }
+            builderList.add(builder);
         }
 
         Path ballerinaLockFilePath = this.sourceDirectory.getPath().resolve(ProjectDirConstants.TARGET_DIR_NAME)

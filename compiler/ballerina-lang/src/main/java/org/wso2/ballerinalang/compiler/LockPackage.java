@@ -1,24 +1,27 @@
 package org.wso2.ballerinalang.compiler;
 
+import java.util.List;
+
 /**
  * Class to handle packages in Ballerina.lock.
  */
 public class LockPackage {
+    private String org;
     private String name;
     private String version;
-    private String dependencies;
+    private List<LockPackage> dependencyPackages;
 
     /**
      * Constructor.
      *
-     * @param name         package name
-     * @param version      package version
-     * @param dependencies imported packages as a string
+     * @param org     org-name
+     * @param name    package name
+     * @param version package version
      */
-    LockPackage(String name, String version, String dependencies) {
+    LockPackage(String org, String name, String version) {
+        this.org = org;
         this.name = name;
         this.version = version;
-        this.dependencies = dependencies;
     }
 
     /**
@@ -44,12 +47,31 @@ public class LockPackage {
      *
      * @return imported packages as a string
      */
-    public String getDependencies() {
-        return dependencies;
+    public List<LockPackage> getDependencies() {
+        return dependencyPackages;
     }
 
     @Override
     public String toString() {
-        return name + " : " + version;
+        return "{" + LockFileConstants.ORG_NAME + "=\"" + org + "\", " + LockFileConstants.NAME + "=\""
+                + name + "\"," + LockFileConstants.VERSION + "=\"" + version + "\"}";
+    }
+
+    /**
+     * Set dependencies of packages.
+     *
+     * @param dependencyPackages dependency package list
+     */
+    void setDependencyPackages(List<LockPackage> dependencyPackages) {
+        this.dependencyPackages = dependencyPackages;
+    }
+
+    /**
+     * Get org-name of the package.
+     *
+     * @return org-name
+     */
+    public String getOrg() {
+        return org;
     }
 }
