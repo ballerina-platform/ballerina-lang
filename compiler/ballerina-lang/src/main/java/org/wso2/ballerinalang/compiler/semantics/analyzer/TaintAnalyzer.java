@@ -399,16 +399,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangVariable varNode) {
-        int ownerSymTag = env.scope.owner.tag;
         if (varNode.expr != null) {
             SymbolEnv varInitEnv = SymbolEnv.createVarInitEnv(varNode, env, varNode.symbol);
-            // If the variable is a package/service/connector level variable, we don't need to check types.
-            // It will we done during the init-function of the respective construct is visited.
-            if ((ownerSymTag & SymTag.PACKAGE) != SymTag.PACKAGE && (ownerSymTag & SymTag.SERVICE) != SymTag.SERVICE
-                    && (ownerSymTag & SymTag.CONNECTOR) != SymTag.CONNECTOR) {
-                analyzeNode(varNode.expr, varInitEnv);
-                setTaintedStatus(varNode, this.taintedStatus);
-            }
+            analyzeNode(varNode.expr, varInitEnv);
+            setTaintedStatus(varNode, this.taintedStatus);
         }
     }
 
@@ -526,8 +520,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 BLangVariableReference varRef = (BLangVariableReference) varRefExpr;
                 if (varRef.symbol != null && varRef.symbol.owner != null
                         && (varRef.symbol.owner instanceof BPackageSymbol
-                        || SymbolKind.SERVICE.equals(varRef.symbol.owner.kind)
-                        || SymbolKind.CONNECTOR.equals(varRef.symbol.owner.kind))) {
+                        || SymbolKind.SERVICE.equals(varRef.symbol.owner.kind))) {
                     addTaintError(pos, varRef.symbol.name.value,
                             DiagnosticCode.TAINTED_VALUE_PASSED_TO_GLOBAL_VARIABLE);
                     return;
