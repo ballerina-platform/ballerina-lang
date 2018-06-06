@@ -22,27 +22,26 @@ import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
 
 /**
- * Will represent the response obtained after reading/writing operations.
+ * Will represent long value response.
  */
-public class NumericResult implements EventResult<Integer, EventContext> {
-
+public class LongResult implements EventResult<Long, EventContext> {
     /**
      * Will represent a value.
      * <p>
      * This could be numberOfBytes, numberOfCharacters.
      */
-    private int value;
+    private long value;
 
     /**
      * Holds the context to the event.
      */
     private EventContext context;
 
-    public NumericResult(EventContext context) {
+    public LongResult(EventContext context) {
         this.context = context;
     }
 
-    public NumericResult(int count, EventContext context) {
+    public LongResult(long count, EventContext context) {
         this.value = count;
         this.context = context;
     }
@@ -56,7 +55,7 @@ public class NumericResult implements EventResult<Integer, EventContext> {
      * {@inheritDoc}
      */
     @Override
-    public Integer getResponse() {
+    public Long getResponse() {
         return value;
     }
 }
