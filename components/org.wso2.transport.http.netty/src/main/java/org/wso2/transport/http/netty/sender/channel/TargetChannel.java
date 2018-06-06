@@ -299,7 +299,7 @@ public class TargetChannel {
     private void setHttpVersionProperty(HTTPCarbonMessage httpOutboundRequest) {
         if (Float.valueOf(httpVersion) == Constants.HTTP_2_0) {
             // Upgrade request of HTTP/2 should be a HTTP/1.1 request
-            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, Constants.HTTP_1_1);
+            httpOutboundRequest.setProperty(Constants.HTTP_VERSION, String.valueOf(Constants.HTTP_1_1));
         } else {
             httpOutboundRequest.setProperty(Constants.HTTP_VERSION, httpVersion);
         }

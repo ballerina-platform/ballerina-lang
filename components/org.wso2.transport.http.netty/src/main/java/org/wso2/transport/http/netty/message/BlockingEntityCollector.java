@@ -50,6 +50,7 @@ public class BlockingEntityCollector implements EntityCollector {
     private BlockingQueue<HttpContent> httpContentQueue;
     private Lock readWriteLock;
     private Condition readCondition;
+    private boolean discarded;
 
     BlockingEntityCollector(int soTimeOut) {
         this.soTimeOut = soTimeOut;
@@ -62,6 +63,10 @@ public class BlockingEntityCollector implements EntityCollector {
     public void addHttpContent(HttpContent httpContent) {
         try {
             readWriteLock.lock();
+            if (discarded) {    // If entities are marked as discarded, no need to add to the queue
+                httpContent.release();
+                return;
+            }
             state = EntityBodyState.CONSUMABLE;
             httpContentQueue.add(httpContent);
             readCondition.signalAll();
@@ -196,6 +201,8 @@ public class BlockingEntityCollector implements EntityCollector {
                         LOG.error("Error while getting content from queue", e);
                     }
                 }
+            } else {
+                discarded = true;
             }
             state = EntityBodyState.EXPECTING;
         } catch (Exception e) {

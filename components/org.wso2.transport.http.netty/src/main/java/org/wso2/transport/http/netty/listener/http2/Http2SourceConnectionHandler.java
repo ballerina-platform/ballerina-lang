@@ -144,9 +144,12 @@ public class Http2SourceConnectionHandler extends Http2ConnectionHandler {
         @Override
         public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding, boolean endOfStream)
                 throws Http2Exception {
-            Http2DataFrame dataFrame = new Http2DataFrame(streamId, data, endOfStream);
+            int readableBytes = data.readableBytes();
+            ByteBuf forwardedData = data.copy();
+            data.skipBytes(readableBytes);
+            Http2DataFrame dataFrame = new Http2DataFrame(streamId, forwardedData, endOfStream);
             ctx.fireChannelRead(dataFrame);
-            return data.readableBytes() + padding;
+            return readableBytes + padding;
         }
     }
 }
