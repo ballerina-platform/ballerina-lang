@@ -18,10 +18,11 @@ documentation {
     P{{license}} License of the package
     P{{url}} URL to be invoked to push the package
     P{{dirPath}} Directory path where the archived package resides
+    P{{ballerinaVersion}} Ballerina version the package is built
     P{{msg}} Message printed when the package is pushed successfully which includes package info
 }
 function pushPackage (http:Client definedEndpoint, string accessToken, string mdFileContent, string summary, string homePageURL, string repositoryURL,
-                string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string msg) {
+                string apiDocURL, string authors, string keywords, string license, string url, string dirPath, string ballerinaVersion, string msg) {
     
     endpoint http:Client httpEndpoint = definedEndpoint;
     mime:Entity mdFileContentBodyPart = addStringBodyParts("description", mdFileContent);
@@ -32,6 +33,7 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     mime:Entity authorsBodyPart = addStringBodyParts("authors", authors);
     mime:Entity keywordsBodyPart = addStringBodyParts("keywords", keywords);
     mime:Entity licenseBodyPart = addStringBodyParts("license", license);
+    mime:Entity ballerinaVersionBodyPart = addStringBodyParts("ballerinaVersion", ballerinaVersion);
 
     // Artifact
     mime:Entity filePart = new;
@@ -40,12 +42,12 @@ function pushPackage (http:Client definedEndpoint, string accessToken, string md
     filePart.setContentType(mime:APPLICATION_OCTET_STREAM);
 
     mime:Entity[] bodyParts = [filePart, mdFileContentBodyPart, summaryBodyPart, homePageURLBodyPart, repositoryURLBodyPart,
-                                           apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart];
+                               apiDocURLBodyPart, authorsBodyPart, keywordsBodyPart, licenseBodyPart, ballerinaVersionBodyPart];
     http:Request req = new;
     req.addHeader("Authorization", "Bearer " + accessToken);
     req.setBodyParts(bodyParts, contentType = mime:MULTIPART_FORM_DATA);
 
-    var result = httpEndpoint -> post("", request=req);
+    var result = httpEndpoint -> post("", req);
     http:Response httpResponse = new;
     match result {
         http:Response response => httpResponse = response;
@@ -71,11 +73,11 @@ documentation {
 }
 function main (string... args) {
     http:Client httpEndpoint;
-    string host = args[12];
-    string port = args[13];
+    string host = args[13];
+    string port = args[14];
     if (host != "" && port != "") {
         try {
-          httpEndpoint = defineEndpointWithProxy(args[9], host, port, args[14], args[15]);
+          httpEndpoint = defineEndpointWithProxy(args[9], host, port, args[15], args[16]);
         } catch (error err) {
           io:println("failed to resolve host : " + host + " with port " + port);
           return;
@@ -86,7 +88,7 @@ function main (string... args) {
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[9]);
     }        
-    pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[11]);    
+    pushPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[4], args[5], args[6], args[7], args[8], args[9], args[10], args[12], args[11]);    
 }
 
 documentation {

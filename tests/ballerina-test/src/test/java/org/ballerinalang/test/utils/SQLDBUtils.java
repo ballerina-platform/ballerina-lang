@@ -52,24 +52,9 @@ public class SQLDBUtils {
      * @param dbName  Name of the DB instance.
      * @param sqlFile SQL statements for initialization.
      */
-    public static void initDatabase(String dbDirectory, String dbName, String sqlFile) {
-        Connection connection = null;
-        Statement st = null;
-        try {
-            Class.forName("org.hsqldb.jdbcDriver");
-            String jdbcURL = "jdbc:hsqldb:file:" + dbDirectory + dbName;
-            connection = DriverManager.getConnection(jdbcURL, "SA", "");
-            String sql = readFileToString(sqlFile);
-            String[] sqlQuery = sql.trim().split("/");
-            st = connection.createStatement();
-            for (String query : sqlQuery) {
-                st.executeUpdate(query.trim());
-            }
-        } catch (ClassNotFoundException | SQLException e) {
-            log.error("Error while initializing database: ", e);
-        } finally {
-            releaseResources(connection, st);
-        }
+    public static void initHSQLDBDatabase(String dbDirectory, String dbName, String sqlFile) {
+        String jdbcURL = "jdbc:hsqldb:file:" + dbDirectory + dbName;
+        initDatabase(jdbcURL, "SA", "", sqlFile);
     }
 
     /**
@@ -80,26 +65,33 @@ public class SQLDBUtils {
      * @param sqlFile SQL statements for initialization.
      */
     public static void initH2Database(String dbDirectory, String dbName, String sqlFile) {
-        Connection connection = null;
-        Statement st = null;
-        try {
-            Class.forName("org.h2.Driver");
-            String jdbcURL = "jdbc:h2:file:" + dbDirectory + dbName;
-            connection = DriverManager.getConnection(jdbcURL, "sa", "");
+        String jdbcURL = "jdbc:h2:file:" + dbDirectory + dbName;
+        initDatabase(jdbcURL, "sa", "", sqlFile);
+    }
+
+    /**
+     * Create a DB and initialize with given SQL file.
+     *
+     * @param jdbcURL JDBC URL
+     * @param username  Username for the DB
+     * @param password Password to connect to the DB
+     * @param sqlFile SQL statements for initialization.
+     */
+    public static void initDatabase(String jdbcURL, String username, String password, String sqlFile) {
+        try (Connection connection = DriverManager.getConnection(jdbcURL, username, password);
+                Statement st = connection.createStatement()) {
             String sql = readFileToString(sqlFile);
             String[] sqlQuery = sql.trim().split("/");
-            st = connection.createStatement();
             for (String query : sqlQuery) {
                 st.executeUpdate(query.trim());
             }
-            connection.commit();
-        } catch (ClassNotFoundException | SQLException e) {
+            if (!connection.getAutoCommit()) {
+                connection.commit();
+            }
+        } catch (SQLException e) {
             log.error("Error while initializing database: ", e);
-        } finally {
-            releaseResources(connection, st);
         }
     }
-
 
     /**
      * Delete the given directory along with all files and sub directories.

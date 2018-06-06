@@ -36,6 +36,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 
+/**
+ * Authentication handler chain Testcase.
+ */
 public class AuthnHandlerChainTest {
     private static final String BALLERINA_CONF = "ballerina.conf";
     private CompileResult compileResult;

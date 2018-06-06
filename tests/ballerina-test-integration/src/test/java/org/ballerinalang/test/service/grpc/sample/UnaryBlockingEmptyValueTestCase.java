@@ -21,7 +21,7 @@ package org.ballerinalang.test.service.grpc.sample;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -30,7 +30,7 @@ import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -78,8 +78,8 @@ public class UnaryBlockingEmptyValueTestCase extends IntegrationTestCase {
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Stock Quote struct
         // StockQuote quote2 = {symbol: "Ballerina", name:"ballerina.io", last:1.0, low:0.5, high:2.0};
-        StructInfo requestInfo = packageInfo.getStructInfo("StockQuote");
-        BStructType requestType = requestInfo.getType();
+        StructureTypeInfo requestInfo = packageInfo.getStructInfo("StockQuote");
+        BStructureType requestType = requestInfo.getType();
         BStruct requestStruct = new BStruct(requestType);
         requestStruct.setStringField(0, "Ballerina");
         requestStruct.setStringField(1, "ballerina.io");

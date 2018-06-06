@@ -26,9 +26,10 @@ import org.apache.axiom.om.OMText;
 import org.ballerinalang.bre.bvm.CPU;
 import org.ballerinalang.model.TableJSONDataSource;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
@@ -54,7 +55,7 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.util.codegen.StructFieldInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
@@ -284,14 +285,14 @@ public class JSONUtils {
     public static BJSON convertStructToJSON(BStruct struct, BJSONType targetType) {
         BJSON bjson = new BJSON(new JsonNode(Type.OBJECT));
         JsonNode jsonNode = bjson.value();
-        BStructType structType = (BStructType) struct.getType();
+        BStructureType structType = (BStructureType) struct.getType();
 
         int longRegIndex = -1;
         int doubleRegIndex = -1;
         int stringRegIndex = -1;
         int booleanRegIndex = -1;
         int refRegIndex = -1;
-        for (BStructType.StructField structField : structType.getStructFields()) {
+        for (BField structField : structType.getFields()) {
             String key = structField.getFieldName();
             BType fieldType = structField.getFieldType();
             try {
@@ -705,7 +706,7 @@ public class JSONUtils {
      * @return If the provided JSON is of object-type, this method will return a {@link BStruct} containing the values
      * of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */
-    public static BStruct convertJSONToStruct(BJSON bjson, BStructType structType) {
+    public static BStruct convertJSONToStruct(BJSON bjson, BStructureType structType) {
         return convertJSONNodeToStruct(bjson.value(), structType);
     }
 
@@ -717,7 +718,7 @@ public class JSONUtils {
      * @return If the provided JSON is of object-type, this method will return a {@link BStruct} containing the values
      * of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */
-    public static BStruct convertJSONNodeToStruct(JsonNode jsonNode, BStructType structType) {
+    public static BStruct convertJSONNodeToStruct(JsonNode jsonNode, BStructureType structType) {
         if (!jsonNode.isObject()) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
                     getComplexObjectTypeName(Type.OBJECT), getTypeName(jsonNode));
@@ -731,7 +732,7 @@ public class JSONUtils {
         int blobRegIndex = -1;
 
         BStruct bStruct = new BStruct(structType);
-        StructInfo structInfo = structType.structInfo;
+        StructureTypeInfo structInfo = (StructureTypeInfo) structType.getTypeInfo();
         boolean fieldExists;
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             BType fieldType = fieldInfo.getFieldType();
@@ -771,7 +772,8 @@ public class JSONUtils {
                         }
                         break;
                     case TypeTags.UNION_TAG:
-                    case TypeTags.STRUCT_TAG:
+                    case TypeTags.OBJECT_TYPE_TAG:
+                    case TypeTags.RECORD_TYPE_TAG:
                     case TypeTags.ANY_TAG:
                     case TypeTags.JSON_TAG:
                     case TypeTags.ARRAY_TAG:
@@ -831,8 +833,9 @@ public class JSONUtils {
                     return convertJSON(jsonValue, matchingTypes.get(0));
                 }
                 break;
-            case TypeTags.STRUCT_TAG:
-                return convertJSONNodeToStruct(jsonValue, (BStructType) targetType);
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
+                return convertJSONNodeToStruct(jsonValue, (BStructureType) targetType);
             case TypeTags.ANY_TAG:
             case TypeTags.JSON_TAG:
                 if (jsonValue.isNull()) {
@@ -898,7 +901,8 @@ public class JSONUtils {
                 return null;
             case TypeTags.MAP_TAG:
                 return convertMapToJSON((BMap<String, BValue>) source);
-            case TypeTags.STRUCT_TAG:
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 return convertStructToJSON((BStruct) source);
             case TypeTags.JSON_TAG:
                 return source;
@@ -964,8 +968,8 @@ public class JSONUtils {
                     JsonNode element = arrayNode.get(i);
                     if (elementType.getTag() == TypeTags.MAP_TAG) {
                         refValueArray.add(i, jsonNodeToBMap(element, (BMapType) elementType));
-                    } else if (elementType instanceof BStructType) {
-                        refValueArray.add(i, convertJSONNodeToStruct(element, (BStructType) elementType));
+                    } else if (elementType instanceof BStructureType) {
+                        refValueArray.add(i, convertJSONNodeToStruct(element, (BStructureType) elementType));
                     } else if (elementType instanceof BArrayType) {
                         refValueArray.add(i, jsonNodeToBArray(element, (BArrayType) elementType));
                     } else {
@@ -1065,8 +1069,8 @@ public class JSONUtils {
         } else {
             if (type == null || type.getTag() == BTypes.typeAny.getTag()) {
                 return new BJSON(json);
-            } else if (type instanceof BStructType) {
-                return convertJSONNodeToStruct(json, (BStructType) type);
+            } else if (type instanceof BStructureType) {
+                return convertJSONNodeToStruct(json, (BStructureType) type);
             }
         }
         

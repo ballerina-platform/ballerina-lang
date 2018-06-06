@@ -71,69 +71,6 @@
             color: #616161;
             border-bottom: 1px solid #555;
         }
-        .http-client-path-container {
-            float: left;
-            padding-top:1px ;
-            display: table;
-            .http-client-path {
-                width: 435px;
-                color: #fcfcfc;
-                height: 33px;
-                padding:5px 0 7px 1px;
-                background-color: #333333;
-                border: none;
-                border-bottom: 1px solid #555;
-                box-shadow: none;
-                display: table-cell;
-                float: left;
-            }
-            .ui.button {
-                display: table-cell;
-                width: auto;
-                float: left;
-                padding-left: 20px;
-            }
-            .send-request {
-                color: #fcfcfc;
-                border: none;
-                padding: 6px 20px;
-                background-color: #398B72;
-                border-color: #398B72;
-                width: 90px;
-            }
-            .cancel-request {
-                color: #000;
-                border: none;
-                padding: 6px 20px;
-                background-color: #eb6526;
-                border-color: #eb6526;
-                width: 90px;
-                span {
-                    padding-left: 5px;
-                }
-            }
-            .copy-url-wrapper {
-                position: relative;
-                display: table-cell;
-                float: left;
-                padding: 8px 6px 4px 6px;
-                font-size: 16px;
-                background-color: #1c1c1c;
-                cursor: pointer;
-                color: #ddd;
-                .copy-url-notification {
-                    position: absolute;
-                    width: 79px;
-                    bottom: 36px;
-                    left: -22px;
-                    background: #3b3b3b;
-                    padding: 4px;
-                    border: 1px solid black;
-                    border-radius: 5px;
-                    font-size: 10px;
-                }
-            }
-        }
     }
     input[type=text].header-input{
         margin-left: 5px;
@@ -162,6 +99,9 @@
         .visible.menu .description{
             display: block;
         }
+    }
+    .send-request, .cancel-request{
+        width: 150px!important;
     }
 }
 

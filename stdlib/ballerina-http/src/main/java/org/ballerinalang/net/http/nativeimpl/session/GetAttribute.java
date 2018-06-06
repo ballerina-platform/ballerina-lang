@@ -38,7 +38,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getAttribute",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
                              structPackage = "ballerina.http"),
         args = {@Argument(name = "attributeKey", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.ANY)},

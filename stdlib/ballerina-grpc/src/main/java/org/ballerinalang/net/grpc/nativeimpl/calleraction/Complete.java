@@ -51,14 +51,14 @@ import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "complete",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = CALLER_ACTION,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER_ACTION,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
-                @Argument(name = "headers", type = TypeKind.STRUCT, structType = "Headers",
+                @Argument(name = "headers", type = TypeKind.OBJECT, structType = "Headers",
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
+                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
         },
         isPublic = true
 )

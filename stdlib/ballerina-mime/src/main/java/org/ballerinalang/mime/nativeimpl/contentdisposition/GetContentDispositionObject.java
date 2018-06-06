@@ -40,7 +40,7 @@ import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
         functionName = "getContentDispositionObject",
         args = {@Argument(name = "contentDisposition",
                 type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true)
 public class GetContentDispositionObject extends BlockingNativeCallableUnit {
     @Override

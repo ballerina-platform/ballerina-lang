@@ -23,7 +23,7 @@ import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.ColumnDefinition;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
@@ -33,7 +33,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.TableConstants;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.TableUtils;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -53,12 +53,12 @@ import java.util.List;
 public class BMirrorTable extends BTable {
     private SQLDatasource datasource;
     private String tableName;
-    private StructInfo timeStructInfo;
-    private StructInfo timeZoneStructInfo;
+    private StructureTypeInfo timeStructInfo;
+    private StructureTypeInfo timeZoneStructInfo;
     private Calendar utcCalendar;
 
-    public BMirrorTable(SQLDatasource datasource, String tableName, BStructType constraintType,
-            StructInfo timeStructInfo, StructInfo timeZoneStructInfo, Calendar utcCalendar) {
+    public BMirrorTable(SQLDatasource datasource, String tableName, BStructureType constraintType,
+                        StructureTypeInfo timeStructInfo, StructureTypeInfo timeZoneStructInfo, Calendar utcCalendar) {
         super(tableName, constraintType);
         this.datasource = datasource;
         this.tableName = tableName;

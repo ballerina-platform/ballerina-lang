@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.972.1-SNAPSHOT</version>
+    <version>0.973.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -171,6 +171,12 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mime</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-http</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -184,6 +190,12 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-transactions</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-transactions</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -228,13 +240,31 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-websub</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-jms</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-database</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-database</artifactId>
                 <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -311,6 +341,11 @@
             <dependency>
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>toml-parser</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>stdlib-compile</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
 
@@ -788,6 +823,12 @@
                 <artifactId>ballerina-grpc</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-grpc</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
 
             <!-- Siddhi Stream Dependencies -->
             <dependency>
@@ -973,6 +1014,31 @@
                 <groupId>com.github.chewiebug</groupId>
                 <artifactId>gcviewer</artifactId>
                 <version>${chewiebug.gcviewer.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>${testcontainers.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>mysql</artifactId>
+                <version>${testcontainers.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -1522,7 +1588,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.972.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.973.1-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
@@ -1538,14 +1604,14 @@
 
 
 
-        <testng.version>6.9.4</testng.version>
+        <testng.version>6.13.1</testng.version>
         <commons.io.version>2.5</commons.io.version>
         <handlebars.version>4.0.6</handlebars.version>
         <osgi.api.version>6.0.0</osgi.api.version>
         <equinox.osgi.version>3.10.2.v20150203-1939</equinox.osgi.version>
         <equinox.osgi.services.version>3.4.0.v20140312-2051</equinox.osgi.services.version>
         <carbon.kernel.version>5.1.0</carbon.kernel.version>
-        <transport.http.version>6.0.183</transport.http.version>
+        <transport.http.version>6.0.184</transport.http.version>
         <carbon.messaging.version>2.3.7</carbon.messaging.version>
         <carbon.deployment.version>5.0.0</carbon.deployment.version>
         <carbon.config.version>2.1.2</carbon.config.version>
@@ -1574,6 +1640,9 @@
         <com.zaxxer.hikaricp.version>3.1.0</com.zaxxer.hikaricp.version>
         <hyperSQL.version>2.4.0</hyperSQL.version>
         <h2.version>1.4.197</h2.version>
+        <mysql.version>5.1.46</mysql.version>
+        <postgresql.version>42.2.1</postgresql.version>
+        <testcontainers.version>1.7.2</testcontainers.version>
         <gson.version>2.7</gson.version>
         <maven.wagon.ssh.version>2.10</maven.wagon.ssh.version>
         <lambdaj.version>2.3.3</lambdaj.version>
@@ -1635,7 +1704,7 @@
         <maven.scm.publish.plugin.version>1.1</maven.scm.publish.plugin.version>
         <maven.site.plugin.version>3.5</maven.site.plugin.version>
         <maven.source.plugin.version>3.0.0</maven.source.plugin.version>
-        <maven.surefire.plugin.version>2.19.1</maven.surefire.plugin.version>
+        <maven.surefire.plugin.version>2.21.0</maven.surefire.plugin.version>
         <maven.exec.plugin.version>1.6.0</maven.exec.plugin.version>
         <maven.replacer.plugin.version>1.5.3</maven.replacer.plugin.version>
 

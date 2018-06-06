@@ -94,7 +94,7 @@ public class RequestNativeFunctionSuccessTest {
         String resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "statements", "services", "nativeimpl",
                 "request");
-        result = BCompileUtil.compile(sourceRoot.resolve("in-request-native-function.bal").toString());
+        result = BCompileUtil.compileAndSetup(sourceRoot.resolve("in-request-native-function.bal").toString());
         serviceResult = BServiceUtil.setupProgramFile(this, sourceRoot.resolve("in-request-native-function.bal")
                 .toString());
     }
@@ -104,7 +104,7 @@ public class RequestNativeFunctionSuccessTest {
         BStruct inRequest = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp, reqStruct);
         BString contentType = new BString("application/x-custom-type+json");
         BValue[] inputArg = {inRequest, contentType};
-        BValue[] returnVals = BRunUtil.invoke(result, "testContentType", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testContentType", inputArg);
         Assert.assertNotNull(returnVals[0]);
         Assert.assertEquals(((BString) returnVals[0]).value(), "application/x-custom-type+json");
     }
@@ -117,7 +117,7 @@ public class RequestNativeFunctionSuccessTest {
         BString key = new BString(headerName);
         BString value = new BString(headerValue);
         BValue[] inputArg = {key, value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testAddHeader", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testAddHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -152,7 +152,7 @@ public class RequestNativeFunctionSuccessTest {
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetBinaryPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetBinaryPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), payload);
@@ -169,7 +169,7 @@ public class RequestNativeFunctionSuccessTest {
         inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
 
         BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetContentLength", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetContentLength", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(payload.length(), ((BInteger) returnVals[0]).intValue());
@@ -208,7 +208,7 @@ public class RequestNativeFunctionSuccessTest {
 
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
         BValue[] inputArg = {inRequest, key};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetHeader", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetHeader", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), APPLICATION_FORM);
@@ -242,7 +242,7 @@ public class RequestNativeFunctionSuccessTest {
 
         BString key = new BString("test-header");
         BValue[] inputArg = {inRequest, key};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetHeaders", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetHeaders", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(((BStringArray) returnVals[0]).get(0), APPLICATION_FORM);
@@ -259,7 +259,7 @@ public class RequestNativeFunctionSuccessTest {
         inRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
         BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetJsonPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetJsonPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(((BJSON) returnVals[0]).value().get("code").asText(), "123");
@@ -292,7 +292,7 @@ public class RequestNativeFunctionSuccessTest {
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetTextPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetTextPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(returnVals[0].stringValue(), payload);
@@ -323,7 +323,7 @@ public class RequestNativeFunctionSuccessTest {
         inRequest.addNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET, true);
 
         BValue[] inputArg = {inRequest};
-        BValue[] returnVals = BRunUtil.invoke(result, "testGetXmlPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testGetXmlPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertEquals(((BXML) returnVals[0]).getTextValue().stringValue(), "ballerina");
@@ -402,7 +402,7 @@ public class RequestNativeFunctionSuccessTest {
         BString key = new BString(headerName);
         BString value = new BString(headerValue);
         BValue[] inputArg = {key, value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetHeader", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testSetHeader", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -420,7 +420,7 @@ public class RequestNativeFunctionSuccessTest {
         BString key = new BString(headerName);
         BString value = new BString(headerValue);
         BValue[] inputArg = {key, value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetHeader", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testSetHeader", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -447,7 +447,7 @@ public class RequestNativeFunctionSuccessTest {
     public void testSetJsonPayload() {
         BJSON value = new BJSON("{'name':'wso2'}");
         BValue[] inputArg = {value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetJsonPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testSetJsonPayload", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -472,7 +472,7 @@ public class RequestNativeFunctionSuccessTest {
     public void testSetStringPayload() {
         BString value = new BString("Ballerina");
         BValue[] inputArg = {value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetStringPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testSetStringPayload", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -498,7 +498,7 @@ public class RequestNativeFunctionSuccessTest {
     public void testSetXmlPayload() {
         BXMLItem value = new BXMLItem("<name>Ballerina</name>");
         BValue[] inputArg = {value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetXmlPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testSetXmlPayload", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -549,7 +549,7 @@ public class RequestNativeFunctionSuccessTest {
     public void testSetBinaryPayload() {
         BBlob value = new BBlob("Ballerina".getBytes());
         BValue[] inputArg = {value};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetBinaryPayload", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testSetBinaryPayload", inputArg);
 
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
@@ -569,7 +569,7 @@ public class RequestNativeFunctionSuccessTest {
         bufferedWriter.close();
 
         BValue[] inputArg = {new BString(file.getAbsolutePath()), new BString(APPLICATION_JSON)};
-        BValue[] returnVals = BRunUtil.invoke(result, "testSetEntityBody", inputArg);
+        BValue[] returnVals = BRunUtil.invokeStateful(result, "testSetEntityBody", inputArg);
         Assert.assertFalse(returnVals == null || returnVals.length == 0 || returnVals[0] == null,
                 "Invalid Return Values.");
         Assert.assertTrue(returnVals[0] instanceof BStruct);
@@ -588,7 +588,7 @@ public class RequestNativeFunctionSuccessTest {
     public void testSetPayloadAndGetText() {
         BString textContent = new BString("Hello Ballerina !");
         BValue[] args = {textContent};
-        BValue[] returns = BRunUtil.invoke(result, "testSetPayloadAndGetText", args);
+        BValue[] returns = BRunUtil.invokeStateful(result, "testSetPayloadAndGetText", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), textContent.stringValue());
     }
