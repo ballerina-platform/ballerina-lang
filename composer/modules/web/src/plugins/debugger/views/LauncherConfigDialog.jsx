@@ -35,7 +35,7 @@ class LauncherConfigDialog extends React.Component {
         this.state = {
             error: '',
             showDialog: true,
-            configArguments: this.props.configArguments.join(''),
+            configArguments: this.props.configArguments.join(' '),
         };
         this.onDialogHide = this.onDialogHide.bind(this);
         this.onSave = this.onSave.bind(this);
