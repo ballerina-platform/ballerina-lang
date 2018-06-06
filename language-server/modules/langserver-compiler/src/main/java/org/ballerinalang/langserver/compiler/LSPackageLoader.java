@@ -97,10 +97,10 @@ public class LSPackageLoader {
      */
     public static BPackageSymbol getPackageSymbolById(CompilerContext context, PackageID packageID) {
         BPackageSymbol packageSymbol;
-            synchronized (LSPackageLoader.class) {
-                PackageLoader pkgLoader = PackageLoader.getInstance(context);
-                packageSymbol = pkgLoader.loadPackageSymbol(packageID, null);
-            }
+        synchronized (LSPackageLoader.class) {
+            PackageLoader pkgLoader = PackageLoader.getInstance(context);
+            packageSymbol = pkgLoader.loadPackageSymbol(packageID, null);
+        }
         return packageSymbol;
     }
 
