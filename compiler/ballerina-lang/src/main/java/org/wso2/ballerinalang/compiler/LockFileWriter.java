@@ -29,7 +29,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 public class LockFileWriter {
     private static final CompilerContext.Key<LockFileWriter> LOCK_FILE_WRITER_KEY = new CompilerContext.Key<>();
     private final SourceDirectory sourceDirectory;
-    private Map<PackageID, LockFilePackage> ballerinaLockPackages = new HashMap<>();
+    private Map<PackageID, LockFilePackage> ballerinaLockPackages = new LinkedHashMap<>();
     private List<String> entryPackages = new ArrayList<>();
 
     /**
