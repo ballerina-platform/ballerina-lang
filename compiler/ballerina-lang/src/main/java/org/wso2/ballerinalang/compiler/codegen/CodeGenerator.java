@@ -1003,18 +1003,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
             int opCode = binaryExpr.opSymbol.opcode;
             if (opCode == InstructionCodes.INT_RANGE) {
-                RegIndex endValRegIndex = binaryExpr.rhsExpr.regIndex;
-                if (OperatorKind.HALF_OPEN_RANGE.equals(binaryExpr.opKind)) {
-                    endValRegIndex = getRegIndex(TypeTags.INT);
-                    RegIndex constOneRegIndex = getRegIndex(TypeTags.INT);
-                    emit(InstructionCodes.ICONST_1, constOneRegIndex);
-                    emit(InstructionCodes.ISUB, binaryExpr.rhsExpr.regIndex, constOneRegIndex, endValRegIndex);
-                }
                 if (binaryExpr.parent instanceof BLangForeach) {
                     // Avoid creating an array if the range is only used in a foreach statement
-                    emit(InstructionCodes.NEW_INT_RANGE, binaryExpr.lhsExpr.regIndex, endValRegIndex, regIndex);
+                    emit(InstructionCodes.NEW_INT_RANGE, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex,
+                         regIndex);
                 } else {
-                    emit(opCode, binaryExpr.lhsExpr.regIndex, endValRegIndex, regIndex);
+                    emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
                 }
             } else {
                 emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
@@ -2995,22 +2989,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(endExpr, env);
         rangeExpr.regIndex = calcAndGetExprRegIndex(rangeExpr);
 
-        RegIndex startExprRegIndex = startExpr.regIndex;
-        RegIndex endExprRegIndex = endExpr.regIndex;
-
-        if (!rangeExpr.includeStart || !rangeExpr.includeEnd) {
-            RegIndex const1RegIndex = getRegIndex(TypeTags.INT);
-            emit(InstructionCodes.ICONST_1, const1RegIndex);
-            if (!rangeExpr.includeStart) {
-                startExprRegIndex = getRegIndex(TypeTags.INT);
-                emit(InstructionCodes.IADD, startExpr.regIndex, const1RegIndex, startExprRegIndex);
-            }
-            if (!rangeExpr.includeEnd) {
-                endExprRegIndex = getRegIndex(TypeTags.INT);
-                emit(InstructionCodes.ISUB, endExpr.regIndex, const1RegIndex, endExprRegIndex);
-            }
-        }
-        emit(InstructionCodes.NEW_INT_RANGE, startExprRegIndex, endExprRegIndex, rangeExpr.regIndex);
+        emit(InstructionCodes.NEW_INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
     }
 
     // private helper methods of visitors.

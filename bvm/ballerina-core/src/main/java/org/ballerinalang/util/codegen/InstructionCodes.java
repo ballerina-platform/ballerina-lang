@@ -139,8 +139,6 @@ public interface InstructionCodes {
     int ILE = 111;
     int FLE = 112;
 
-    int INT_RANGE = 223;
-
     int REQ_NULL = 113;
     int RNE_NULL = 114;
 
@@ -261,6 +259,7 @@ public interface InstructionCodes {
     int ITR_NEW = 220;
     int ITR_HAS_NEXT = 221;
     int ITR_NEXT = 222;
+    int INT_RANGE = 223;
 
     int IRET = 229;
     int FRET = 230;
