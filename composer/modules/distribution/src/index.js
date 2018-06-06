@@ -40,14 +40,20 @@ let win,
     logger = new log('info'),
     appDir = app.getAppPath(),
     logsDir = path.join(os.homedir(),'.composer', 'logs'),
-    balHome = path.join(appDir, '..', '..', '..', '..', '..', '..', '..')
-                    .replace('app.asar', 'app.asar.unpacked'),
-    composerHome = path.join(balHome, 'lib', 'resources', 'composer')
+    balHome = path.join(appDir, '..', '..', '..', '..', '..', '..')
+                    .replace('app.asar', 'app.asar.unpacked');
+
+balHome = process.platform === 'darwin' ? path.join(balHome, '..') : balHome;
+
+ let composerHome = path.join(balHome, 'lib', 'resources', 'composer')
     composerPublicPath = path.join(composerHome, 'web', 'app'),
     pageURL = `file://${composerPublicPath}/index.html`,
     javaHome = path.join(balHome, 'bre', 'lib', 'jre1.8.0_172')
     javaExec = path.join(javaHome, 'bin', 'java');
 
+if (process.platform == 'win32') {
+    javaExec += '.exe';
+}
 
 let  openFilePath = '';
 
@@ -65,7 +71,12 @@ function startServer(){
     let executable = javaExec,
         args = [],
         errorWin,
-        options = {},
+        options = {
+            env: {
+                BALLERINA_HOME: balHome,
+                JAVA_HOME: javaHome
+            }
+        },
         classpath = '';
     if (process.platform === 'win32') {
         options.windowsHide = true;
@@ -196,6 +207,7 @@ app.on('ready', () => {
         splashWin = null;
     });
     createLogger();
+    logger.info('Using ' + appDir + ' as the app directory.');
     logger.info('verifying availability of java runtime in path');
     checkJava((error, message) => {
         if (!error) {
