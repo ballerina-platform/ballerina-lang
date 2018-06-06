@@ -26,7 +26,6 @@ import org.ballerinalang.langserver.completions.resolvers.BLangRecordContextReso
 import org.ballerinalang.langserver.completions.resolvers.BLangRecordLiteralContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.BlockStatementContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ConnectorActionContextResolver;
-import org.ballerinalang.langserver.completions.resolvers.ConnectorDefinitionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.DefaultResolver;
 import org.ballerinalang.langserver.completions.resolvers.FunctionContextResolver;
 import org.ballerinalang.langserver.completions.resolvers.ObjectTypeContextResolver;
@@ -56,7 +55,6 @@ import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRu
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
@@ -102,8 +100,6 @@ public enum CompletionItemResolver {
             new ServiceContextResolver()),
     RESOURCE_CONTEXT(BLangResource.class,
             new ResourceContextResolver()),
-    CONNECTOR_DEF_CONTEXT(BLangConnector.class,
-            new ConnectorDefinitionContextResolver()),
     ACTION_DEF_CONTEXT(BLangAction.class,
             new ConnectorActionContextResolver()),
     BLANG_ENDPOINT_CONTEXT(BLangEndpoint.class,

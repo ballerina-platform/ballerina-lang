@@ -36,6 +36,9 @@ import org.testng.annotations.Test;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for Snapshot output rate limiting.
+ */
 public class SnapshotOutputRateLimitTestCase {
     private static final Logger log = LoggerFactory.getLogger(SnapshotOutputRateLimitTestCase.class);
     private volatile AtomicInteger count;

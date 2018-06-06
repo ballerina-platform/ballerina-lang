@@ -28,6 +28,9 @@ import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for stream joins.
+ */
 public class JoinQueryTestCase {
 
     @Test

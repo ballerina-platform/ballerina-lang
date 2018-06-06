@@ -65,7 +65,7 @@ public class DistinctCountAttributeAggregator extends AttributeAggregator {
     private Map<Object, Long> distinctValues = new HashMap<Object, Long>();
 
     /**
-     * The initialization method for FunctionExecutor
+     * The initialization method for FunctionExecutor.
      *
      * @param attributeExpressionExecutors are the executors of each attributes in the function
      * @param configReader                 this hold the {@link DistinctCountAttributeAggregator} configuration reader.

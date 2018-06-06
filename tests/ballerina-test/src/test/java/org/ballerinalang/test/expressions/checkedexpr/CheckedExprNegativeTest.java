@@ -24,7 +24,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * This class contains a set of negative test cases related to the checked operator
+ * This class contains a set of negative test cases related to the checked operator.
  */
 public class CheckedExprNegativeTest {
 

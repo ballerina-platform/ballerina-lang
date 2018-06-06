@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
@@ -241,43 +240,6 @@ public class CommandUtil {
         DiagnosticPos endpointPos = CommonUtil.toZeroBasedPosition(bLangEndpoint.getPosition());
 
         return new DocAttachmentInfo(getDocumentationAttachment(null, endpointPos.getStartColumn()), replaceFrom);
-    }
-
-    /**
-     * Get the Documentation attachment for the transformer.
-     * @param bLangPackage      BLangPackage built
-     * @param line              Start line of the transformer in the source
-     * @return {@link DocAttachmentInfo}   Documentation attachment for the transformer
-     */
-    static DocAttachmentInfo getTransformerDocumentationByPosition(BLangPackage bLangPackage, int line) {
-        for (TopLevelNode topLevelNode : bLangPackage.topLevelNodes) {
-            if (topLevelNode instanceof BLangTransformer) {
-                BLangTransformer transformerNode = (BLangTransformer) topLevelNode;
-                DiagnosticPos transformerPos = CommonUtil.toZeroBasedPosition(transformerNode.getPosition());
-                int transformerStart = transformerPos.getStartLine();
-                if (transformerStart == line) {
-                    return getTransformerNodeDocumentation(transformerNode, line);
-                }
-            }
-        }
-
-        return null;
-    }
-
-    static DocAttachmentInfo getTransformerNodeDocumentation(BLangTransformer bLangTransformer,
-                                                                     int replaceFrom) {
-        List<String> attributes = new ArrayList<>();
-        DiagnosticPos transformerPos = CommonUtil.toZeroBasedPosition(bLangTransformer.getPosition());
-        int offset = transformerPos.getStartColumn();
-
-        attributes.add(getDocAttributeFromBLangVariable(bLangTransformer.source, offset));
-        bLangTransformer.retParams.forEach(bLangVariable ->
-                attributes.add(getDocAttributeFromBLangVariable(bLangVariable, offset)));
-        bLangTransformer.requiredParams.forEach(bLangVariable ->
-                attributes.add(getDocAttributeFromBLangVariable(bLangVariable, offset)));
-
-        return new DocAttachmentInfo(getDocumentationAttachment(attributes, transformerPos.getStartColumn()),
-                replaceFrom);
     }
 
     /**

@@ -26,7 +26,7 @@ import javax.jms.ExceptionListener;
 import javax.jms.JMSException;
 
 /**
- * Logging exception listener class for JMS {@link javax.jms.Connection}
+ * Logging exception listener class for JMS {@link javax.jms.Connection}.
  */
 public class LoggingExceptionListener implements ExceptionListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(LoggingExceptionListener.class);

@@ -31,7 +31,6 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.nio.file.Path;
@@ -88,29 +87,6 @@ public class DefinitionUtil {
             case ContextConstants.TYPE_DEF:
                 bLangNode = bLangPackage.typeDefinitions.stream()
                         .filter(typeDef -> typeDef.name.getValue()
-                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                break;
-            case ContextConstants.CONNECTOR:
-                bLangNode = bLangPackage.connectors.stream()
-                        .filter(bConnector -> bConnector.name.getValue()
-                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                break;
-            case ContextConstants.ACTION:
-                bLangNode = bLangPackage.connectors.stream()
-                        .filter(bConnector -> bConnector.name.getValue()
-                                .equals(((BLangInvocation) definitionContext
-                                        .get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY))
-                                        .symbol.owner.name.getValue()))
-                        .flatMap(connector -> connector.actions.stream())
-                        .filter(bAction -> bAction.name.getValue()
-                                .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                break;
-            case ContextConstants.TRANSFORMER:
-                bLangNode = bLangPackage.transformers.stream()
-                        .filter(bTransformer -> bTransformer.name.getValue()
                                 .equals(definitionContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
                         .findAny().orElse(null);
                 break;

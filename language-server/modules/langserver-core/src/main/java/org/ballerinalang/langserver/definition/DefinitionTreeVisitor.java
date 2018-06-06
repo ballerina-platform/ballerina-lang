@@ -25,14 +25,12 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -169,24 +167,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
 
             if (resourceNode.body != null) {
                 this.acceptNode(resourceNode.body);
-            }
-        }
-    }
-
-    @Override
-    public void visit(BLangConnector connectorNode) {
-        if (connectorNode.name.getValue()
-                .equals(this.context.get(NodeContextKeys.NODE_OWNER_KEY))) {
-            if (connectorNode.params != null) {
-                connectorNode.params.forEach(this::acceptNode);
-            }
-
-            if (connectorNode.varDefs != null) {
-                connectorNode.varDefs.forEach(this::acceptNode);
-            }
-
-            if (connectorNode.actions != null) {
-                connectorNode.actions.forEach(this::acceptNode);
             }
         }
     }
@@ -337,29 +317,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         if (bLangLambdaFunction.function != null) {
             this.acceptNode(bLangLambdaFunction.function);
-        }
-    }
-
-    @Override
-    public void visit(BLangTransformer transformerNode) {
-        if (transformerNode.source != null) {
-            acceptNode(transformerNode.source);
-        }
-
-        if (transformerNode.requiredParams != null) {
-            transformerNode.requiredParams.forEach(this::acceptNode);
-        }
-
-        if (transformerNode.retParams != null) {
-            transformerNode.retParams.forEach(this::acceptNode);
-        }
-
-        if (transformerNode.body != null) {
-            acceptNode(transformerNode.body);
-        }
-
-        if (transformerNode.workers != null) {
-            transformerNode.workers.forEach(this::acceptNode);
         }
     }
 

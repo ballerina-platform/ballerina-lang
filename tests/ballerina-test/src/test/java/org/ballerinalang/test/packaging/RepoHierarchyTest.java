@@ -26,6 +26,9 @@ import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.packaging.RepoHierarchyBuilder.node;
 
+/**
+ * Testcase to validate repo hierarchy.
+ */
 public class RepoHierarchyTest {
 
     private Path tempFile;

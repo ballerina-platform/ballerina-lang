@@ -63,7 +63,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangTransformerInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -175,10 +174,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangConnector connectorNode) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangAction actionNode) {
         throw new AssertionError();
     }
@@ -229,10 +224,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangTransformer transformerNode) {
         throw new AssertionError();
     }
 
@@ -710,10 +701,6 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
-        throw new AssertionError();
-    }
-
-    public void visit(BLangTransformerInvocation iExpr) {
         throw new AssertionError();
     }
 

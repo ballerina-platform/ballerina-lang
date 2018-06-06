@@ -26,6 +26,9 @@ import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for validating partition queries.
+ */
 public class PartitionQueryTestCase {
 
 //    from StockStream[ 7+9.5>price AND 100>=volume]

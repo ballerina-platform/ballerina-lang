@@ -83,7 +83,7 @@ class TracersStore {
     }
 
     /**
-     * Return trace implementations for a specific service
+     * Return trace implementations for a specific service.
      *
      * @param serviceName name of service of whose trace implementations are needed
      * @return trace implementations i.e: zipkin, jaeger
