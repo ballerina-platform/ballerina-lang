@@ -50,7 +50,7 @@ function testQuery() {
 
     forever {
         from employeeStream
-        where employeeStream.age > 30
+        where employeeStream.age > 30 && employeeStream.status == "single"
         select employeeStream.name, employeeStream.age, employeeStream.status, employeeStream.batch, employeeStream.school
         => (Teacher emp) {
             outputEmployeeStream.publish(emp);

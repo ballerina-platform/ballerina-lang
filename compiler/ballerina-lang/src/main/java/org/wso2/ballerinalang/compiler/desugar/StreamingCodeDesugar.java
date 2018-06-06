@@ -154,34 +154,92 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         }
     }
 
+
     @Override
     public void visit(BLangWhere where) {
 
         //Create IF Clause
-
         ifNode = ASTBuilderUtil.createIfStmt(where.pos, funcNode.body);
-        final BLangBinaryExpr equality = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
-        equality.pos = where.pos;
-        equality.type = symTable.booleanType;
-        equality.opKind = ((BLangBinaryExpr) where.getExpression()).getOperatorKind();
-        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(where.pos, (funcNode).requiredParams.get(0).symbol);
-        equality.lhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
-                ((BLangFieldBasedAccess) ((BLangBinaryExpr) where.getExpression()).lhsExpr).field);
-        ((BLangFieldBasedAccess) equality.lhsExpr).symbol = ((BLangFieldBasedAccess) ((BLangBinaryExpr) where.
-                getExpression()).lhsExpr).symbol;
-
-        if (((BLangBinaryExpr) where.getExpression()).rhsExpr instanceof BLangLiteral) {
-            equality.rhsExpr = ((BLangBinaryExpr) where.getExpression()).rhsExpr;
-        } else {
-            equality.rhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
-                    ((BLangFieldBasedAccess) ((BLangBinaryExpr) where.getExpression()).rhsExpr).field);
-        }
-
-        ((BLangFieldBasedAccess) equality.lhsExpr).type = equality.rhsExpr.type;
-        equality.opSymbol = ((BLangBinaryExpr) where.getExpression()).opSymbol;
-        ifNode.expr = equality;
+        ifNode.expr = getBinaryExpr((BLangBinaryExpr) where.getExpression());
         ifNode.body = ASTBuilderUtil.createBlockStmt(where.pos);
     }
+
+    public BLangBinaryExpr getBinaryExpr(BLangBinaryExpr binaryExpr) {
+        final BLangBinaryExpr equality = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+        equality.pos = binaryExpr.pos;
+        equality.type = symTable.booleanType;
+        equality.opKind = (binaryExpr).getOperatorKind();
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, (funcNode).requiredParams.get(0).symbol);
+
+        if (binaryExpr.getLeftExpression() instanceof BLangBinaryExpr) {
+            equality.lhsExpr = getBinaryExpr((BLangBinaryExpr) binaryExpr.getLeftExpression());
+        } else {
+            equality.lhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
+                    ((BLangFieldBasedAccess) (binaryExpr).lhsExpr).field);
+            ((BLangFieldBasedAccess) equality.lhsExpr).symbol = ((BLangFieldBasedAccess) (binaryExpr).lhsExpr).symbol;
+            ((BLangFieldBasedAccess) equality.lhsExpr).type = binaryExpr.rhsExpr.type;
+        }
+
+        if (binaryExpr.getRightExpression() instanceof BLangBinaryExpr) {
+            equality.rhsExpr = getBinaryExpr((BLangBinaryExpr) binaryExpr.getRightExpression());
+        } else {
+
+            if ((binaryExpr).rhsExpr instanceof BLangLiteral) {
+                equality.rhsExpr = (binaryExpr).rhsExpr;
+            } else {
+                equality.rhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
+                        ((BLangFieldBasedAccess) (binaryExpr).rhsExpr).field);
+            }
+        }
+        equality.opSymbol = (binaryExpr).opSymbol;
+
+        return equality;
+    }
+
+
+
+
+
+//    @Override
+//    public void visit(BLangWhere where) {
+//
+//        //Create IF Clause
+//        ifNode = ASTBuilderUtil.createIfStmt(where.pos, funcNode.body);
+//        ifNode.expr = getBinaryExpr((BLangBinaryExpr) where.getExpression());
+//        ifNode.body = ASTBuilderUtil.createBlockStmt(where.pos);
+//    }
+//
+//    public BLangBinaryExpr getBinaryExpr(BLangBinaryExpr binaryExpr) {
+//        final BLangBinaryExpr equality = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
+//        equality.pos = binaryExpr.pos;
+//        equality.type = symTable.booleanType;
+//        equality.opKind = (binaryExpr).getOperatorKind();
+//        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(binaryExpr.pos, (funcNode).requiredParams.get(0).symbol);
+//
+//        if (binaryExpr.getLeftExpression() instanceof BLangBinaryExpr) {
+//            equality.lhsExpr = getBinaryExpr((BLangBinaryExpr) binaryExpr.getLeftExpression());
+//        } else {
+//            equality.lhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
+//                    ((BLangFieldBasedAccess) (binaryExpr).lhsExpr).field);
+//            ((BLangFieldBasedAccess) equality.lhsExpr).symbol = ((BLangFieldBasedAccess) (binaryExpr).lhsExpr).symbol;
+//            ((BLangFieldBasedAccess) equality.lhsExpr).type = binaryExpr.rhsExpr.type;
+//        }
+//
+//        if (binaryExpr.getRightExpression() instanceof BLangBinaryExpr) {
+//            equality.rhsExpr = getBinaryExpr((BLangBinaryExpr) binaryExpr.getRightExpression());
+//        } else {
+//
+//            if ((binaryExpr).rhsExpr instanceof BLangLiteral) {
+//                equality.rhsExpr = (binaryExpr).rhsExpr;
+//            } else {
+//                equality.rhsExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
+//                        ((BLangFieldBasedAccess) (binaryExpr).rhsExpr).field);
+//            }
+//        }
+//        equality.opSymbol = (binaryExpr).opSymbol;
+//
+//        return equality;
+//    }
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
