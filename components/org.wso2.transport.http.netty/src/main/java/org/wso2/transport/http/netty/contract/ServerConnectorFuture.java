@@ -21,6 +21,7 @@ package org.wso2.transport.http.netty.contract;
 
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
@@ -114,10 +115,11 @@ public interface ServerConnectorFuture {
     /**
      * Notify any error occurred in transport for the listener.
      *
+     * @param webSocketConnection {@link WebSocketConnection} which causes the error.
      * @param throwable {@link Throwable} error occurred.
      * @throws ServerConnectorException if any error occurred during the notification.
      */
-    void notifyWSListener(Throwable throwable) throws ServerConnectorException;
+    void notifyWSListener(WebSocketConnection webSocketConnection, Throwable throwable) throws ServerConnectorException;
 
     /**
      * Notify idle timeout of WebSocket connection.

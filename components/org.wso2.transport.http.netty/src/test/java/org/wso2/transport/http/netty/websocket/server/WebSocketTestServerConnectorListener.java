@@ -35,7 +35,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 /**
  * WebSocket test class for WebSocket Connector Listener.
@@ -48,9 +47,9 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     private static final String CLOSE_FORCEFULLY = "close-forcefully";
     private static final String CLOSE_AND_WAIT = "send-and-wait";
     private CountDownLatch returnFutureLatch;
-    private CountDownLatch closeDoneLatch;
+    private CountDownLatch methodDoneLatch;
     private ChannelFuture closeFuture;
-
+    private Throwable currentError;
 
 
     public WebSocketTestServerConnectorListener() {
@@ -67,33 +66,29 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         return closeFuture;
     }
 
-    public void setCloseDoneLatch(CountDownLatch closeDoneLatch) {
-        this.closeDoneLatch = closeDoneLatch;
+    public Throwable getCurrentError() {
+        return currentError;
+    }
+
+    public void setMethodDoneLatch(CountDownLatch methodDoneLatch) {
+        this.methodDoneLatch = methodDoneLatch;
     }
 
     @Override
     public void onMessage(WebSocketInitMessage initMessage) {
         ServerHandshakeFuture future = initMessage.handshake(null, true, 3000);
-        CountDownLatch countDownLatch = new CountDownLatch(1);
         future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
                 webSocketConnection.startReadingFrames();
-                countDownLatch.countDown();
             }
 
             @Override
             public void onError(Throwable throwable) {
                 log.error(throwable.getMessage());
                 Assert.fail("Error: " + throwable.getMessage());
-                countDownLatch.countDown();
             }
         });
-        try {
-            countDownLatch.await(10, TimeUnit.SECONDS);
-        } catch (InterruptedException err) {
-            log.error(err.getMessage(), err);
-        }
     }
 
     @Override
@@ -133,7 +128,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
             webSocketConnection.pong(controlMessage.getPayload()).addListener(future -> {
                 if (!future.isSuccess()) {
                     Assert.fail("Could not send the message. "
-                                        + future.cause().getMessage());
+                            + future.cause().getMessage());
                 }
             });
         }
@@ -141,10 +136,13 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketCloseMessage closeMessage) {
+        log.info("Close frame received: " + closeMessage.getCloseCode() + " , " + closeMessage.getCloseReason());
+        closeMessage.getWebSocketConnection().finishConnectionClosure(closeMessage.getCloseCode(),
+                closeMessage.getCloseReason());
     }
 
     @Override
-    public void onError(Throwable throwable) {
+    public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
         handleError(throwable);
     }
 
@@ -153,17 +151,19 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
         ChannelFuture channelFuture = webSocketConnection.initiateConnectionClosure(1001, "Connection timeout");
         channelFuture.addListener(future -> {
-           if (!future.isSuccess()) {
-               log.error("Error occurred while closing the connection: " + future.cause().getMessage());
-           }
-           if (channelFuture.channel().isOpen()) {
-               channelFuture.channel().close();
-           }
+            if (!future.isSuccess()) {
+                log.error("Error occurred while closing the connection: " + future.cause().getMessage());
+            }
+            if (channelFuture.channel().isOpen()) {
+                channelFuture.channel().close();
+            }
         });
     }
 
     private void handleError(Throwable throwable) {
         log.error(throwable.getMessage());
+        currentError = throwable;
+        countDownMethodDoneLatch();
     }
 
     private void handleCloseFuture(CountDownLatch returnFutureLatch, ChannelFuture closeFuture) {
@@ -181,10 +181,14 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
             if (closeFuture.channel().isOpen()) {
                 closeFuture.channel().close().sync();
             }
-            if (closeDoneLatch != null) {
-                closeDoneLatch.countDown();
-            }
+            countDownMethodDoneLatch();
         });
+    }
+
+    private void countDownMethodDoneLatch() {
+        if (methodDoneLatch != null) {
+            methodDoneLatch.countDown();
+        }
     }
 
 }

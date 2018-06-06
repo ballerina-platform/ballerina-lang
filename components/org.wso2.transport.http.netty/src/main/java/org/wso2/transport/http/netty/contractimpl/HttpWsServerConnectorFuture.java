@@ -27,6 +27,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
@@ -140,11 +141,12 @@ public class HttpWsServerConnectorFuture implements ServerConnectorFuture {
     }
 
     @Override
-    public void notifyWSListener(Throwable throwable) throws ServerConnectorException {
+    public void notifyWSListener(WebSocketConnection webSocketConnection, Throwable throwable)
+            throws ServerConnectorException {
         if (wsConnectorListener == null) {
             throw new ServerConnectorException("WebSocket connector listener is not set");
         }
-        wsConnectorListener.onError(throwable);
+        wsConnectorListener.onError(webSocketConnection, throwable);
     }
 
     @Override

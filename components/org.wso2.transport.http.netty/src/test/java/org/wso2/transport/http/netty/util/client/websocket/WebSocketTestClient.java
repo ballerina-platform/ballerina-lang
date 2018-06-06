@@ -189,6 +189,21 @@ public class WebSocketTestClient {
     }
 
     /**
+     * Send last HTTP content.
+     *
+     * @return this {@link WebSocketTestClient}.
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public WebSocketTestClient sendCorruptedFrame() throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        channel.writeAndFlush(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4})).sync();
+        return this;
+    }
+
+    /**
      * @return the text received from the server.
      */
     public String getTextReceived() {
