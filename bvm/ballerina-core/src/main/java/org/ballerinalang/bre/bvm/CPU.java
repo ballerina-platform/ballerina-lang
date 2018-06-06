@@ -79,7 +79,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
-import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -411,14 +410,6 @@ public class CPU {
                         InstructionVCALL vcallIns = (InstructionVCALL) instruction;
                         ctx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
                                 vcallIns.argRegs, vcallIns.retRegs, vcallIns.flags);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.TCALL:
-                        InstructionTCALL tcallIns = (InstructionTCALL) instruction;
-                        ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
-                                tcallIns.retRegs, false, tcallIns.flags);
                         if (ctx == null) {
                             return;
                         }

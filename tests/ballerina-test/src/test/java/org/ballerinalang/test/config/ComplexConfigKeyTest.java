@@ -31,6 +31,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Testcase for complex key configuration.
+ */
 public class ComplexConfigKeyTest {
     private static final String COMPLEX_BALLERINA_CONF = "complex-key-ballerina.conf";
     private CompileResult compileResult;

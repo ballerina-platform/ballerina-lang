@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -52,7 +51,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -338,17 +336,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangConnector connectorNode) {
-        BSymbol connectorSymbol = connectorNode.symbol;
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
-        attachTaintTableBasedOnAnnotations(connectorNode);
-        connectorNode.varDefs.forEach(var -> var.accept(this));
-        analyzeNode(connectorNode.initFunction, connectorEnv);
-        analyzeNode(connectorNode.initAction, connectorEnv);
-        connectorNode.actions.forEach(action -> analyzeNode(action, connectorEnv));
-    }
-
-    @Override
     public void visit(BLangAction actionNode) {
         BSymbol actionSymbol = actionNode.symbol;
         SymbolEnv actionEnv = SymbolEnv.createResourceActionSymbolEnv(actionNode, actionSymbol.scope, env);
@@ -437,12 +424,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
         /* ignore */
-    }
-
-    @Override
-    public void visit(BLangTransformer transformerNode) {
-        SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, env);
-        visitInvokable(transformerNode, transformerEnv);
     }
 
     @Override
@@ -1300,11 +1281,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangInvocation.BLangTransformerInvocation iExpr) {
-        /* ignore */
-    }
-
-    @Override
     public void visit(BLangArrayLiteral.BLangJSONArrayLiteral jsonArrayLiteral) {
         /* ignore */
     }
@@ -1633,26 +1609,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 }
             }
             invokableNode.symbol.taintTable = taintTable;
-        }
-    }
-
-    private void attachTaintTableBasedOnAnnotations(BLangConnector connectorNode) {
-        if (connectorNode.symbol.taintTable == null) {
-            List<Boolean> retParamsTaintedStatus = new ArrayList<>();
-            Map<Integer, TaintRecord> taintTable = new HashMap<>();
-            taintTable.put(ALL_UNTAINTED_TABLE_ENTRY_INDEX, new TaintRecord(retParamsTaintedStatus, null));
-            if (connectorNode.params.size() > 0) {
-                // Append taint table with tainted status when each parameter is tainted.
-                for (int paramIndex = 0; paramIndex < connectorNode.params.size(); paramIndex++) {
-                    BLangVariable param = connectorNode.params.get(paramIndex);
-                    // If parameter is sensitive, test for this parameter being tainted is invalid.
-                    if (hasAnnotation(param, ANNOTATION_SENSITIVE)) {
-                        continue;
-                    }
-                    taintTable.put(paramIndex, new TaintRecord(retParamsTaintedStatus, null));
-                }
-            }
-            connectorNode.symbol.taintTable = taintTable;
         }
     }
 

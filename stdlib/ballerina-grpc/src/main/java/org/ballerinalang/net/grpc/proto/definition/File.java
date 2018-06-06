@@ -100,7 +100,7 @@ public class File {
     }
     
     /**
-     * FieldDefinition.Builder
+     * FieldDefinition.Builder.
      */
     public static class Builder {
         

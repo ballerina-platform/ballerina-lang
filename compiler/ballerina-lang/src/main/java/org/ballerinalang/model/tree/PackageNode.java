@@ -46,10 +46,6 @@ public interface PackageNode extends Node {
 
     void addService(ServiceNode service);
 
-    List<? extends ConnectorNode> getConnectors();
-
-    void addConnector(ConnectorNode connector);
-
     List<? extends FunctionNode> getFunctions();
 
     void addFunction(FunctionNode function);
@@ -65,9 +61,5 @@ public interface PackageNode extends Node {
     List<? extends AnnotationNode> getAnnotations();
 
     void addAnnotation(AnnotationNode annotation);
-
-    List<? extends TransformerNode> getTransformers();
-
-    void addTransformer(TransformerNode transformer);
 
 }

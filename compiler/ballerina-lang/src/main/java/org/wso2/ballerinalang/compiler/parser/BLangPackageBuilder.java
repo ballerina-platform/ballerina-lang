@@ -1089,15 +1089,12 @@ public class BLangPackageBuilder {
         addExpressionNode(typeAccessExpr);
     }
 
-    void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean namedTransformer) {
+    void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
         typeConversionNode.addWS(ws);
         typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
         typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
-        if (namedTransformer) {
-            typeConversionNode.transformerInvocation = (BLangInvocation) exprNodeStack.pop();
-        }
         addExpressionNode(typeConversionNode);
     }
 

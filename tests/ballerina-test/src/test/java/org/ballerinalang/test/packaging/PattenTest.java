@@ -17,6 +17,9 @@ import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
+/**
+ * Packaging pattern testcase.
+ */
 public class PattenTest {
     private static <I> Converter<I> mockResolver(I start,
                                                  BiFunction<I, String, I> combine,
@@ -122,7 +125,7 @@ public class PattenTest {
     }
 
     /**
-     * Disabled because it fails in JVM 8
+     * Disabled because it fails in JVM 8.
      * See: https://bugs.openjdk.java.net/browse/JDK-8075939
      */
     @Test(enabled = false)
