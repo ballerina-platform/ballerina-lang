@@ -191,7 +191,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
-        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos, (funcNode).requiredParams.get(0).symbol);
+        BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos,
+                (funcNode).requiredParams.get(0).symbol);
         conditionalExpression = ASTBuilderUtil.createFieldAccessExpr(varRef,
                 fieldAccessExpr.field);
         ((BLangFieldBasedAccess) conditionalExpression).symbol = fieldAccessExpr.symbol;
@@ -207,7 +208,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
         for (int i = 0; i < bLangLambdaFunction.getFunctionNode().getBody().getStatements().size() - 1; i++) {
             StatementNode statementNode = bLangLambdaFunction.getFunctionNode().getBody().getStatements().get(i);
-            final BLangExpressionStmt exprStmt = ASTBuilderUtil.createExpressionStmt(bLangLambdaFunction.pos, ifNode.body);
+            final BLangExpressionStmt exprStmt = ASTBuilderUtil.
+                    createExpressionStmt(bLangLambdaFunction.pos, ifNode.body);
             exprStmt.expr = ((BLangExpressionStmt) statementNode).expr;
         }
     }
