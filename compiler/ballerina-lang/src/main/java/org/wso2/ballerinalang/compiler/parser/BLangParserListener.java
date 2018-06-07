@@ -1562,7 +1562,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        if (!(ctx.children.get(0) instanceof BallerinaParser.ReservedWordContext)) {
+        if (ctx.reservedWord() == null) {
             this.pkgBuilder.startInvocationNode(getWS(ctx));
         }
     }
