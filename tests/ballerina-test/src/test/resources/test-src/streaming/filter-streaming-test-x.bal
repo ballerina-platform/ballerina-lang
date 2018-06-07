@@ -16,8 +16,12 @@
 
 import ballerina/runtime;
 import ballerina/io;
+import ballerina/time;
+import ballerina/streams;
 
-type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET";
+type Avg {
+    float age;
+};
 
 type Teacher {
     string name;
@@ -27,45 +31,66 @@ type Teacher {
     string school;
 };
 
-type StreamEvent {
-    EventType eventType;
-    any eventObject;
-};
 
-type Window object {
-    private {
-        int counter;
-        int size;
-        any[] events = [];
-        stream outputStream;
-        EventType eventType = "ALL";
-    }
 
-    new(int s, stream str, EventType evType) {
-        size = s;
-        outputStream = str;
-        eventType = evType;
-    }
+//type TimeWindow object {
+//    private {
+//        int counter;
+//        int timeLength;
+//        Queue eventQueue;
+//    }
+//
+//    new(int timeLength) {
+//        self.timeLength = timeLength;
+//        self.eventQueue = new;
+//    }
+//
+//    public function startEventRemovalWorker() {
+//        if (!eventQueue.isEmpty()) {
+//            StreamEvent frontEvent = check <StreamEvent>eventQueue.peekFront();
+//            io:println(frontEvent);
+//            StreamEvent rearEvent = check <StreamEvent>eventQueue.peekRear();
+//            io:println(rearEvent);
+//            while (rearEvent.timestamp > frontEvent.timestamp + timeLength) {
+//                if (!eventQueue.isEmpty()) {
+//                    _ = eventQueue.dequeue();
+//                    StreamEvent frontEvent = check <StreamEvent>eventQueue.peekFront();
+//                    StreamEvent rearEvent = check <StreamEvent>eventQueue.peekRear();
+//                }
+//            }
+//        }
+//    }
+//
+//    public function add(StreamEvent event) {
+//        if (!eventQueue.isEmpty()) {
+//            StreamEvent rearEvent = check <StreamEvent>eventQueue.peekRear();
+//            if (rearEvent.timestamp <= event.timestamp) {
+//                eventQueue.enqueue(event);
+//            }
+//        } else {
+//            eventQueue.enqueue(event);
+//        }
+//    }
+//
+//    public function returnContent() returns StreamEvent[] {
+//        StreamEvent[] events = [];
+//        int i = 0;
+//        while (i < 10) {
+//            events[i] = check <StreamEvent>eventQueue.peekRear();
+//            i = i + 1;
+//        }
+//        return events;
+//    }
+//};
 
-    public function add(any event) {
-        events[counter % size] = event;
-        counter = counter + 1;
-    }
 
-    public function returnContent() returns (any[]) {
-        return events;
-    }
 
-    public function getEventToBeExpired() returns (any) {
-        return events[counter % size];
-    }
-};
-
+int sumValue = 0;
 int employeeIndex = 0;
 stream<Teacher> teacherStream1;
-stream<Teacher> outputStream;
-EventType evType = "ALL";
-Window lengthWindow = new(5, outputStream, evType);
+stream<streams:StreamEvent> outputStream;
+streams:EventType evType = "ALL";
+streams:LengthWindow lengthWindow = streams:lengthWindow(5, outputStream, evType);
 
 function startFilterQuery() {
 
@@ -95,19 +120,19 @@ function filterTeachers(Teacher t) {
     float sum = 0;
     lock {
         if (lengthWindow.eventType == "CURRENT"){
-            outputStream.publish(t);
+            outputStream.publish(createStreamEvent("CURRENT", t));
         } else if (lengthWindow.eventType == "EXPIRED") {
             if (lengthWindow.counter > 4){
                 any event = lengthWindow.getEventToBeExpired();
                 Teacher teacher = check <Teacher>event;
-                outputStream.publish(teacher);
+                outputStream.publish(createStreamEvent("EXPIRED", teacher));
             }
         } else if (lengthWindow.eventType == "ALL") {
-            outputStream.publish(t);
+            outputStream.publish(createStreamEvent("CURRENT", t));
             if (lengthWindow.counter > 4){
                 any event = lengthWindow.getEventToBeExpired();
                 Teacher teacher = check <Teacher>event;
-                outputStream.publish(teacher);
+                outputStream.publish(createStreamEvent("EXPIRED", teacher));
             }
         }
 
@@ -115,6 +140,28 @@ function filterTeachers(Teacher t) {
     }
 }
 
-function nextProcess(Teacher t) {
+function createStreamEvent(streams:EventType evType, any evObject) returns (streams:StreamEvent) {
+    streams:StreamEvent streamEvent = {eventType: evType, eventObject: evObject};
+    return streamEvent;
+}
+
+
+
+//===========================================================================================
+
+// Below code segment is written to perform the aggregations
+
+function nextProcess(streams:StreamEvent t) {
+
+    Teacher teacher = check <Teacher> t.eventObject;
+    if (t.eventType == "CURRENT") {
+        sumValue += teacher.age;
+    } else if (t.eventType == "EXPIRED"){
+        sumValue -= teacher.age;
+    } else if (t.eventType == "RESET"){
+        sumValue = 0;
+    }
+
     io:println(t);
+    io:println(sumValue);
 }
