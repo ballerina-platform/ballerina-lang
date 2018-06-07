@@ -38,14 +38,18 @@ public enum OperatorKind {
     LESS_THAN("<"),
     LESS_EQUAL("<="),
     IS_ASSIGNABLE("isassignable"),
-    POW("^"),
     NOT("!"),
     LENGTHOF("lengthof"),
     UNTAINT("untaint"),
     INCREMENT("++"),
     DECREMENT("--"),
     CHECK("check"),
-    ELVIS("?:");
+    ELVIS("?:"),
+    BITWISE_AND("&"),
+    BITWISE_OR("|"),
+    BITWISE_XOR("^"),
+    BITWISE_LEFT_SHIFT("<<"),
+    BITWISE_RIGHT_SHIFT(">>");
 
     private final String opValue;
 
@@ -69,5 +73,10 @@ public enum OperatorKind {
             }
         }
         return null;
+    }
+
+    public static boolean isBitwiseOperation(OperatorKind operatorKind) {
+        return BITWISE_AND == operatorKind || BITWISE_OR == operatorKind || BITWISE_LEFT_SHIFT == operatorKind ||
+                BITWISE_RIGHT_SHIFT == operatorKind || BITWISE_XOR == operatorKind;
     }
 }

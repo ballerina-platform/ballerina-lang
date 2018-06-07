@@ -102,6 +102,11 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";
         mnemonics[InstructionCodes.XMLADD] = "xmladd";
+        mnemonics[InstructionCodes.BIAND] = "biand";
+        mnemonics[InstructionCodes.BIOR] = "bior";
+        mnemonics[InstructionCodes.BIXOR] = "bixor";
+        mnemonics[InstructionCodes.BISHL] = "bishl";
+        mnemonics[InstructionCodes.BISHR] = "bishr";
         
         mnemonics[InstructionCodes.ISUB] = "isub";
         mnemonics[InstructionCodes.FSUB] = "fsub";

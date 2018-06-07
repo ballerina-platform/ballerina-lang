@@ -49,6 +49,9 @@ import java.util.stream.Collectors;
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_NATIVE = "native";
+    private static final String KEYWORD_BYTE = "byte";
+    private static final Integer BBYTE_MIN_VALUE = 0;
+    private static final Integer BBYTE_MAX_VALUE = 255;
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -1863,7 +1866,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx) {
+    public void exitBinaryAddSubAndOrExpression(BallerinaParser.BinaryAddSubAndOrExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
@@ -1871,6 +1874,14 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
 
+    @Override
+    public void exitShiftExpression(BallerinaParser.ShiftExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
 
     /**
      * {@inheritDoc}
@@ -1929,16 +1940,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createCheckedExpr(getCurrentPos(ctx), getWS(ctx));
-    }
-
-
-    @Override
-    public void exitBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
 
     @Override
@@ -2062,7 +2063,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Long longObject;
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
         if (integerLiteralContext != null && (longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
+            if (isByteLiteral(ctx, longObject)) {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE, longObject.byteValue());
+            } else {
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
+            }
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
         } else if ((node = ctx.BooleanLiteral()) != null) {
@@ -2078,6 +2083,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             byte[] blobValue = getBlobLiteral(ctx.blobLiteral());
             this.pkgBuilder.addByteArrayLiteralExprNode(pos, ws, TypeTags.BYTE, blobValue);
         }
+    }
+
+    private boolean isByteLiteral(BallerinaParser.SimpleLiteralContext ctx, Long longObject) {
+        if (!(ctx.parent.parent instanceof BallerinaParser.VariableDefinitionStatementContext)) {
+            return false;
+        }
+
+        if (!(longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE)) {
+            return false;
+        }
+
+        return ((BallerinaParser.VariableDefinitionStatementContext) ctx.parent.parent).typeName().
+                getText().startsWith(KEYWORD_BYTE);
     }
 
     /**

@@ -218,11 +218,15 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.ADD, floatType, floatType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.ADD, intType, intType, intType, InstructionCodes.IADD);
         defineBinaryOperator(OperatorKind.ADD, intType, byteType, intType, InstructionCodes.IADD);
+        defineBinaryOperator(OperatorKind.ADD, byteType, intType, intType, InstructionCodes.IADD);
         defineBinaryOperator(OperatorKind.ADD, byteType, byteType, intType, InstructionCodes.IADD);
         defineBinaryOperator(OperatorKind.ADD, intType, floatType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.ADD, floatType, intType, floatType, InstructionCodes.FADD);
         defineBinaryOperator(OperatorKind.SUB, floatType, floatType, floatType, InstructionCodes.FSUB);
         defineBinaryOperator(OperatorKind.SUB, intType, intType, intType, InstructionCodes.ISUB);
+        defineBinaryOperator(OperatorKind.SUB, intType, byteType, intType, InstructionCodes.ISUB);
+        defineBinaryOperator(OperatorKind.SUB, byteType, intType, intType, InstructionCodes.ISUB);
+        defineBinaryOperator(OperatorKind.SUB, byteType, byteType, intType, InstructionCodes.ISUB);
         defineBinaryOperator(OperatorKind.SUB, floatType, intType, floatType, InstructionCodes.FSUB);
         defineBinaryOperator(OperatorKind.SUB, intType, floatType, floatType, InstructionCodes.FSUB);
         defineBinaryOperator(OperatorKind.DIV, floatType, floatType, floatType, InstructionCodes.FDIV);
@@ -237,9 +241,31 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.MOD, intType, intType, intType, InstructionCodes.IMOD);
         defineBinaryOperator(OperatorKind.MOD, floatType, intType, floatType, InstructionCodes.FMOD);
         defineBinaryOperator(OperatorKind.MOD, intType, floatType, floatType, InstructionCodes.FMOD);
+        defineBinaryOperator(OperatorKind.BITWISE_AND, byteType, byteType, byteType, InstructionCodes.BIAND);
+        defineBinaryOperator(OperatorKind.BITWISE_AND, intType, intType, intType, InstructionCodes.BIAND);
+        defineBinaryOperator(OperatorKind.BITWISE_AND, intType, byteType, intType, InstructionCodes.BIAND);
+        defineBinaryOperator(OperatorKind.BITWISE_AND, byteType, intType, intType, InstructionCodes.BIAND);
+        defineBinaryOperator(OperatorKind.BITWISE_OR, byteType, byteType, byteType, InstructionCodes.BIOR);
+        defineBinaryOperator(OperatorKind.BITWISE_OR, intType, intType, intType, InstructionCodes.BIOR);
+        defineBinaryOperator(OperatorKind.BITWISE_OR, intType, byteType, intType, InstructionCodes.BIOR);
+        defineBinaryOperator(OperatorKind.BITWISE_OR, byteType, intType, intType, InstructionCodes.BIOR);
+        defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, byteType, byteType, InstructionCodes.BIXOR);
+        defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, intType, intType, InstructionCodes.BIXOR);
+        defineBinaryOperator(OperatorKind.BITWISE_XOR, intType, byteType, intType, InstructionCodes.BIXOR);
+        defineBinaryOperator(OperatorKind.BITWISE_XOR, byteType, intType, intType, InstructionCodes.BIXOR);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, intType, intType, InstructionCodes.BISHL);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, byteType, intType, InstructionCodes.BISHL);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, intType, byteType, intType, InstructionCodes.BISHL);
+        defineBinaryOperator(OperatorKind.BITWISE_LEFT_SHIFT, byteType, intType, intType, InstructionCodes.BISHL);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, intType, intType, InstructionCodes.BISHR);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, byteType, intType, InstructionCodes.BISHR);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, intType, byteType, intType, InstructionCodes.BISHR);
+        defineBinaryOperator(OperatorKind.BITWISE_RIGHT_SHIFT, byteType, intType, intType, InstructionCodes.BISHR);
 
         // Binary equality operators ==, !=
         defineBinaryOperator(OperatorKind.EQUAL, intType, intType, booleanType, InstructionCodes.IEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, byteType, intType, booleanType, InstructionCodes.IEQ);
+        defineBinaryOperator(OperatorKind.EQUAL, intType, byteType, booleanType, InstructionCodes.IEQ);
         defineBinaryOperator(OperatorKind.EQUAL, byteType, byteType, booleanType, InstructionCodes.BEQ);
         defineBinaryOperator(OperatorKind.EQUAL, floatType, floatType, booleanType, InstructionCodes.FEQ);
         defineBinaryOperator(OperatorKind.EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BEQ);
@@ -262,6 +288,8 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.EQUAL, stringType, nilType, booleanType, InstructionCodes.SEQ_NULL);
         defineBinaryOperator(OperatorKind.EQUAL, nilType, stringType, booleanType, InstructionCodes.SEQ_NULL);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, intType, booleanType, InstructionCodes.INE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, intType, byteType, booleanType, InstructionCodes.INE);
+        defineBinaryOperator(OperatorKind.NOT_EQUAL, byteType, intType, booleanType, InstructionCodes.INE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, byteType, byteType, booleanType, InstructionCodes.BNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, floatType, floatType, booleanType, InstructionCodes.FNE);
         defineBinaryOperator(OperatorKind.NOT_EQUAL, booleanType, booleanType, booleanType, InstructionCodes.BNE);
@@ -286,21 +314,33 @@ public class SymbolTable {
 
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType, InstructionCodes.ILT);
+        defineBinaryOperator(OperatorKind.LESS_THAN, intType, byteType, booleanType, InstructionCodes.ILT);
+        defineBinaryOperator(OperatorKind.LESS_THAN, byteType, intType, booleanType, InstructionCodes.ILT);
+        defineBinaryOperator(OperatorKind.LESS_THAN, byteType, byteType, booleanType, InstructionCodes.ILT);
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, floatType, booleanType, InstructionCodes.FLT);
         defineBinaryOperator(OperatorKind.LESS_THAN, floatType, intType, booleanType, InstructionCodes.FLT);
         defineBinaryOperator(OperatorKind.LESS_THAN, floatType, floatType, booleanType, InstructionCodes.FLT);
 
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType, InstructionCodes.ILE);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, byteType, intType, booleanType, InstructionCodes.ILE);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, byteType, booleanType, InstructionCodes.ILE);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, byteType, byteType, booleanType, InstructionCodes.ILE);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, intType, booleanType, InstructionCodes.FLE);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, floatType, booleanType, InstructionCodes.FLE);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, floatType, booleanType, InstructionCodes.FLE);
 
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType, InstructionCodes.IGT);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, byteType, intType, booleanType, InstructionCodes.IGT);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, intType, byteType, booleanType, InstructionCodes.IGT);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, byteType, byteType, booleanType, InstructionCodes.IGT);
         defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, intType, booleanType, InstructionCodes.FGT);
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, floatType, booleanType, InstructionCodes.FGT);
         defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, floatType, booleanType, InstructionCodes.FGT);
 
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, intType, booleanType, InstructionCodes.IGE);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, byteType, intType, booleanType, InstructionCodes.IGE);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, byteType, booleanType, InstructionCodes.IGE);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, byteType, byteType, booleanType, InstructionCodes.IGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, intType, booleanType, InstructionCodes.FGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, floatType, booleanType, InstructionCodes.FGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, floatType, booleanType, InstructionCodes.FGE);
@@ -333,7 +373,6 @@ public class SymbolTable {
         defineImplicitConversionOperator(intType, jsonType, true, InstructionCodes.I2JSON);
         defineImplicitConversionOperator(intType, anyType, true, InstructionCodes.I2ANY);
         defineImplicitConversionOperator(intType, floatType, true, InstructionCodes.I2F);
-        defineImplicitConversionOperator(intType, byteType, true, InstructionCodes.I2BI);
         defineImplicitConversionOperator(byteType, intType, true, InstructionCodes.BI2I);
         defineImplicitConversionOperator(byteType, anyType, true, InstructionCodes.BI2ANY);
         defineImplicitConversionOperator(floatType, jsonType, true, InstructionCodes.F2JSON);
@@ -369,6 +408,7 @@ public class SymbolTable {
 //        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
+        defineConversionOperator(intType, byteType, true, InstructionCodes.I2BI);
         defineConversionOperator(floatType, intType, true, InstructionCodes.F2I);
         defineConversionOperator(floatType, booleanType, true, InstructionCodes.F2B);
         defineConversionOperator(floatType, stringType, true, InstructionCodes.F2S);

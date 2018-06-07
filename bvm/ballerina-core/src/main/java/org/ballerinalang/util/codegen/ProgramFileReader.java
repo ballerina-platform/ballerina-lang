@@ -1353,7 +1353,7 @@ public class ProgramFileReader {
         dataInStream.read(code);
         DataInputStream codeStream = new DataInputStream(new ByteArrayInputStream(code));
         while (codeStream.available() > 0) {
-            int i, j, k, h;
+            int i, j, k, l, h;
             int funcRefCPIndex;
             FunctionRefCPEntry funcRefCPEntry;
             int flags;
@@ -1493,8 +1493,6 @@ public class ProgramFileReader {
                 case InstructionCodes.DT2XML:
                 case InstructionCodes.DT2JSON:
                 case InstructionCodes.T2MAP:
-                case InstructionCodes.XML2JSON:
-                case InstructionCodes.JSON2XML:
                 case InstructionCodes.XMLATTRS2MAP:
                 case InstructionCodes.ANY2SCONV:
                 case InstructionCodes.S2XML:
@@ -1571,6 +1569,11 @@ public class ProgramFileReader {
                 case InstructionCodes.FLT:
                 case InstructionCodes.ILE:
                 case InstructionCodes.FLE:
+                case InstructionCodes.BIAND:
+                case InstructionCodes.BIOR:
+                case InstructionCodes.BIXOR:
+                case InstructionCodes.BISHL:
+                case InstructionCodes.BISHR:
                 case InstructionCodes.XMLATTRLOAD:
                 case InstructionCodes.XMLATTRSTORE:
                 case InstructionCodes.S2QNAME:

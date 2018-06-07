@@ -244,4 +244,91 @@ public class BByteValueTest {
         BRunUtil.invoke(result, "testWorkerWithByteVariable", new BValue[0]);
     }
 
+    @Test(description = "Test bitwise and operator")
+    public void testBitwiseAndOperator() {
+        byte a = 12;
+        byte b = 34;
+        int i = 234;
+        int j = -456;
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
+        BValue[] returns = BRunUtil.invoke(result, "testBitwiseAndOperator", args);
+        Assert.assertEquals(returns.length, 4);
+        BInteger bInteger1 = (BInteger) returns[0];
+        BInteger bInteger2 = (BInteger) returns[1];
+        BInteger bInteger3 = (BInteger) returns[2];
+        BInteger bInteger4 = (BInteger) returns[3];
+        Assert.assertEquals(bInteger1.intValue(), a & b, "Invalid result");
+        Assert.assertEquals(bInteger2.intValue(), a & i, "Invalid result");
+        Assert.assertEquals(bInteger3.intValue(), i & j, "Invalid result");
+        Assert.assertEquals(bInteger4.intValue(), a & i & b & j, "Invalid result");
+    }
+
+    @Test(description = "Test bitwise and operator")
+    public void testBitwiseOrOperator() {
+        byte a = 12;
+        byte b = 34;
+        int i = 234;
+        int j = -456;
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
+        BValue[] returns = BRunUtil.invoke(result, "testBitwiseOrOperator", args);
+        Assert.assertEquals(returns.length, 4);
+        BInteger bInteger1 = (BInteger) returns[0];
+        BInteger bInteger2 = (BInteger) returns[1];
+        BInteger bInteger3 = (BInteger) returns[2];
+        BInteger bInteger4 = (BInteger) returns[3];
+        Assert.assertEquals(bInteger1.intValue(), a | b, "Invalid result");
+        Assert.assertEquals(bInteger2.intValue(), a | i, "Invalid result");
+        Assert.assertEquals(bInteger3.intValue(), i | j, "Invalid result");
+        Assert.assertEquals(bInteger4.intValue(), a | i | b | j, "Invalid result");
+    }
+
+    @Test(description = "Test bitwise and operator")
+    public void testBitwiseXorOperator() {
+        byte a = 12;
+        byte b = 34;
+        int i = 234;
+        int j = -456;
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
+        BValue[] returns = BRunUtil.invoke(result, "testBitwiseXorOperator", args);
+        Assert.assertEquals(returns.length, 4);
+        BInteger bInteger1 = (BInteger) returns[0];
+        BInteger bInteger2 = (BInteger) returns[1];
+        BInteger bInteger3 = (BInteger) returns[2];
+        BInteger bInteger4 = (BInteger) returns[3];
+        Assert.assertEquals(bInteger1.intValue(), a ^ b, "Invalid result");
+        Assert.assertEquals(bInteger2.intValue(), a ^ i, "Invalid result");
+        Assert.assertEquals(bInteger3.intValue(), i ^ j, "Invalid result");
+        Assert.assertEquals(bInteger4.intValue(), a ^ i ^ b ^ j, "Invalid result");
+    }
+
+    @Test(description = "Test bitwise and operator")
+    public void testBitwiseRightShiftOperator() {
+        byte a = 123;
+        byte b = 4;
+        int i = 234;
+        int j = 3;
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
+        BValue[] returns = BRunUtil.invoke(result, "testBitwiseRightShiftOperator", args);
+        Assert.assertEquals(returns.length, 2);
+        BInteger bInteger1 = (BInteger) returns[0];
+        BInteger bInteger2 = (BInteger) returns[1];
+        Assert.assertEquals(bInteger1.intValue(), a >> b, "Invalid result");
+        Assert.assertEquals(bInteger2.intValue(), i >> j, "Invalid result");
+    }
+
+    @Test(description = "Test bitwise and operator")
+    public void testBitwiseLeftShiftOperator() {
+        byte a = 23;
+        byte b = 6;
+        int i = 4567;
+        int j = 7;
+        BValue[] args = {new BByte(a), new BByte(b), new BInteger(i), new BInteger(j)};
+        BValue[] returns = BRunUtil.invoke(result, "testBitwiseLeftShiftOperator", args);
+        Assert.assertEquals(returns.length, 2);
+        BInteger bInteger1 = (BInteger) returns[0];
+        BInteger bInteger2 = (BInteger) returns[1];
+        Assert.assertEquals(bInteger1.intValue(), a << b, "Invalid result");
+        Assert.assertEquals(bInteger2.intValue(), i << j, "Invalid result");
+    }
+
 }

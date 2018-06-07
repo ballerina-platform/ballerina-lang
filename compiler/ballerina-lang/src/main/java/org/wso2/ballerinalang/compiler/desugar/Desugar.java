@@ -1231,6 +1231,29 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
 
+        // Check for bitwise operator and add type conversion
+        if (OperatorKind.isBitwiseOperation(binaryExpr.opKind)) {
+            if (TypeTags.BYTE == binaryExpr.rhsExpr.type.tag) {
+                binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                        symTable.intType);
+            }
+
+            if (TypeTags.BYTE == binaryExpr.lhsExpr.type.tag) {
+                binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                        symTable.intType);
+            }
+        }
+
+        if (binaryExpr.lhsExpr.type.tag == TypeTags.BYTE) {
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
+                    binaryExpr.lhsExpr.type, symTable.intType);
+        }
+
+        if (binaryExpr.rhsExpr.type.tag == TypeTags.BYTE) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
+                    binaryExpr.rhsExpr.type, symTable.intType);
+        }
+
         // Check lhs and rhs type compatibility
         if (binaryExpr.lhsExpr.type.tag == binaryExpr.rhsExpr.type.tag) {
             return;

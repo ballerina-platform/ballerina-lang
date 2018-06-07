@@ -25,7 +25,7 @@ function testGlobalByte(byte b) returns byte {
 function testByteAddition() returns byte {
     byte a = 14;
     byte b = 23;
-    return (a + b);
+    return <byte>(a + b);
 }
 
 function testIntToByteCast(int b) returns byte {
@@ -83,7 +83,6 @@ function testByteArrayIncreaseSize() returns int {
 
 function testByteArrayOfArray() returns (int, int) {
     byte[][] aa = [[4, 6, 27, 75], [3, 7, 1], [5, 32, 98]];
-    int[][] ab = [[4, 6, 27, 75], [3, 7, 1], [5, 32, 98]];
     int a = (lengthof aa);
     int b = (lengthof aa[0]);
     return (a, b);
@@ -114,4 +113,40 @@ function testWorkerWithByteVariable() {
     a <- w1;
     b -> w1;
   }
+}
+
+function testBitwiseAndOperator(byte a, byte b, int i, int j) returns (int, int, int, int){
+    int r1 = a & b;
+    int r2 = a & i;
+    int r3 = i & j;
+    int r4 = a & i & b & j;
+    return (r1, r2, r3, r4);
+}
+
+function testBitwiseOrOperator(byte a, byte b, int i, int j) returns (int, int, int, int){
+    int r1 = a | b;
+    int r2 = a | i;
+    int r3 = i | j;
+    int r4 = a | i | b | j;
+    return (r1, r2, r3, r4);
+}
+
+function testBitwiseXorOperator(byte a, byte b, int i, int j) returns (int, int, int, int){
+    int r1 = a ^ b;
+    int r2 = a ^ i;
+    int r3 = i ^ j;
+    int r4 = a ^ i ^ b ^ j;
+    return (r1, r2, r3, r4);
+}
+
+function testBitwiseRightShiftOperator(byte a, byte b, int i, int j) returns (int, int){
+    int r1 = a >> b;
+    int r2 = i >> j;
+    return (r1, r2);
+}
+
+function testBitwiseLeftShiftOperator(byte a, byte b, int i, int j) returns (int, int){
+    int r1 = a << b;
+    int r2 = i << j;
+    return (r1, r2);
 }

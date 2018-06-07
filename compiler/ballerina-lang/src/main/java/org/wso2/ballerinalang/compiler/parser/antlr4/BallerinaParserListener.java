@@ -1396,18 +1396,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBinaryAndExpression(BallerinaParser.BinaryAndExpressionContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code binaryAddSubExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code binaryAddSubExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code typeConversionExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -1468,6 +1456,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBinaryDivMulModExpression(BallerinaParser.BinaryDivMulModExpressionContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code shiftExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterShiftExpression(BallerinaParser.ShiftExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code shiftExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitShiftExpression(BallerinaParser.ShiftExpressionContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code tableLiteralExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
 	 * @param ctx the parse tree
@@ -1491,6 +1491,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitLambdaFunctionExpression(BallerinaParser.LambdaFunctionExpressionContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code binaryAddSubAndOrExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void enterBinaryAddSubAndOrExpression(BallerinaParser.BinaryAddSubAndOrExpressionContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code binaryAddSubAndOrExpression}
+	 * labeled alternative in {@link BallerinaParser#expression}.
+	 * @param ctx the parse tree
+	 */
+	void exitBinaryAddSubAndOrExpression(BallerinaParser.BinaryAddSubAndOrExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code binaryEqualExpression}
 	 * labeled alternative in {@link BallerinaParser#expression}.
@@ -1635,18 +1647,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code binaryPowExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void enterBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code binaryPowExpression}
-	 * labeled alternative in {@link BallerinaParser#expression}.
-	 * @param ctx the parse tree
-	 */
-	void exitBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code awaitExpr}
 	 * labeled alternative in {@link BallerinaParser#awaitExpression}.

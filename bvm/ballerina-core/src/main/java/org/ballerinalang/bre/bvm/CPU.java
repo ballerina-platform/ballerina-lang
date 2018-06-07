@@ -349,6 +349,11 @@ public class CPU {
                     case InstructionCodes.BNE:
                     case InstructionCodes.RNE:
                     case InstructionCodes.TNE:
+                    case InstructionCodes.BIAND:
+                    case InstructionCodes.BIOR:
+                    case InstructionCodes.BIXOR:
+                    case InstructionCodes.BISHL:
+                    case InstructionCodes.BISHR:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -1729,6 +1734,7 @@ public class CPU {
         int i;
         int j;
         int k;
+        int l;
         switch (opcode) {
             case InstructionCodes.IADD:
                 i = operands[0];
@@ -1935,6 +1941,36 @@ public class CPU {
                     handleNullRefError(ctx);
                 }
                 sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
+                break;
+            case InstructionCodes.BIAND:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] & sf.longRegs[j];
+                break;
+            case InstructionCodes.BIOR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] | sf.longRegs[j];
+                break;
+            case InstructionCodes.BIXOR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] ^ sf.longRegs[j];
+                break;
+            case InstructionCodes.BISHL:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
+                break;
+            case InstructionCodes.BISHR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] >> sf.longRegs[j];
                 break;
             default:
                 throw new UnsupportedOperationException();

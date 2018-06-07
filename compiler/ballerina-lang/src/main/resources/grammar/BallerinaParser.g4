@@ -583,9 +583,8 @@ expression
     |   LT typeName (COMMA functionInvocation)? GT expression               # typeConversionExpression
     |   (ADD | SUB | NOT | LENGTHOF | UNTAINT) expression                   # unaryExpression
     |   LEFT_PARENTHESIS expression (COMMA expression)* RIGHT_PARENTHESIS   # bracedOrTupleExpression
-    |   expression POW expression                                           # binaryPowExpression
     |   expression (DIV | MUL | MOD) expression                             # binaryDivMulModExpression
-    |   expression (ADD | SUB) expression                                   # binaryAddSubExpression
+    |   expression (ADD | SUB | BITAND | PIPE | BITXOR) expression          # binaryAddSubAndOrExpression
     |   expression (LT_EQUAL | GT_EQUAL | GT | LT) expression               # binaryCompareExpression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression AND expression                                           # binaryAndExpression
@@ -595,6 +594,7 @@ expression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
+    |   expression (BIT_RIGHT_SHIFT | BIT_LEFT_SHIFT) expression            # shiftExpression
     |   typeName                                                            # typeAccessExpression
     ;
 

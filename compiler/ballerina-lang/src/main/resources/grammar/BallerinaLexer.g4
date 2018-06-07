@@ -160,8 +160,14 @@ ADD     : '+' ;
 SUB     : '-' ;
 MUL     : '*' ;
 DIV     : '/' ;
-POW     : '^' ;
 MOD     : '%';
+
+// Bitwise Operators
+
+BITAND          : '&' ;
+BITXOR          : '^' ;
+BIT_RIGHT_SHIFT : '>>' ;
+BIT_LEFT_SHIFT  : '<<' ;
 
 // Relational operators
 

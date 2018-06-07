@@ -1624,18 +1624,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterTypeConversionExpression(BallerinaParser.TypeConversionExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1696,6 +1684,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterShiftExpression(BallerinaParser.ShiftExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitShiftExpression(BallerinaParser.ShiftExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterTableLiteralExpression(BallerinaParser.TableLiteralExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1715,6 +1715,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitLambdaFunctionExpression(BallerinaParser.LambdaFunctionExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBinaryAddSubAndOrExpression(BallerinaParser.BinaryAddSubAndOrExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBinaryAddSubAndOrExpression(BallerinaParser.BinaryAddSubAndOrExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1859,18 +1871,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitTypeInitExpression(BallerinaParser.TypeInitExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

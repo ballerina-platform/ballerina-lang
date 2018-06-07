@@ -190,8 +190,10 @@ public interface InstructionCodes {
     int T2JSON = 153;
     int MAP2T = 154;
     int JSON2T = 155;
-    int XML2JSON = 156;
-    int JSON2XML = 157;
+
+    int BISHL = 156;
+    int BISHR = 157;
+
     int S2XML = 158;
     int XML2S = 159;
 
@@ -260,6 +262,8 @@ public interface InstructionCodes {
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
 
+    int BIXOR = 218;
+
     int NEW_INT_RANGE = 219;
     int ITR_NEW = 220;
     int ITR_HAS_NEXT = 221;
@@ -269,6 +273,8 @@ public interface InstructionCodes {
     int BI2I = 224;
     int ANY2BI = 225;
     int BI2ANY = 226;
+    int BIAND = 227;
+    int BIOR = 228;
 
     int IRET = 229;
     int FRET = 230;
