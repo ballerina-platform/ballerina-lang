@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.mime.util.EntityBodyHandler;
@@ -44,12 +45,14 @@ import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
@@ -66,7 +69,16 @@ public class HttpDispatcher {
 
     protected static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
         try {
-            Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface();
+            Map<String, HttpService> servicesOnInterface;
+            List<String> sortedServiceURIs;
+            String hostName = inboundReqMsg.getHeader(HttpHeaderNames.HOST.toString());
+            if (hostName != null && servicesRegistry.getServicesInfoByHost(hostName) != null) {
+                servicesOnInterface = servicesRegistry.getServicesInfoByHost(hostName);
+                sortedServiceURIs = servicesRegistry.getSortedServiceURIsByHost(hostName);
+            } else {
+                servicesOnInterface = servicesRegistry.getServicesInfoByHost(DEFAULT_HOST);
+                sortedServiceURIs = servicesRegistry.getSortedServiceURIsByHost(DEFAULT_HOST);
+            }
 
             String rawUri = (String) inboundReqMsg.getProperty(HttpConstants.TO);
             inboundReqMsg.setProperty(HttpConstants.RAW_URI, rawUri);
@@ -78,8 +90,8 @@ public class HttpDispatcher {
 
             URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
 
-            // Most of the time we will find service from here
-            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(), servicesOnInterface);
+            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(),
+                    servicesOnInterface, sortedServiceURIs);
 
             if (basePath == null) {
                 inboundReqMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);

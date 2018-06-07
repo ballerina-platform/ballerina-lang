@@ -45,8 +45,9 @@ public class HTTPServicesRegistry {
     private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
 
     // Outer Map key=basePath
-    protected final Map<String, HttpService> servicesInfoMap = new ConcurrentHashMap<>();
-    protected CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
+    private Map<String, ServicesMaps> servicesHostMap = new ConcurrentHashMap<>();
+    protected Map<String, HttpService> servicesInfoMap;
+    protected List<String> sortedServiceURIs;
     private final WebSocketServicesRegistry webSocketServicesRegistry;
 
     public HTTPServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
@@ -72,6 +73,14 @@ public class HTTPServicesRegistry {
         return servicesInfoMap;
     }
 
+    public Map<String, HttpService> getServicesInfoByHost(String hostName) {
+        return servicesHostMap.get(hostName).servicesInfoMap;
+    }
+
+    public List<String> getSortedServiceURIsByHost(String hostName) {
+        return servicesHostMap.get(hostName).sortedServiceURIs;
+    }
+
     /**
      * Register a service into the map.
      *
@@ -81,6 +90,16 @@ public class HTTPServicesRegistry {
         List<HttpService> httpServices = HttpService.buildHttpService(service);
 
         for (HttpService httpService : httpServices) {
+            String hostName = httpService.getHostName();
+            if (servicesHostMap.get(hostName) == null) {
+                servicesInfoMap = new ConcurrentHashMap<>();
+                sortedServiceURIs = new CopyOnWriteArrayList<>();
+                servicesHostMap.put(hostName, new ServicesMaps(servicesInfoMap, sortedServiceURIs));
+            } else {
+                servicesInfoMap = getServicesInfoByHost(hostName);
+                sortedServiceURIs = getSortedServiceURIsByHost(hostName);
+            }
+
             String basePath = httpService.getBasePath();
             if (servicesInfoMap.containsKey(basePath)) {
                 throw new BallerinaException("Service registration failed: two services have the same basePath : " +
@@ -127,7 +146,8 @@ public class HTTPServicesRegistry {
         return basePath;
     }
 
-    public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
+    public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services,
+                                              List<String> sortedServiceURIs) {
         for (Object key : sortedServiceURIs) {
             if (!requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
                 continue;
@@ -143,5 +163,15 @@ public class HTTPServicesRegistry {
             return HttpConstants.DEFAULT_BASE_PATH;
         }
         return null;
+    }
+
+    class ServicesMaps {
+        private Map<String, HttpService> servicesInfoMap;
+        private List<String> sortedServiceURIs;
+
+        public ServicesMaps(Map<String, HttpService> servicesInfoMap, List<String> sortedServiceURIs) {
+            this.servicesInfoMap = servicesInfoMap;
+            this.sortedServiceURIs = sortedServiceURIs;
+        }
     }
 }
