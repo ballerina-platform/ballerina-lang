@@ -134,10 +134,10 @@ public class CreateSimpleHttpClient extends BlockingNativeCallableUnit {
         boolean followRedirect = false;
         int maxRedirectCount = DEFAULT_MAX_REDIRECT_COUNT;
         Struct followRedirects = clientEndpointConfig.getStructField(HttpConstants.FOLLOW_REDIRECT_STRUCT_REFERENCE);
-        if (followRedirects != null) {
+       /* if (followRedirects != null) {
             followRedirect = followRedirects.getBooleanField(HttpConstants.FOLLOW_REDIRECT_ENABLED);
             maxRedirectCount = (int) followRedirects.getIntField(HttpConstants.FOLLOW_REDIRECT_MAXCOUNT);
-        }
+        }*/
 
         Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
 
