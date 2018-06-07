@@ -95,22 +95,46 @@ public class SQLDatasourceUtils {
     private static final int ORACLE_CURSOR_TYPE = -10;
 
     public static void setIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
-        Integer val = null;
-        if (value != null) {
-            String strValue = value.stringValue();
-            if (!strValue.isEmpty()) {
-                try {
-                    val = Integer.parseInt(strValue);
-                } catch (NumberFormatException e) {
-                    throw new BallerinaException("invalid value for integer: " + strValue);
-                }
-            }
-        }
+        Integer val = obtainIntegerValue(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                setIntValue(stmt, sqlType, index, val);
+                if (val == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setInt(index + 1, val);
+                }
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                setIntValue(stmt, sqlType, index, val);
+                if (val == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setInt(index + 1, val);
+                }
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else if (Constants.QueryParamDirection.OUT == direction) {
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set integer to statement: " + e.getMessage(), e);
+        }
+    }
+
+    public static void setSmallIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
+        Integer val = obtainIntegerValue(value);
+        try {
+            if (Constants.QueryParamDirection.IN == direction) {
+                if (val == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setShort(index + 1, val.shortValue());
+                }
+            } else if (Constants.QueryParamDirection.INOUT == direction) {
+                if (val == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setShort(index + 1, val.shortValue());
+                }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
@@ -550,6 +574,20 @@ public class SQLDatasourceUtils {
         }
     }
 
+    private static Integer obtainIntegerValue(BValue value) {
+        if (value != null) {
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                try {
+                    return Integer.parseInt(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for integer: " + strValue);
+                }
+            }
+        }
+        return null;
+    }
+
     private static byte[] getByteArray(BValue value) {
         byte[] val = null;
         if (value instanceof BBlob) {
@@ -648,9 +686,9 @@ public class SQLDatasourceUtils {
                 setArrayValue(arrayValue, conn, stmt, index, sqlType, databaseProductName, structuredSQLType);
             } else if (Constants.QueryParamDirection.INOUT == direction) {
                 setArrayValue(arrayValue, conn, stmt, index, sqlType, databaseProductName, structuredSQLType);
-                registerOutParameter(stmt, index, sqlType, structuredSQLType, databaseProductName);
+                registerArrayOutParameter(stmt, index, sqlType, structuredSQLType, databaseProductName);
             } else if (Constants.QueryParamDirection.OUT == direction) {
-                registerOutParameter(stmt, index, sqlType, structuredSQLType, databaseProductName);
+                registerArrayOutParameter(stmt, index, sqlType, structuredSQLType, databaseProductName);
             } else {
                 throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
@@ -815,7 +853,7 @@ public class SQLDatasourceUtils {
     }
 
     /**
-     * This will close Database connection, statement and result sets.
+     * This will close database connection, statement and result sets.
      *
      * @param resultSets   SQL result sets
      * @param stmt SQL statement
@@ -834,12 +872,12 @@ public class SQLDatasourceUtils {
             }
             cleanupResources(stmt, conn, isInTransaction);
         } catch (SQLException e) {
-            throw new BallerinaException("error cleaning sql resources: " + e.getMessage(), e);
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
         }
     }
 
     /**
-     * This will close Database connection, statement and the resultset.
+     * This will close database connection, statement and the resultset.
      *
      * @param rs   SQL resultset
      * @param stmt SQL statement
@@ -853,12 +891,12 @@ public class SQLDatasourceUtils {
             }
             cleanupResources(stmt, conn, isInTransaction);
         } catch (SQLException e) {
-            throw new BallerinaException("error cleaning sql resources: " + e.getMessage(), e);
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
         }
     }
 
     /**
-     * This will close Database connection and statement.
+     * This will close database connection and statement.
      *
      * @param stmt SQL statement
      * @param conn SQL connection
@@ -873,7 +911,7 @@ public class SQLDatasourceUtils {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error cleaning sql resources: " + e.getMessage(), e);
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
         }
     }
 
@@ -1141,8 +1179,8 @@ public class SQLDatasourceUtils {
                 null);
     }
 
-    private static void registerOutParameter(PreparedStatement stmt, int index, int sqlType, String structuredSQLType,
-            String databaseProductName) throws SQLException {
+    private static void registerArrayOutParameter(PreparedStatement stmt, int index, int sqlType,
+            String structuredSQLType, String databaseProductName) throws SQLException {
         if (databaseProductName.equals(POSTGRES_DATABASE_NAME)) {
             ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
         } else {
@@ -1162,18 +1200,6 @@ public class SQLDatasourceUtils {
             }
             Array array = conn.createArrayOf(structuredSQLType, arrayValue);
             stmt.setArray(index + 1, array);
-        }
-    }
-
-    private static void setIntValue(PreparedStatement stmt, int sqlType, int index, Integer val) throws SQLException {
-        if (val == null) {
-            stmt.setNull(index + 1, sqlType);
-        } else if (sqlType == Types.TINYINT) {
-            stmt.setByte(index + 1, val.byteValue());
-        } else if (sqlType == Types.SMALLINT) {
-            stmt.setShort(index + 1, val.shortValue());
-        } else {
-            stmt.setInt(index + 1, val);
         }
     }
 

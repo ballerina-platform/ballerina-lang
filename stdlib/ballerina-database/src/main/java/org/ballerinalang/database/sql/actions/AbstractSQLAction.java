@@ -203,7 +203,6 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             BRefValueArray structTypes) {
         Connection conn = null;
         CallableStatement stmt = null;
-        ResultSet rs = null;
         List<ResultSet> resultSets = null;
         boolean isInTransaction = context.isInTransaction();
         try {
@@ -600,7 +599,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {
             case Constants.SQLDataTypes.SMALLINT:
-                SQLDatasourceUtils.setIntValue(stmt, value, index, direction, Types.SMALLINT);
+                SQLDatasourceUtils.setSmallIntValue(stmt, value, index, direction, Types.SMALLINT);
                 break;
             case Constants.SQLDataTypes.VARCHAR:
                 SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);

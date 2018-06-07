@@ -48,11 +48,11 @@ insert into DataTypeTable (row_id, int_type, long_type, float_type, double_type,
   (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567, 1234.567, 1234.567, 1, 5555,
  'very long text', X'77736F322062616C6C6572696E612062696E61727920746573742E');
 /
-insert into BlobTable values (1, X'77736F322062616C6C6572696E6120626C6F6220746573742E');
-/
 insert into DataTypeTable (row_id) values (2);
 /
 insert into BlobTable (row_id) values (2);
+/
+insert into BlobTable values (1, X'77736F322062616C6C6572696E6120626C6F6220746573742E');
 /
 insert into Customers (firstName,lastName,registrationID,creditLimit,country)
   values ('Peter', 'Stuart', 1, 5000.75, 'USA');
