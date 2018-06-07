@@ -46,7 +46,7 @@ import ballerina/log;
 
 @final boolean hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = true);
 http:ServiceSecureSocket? serviceSecureSocket = getServiceSecureSocketConfig();
-http:SecureSocket? secureSocket = getSecureSocketConfig();
+http:SecureSocket? httpSecureSocket = getSecureSocketConfig();
 
 documentation {
     Function to bind and start the Ballerina WebSub Hub service.

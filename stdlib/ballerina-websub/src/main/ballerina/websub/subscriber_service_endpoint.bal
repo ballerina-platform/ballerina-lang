@@ -110,7 +110,7 @@ public function Listener::init(SubscriberServiceEndpointConfiguration config) {
     SignatureValidationFilter sigValFilter;
     http:Filter[] filters = [<http:Filter>sigValFilter];
     http:ServiceEndpointConfiguration serviceConfig = {
-        host:config.host, port:config.port, secureSocket:config.secureSocket, filters:filters
+        host:config.host, port:config.port, secureSocket:config.httpServiceSecureSocket, filters:filters
     };
 
     self.serviceEndpoint.init(serviceConfig);
@@ -152,7 +152,7 @@ function Listener::sendSubscriptionRequests() {
 
             http:SecureSocket? newSecureSocket;
             match (<http:SecureSocket>subscriptionDetails["secureSocket"]) {
-                http:SecureSocket httpSecureSocket => { newSecureSocket = httpSecureSocket; }
+                http:SecureSocket s => { newSecureSocket = s; }
                 error => { newSecureSocket = (); }
             }
 
@@ -201,7 +201,7 @@ documentation {
 
     F{{host}} The configuration for the endpoint
     F{{port}} The underlying HTTP service endpoint
-    F{{secureSocket}} The SSL configurations for the service endpoint
+    F{{httpServiceSecureSocket}} The SSL configurations for the service endpoint
     F{{topicIdentifier}} The identifier based on which dispatching should happen for custom subscriber services
     F{{topicHeader}} The header to consider if required with dispatching for custom services
     F{{topicPayloadKeys}} The payload keys to consider if required with dispatching for custom services
@@ -210,7 +210,7 @@ documentation {
 public type SubscriberServiceEndpointConfiguration {
     string host;
     int port;
-    http:ServiceSecureSocket? secureSocket;
+    http:ServiceSecureSocket? httpServiceSecureSocket;
     TopicIdentifier? topicIdentifier;
     string? topicHeader;
     string[]? topicPayloadKeys;
@@ -346,7 +346,7 @@ function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
     endpoint Client websubHubClientEP {
         url:hub,
-        secureSocket: localSecureSocket,
+        clientSecureSocket: localSecureSocket,
         auth:auth,
         followRedirects:followRedirects
     };
