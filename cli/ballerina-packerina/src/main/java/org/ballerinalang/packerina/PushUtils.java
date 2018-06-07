@@ -19,6 +19,7 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.launcher.Main;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
@@ -46,6 +47,7 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -88,7 +90,7 @@ public class PushUtils {
 
         String orgName = manifest.getName();
         String version = manifest.getVersion();
-
+        String ballerinaVersion = getBallerinaVersion();
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
 
         // Get package path from project directory path
@@ -124,8 +126,8 @@ public class PushUtils {
 
             executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
                              description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
-                             resourcePath, pkgPathFromPrjtDir.toString(), msg, proxy.getHost(), proxy.getPort(),
-                             proxy.getUserName(), proxy.getPassword());
+                             resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
+                             proxy.getPort(), proxy.getUserName(), proxy.getPassword());
 
         } else {
             if (!installToRepo.equals("home")) {
@@ -336,5 +338,20 @@ public class PushUtils {
             throw new BLangCompilerException("Summary of the package exceeds 50 characters");
         }
         return firstLine;
+    }
+
+    /**
+     * Get the ballerina version the package is built with.
+     *
+     * @return ballerina version
+     */
+    private static String getBallerinaVersion() {
+        try (InputStream inputStream = Main.class.getResourceAsStream("/META-INF/launcher.properties")) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty("ballerina.version");
+        } catch (Throwable ignore) {
+        }
+        return "unknown";
     }
 }

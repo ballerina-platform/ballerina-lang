@@ -416,27 +416,4 @@ public class IOUtils {
         return new DelimitedRecordChannel(characterChannel, format);
     }
 
-    /**
-     * Creates a delimited record channel to read from CSV file.
-     *
-     * @param filePath path to the CSV file.
-     * @param encoding the encoding of CSV file.
-     * @param rs       record separator.
-     * @param fs       field separator.
-     * @return delimited record channel to read from CSV.
-     * @throws IOException during I/O error.
-     */
-    public static DelimitedRecordChannel createDelimitedRecordChannel(String filePath, String encoding, String rs,
-                                                                      String fs) throws IOException {
-        Path path = Paths.get(filePath);
-        if (Files.notExists(path)) {
-            String msg = "Unable to find a file in given path: " + filePath;
-            throw new IOException(msg);
-        }
-        FileChannel sourceChannel = FileChannel.open(path, StandardOpenOption.READ);
-        FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
-        CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
-        return new DelimitedRecordChannel(characterChannel, rs, fs);
-    }
-
 }

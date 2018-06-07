@@ -301,6 +301,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // define the import package symbol in the current package scope
         importPkgNode.symbol = pkgSymbol;
+        ((BPackageSymbol) this.env.scope.owner).imports.add(pkgSymbol);
         this.env.scope.define(pkgAlias, pkgSymbol);
     }
 

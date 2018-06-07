@@ -24,6 +24,7 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSCompiler;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.TopLevelNode;
 import org.eclipse.lsp4j.ApplyWorkspaceEditParams;
@@ -75,6 +76,9 @@ public class CommandExecutor {
         switch (params.getCommand()) {
             case CommandConstants.CMD_IMPORT_PACKAGE:
                 executeImportPackage(context, lsGlobalContext);
+                break;
+            case CommandConstants.CMD_CREATE_FUNCTION:
+                executeCreateFunction(context, lsGlobalContext);
                 break;
             case CommandConstants.CMD_ADD_DOCUMENTATION:
                 executeAddDocumentation(context, lsGlobalContext);
@@ -154,6 +158,58 @@ public class CommandExecutor {
             applySingleTextEdit(editText, range, textDocumentIdentifier,
                     context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient());
         }
+    }
+
+    /**
+     * Execute the command, create function.
+     *
+     * @param context Workspace service context
+     */
+    private static void executeCreateFunction(LSServiceOperationContext context, LSGlobalContext lsGlobalContext) {
+        String documentUri = null;
+        String funcName = null;
+        String returnType = null;
+        String returnDefaultValue = null;
+        VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
+
+        for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
+            String argKey = ((LinkedTreeMap) arg).get(ARG_KEY).toString();
+            String argVal = ((LinkedTreeMap) arg).get(ARG_VALUE).toString();
+            if (argKey.equals(CommandConstants.ARG_KEY_DOC_URI)) {
+                documentUri = argVal;
+                textDocumentIdentifier.setUri(documentUri);
+                context.put(DocumentServiceKeys.FILE_URI_KEY, documentUri);
+            } else if (argKey.equals(CommandConstants.ARG_KEY_FUNC_NAME)) {
+                funcName = argVal;
+            } else if (argKey.equals(CommandConstants.ARG_KEY_RETURN_TYPE)) {
+                returnType = argVal;
+            } else if (argKey.equals(CommandConstants.ARG_KEY_RETURN_DEFAULT_VAL)) {
+                returnDefaultValue = argVal;
+            }
+        }
+
+        if (documentUri == null || funcName == null) {
+            return;
+        }
+
+        WorkspaceDocumentManager documentManager = context.get(ExecuteCommandKeys.DOCUMENT_MANAGER_KEY);
+        String fileContent = documentManager.getFileContent(Paths.get(URI.create(documentUri)));
+        String[] contentComponents = fileContent.split("\\n|\\r\\n|\\r");
+        int totalLines = contentComponents.length;
+        int lastNewLineCharIndex = Math.max(fileContent.lastIndexOf("\n"), fileContent.lastIndexOf("\r"));
+        int lastCharCol = fileContent.substring(lastNewLineCharIndex + 1).length();
+
+        BLangPackage bLangPackage = LSCompiler.getBLangPackage(context, documentManager, false,
+                                                               LSCustomErrorStrategy.class, false).get(0);
+        if (bLangPackage == null) {
+            return;
+        }
+
+        String editText = CommandUtil.FunctionGenerator.createFunction(funcName, returnType, returnDefaultValue);
+        Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
+
+        LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();
+        applySingleTextEdit(editText, range, textDocumentIdentifier, client);
     }
 
     /**

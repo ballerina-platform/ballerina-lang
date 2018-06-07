@@ -87,7 +87,7 @@ public class UserDefinedMessage extends Message {
     }
 
     /**
-     * MessageDefinition.Builder
+     * MessageDefinition.Builder.
      */
     public static class Builder {
         private DescriptorProtos.DescriptorProto.Builder messageDescriptorBuilder;

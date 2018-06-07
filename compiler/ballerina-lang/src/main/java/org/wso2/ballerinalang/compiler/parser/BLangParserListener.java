@@ -424,6 +424,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
         this.pkgBuilder.startVarList();
         this.pkgBuilder.startObjFunctionList();
+        this.pkgBuilder.startFieldBlockList();
     }
 
     /**
@@ -446,34 +447,33 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
-// TODO fix this later - talk with marcus
-//    /**
-//     * {@inheritDoc}
-//     * <p>
-//     * <p>The default implementation does nothing.</p>
-//     */
-//    @Override
-//    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
-//        if (ctx.exception != null) {
-//            return;
-//        }
-//
-//        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
-//    }
-//
-//    /**
-//     * {@inheritDoc}
-//     * <p>
-//     * <p>The default implementation does nothing.</p>
-//     */
-//    @Override
-//    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-//        if (ctx.exception != null) {
-//            return;
-//        }
-//
-//        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
-//    }
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+    }
 
     /**
      * {@inheritDoc}
@@ -1549,12 +1549,22 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitReservedWord(BallerinaParser.ReservedWordContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
         this.pkgBuilder.startInvocationNode(getWS(ctx));
     }
 
     @Override
     public void exitAnyIdentifierName(BallerinaParser.AnyIdentifierNameContext ctx) {
-        this.pkgBuilder.startInvocationNode(getWS(ctx));
+        if (ctx.exception != null) {
+            return;
+        }
+
+        if (ctx.reservedWord() == null) {
+            this.pkgBuilder.startInvocationNode(getWS(ctx));
+        }
     }
 
     @Override

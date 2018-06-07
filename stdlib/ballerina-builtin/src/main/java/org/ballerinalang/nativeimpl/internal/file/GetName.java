@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,42 +16,46 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Used to check existence of file.
+ * Creates the file at the path specified in the File struct.
  *
- * @since 0.970.0-alpha1
+ * @since 0.970.0-alpha3
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
-        functionName = "pathExists",
-        args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path",
-                        structPackage = "ballerina/file")},
-        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.PACKAGE_NAME,
+        functionName = "getName",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                             structPackage = Constants.PACKAGE_PATH)
+        ,
+        returnType = {
+                @ReturnType(type = TypeKind.STRING)
+        },
         isPublic = true
 )
-public class PathExists extends BlockingNativeCallableUnit {
-
+public class GetName extends BlockingNativeCallableUnit {
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void execute(Context context) {
         BStruct pathStruct = (BStruct) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        boolean exists = Files.exists(path);
-        context.setReturnValues(new BBoolean(exists));
+        Path fileName = path.getFileName();
+        context.setReturnValues(new BString(fileName == null ? "" : fileName.toString()));
     }
 }

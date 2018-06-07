@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for pattern queries with every keyword.
+ */
 public class EveryPatternTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(EveryPatternTestCase.class);

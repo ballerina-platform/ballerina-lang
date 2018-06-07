@@ -33,7 +33,7 @@ import java.nio.channels.ByteChannel;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Tests operations through the async io framework
+ * Tests operations through the async io framework.
  */
 public class AsyncReadWriteTest {
 
@@ -101,7 +101,7 @@ public class AsyncReadWriteTest {
     @Test(description = "Write into a channel using async io framework")
     public void writeBytes() throws IOException, URISyntaxException, ExecutionException, InterruptedException {
         //Number of characters in this file would be 6
-        ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(currentDirectoryPath + "write.txt");
         Channel channel = new MockByteChannel(byteChannel);
         byte[] bytes = "hello".getBytes();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,43 +16,44 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Creates the file at the path specified in the File struct.
+ * Validates whether the given input is a directory.
  *
- * @since 0.970.0-alpha3
+ * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
-        functionName = "Path.getName",
-        args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina/file")
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.PACKAGE_NAME,
+        functionName = "isDirectory",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                             structPackage = Constants.PACKAGE_PATH)
+        ,
+        returnType = {
+                @ReturnType(type = TypeKind.BOOLEAN)
         },
-        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
-public class GetName extends BlockingNativeCallableUnit {
-    /**
-     * {@inheritDoc}
-     */
+public class IsDirectory extends BlockingNativeCallableUnit {
+
     @Override
     public void execute(Context context) {
         BStruct pathStruct = (BStruct) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        Path fileName = path.getFileName();
-        context.setReturnValues(new BString(fileName == null ? "" : fileName.toString()));
+        context.setReturnValues(new BBoolean(Files.isDirectory(path)));
     }
 }

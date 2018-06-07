@@ -32,7 +32,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
- * Native function ballerina.compression:decompress
+ * Native function ballerina.compression:decompress.
  *
  * @since 0.970.0
  */
@@ -51,12 +51,12 @@ import java.nio.file.Path;
 public class Decompress extends BlockingNativeCallableUnit {
 
     /**
-     * File path defined in ballerina.compression
+     * File path defined in ballerina.compression.
      */
     private static final int SRC_PATH_FIELD_INDEX = 0;
 
     /**
-     * File path of the destination directory defined in ballerina.compression
+     * File path of the destination directory defined in ballerina.compression.
      */
     private static final int DEST_PATH_FIELD_INDEX = 1;
 

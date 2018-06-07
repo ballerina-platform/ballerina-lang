@@ -16,17 +16,16 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,21 +34,23 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+
 /**
  * Used to check existence of file.
  *
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
+        orgName = Constants.ORG_NAME, packageName = Constants.PACKAGE_NAME,
         functionName = "createFile",
-        args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina/file")
-        },
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                             structPackage = Constants.PACKAGE_PATH)
+        ,
         returnType = {
-                @ReturnType(type = TypeKind.BOOLEAN),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/file")
-        },
+                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR,
+                        structPackage = BALLERINA_BUILTIN_PKG)        },
         isPublic = true
 )
 public class CreateFile extends BlockingNativeCallableUnit {
@@ -60,10 +61,8 @@ public class CreateFile extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct pathStruct = (BStruct) context.getRefArgument(0);
         Path filePath = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        Path newFile;
         try {
-            newFile = Files.createFile(filePath);
-            context.setReturnValues(new BBoolean(Files.exists(newFile)));
+            Files.createFile(filePath);
         } catch (IOException | UnsupportedOperationException | SecurityException e) {
             String msg;
             if (e instanceof SecurityException) {

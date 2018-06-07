@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
@@ -57,7 +58,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -348,12 +348,12 @@ public class CommonUtil {
      * Get the Annotation completion Item.
      *
      * @param packageID  Package Id
-     * @param annotation BLang annotation to extract the completion Item
+     * @param annotationSymbol BLang annotation to extract the completion Item
      * @return {@link CompletionItem}   Completion item for the annotation
      */
-    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BLangAnnotation annotation) {
-        String label = getAnnotationLabel(packageID, annotation);
-        String insertText = getAnnotationInsertText(packageID, annotation);
+    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol) {
+        String label = getAnnotationLabel(packageID, annotationSymbol);
+        String insertText = getAnnotationInsertText(packageID, annotationSymbol);
         CompletionItem annotationItem = new CompletionItem();
         annotationItem.setLabel(label);
         annotationItem.setInsertText(insertText);
@@ -367,25 +367,16 @@ public class CommonUtil {
      * Get the annotation Insert text.
      *
      * @param packageID  Package ID
-     * @param annotation Annotation to get the insert text
+     * @param annotationSymbol Annotation to get the insert text
      * @return {@link String}   Insert text
      */
-    private static String getAnnotationInsertText(PackageID packageID, BLangAnnotation annotation) {
+    private static String getAnnotationInsertText(PackageID packageID, BAnnotationSymbol annotationSymbol) {
         String pkgAlias = packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue();
         StringBuilder annotationStart = new StringBuilder();
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
             annotationStart.append(pkgAlias).append(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
         }
-        annotationStart.append(annotation.getName().getValue()).append(" ").append(UtilSymbolKeys.OPEN_BRACE_KEY);
-
-        // Note: Code has been commented on purpose since the implementation can be revert back
-//        if (annotation.typeNode.type instanceof BStructType) {
-//            ((BStructType) annotation.typeNode.type).fields.forEach(bStructField -> {
-//                String defaultFieldEntry = System.lineSeparator() + "\t" + bStructField.getName().getValue()
-//                        + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + getDefaultValueForType(bStructField.getType());
-//                fieldEntries.add(defaultFieldEntry);
-//            });
-//        }
+        annotationStart.append(annotationSymbol.getName().getValue()).append(" ").append(UtilSymbolKeys.OPEN_BRACE_KEY);
 
         annotationStart.append(LINE_SEPARATOR).append("\t").append("${1}").append(LINE_SEPARATOR)
                 .append(UtilSymbolKeys.CLOSE_BRACE_KEY);
@@ -400,7 +391,7 @@ public class CommonUtil {
      * @param annotation BLang annotation
      * @return {@link String}          Label string
      */
-    private static String getAnnotationLabel(PackageID packageID, BLangAnnotation annotation) {
+    private static String getAnnotationLabel(PackageID packageID, BAnnotationSymbol annotation) {
         String pkgComponent = "";
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
 

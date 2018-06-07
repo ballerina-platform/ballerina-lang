@@ -183,41 +183,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangOrderByVariable orderByVariable) {
-        super.visit(orderByVariable);
-    }
-
-    @Override
-    public void visit(BLangLimit limit) {
-        super.visit(limit);
-    }
-
-    @Override
-    public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        super.visit(finiteTypeNode);
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-        super.visit(typeLoad);
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
-        super.visit(functionVarRef);
-    }
-
-    @Override
-    public void visit(BLangObjectTypeNode objectTypeNode) {
-        super.visit(objectTypeNode);
-    }
-
-    @Override
-    public void visit(BLangRecordTypeNode recordTypeNode) {
-        super.visit(recordTypeNode);
-    }
-
-    @Override
     public void visit(BLangTypeDefinition typeDefinition) {
         // No implementation
     }
@@ -430,6 +395,15 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangOrderByVariable orderByVariable) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangLimit limit) {
+        // No implementation
+    }
+
     public void visit(BLangGroupBy groupBy) {
         // No implementation
     }
@@ -758,6 +732,20 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+        // No implementation
+    }
+
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         // No implementation
     }
@@ -785,11 +773,19 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
+        // No implementation
+    }
+
     public void visit(BLangFieldBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
         // No implementation
     }
 
     @Override
+    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
+        // No implementation
+    }
+
     public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
         // No implementation
     }

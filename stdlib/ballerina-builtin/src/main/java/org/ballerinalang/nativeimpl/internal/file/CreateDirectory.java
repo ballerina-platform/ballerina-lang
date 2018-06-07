@@ -16,23 +16,26 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Creates a new directory.
@@ -40,34 +43,33 @@ import java.nio.file.Path;
  * @since 0.970.0-alpha1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.PACKAGE_NAME,
         functionName = "createDirectory",
-        args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina/file")
-        },
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                             structPackage = Constants.PACKAGE_PATH)
+        ,
         returnType = {
-                @ReturnType(type = TypeKind.BOOLEAN),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/file")
-        },
+                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR,
+                        structPackage = BALLERINA_BUILTIN_PKG)        },
         isPublic = true
 )
 public class CreateDirectory extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(CreateDirectory.class);
-    /**
-     * Index which holds the reference to the path.
-     */
-    private static final int INDEX = 0;
+    
 
     @Override
     public void execute(Context context) {
-        BStruct pathStruct = (BStruct) context.getRefArgument(INDEX);
+        BStruct pathStruct = (BStruct) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         File dir = path.toFile();
         try {
-            if (dir.mkdirs()) {
-                context.setReturnValues(new BBoolean(true));
-            } else {
+            if (Files.exists(path)) {
+                log.error("Directory already exists: " + path);
+                context.setReturnValues(BLangVMErrors.createError(context, "Directory already exists: " + path));
+            } else if (!dir.mkdirs()) {
+                log.error("Permission denied to create the requested directory structure: " + path);
                 context.setReturnValues(BLangVMErrors.createError(context,
                         "Permission denied to create the requested directory structure: " + path));
             }
