@@ -261,15 +261,17 @@ public class BallerinaBlockProcessor extends BallerinaScopeProcessorBase {
             if (!isCompletion() && getResult() != null) {
                 return false;
             }
-            processObjectFields(scopeElement);
-            if (!isCompletion() && getResult() != null) {
-                return false;
-            }
             processFunctionSignature(scopeElement);
             if (!isCompletion() && getResult() != null) {
                 return false;
             }
             processObjectFunctionSignature(scopeElement);
+            if (!isCompletion() && getResult() != null) {
+                return false;
+            }
+            // Object fields should be processed after object functions. Otherwise the variable might match with a
+            // field which should be matched to a parameter.
+            processObjectFields(scopeElement);
             if (!isCompletion() && getResult() != null) {
                 return false;
             }

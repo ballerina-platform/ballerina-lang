@@ -30,7 +30,6 @@ import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -93,7 +92,7 @@ public class ParserRuleCallableUnitBodyContextResolver extends AbstractItemResol
         return symbolInfoList.stream()
                 .filter(symbolInfo -> {
                     BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                    return bSymbol.getType() instanceof BConnectorType || bSymbol instanceof BPackageSymbol;
+                    return bSymbol instanceof BPackageSymbol;
                 })
                 .collect(Collectors.toList());
     }

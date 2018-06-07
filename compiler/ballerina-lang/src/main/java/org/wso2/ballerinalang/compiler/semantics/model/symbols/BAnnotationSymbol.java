@@ -22,6 +22,7 @@ import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,5 +63,15 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     public String bvmAlias() {
         String pkg = pkgID.bvmAlias();
         return !pkg.equals(".") ? pkg + ":" + this.name : this.name.toString();
+    }
+
+    @Override
+    public BAnnotationSymbol createLabelSymbol() {
+        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, Names.EMPTY, pkgID, type, owner);
+        copy.attributes = attributes;
+        copy.attachedType = attachedType;
+        copy.attachmentPoints = attachmentPoints;
+        copy.isLabel = true;
+        return copy;
     }
 }

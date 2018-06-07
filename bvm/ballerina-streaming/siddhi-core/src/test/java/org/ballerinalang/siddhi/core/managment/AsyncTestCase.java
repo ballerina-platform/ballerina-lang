@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for async streaming queries.
+ */
 public class AsyncTestCase {
     private static final Logger log = LoggerFactory.getLogger(AsyncTestCase.class);
     private int count;

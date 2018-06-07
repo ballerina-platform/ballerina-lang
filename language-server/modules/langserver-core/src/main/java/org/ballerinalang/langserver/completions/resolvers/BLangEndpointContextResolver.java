@@ -24,9 +24,10 @@ import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
 import org.eclipse.lsp4j.CompletionItem;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -49,7 +50,7 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         BLangNode bLangEndpoint = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        List<BStructSymbol.BAttachedFunction> attachedFunctions = new ArrayList<>();
+        List<BAttachedFunction> attachedFunctions = new ArrayList<>();
 
         if (bLangEndpoint instanceof BLangEndpoint) {
             BLangExpression configurationExpr = ((BLangEndpoint) bLangEndpoint).configurationExpr;
@@ -78,11 +79,11 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
         }
         
         if (bLangEndpoint instanceof  BLangEndpoint
-                && ((BLangEndpoint) bLangEndpoint).type.tsymbol instanceof BStructSymbol) {
-            attachedFunctions.addAll(((BStructSymbol) ((BLangEndpoint) bLangEndpoint).type.tsymbol).attachedFuncs);
+                && ((BLangEndpoint) bLangEndpoint).type.tsymbol instanceof BObjectTypeSymbol) {
+            attachedFunctions.addAll(((BObjectTypeSymbol) ((BLangEndpoint) bLangEndpoint).type.tsymbol).attachedFuncs);
         }
 
-        BStructSymbol.BAttachedFunction initFunction = attachedFunctions.stream()
+        BAttachedFunction initFunction = attachedFunctions.stream()
                 .filter(bAttachedFunction -> bAttachedFunction.funcName.getValue().equals(INIT))
                 .findFirst()
                 .orElseGet(null);
@@ -90,11 +91,11 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
         BVarSymbol configSymbol = initFunction.symbol.getParameters().get(0);
 
         BType configSymbolType = configSymbol.getType();
-        if (configSymbolType instanceof BStructType) {
+        if (configSymbolType instanceof BRecordType) {
             completionItems.addAll(
-                    CommonUtil.getStructFieldPopulateCompletionItems(((BStructType) configSymbolType).getFields())
+                    CommonUtil.getStructFieldPopulateCompletionItems(((BRecordType) configSymbolType).getFields())
             );
-            completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BStructType) configSymbolType).getFields()));
+            completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BRecordType) configSymbolType).getFields()));
         }
 
         return completionItems;

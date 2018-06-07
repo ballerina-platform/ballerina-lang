@@ -33,6 +33,9 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase for synchronized streaming queries.
+ */
 public class QuerySyncTestCase {
     private static final Logger log = LoggerFactory.getLogger(QuerySyncTestCase.class);
     private AtomicInteger inEventCount;

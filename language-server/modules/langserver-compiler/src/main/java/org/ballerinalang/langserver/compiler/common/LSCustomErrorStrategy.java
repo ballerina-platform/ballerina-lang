@@ -69,8 +69,6 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
         } else if (context instanceof BallerinaParser.SimpleVariableReferenceContext
                 && parser.getCurrentToken().getText().equals(ACTION_INVOCATION_SYMBOL)) {
             context.exception = null;
-        } else {
-            context.exception = e;
         }
         // Note: Following check added, when the context is variable definition and the type name context is hit,
         // We need to set the error for the variable definition as well.
@@ -122,6 +120,9 @@ public class LSCustomErrorStrategy extends BallerinaParserErrorStrategy {
             setContextIfConditionalStatement(conditionalContext, e);
         } else if (conditionalContext instanceof BallerinaParser.CheckedExpressionContext) {
             setContextIfCheckedExpression(context, e);
+        } else if (conditionalContext instanceof BallerinaParser.ThrowStatementContext) {
+            // TODO: need to migrate this check to a top layer
+            conditionalContext.exception = e;
         }
     }
 }

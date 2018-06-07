@@ -18,6 +18,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 
+/**
+ * Test Case for Lang Server Package Caching.
+ */
 public class LSPackageCacheTest {
 
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();

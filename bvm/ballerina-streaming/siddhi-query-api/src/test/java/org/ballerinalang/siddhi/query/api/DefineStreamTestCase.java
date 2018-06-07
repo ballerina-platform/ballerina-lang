@@ -24,6 +24,9 @@ import org.ballerinalang.siddhi.query.api.exception.DuplicateAttributeException;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for defining stream definition.
+ */
 public class DefineStreamTestCase {
 
     //define stream StockStream (symbol string, price int, volume float );

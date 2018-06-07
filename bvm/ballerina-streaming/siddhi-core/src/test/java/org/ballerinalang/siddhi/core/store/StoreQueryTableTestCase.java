@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for store queries on table.
+ */
 public class StoreQueryTableTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(StoreQueryTableTestCase.class);

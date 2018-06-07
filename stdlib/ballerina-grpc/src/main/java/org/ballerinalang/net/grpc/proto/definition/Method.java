@@ -50,7 +50,7 @@ public class Method {
     }
 
     /**
-     * MethodDefinition.Builder
+     * MethodDefinition.Builder.
      */
     public static class Builder {
         

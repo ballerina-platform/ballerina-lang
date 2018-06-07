@@ -41,7 +41,7 @@ import static org.ballerinalang.mime.util.Constants.STRING_INDEX;
         functionName = "getMediaType",
         args = {@Argument(name = "contentType",
                 type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true)
 public class GetMediaType extends BlockingNativeCallableUnit {
 

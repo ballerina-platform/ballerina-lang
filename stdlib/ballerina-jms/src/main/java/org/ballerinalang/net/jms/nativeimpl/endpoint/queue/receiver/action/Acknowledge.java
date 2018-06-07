@@ -35,16 +35,16 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgeme
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "acknowledge",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
+                   receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = "QueueReceiverActions",
                                         structPackage = "ballerina.jms"),
                    args = {
                            @Argument(name = "message",
-                                     type = TypeKind.STRUCT,
+                                     type = TypeKind.OBJECT,
                                      structType = "Message")
                    },
                    returnType = {
-                           @ReturnType(type = TypeKind.STRUCT,
+                           @ReturnType(type = TypeKind.OBJECT,
                                        structPackage = "ballerina.jms",
                                        structType = "Message")
                    },

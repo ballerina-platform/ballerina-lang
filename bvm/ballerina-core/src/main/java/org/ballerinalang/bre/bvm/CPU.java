@@ -19,11 +19,13 @@ package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BAttachedFunction;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
@@ -79,13 +81,13 @@ import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
-import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
 import org.ballerinalang.util.codegen.LineNumberInfo;
 import org.ballerinalang.util.codegen.StructFieldInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.codegen.TypeDefInfo;
 import org.ballerinalang.util.codegen.WorkerDataChannelInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
@@ -421,14 +423,6 @@ public class CPU {
                             return;
                         }
                         break;
-                    case InstructionCodes.TCALL:
-                        InstructionTCALL tcallIns = (InstructionTCALL) instruction;
-                        ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
-                                tcallIns.retRegs, false, tcallIns.flags);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
                     case InstructionCodes.TR_BEGIN:
                         i = operands[0];
                         j = operands[1];
@@ -497,8 +491,10 @@ public class CPU {
                     case InstructionCodes.FPLOAD:
                         i = operands[0];
                         j = operands[1];
+                        k = operands[2];
                         funcRefCPEntry = (FunctionRefCPEntry) ctx.constPool[i];
-                        BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry);
+                        typeEntry = (TypeRefCPEntry) ctx.constPool[k];
+                        BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry, typeEntry.getType());
                         sf.refRegs[j] = functionPointer;
                         findAndAddClosureVarRegIndexes(ctx, operands, functionPointer);
                         break;
@@ -834,7 +830,8 @@ public class CPU {
 
     private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes) {
         if (paramTypes.length == 0 || paramTypes.length == argRegs.length ||
-                TypeTags.STRUCT_TAG != paramTypes[0].getTag()) {
+                (TypeTags.OBJECT_TYPE_TAG != paramTypes[0].getTag()
+                        && TypeTags.RECORD_TYPE_TAG != paramTypes[0].getTag())) {
             return argRegs;
         }
         int[] expandedArgs = new int[paramTypes.length];
@@ -937,14 +934,14 @@ public class CPU {
     private static void findAndAddClosureVarRegIndexes(WorkerExecutionContext ctx, int[] operands,
                                                        BFunctionPointer fp) {
 
-        int h = operands[2];
+        int h = operands[3];
 
         if (h == 0) {
             return;
         }
 
         for (int i = 0; i < h; i++) {
-            int operandIndex = (i * 2) + 3;
+            int operandIndex = (i * 2) + 4;
             int type = operands[operandIndex];
             int index = operands[++operandIndex];
             switch (type) {
@@ -2872,7 +2869,8 @@ public class CPU {
         int cpIndex = operands[0];
         int i = operands[1];
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) ctx.constPool[cpIndex];
-        StructInfo structInfo = (StructInfo) structureRefCPEntry.getStructureTypeInfo();
+        StructureTypeInfo structInfo = (StructureTypeInfo) ((TypeDefInfo) structureRefCPEntry
+                .getStructureTypeInfo()).typeInfo;
         sf.refRegs[i] = new BStruct(structInfo.getType());
     }
 
@@ -3011,7 +3009,8 @@ public class CPU {
             return null;
         }
 
-        StructInfo structInfo = structVal.getType().structInfo;
+        // TODO use ObjectTypeInfo once record init function is removed
+        StructureTypeInfo structInfo = (StructureTypeInfo) structVal.getType().getTypeInfo();
         AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
         return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, flags);
@@ -3182,8 +3181,9 @@ public class CPU {
             return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
         }
 
-        if (rhsType.getTag() == TypeTags.STRUCT_TAG && lhsType.getTag() == TypeTags.STRUCT_TAG) {
-            return checkStructEquivalency((BStructType) rhsType, (BStructType) lhsType);
+        if ((rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || rhsType.getTag() == TypeTags.RECORD_TYPE_TAG)
+                && (lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || lhsType.getTag() == TypeTags.RECORD_TYPE_TAG)) {
+            return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType);
         }
 
         if (lhsType.getTag() == TypeTags.ANY_TAG) {
@@ -3270,8 +3270,9 @@ public class CPU {
             return true;
         }
 
-        if (rhsType.getTag() == TypeTags.STRUCT_TAG && lhsType.getTag() == TypeTags.STRUCT_TAG) {
-            return checkStructEquivalency((BStructType) rhsType, (BStructType) lhsType);
+        if ((rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || rhsType.getTag() == TypeTags.RECORD_TYPE_TAG)
+                && (lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || lhsType.getTag() == TypeTags.RECORD_TYPE_TAG)) {
+            return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType);
         }
 
         if (lhsType.getTag() == TypeTags.ANY_TAG) {
@@ -3302,6 +3303,10 @@ public class CPU {
             return checkFiniteTypeAssignable(rhsValue, lhsType);
         }
 
+        if (lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
+            return checkFunctionCast(rhsValue, lhsType);
+        }
+
         return false;
     }
 
@@ -3314,10 +3319,12 @@ public class CPU {
             return true;
         }
 
-        if (sourceMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG
-                && targetMapType.getConstrainedType().getTag() == TypeTags.STRUCT_TAG) {
-            return checkStructEquivalency((BStructType) sourceMapType.getConstrainedType(),
-                    (BStructType) targetMapType.getConstrainedType());
+        if ((sourceMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG
+                || sourceMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG)
+                && (targetMapType.getConstrainedType().getTag() == TypeTags.OBJECT_TYPE_TAG
+                || targetMapType.getConstrainedType().getTag() == TypeTags.RECORD_TYPE_TAG)) {
+            return checkStructEquivalency((BStructureType) sourceMapType.getConstrainedType(),
+                    (BStructureType) targetMapType.getConstrainedType());
         }
 
         return false;
@@ -3366,7 +3373,7 @@ public class CPU {
         return getElementType(((BArrayType) type).getElementType());
     }
 
-    public static boolean checkStructEquivalency(BStructType rhsType, BStructType lhsType) {
+    public static boolean checkStructEquivalency(BStructureType rhsType, BStructureType lhsType) {
         // Both structs should be public or private.
         // Get the XOR of both flags(masks)
         // If both are public, then public bit should be 0;
@@ -3388,7 +3395,7 @@ public class CPU {
                 lhsType.getAttachedFunctions().length - 1 :
                 lhsType.getAttachedFunctions().length;
 
-        if (lhsType.getStructFields().length > rhsType.getStructFields().length ||
+        if (lhsType.getFields().length > rhsType.getFields().length ||
                 lhsAttachedFunctionCount > rhsType.getAttachedFunctions().length) {
             return false;
         }
@@ -3399,10 +3406,10 @@ public class CPU {
                 checkEquivalencyOfPublicStructs(lhsType, rhsType);
     }
 
-    private static boolean checkEquivalencyOfTwoPrivateStructs(BStructType lhsType, BStructType rhsType) {
-        for (int fieldCounter = 0; fieldCounter < lhsType.getStructFields().length; fieldCounter++) {
-            BStructType.StructField lhsField = lhsType.getStructFields()[fieldCounter];
-            BStructType.StructField rhsField = rhsType.getStructFields()[fieldCounter];
+    private static boolean checkEquivalencyOfTwoPrivateStructs(BStructureType lhsType, BStructureType rhsType) {
+        for (int fieldCounter = 0; fieldCounter < lhsType.getFields().length; fieldCounter++) {
+            BField lhsField = lhsType.getFields()[fieldCounter];
+            BField rhsField = rhsType.getFields()[fieldCounter];
             if (lhsField.fieldName.equals(rhsField.fieldName) &&
                     isSameType(rhsField.fieldType, lhsField.fieldType)) {
                 continue;
@@ -3410,14 +3417,14 @@ public class CPU {
             return false;
         }
 
-        BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
-        for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
+        BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
+        BAttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
             if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
                 continue;
             }
 
-            BStructType.AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
             if (rhsFunc == null) {
                 return false;
             }
@@ -3425,12 +3432,12 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkEquivalencyOfPublicStructs(BStructType lhsType, BStructType rhsType) {
+    private static boolean checkEquivalencyOfPublicStructs(BStructureType lhsType, BStructureType rhsType) {
         int fieldCounter = 0;
-        for (; fieldCounter < lhsType.getStructFields().length; fieldCounter++) {
+        for (; fieldCounter < lhsType.getFields().length; fieldCounter++) {
             // Return false if either field is private
-            BStructType.StructField lhsField = lhsType.getStructFields()[fieldCounter];
-            BStructType.StructField rhsField = rhsType.getStructFields()[fieldCounter];
+            BField lhsField = lhsType.getFields()[fieldCounter];
+            BField rhsField = rhsType.getFields()[fieldCounter];
             if (!Flags.isFlagOn(lhsField.flags, Flags.PUBLIC) ||
                     !Flags.isFlagOn(rhsField.flags, Flags.PUBLIC)) {
                 return false;
@@ -3444,15 +3451,15 @@ public class CPU {
         }
 
         // Check the rest of the fields in RHS type
-        for (; fieldCounter < rhsType.getStructFields().length; fieldCounter++) {
-            if (!Flags.isFlagOn(rhsType.getStructFields()[fieldCounter].flags, Flags.PUBLIC)) {
+        for (; fieldCounter < rhsType.getFields().length; fieldCounter++) {
+            if (!Flags.isFlagOn(rhsType.getFields()[fieldCounter].flags, Flags.PUBLIC)) {
                 return false;
             }
         }
 
-        BStructType.AttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
-        BStructType.AttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
-        for (BStructType.AttachedFunction lhsFunc : lhsFuncs) {
+        BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
+        BAttachedFunction[] rhsFuncs = rhsType.getAttachedFunctions();
+        for (BAttachedFunction lhsFunc : lhsFuncs) {
             if (lhsFunc == lhsType.initializer || lhsFunc == lhsType.defaultsValuesInitFunc) {
                 continue;
             }
@@ -3461,14 +3468,14 @@ public class CPU {
                 return false;
             }
 
-            BStructType.AttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
+            BAttachedFunction rhsFunc = getMatchingInvokableType(rhsFuncs, lhsFunc);
             if (rhsFunc == null || !Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
                 return false;
             }
         }
 
         // Check for private attached function in RHS type
-        for (BStructType.AttachedFunction rhsFunc : rhsFuncs) {
+        for (BAttachedFunction rhsFunc : rhsFuncs) {
             if (!Flags.isFlagOn(rhsFunc.flags, Flags.PUBLIC)) {
                 return false;
             }
@@ -3498,8 +3505,8 @@ public class CPU {
         return true;
     }
 
-    private static BStructType.AttachedFunction getMatchingInvokableType(BStructType.AttachedFunction[] rhsFuncs,
-                                                                         BStructType.AttachedFunction lhsFunc) {
+    private static BAttachedFunction getMatchingInvokableType(BAttachedFunction[] rhsFuncs,
+                                                                         BAttachedFunction lhsFunc) {
         return Arrays.stream(rhsFuncs)
                 .filter(rhsFunc -> lhsFunc.funcName.equals(rhsFunc.funcName))
                 .filter(rhsFunc -> checkFunctionTypeEquality(lhsFunc.type, rhsFunc.type))
@@ -3663,8 +3670,8 @@ public class CPU {
     }
 
     private static boolean checkJSONEquivalency(JsonNode json, BJSONType sourceType, BJSONType targetType) {
-        BStructType sourceConstrainedType = (BStructType) sourceType.getConstrainedType();
-        BStructType targetConstrainedType = (BStructType) targetType.getConstrainedType();
+        BStructureType sourceConstrainedType = (BStructureType) sourceType.getConstrainedType();
+        BStructureType targetConstrainedType = (BStructureType) targetType.getConstrainedType();
 
         // Casting to an unconstrained JSON
         if (targetConstrainedType == null) {
@@ -3682,7 +3689,7 @@ public class CPU {
         }
 
         // Casting from unconstrained JSON to constrained JSON
-        BStructType.StructField[] tFields = targetConstrainedType.getStructFields();
+        BField[] tFields = targetConstrainedType.getFields();
         for (int i = 0; i < tFields.length; i++) {
             String fieldName = tFields[i].getFieldName();
             if (!json.has(fieldName)) {
@@ -3761,9 +3768,9 @@ public class CPU {
         int blobRegIndex = -1;
         int refRegIndex = -1;
 
-        BStructType.StructField[] structFields = (bStruct.getType()).getStructFields();
+        BField[] structFields = (bStruct.getType()).getFields();
         BMap<String, BValue> map = BTypes.typeMap.getEmptyValue();
-        for (BStructType.StructField structField : structFields) {
+        for (BField structField : structFields) {
             String key = structField.getFieldName();
             BType fieldType = structField.getFieldType();
             switch (fieldType.getTag()) {
@@ -3917,9 +3924,10 @@ public class CPU {
         int booleanRegIndex = -1;
         int blobRegIndex = -1;
         int refRegIndex = -1;
-        BStructType structType = (BStructType) typeRefCPEntry.getType();
+        BStructureType structType = (BStructureType) typeRefCPEntry.getType();
         BStruct bStruct = new BStruct(structType);
-        StructInfo structInfo = ctx.callableUnitInfo.getPackageInfo().getStructInfo(structType.getName());
+        StructureTypeInfo structInfo = ctx.callableUnitInfo
+                .getPackageInfo().getStructInfo(structType.getName());
 
         Set<String> keys = bMap.keySet();
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
@@ -4025,7 +4033,7 @@ public class CPU {
         }
 
         try {
-            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructType) typeRefCPEntry.getType());
+            sf.refRegs[j] = JSONUtils.convertJSONToStruct(bjson, (BStructureType) typeRefCPEntry.getType());
         } catch (Exception e) {
             String errorMsg = "cannot convert '" + TypeConstants.JSON_TNAME + "' to type '" +
                     typeRefCPEntry.getType() + "': " + e.getMessage();
@@ -4147,8 +4155,11 @@ public class CPU {
             return true;
         }
        
-        if (value.getType().getTag() == TypeTags.STRUCT_TAG && constraintType.getTag() == TypeTags.STRUCT_TAG &&
-                checkStructEquivalency((BStructType) value.getType(), (BStructType) constraintType)) {
+        if ((value.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
+                || value.getType().getTag() == TypeTags.RECORD_TYPE_TAG)
+                && (constraintType.getTag() == TypeTags.OBJECT_TYPE_TAG
+                || constraintType.getTag() == TypeTags.RECORD_TYPE_TAG) &&
+                checkStructEquivalency((BStructureType) value.getType(), (BStructureType) constraintType)) {
             return true;
         }
 
@@ -4163,5 +4174,12 @@ public class CPU {
 
         return false;
     }
-    
+
+    private static boolean checkFunctionCast(BValue value, BType lhsType) {
+        if (value.getType().getTag() != TypeTags.FUNCTION_POINTER_TAG) {
+            return false;
+        }
+
+        return checkFunctionTypeEquality((BFunctionType) value.getType(), (BFunctionType) lhsType);
+    }
 }

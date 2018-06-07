@@ -1,6 +1,6 @@
 function (string a, int b) returns (string) glf1 = foo;
 
-function (string a, boolean b) returns (string) glf2 = (string a, boolean b) => (string){
+function (string a, boolean b) returns (string) glf2 = (string a, boolean b) => (string) {
                                                                return a + b;
                                                            };
 
@@ -18,7 +18,7 @@ function fooReverse (string x, int y) returns (string) {
     return result;
 }
 
-function test1() returns (string){
+function test1() returns (string) {
     return glf1("test",1);
 }
 
@@ -26,7 +26,7 @@ function test2() returns (string){
     return glf2("test2", true);
 }
 
-function test3() returns (string, string, string){
+function test3() returns (string, string, string) {
     glf3 = foo;
     string x = glf3("test",3);
     string y = foo("test",3);

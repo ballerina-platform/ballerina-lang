@@ -3,11 +3,9 @@ import PropTypes from 'prop-types';
 import File from 'core/workspace/model/file';
 import { EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
 import { getMonacoKeyBinding } from 'plugins/ballerina/utils/monaco-key-utils';
+import MonacoBasedUndoManager from 'plugins/ballerina/utils/monaco-based-undo-manager';
 import { Dimmer, Loader } from 'semantic-ui-react';
 import MonacoEditor from 'react-monaco-editor';
-import { EVENTS as EDITOR_EVENTS } from 'core/editor/constants';
-import { withUndoRedoSupport } from 'core/editor/views/utils';
-import TextEditorUndoableOperation from './TextEditorUndoableOperation';
 import './TextEditor.css';
 
 const MONACO_OPTIONS = {
@@ -73,30 +71,27 @@ class TextEditor extends React.Component {
         this.monaco = undefined;
         this.editorInstance = undefined;
         this.editorDidMount = this.editorDidMount.bind(this);
-        this.onFileContentModified = this.onFileContentModified.bind(this);
     }
 
     /**
      * @inheritdoc
      */
     componentDidMount() {
+        this.props.editorModel.undoManager = new MonacoBasedUndoManager(this);
         this.props.file.on(WORKSPACE_EVENTS.CONTENT_MODIFIED, this.onFileContentModified);
     }
 
-    /**
-     * On File Modifications
-     */
-    onFileContentModified(changeEvent) {
-        if (changeEvent.originEvt.type !== EDITOR_EVENTS.UNDO_EVENT
-            && changeEvent.originEvt.type !== EDITOR_EVENTS.REDO_EVENT) {
-            const undoableOp = new TextEditorUndoableOperation({
-                file: this.props.file,
-                changeEvent,
-                monacoEditorInstance: this.editorInstance,
-                textEditorPlugin: this.props.textEditorPlugin,
-            });
-            this.props.onUndoableOperation(undoableOp);
-        }
+    getCurrentModel() {
+        const uri = this.monaco.Uri.parse(this.props.file.toURI());
+        return this.monaco.editor.getModel(uri);
+    }
+
+    undo(title) {
+        this.editorInstance.trigger(title, 'undo');
+    }
+
+    redo(title) {
+        this.editorInstance.trigger(title, 'redo');
     }
 
     /**
@@ -106,7 +101,26 @@ class TextEditor extends React.Component {
      * @param {Object} monaco Monaco API
      */
     editorDidMount(editorInstance, monaco) {
+        this.monaco = monaco;
         this.editorInstance = editorInstance;
+        const language = getLanguageForExt(this.props.file.extension);
+        const uri = monaco.Uri.parse(this.props.file.toURI());
+        let modelForFile = monaco.editor.getModel(uri);
+        if (!modelForFile) {
+            modelForFile = monaco.editor.createModel(this.props.file.content, language, uri);
+        }
+        editorInstance.setModel(modelForFile);
+        modelForFile.onDidChangeContent((evt) => {
+            const changeEvent = {
+                type: 'text-modified',
+                title: 'Modify Text',
+                data: {
+                    sourceEditor: this,
+                },
+            };
+            this.props.file
+                .setContent(editorInstance.getValue(), changeEvent);
+        });
         this.setState({
             editorMounted: true,
         });
@@ -152,17 +166,8 @@ class TextEditor extends React.Component {
                     theme='vs-dark'
                     width={this.props.width}
                     height={this.props.height}
-                    value={this.props.file.content}
                     editorWillMount={this.editorWillMount}
                     editorDidMount={this.editorDidMount}
-                    onChange={(newValue) => {
-                        const changeEvent = {
-                            type: 'text-modified',
-                            title: 'Modify Text',
-                        };
-                        this.props.file
-                            .setContent(newValue, changeEvent);
-                    }}
                     options={MONACO_OPTIONS}
                 />
             </div>
@@ -192,4 +197,4 @@ TextEditor.defaultProps = {
     isPreviewViewEnabled: false,
 };
 
-export default withUndoRedoSupport(TextEditor);
+export default TextEditor;
