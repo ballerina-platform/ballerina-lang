@@ -187,6 +187,11 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-streams</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-builtin</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1066,6 +1071,7 @@
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
+                <module>stdlib/ballerina-streams</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>stdlib/stdlib-compile</module>
@@ -1122,6 +1128,7 @@
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
+                <module>stdlib/ballerina-streams</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>stdlib/stdlib-compile</module>
@@ -1174,6 +1181,7 @@
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
+                <module>stdlib/ballerina-streams</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>stdlib/stdlib-compile</module>
