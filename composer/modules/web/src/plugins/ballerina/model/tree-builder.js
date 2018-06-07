@@ -119,8 +119,64 @@ class TreeBuilder {
                 }
             }
         }
-        if (kind === 'XmlElementLiteral' && parentKind !== 'XmlElementLiteral') {
+
+        if ((kind === 'XmlCommentLiteral' ||
+                kind === 'XmlElementLiteral' ||
+                kind === 'XmlTextLiteral' ||
+                kind === 'XmlPiLiteral') && node.ws && node.ws[0].text.includes('xml `')) {
             node.root = true;
+            node.startLiteral = node.ws[0].text;
+        }
+
+        if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
+            parentKind === 'StringTemplateLiteral' || parentKind === 'XmlTextLiteral' ||
+            parentKind === 'XmlPiLiteral') {
+            node.inTemplateLiteral = true;
+        }
+
+        if (kind === 'XmlPiLiteral' && node.ws) {
+            let startTagWS = {
+                text: '<?',
+                ws: '',
+            };
+
+            let endTagWS = {
+                text: '?>',
+                ws: '',
+            };
+
+            if (node.root && (node.ws.length > 1)) {
+                node.ws.splice(1, 0, startTagWS);
+                node.ws.splice(2, 0, endTagWS);
+            }
+
+            if (!node.root) {
+                node.ws.splice(0, 0, startTagWS);
+                node.ws.splice(node.ws.length, 0, endTagWS);
+            }
+
+            if (node.target && node.target.unescapedValue) {
+                for (let i = 0; i < node.target.ws.length; i++) {
+                    if (node.target.ws[i].text.includes('<?') &&
+                        node.target.ws[i].text.includes(node.target.unescapedValue)) {
+                        node.target.unescapedValue = node.target.ws[i].text.replace('<?', '');
+                    }
+                }
+            }
+        }
+
+        if (kind === 'XmlCommentLiteral' && node.ws) {
+            let length = node.ws.length;
+            for (let i = 0; i < length; i++) {
+                if (node.ws[i].text.includes('-->')) {
+                    let ws = {
+                        text: '-->',
+                        ws: '',
+                    };
+                    node.ws.splice(i + 1, 0, ws);
+                    break;
+                }
+            }
         }
 
         if (kind === 'AnnotationAttachment' && node.packageAlias.value === 'builtin') {
@@ -145,11 +201,6 @@ class TreeBuilder {
                 && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator') {
                 node.isInternal = true;
             }
-        }
-
-        if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
-            parentKind === 'StringTemplateLiteral') {
-            node.inTemplateLiteral = true;
         }
 
         if (parentKind === 'CompilationUnit' && (kind === 'Variable' || kind === 'Xmlns')) {
