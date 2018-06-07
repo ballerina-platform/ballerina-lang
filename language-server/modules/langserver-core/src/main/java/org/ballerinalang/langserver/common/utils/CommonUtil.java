@@ -232,7 +232,7 @@ public class CommonUtil {
         Token token = null;
         while (true) {
             startIndex += direction;
-            if (startIndex < 0) {
+            if (startIndex < 0 || startIndex == tokenStream.size()) {
                 break;
             }
             token = tokenStream.get(startIndex);
