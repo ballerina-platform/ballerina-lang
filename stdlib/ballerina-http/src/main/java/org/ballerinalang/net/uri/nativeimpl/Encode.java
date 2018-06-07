@@ -32,7 +32,7 @@ import java.net.URLEncoder;
 
 /**
  * Native function to encode URLs.
- * ballerina.http:encode
+ * ballerina/http:encode
  */
 
 @BallerinaFunction(

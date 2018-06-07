@@ -39,7 +39,7 @@ import java.nio.file.Path;
         orgName = "ballerina", packageName = "internal",
         functionName = "Path.getName",
         args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina.file")
+                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina/file")
         },
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

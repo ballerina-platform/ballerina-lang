@@ -38,6 +38,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -1024,7 +1025,7 @@ public class SQLDatasourceUtils {
     }
 
     public static BStruct getSQLConnectorError(Context context, Throwable throwable) {
-        PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.BUILTIN_PACKAGE_PATH);
+        PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
         BStruct sqlConnectorError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {

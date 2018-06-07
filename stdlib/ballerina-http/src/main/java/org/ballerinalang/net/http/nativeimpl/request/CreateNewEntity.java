@@ -39,7 +39,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
         orgName = "ballerina", packageName = "http",
         functionName = "createNewEntity",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Request",
-                structPackage = "ballerina.http"),
+                structPackage = "ballerina/http"),
         args = {@Argument(name = "request", type = TypeKind.OBJECT)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = false

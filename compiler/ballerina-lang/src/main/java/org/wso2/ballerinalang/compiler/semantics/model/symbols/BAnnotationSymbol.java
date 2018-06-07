@@ -61,7 +61,7 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     }
 
     public String bvmAlias() {
-        String pkg = pkgID.bvmAlias();
+        String pkg = pkgID.getAlias();
         return !pkg.equals(".") ? pkg + ":" + this.name : this.name.toString();
     }
 

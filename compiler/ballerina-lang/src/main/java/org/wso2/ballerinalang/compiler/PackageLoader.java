@@ -317,7 +317,7 @@ public class PackageLoader {
         importDcl.orgName = orgNameNode;
         importDcl.version = versionNode;
         BLangIdentifier alias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        alias.setValue(names.merge(Names.DOT, nameComps.get(nameComps.size() - 1)).value);
+        alias.setValue(names.merge(Names.ORG_NAME_SEPARATOR, nameComps.get(nameComps.size() - 1)).value);
         importDcl.alias = alias;
         bLangPackage.imports.add(importDcl);
     }

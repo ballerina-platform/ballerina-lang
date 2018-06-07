@@ -132,7 +132,7 @@ public class PackageID {
     public String toString() {
         String orgName = "";
         if (this.orgName != null && this.orgName != Names.ANON_ORG) {
-            orgName = this.orgName + "/";
+            orgName = this.orgName + Names.ORG_NAME_SEPARATOR.value;
         }
 
         if (version == Names.DEFAULT_VERSION || version.equals(Names.EMPTY)) {
@@ -146,12 +146,12 @@ public class PackageID {
         return orgName;
     }
 
-    public String bvmAlias() {
+    public String getAlias() {
         // TODO: remove null check, it should never be null
         if (this.orgName != null && this.orgName == Names.ANON_ORG) {
             return this.name.toString();
-        } else {
-            return this.orgName + "." + this.getName();
         }
+
+        return this.orgName + Names.ORG_NAME_SEPARATOR.value + this.getName();
     }
 }

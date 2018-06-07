@@ -32,7 +32,7 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 
 /**
- * Native function ballerina.io#createMemoryChannel.
+ * Native function ballerina/io#createMemoryChannel.
  *
  * @since 0.970.1
  */

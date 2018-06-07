@@ -18,6 +18,9 @@
 
 package org.ballerinalang.net.http;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;;
+
 /**
  * Constants for HTTP.
  *
@@ -39,8 +42,8 @@ public class HttpConstants {
     public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
-    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:Listener";
+    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina" + ORG_NAME_SEPARATOR + "http";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina" + ORG_NAME_SEPARATOR + "http:Listener";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -63,7 +66,7 @@ public class HttpConstants {
     public static final String FORWARDED_DISABLE = "disable";
     public static final String DISABLE = "disable";
 
-    public static final String HTTP_PACKAGE_PATH = "ballerina.http";
+    public static final String HTTP_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "http";
 
     public static final String HTTP_REQUEST_METHOD = "method";
     public static final String HTTP_METHOD_GET = "GET";
@@ -140,7 +143,7 @@ public class HttpConstants {
     public static final String PREFLIGHT_RESOURCES = "PREFLIGHT_RESOURCES";
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
-    public static final String PACKAGE_BALLERINA_BUILTIN = "ballerina.builtin";
+    public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
     public static final String CALLER_ACTIONS = "CallerActions";
 

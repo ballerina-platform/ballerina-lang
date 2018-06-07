@@ -31,16 +31,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina.io#createCharacterChannel.
+ * Native function ballerina/io#createCharacterChannel.
  *
  * @since 0.94
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina/io"),
         args = {@Argument(name = "byteChannel", type = TypeKind.OBJECT, structType = "ByteChannel",
-                structPackage = "ballerina.io"),
+                structPackage = "ballerina/io"),
                 @Argument(name = "encoding", type = TypeKind.STRING)},
         isPublic = true
 )
@@ -48,7 +48,7 @@ public class CreateCharacterChannel extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(CreateCharacterChannel.class);
     /**
-     * Specifies the index of the character channel in ballerina.io#CharacterChannel.init.
+     * Specifies the index of the character channel in ballerina/io#CharacterChannel.init.
      */
     private static final int BYTE_CHANNEL_INDEX = 1;
 
@@ -58,7 +58,7 @@ public class CreateCharacterChannel extends BlockingNativeCallableUnit {
     private static final int CHAR_CHANNEL_INDEX = 0;
 
     /**
-     * Specifies the index of the encoding in ballerina.io#createCharacterChannel.
+     * Specifies the index of the encoding in ballerina/io#createCharacterChannel.
      */
     private static final int ENCODING_INDEX = 0;
 

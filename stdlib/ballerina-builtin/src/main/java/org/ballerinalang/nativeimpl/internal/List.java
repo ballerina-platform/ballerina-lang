@@ -46,10 +46,10 @@ import java.nio.file.Path;
         orgName = "ballerina", packageName = "internal",
         functionName = "list",
         args = {@Argument(name = "path", type = TypeKind.RECORD, structType = "Path",
-                structPackage = "ballerina.file")},
+                structPackage = "ballerina/file")},
         returnType = {
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.RECORD),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.file")
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/file")
         },
         isPublic = true
 )

@@ -136,7 +136,7 @@ public class SecureClientSocketTest {
 
     @Test(description = "Test connection open with properties")
     public void testOpenSecureClientSocket() throws URISyntaxException {
-        PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina.io");
+        PackageInfo ioPackageInfo = socketClient.getProgFile().getPackageInfo("ballerina/io");
         StructureTypeInfo socketProperties = ioPackageInfo.getStructInfo("SocketProperties");
         BStruct propertyStruct = BLangVMStructs.createBStruct(socketProperties);
         URL resource = getClass().getClassLoader().

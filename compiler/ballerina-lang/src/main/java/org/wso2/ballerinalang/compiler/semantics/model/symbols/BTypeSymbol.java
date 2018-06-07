@@ -39,7 +39,7 @@ public class BTypeSymbol extends BSymbol implements TypeSymbol {
                 this.pkgID.name == Names.DEFAULT_PACKAGE) {
             return this.name.value;
         }
-        return this.pkgID.bvmAlias() + ":" + this.name;
+        return this.pkgID.getAlias() + ":" + this.name;
     }
 
     @Override

@@ -41,7 +41,7 @@ import java.nio.file.Path;
         functionName = "isDirectory",
         args = {
                 @Argument(name = "path", type = TypeKind.RECORD, structType = "Path",
-                structPackage = "ballerina.file")
+                structPackage = "ballerina/file")
         },
         returnType = {
                 @ReturnType(type = TypeKind.BOOLEAN)

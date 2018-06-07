@@ -603,7 +603,7 @@ public class HtmlDocTest {
     
 //    @Test(description = "Testing primitive constructs.")
 //    public void testPrimitiveConstructsWithFunctions() {
-//        BLangPackage bLangPackage = createPackage("package ballerina.builtin;" +
+//        BLangPackage bLangPackage = createPackage("package ballerina/builtin;" +
 //                                                  "public native function <blob b> data (string encoding) returns" +
 //                                                  "(string);" +
 //                                                  "public native function <blob b> sample () returns (string);");

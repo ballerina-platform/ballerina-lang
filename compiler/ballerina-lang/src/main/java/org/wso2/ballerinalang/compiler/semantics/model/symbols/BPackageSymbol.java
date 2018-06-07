@@ -81,4 +81,9 @@ public class BPackageSymbol extends BTypeSymbol {
         copy.entryPointExists = entryPointExists;
         return copy;
     }
+
+    @Override
+    public String toString() {
+        return pkgID.getAlias();
+    }
 }

@@ -45,6 +45,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
@@ -82,6 +83,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 import org.wso2.ballerinalang.compiler.TypeCreater;
 import org.wso2.ballerinalang.compiler.TypeSignatureReader;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -287,11 +289,19 @@ public class PackageInfoReader {
         // Read constant pool in the package.
         readConstantPool(packageInfo);
 
+        // Read org name
+        int orgNameCPIndex = dataInStream.readInt();
+        UTF8CPEntry orgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(orgNameCPIndex);
+        packageInfo.orgNameCPIndex = orgNameCPIndex;
+
+        // Read package name
         int pkgNameCPIndex = dataInStream.readInt();
         UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
         packageInfo.nameCPIndex = pkgNameCPIndex;
-        packageInfo.pkgPath = pkgNameCPEntry.getValue();
 
+        packageInfo.pkgPath = getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue());
+
+        // Read package version
         int pkgVersionCPIndex = dataInStream.readInt();
         UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
         packageInfo.versionCPIndex = pkgVersionCPIndex;
@@ -342,14 +352,19 @@ public class PackageInfoReader {
     private void readImportPackageInfoEntries(PackageInfo packageInfo) throws IOException {
         int impPkgCount = dataInStream.readShort();
         for (int i = 0; i < impPkgCount; i++) {
-            // TODO populate import package info structure
+
+            int orgNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry orgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(orgNameCPIndex);
+
             int pkgNameCPIndex = dataInStream.readInt();
             UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
 
+            String pkgPath = getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue());
+
             int pkgVersionCPIndex = dataInStream.readInt();
             UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
-            ImportPackageInfo importPackageInfo = new ImportPackageInfo(pkgNameCPIndex,
-                    pkgNameCPEntry.getValue(), pkgVersionCPIndex, pkgVersionCPEntry.getValue());
+            ImportPackageInfo importPackageInfo = new ImportPackageInfo(orgNameCPIndex, pkgNameCPIndex, pkgPath,
+                    pkgVersionCPIndex, pkgVersionCPEntry.getValue());
             packageInfo.importPkgInfoList.add(importPackageInfo);
         }
     }
@@ -1641,6 +1656,14 @@ public class PackageInfoReader {
 
     private BType getBTypeFromDescriptor(PackageInfo packageInfo, String desc) {
         return this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo), desc);
+    }
+
+    private String getPackagePath(String orgName, String pkgName) {
+        if (Names.ANON_ORG.value.equals(orgName)) {
+            return pkgName;
+        }
+
+        return orgName + BLangConstants.ORG_NAME_SEPARATOR + pkgName;
     }
 
     /**

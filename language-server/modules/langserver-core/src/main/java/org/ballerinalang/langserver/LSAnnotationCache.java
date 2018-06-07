@@ -78,7 +78,7 @@ public class LSAnnotationCache {
             try {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
                 BLangPackage bLangPackage = LSPackageLoader.getPackageById(tempCompilerContext, packageID);
-                staticPackages.put(bLangPackage.packageID.bvmAlias(), bLangPackage);
+                staticPackages.put(bLangPackage.packageID.getAlias(), bLangPackage);
             } catch (Exception e) {
                 logger.warn("Error while loading package :" + sdkPackage.getPackageName());
             }
@@ -180,7 +180,7 @@ public class LSAnnotationCache {
     private static boolean containsPackageWithBvmAlias(PackageID packageID, HashMap<PackageID,
             List<BLangAnnotation>> map) {
         return map.entrySet().stream()
-                .filter(entry -> entry.getKey().bvmAlias().equals(packageID.bvmAlias()))
+                .filter(entry -> entry.getKey().getAlias().equals(packageID.getAlias()))
                 .findFirst()
                 .orElse(null) != null;
     }

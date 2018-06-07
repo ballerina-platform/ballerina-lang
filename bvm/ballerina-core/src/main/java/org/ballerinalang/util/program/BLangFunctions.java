@@ -39,6 +39,7 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
@@ -176,7 +177,7 @@ public class BLangFunctions {
 
     private static void orderInitFunctions(ProgramFile programFile) {
         PackageInfo entry = programFile.getEntryPackage();
-        programFile.addImportPackageInfo(programFile.getPackageInfo(BLangVMErrors.PACKAGE_RUNTIME));
+        programFile.addImportPackageInfo(programFile.getPackageInfo(BLangConstants.BALLERINA_RUNTIME_PKG));
         orderPackages(programFile, entry);
         programFile.addImportPackageInfo(entry);
     }

@@ -43,11 +43,11 @@ import java.nio.file.Path;
         orgName = "ballerina", packageName = "internal",
         functionName = "createDirectory",
         args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina.file")
+                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina/file")
         },
         returnType = {
                 @ReturnType(type = TypeKind.BOOLEAN),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.file")
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/file")
         },
         isPublic = true
 )

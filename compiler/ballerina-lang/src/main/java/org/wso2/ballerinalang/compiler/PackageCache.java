@@ -72,7 +72,7 @@ public class PackageCache {
     }
 
     public static String getCacheID(PackageID packageID) {
-        String bvmAlias = packageID.bvmAlias();
+        String bvmAlias = packageID.getAlias();
         if (packageID.sourceFileName != null) {
             bvmAlias = bvmAlias + "-" + packageID.sourceFileName.getValue();
         }
@@ -80,10 +80,10 @@ public class PackageCache {
     }
 
     public BPackageSymbol getSymbol(PackageID packageID) {
-        return this.packageSymbolMap.get(packageID.bvmAlias());
+        return this.packageSymbolMap.get(packageID.getAlias());
     }
 
     public void putSymbol(PackageID packageID, BPackageSymbol packageSymbol) {
-        this.packageSymbolMap.put(packageID.bvmAlias(), packageSymbol);
+        this.packageSymbolMap.put(packageID.getAlias(), packageSymbol);
     }
 }

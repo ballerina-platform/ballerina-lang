@@ -38,7 +38,7 @@ import java.nio.file.Paths;
         orgName = "ballerina", packageName = "internal",
         functionName = "Path.init",
         args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina.file"),
+                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina/file"),
                 @Argument(name = "link", type = TypeKind.STRING)
         },
         isPublic = true
