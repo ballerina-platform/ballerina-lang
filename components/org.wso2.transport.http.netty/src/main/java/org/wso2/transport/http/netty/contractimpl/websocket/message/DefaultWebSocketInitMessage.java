@@ -173,7 +173,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
                 String selectedSubProtocol = handshaker.selectedSubprotocol();
                 WebSocketFramesBlockingHandler blockingHandler = new WebSocketFramesBlockingHandler();
                 WebSocketSourceHandler sourceHandler = new WebSocketSourceHandler(connectorFuture, blockingHandler,
-                        secureConnection, httpRequest, ctx, listenerInterface);
+                        secureConnection, httpRequest, listenerInterface);
 
                 //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
                 ChannelPipeline pipeline = ctx.pipeline();

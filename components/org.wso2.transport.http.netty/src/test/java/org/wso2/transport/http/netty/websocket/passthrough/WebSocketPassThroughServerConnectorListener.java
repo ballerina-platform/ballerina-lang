@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.Assert;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
@@ -55,7 +56,9 @@ public class WebSocketPassThroughServerConnectorListener implements WebSocketCon
         configuration.setAutoRead(false);
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
         WebSocketConnectorListener clientConnectorListener = new WebSocketPassThroughClientConnectorListener();
-        clientConnector.connect(clientConnectorListener).setClientHandshakeListener(new ClientHandshakeListener() {
+        ClientHandshakeFuture clientHandshakeFuture = clientConnector.connect();
+        clientHandshakeFuture.setWSConnectorListener(clientConnectorListener);
+        clientHandshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection clientWebSocketConnection, HttpCarbonResponse response) {
                 ServerHandshakeFuture serverFuture = initMessage.handshake();

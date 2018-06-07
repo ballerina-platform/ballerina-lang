@@ -248,7 +248,9 @@ public class WebSocketClientFunctionalityTestCase {
     }
 
     private ClientHandshakeFuture handshake(WebSocketConnectorListener connectorListener) {
-        return clientConnector.connect(connectorListener);
+        ClientHandshakeFuture clientHandshakeFuture = clientConnector.connect();
+        clientHandshakeFuture.setWSConnectorListener(connectorListener);
+        return clientHandshakeFuture;
     }
 
     private WebSocketConnection getWebSocketConnectionSync(WebSocketConnectorListener connectorListener)

@@ -46,7 +46,7 @@ import java.util.concurrent.TimeUnit;
 public class WebSocketServerHandshakeFunctionalityTestCase {
 
     private static final int countdownLatchTimeout = 10;
-        DefaultHttpWsConnectorFactory httpConnectorFactory;
+    private DefaultHttpWsConnectorFactory httpConnectorFactory;
     private ServerConnector serverConnector;
     private WebSocketServerHandshakeFunctionalityListener listener;
 
