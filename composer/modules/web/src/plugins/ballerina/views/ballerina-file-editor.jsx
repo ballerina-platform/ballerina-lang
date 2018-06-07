@@ -49,7 +49,7 @@ import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import FragmentUtils from '../utils/fragment-utils';
 import ErrorMappingVisitor from './../visitors/error-mapping-visitor';
 import SyncErrorsVisitor from './../visitors/sync-errors';
-import { EVENTS } from '../constants';
+import { EVENTS, RESPOSIVE_MENU_TRIGGER } from '../constants';
 import ViewButton from './view-button';
 import MonacoBasedUndoManager from './../utils/monaco-based-undo-manager';
 
@@ -294,14 +294,14 @@ class BallerinaFileEditor extends React.Component {
         const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
 
-        if(designWidth < 460 && !this.fetchState('diagramFitToWidth', true)){
+        if(designWidth < RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE && !this.fetchState('diagramFitToWidth', true)){
             this.setState({
                 isDiagramOnEditMode: true,
             });
             this.onModeChange({ mode: 'action', fitToWidth: true });
         }
 
-        if(this.state.isDiagramOnEditMode && designWidth > 450){
+        if(this.state.isDiagramOnEditMode && designWidth > ( RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE - 10 ) ){
             this.setState({
                 isDiagramOnEditMode: false,
             });

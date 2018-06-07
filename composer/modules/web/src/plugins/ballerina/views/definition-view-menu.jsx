@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import { Header, Icon, Grid, Popup, Button, Label } from 'semantic-ui-react';
 import CompilationUnitNode from '../model/tree/compilation-unit-node';
 import TreeUtil from '../model/tree-util';
+import { RESPOSIVE_MENU_TRIGGER } from '../constants';
 
 class DefinitionViewMenu extends React.Component {
 
@@ -75,7 +76,7 @@ class DefinitionViewMenu extends React.Component {
             <Popup 
                 trigger={ 
                     <Button as='div' labelPosition='right'>
-                        <Grid divided className={'top-bar ' + (this.props.width > 650 ? '' : 'mobile-top-bar' )} columns={2}>
+                        <Grid divided className={'top-bar ' + (this.props.width > RESPOSIVE_MENU_TRIGGER.ICON_MODE ? '' : 'mobile-top-bar' )} columns={2}>
                             <Grid.Row>
                                 <Grid.Column width={5} floated='right'>
                                     <Grid.Row className='top-bar-row'>

@@ -22,6 +22,7 @@ import { Icon, Input, Button, Menu, Dropdown } from 'semantic-ui-react';
 import CompilationUnitNode from '../model/tree/compilation-unit-node';
 import AddDefinitionMenu from './add-definition-menu';
 import DefinitionViewMenu from './definition-view-menu';
+import { RESPOSIVE_MENU_TRIGGER } from '../constants';
 
 class DiagramMenu extends React.Component {
 
@@ -31,7 +32,7 @@ class DiagramMenu extends React.Component {
 
     render() {
         return (
-            <Menu className={'top-menu ' + (this.props.width > 460 ? '' : 'hidden' )} style={{ width: this.props.width }}>
+            <Menu className={'top-menu ' + (this.props.width > RESPOSIVE_MENU_TRIGGER.HIDDEN_MODE ? '' : 'hidden' )} style={{ width: this.props.width }}>
                 { !this.props.fitToWidth &&
                 <Menu.Menu position='left'>
                     <Menu.Item>
