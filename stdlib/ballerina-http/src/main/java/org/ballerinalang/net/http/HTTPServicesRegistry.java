@@ -44,9 +44,8 @@ public class HTTPServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
 
-    // Outer Map key=basePath
-    private Map<String, ServicesMaps> servicesHostMap = new ConcurrentHashMap<>();
-    protected Map<String, HttpService> servicesInfoMap;
+    private Map<String, ServicesMaps> serviceMapsByHost = new ConcurrentHashMap<>();
+    protected Map<String, HttpService> servicesByBasePath;
     protected List<String> sortedServiceURIs;
     private final WebSocketServicesRegistry webSocketServicesRegistry;
 
@@ -61,7 +60,7 @@ public class HTTPServicesRegistry {
      * @return the {@link HttpService} instance if exist else null
      */
     public HttpService getServiceInfo(String basepath) {
-        return servicesInfoMap.get(basepath);
+        return servicesByBasePath.get(basepath);
     }
 
     /**
@@ -70,15 +69,37 @@ public class HTTPServicesRegistry {
      * @return the serviceInfo map if exists else null.
      */
     public Map<String, HttpService> getServicesInfoByInterface() {
-        return servicesInfoMap;
+        return servicesByBasePath;
     }
 
-    public Map<String, HttpService> getServicesInfoByHost(String hostName) {
-        return servicesHostMap.get(hostName).servicesInfoMap;
+    /**
+     * Get ServicesMaps for given host name.
+     *
+     * @param hostName of the service
+     * @return the serviceHost map if exists else null
+     */
+    public ServicesMaps getServiceMaps(String hostName) {
+        return serviceMapsByHost.get(hostName);
     }
 
+    /**
+     * Get Services map for given host name.
+     *
+     * @param hostName of the service
+     * @return the serviceHost map if exists else null
+     */
+    public Map<String, HttpService> getServicesByHost(String hostName) {
+        return serviceMapsByHost.get(hostName).servicesInfoMap;
+    }
+
+    /**
+     * Get sortedServiceURIs list for given host name.
+     *
+     * @param hostName of the service
+     * @return the serviceHost map if exists else null
+     */
     public List<String> getSortedServiceURIsByHost(String hostName) {
-        return servicesHostMap.get(hostName).sortedServiceURIs;
+        return serviceMapsByHost.get(hostName).sortedServiceURIs;
     }
 
     /**
@@ -91,21 +112,21 @@ public class HTTPServicesRegistry {
 
         for (HttpService httpService : httpServices) {
             String hostName = httpService.getHostName();
-            if (servicesHostMap.get(hostName) == null) {
-                servicesInfoMap = new ConcurrentHashMap<>();
+            if (serviceMapsByHost.get(hostName) == null) {
+                servicesByBasePath = new ConcurrentHashMap<>();
                 sortedServiceURIs = new CopyOnWriteArrayList<>();
-                servicesHostMap.put(hostName, new ServicesMaps(servicesInfoMap, sortedServiceURIs));
+                serviceMapsByHost.put(hostName, new ServicesMaps(servicesByBasePath, sortedServiceURIs));
             } else {
-                servicesInfoMap = getServicesInfoByHost(hostName);
+                servicesByBasePath = getServicesByHost(hostName);
                 sortedServiceURIs = getSortedServiceURIsByHost(hostName);
             }
 
             String basePath = httpService.getBasePath();
-            if (servicesInfoMap.containsKey(basePath)) {
+            if (servicesByBasePath.containsKey(basePath)) {
                 throw new BallerinaException("Service registration failed: two services have the same basePath : " +
                                                      basePath);
             }
-            servicesInfoMap.put(basePath, httpService);
+            servicesByBasePath.put(basePath, httpService);
             String errLog = String.format("Service deployed : %s with context %s", service.getName(), basePath);
             logger.info(errLog);
 

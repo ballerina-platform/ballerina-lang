@@ -128,7 +128,7 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
     public void registerWebSubSubscriberService(Service service) {
         HttpService httpService = WebSubHttpService.buildWebSubSubscriberHttpService(service);
 
-        servicesInfoMap.put(httpService.getBasePath(), httpService);
+        servicesByBasePath.put(httpService.getBasePath(), httpService);
         logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
 
         //basePath will get cached after registering service
