@@ -312,11 +312,8 @@ public class PackageInfoWriter {
                                          AnnotationInfo typeDefInfo) throws IOException {
         dataOutStream.writeInt(typeDefInfo.nameCPIndex);
         dataOutStream.writeInt(typeDefInfo.flags);
+        dataOutStream.writeInt(typeDefInfo.attachPoints);
         dataOutStream.writeInt(typeDefInfo.signatureCPIndex);
-        dataOutStream.writeInt(typeDefInfo.attachPointsCPIndexes.length);
-        for (int index : typeDefInfo.attachPointsCPIndexes) {
-            dataOutStream.writeInt(index);
-        }
     }
 
     private static void writeObjectTypeDefInfo(DataOutputStream dataOutStream,

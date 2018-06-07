@@ -404,15 +404,10 @@ public class PackageInfoReader {
     private void readAnnotationInfoEntries(PackageInfo packageInfo) throws IOException {
         int typeDefCount = dataInStream.readShort();
         for (int i = 0; i < typeDefCount; i++) {
-
             dataInStream.readInt();
             dataInStream.readInt();
             dataInStream.readInt();
-            //TODO any better way?
-            int count = dataInStream.readInt();
-            for (int j = 0; j < count; j++) {
-                dataInStream.readInt();
-            }
+            dataInStream.readInt();
         }
     }
 

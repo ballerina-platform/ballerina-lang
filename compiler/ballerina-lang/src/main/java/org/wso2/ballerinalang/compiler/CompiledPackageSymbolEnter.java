@@ -55,8 +55,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint.AttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -444,17 +442,13 @@ public class CompiledPackageSymbolEnter {
     private void defineAnnotations(DataInputStream dataInStream) throws IOException {
         String name = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
+        int attachPoints = dataInStream.readInt();
         int typeSig = dataInStream.readInt();
 
-        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, names.fromString(name),
+        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
         annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
-        int attachCount = dataInStream.readInt();
-        for (int i = 0; i < attachCount; i++) {
-            String attachPoint = getUTF8CPEntryValue(dataInStream);
-            ((BAnnotationSymbol) annotationSymbol).attachmentPoints
-                    .add(new BLangAnnotationAttachmentPoint(AttachmentPoint.getAttachmentPoint(attachPoint)));
-        }
+
         this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
         if (typeSig > 0) {
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeSig];

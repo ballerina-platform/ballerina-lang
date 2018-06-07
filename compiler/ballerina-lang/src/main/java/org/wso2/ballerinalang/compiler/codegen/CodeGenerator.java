@@ -30,6 +30,7 @@ import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -52,7 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
@@ -1789,16 +1789,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (annotation.typeNode != null) {
             typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, annotation.typeNode.type.getDesc());
         }
-        //TODO any better way?
-        int[] attachPointCPIndexes = new int[annotation.attachmentPoints.size()];
-        List<BLangAnnotationAttachmentPoint> attachmentPoints = annotation.attachmentPoints;
-        for (int i = 0; i < attachmentPoints.size(); i++) {
-            String pointName = attachmentPoints.get(i).attachmentPoint.getValue();
-            attachPointCPIndexes[i] = addUTF8CPEntry(currentPkgInfo, pointName);
-        }
 
         AnnotationInfo annotationInfo = new AnnotationInfo(nameCPIndex, typeSigCPIndex,
-                annotation.symbol.flags, attachPointCPIndexes);
+                annotation.symbol.flags, ((BAnnotationSymbol) annotation.symbol).attachPoints);
         currentPkgInfo.annotationInfoMap.put(annotation.name.value, annotationInfo);
     }
 
