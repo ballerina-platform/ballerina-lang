@@ -49,5 +49,6 @@ public class SymTag {
     public static final int FINITE_TYPE = 1 << 23 | TYPE | VARIABLE_NAME;
     public static final int UNION_TYPE = 1 << 24 | TYPE | VARIABLE_NAME;
     public static final int TUPLE_TYPE = 1 << 25 | TYPE | VARIABLE_NAME;
+    public static final int ARRAY_TYPE = 1 << 26 | TYPE | VARIABLE_NAME;
 
 }

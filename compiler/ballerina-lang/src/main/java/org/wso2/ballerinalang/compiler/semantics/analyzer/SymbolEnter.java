@@ -133,6 +133,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final EndpointSPIAnalyzer endpointSPIAnalyzer;
     private final Types types;
     private List<BLangTypeDefinition> unresolvedTypes;
+    private int typePrecedence;
 
     private SymbolEnv env;
 
@@ -193,6 +194,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
 
         // Define type definitions.
+        this.typePrecedence = 0;
         defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def fields (if any)
@@ -367,9 +369,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             this.unresolvedTypes.add(typeDefinition);
             return;
         }
+        typeDefinition.precedence = this.typePrecedence++;
         BTypeSymbol typeDefSymbol;
         if (definedType.tsymbol.name != Names.EMPTY) {
-            typeDefSymbol = definedType.tsymbol.copy();
+            typeDefSymbol = definedType.tsymbol.createLabelSymbol();
         } else  {
             typeDefSymbol = definedType.tsymbol;
         }

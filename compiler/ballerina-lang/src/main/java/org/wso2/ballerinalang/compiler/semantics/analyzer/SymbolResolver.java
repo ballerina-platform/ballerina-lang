@@ -566,7 +566,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         // The value of the dimensions field should always be >= 1
         resultType = resolveTypeNode(arrayTypeNode.elemtype, env, diagCode);
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
-            resultType = new BArrayType(resultType);
+            BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
+                    .of(Flag.PUBLIC)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+            resultType = new BArrayType(resultType, arrayTypeSymbol);
+            arrayTypeSymbol.type = resultType;
         }
     }
 
