@@ -46,6 +46,7 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public Set<Flag> flagSet;
+    public int precedence;
 
     public BTypeSymbol symbol;
 

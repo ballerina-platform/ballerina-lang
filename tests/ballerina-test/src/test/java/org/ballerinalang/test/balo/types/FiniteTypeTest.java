@@ -16,7 +16,7 @@
 *  under the License.
 */
 
-package org.ballerinalang.test.types.finite;
+package org.ballerinalang.test.balo.types;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -25,21 +25,23 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test finite type.
+ * Test finite types with balo.
  */
 public class FiniteTypeTest {
 
     private CompileResult result;
 
-
-    @BeforeClass(alwaysRun = true)
+    @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/types/finite/finite-type.bal");
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/finite_type_project", "finiteTypeTest", "foo");
+        result = BCompileUtil.compile("test-src/balo/test_balo/types/finite_type_test.bal");
     }
 
     @Test()
@@ -236,6 +238,11 @@ public class FiniteTypeTest {
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals((((BInteger) returns[0]).intValue()), 2);
         Assert.assertEquals((((BInteger) returns[1]).intValue()), 23);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.cleaPackageFromRepository("finiteTypeTest", "foo");
     }
 }
 
