@@ -55,6 +55,12 @@
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
     </dependencies>
 
     <build>
@@ -65,19 +71,13 @@
                 <executions>
                     <execution>
                         <id>unpack-dependencies</id>
-                        <phase>initialize</phase>
+                        <phase>generate-resources</phase>
                         <goals>
-                            <goal>unpack</goal>
+                            <goal>unpack-dependencies</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>org.ballerinalang</groupId>
-                                    <artifactId>stdlib-compile</artifactId>
-                                    <type>zip</type>
-                                    <outputDirectory>${project.build.directory}/lib</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
+                            <includeClassifiers>ballerina-binary-repo</includeClassifiers>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>

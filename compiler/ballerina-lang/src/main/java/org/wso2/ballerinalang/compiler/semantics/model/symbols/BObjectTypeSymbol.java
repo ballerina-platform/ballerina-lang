@@ -36,12 +36,13 @@ public class BObjectTypeSymbol extends BStructureTypeSymbol {
     }
 
     @Override
-    public BObjectTypeSymbol copy() {
+    public BObjectTypeSymbol createLabelSymbol() {
         BObjectTypeSymbol copy = (BObjectTypeSymbol) Symbols
                 .createObjectSymbol(flags, Names.EMPTY, pkgID, type, owner);
         copy.attachedFuncs = attachedFuncs;
         copy.initializerFunc = initializerFunc;
         copy.defaultsValuesInitFunc = defaultsValuesInitFunc;
+        copy.isLabel = true;
         return copy;
     }
 }

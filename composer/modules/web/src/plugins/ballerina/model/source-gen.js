@@ -1912,21 +1912,26 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + '@';
             }
         case 'XmlCommentLiteral':
-            if (node.root && node.textFragments) {
-                return w() + 'xml`' + w() + '<!--'
+            if (node.root && node.startLiteral && node.textFragments) {
+                return w() + node.startLiteral + w() + '<!--'
                  + join(node.textFragments, pretty, replaceLambda, l, w, '') + w() + '-->' + w() + '`';
             } else {
                 return w() + '<!--'
                  + join(node.textFragments, pretty, replaceLambda, l, w, '') + w() + '-->';
             }
         case 'XmlElementLiteral':
-            if (node.root && node.startTagName && node.attributes && node.content
-                         && node.endTagName) {
-                return w() + 'xml`' + w() + '<'
+            if (node.root && node.startLiteral && node.startTagName
+                         && node.attributes && node.content && node.endTagName) {
+                return w() + node.startLiteral + w() + '<'
                  + getSourceOf(node.startTagName, pretty, l, replaceLambda)
                  + join(node.attributes, pretty, replaceLambda, l, w, '') + w() + '>'
                  + join(node.content, pretty, replaceLambda, l, w, '') + w() + '</'
                  + getSourceOf(node.endTagName, pretty, l, replaceLambda) + w() + '>' + w() + '`';
+            } else if (node.root && node.startLiteral && node.startTagName
+                         && node.attributes) {
+                return w() + node.startLiteral + w() + '<'
+                 + getSourceOf(node.startTagName, pretty, l, replaceLambda)
+                 + join(node.attributes, pretty, replaceLambda, l, w, '') + w() + '/>' + w() + '`';
             } else if (node.startTagName && node.attributes && node.content
                          && node.endTagName) {
                 return w() + '<'
@@ -1934,23 +1939,21 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + w() + '>' + join(node.content, pretty, replaceLambda, l, w, '')
                  + w() + '</'
                  + getSourceOf(node.endTagName, pretty, l, replaceLambda) + w() + '>';
-            } else if (node.root && node.startTagName && node.attributes) {
-                return w() + 'xml`' + w() + '<'
-                 + getSourceOf(node.startTagName, pretty, l, replaceLambda)
-                 + join(node.attributes, pretty, replaceLambda, l, w, '') + w() + '/>`';
             } else {
                 return w() + '<'
                  + getSourceOf(node.startTagName, pretty, l, replaceLambda) + join(node.attributes, pretty, replaceLambda, l, w, '')
                  + w() + '/>';
             }
         case 'XmlPiLiteral':
-            if (node.target && node.dataTextFragments) {
-                return getSourceOf(node.target, pretty, l, replaceLambda)
-                 + join(node.dataTextFragments, pretty, replaceLambda, l, w, '');
-            } else if (node.dataTextFragments) {
-                return join(node.dataTextFragments, pretty, replaceLambda, l, w, '');
+            if (node.root && node.startLiteral && node.target
+                         && node.dataTextFragments) {
+                return w() + node.startLiteral + w() + '<?'
+                 + getSourceOf(node.target, pretty, l, replaceLambda)
+                 + join(node.dataTextFragments, pretty, replaceLambda, l, w, '') + w() + '?>' + w() + '`';
             } else {
-                return getSourceOf(node.target, pretty, l, replaceLambda);
+                return w() + '<?' + getSourceOf(node.target, pretty, l, replaceLambda)
+                 + join(node.dataTextFragments, pretty, replaceLambda, l, w, '')
+                 + w() + '?>';
             }
         case 'XmlQname':
             if (node.prefix.valueWithBar && node.localname.valueWithBar) {
@@ -1962,7 +1965,12 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'XmlQuotedString':
             return join(node.textFragments, pretty, replaceLambda, l, w, '');
         case 'XmlTextLiteral':
-            return join(node.textFragments, pretty, replaceLambda, l, w, '');
+            if (node.root && node.startLiteral && node.textFragments) {
+                return w() + node.startLiteral
+                 + join(node.textFragments, pretty, replaceLambda, l, w, '') + w() + '`';
+            } else {
+                return join(node.textFragments, pretty, replaceLambda, l, w, '');
+            }
         case 'Xmlns':
             if (node.namespaceURI && node.prefix.valueWithBar) {
                 return dent() + w() + 'xmlns' + b(' ')

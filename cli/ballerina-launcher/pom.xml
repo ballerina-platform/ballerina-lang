@@ -53,10 +53,6 @@
             <artifactId>ballerina-config</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>stdlib-compile</artifactId>
-        </dependency>
-        <dependency>
             <groupId>com.beust</groupId>
             <artifactId>jcommander</artifactId>
         </dependency>
