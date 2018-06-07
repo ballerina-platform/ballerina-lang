@@ -80,7 +80,11 @@ public class PackageCache {
     }
 
     public BPackageSymbol getSymbol(PackageID packageID) {
-        return this.packageSymbolMap.get(packageID.bvmAlias());
+        return getSymbol(packageID.bvmAlias());
+    }
+
+    public BPackageSymbol getSymbol(String bvmAlias) {
+        return this.packageSymbolMap.get(bvmAlias);
     }
 
     public void putSymbol(PackageID packageID, BPackageSymbol packageSymbol) {
