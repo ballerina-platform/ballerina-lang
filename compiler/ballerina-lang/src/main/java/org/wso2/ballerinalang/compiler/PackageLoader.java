@@ -30,7 +30,9 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.toml.model.Dependency;
+import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
@@ -97,6 +99,7 @@ public class PackageLoader {
     private final boolean offline;
     private final boolean testEnabled;
     private final Manifest manifest;
+    private final LockFile lockFile;
 
     private final CompilerOptions options;
     private final Parser parser;
@@ -136,6 +139,7 @@ public class PackageLoader {
         this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
+        this.lockFile = LockFileProcessor.getInstance(context).getLockFile();
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
