@@ -59,7 +59,7 @@ public class WebSocketClient {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
-    private WebSocketTargetHandler webSocketTargetHandler;
+    private WebSocketClientHandshakeHandler clientHandshakeHandler;
 
     private final String url;
     private final String subProtocols;
@@ -117,8 +117,8 @@ public class WebSocketClient {
             WebSocketClientHandshaker webSocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                     uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
             WebSocketFramesBlockingHandler blockingHandler = new WebSocketFramesBlockingHandler();
-            webSocketTargetHandler = new WebSocketTargetHandler(webSocketHandshaker, blockingHandler, ssl, autoRead,
-                    url, handshakeFuture);
+            clientHandshakeHandler = new WebSocketClientHandshakeHandler(webSocketHandshaker, blockingHandler, ssl,
+                    autoRead, url, handshakeFuture);
 
             Bootstrap clientBootstrap = new Bootstrap();
             clientBootstrap.group(wsClientEventLoopGroup).channel(NioSocketChannel.class).handler(
@@ -137,27 +137,28 @@ public class WebSocketClient {
                                 pipeline.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
                                         idleTimeout, TimeUnit.MILLISECONDS));
                             }
-                            pipeline.addLast(Constants.WEBSOCKET_FRAME_HANDLER, webSocketTargetHandler);
+                            pipeline.addLast(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER, clientHandshakeHandler);
                         }
                     });
 
             channel = clientBootstrap.connect(uri.getHost(), port).sync().channel();
-            webSocketTargetHandler
+            clientHandshakeHandler
                     .handshakeFuture().addListener((ChannelFutureListener) clientHandshakeFuture -> {
                 Throwable cause = clientHandshakeFuture.cause();
                 if (clientHandshakeFuture.isSuccess() && cause == null) {
                     channel.config().setAutoRead(autoRead);
-                    DefaultWebSocketConnection webSocketConnection = webSocketTargetHandler.getWebSocketConnection();
+                    DefaultWebSocketConnection webSocketConnection =
+                            clientHandshakeHandler.getInboundFrameHandler().getWebSocketConnection();
                     String actualSubProtocol = webSocketHandshaker.actualSubprotocol();
                     webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(actualSubProtocol);
-                    handshakeFuture.notifySuccess(webSocketConnection, webSocketTargetHandler.getHttpCarbonResponse());
+                    handshakeFuture.notifySuccess(webSocketConnection, clientHandshakeHandler.getHttpCarbonResponse());
                 } else {
-                    handshakeFuture.notifyError(cause, webSocketTargetHandler.getHttpCarbonResponse());
+                    handshakeFuture.notifyError(cause, clientHandshakeHandler.getHttpCarbonResponse());
                 }
             });
         } catch (Throwable t) {
-            if (webSocketTargetHandler != null) {
-                handshakeFuture.notifyError(t, webSocketTargetHandler.getHttpCarbonResponse());
+            if (clientHandshakeHandler != null) {
+                handshakeFuture.notifyError(t, clientHandshakeHandler.getHttpCarbonResponse());
             } else {
                 handshakeFuture.notifyError(t, null);
             }
