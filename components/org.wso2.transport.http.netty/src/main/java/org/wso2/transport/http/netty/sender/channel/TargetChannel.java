@@ -18,6 +18,7 @@ package org.wso2.transport.http.netty.sender.channel;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -212,6 +213,11 @@ public class TargetChannel {
     }
 
     private void writeOutboundRequest(HTTPCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
+        if (httpOutboundRequest.getIoException() != null) {
+            httpContent.release();
+            this.getChannel().writeAndFlush(new DefaultLastHttpContent());
+            return;
+        }
         if (Util.isLastHttpContent(httpContent)) {
             if (!this.requestHeaderWritten) {
                 // this means we need to send an empty payload

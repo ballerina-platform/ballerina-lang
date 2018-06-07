@@ -310,6 +310,8 @@ public final class Constants {
 
     public static final String HTTP_RESOURCE = "httpResource";
 
+    public static final String RESPONSE_ALREADY_RECEIVED = "Response message already received";
+
     private Constants() {
     }
 }

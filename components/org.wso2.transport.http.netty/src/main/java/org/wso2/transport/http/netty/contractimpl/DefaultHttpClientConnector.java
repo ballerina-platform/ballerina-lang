@@ -142,6 +142,8 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
 
     public HttpResponseFuture send(OutboundMsgHolder outboundMsgHolder, HTTPCarbonMessage httpOutboundRequest) {
         final HttpResponseFuture httpResponseFuture;
+        // Need to remove the IO exception from HTTPCarbonMessage here to reuse the same request.
+        httpOutboundRequest.setIoException(null);
 
         SourceHandler srcHandler = (SourceHandler) httpOutboundRequest.getProperty(Constants.SRC_HANDLER);
         if (srcHandler == null) {
