@@ -115,7 +115,7 @@ public final class BLangConnectorSPIUtil {
     }
 
     /**
-     * Wrap BVM struct value to {@link Struct}
+     * Wrap BVM struct value to {@link Struct}.
      *
      * @param bStruct value.
      * @return wrapped value.

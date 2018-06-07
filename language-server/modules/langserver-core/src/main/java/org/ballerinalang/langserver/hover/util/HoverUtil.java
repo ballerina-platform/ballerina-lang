@@ -27,18 +27,14 @@ import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -87,34 +83,8 @@ public class HoverUtil {
                         ? getHoverResultForGivenDocs(bLangFunction.docAttachments, bLangFunction.annAttachments)
                         : getDefaultHoverObject();
                 break;
-            // TODO: Revamop the following case logic with the new struct remove changes
-//            case ContextConstants.STRUCT:
-//                BLangStruct bLangStruct = bLangPackage.structs.stream()
-//                        .filter(struct -> struct.name.getValue()
-//                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-//                        .findAny().orElse(null);
-//                hover = bLangStruct != null
-//                        ? getHoverResultForGivenDocs(bLangStruct.docAttachments, bLangStruct.annAttachments)
-//                        : getDefaultHoverObject();
-//                break;
-//            case ContextConstants.OBJECT:
-//                BLangObject bLangObject = bLangPackage.objects.stream()
-//                        .filter(object -> object.name.getValue()
-//                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-//                        .findAny().orElse(null);
-//                hover = bLangObject != null
-//                        ? getHoverResultForGivenDocs(bLangObject.docAttachments, bLangObject.annAttachments)
-//                        : getDefaultHoverObject();
-//                break;
-//            case ContextConstants.RECORD:
-//                BLangRecord bLangRecord = bLangPackage.records.stream()
-//                        .filter(record -> record.name.getValue()
-//                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-//                        .findAny().orElse(null);
-//                hover = bLangRecord != null ?
-//                        getHoverResultForGivenDocs(bLangRecord.docAttachments, bLangRecord.annAttachments)
-//                        : getDefaultHoverObject();
-//                break;
+            case ContextConstants.OBJECT:
+            case ContextConstants.RECORD:
             case ContextConstants.TYPE_DEF:
                 BLangTypeDefinition bLangTypeDefinition = bLangPackage.typeDefinitions.stream()
                         .filter(typeDef -> typeDef.name.getValue()
@@ -124,40 +94,6 @@ public class HoverUtil {
                 hover = bLangTypeDefinition != null ?
                         getHoverResultForGivenDocs(bLangTypeDefinition.docAttachments,
                                 bLangTypeDefinition.annAttachments)
-                        : getDefaultHoverObject();
-                break;
-            case ContextConstants.TRANSFORMER:
-                BLangTransformer bLangTransformer = bLangPackage.transformers.stream()
-                        .filter(bTransformer -> bTransformer.name.getValue()
-                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                hover = bLangTransformer != null
-                        ? getHoverResultForGivenDocs(bLangTransformer.docAttachments, bLangTransformer.annAttachments)
-                        : getDefaultHoverObject();
-                break;
-
-            case ContextConstants.CONNECTOR:
-                BLangConnector bLangConnector = bLangPackage.connectors.stream()
-                        .filter(bConnector -> bConnector.name.getValue()
-                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                hover = bLangConnector != null
-                        ? getHoverResultForGivenDocs(bLangConnector.docAttachments, bLangConnector.annAttachments)
-                        : getDefaultHoverObject();
-
-                break;
-            case ContextConstants.ACTION:
-                BLangAction bLangAction = bLangPackage.connectors.stream()
-                        .filter(bConnector -> bConnector.name.getValue()
-                                .equals(((BLangInvocation) hoverContext
-                                        .get(NodeContextKeys.PREVIOUSLY_VISITED_NODE_KEY))
-                                        .symbol.owner.name.getValue()))
-                        .flatMap(connector -> connector.actions.stream())
-                        .filter(bAction -> bAction.name.getValue()
-                                .equals(hoverContext.get(NodeContextKeys.NAME_OF_NODE_KEY)))
-                        .findAny().orElse(null);
-                hover = bLangAction != null
-                        ? getHoverResultForGivenDocs(bLangAction.docAttachments, bLangAction.annAttachments)
                         : getDefaultHoverObject();
                 break;
             case ContextConstants.ENDPOINT:

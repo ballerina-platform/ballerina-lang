@@ -21,7 +21,7 @@ package org.ballerinalang.siddhi.core.util.collection;
 import org.ballerinalang.siddhi.core.event.state.StateEvent;
 
 /**
- * State Event holder used by {@link org.ballerinalang.siddhi.core.executor.condition.InConditionExpressionExecutor}
+ * State Event holder used by {@link org.ballerinalang.siddhi.core.executor.condition.InConditionExpressionExecutor}.
  */
 public class FinderStateEvent extends StateEvent {
 

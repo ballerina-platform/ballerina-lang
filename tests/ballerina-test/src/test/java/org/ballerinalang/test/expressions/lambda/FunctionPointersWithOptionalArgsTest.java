@@ -28,7 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for Function pointers and lambda, with optional paramaters
+ * Test cases for Function pointers and lambda, with optional parameters.
  *
  * @since 0.965
  */

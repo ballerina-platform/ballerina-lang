@@ -30,7 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
- * Unit tests for {@link org.ballerinalang.swagger.CodeGenerator}
+ * Unit tests for {@link org.ballerinalang.swagger.CodeGenerator}.
  */
 public class CodeGeneratorTest {
     private Path projectPath;

@@ -337,6 +337,8 @@ public class BLangPackageBuilder {
 
     private Stack<Set<Whitespace>> operatorWs = new Stack<>();
 
+    private Stack<Set<Whitespace>> objectFieldBlockWs = new Stack<>();
+
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
 
@@ -1089,15 +1091,12 @@ public class BLangPackageBuilder {
         addExpressionNode(typeAccessExpr);
     }
 
-    void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean namedTransformer) {
+    void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
         typeConversionNode.addWS(ws);
         typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
         typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
-        if (namedTransformer) {
-            typeConversionNode.transformerInvocation = (BLangInvocation) exprNodeStack.pop();
-        }
         addExpressionNode(typeConversionNode);
     }
 
@@ -1340,6 +1339,7 @@ public class BLangPackageBuilder {
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
+        objectTypeNode.addWS(this.objectFieldBlockWs.pop());
         objectTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         objFunctionListStack.pop().forEach(f -> {
             if (f.objInitFunction) {
@@ -1380,11 +1380,16 @@ public class BLangPackageBuilder {
         return objectTypeNode;
     }
 
-    //TODO fix this - talk with marcus
-//    void addObjectFieldsBlock (Set<Whitespace> ws) {
-//        BLangObject objectNode = (BLangObject) this.objectStack.peek();
-//        objectNode.addWS(ws);
-//    }
+    void startFieldBlockList() {
+        this.objectFieldBlockWs.push(new TreeSet<>());
+    }
+
+    void addObjectFieldsBlock(Set<Whitespace> ws) {
+        Set<Whitespace> fieldObjectWhitespace = this.objectFieldBlockWs.peek();
+        if (fieldObjectWhitespace != null && ws != null) {
+            fieldObjectWhitespace.addAll(ws);
+        }
+    }
 
     void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicType) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
@@ -1445,6 +1450,7 @@ public class BLangPackageBuilder {
         typeDefinition.addWS(ws);
         attachDocumentations(typeDefinition);
         attachDeprecatedNode(typeDefinition);
+        attachAnnotations(typeDefinition);
         this.compUnit.addTopLevelNode(typeDefinition);
     }
 

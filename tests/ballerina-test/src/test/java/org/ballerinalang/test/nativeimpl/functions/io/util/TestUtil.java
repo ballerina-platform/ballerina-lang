@@ -61,10 +61,11 @@ public class TestUtil {
      * @return the writable channel.
      * @throws IOException during I/O error.
      */
-    public static ByteChannel openForWriting(String filePath) throws IOException {
+    public static ByteChannel openForReadingAndWriting(String filePath) throws IOException {
         Set<OpenOption> opts = new HashSet<>();
         opts.add(StandardOpenOption.CREATE);
         opts.add(StandardOpenOption.WRITE);
+        opts.add(StandardOpenOption.READ);
         Path path = Paths.get(filePath);
         return Files.newByteChannel(path, opts);
     }

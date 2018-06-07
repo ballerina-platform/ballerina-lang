@@ -59,7 +59,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -72,7 +71,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
@@ -85,7 +83,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -766,19 +763,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         analyzeStmt(lockNode.body, env);
     }
 
-    public void visit(BLangConnector connectorNode) {
-        BSymbol connectorSymbol = connectorNode.symbol;
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, env);
-        connectorNode.docAttachments.forEach(doc -> analyzeDef(doc, connectorEnv));
-
-        connectorNode.params.forEach(param -> this.analyzeDef(param, connectorEnv));
-        connectorNode.varDefs.forEach(varDef -> this.analyzeDef(varDef, connectorEnv));
-        connectorNode.endpoints.forEach(e -> analyzeDef(e, connectorEnv));
-        this.analyzeDef(connectorNode.initFunction, connectorEnv);
-        connectorNode.actions.forEach(action -> this.analyzeDef(action, connectorEnv));
-        this.analyzeDef(connectorNode.initAction, connectorEnv);
-    }
-
     public void visit(BLangAction actionNode) {
         BSymbol actionSymbol = actionNode.symbol;
 
@@ -1210,25 +1194,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(throwNode.expr.pos, DiagnosticCode.INCOMPATIBLE_TYPES, symTable.errStructType,
                     throwNode.expr.type);
         }
-    }
-
-    @Override
-    public void visit(BLangTransformer transformerNode) {
-        SymbolEnv transformerEnv = SymbolEnv.createTransformerEnv(transformerNode, transformerNode.symbol.scope, env);
-        transformerNode.docAttachments.forEach(doc -> analyzeDef(doc, transformerEnv));
-
-        validateTransformerMappingType(transformerNode.source);
-        validateTransformerMappingType(transformerNode.retParams.get(0));
-
-        analyzeStmt(transformerNode.body, transformerEnv);
-
-        // TODO: update this accordingly once the unsafe conversion are supported
-        int returnCount = transformerNode.retParams.size();
-        if (returnCount == 0) {
-            dlog.error(transformerNode.pos, DiagnosticCode.TRANSFORMER_MUST_HAVE_OUTPUT);
-        }
-
-        this.processWorkers(transformerNode, transformerEnv);
     }
 
     BType analyzeNode(BLangNode node, SymbolEnv env, BType expType, DiagnosticCode diagCode) {
@@ -1690,16 +1655,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(transactionHanlder.pos, DiagnosticCode.LAMBDA_REQUIRED_FOR_TRANSACTION_HANDLER);
             }
         }
-    }
-
-    private void validateTransformerMappingType(BLangVariable param) {
-        BType type = param.type;
-        if (types.isValueType(type) || (type instanceof BBuiltInRefType)
-                || type.tag == TypeTags.OBJECT || type.tag == TypeTags.RECORD) {
-            return;
-        }
-
-        dlog.error(param.pos, DiagnosticCode.TRANSFORMER_UNSUPPORTED_TYPES, type);
     }
 
     private BLangExpression getBinaryExpr(BLangExpression lExpr,

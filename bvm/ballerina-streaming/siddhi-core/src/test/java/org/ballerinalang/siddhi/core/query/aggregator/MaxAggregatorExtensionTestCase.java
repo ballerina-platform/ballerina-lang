@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for max aggregation.
+ */
 public class MaxAggregatorExtensionTestCase {
     private static final Logger log = LoggerFactory.getLogger(MaxAggregatorExtensionTestCase.class);
     private volatile int count;

@@ -178,6 +178,44 @@
     ]
   },
   {
+    "title": "Testing",
+    "column": 0,
+    "samples": [
+      {
+        "name": "Assertions",
+        "url": "testerina-assertions"
+      },
+      {
+        "name": "Before and After Test",
+        "url": "testerina-before-and-after-test"
+      },
+      {
+        "name": "Before Each Test",
+        "url": "testerina-before-each-test"
+      },
+      {
+        "name": "Before and After Suite",
+        "url": "testerina-before-and-after-suite"
+      },
+      {
+        "name": "Data Driven Tests",
+        "url": "testerina-data-driven-tests"
+      },
+      {
+        "name": "Guarantee Test Execution Order",
+        "url": "testerina-guarantee-test-execution-order"
+      },
+      {
+        "name": "Function Mocks",
+        "url": "testerina-function-mocks"
+      },
+      {
+        "name": "Group Tests",
+        "url": "testerina-group-tests"
+      }
+    ]
+  },
+  {
     "title": "JSON / XML",
     "column": 1,
     "samples": [
@@ -348,6 +386,32 @@
       {
         "name": "Taint Checking",
         "url": "taint-checking"
+      },
+      {
+        "name": "Secured Service With JWT",
+        "url": "secured-service-with-jwt"
+      },
+      {
+        "name": "Secured Service With Basic Auth",
+        "url": "secured-service-with-basic-auth"
+      }
+    ]
+  },
+  {
+    "title": "Swagger ",
+    "column": 1,
+    "samples": [
+      {
+        "name": "Client Generation",
+        "url": "client-generation"
+      },
+      {
+        "name": "Ballerina To Swagger",
+        "url": "ballerina-to-swagger"
+      },
+      {
+        "name": "Swagger To Ballerina",
+        "url": "swagger-to-ballerina"
       }
     ]
   },
@@ -462,7 +526,7 @@
     ]
   },
   {
-    "title": "Simple Integration Reference",
+    "title": "Routing",
     "column": 2,
     "samples": [
       {
@@ -476,10 +540,6 @@
       {
         "name": "Content Based Routing",
         "url": "content-based-routing"
-      },
-      {
-        "name": "Secured Service With Basic Auth",
-        "url": ""
       }
     ]
   },
@@ -534,7 +594,7 @@
         "url": "grpc-secured-unary"
       },
       {
-        "name": "Protobuff-tool",
+        "name": "Proto To Ballerina",
         "url": "proto-to-ballerina"
       }
     ]
@@ -554,24 +614,6 @@
       {
         "name": "WebSub Hub Client Sample",
         "url": "websub-hub-client-sample"
-      }
-    ]
-  },
-  {
-    "title": "Swagger ",
-    "column": 2,
-    "samples": [
-      {
-        "name": "Client Generation",
-        "url": "client-generation"
-      },
-      {
-        "name": "Ballerina To Swagger",
-        "url": "ballerina-to-swagger"
-      },
-      {
-        "name": "Swagger To Ballerina",
-        "url": "swagger-to-ballerina"
       }
     ]
   },
@@ -646,10 +688,6 @@
       {
         "name": "Math",
         "url": "math-functions"
-      },
-      {
-        "name": "XML Functions",
-        "url": "xml-functions"
       },
       {
         "name": "String ",
@@ -764,44 +802,6 @@
       {
         "name": "Send JMS Message to HTTP Endpoint",
         "url": "send-jms-message-to-http-endpoint"
-      }
-    ]
-  },
-  {
-    "title": "Testing",
-    "column": 3,
-    "samples": [
-      {
-        "name": "Assertions",
-        "url": "testerina-assertions"
-      },
-      {
-        "name": "Before and After Test",
-        "url": "testerina-before-and-after-test"
-      },
-      {
-        "name": "Before Each Test",
-        "url": "testerina-before-each-test"
-      },
-      {
-        "name": "Before and After Suite",
-        "url": "testerina-before-and-after-suite"
-      },
-      {
-        "name": "Data Driven Tests",
-        "url": "testerina-data-driven-tests"
-      },
-      {
-        "name": "Guarantee Test Execution Order",
-        "url": "testerina-guarantee-test-execution-order"
-      },
-      {
-        "name": "Function Mocks",
-        "url": "testerina-function-mocks"
-      },
-      {
-        "name": "Group Tests",
-        "url": "testerina-group-tests"
       }
     ]
   },

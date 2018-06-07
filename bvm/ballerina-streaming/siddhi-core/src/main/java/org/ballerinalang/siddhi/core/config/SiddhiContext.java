@@ -37,7 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import javax.sql.DataSource;
 
 /**
- * Context information holder associated with {@link org.ballerinalang.siddhi.core.SiddhiManager}
+ * Context information holder associated with {@link org.ballerinalang.siddhi.core.SiddhiManager}.
  */
 public class SiddhiContext {
 
