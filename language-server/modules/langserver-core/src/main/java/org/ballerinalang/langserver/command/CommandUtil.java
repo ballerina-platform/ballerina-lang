@@ -728,7 +728,9 @@ public class CommandUtil {
                     }
                 }
             }
-            return (parent != null && parent.parent != null) ? lookupVariableReturnType(variableName, parent.parent) : "any";
+            return (parent != null && parent.parent != null)
+                    ? lookupVariableReturnType(variableName, parent.parent)
+                    : "any";
         }
 
         private static String lookupFunctionReturnType(String functionName, BLangNode parent) {
@@ -741,7 +743,8 @@ public class CommandUtil {
                     }
                 }
             }
-            return (parent != null && parent.parent != null) ? lookupFunctionReturnType(functionName, parent.parent) : "any";
+            return (parent != null && parent.parent != null)
+                    ? lookupFunctionReturnType(functionName, parent.parent) : "any";
         }
 
         private static String generateArgName(int value, Set<String> argNames) {
@@ -751,7 +754,7 @@ public class CommandUtil {
                 result.insert(0, (char) ('a' + index % 26));
                 index /= 26;
             }
-            while(argNames.contains(result.toString())){
+            while (argNames.contains(result.toString())) {
                 result = new StringBuilder(generateArgName(++value, argNames));
             }
             return result.toString();
