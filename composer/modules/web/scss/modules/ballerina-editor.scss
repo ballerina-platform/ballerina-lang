@@ -393,6 +393,9 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   position: fixed;
   padding: 3px 26px 6px !important;
   height: 40px;
+  &.hidden{
+    display: none !important;
+  }
   .top-bar {
     height: 30px;
     margin-top: 5px;
@@ -400,11 +403,10 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
     margin-right: 10px !important;
     .row {
       padding: 0 !important;
-      width: 160px;
       margin-top: 20px;
       height: 30px !important;
       .column {
-        min-width: 150px;
+        min-width: 130px;
         width: 50%;
         padding: 0 !important;
         background: $white;
@@ -413,12 +415,30 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
           background: $white !important;
           margin-top: 0px !important;
           border-bottom: 1px solid #ececec;
+          width: 140px;
+          display: flex;
           .ui.label {
             background-color: $white !important;
+            flex-grow: 1 !important;
+          }
+          .top-bar-icon{
+            padding-right: 0px;
           }
         }
       }
     }
+  }
+}
+
+.mobile-top-bar{
+  .column{
+    min-width: 60px !important;
+  }
+  .top-bar-row {
+    width: 30px !important;
+  }
+  .ui.label:nth-child(2){
+    display: none !important;
   }
 }
 

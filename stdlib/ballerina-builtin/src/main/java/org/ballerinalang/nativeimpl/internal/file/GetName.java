@@ -16,16 +16,16 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.nio.file.Path;
@@ -36,12 +36,15 @@ import java.nio.file.Path;
  * @since 0.970.0-alpha3
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
-        functionName = "Path.getName",
-        args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina.file")
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.PACKAGE_NAME,
+        functionName = "getName",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                             structPackage = Constants.PACKAGE_PATH)
+        ,
+        returnType = {
+                @ReturnType(type = TypeKind.STRING)
         },
-        returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
 public class GetName extends BlockingNativeCallableUnit {

@@ -16,18 +16,19 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
-import org.ballerinalang.natives.annotations.Argument;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 
 /**
  * Initializes a given file location to a path.
@@ -35,12 +36,12 @@ import java.nio.file.Paths;
  * @since ballerina-0.970.0-alpha3
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
-        functionName = "Path.init",
-        args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina.file"),
-                @Argument(name = "link", type = TypeKind.STRING)
-        },
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.PACKAGE_NAME,
+        functionName = "init",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                             structPackage = Constants.PACKAGE_PATH)
+        ,
         isPublic = true
 )
 public class Init extends BlockingNativeCallableUnit {

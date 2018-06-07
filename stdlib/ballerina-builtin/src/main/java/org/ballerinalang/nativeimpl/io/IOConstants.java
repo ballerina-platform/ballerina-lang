@@ -29,6 +29,11 @@ public class IOConstants {
     public static final String BYTE_CHANNEL_NAME = "channel";
 
     /**
+     * Represents the name of the data channel.
+     */
+    public static final String DATA_CHANNEL_NAME = "data_channel";
+
+    /**
      * The name of the character channel which will be represented through the native struct.
      */
     static final String CHARACTER_CHANNEL_NAME = "char_channel";

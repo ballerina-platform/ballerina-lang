@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Test cases for skipping scenarios
+ * Test cases for skipping scenarios.
  */
 public class SkipTest {
 
