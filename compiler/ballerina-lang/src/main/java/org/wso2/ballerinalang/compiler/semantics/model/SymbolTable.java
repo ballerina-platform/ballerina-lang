@@ -71,6 +71,9 @@ public class SymbolTable {
                                                           Names.BUILTIN_PACKAGE,
                                                           Names.DEFAULT_VERSION);
 
+    public static final Integer BBYTE_MIN_VALUE = 0;
+    public static final Integer BBYTE_MAX_VALUE = 255;
+
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
     public final BSymbol notFoundSymbol;

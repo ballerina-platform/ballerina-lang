@@ -130,6 +130,9 @@ import java.util.stream.Collectors;
 
 import javax.xml.XMLConstants;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
+
 /**
  * @since 0.94
  */
@@ -226,6 +229,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangLiteral literalExpr) {
         BType literalType = symTable.getTypeFromTag(literalExpr.typeTag);
+
+        Object literalValue = literalExpr.value;
+        if (TypeTags.BYTE == expType.tag && TypeTags.INT == literalType.tag && isByteLiteralValue((Long)literalValue)) {
+            literalType = symTable.byteType;
+            literalExpr.value = ((Long) literalValue).byteValue();
+        }
+
         if (this.expType.tag == TypeTags.FINITE) {
             BFiniteType expType = (BFiniteType) this.expType;
             boolean foundMember = types.isAssignableToFiniteType(expType, literalExpr);
@@ -247,6 +257,10 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
         resultType = types.checkType(literalExpr, literalType, expType);
+    }
+
+    private static boolean isByteLiteralValue(Long longObject) {
+        return (longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE);
     }
 
     public void visit(BLangTableLiteral tableLiteral) {

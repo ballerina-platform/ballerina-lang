@@ -43,6 +43,9 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
+import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
+
 /**
  * @since 0.94
  */
@@ -50,8 +53,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_NATIVE = "native";
     private static final String KEYWORD_BYTE = "byte";
-    private static final Integer BBYTE_MIN_VALUE = 0;
-    private static final Integer BBYTE_MAX_VALUE = 255;
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
