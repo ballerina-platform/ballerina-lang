@@ -18,6 +18,7 @@
 package org.ballerinalang.stdlib.utils;
 
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.repository.CompiledPackage;
 import org.wso2.ballerinalang.compiler.BinaryFileWriter;
@@ -29,9 +30,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,8 +41,9 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.DOT_BALLERINA_DIR_NAME;
-import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MANIFEST_FILE_NAME;
+import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
+import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG_PROP;
+import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE_PROP;
 
 /**
  * Class providing utility methods to generate balx from bal.
@@ -50,24 +52,45 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.MANIFEST_
  */
 public class GenerateBalo {
 
-    private static final String MANIFEST = "[project]\n" +
-                                           "org-name = \"ballerina\"\n" +
-                                           "version = \"0.0.0\"\n";
-
     public static void main(String[] args) throws IOException {
-        String sourceRoot = args[0];
-        String targetDir = args[1];
+        String isBuiltinFlag = args[0];
+        String sourceDir = args[1];
+        String targetDir = args[2];
+        String libDir = args[3];
 
-        Path sourceRootDir = Paths.get(sourceRoot);
-        Files.write(sourceRootDir.resolve(MANIFEST_FILE_NAME), MANIFEST.getBytes(StandardCharsets.UTF_8));
-        Files.createDirectories(sourceRootDir.resolve(DOT_BALLERINA_DIR_NAME));
+        String originalShouldCompileBalOrg = System.getProperty(COMPILE_BALLERINA_ORG_PROP);
+        String originalIsBuiltin = System.getProperty(LOAD_BUILTIN_FROM_SOURCE_PROP);
+        String originalHome = System.getProperty(BALLERINA_INSTALL_DIR_PROP);
+        try {
+            System.setProperty(COMPILE_BALLERINA_ORG_PROP, "true");
+            System.setProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, Boolean.valueOf(isBuiltinFlag).toString());
+            System.setProperty(BALLERINA_INSTALL_DIR_PROP, libDir);
+
+            genBalo(targetDir, sourceDir);
+        } finally {
+            unsetProperty(COMPILE_BALLERINA_ORG_PROP, originalShouldCompileBalOrg);
+            unsetProperty(LOAD_BUILTIN_FROM_SOURCE_PROP, originalIsBuiltin);
+            unsetProperty(BALLERINA_INSTALL_DIR_PROP, originalHome);
+        }
+    }
+
+    private static void unsetProperty(String key, String val) throws IOException {
+        if (val == null) {
+            System.clearProperty(key);
+        } else {
+            System.setProperty(key, val);
+        }
+    }
+
+
+    private static void genBalo(String targetDir, String sourceRootDir) throws IOException {
         Files.createDirectories(Paths.get(targetDir));
 
         CompilerContext context = new CompilerContext();
-        context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRoot, targetDir));
+        context.put(SourceDirectory.class, new MvnSourceDirectory(sourceRootDir, targetDir));
 
         CompilerOptions options = CompilerOptions.getInstance(context);
-        options.put(PROJECT_DIR, sourceRoot);
+        options.put(PROJECT_DIR, sourceRootDir);
         options.put(OFFLINE, Boolean.TRUE.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
 
@@ -76,9 +99,17 @@ public class GenerateBalo {
         Compiler compiler = Compiler.getInstance(context);
         compiler.build();
 
+
+        BLangDiagnosticLog diagnosticLog = BLangDiagnosticLog.getInstance(context);
+        if (diagnosticLog.errorCount > 0) {
+            throw new BLangCompilerException("Compilation failed with " + diagnosticLog.errorCount + " error(s).");
+        }
+
         BinaryFileWriter writer = BinaryFileWriter.getInstance(context);
         BPackageSymbol symbol = symbolTable.builtInPackageSymbol;
-        writer.writeLibraryPackage(symbol, Names.BUILTIN_PACKAGE.getValue());
+        if (symbol.compiledPackage != null) {
+            writer.writeLibraryPackage(symbol, Names.BUILTIN_PACKAGE.getValue());
+        }
     }
 
     private static class MvnSourceDirectory extends FileSystemProjectDirectory {
