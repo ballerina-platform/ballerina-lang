@@ -192,6 +192,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define type definitions.
         defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
 
+        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
+
         // Define type def fields (if any)
         defineFields(pkgNode.typeDefinitions, pkgEnv);
 
@@ -204,9 +206,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Define service and resource nodes.
         pkgNode.services.forEach(service -> defineNode(service, pkgEnv));
-
-        // Need to visit global variables before object fields. Otherwise shadowed fields cannot be identified.
-        pkgNode.globalVars.forEach(var -> defineNode(var, pkgEnv));
 
         // Define function nodes.
         pkgNode.functions.forEach(func -> defineNode(func, pkgEnv));
