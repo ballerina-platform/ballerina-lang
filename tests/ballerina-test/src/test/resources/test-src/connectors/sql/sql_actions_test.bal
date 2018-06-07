@@ -551,6 +551,18 @@ function testOutParameters(string jdbcUrl, string userName, string password) ret
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_OUT };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
 
+    if (jdbcUrl.contains("postgres")) {
+        // There is no CLOB type in postgres. Therefore have to use TEXT type instead.
+        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_OUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means double precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_OUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
+    }
+
     _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
@@ -609,6 +621,18 @@ function testNullOutParameters(string jdbcUrl, string userName, string password)
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_OUT };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
 
+    if (jdbcUrl.contains("postgres")) {
+        // There is no CLOB type in postgres. Therefore have to use TEXT type instead.
+        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_OUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means testCallProceduredouble precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_OUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
+    }
+
     _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
         paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
@@ -661,6 +685,11 @@ function testINParameters(string jdbcUrl, string userName, string password) retu
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, value: 5555 };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, value: "very long text" };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu" };
+
+    if (jdbcUrl.contains("postgres")) {
+        // In postgres there is no Clob type. TEXT type can be used instead.
+        paraClob = { sqlType: sql:TYPE_VARCHAR, value: "very long text" };
+    }
 
     int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
@@ -871,7 +900,7 @@ function testINOutParameters(string jdbcUrl, string userName, string password) r
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 5 };
     sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, value: 10, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraLong = { sqlType: sql:TYPE_BIGINT, value: "9223372036854774807", direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraFloat = { sqlType: sql:TYPE_FLOAT, value: 123.34, direction: sql:DIRECTION_INOUT };
+    sql:Parameter paraFloat = { sqlType: sql:TYPE_REAL, value: 123.34, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraDouble = { sqlType: sql:TYPE_DOUBLE, value: 2139095039, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraBool = { sqlType: sql:TYPE_BOOLEAN, value: true, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraString = { sqlType: sql:TYPE_VARCHAR, value: "Hello", direction: sql:DIRECTION_INOUT };
@@ -886,8 +915,14 @@ function testINOutParameters(string jdbcUrl, string userName, string password) r
     DIRECTION_INOUT };
 
     if (jdbcUrl.contains("postgres")) {
-        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, value: 1 };
         paraClob = { sqlType: sql:TYPE_VARCHAR, value: "very long text", direction: sql:DIRECTION_INOUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means double precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, value: 123.34, direction: sql:DIRECTION_INOUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, value: 1, direction: sql:DIRECTION_INOUT };
     }
 
     _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
@@ -922,6 +957,17 @@ function testNullINOutParameters(string jdbcUrl, string userName, string passwor
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_INOUT };
+
+    if (jdbcUrl.contains("postgres")) {
+        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_INOUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means double precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_INOUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_INOUT };
+    }
 
     _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
@@ -976,17 +1022,24 @@ function testArrayInOutParameters(string jdbcUrl, string userName, string passwo
         poolOptions: { maximumPoolSize: 1 }
     };
 
+    int[] intArray1 = [10,20,30];
+    int[] intArray2 = [10000000, 20000000, 30000000];
+    float[] floatArray1 = [2454.23, 55594.49, 87964.123];
+    float[] floatArray2 = [2454.23, 55594.49, 87964.123];
+    boolean[] booleanArray = [false, false, true];
+    string[] stringArray = ["Hello","Ballerina","Lang"];
+
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 3 };
     sql:Parameter para2 = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_OUT };
-    sql:Parameter para3 = { sqlType: sql:TYPE_ARRAY, value: "10,20,30", direction: sql:DIRECTION_INOUT };
-    sql:Parameter para4 = { sqlType: sql:TYPE_ARRAY, value: "10000000, 20000000, 30000000", direction: sql:
+    sql:Parameter para3 = { sqlType: sql:TYPE_ARRAY, value: intArray1, direction: sql:DIRECTION_INOUT };
+    sql:Parameter para4 = { sqlType: sql:TYPE_ARRAY, value: intArray2, direction: sql:
     DIRECTION_INOUT };
-    sql:Parameter para5 = { sqlType: sql:TYPE_ARRAY, value: "2454.23, 55594.49, 87964.123", direction: sql:
+    sql:Parameter para5 = { sqlType: sql:TYPE_ARRAY, value: floatArray1, direction: sql:
     DIRECTION_INOUT };
-    sql:Parameter para6 = { sqlType: sql:TYPE_ARRAY, value: "2454.23, 55594.49, 87964.123", direction: sql:
+    sql:Parameter para6 = { sqlType: sql:TYPE_ARRAY, value: floatArray2, direction: sql:
     DIRECTION_INOUT };
-    sql:Parameter para7 = { sqlType: sql:TYPE_ARRAY, value: "FALSE, FALSE, TRUE", direction: sql:DIRECTION_INOUT };
-    sql:Parameter para8 = { sqlType: sql:TYPE_ARRAY, value: "Hello,Ballerina,Lang", direction: sql:DIRECTION_INOUT };
+    sql:Parameter para7 = { sqlType: sql:TYPE_ARRAY, value: booleanArray, direction: sql:DIRECTION_INOUT };
+    sql:Parameter para8 = { sqlType: sql:TYPE_ARRAY, value: stringArray, direction: sql:DIRECTION_INOUT };
 
     _ = testDB->call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", (),
         para1, para2, para3, para4, para5, para6, para7, para8);

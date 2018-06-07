@@ -175,13 +175,7 @@ public class SQLActionsTest {
         BString retValue = (BString) returns[0];
         final String expected = "James";
         Assert.assertEquals(retValue.stringValue(), expected);
-        if (dbType == POSTGRES) {
-            // In postgres, there are no procedures but functions. When we call a function internally a select
-            // happens eg: select InsertPersonData(100, 'J'); which returns a table containing an empty string
-            Assert.assertEquals(returns[1].stringValue(), "table");
-        } else {
-            Assert.assertEquals(returns[1].stringValue(), "nil");
-        }
+        Assert.assertEquals(returns[1].stringValue(), "nil");
     }
 
     @Test(groups = {"ConnectorTest", "MySQLNotSupported", "PostgresNotSupported"})
@@ -227,8 +221,7 @@ public class SQLActionsTest {
     public void testCallProcedureWithMultipleResultSetsAndNilConstraintCount() {
         BValue[] returns = BRunUtil
                 .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndNilConstraintCount", connectionArgs);
-        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
-                + "record type count: 0 and returned result set count: 2 from the stored procedure\""));
+        Assert.assertEquals(returns[0].stringValue(), "nil");
     }
 
     @Test(groups = {"ConnectorTest", "PostgresNotSupported"})
