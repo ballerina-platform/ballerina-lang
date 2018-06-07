@@ -43,7 +43,9 @@ let win,
     balHome = path.join(appDir, '..', '..', '..', '..', '..', '..')
                     .replace('app.asar', 'app.asar.unpacked');
 
-balHome = process.platform === 'darwin' ? path.join(balHome, '..') : balHome;
+balHome = process.platform === 'darwin'
+            ? process.env.BALLERINA_HOME
+            : balHome;
 
  let composerHome = path.join(balHome, 'lib', 'resources', 'composer')
     composerPublicPath = path.join(composerHome, 'web', 'app'),
@@ -207,6 +209,7 @@ app.on('ready', () => {
         splashWin = null;
     });
     createLogger();
+    logger.info('Resource path is ' + process.resourcesPath);
     logger.info('Using ' + appDir + ' as the app directory.');
     logger.info('verifying availability of java runtime in path');
     checkJava((error, message) => {
