@@ -16,48 +16,45 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.file.utils.Constants;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
- * Creates the file at the path specified in the File struct.
+ * Resolves file path.
  *
- * @since 0.970.0-alpha1
+ * @since 0.971.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "internal",
-        functionName = "Path.toAbsolutePath",
+        orgName = Constants.ORG_NAME,
+        packageName = Constants.PACKAGE_NAME,
+        functionName = "resolve",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                             structPackage = Constants.PACKAGE_PATH)
+        ,
         args = {
-                @Argument(name = "path", type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina.file")
+                @Argument(name = "paths", type = TypeKind.ARRAY, elementType = TypeKind.STRING)
         },
         returnType = {
-                @ReturnType(type = TypeKind.RECORD, structType = "Path", structPackage = "ballerina.file")
+                @ReturnType(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
+                            structPackage = Constants.PACKAGE_PATH)
         },
         isPublic = true
 )
-public class ToAbsolutePath extends BlockingNativeCallableUnit {
-
-    /**
-     * Returns the absolute path of the file.
-     *
-     * @param path the path to the file location.
-     * @return the absolute path reference.
-     */
-    private Path getAbsolutePath(Path path) {
-        return path.toAbsolutePath();
-    }
-
+public class Resolve extends BlockingNativeCallableUnit {
     /**
      * {@inheritDoc}
      */
@@ -65,9 +62,17 @@ public class ToAbsolutePath extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct pathStruct = (BStruct) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        BStruct absolutePath = BLangConnectorSPIUtil.createBStruct(context, Constants.FILE_PACKAGE, Constants
+    
+        BStringArray pathsToAppend = (BStringArray) context.getNullableRefArgument(1);
+        
+        Path newPath = Paths.get(path.toString());
+        for (int i = 0; i < pathsToAppend.size(); i++) {
+            newPath = newPath.resolve(pathsToAppend.get(i));
+        }
+    
+        BStruct parentPath = BLangConnectorSPIUtil.createBStruct(context, Constants.PACKAGE_PATH, Constants
                 .PATH_STRUCT);
-        absolutePath.addNativeData(Constants.PATH_DEFINITION_NAME, getAbsolutePath(path));
-        context.setReturnValues(absolutePath);
+        parentPath.addNativeData(Constants.PATH_DEFINITION_NAME, newPath);
+        context.setReturnValues(parentPath);
     }
 }

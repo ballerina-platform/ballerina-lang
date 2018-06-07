@@ -111,7 +111,7 @@ public class LSContextManager {
     }
 
     /**
-     * Set compiler context for a given project directory
+     * Set compiler context for a given project directory.
      *
      * @param projectDir        project directory
      * @param compilerContext   compiler context.
