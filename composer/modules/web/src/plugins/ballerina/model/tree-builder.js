@@ -275,7 +275,7 @@ class TreeBuilder {
         }
 
         if (node.kind === 'Function') {
-            if (node.returnTypeNode && node.returnTypeNode.typeKind !== 'nil') {
+            if (node.returnTypeNode && node.returnTypeNode.ws && node.returnTypeNode.ws.length > 0) {
                 node.hasReturns = true;
             }
 
