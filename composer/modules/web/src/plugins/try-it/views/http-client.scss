@@ -101,7 +101,7 @@
         }
     }
     .send-request, .cancel-request{
-        width: 150px!important;
+        width: 160px!important;
     }
 }
 
@@ -261,7 +261,9 @@
     .response-empty{
         padding: 20px;
     }
-
+    .response-empty-segment::before {
+        background-color: #262626!important;
+    }
 }
 
 .header-content {
