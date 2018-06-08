@@ -174,3 +174,22 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
         return newOutRequest;
     }
 }
+
+type URI object {
+
+    private {
+        string scheme;
+        string host;
+        int port;
+    }
+
+    public new(string uri) {
+        match self.parse(uri) {
+            () => {}
+            error err => throw err;
+        }
+    }
+    native function parse(string url) returns ()|error;
+};
+
+native function resolve(string baseUrl, string path) returns string|error;

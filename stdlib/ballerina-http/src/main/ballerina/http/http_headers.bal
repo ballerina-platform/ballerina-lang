@@ -89,3 +89,5 @@ documentation {
 
 documentation { HTTP header key `warning`. Specifies warnings generated when serving stale responses from HTTP caches. }
 @final public string WARNING = "warning";
+
+@final public string TRANSFER_ENCODING = "transfer-encoding";

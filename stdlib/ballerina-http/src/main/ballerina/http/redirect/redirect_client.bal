@@ -66,10 +66,8 @@ public type RedirectClient object {
     }
     public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
         message = ()) returns Response|error {
-        io:println("Redirect Get!");
         Request request = buildRequest(message);
-        Response|error result = self.httpClient.get(path, message = request);
-        return handleRedirect(result, path, "GET", request, self, self.httpClient);
+        return performRedirectIfEligible(self, path, request, HTTP_GET);
     }
 
     documentation {
@@ -84,7 +82,7 @@ public type RedirectClient object {
     public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
         message) returns Response|error {
         Request request = buildRequest(message);
-        return self.httpClient.post(path, request);
+        return performRedirectIfEligible(self, path, request, HTTP_POST);
     }
 
     documentation {
@@ -99,7 +97,7 @@ public type RedirectClient object {
     public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
         message = ()) returns Response|error {
         Request request = buildRequest(message);
-        return self.httpClient.head(path, message = request);
+        return performRedirectIfEligible(self, path, request, HTTP_HEAD);
     }
 
     documentation {
@@ -114,7 +112,7 @@ public type RedirectClient object {
     public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
         message) returns Response|error {
         Request request = buildRequest(message);
-        return self.httpClient.put(path, request);
+        return performRedirectIfEligible(self, path, request, HTTP_PUT);
     }
 
     documentation {
@@ -142,7 +140,12 @@ public type RedirectClient object {
     public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
         message) returns Response|error {
         Request request = buildRequest(message);
-        return self.httpClient.execute(httpVerb, path, request);
+        //Redirection is performed only for HTTP methods
+        if (HTTP_NONE == extractHttpOperation(httpVerb)) {
+            return self.httpClient.execute(httpVerb, path, request);
+        } else {
+            return performRedirectIfEligible(self, path, request, extractHttpOperation(httpVerb));
+        }
     }
 
     documentation {
@@ -157,7 +160,7 @@ public type RedirectClient object {
     public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
         message) returns Response|error {
         Request request = buildRequest(message);
-        return self.httpClient.patch(path, request);
+        return performRedirectIfEligible(self, path, request, HTTP_PATCH);
     }
 
     documentation {
@@ -172,7 +175,7 @@ public type RedirectClient object {
     public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
         message) returns Response|error {
         Request request = buildRequest(message);
-        return self.httpClient.delete(path, request);
+        return performRedirectIfEligible(self, path, request, HTTP_DELETE);
     }
 
     documentation {
@@ -187,7 +190,7 @@ public type RedirectClient object {
     public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
         message = ()) returns Response|error {
         Request request = buildRequest(message);
-        return self.httpClient.options(path, message = request);
+        return performRedirectIfEligible(self, path, request, HTTP_OPTIONS);
     }
 
     documentation {
@@ -258,74 +261,86 @@ public type RedirectClient object {
     }
 };
 
-function handleRedirect(Response|error result, string path, string httpVerb, Request request,
+function performRedirectIfEligible(RedirectClient redirectClient, string path, Request request,
+                                   HttpOperation httpOperation) returns Response|error {
+    string resolvedURL;
+    match resolve(redirectClient.config.url, path) {
+        string resolvedURI => {
+            resolvedURL = resolvedURI;
+        }
+        error err => return err;
+    }
+    Response|error result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
+    return checkRedirectEligibility(result, resolvedURL, httpOperation, request, redirectClient, redirectClient.httpClient);
+}
+
+function checkRedirectEligibility(Response|error result, string resolvedRequestedURI, HttpOperation httpVerb, Request request,
                         RedirectClient redirectClient, CallerActions callerAction)
              returns @untainted Response|error {
-    io:println("Handle redirect >> checking redirect eligibility...");
     match result {
         Response response => {
             if (isRedirectResponse(response.statusCode)) {
-                log:printInfo("Redirect status code recevied");
-                return doRedirection(response, path, httpVerb, request, redirectClient, callerAction);
+                return redirect(response, httpVerb, request, redirectClient, callerAction);
             } else {
+                redirectClient.currentRedirectCount = 0;
+                response.resolvedRequestedURI = resolvedRequestedURI;
                 return response;
             }
         }
         error err => {
+            redirectClient.currentRedirectCount = 0;
             return err;
         }
     }
 }
 
 function isRedirectResponse(int statusCode) returns boolean {
-    return (statusCode >= 300 && statusCode < 400);
+    return (statusCode == 300 || statusCode == 301 || statusCode == 302 || statusCode == 303 || statusCode == 305 ||
+        statusCode == 307 || statusCode == 308);
 }
 
-function doRedirection(Response response, string path, string httpVerb, Request request,
-                       RedirectClient redirectClient, CallerActions callerAction)
-             returns @untainted Response|error {
+function redirect(Response response, HttpOperation httpVerb, Request request, RedirectClient redirectClient,
+                  CallerActions callerAction) returns @untainted Response|error {
     int currentCount = redirectClient.currentRedirectCount;
     int maxCount = redirectClient.redirectConfig.maxCount;
     if (currentCount >= maxCount) {
-        io:println("Max count exceeded... returning...");
+        log:printDebug("Maximum redirect count reached!");
         return response;
     } else {
         currentCount++;
-        io:println(currentCount);
         redirectClient.currentRedirectCount = currentCount;
         match getRedirectMethod(httpVerb, response) {
             () => {
-                log:printInfo("No redirect method");
+                redirectClient.currentRedirectCount = 0;
                 return response;
             }
-            string redirectMethod => {
-                if (response.hasHeader("location")) {
-                    string location = response.getHeader("location");
-                    log:printInfo("Location header value: " + location);
+            HttpOperation redirectMethod => {
+                if (response.hasHeader(LOCATION)) {
+                    string location = response.getHeader(LOCATION);
+                    log:printDebug("Location header value: " + location);
                     if (isCrossDomain(redirectClient.config.url, location)) {
-                        log:printInfo("Cross Domain: " + location);
                         CallerActions newCallerAction = createRetryClient(location,
                             createNewEndpoint(location, redirectClient.config));
-                        Response|error result = invokeEndpoint("", createRedirectRequest(request),
-                            extractHttpOperation(redirectMethod), newCallerAction);
-                        return handleRedirect(result, path, redirectMethod, request, redirectClient,
+                        Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
+                            redirectMethod, newCallerAction);
+                        return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient,
                             newCallerAction);
                     } else {
-                        log:printInfo("Not Cross Domain: " + location);
                         match resolve(redirectClient.config.url, location) {
                             string resolvedURI => {
-                                log:printInfo("Resolved URI: " + resolvedURI);
-                                Response|error result = invokeEndpoint(getPath(redirectClient.config.url, resolvedURI),
-                                    createRedirectRequest(request),
-                                    extractHttpOperation(redirectMethod), redirectClient.httpClient);
-                                return handleRedirect(result, path, redirectMethod, request, redirectClient,
+                                log:printDebug("Resolved URI: " + resolvedURI);
+                                Response|error result = invokeEndpoint(resolvePath(redirectClient.config.url, resolvedURI),
+                                    createRedirectRequest(response.statusCode, request),
+                                    redirectMethod, redirectClient.httpClient);
+                                return checkRedirectEligibility(result, resolvedURI, redirectMethod, request, redirectClient,
                                     callerAction);
                             }
-                            error err => return err;
+                            error err => {redirectClient.currentRedirectCount = 0; return err;}
                         }
                     }
                 } else {
                     error err = { message: "Location header not available!" };
+                    redirectClient.currentRedirectCount = 0;
                     return err;
                 }
             }
@@ -333,12 +348,8 @@ function doRedirection(Response response, string path, string httpVerb, Request 
     }
 }
 
-function getPath(string endpointURL, string resolvedURI) returns string {
-    log:printInfo("Calculating path...");
-    log:printInfo("Original endpoint value : " +endpointURL + " resolvedURL : " + resolvedURI);
-    string clientPath =  resolvedURI.substring(endpointURL.length(), resolvedURI.length());
-    log:printInfo("Calculated path: " + clientPath);
-    return clientPath;
+function resolvePath(string endpointURL, string resolvedURI) returns string {
+    return resolvedURI.substring(endpointURL.length(), resolvedURI.length());
 }
 
 function createNewEndpoint(string location, ClientEndpointConfig config) returns ClientEndpointConfig {
@@ -361,72 +372,53 @@ function createNewEndpoint(string location, ClientEndpointConfig config) returns
     return newEpConfig;
 }
 
-function getRedirectMethod(string httpVerb, Response response) returns string|() {
+function getRedirectMethod(HttpOperation httpVerb, Response response) returns HttpOperation|() {
     int statusCode = response.statusCode;
-    if ((statusCode == 300 || statusCode == 305 || statusCode == 307 || statusCode == 308) &&
-        (httpVerb.equalsIgnoreCase("GET") || httpVerb.equalsIgnoreCase("HEAD"))) {
-        log:printInfo("First 3XX" + httpVerb + ":" + statusCode);
+    if ((statusCode == MULTIPLE_CHOICES_300 || statusCode == USE_PROXY_305 || statusCode == TEMPORARY_REDIRECT_307
+            || statusCode == PERMANENT_REDIRECT_308) && (httpVerb == HTTP_GET || httpVerb == HTTP_HEAD)) {
         return httpVerb;
-    } else if ((statusCode == 301 || statusCode == 302) &&
-        (httpVerb.equalsIgnoreCase("GET") || httpVerb.equalsIgnoreCase("HEAD"))) {
-        log:printInfo("Second 3XX" + httpVerb + ":" + statusCode);
-        return "GET";
-    } else if (statusCode == 303) {
-        log:printInfo("Third 3XX" + httpVerb + ":" + statusCode);
-        return "GET";
+    } else if ((statusCode == MOVED_PERMANENTLY_301 || statusCode == FOUND_302) &&
+        (httpVerb == HTTP_GET || httpVerb == HTTP_HEAD)) {
+        return HTTP_GET;
+    } else if (statusCode == SEE_OTHER_303) {
+        return HTTP_GET;
     } else {
-        log:printInfo(httpVerb + ":" + statusCode);
         return ();
     }
 }
 
-function createRedirectRequest(Request request) returns Request {
-    return request;
+function createRedirectRequest(int statusCode, Request request) returns Request {
+    Request redirectRequest = new;
+    string[] headerNames = request.getHeaderNames();
+    foreach headerName in headerNames {
+        string[] headerValues = request.getHeaders(headerName);
+        foreach (headerValue in headerValues) {
+            redirectRequest.addHeader(headerName, headerValue);
+        }
+    }
+    if (statusCode == SEE_OTHER_303) {
+        redirectRequest.removeHeader(TRANSFER_ENCODING);
+        redirectRequest.removeHeader(CONTENT_LENGTH);
+    }
+    return redirectRequest;
 }
 
 function isCrossDomain(string endPointURL, string locationUrl) returns boolean {
-    io:println("Start checking cross domain...");
     if (locationUrl.length() > 6) {
         string httpScheme = locationUrl.substring(0, 7);
         string httpsScheme = locationUrl.substring(0, 8);
-        log:printInfo("location scheme : http >> " + httpScheme + " https: >> " + httpsScheme);
         if (httpScheme.equalsIgnoreCase("http://") || httpsScheme.equalsIgnoreCase("https://")) {
             URI location = new URI(locationUrl);
             URI endPoint = new URI(endPointURL);
             if (location.scheme == endPoint.scheme && location.host == endPoint.host && location.port == endPoint.port) {
-                io:println("This is not cross domain...");
                 return false;
             } else {
-                log:printInfo("port or host doesn't match so its cross domain");
-                log:printInfo("endpoint host:port >> " + endPoint.scheme + ":" + endPoint.host + ":" + endPoint.port);
-                log:printInfo("location host:port >> " + location.scheme + ":" + location.host + ":" + location.port);
                 return true;
             }
         } else {
-            io:println("location doesn't start with http or https...");
             return false;
         }
     } else {
-        io:println("location doesn't start with http or https...");
         return false;
     }
 }
-
-type URI object {
-
-    private {
-        string scheme;
-        string host;
-        int port;
-    }
-
-    public new(string uri) {
-        match self.parse(uri) {
-            () => {}
-            error err => throw err;
-        }
-    }
-    native function parse(string url) returns ()|error;
-};
-
-native function resolve(string baseUrl, string path) returns string|error;
