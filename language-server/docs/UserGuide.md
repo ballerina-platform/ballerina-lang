@@ -93,6 +93,11 @@ For importing packages you can choose from the suggested list of package names. 
 
 ![](../docs/images/importsSuggestions.gif)
 
+#### Create Functions
+When you need to generate a function which is not still implemented, you can use the code action to generate a new function matching the function signature.
+
+![](../docs/images/generateFunction.gif)
+
 <a name="IterableOperationsSuggestion" />
 
 #### Iterable Operations Suggestion
