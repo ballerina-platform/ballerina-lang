@@ -38,12 +38,8 @@ public abstract class NonSysRepo<I> implements Repo<I> {
 
     @Override
     public final Patten calculate(PackageID pkgId) {
-        // TODO: remove pkg name check, only org should be checked.
         String orgName = pkgId.getOrgName().getValue();
-        if (!COMPILE_BALLERINA_ORG &&
-            "ballerina".equals(orgName) ||
-            "ballerinax".equals(orgName) ||
-            pkgId.getName().getValue().startsWith("ballerina.")) {
+        if (!COMPILE_BALLERINA_ORG && ("ballerina".equals(orgName) || "ballerinax".equals(orgName))) {
             return Patten.NULL;
         } else {
             return calculateNonSysPkg(pkgId);
