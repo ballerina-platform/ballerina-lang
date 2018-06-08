@@ -162,13 +162,6 @@ MUL     : '*' ;
 DIV     : '/' ;
 MOD     : '%';
 
-// Bitwise Operators
-
-BITAND          : '&' ;
-BITXOR          : '^' ;
-BIT_RIGHT_SHIFT : '>>' ;
-BIT_LEFT_SHIFT  : '<<' ;
-
 // Relational operators
 
 NOT         : '!' ;
@@ -180,6 +173,11 @@ GT_EQUAL    : '>=' ;
 LT_EQUAL    : '<=' ;
 AND         : '&&' ;
 OR          : '||' ;
+
+// Bitwise Operators
+
+BITAND  : '&' ;
+BITXOR  : '^' ;
 
 // Additional symbols 
 

@@ -594,7 +594,7 @@ expression
     |	expression matchExpression										    # matchExprExpression
     |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
-    |   expression (BIT_RIGHT_SHIFT | BIT_LEFT_SHIFT) expression            # shiftExpression
+    |   expression (GT GT | LT LT | GT GT GT) expression                    # shiftExpression
     |   typeName                                                            # typeAccessExpression
     ;
 

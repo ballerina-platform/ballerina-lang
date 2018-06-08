@@ -1890,7 +1890,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+        StringBuilder operator = new StringBuilder();
+
+        for (int i = 1; i < ctx.getChildCount() - 1; i++) {
+            operator.append(ctx.getChild(i).getText());
+        }
+
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), operator.toString());
     }
 
     /**
