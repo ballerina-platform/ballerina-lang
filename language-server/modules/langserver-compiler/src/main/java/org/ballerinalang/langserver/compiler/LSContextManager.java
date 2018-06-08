@@ -210,7 +210,7 @@ public class LSContextManager {
 
         @Override
         public InputStream getLockFileContent() {
-            return null;
+            return new ByteArrayInputStream("".getBytes(Charset.defaultCharset()));
         }
 
         @Override
