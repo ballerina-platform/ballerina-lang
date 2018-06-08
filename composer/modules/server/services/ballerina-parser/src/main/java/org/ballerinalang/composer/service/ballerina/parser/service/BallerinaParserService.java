@@ -43,6 +43,7 @@ import org.ballerinalang.langserver.compiler.common.modal.BallerinaFile;
 import org.ballerinalang.langserver.compiler.workspace.ExtendedWorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
@@ -52,7 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -296,10 +296,9 @@ public class BallerinaParserService implements ComposerService {
                     && node instanceof BLangAnnotation) {
                 JsonArray attachmentPoints = new JsonArray();
                 ((BLangAnnotation) node)
-                        .getAttachmentPoints()
+                        .getAttachPoints()
                         .stream()
-                        .map(BLangAnnotationAttachmentPoint::getAttachmentPoint)
-                        .map(BLangAnnotationAttachmentPoint.AttachmentPoint::getValue)
+                        .map(AttachPoint::getValue)
                         .map(JsonPrimitive::new)
                         .forEach(attachmentPoints::add);
                 nodeJson.add("attachmentPoints", attachmentPoints);
