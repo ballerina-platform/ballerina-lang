@@ -44,7 +44,7 @@ public class HTTPServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
 
-    private Map<String, ServicesMapHolder> servicesMapByHost = new ConcurrentHashMap<>();
+    protected Map<String, ServicesMapHolder> servicesMapByHost = new ConcurrentHashMap<>();
     protected Map<String, HttpService> servicesByBasePath;
     protected List<String> sortedServiceURIs;
     private final WebSocketServicesRegistry webSocketServicesRegistry;
@@ -64,15 +64,6 @@ public class HTTPServicesRegistry {
     }
 
     /**
-     * Get ServiceInfo map for given interfaceId.
-     *
-     * @return the serviceInfo map if exists else null.
-     */
-    public Map<String, HttpService> getServicesInfoByInterface() {
-        return servicesByBasePath;
-    }
-
-    /**
      * Get ServicesMapHolder for given host name.
      *
      * @param hostName of the service
@@ -89,7 +80,7 @@ public class HTTPServicesRegistry {
      * @return the serviceHost map if exists else null
      */
     public Map<String, HttpService> getServicesByHost(String hostName) {
-        return servicesMapByHost.get(hostName).servicesInfoMap;
+        return servicesMapByHost.get(hostName).servicesByBasePath;
     }
 
     /**
@@ -186,12 +177,15 @@ public class HTTPServicesRegistry {
         return null;
     }
 
-    class ServicesMapHolder {
-        private Map<String, HttpService> servicesInfoMap;
+    /**
+     * Holds both serviceByBasePath map and sorted Service basePath list.
+     */
+    protected class ServicesMapHolder {
+        private Map<String, HttpService> servicesByBasePath;
         private List<String> sortedServiceURIs;
 
-        public ServicesMapHolder(Map<String, HttpService> servicesInfoMap, List<String> sortedServiceURIs) {
-            this.servicesInfoMap = servicesInfoMap;
+        public ServicesMapHolder(Map<String, HttpService> servicesByBasePath, List<String> sortedServiceURIs) {
+            this.servicesByBasePath = servicesByBasePath;
             this.sortedServiceURIs = sortedServiceURIs;
         }
     }
