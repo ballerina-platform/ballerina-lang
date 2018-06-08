@@ -53,7 +53,7 @@ public class Utils {
 
         // Invoke package init function
         if (isPackageInitialized(programFile.getEntryPkgName())) {
-            BLangFunctions.invokePackageInitFunctions(programFile);
+            BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
             registry.addInitializedPackage(programFile.getEntryPkgName());
         }
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());

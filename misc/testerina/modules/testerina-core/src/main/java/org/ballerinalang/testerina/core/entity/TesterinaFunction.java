@@ -82,7 +82,7 @@ public class TesterinaFunction {
 
     public BValue[] invoke() throws BallerinaException {
         if (this.type == Type.INIT) {
-            BLangFunctions.invokePackageInitFunctions(programFile);
+            BLangFunctions.invokePackageInitFunction(bFunction);
             TesterinaRegistry.getInstance().addInitializedPackage(programFile.getEntryPkgName());
             return new BValue[] {};
         } else {
