@@ -27,7 +27,7 @@ documentation {
 
     F{{serviceUri}} Target service url
     F{{config}}  HTTP ClientEndpointConfig to be used for HTTP client invocation
-    F{{retryConfig}} Configurations associated with retry
+    F{{redirectConfig}} Configurations associated with retry
     F{{httpClient}}  HTTP client for outbound HTTP requests
 }
 public type RedirectClient object {
@@ -271,11 +271,13 @@ function performRedirectIfEligible(RedirectClient redirectClient, string path, R
         error err => return err;
     }
     Response|error result = invokeEndpoint(path, request, httpOperation, redirectClient.httpClient);
-    return checkRedirectEligibility(result, resolvedURL, httpOperation, request, redirectClient, redirectClient.httpClient);
+    return checkRedirectEligibility(result, resolvedURL, httpOperation, request, redirectClient, redirectClient.
+        httpClient);
 }
 
-function checkRedirectEligibility(Response|error result, string resolvedRequestedURI, HttpOperation httpVerb, Request request,
-                        RedirectClient redirectClient, CallerActions callerAction)
+function checkRedirectEligibility(Response|error result, string resolvedRequestedURI, HttpOperation httpVerb, Request
+    request,
+                                  RedirectClient redirectClient, CallerActions callerAction)
              returns @untainted Response|error {
     match result {
         Response response => {
@@ -319,23 +321,18 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
                     string location = response.getHeader(LOCATION);
                     log:printDebug("Location header value: " + location);
                     if (isCrossDomain(redirectClient.config.url, location)) {
-                        CallerActions newCallerAction = createRetryClient(location,
-                            createNewEndpoint(location, redirectClient.config));
-                        Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-                            redirectMethod, newCallerAction);
-                        return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient,
-                            newCallerAction);
+                        return performCrossDomainRedirection(location, redirectClient, redirectMethod, request, response);
                     } else {
                         match resolve(redirectClient.config.url, location) {
                             string resolvedURI => {
                                 log:printDebug("Resolved URI: " + resolvedURI);
-                                Response|error result = invokeEndpoint(resolvePath(redirectClient.config.url, resolvedURI),
-                                    createRedirectRequest(response.statusCode, request),
-                                    redirectMethod, redirectClient.httpClient);
-                                return checkRedirectEligibility(result, resolvedURI, redirectMethod, request, redirectClient,
-                                    callerAction);
+                                return redirectUsingExistingClient(resolvedURI, redirectClient, redirectMethod, request,
+                                    response, callerAction);
                             }
-                            error err => {redirectClient.currentRedirectCount = 0; return err;}
+                            error err => {
+                                redirectClient.currentRedirectCount = 0;
+                                return err;
+                            }
                         }
                     }
                 } else {
@@ -346,6 +343,26 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
             }
         }
     }
+}
+
+function performCrossDomainRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
+                                       Request request, Response response) returns @untainted Response|error {
+    CallerActions newCallerAction = createRetryClient(location,
+        createNewEndpoint(location, redirectClient.config));
+    Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
+        redirectMethod, newCallerAction);
+    return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient,
+        newCallerAction);
+}
+
+function redirectUsingExistingClient(string resolvedURI, RedirectClient redirectClient, HttpOperation redirectMethod,
+                                     Request request, Response response, CallerActions callerAction)
+                                                                            returns @untainted Response|error {
+    Response|error result = invokeEndpoint(resolvePath(redirectClient.config.url, resolvedURI),
+        createRedirectRequest(response.statusCode, request),
+        redirectMethod, redirectClient.httpClient);
+    return checkRedirectEligibility(result, resolvedURI, redirectMethod, request, redirectClient,
+        callerAction);
 }
 
 function resolvePath(string endpointURL, string resolvedURI) returns string {
@@ -410,7 +427,8 @@ function isCrossDomain(string endPointURL, string locationUrl) returns boolean {
         if (httpScheme.equalsIgnoreCase("http://") || httpsScheme.equalsIgnoreCase("https://")) {
             URI location = new URI(locationUrl);
             URI endPoint = new URI(endPointURL);
-            if (location.scheme == endPoint.scheme && location.host == endPoint.host && location.port == endPoint.port) {
+            if (location.scheme == endPoint.scheme && location.host == endPoint.host && location.port == endPoint.port)
+            {
                 return false;
             } else {
                 return true;
