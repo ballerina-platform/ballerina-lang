@@ -71,9 +71,9 @@ public class TransactionResourceManager {
     /**
      * This method will register connection resources with a particular transaction.
      *
-     * @param transactionId the global transaction id.
-     * @param transactionBlockId the block id of the transaction.
-     * @param txContext ballerina transaction context which includes the underlying connection info.
+     * @param transactionId the global transaction id
+     * @param transactionBlockId the block id of the transaction
+     * @param txContext ballerina transaction context which includes the underlying connection info
      */
     public void register(String transactionId, int transactionBlockId, BallerinaTransactionContext txContext) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
@@ -83,8 +83,8 @@ public class TransactionResourceManager {
     /**
      * This method will register a committed function handler of a particular transaction.
      *
-     * @param transactionBlockId the block id of the transaction.
-     * param bFunctionPointer the function pointer for the committed function.
+     * @param transactionBlockId the block id of the transaction
+     * @param bFunctionPointer the function pointer for the committed function
      */
     public void registerCommittedFunction(int transactionBlockId, BFunctionPointer bFunctionPointer) {
         committedFuncRegistry.put(transactionBlockId, bFunctionPointer);
@@ -93,8 +93,8 @@ public class TransactionResourceManager {
     /**
      * This method will register an aborted function handler of a particular transaction.
      *
-     * @param transactionBlockId the block id of the transaction.
-     * param bFunctionPointer the function pointer for the aborted function.
+     * @param transactionBlockId the block id of the transaction
+     * @param bFunctionPointer the function pointer for the aborted function
      */
     public void registerAbortedFunction(int transactionBlockId, BFunctionPointer bFunctionPointer) {
         abortedFuncRegistry.put(transactionBlockId, bFunctionPointer);
@@ -104,8 +104,9 @@ public class TransactionResourceManager {
      * This method acts as the callback which notify all the resources participated in the given transaction. For local
      * transaction scenarios, this phase will be ignored.
      *
-     * @param transactionId the global transaction id.
-     * @param transactionBlockId the block id of the transaction.
+     * @param transactionId the global transaction id
+     * @param transactionBlockId the block id of the transaction
+     * @return the status of the prepare operation
      */
     public boolean prepare(String transactionId, int transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
@@ -130,8 +131,9 @@ public class TransactionResourceManager {
     /**
      * This method acts as the callback which commits all the resources participated in the given transaction.
      *
-     * @param transactionId the global transaction id.
-     * @param transactionBlockId the block id of the transaction.
+     * @param transactionId the global transaction id
+     * @param transactionBlockId the block id of the transaction
+     * @return the status of the commit operation
      */
     public boolean notifyCommit(String transactionId, int transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
@@ -163,8 +165,10 @@ public class TransactionResourceManager {
     /**
      * This method acts as the callback which aborts all the resources participated in the given transaction.
      *
-     * @param transactionId the global transaction id.
-     * @param transactionBlockId the block id of the transaction.
+     * @param transactionId the global transaction id
+     * @param transactionBlockId the block id of the transaction
+     * @param isRetryAttempt whether this is a retry attempt
+     * @return the status of the abort operation
      */
     public boolean notifyAbort(String transactionId, int transactionBlockId, boolean isRetryAttempt) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
@@ -201,8 +205,9 @@ public class TransactionResourceManager {
      * This method starts a transaction for the given xa resource. If there is no transaction is started for the
      * given XID a new transaction is created.
      *
-     * @param transactionId the global transaction id.
-     * @param xaResource the XA resource which participates in the transaction.
+     * @param transactionId the global transaction id
+     * @param transactionBlockId the block id of the transaction
+     * @param xaResource the XA resource which participates in the transaction
      */
     public void beginXATransaction(String transactionId, int transactionBlockId, XAResource xaResource) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
@@ -222,8 +227,8 @@ public class TransactionResourceManager {
     /**
      * This method marks the end of a transaction for the given transaction id.
      *
-     * @param transactionId the global transaction id.
-     * @param transactionBlockId the block id of the transaction.
+     * @param transactionId the global transaction id
+     * @param transactionBlockId the block id of the transaction
      */
     void endXATransaction(String transactionId, int transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
