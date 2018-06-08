@@ -17,17 +17,15 @@
  */
 
 import _ from 'lodash';
-import ExpressionNode from '../expression-node';
+import Node from '../node';
 
-class AbstractTypeCastExprNode extends ExpressionNode {
+class AbstractLimitNode extends Node {
 
 
-    setTypeNode(newValue, silent, title) {
-        const oldValue = this.typeNode;
+    setLimitValue(newValue, silent, title) {
+        const oldValue = this.limitValue;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.typeNode = newValue;
-
-        this.typeNode.parent = this;
+        this.limitValue = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +33,7 @@ class AbstractTypeCastExprNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'typeNode',
+                    attributeName: 'limitValue',
                     newValue,
                     oldValue,
                 },
@@ -43,39 +41,12 @@ class AbstractTypeCastExprNode extends ExpressionNode {
         }
     }
 
-    getTypeNode() {
-        return this.typeNode;
-    }
-
-
-
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
+    getLimitValue() {
+        return this.limitValue;
     }
 
 
 
 }
 
-export default AbstractTypeCastExprNode;
+export default AbstractLimitNode;

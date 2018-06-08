@@ -19,15 +19,13 @@
 import _ from 'lodash';
 import ExpressionNode from '../expression-node';
 
-class AbstractMatchExpressionPatternClauseNode extends ExpressionNode {
+class AbstractRecordLiteralExprNode extends ExpressionNode {
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
+    setKeyValuePairs(newValue, silent, title) {
+        const oldValue = this.keyValuePairs;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
+        this.keyValuePairs = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +33,7 @@ class AbstractMatchExpressionPatternClauseNode extends ExpressionNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'expression',
+                    attributeName: 'keyValuePairs',
                     newValue,
                     oldValue,
                 },
@@ -43,44 +41,19 @@ class AbstractMatchExpressionPatternClauseNode extends ExpressionNode {
         }
     }
 
-    getExpression() {
-        return this.expression;
+    getKeyValuePairs() {
+        return this.keyValuePairs;
     }
 
 
-
-    setPatternClauses(newValue, silent, title) {
-        const oldValue = this.patternClauses;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.patternClauses = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'patternClauses',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getPatternClauses() {
-        return this.patternClauses;
-    }
-
-
-    addPatternClauses(node, i = -1, silent) {
+    addKeyValuePairs(node, i = -1, silent) {
         node.parent = this;
         let index = i;
         if (i === -1) {
-            this.patternClauses.push(node);
-            index = this.patternClauses.length;
+            this.keyValuePairs.push(node);
+            index = this.keyValuePairs.length;
         } else {
-            this.patternClauses.splice(i, 0, node);
+            this.keyValuePairs.splice(i, 0, node);
         }
         if (!silent) {
             this.trigger('tree-modified', {
@@ -95,9 +68,9 @@ class AbstractMatchExpressionPatternClauseNode extends ExpressionNode {
         }
     }
 
-    removePatternClauses(node, silent) {
-        const index = this.getIndexOfPatternClauses(node);
-        this.removePatternClausesByIndex(index, silent);
+    removeKeyValuePairs(node, silent) {
+        const index = this.getIndexOfKeyValuePairs(node);
+        this.removeKeyValuePairsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -111,8 +84,8 @@ class AbstractMatchExpressionPatternClauseNode extends ExpressionNode {
         }
     }
 
-    removePatternClausesByIndex(index, silent) {
-        this.patternClauses.splice(index, 1);
+    removeKeyValuePairsByIndex(index, silent) {
+        this.keyValuePairs.splice(index, 1);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
@@ -126,9 +99,9 @@ class AbstractMatchExpressionPatternClauseNode extends ExpressionNode {
         }
     }
 
-    replacePatternClauses(oldChild, newChild, silent) {
-        const index = this.getIndexOfPatternClauses(oldChild);
-        this.patternClauses[index] = newChild;
+    replaceKeyValuePairs(oldChild, newChild, silent) {
+        const index = this.getIndexOfKeyValuePairs(oldChild);
+        this.keyValuePairs[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -143,8 +116,8 @@ class AbstractMatchExpressionPatternClauseNode extends ExpressionNode {
         }
     }
 
-    replacePatternClausesByIndex(index, newChild, silent) {
-        this.patternClauses[index] = newChild;
+    replaceKeyValuePairsByIndex(index, newChild, silent) {
+        this.keyValuePairs[index] = newChild;
         newChild.parent = this;
         if (!silent) {
             this.trigger('tree-modified', {
@@ -159,15 +132,15 @@ class AbstractMatchExpressionPatternClauseNode extends ExpressionNode {
         }
     }
 
-    getIndexOfPatternClauses(child) {
-        return _.findIndex(this.patternClauses, ['id', child.id]);
+    getIndexOfKeyValuePairs(child) {
+        return _.findIndex(this.keyValuePairs, ['id', child.id]);
     }
 
-    filterPatternClauses(predicateFunction) {
-        return _.filter(this.patternClauses, predicateFunction);
+    filterKeyValuePairs(predicateFunction) {
+        return _.filter(this.keyValuePairs, predicateFunction);
     }
 
 
 }
 
-export default AbstractMatchExpressionPatternClauseNode;
+export default AbstractRecordLiteralExprNode;

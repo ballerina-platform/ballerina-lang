@@ -16,12 +16,10 @@
  * under the License.
  */
 
-import _ from 'lodash';
-import StatementNode from '../statement-node';
+import AbstractTypedescExpressionNode from './abstract-tree/typedesc-expression-node';
 
-class AbstractNextNode extends StatementNode {
-
+class TypedescExpressionNode extends AbstractTypedescExpressionNode {
 
 }
 
-export default AbstractNextNode;
+export default TypedescExpressionNode;

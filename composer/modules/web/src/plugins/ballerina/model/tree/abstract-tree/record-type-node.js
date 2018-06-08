@@ -19,15 +19,13 @@
 import _ from 'lodash';
 import Node from '../node';
 
-class AbstractUserDefinedTypeNode extends Node {
+class AbstractRecordTypeNode extends Node {
 
 
-    setPackageAlias(newValue, silent, title) {
-        const oldValue = this.packageAlias;
+    setFields(newValue, silent, title) {
+        const oldValue = this.fields;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.packageAlias = newValue;
-
-        this.packageAlias.parent = this;
+        this.fields = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +33,7 @@ class AbstractUserDefinedTypeNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'packageAlias',
+                    attributeName: 'fields',
                     newValue,
                     oldValue,
                 },
@@ -43,62 +41,104 @@ class AbstractUserDefinedTypeNode extends Node {
         }
     }
 
-    getPackageAlias() {
-        return this.packageAlias;
+    getFields() {
+        return this.fields;
     }
 
 
-
-    setFlags(newValue, silent, title) {
-        const oldValue = this.flags;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.flags = newValue;
-
+    addFields(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.fields.push(node);
+            index = this.fields.length;
+        } else {
+            this.fields.splice(i, 0, node);
+        }
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
-                type: 'modify-node',
-                title,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
                 data: {
-                    attributeName: 'flags',
-                    newValue,
-                    oldValue,
+                    node,
+                    index,
                 },
             });
         }
     }
 
-    getFlags() {
-        return this.flags;
-    }
-
-
-
-    setTypeName(newValue, silent, title) {
-        const oldValue = this.typeName;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.typeName = newValue;
-
-        this.typeName.parent = this;
-
+    removeFields(node, silent) {
+        const index = this.getIndexOfFields(node);
+        this.removeFieldsByIndex(index, silent);
         if (!silent) {
             this.trigger('tree-modified', {
                 origin: this,
-                type: 'modify-node',
-                title,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
                 data: {
-                    attributeName: 'typeName',
-                    newValue,
-                    oldValue,
+                    node,
+                    index,
                 },
             });
         }
     }
 
-    getTypeName() {
-        return this.typeName;
+    removeFieldsByIndex(index, silent) {
+        this.fields.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
     }
 
+    replaceFields(oldChild, newChild, silent) {
+        const index = this.getIndexOfFields(oldChild);
+        this.fields[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceFieldsByIndex(index, newChild, silent) {
+        this.fields[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfFields(child) {
+        return _.findIndex(this.fields, ['id', child.id]);
+    }
+
+    filterFields(predicateFunction) {
+        return _.filter(this.fields, predicateFunction);
+    }
 
 
 
@@ -149,4 +189,4 @@ class AbstractUserDefinedTypeNode extends Node {
 
 }
 
-export default AbstractUserDefinedTypeNode;
+export default AbstractRecordTypeNode;
