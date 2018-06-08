@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS DataTypeTable(
   TINYINT_TYPE SMALLINT,
   SMALLINT_TYPE SMALLINT,
   CLOB_TYPE    TEXT,
-  BLOB_TYPE    BYTEA, --TODO: this should have been OID type..
   BINARY_TYPE  BYTEA,
   PRIMARY KEY (row_id)
 );
@@ -39,10 +38,9 @@ insert into DateTimeTypes (row_id, date_type, time_type, datetime_type, timestam
   (1, '2017-02-03', '11:35:45', '2017-02-03 11:53:00', '2017-02-03 11:53:00');
 /
 insert into DataTypeTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
-  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type) values
+  numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type) values
   (1, 10, 9223372036854774807, 123.34, 2139095039, TRUE, 'Hello',1234.567, 1234.567, 1234.567, 1, 5555,
-  'very long text', E'\\x77736F322062616C6C6572696E6120626C6F6220746573742E',
-  E'\\x77736F322062616C6C6572696E612062696E61727920746573742E');
+  'very long text', E'\\x77736F322062616C6C6572696E612062696E61727920746573742E');
 /
 insert into DataTypeTable (row_id) values (2);
 /
@@ -70,7 +68,7 @@ CREATE FUNCTION SelectPersonData() RETURNS refcursor AS '
 CREATE FUNCTION TestOutParams (IN id BIGINT, OUT paramInt INTEGER, OUT paramBigInt BIGINT, OUT paramFloat FLOAT(4),
   OUT paramDouble DOUBLE PRECISION, OUT paramBool BOOLEAN, OUT paramString VARCHAR(50),OUT paramNumeric NUMERIC(10,3),
   OUT paramDecimal DECIMAL(10,3), OUT paramReal REAL, OUT paramTinyInt SMALLINT,
-  OUT paramSmallInt SMALLINT, OUT paramClob TEXT, OUT paramBlob BYTEA, OUT paramBinary BYTEA) AS '
+  OUT paramSmallInt SMALLINT, OUT paramClob TEXT, OUT paramBinary BYTEA) AS '
   BEGIN
   SELECT int_type INTO paramInt FROM DataTypeTable where row_id = id;
   SELECT long_type INTO paramBigInt FROM DataTypeTable where row_id = id;
@@ -84,20 +82,19 @@ CREATE FUNCTION TestOutParams (IN id BIGINT, OUT paramInt INTEGER, OUT paramBigI
   SELECT tinyint_type INTO paramTinyInt FROM DataTypeTable where row_id = id;
   SELECT smallint_type INTO paramSmallInt FROM DataTypeTable where row_id = id;
   SELECT clob_type INTO paramClob FROM DataTypeTable where row_id = id;
-  SELECT blob_type INTO paramBlob FROM DataTypeTable where row_id = id;
   SELECT binary_type INTO paramBinary FROM DataTypeTable where row_id = id;
   END
 ' LANGUAGE plpgsql;
 /
-CREATE FUNCTION TestINOUTParams (IN id BIGINT, INOUT paramInt INTEGER, INOUT paramBigInt BIGINT, INOUT paramFloat
+CREATE FUNCTION TestINOUTParams (IN id INTEGER, INOUT paramInt INTEGER, INOUT paramBigInt BIGINT, INOUT paramFloat
   FLOAT(2), INOUT paramDouble DOUBLE PRECISION, INOUT paramBool BOOLEAN, INOUT paramString VARCHAR(50),
   INOUT paramNumeric NUMERIC(10,3), INOUT paramDecimal DECIMAL(10,3), INOUT paramReal REAL, INOUT paramTinyInt
-  SMALLINT, INOUT paramSmallInt SMALLINT, INOUT paramClob TEXT, INOUT paramBlob BYTEA, INOUT paramBinary BYTEA) AS '
+  SMALLINT, INOUT paramSmallInt SMALLINT, INOUT paramClob TEXT, INOUT paramBinary BYTEA) AS '
   BEGIN
   INSERT INTO DataTypeTable (row_id, int_type, long_type, float_type, double_type, boolean_type, string_type,
-     numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, blob_type, binary_type)
+     numeric_type, decimal_type, real_type, tinyint_type, smallint_type, clob_type, binary_type)
      VALUES (id, paramInt, paramBigInt, paramFloat, paramDouble, paramBool, paramString, paramNumeric, paramDecimal,
-     paramReal, paramTinyInt, paramSmallInt, paramClob, paramBlob, paramBinary);
+     paramReal, paramTinyInt, paramSmallInt, paramClob, paramBinary);
 
   SELECT int_type INTO paramInt FROM DataTypeTable where row_id = id;
   SELECT long_type INTO paramBigInt FROM DataTypeTable where row_id = id;
@@ -111,7 +108,6 @@ CREATE FUNCTION TestINOUTParams (IN id BIGINT, INOUT paramInt INTEGER, INOUT par
   SELECT tinyint_type INTO paramTinyInt FROM DataTypeTable where row_id = id;
   SELECT smallint_type INTO paramSmallInt FROM DataTypeTable where row_id = id;
   SELECT clob_type INTO paramClob FROM DataTypeTable where row_id = id;
-  SELECT blob_type INTO paramBlob FROM DataTypeTable where row_id = id;
   SELECT binary_type INTO paramBinary FROM DataTypeTable where row_id = id;
   END
 ' LANGUAGE plpgsql;
