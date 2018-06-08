@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
@@ -12,6 +13,13 @@
     <name>Ballerina - Composer js tests</name>
 
     <dependencies>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-composer-web</artifactId>
@@ -31,10 +39,25 @@
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-dependencies</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeClassifiers>ballerina-binary-repo</includeClassifiers>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -68,7 +91,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-dependencies</id>
+                        <id>unpack-composer-dependencies</id>
                         <phase>generate-test-resources</phase>
                         <goals>
                             <goal>unpack-dependencies</goal>
@@ -119,19 +142,21 @@
                         <configuration>
                             <skip>${maven.test.skip}</skip>
                             <target name="copy js files to target">
-                                <mkdir dir="${project.build.directory}/js-files-from-web" />
-                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true" flatten="true">
+                                <mkdir dir="${project.build.directory}/js-files-from-web"/>
+                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true"
+                                      flatten="true">
                                     <fileset dir="${project.build.directory}/extracted-web/">
-                                        <include name="**/*.js" />
+                                        <include name="**/*.js"/>
                                     </fileset>
                                     <chainedmapper>
-                                        <flattenmapper />
-                                        <regexpmapper from="(.+)-([0-9a-f]+).js" to="\1.js" />
+                                        <flattenmapper/>
+                                        <regexpmapper from="(.+)-([0-9a-f]+).js" to="\1.js"/>
                                     </chainedmapper>
                                 </copy>
-                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true" flatten="true">
+                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true"
+                                      flatten="true">
                                     <fileset dir="${project.build.directory}/extracted-web-lib/">
-                                        <include name="**/*.js" />
+                                        <include name="**/*.js"/>
                                     </fileset>
                                 </copy>
                             </target>
@@ -156,7 +181,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>

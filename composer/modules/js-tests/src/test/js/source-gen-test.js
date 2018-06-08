@@ -158,8 +158,9 @@ describe('Ballerina Composer Test Suite', () => {
         });
 
         const targetPath = path.join(__dirname, '..', '..', 'lib', `composer-server-distribution-${projectVersion}.jar`);
-        backEndProcess = spawn('java', ['-Dbal.composer.home', '-jar', targetPath]);
-        backEndProcess.stderr.pipe(process.stderr)
+        const ballerinaHome = path.join(__dirname, '..', '..');
+        backEndProcess = spawn('java', ['-Dbal.composer.home', `-Dballerina.home=${ballerinaHome}`, '-jar', targetPath]);
+        backEndProcess.stderr.pipe(process.stderr);
 
         let stdIndata = '';
         backEndProcess.stdout.on('data', (data) => {

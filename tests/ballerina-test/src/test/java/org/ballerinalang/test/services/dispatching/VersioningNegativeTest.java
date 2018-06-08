@@ -57,7 +57,7 @@ public class VersioningNegativeTest {
     @Test(description = "Test dispatching with minor version",
           expectedExceptions = {BLangRuntimeException.class},
           expectedExceptionsMessageRegExp = ".*service registration failed: two services have the same basePath : " +
-                  "/echo/v2/bar.*")
+                  "'/echo/v2/bar'.*")
     public void testRegisteringTwoServicedsWithSameBasePath() {
         CompileResult result = BServiceUtil
                 .setupProgramFile(this, "test-src/services/dispatching/versioning/negativecase3", PKG_NAME);
