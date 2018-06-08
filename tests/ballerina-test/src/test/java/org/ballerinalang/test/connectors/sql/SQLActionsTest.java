@@ -175,13 +175,7 @@ public class SQLActionsTest {
         BString retValue = (BString) returns[0];
         final String expected = "James";
         Assert.assertEquals(retValue.stringValue(), expected);
-        if (dbType == POSTGRES) {
-            // In postgres, there are no procedures but functions. When we call a function internally a select
-            // happens eg: select InsertPersonData(100, 'J'); which returns a table containing an empty string
-            Assert.assertEquals(returns[1].stringValue(), "table");
-        } else {
-            Assert.assertEquals(returns[1].stringValue(), "nil");
-        }
+        Assert.assertEquals(returns[1].stringValue(), "nil");
     }
 
     @Test(groups = {"ConnectorTest", "MySQLNotSupported", "PostgresNotSupported"})
@@ -192,7 +186,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "HSQLDBNotSupported"}, enabled = false)
+    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "HSQLDBNotSupported"})
     public void testCallFunctionWithRefCursor() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testCallFunctionWithReturningRefcursor", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -227,8 +221,7 @@ public class SQLActionsTest {
     public void testCallProcedureWithMultipleResultSetsAndNilConstraintCount() {
         BValue[] returns = BRunUtil
                 .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndNilConstraintCount", connectionArgs);
-        Assert.assertTrue(returns[0].stringValue().contains("message:\"execute stored procedure failed: Mismatching "
-                + "record type count: 0 and returned result set count: 2 from the stored procedure\""));
+        Assert.assertEquals(returns[0].stringValue(), "nil");
     }
 
     @Test(groups = {"ConnectorTest", "PostgresNotSupported"})
@@ -295,7 +288,7 @@ public class SQLActionsTest {
     @Test(groups = "ConnectorTest")
     public void testOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testOutParameters", connectionArgs);
-        Assert.assertEquals(returns.length, 14);
+        Assert.assertEquals(returns.length, 13);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
@@ -308,14 +301,21 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
-        Assert.assertEquals(returns[12].stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
-        Assert.assertEquals(returns[13].stringValue(), "wso2 ballerina binary test.");
+        Assert.assertEquals(returns[12].stringValue(), "wso2 ballerina binary test.");
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testBlobOutInOutParameters() {
+        BValue[] returns = BRunUtil.invoke(result, "testBlobOutInOutParameters", connectionArgs);
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertEquals(returns[0].stringValue(), "d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==");
+        Assert.assertEquals(returns[1].stringValue(), "YmxvYiBkYXRh");
     }
 
     @Test(groups = {"ConnectorTest"})
     public void testNullOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testNullOutParameters", connectionArgs);
-        Assert.assertEquals(returns.length, 14);
+        Assert.assertEquals(returns.length, 13);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0D);
@@ -329,12 +329,18 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 0);
         Assert.assertEquals(returns[11].stringValue(), null);
         Assert.assertEquals(returns[12].stringValue(), null);
-        Assert.assertEquals(returns[13].stringValue(), null);
     }
 
     @Test(groups = "ConnectorTest")
     public void testINParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testINParameters", connectionArgs);
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testBlobInParameter() {
+        BValue[] returns = BRunUtil.invoke(result, "testBlobInParameter", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -350,7 +356,12 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
-        Assert.assertTrue(returns[9].stringValue().equals(returns[10].stringValue()));
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testINParametersWithDirectBlobValues() {
+        BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectBlobValues", connectionArgs);
+        Assert.assertTrue(returns[0].stringValue().equals(returns[1].stringValue()));
     }
 
     @Test(groups = "ConnectorTest")
@@ -364,7 +375,6 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567D);
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
-        Assert.assertTrue(returns[9].stringValue().equals(returns[10].stringValue()));
     }
 
     @Test(groups = "ConnectorTest")
@@ -375,9 +385,16 @@ public class SQLActionsTest {
     }
 
     @Test(groups = "ConnectorTest")
+    public void testNullINParameterBlobValue() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullINParameterBlobValue", connectionArgs);
+        BInteger retValue = (BInteger) returns[0];
+        Assert.assertEquals(retValue.intValue(), 1);
+    }
+
+    @Test(groups = "ConnectorTest")
     public void testINOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testINOutParameters", connectionArgs);
-        Assert.assertEquals(returns.length, 14);
+        Assert.assertEquals(returns.length, 13);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
@@ -390,14 +407,13 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");
-        Assert.assertEquals(returns[12].stringValue(), "YmxvYiBkYXRh");
-        Assert.assertEquals(returns[13].stringValue(), "wso2 ballerina binary test.");
+        Assert.assertEquals(returns[12].stringValue(), "wso2 ballerina binary test.");
     }
 
     @Test(groups = "ConnectorTest")
     public void testNullINOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testNullINOutParameters", connectionArgs);
-        Assert.assertEquals(returns.length, 14);
+        Assert.assertEquals(returns.length, 13);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 0);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
         Assert.assertEquals(((BFloat) returns[2]).floatValue(), 0.0D);
@@ -411,7 +427,13 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 0);
         Assert.assertEquals(returns[11].stringValue(), null);
         Assert.assertEquals(returns[12].stringValue(), null);
-        Assert.assertEquals(returns[13].stringValue(), null);
+    }
+
+    @Test(groups = "ConnectorTest")
+    public void testNullOutInOutBlobParameters() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullOutInOutBlobParameters", connectionArgs);
+        Assert.assertEquals(returns[0].stringValue(), null);
+        Assert.assertEquals(returns[1].stringValue(), null);
     }
 
     @Test(groups = "ConnectorTest")
@@ -636,45 +658,24 @@ public class SQLActionsTest {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeRetrieval", connectionArgs);
         String expected0, expected1, expected2, expected3;
         if (dbType == MYSQL) {
-            expected0 = "<results><result><row_id>1</row_id><int_type>10</int_type><long_type>9223372036854774807"
-                    + "</long_type><float_type>123.34</float_type><double_type>2.139095039E9</double_type>"
-                    + "<boolean_type>true</boolean_type><string_type>Hello</string_type>"
-                    + "<numeric_type>1234.567</numeric_type><decimal_type>1234.567</decimal_type>"
-                    + "<real_type>1234.567</real_type><tinyint_type>1</tinyint_type>"
-                    + "<smallint_type>5555</smallint_type><clob_type>very long text</clob_type>"
+            expected0 = "<results><result><row_id>1</row_id>"
                     + "<blob_type>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</blob_type>"
-                    + "<binary_type>d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu</binary_type></result></results>";
+                    + "</result></results>";
             expected1 = "<results><result><row_id>1</row_id>"
                     + "<date_type>2017-02-03</date_type><time_type>11:35:45</time_type>"
                     + "<datetime_type>2017-02-03 11:53:00.0</datetime_type>"
                     + "<timestamp_type>2017-02-03 11:53:00.0</timestamp_type></result></results>";
-            expected2 = "[{\"row_id\":1,\"int_type\":10,\"long_type\":9223372036854774807,\"float_type\":123.34,"
-                    + "\"double_type\":2.139095039E9,\"boolean_type\":true,\"string_type\":\"Hello\","
-                    + "\"numeric_type\":1234.567,\"decimal_type\":1234.567,\"real_type\":1234.567,\"tinyint_type\":1,"
-                    + "\"smallint_type\":5555,\"clob_type\":\"very long text\","
-                    + "\"blob_type\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\","
-                    + "\"binary_type\":\"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu\"}]";
+            expected2 = "[{\"row_id\":1,\"blob_type\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\"}]";
             expected3 = "[{\"row_id\":1,\"date_type\":\"2017-02-03\",\"time_type\":\"11:35:45\","
                     + "\"datetime_type\":\"2017-02-03 11:53:00.0\",\"timestamp_type\":\"2017-02-03 11:53:00.0\"}]";
         } else {
-            expected0 = "<results><result><ROW_ID>1</ROW_ID><INT_TYPE>10</INT_TYPE>"
-                    + "<LONG_TYPE>9223372036854774807</LONG_TYPE><FLOAT_TYPE>123.34</FLOAT_TYPE>"
-                    + "<DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE><BOOLEAN_TYPE>true</BOOLEAN_TYPE>"
-                    + "<STRING_TYPE>Hello</STRING_TYPE><NUMERIC_TYPE>1234.567</NUMERIC_TYPE>"
-                    + "<DECIMAL_TYPE>1234.567</DECIMAL_TYPE><REAL_TYPE>1234.567</REAL_TYPE><TINYINT_TYPE>1"
-                    + "</TINYINT_TYPE><SMALLINT_TYPE>5555</SMALLINT_TYPE><CLOB_TYPE>very long text</CLOB_TYPE>"
-                    + "<BLOB_TYPE>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</BLOB_TYPE>"
-                    + "<BINARY_TYPE>d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu</BINARY_TYPE></result></results>";
+            expected0 = "<results><result><ROW_ID>1</ROW_ID><BLOB_TYPE>d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==</BLOB_TYPE>"
+                    + "</result></results>";
             expected1 = "<results><result><ROW_ID>1</ROW_ID>"
                     + "<DATE_TYPE>2017-02-03</DATE_TYPE><TIME_TYPE>11:35:45</TIME_TYPE>"
                     + "<DATETIME_TYPE>2017-02-03 11:53:00.000000</DATETIME_TYPE>"
                     + "<TIMESTAMP_TYPE>2017-02-03 11:53:00.000000</TIMESTAMP_TYPE></result></results>";
-            expected2 = "[{\"ROW_ID\":1,\"INT_TYPE\":10,"
-                    + "\"LONG_TYPE\":9223372036854774807,\"FLOAT_TYPE\":123.34,\"DOUBLE_TYPE\":2.139095039E9,"
-                    + "\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\",\"NUMERIC_TYPE\":1234.567,"
-                    + "\"DECIMAL_TYPE\":1234.567,\"REAL_TYPE\":1234.567,\"TINYINT_TYPE\":1,\"SMALLINT_TYPE\":5555,"
-                    + "\"CLOB_TYPE\":\"very long text\",\"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\","
-                    + "\"BINARY_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu\"}]";
+            expected2 = "[{\"ROW_ID\":1,\"BLOB_TYPE\":\"d3NvMiBiYWxsZXJpbmEgYmxvYiB0ZXN0Lg==\"}]";
             expected3 = "[{\"ROW_ID\":1,\"DATE_TYPE\":\"2017-02-03\","
                     + "\"TIME_TYPE\":\"11:35:45\",\"DATETIME_TYPE\":\"2017-02-03 11:53:00.000000\","
                     + "\"TIMESTAMP_TYPE\":\"2017-02-03 11:53:00.000000\"}]";

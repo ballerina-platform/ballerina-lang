@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.AnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -37,21 +36,17 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     @Deprecated
     public List<BAnnotationAttributeSymbol> attributes;
     public BTypeSymbol attachedType;
-    public List<BLangAnnotationAttachmentPoint> attachmentPoints;
+    public int attachPoints;
 
-    public BAnnotationSymbol(Name name, int flags, PackageID pkgID, BType type, BSymbol owner) {
+    public BAnnotationSymbol(Name name, int flags, int attachPoints, PackageID pkgID, BType type, BSymbol owner) {
         super(ANNOTATION, flags, name, pkgID, type, owner);
+        this.attachPoints = attachPoints;
         attributes = new ArrayList<>();
-        attachmentPoints =  new ArrayList<>();
     }
 
     @Override
     public List<BAnnotationAttributeSymbol> getAttributes() {
         return attributes;
-    }
-
-    public List<BLangAnnotationAttachmentPoint> getAttachmentPoints() {
-        return attachmentPoints;
     }
 
     @Override
@@ -67,10 +62,9 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
 
     @Override
     public BAnnotationSymbol createLabelSymbol() {
-        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, Names.EMPTY, pkgID, type, owner);
+        BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, attachPoints, Names.EMPTY, pkgID, type, owner);
         copy.attributes = attributes;
         copy.attachedType = attachedType;
-        copy.attachmentPoints = attachmentPoints;
         copy.isLabel = true;
         return copy;
     }

@@ -65,6 +65,7 @@ public class HttpConstants {
     public static final String FORWARDED_TRANSITION = "transition";
     public static final String FORWARDED_DISABLE = "disable";
     public static final String DISABLE = "disable";
+    public static final String DEFAULT_HOST = "b7a.default";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "http";
 

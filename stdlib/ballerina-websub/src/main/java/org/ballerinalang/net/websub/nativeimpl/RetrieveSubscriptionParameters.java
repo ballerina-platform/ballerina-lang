@@ -39,6 +39,7 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.List;
 
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_SERVER_CONNECTOR;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
@@ -83,7 +84,7 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
         Struct serviceEndpoint = subscriberServiceEndpoint.getStructField(WEBSUB_HTTP_ENDPOINT);
 
         Object[] webSubHttpServices = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
-                                        .getServicesInfoByInterface().values().toArray();
+                                        .getServicesByHost(DEFAULT_HOST).values().toArray();
 
         BRefValueArray subscriptionDetailArray = new BRefValueArray();
 
