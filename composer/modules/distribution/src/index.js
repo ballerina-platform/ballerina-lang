@@ -47,10 +47,10 @@ balHome = process.platform === 'darwin'
             ? process.env.BALLERINA_HOME
             : balHome;
 
- let composerHome = path.join(balHome, 'lib', 'resources', 'composer')
+let composerHome = path.join(balHome, 'lib', 'resources', 'composer'),
     composerPublicPath = path.join(composerHome, 'web', 'app'),
     pageURL = `file://${composerPublicPath}/index.html`,
-    javaHome = path.join(balHome, 'bre', 'lib', 'jre1.8.0_172')
+    javaHome = path.join(balHome, 'bre', 'lib', 'jre1.8.0_172'),
     javaExec = path.join(javaHome, 'bin', 'java');
 
 if (process.platform == 'win32') {
