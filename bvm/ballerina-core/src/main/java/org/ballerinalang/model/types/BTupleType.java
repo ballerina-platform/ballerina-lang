@@ -34,7 +34,7 @@ public class BTupleType extends BType {
     /**
      * Create a {@code BUnionType} which represents the union type.
      *
-     * @param typeList
+     * @param typeList of the tuple type
      */
     public BTupleType(List<BType> typeList) {
         super(null, null, BValue.class);

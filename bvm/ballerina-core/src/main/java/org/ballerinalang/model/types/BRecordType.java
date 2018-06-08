@@ -34,8 +34,10 @@ public class BRecordType extends BStructureType {
     /**
      * Create a {@code BStructType} which represents the user defined struct type.
      *
+     * @param recordTypeInfo record type info object
      * @param typeName string name of the type
      * @param pkgPath  package of the struct
+     * @param flags of the record type
      */
     public BRecordType(RecordTypeInfo recordTypeInfo, String typeName, String pkgPath, int flags) {
         super(typeName, pkgPath, flags, BStruct.class);
