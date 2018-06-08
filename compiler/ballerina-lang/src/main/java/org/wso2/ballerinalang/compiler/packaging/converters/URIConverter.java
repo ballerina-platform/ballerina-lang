@@ -56,7 +56,7 @@ public class URIConverter implements Converter<URI> {
     }
 
     @Override
-    public Stream<URI> latest(URI u) {
+    public Stream<URI> latest(URI u, PackageID packageID) {
         throw new UnsupportedOperationException();
     }
 

@@ -89,7 +89,7 @@ public class BMirrorTable extends BTable {
         } catch (SQLException e) {
             throw new BallerinaException("execute add failed: " + e.getMessage(), e);
         } finally {
-            SQLDatasourceUtils.cleanupConnection(null, null, conn, isInTransaction);
+            SQLDatasourceUtils.cleanupResources(conn, isInTransaction);
         }
     }
 
@@ -120,7 +120,7 @@ public class BMirrorTable extends BTable {
             context.setReturnValues(TableUtils.createTableOperationError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);
         } finally {
-            SQLDatasourceUtils.cleanupConnection(null, null, connection, isInTransaction);
+            SQLDatasourceUtils.cleanupResources(connection, isInTransaction);
         }
     }
 
@@ -156,7 +156,7 @@ public class BMirrorTable extends BTable {
             this.iterator = new SQLDataIterator(utcCalendar, constraintType, timeStructInfo, timeZoneStructInfo, rm, rs,
                     columnDefs);
         } catch (SQLException e) {
-            SQLDatasourceUtils.cleanupConnection(rs, preparedStmt, conn, false);
+            SQLDatasourceUtils.cleanupResources(rs, preparedStmt, conn, false);
             throw new BallerinaException("error in populating iterator for table : " + e.getMessage());
         }
     }

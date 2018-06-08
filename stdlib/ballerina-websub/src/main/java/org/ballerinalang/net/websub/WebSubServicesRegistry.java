@@ -28,6 +28,9 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 /**
  * The WebSub service registry which uses an {@link HTTPServicesRegistry} to maintain WebSub Subscriber HTTP services.
  *
@@ -127,8 +130,16 @@ public class WebSubServicesRegistry extends HTTPServicesRegistry {
      */
     public void registerWebSubSubscriberService(Service service) {
         HttpService httpService = WebSubHttpService.buildWebSubSubscriberHttpService(service);
-
-        servicesInfoMap.put(httpService.getBasePath(), httpService);
+        String hostName = httpService.getHostName();
+        if (servicesMapByHost.get(hostName) == null) {
+            servicesByBasePath = new ConcurrentHashMap<>();
+            sortedServiceURIs = new CopyOnWriteArrayList<>();
+            servicesMapByHost.put(hostName, new ServicesMapHolder(servicesByBasePath, sortedServiceURIs));
+        } else {
+            servicesByBasePath = getServicesByHost(hostName);
+            sortedServiceURIs = getSortedServiceURIsByHost(hostName);
+        }
+        servicesByBasePath.put(httpService.getBasePath(), httpService);
         logger.info("Service deployed : " + service.getName() + " with context " + httpService.getBasePath());
 
         //basePath will get cached after registering service

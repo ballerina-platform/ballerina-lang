@@ -6,11 +6,13 @@ import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Home repository util methods.
@@ -131,4 +133,19 @@ public class RepoUtils {
         return Boolean.parseBoolean(System.getProperty(key));
     }
 
+
+    /**
+     * Get the ballerina version the package is built with.
+     *
+     * @return ballerina version
+     */
+    public static String getBallerinaVersion() {
+        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return "unknown";
+    }
 }

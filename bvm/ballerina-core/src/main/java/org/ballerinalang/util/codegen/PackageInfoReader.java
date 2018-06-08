@@ -1319,8 +1319,11 @@ public class PackageInfoReader {
                 case InstructionCodes.FLT:
                 case InstructionCodes.ILE:
                 case InstructionCodes.FLE:
+                case InstructionCodes.IAND:
                 case InstructionCodes.BIAND:
+                case InstructionCodes.IOR:
                 case InstructionCodes.BIOR:
+                case InstructionCodes.IXOR:
                 case InstructionCodes.BIXOR:
                 case InstructionCodes.BISHL:
                 case InstructionCodes.BISHR:
@@ -1348,6 +1351,7 @@ public class PackageInfoReader {
                 case InstructionCodes.MAP2JSON:
                 case InstructionCodes.JSON2MAP:
                 case InstructionCodes.JSON2ARRAY:
+                case InstructionCodes.INT_RANGE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();

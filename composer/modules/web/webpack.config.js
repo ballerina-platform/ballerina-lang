@@ -283,13 +283,13 @@ if (target === 'web') {
     config[0].node = { module: 'empty', net: 'empty', fs: 'empty' };
     config[0].plugins.push(new webpack.IgnorePlugin(/electron/));
 }
-if (process.env.NODE_ENV === 'production') {
+if (isProductionBuild) {
     config[0].plugins.push(new webpack.DefinePlugin({
         PRODUCTION: JSON.stringify(true),
 
         // React does some optimizations to it if NODE_ENV is set to 'production'
         'process.env': {
-            NODE_ENV: JSON.stringify('production'),
+            NODE_ENV: JSON.stringify(NODE_ENV),
         },
     }));
 

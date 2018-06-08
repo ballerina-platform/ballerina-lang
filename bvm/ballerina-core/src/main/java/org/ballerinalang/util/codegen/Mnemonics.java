@@ -102,8 +102,11 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FADD] = "fadd";
         mnemonics[InstructionCodes.SADD] = "sadd";
         mnemonics[InstructionCodes.XMLADD] = "xmladd";
+        mnemonics[InstructionCodes.IAND] = "iand";
         mnemonics[InstructionCodes.BIAND] = "biand";
+        mnemonics[InstructionCodes.IOR] = "ior";
         mnemonics[InstructionCodes.BIOR] = "bior";
+        mnemonics[InstructionCodes.IXOR] = "ixor";
         mnemonics[InstructionCodes.BIXOR] = "bixor";
         mnemonics[InstructionCodes.BISHL] = "bishl";
         mnemonics[InstructionCodes.BISHR] = "bishr";
@@ -252,6 +255,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
         mnemonics[InstructionCodes.ITR_HAS_NEXT] = "itr_has_next";
         mnemonics[InstructionCodes.ITR_NEXT] = "itr_next";
+        mnemonics[InstructionCodes.INT_RANGE] = "int_range";
 
         mnemonics[InstructionCodes.IRET] = "iret";
         mnemonics[InstructionCodes.FRET] = "fret";

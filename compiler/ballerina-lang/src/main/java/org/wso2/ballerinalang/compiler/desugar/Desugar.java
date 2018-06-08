@@ -1214,31 +1214,20 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
+        if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE) {
+            binaryExpr.rhsExpr = getModifiedIntRangeEndExpr(binaryExpr.rhsExpr);
+        }
+
         binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
 
-        // Check for bitwise operator and add type conversion
-        if (OperatorKind.isBitwiseOperation(binaryExpr.opKind)) {
-            if (TypeTags.BYTE == binaryExpr.rhsExpr.type.tag) {
-                binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
-                        symTable.intType);
-            }
-
-            if (TypeTags.BYTE == binaryExpr.lhsExpr.type.tag) {
-                binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
-                        symTable.intType);
-            }
-        }
-
-        if (binaryExpr.lhsExpr.type.tag == TypeTags.BYTE) {
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
-                    binaryExpr.lhsExpr.type, symTable.intType);
-        }
-
-        if (binaryExpr.rhsExpr.type.tag == TypeTags.BYTE) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr,
-                    binaryExpr.rhsExpr.type, symTable.intType);
+        // Check for bitwise operator and add type conversion to int
+        if (isByteRelatedOperation(binaryExpr)) {
+            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                    symTable.intType);
+            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                    symTable.intType);
         }
 
         // Check lhs and rhs type compatibility
@@ -1268,6 +1257,38 @@ public class Desugar extends BLangNodeVisitor {
             binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr,
                     binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
         }
+    }
+
+    /**
+     * This method checks whether given binary expression is related to byte type operation for the following
+     * conditions. If its true, then both lhs and rhs of the binary expression will be converted to 'int' type.
+     *
+     *      byte a = 12;
+     *      byte b = 34;
+     *      int i = 234;
+     *      int j = -456;
+     *
+     *      false: where binary expression's expected type is 'byte'
+     *      byte b1 = a | b;
+     *      byte b2 = a & b;
+     *      byte b3 = a ^ b;
+     *
+     *      true: where binary expression's expected type is 'int'
+     *      int i1 = a | i;
+     *      int i2 = a & i;
+     *      int i3 = a ^ i;
+     *      int i4 = a + b;
+     *      int i5 = a - b;
+     *      int i6 = a >> b;
+     *      int i7 = a << b;
+     *
+     */
+    private boolean isByteRelatedOperation(BLangBinaryExpr binaryExpr) {
+        OperatorKind binaryOpKind = binaryExpr.opKind;
+        return (OperatorKind.isBitwiseOperator(binaryOpKind) &&
+                !(binaryExpr.lhsExpr.type.tag == TypeTags.BYTE && binaryExpr.rhsExpr.type.tag == TypeTags.BYTE))
+                || binaryOpKind == OperatorKind.ADD || binaryOpKind == OperatorKind.SUB
+                || binaryOpKind == OperatorKind.BITWISE_LEFT_SHIFT || binaryOpKind == OperatorKind.BITWISE_RIGHT_SHIFT;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
@@ -1506,6 +1527,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIntRangeExpression intRangeExpression) {
+        if (!intRangeExpression.includeStart) {
+            intRangeExpression.startExpr = getModifiedIntRangeStartExpr(intRangeExpression.startExpr);
+        }
+        if (!intRangeExpression.includeEnd) {
+            intRangeExpression.endExpr = getModifiedIntRangeEndExpr(intRangeExpression.endExpr);
+        }
+
         intRangeExpression.startExpr = rewriteExpr(intRangeExpression.startExpr);
         intRangeExpression.endExpr = rewriteExpr(intRangeExpression.endExpr);
         result = intRangeExpression;
@@ -2779,6 +2807,23 @@ public class Desugar extends BLangNodeVisitor {
         // and may not reflect the actual type of the child/field expr.
         accessExpr.type = originalAccessExpr.childType;
         return accessExpr;
+    }
+
+    private BLangBinaryExpr getModifiedIntRangeStartExpr(BLangExpression expr) {
+        BLangLiteral constOneLiteral = ASTBuilderUtil.createLiteral(expr.pos, symTable.intType, 1L);
+        return ASTBuilderUtil.createBinaryExpr(expr.pos, expr, constOneLiteral, symTable.intType, OperatorKind.ADD,
+                                               (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD,
+                                                                                                   symTable.intType,
+                                                                                                   symTable.intType));
+    }
+
+
+    private BLangBinaryExpr getModifiedIntRangeEndExpr(BLangExpression expr) {
+        BLangLiteral constOneLiteral = ASTBuilderUtil.createLiteral(expr.pos, symTable.intType, 1L);
+        return ASTBuilderUtil.createBinaryExpr(expr.pos, expr, constOneLiteral, symTable.intType, OperatorKind.SUB,
+                                               (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.SUB,
+                                                                                                   symTable.intType,
+                                                                                                   symTable.intType));
     }
 
     private BLangExpression getDefaultValueExpr(BLangAccessExpression expr) {

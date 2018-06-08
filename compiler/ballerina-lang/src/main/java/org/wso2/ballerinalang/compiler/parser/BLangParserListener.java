@@ -1876,13 +1876,23 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
-    public void exitBinaryAddSubAndOrExpression(BallerinaParser.BinaryAddSubAndOrExpressionContext ctx) {
+    public void exitBinaryAddSubExpression(BallerinaParser.BinaryAddSubExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
         }
 
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
+
+    @Override
+    public void exitBitwiseExpression(BallerinaParser.BitwiseExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
 
     @Override
     public void exitShiftExpression(BallerinaParser.ShiftExpressionContext ctx) {
@@ -1913,6 +1923,15 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+    @Override
+    public void exitIntegerRangeExpression(BallerinaParser.IntegerRangeExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
         }

@@ -49,7 +49,9 @@ public enum OperatorKind {
     BITWISE_OR("|"),
     BITWISE_XOR("^"),
     BITWISE_LEFT_SHIFT("<<"),
-    BITWISE_RIGHT_SHIFT(">>");
+    BITWISE_RIGHT_SHIFT(">>"),
+    CLOSED_RANGE("..."),
+    HALF_OPEN_RANGE("..<");
 
     private final String opValue;
 
@@ -75,7 +77,7 @@ public enum OperatorKind {
         return null;
     }
 
-    public static boolean isBitwiseOperation(OperatorKind operatorKind) {
+    public static boolean isBitwiseOperator(OperatorKind operatorKind) {
         return BITWISE_AND == operatorKind || BITWISE_OR == operatorKind || BITWISE_LEFT_SHIFT == operatorKind ||
                 BITWISE_RIGHT_SHIFT == operatorKind || BITWISE_XOR == operatorKind;
     }

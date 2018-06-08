@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractObjectNode from './abstract-tree/object-node';
+import AbstractObjectTypeNode from './abstract-tree/object-type-node';
 
-class ObjectNode extends AbstractObjectNode {
+class ObjectTypeNode extends AbstractObjectTypeNode {
 
 }
 
-export default ObjectNode;
+export default ObjectTypeNode;

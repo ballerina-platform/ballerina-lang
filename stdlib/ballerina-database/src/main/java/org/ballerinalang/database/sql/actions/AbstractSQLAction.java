@@ -133,7 +133,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             context.setReturnValues(
                     constructTable(rm, context, rs, structType, loadSQLTableToMemory, columnDefinitions));
         } catch (Throwable e) {
-            SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
+            SQLDatasourceUtils.cleanupResources(rs, stmt, conn, isInTransaction);
             throw new BallerinaException("execute query failed: " + e.getMessage(), e);
         }
     }
@@ -147,13 +147,13 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             conn = SQLDatasourceUtils.getDatabaseConnection(context, datasource, isInTransaction);
             String processedQuery = createProcessedQueryString(query, generatedParams);
             stmt = conn.prepareStatement(processedQuery);
-            createProcessedStatement(conn, stmt, generatedParams);
+            createProcessedStatement(conn, stmt, generatedParams, datasource.getDatabaseProductName());
             int count = stmt.executeUpdate();
             context.setReturnValues(new BInteger(count));
         } catch (SQLException e) {
             throw new BallerinaException("execute update failed: " + e.getMessage(), e);
         } finally {
-            SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
+            SQLDatasourceUtils.cleanupResources(stmt, conn, isInTransaction);
         }
     }
 
@@ -197,7 +197,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         } catch (SQLException e) {
             throw new BallerinaException("execute update with generated keys failed: " + e.getMessage(), e);
         } finally {
-            SQLDatasourceUtils.cleanupConnection(rs, stmt, conn, isInTransaction);
+            SQLDatasourceUtils.cleanupResources(rs, stmt, conn, isInTransaction);
         }
     }
 
@@ -205,8 +205,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             BRefValueArray structTypes) {
         Connection conn = null;
         CallableStatement stmt = null;
-        ResultSet rs = null;
-        List<ResultSet> resultSets;
+        List<ResultSet> resultSets = null;
         boolean isInTransaction = context.isInTransaction();
         try {
             BRefValueArray generatedParams = constructParameters(context, parameters);
@@ -217,23 +216,25 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             boolean refCursorOutParamsPresent = generatedParams != null && isRefCursorOutParamPresent(generatedParams);
             boolean resultSetsReturned = !resultSets.isEmpty();
             TableResourceManager rm = null;
-            if (resultSetsReturned || refCursorOutParamsPresent) {
+            boolean requiredToReturnTables = structTypes != null && structTypes.size() > 0;
+            if ((resultSetsReturned && requiredToReturnTables) || refCursorOutParamsPresent) {
                 rm = new TableResourceManager(conn, stmt);
             }
             setOutParameters(context, stmt, parameters, rm);
-            if (resultSetsReturned) {
+            if (resultSetsReturned && requiredToReturnTables) {
                 rm.addAllResultSets(resultSets);
-                // If a result set has been returned from the stored procedure it needs to be pushed in to return values
+                // If a result set has been returned from the stored procedure it needs to be pushed in to return
+                // values
                 context.setReturnValues(constructTablesForResultSets(resultSets, rm, context, structTypes));
             } else if (!refCursorOutParamsPresent) {
                 // Even if there aren't any result sets returned from the procedure there could be ref cursors
                 // returned as OUT params. If there are present we cannot clean up the connection. If there is no
                 // returned result set or ref cursor OUT params we should cleanup the connection.
-                SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
+                SQLDatasourceUtils.cleanupResources(resultSets, stmt, conn, isInTransaction);
                 context.setReturnValues();
             }
         } catch (Throwable e) {
-            SQLDatasourceUtils.cleanupConnection(null, stmt, conn, isInTransaction);
+            SQLDatasourceUtils.cleanupResources(resultSets, stmt, conn, isInTransaction);
             throw new BallerinaException("execute stored procedure failed: " + e.getMessage(), e);
         }
     }
@@ -285,7 +286,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             conn.rollback();
             throw new BallerinaException("execute batch update failed: " + e.getMessage(), e);
         } finally {
-            SQLDatasourceUtils.cleanupConnection(null, stmt, conn, false);
+            SQLDatasourceUtils.cleanupResources(stmt, conn, false);
         }
         //After a command in a batch update fails to execute properly and a BatchUpdateException is thrown, the driver
         // may or may not continue to process the remaining commands in the batch. If the driver does not continue
@@ -575,7 +576,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         currentOrdinal++;
                     }
                 } else {
-                    if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType)) {
+                    if (Constants.SQLDataTypes.REFCURSOR.equals(sqlType) || Constants.SQLDataTypes.ARRAY
+                            .equals(sqlType)) {
                         setParameter(conn, stmt, sqlType, value, direction, currentOrdinal, databaseProductName);
                     } else {
                         setParameter(conn, stmt, sqlType, value, direction, currentOrdinal);
@@ -602,7 +604,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {
             case Constants.SQLDataTypes.SMALLINT:
-                SQLDatasourceUtils.setIntValue(stmt, value, index, direction, Types.SMALLINT);
+                SQLDatasourceUtils.setSmallIntValue(stmt, value, index, direction, Types.SMALLINT);
                 break;
             case Constants.SQLDataTypes.VARCHAR:
                 SQLDatasourceUtils.setStringValue(stmt, value, index, direction, Types.VARCHAR);
@@ -679,7 +681,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 SQLDatasourceUtils.setNClobValue(stmt, value, index, direction, Types.NCLOB);
                 break;
             case Constants.SQLDataTypes.ARRAY:
-                SQLDatasourceUtils.setArrayValue(conn, stmt, value, index, direction, Types.ARRAY);
+                SQLDatasourceUtils.setArrayValue(conn, stmt, value, index, direction, Types.ARRAY, databaseProductName);
                 break;
             case Constants.SQLDataTypes.STRUCT:
                 SQLDatasourceUtils.setUserDefinedValue(conn, stmt, value, index, direction, Types.STRUCT);

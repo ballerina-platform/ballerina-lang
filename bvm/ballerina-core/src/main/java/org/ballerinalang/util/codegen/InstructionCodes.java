@@ -86,6 +86,11 @@ public interface InstructionCodes {
     int RASTORE = 56;
     int JSONASTORE = 57;
 
+    int BIAND = 58;
+    int IAND = 59;
+    int BIOR = 60;
+    int IOR = 61;
+
     int IGSTORE = 62;
     int FGSTORE = 63;
     int SGSTORE = 64;
@@ -213,20 +218,20 @@ public interface InstructionCodes {
     int ANY2STM = 173;
     int ANY2DT = 174;
     int ANY2SCONV = 175;
-    int ANY2E = 177;
-    int ANY2T = 178;
-    int ANY2C = 179;
-    int CHECKCAST = 180;
-    int NULL2JSON = 181;
+    int ANY2BI = 176;
+    int BI2ANY = 177;
+    int ANY2E = 178;
+    int ANY2T = 179;
+    int ANY2C = 180;
+    int CHECKCAST = 181;
+    int NULL2JSON = 182;
 
-    int ANY2TYPE = 182;
-    int S2JSONX = 183;
-    int NULL2S = 184;
-    int MAP2JSON = 194;
-    int JSON2MAP = 195;
+    int ANY2TYPE = 183;
+    int S2JSONX = 184;
+    int NULL2S = 185;
 
-    int LOCK = 185;
-    int UNLOCK = 186;
+    int LOCK = 186;
+    int UNLOCK = 187;
 
     // Transactions
     int TR_BEGIN = 188;
@@ -237,6 +242,9 @@ public interface InstructionCodes {
     int FORKJOIN = 192;
     
     int AWAIT = 193;
+
+    int MAP2JSON = 194;
+    int JSON2MAP = 195;
 
     int IS_ASSIGNABLE = 196;
     int CHECK_CONVERSION = 197;
@@ -261,19 +269,16 @@ public interface InstructionCodes {
     int NEWTABLE = 215;
     int NEWSTREAM = 217;
 
-    int BIXOR = 218;
-
     int NEW_INT_RANGE = 219;
     int ITR_NEW = 220;
     int ITR_HAS_NEXT = 221;
     int ITR_NEXT = 222;
+    int INT_RANGE = 223;
 
-    int I2BI = 223;
-    int BI2I = 224;
-    int ANY2BI = 225;
-    int BI2ANY = 226;
-    int BIAND = 227;
-    int BIOR = 228;
+    int I2BI = 224;
+    int BI2I = 225;
+    int BIXOR = 226;
+    int IXOR = 227;
 
     int IRET = 229;
     int FRET = 230;

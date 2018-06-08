@@ -120,6 +120,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
+import java.util.stream.LongStream;
 
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -351,8 +352,11 @@ public class CPU {
                     case InstructionCodes.BNE:
                     case InstructionCodes.RNE:
                     case InstructionCodes.TNE:
+                    case InstructionCodes.IAND:
                     case InstructionCodes.BIAND:
+                    case InstructionCodes.IOR:
                     case InstructionCodes.BIOR:
+                    case InstructionCodes.IXOR:
                     case InstructionCodes.BIXOR:
                     case InstructionCodes.BISHL:
                     case InstructionCodes.BISHR:
@@ -400,7 +404,9 @@ public class CPU {
                     case InstructionCodes.SNE_NULL:
                         execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
                         break;
-    
+                    case InstructionCodes.INT_RANGE:
+                        execIntegerRangeOpcodes(sf, operands);
+                        break;
                     case InstructionCodes.TR_RETRY:
                         i = operands[0];
                         j = operands[1];
@@ -1090,6 +1096,13 @@ public class CPU {
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    private static void execIntegerRangeOpcodes(WorkerData sf, int[] operands) {
+        int i = operands[0];
+        int j = operands[1];
+        int k = operands[2];
+        sf.refRegs[k] = new BIntArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})
@@ -1943,15 +1956,33 @@ public class CPU {
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] & sf.longRegs[j];
+                sf.intRegs[k] = sf.intRegs[i] & sf.intRegs[j];
                 break;
             case InstructionCodes.BIOR:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
-                sf.longRegs[k] = sf.longRegs[i] | sf.longRegs[j];
+                sf.intRegs[k] = sf.intRegs[i] | sf.intRegs[j];
                 break;
             case InstructionCodes.BIXOR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.intRegs[i] ^ sf.intRegs[j];
+                break;
+            case InstructionCodes.IAND:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] & sf.longRegs[j];
+                break;
+            case InstructionCodes.IOR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] | sf.longRegs[j];
+                break;
+            case InstructionCodes.IXOR:
                 i = operands[0];
                 j = operands[1];
                 k = operands[2];
