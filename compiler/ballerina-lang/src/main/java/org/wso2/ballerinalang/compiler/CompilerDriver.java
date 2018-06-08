@@ -19,7 +19,6 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.Name;
 import org.wso2.ballerinalang.compiler.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.desugar.Desugar;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
@@ -46,7 +45,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BUILTIN;
-import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG;
+import static org.wso2.ballerinalang.util.RepoUtils.LOAD_BUILTIN_FROM_SOURCE;
 
 /**
  * This class drives the compilation of packages through various phases
@@ -109,8 +108,8 @@ public class CompilerDriver {
 
     public void loadBuiltinPackage() {
         // Load built-in packages.
-        if (COMPILE_BALLERINA_ORG) {
-            BLangPackage builtInPkg = getBuiltInPackage(Names.BUILTIN_ORG, Names.BUILTIN_PACKAGE);
+        if (LOAD_BUILTIN_FROM_SOURCE) {
+            BLangPackage builtInPkg = getBuiltInPackage();
             symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         } else {
             symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null);
@@ -220,7 +219,7 @@ public class CompilerDriver {
                 && (dlog.errorCount > 0 || pkgNode.getCompilationUnits().isEmpty());
     }
 
-    private BLangPackage getBuiltInPackage(Name orgName, Name name) {
+    private BLangPackage getBuiltInPackage() {
         return codegen(desugar(taintAnalyze(codeAnalyze(semAnalyzer.analyze(
                 pkgLoader.loadAndDefinePackage(SymbolTable.BUILTIN))))));
     }

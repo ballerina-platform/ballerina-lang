@@ -87,7 +87,8 @@ public class VirtualHostDispatchingTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*two services have the same basePath : /page.*")
+            expectedExceptionsMessageRegExp =
+                    ".*two services have the same basePath : '/page' under host name : 'abc.com'.*")
     public void testTwoServicesWithSameHostandBasePath() {
         CompileResult compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
                 "test-src/services/dispatching/virtual-host-negative-test.bal").getPath());

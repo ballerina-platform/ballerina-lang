@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.command;
 
 import com.google.gson.internal.LinkedTreeMap;
 import org.ballerinalang.langserver.LSGlobalContext;
+import org.ballerinalang.langserver.command.CommandUtil.FunctionGenerator;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -170,6 +171,7 @@ public class CommandExecutor {
         String funcName = null;
         String returnType = null;
         String returnDefaultValue = null;
+        String funcArgs = "";
         VersionedTextDocumentIdentifier textDocumentIdentifier = new VersionedTextDocumentIdentifier();
 
         for (Object arg : context.get(ExecuteCommandKeys.COMMAND_ARGUMENTS_KEY)) {
@@ -185,6 +187,8 @@ public class CommandExecutor {
                 returnType = argVal;
             } else if (argKey.equals(CommandConstants.ARG_KEY_RETURN_DEFAULT_VAL)) {
                 returnDefaultValue = argVal;
+            } else if (argKey.equals(CommandConstants.ARG_KEY_FUNC_ARGS)) {
+                funcArgs = argVal;
             }
         }
 
@@ -205,7 +209,7 @@ public class CommandExecutor {
             return;
         }
 
-        String editText = CommandUtil.FunctionGenerator.createFunction(funcName, returnType, returnDefaultValue);
+        String editText = FunctionGenerator.createFunction(funcName, funcArgs, returnType, returnDefaultValue);
         Range range = new Range(new Position(totalLines, lastCharCol + 1), new Position(totalLines + 3, lastCharCol));
 
         LanguageClient client = context.get(ExecuteCommandKeys.LANGUAGE_SERVER_KEY).getClient();

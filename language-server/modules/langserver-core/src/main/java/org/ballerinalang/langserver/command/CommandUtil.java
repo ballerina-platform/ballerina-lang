@@ -38,8 +38,10 @@ import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
+import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
@@ -60,18 +62,23 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleDestructure;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -159,6 +166,10 @@ public class CommandUtil {
                 String returnStatement = FunctionGenerator.getFuncReturnDefaultStatement(parent, "    return {%1};");
                 if (returnStatement != null) {
                     args.add(new CommandArgument(CommandConstants.ARG_KEY_RETURN_DEFAULT_VAL, returnStatement));
+                }
+                String arguments = FunctionGenerator.getFuncArguments(functionNode);
+                if (arguments != null) {
+                    args.add(new CommandArgument(CommandConstants.ARG_KEY_FUNC_ARGS, arguments));
                 }
             }
             args.add(new CommandArgument(CommandConstants.ARG_KEY_FUNC_NAME, functionName));
@@ -516,14 +527,14 @@ public class CommandUtil {
          * @param returnDefaultValue default return value
          * @return
          */
-        public static String createFunction(String name, String returnType, String returnDefaultValue) {
+        public static String createFunction(String name, String args, String returnType, String returnDefaultValue) {
             String funcBody = CommonUtil.LINE_SEPARATOR;
             String funcReturnSignature = "";
             if (returnType != null) {
                 funcBody = returnDefaultValue + funcBody;
                 funcReturnSignature = " returns " + returnType + " ";
             }
-            return CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + "function " + name + "()"
+            return CommonUtil.LINE_SEPARATOR + CommonUtil.LINE_SEPARATOR + "function " + name + "(" + args + ")"
                     + funcReturnSignature + "{" + CommonUtil.LINE_SEPARATOR + funcBody + "}"
                     + CommonUtil.LINE_SEPARATOR;
         }
@@ -668,6 +679,85 @@ public class CommandUtil {
                 return tSymbol.name.getValue();
             }
             return "any";
+        }
+
+        private static String getFuncArguments(BLangNode parent) {
+            List<String> list = new ArrayList<>();
+            if (parent instanceof BLangInvocation) {
+                BLangInvocation bLangInvocation = (BLangInvocation) parent;
+                if (bLangInvocation.argExprs.isEmpty()) {
+                    return null;
+                }
+                int argCounter = 1;
+                Set<String> argNames = new HashSet<>();
+                for (BLangExpression bLangExpression : bLangInvocation.argExprs) {
+                    if (bLangExpression instanceof BLangSimpleVarRef) {
+                        BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) bLangExpression;
+                        String varName = simpleVarRef.variableName.value;
+                        String argType = lookupVariableReturnType(varName, parent);
+                        list.add(argType + " " + varName);
+                        argNames.add(varName);
+                    } else if (bLangExpression instanceof BLangInvocation) {
+                        BLangInvocation invocation = (BLangInvocation) bLangExpression;
+                        String functionName = invocation.name.value;
+                        String argType = lookupFunctionReturnType(functionName, parent);
+                        String argName = generateArgName(argCounter++, argNames);
+                        list.add(argType + " " + argName);
+                        argNames.add(argName);
+                    } else {
+                        String argName = generateArgName(argCounter++, argNames);
+                        list.add("any " + argName);
+                        argNames.add(argName);
+                    }
+                }
+            }
+            return (!list.isEmpty()) ? String.join(", ", list) : null;
+        }
+
+        private static String lookupVariableReturnType(String variableName, BLangNode parent) {
+            if (parent instanceof BLangBlockStmt) {
+                BLangBlockStmt blockStmt = (BLangBlockStmt) parent;
+                Scope scope = blockStmt.scope;
+                if (scope != null) {
+                    for (Map.Entry<Name, Scope.ScopeEntry> entry : scope.entries.entrySet()) {
+                        String key = entry.getKey().getValue();
+                        BSymbol symbol = entry.getValue().symbol;
+                        if (variableName.equals(key) && symbol instanceof BVarSymbol) {
+                            return getFuncReturnSignature(symbol.type);
+                        }
+                    }
+                }
+            }
+            return (parent != null && parent.parent != null)
+                    ? lookupVariableReturnType(variableName, parent.parent)
+                    : "any";
+        }
+
+        private static String lookupFunctionReturnType(String functionName, BLangNode parent) {
+            if (parent instanceof BLangPackage) {
+                BLangPackage blockStmt = (BLangPackage) parent;
+                List<BLangFunction> functions = blockStmt.functions;
+                for (BLangFunction function : functions) {
+                    if (functionName.equals(function.name.getValue())) {
+                        return getFuncReturnSignature(function.returnTypeNode);
+                    }
+                }
+            }
+            return (parent != null && parent.parent != null)
+                    ? lookupFunctionReturnType(functionName, parent.parent) : "any";
+        }
+
+        private static String generateArgName(int value, Set<String> argNames) {
+            StringBuilder result = new StringBuilder();
+            int index = value;
+            while (--index >= 0) {
+                result.insert(0, (char) ('a' + index % 26));
+                index /= 26;
+            }
+            while (argNames.contains(result.toString())) {
+                result = new StringBuilder(generateArgName(++value, argNames));
+            }
+            return result.toString();
         }
     }
 }

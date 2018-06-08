@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
+
 /**
  * This services registry holds all the services of HTTP + WebSocket. This is a singleton class where all HTTP +
  * WebSocket Dispatchers can access.
@@ -114,8 +116,9 @@ public class HTTPServicesRegistry {
 
             String basePath = httpService.getBasePath();
             if (servicesByBasePath.containsKey(basePath)) {
-                throw new BallerinaException("Service registration failed: two services have the same basePath : " +
-                                                     basePath);
+                String errorMessage = hostName.equals(DEFAULT_HOST) ? "'" : "' under host name : '" + hostName + "'";
+                throw new BallerinaException("Service registration failed: two services have the same basePath : '" +
+                        basePath + errorMessage);
             }
             servicesByBasePath.put(basePath, httpService);
             String errLog = String.format("Service deployed : %s with context %s", service.getName(), basePath);

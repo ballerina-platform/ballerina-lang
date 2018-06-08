@@ -22,12 +22,10 @@ import Node from '../node';
 class AbstractWithinNode extends Node {
 
 
-    setWithinTimePeriod(newValue, silent, title) {
-        const oldValue = this.withinTimePeriod;
+    setTimeScale(newValue, silent, title) {
+        const oldValue = this.timeScale;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.withinTimePeriod = newValue;
-
-        this.withinTimePeriod.parent = this;
+        this.timeScale = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +33,7 @@ class AbstractWithinNode extends Node {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'withinTimePeriod',
+                    attributeName: 'timeScale',
                     newValue,
                     oldValue,
                 },
@@ -43,8 +41,33 @@ class AbstractWithinNode extends Node {
         }
     }
 
-    getWithinTimePeriod() {
-        return this.withinTimePeriod;
+    getTimeScale() {
+        return this.timeScale;
+    }
+
+
+
+    setTimeDurationValue(newValue, silent, title) {
+        const oldValue = this.timeDurationValue;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.timeDurationValue = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'timeDurationValue',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getTimeDurationValue() {
+        return this.timeDurationValue;
     }
 
 

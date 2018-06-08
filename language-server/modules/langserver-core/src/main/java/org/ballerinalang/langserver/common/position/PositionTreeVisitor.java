@@ -273,7 +273,7 @@ public class PositionTreeVisitor extends LSNodeVisitor {
                     varRefExpr.symbol.owner.pkgID);
 
             setTerminateVisitor(true);
-        } else if (varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
+        } else if (varRefExpr.type != null && varRefExpr.type.tsymbol != null && varRefExpr.type.tsymbol.kind != null
                 && (varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.OBJECT) ||
                 varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.RECORD) ||
                 varRefExpr.type.tsymbol.kind.name().equals(ContextConstants.TYPE_DEF))

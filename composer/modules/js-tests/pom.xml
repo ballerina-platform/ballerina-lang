@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.973.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -18,7 +18,13 @@
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-composer-web</artifactId>
+            <classifier>ballerina-composer-library</classifier>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-server-distribution</artifactId>
@@ -80,6 +86,23 @@
                             </includes>
                         </configuration>
                     </execution>
+                    <execution>
+                        <id>unpack-composer-library</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeGroupIds>org.ballerinalang</includeGroupIds>
+                            <includeClassifiers>ballerina-composer-library</includeClassifiers>
+                            <includeArtifactIds>ballerina-composer-web</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/extracted-web-lib</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
+                            <stripVersion>true</stripVersion>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <plugin>
@@ -105,6 +128,11 @@
                                         <flattenmapper />
                                         <regexpmapper from="(.+)-([0-9a-f]+).js" to="\1.js" />
                                     </chainedmapper>
+                                </copy>
+                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true" flatten="true">
+                                    <fileset dir="${project.build.directory}/extracted-web-lib/">
+                                        <include name="**/*.js" />
+                                    </fileset>
                                 </copy>
                             </target>
                         </configuration>

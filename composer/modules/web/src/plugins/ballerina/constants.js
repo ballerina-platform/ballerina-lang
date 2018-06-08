@@ -44,6 +44,11 @@ export const EVENTS = {
     SCROLL_DESIGN_VIEW: 'scroll-design-view',
 };
 
+export const RESPOSIVE_MENU_TRIGGER = {
+    ICON_MODE: 650,
+    HIDDEN_MODE: 460,
+};
+
 export const VIEWS = {
     TOOL_PALLETE: 'composer.views.ballerina.tool-pallette',
 };
