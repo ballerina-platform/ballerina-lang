@@ -53,7 +53,7 @@ function main(string... args) {
     int sum;
     // An Integer range in the foreach represents an incremental integer value range from the start expression (1)
     // to the end expression (endValue) inclusively.
-    foreach i in [1..endValue] {
+    foreach i in 1 ... endValue {
         sum = sum + i;
     }
     io:println("summation from 1 to " + endValue + " is " + sum);
