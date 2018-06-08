@@ -193,7 +193,7 @@ public class HttpService implements Cloneable {
 
             httpService.setCompression(serviceConfig.getRefField(COMPRESSION_FIELD).getStringValue());
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
-            httpService.setHostName(serviceConfig.getStringField(HOST_FIELD));
+            httpService.setHostName(serviceConfig.getStringField(HOST_FIELD).trim());
 
             String basePath = serviceConfig.getStringField(BASE_PATH_FIELD);
             if (basePath.contains(HttpConstants.VERSION)) {
