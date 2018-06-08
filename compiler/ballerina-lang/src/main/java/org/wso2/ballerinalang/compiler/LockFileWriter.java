@@ -81,7 +81,7 @@ public class LockFileWriter {
      *
      * @param packageSymbol package symbol
      */
-    void getEntryPkgDependencies(BPackageSymbol packageSymbol) {
+    void addEntryPkg(BPackageSymbol packageSymbol) {
         entryPackages.add(packageSymbol.pkgID.name.value);
         getPkgDependencies(packageSymbol);
     }
