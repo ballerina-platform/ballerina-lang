@@ -1214,6 +1214,10 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
+        if (binaryExpr.opKind == OperatorKind.HALF_OPEN_RANGE) {
+            binaryExpr.rhsExpr = getModifiedIntRangeEndExpr(binaryExpr.rhsExpr);
+        }
+
         binaryExpr.lhsExpr = rewriteExpr(binaryExpr.lhsExpr);
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
@@ -1483,6 +1487,13 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangIntRangeExpression intRangeExpression) {
+        if (!intRangeExpression.includeStart) {
+            intRangeExpression.startExpr = getModifiedIntRangeStartExpr(intRangeExpression.startExpr);
+        }
+        if (!intRangeExpression.includeEnd) {
+            intRangeExpression.endExpr = getModifiedIntRangeEndExpr(intRangeExpression.endExpr);
+        }
+
         intRangeExpression.startExpr = rewriteExpr(intRangeExpression.startExpr);
         intRangeExpression.endExpr = rewriteExpr(intRangeExpression.endExpr);
         result = intRangeExpression;
@@ -2756,6 +2767,23 @@ public class Desugar extends BLangNodeVisitor {
         // and may not reflect the actual type of the child/field expr.
         accessExpr.type = originalAccessExpr.childType;
         return accessExpr;
+    }
+
+    private BLangBinaryExpr getModifiedIntRangeStartExpr(BLangExpression expr) {
+        BLangLiteral constOneLiteral = ASTBuilderUtil.createLiteral(expr.pos, symTable.intType, 1L);
+        return ASTBuilderUtil.createBinaryExpr(expr.pos, expr, constOneLiteral, symTable.intType, OperatorKind.ADD,
+                                               (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD,
+                                                                                                   symTable.intType,
+                                                                                                   symTable.intType));
+    }
+
+
+    private BLangBinaryExpr getModifiedIntRangeEndExpr(BLangExpression expr) {
+        BLangLiteral constOneLiteral = ASTBuilderUtil.createLiteral(expr.pos, symTable.intType, 1L);
+        return ASTBuilderUtil.createBinaryExpr(expr.pos, expr, constOneLiteral, symTable.intType, OperatorKind.SUB,
+                                               (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.SUB,
+                                                                                                   symTable.intType,
+                                                                                                   symTable.intType));
     }
 
     private BLangExpression getDefaultValueExpr(BLangAccessExpression expr) {

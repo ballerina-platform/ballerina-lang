@@ -96,34 +96,6 @@ public class ForeachComplexTests {
         Assert.assertEquals(returns[0].stringValue(), getIntRangOutput(false, 0, 10));
     }
 
-    @Test
-    public void testIntRangeExcludeStart() {
-        BValue[] returns = BRunUtil.invoke(program, "testIntRangeExcludeStart");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), getIntRangOutput(true, -9, 10));
-    }
-
-    @Test
-    public void testIntRangeExcludeEnd() {
-        BValue[] returns = BRunUtil.invoke(program, "testIntRangeExcludeEnd");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), getIntRangOutput(true, -10, 9));
-    }
-
-    @Test
-    public void testIntRangeExcludeBoth() {
-        BValue[] returns = BRunUtil.invoke(program, "testIntRangeExcludeBoth");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), getIntRangOutput(true, -9, 9));
-    }
-
-    @Test
-    public void testIntRangeIncludeBoth() {
-        BValue[] returns = BRunUtil.invoke(program, "testIntRangeIncludeBoth");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), getIntRangOutput(true, -10, 10));
-    }
-
     private String getIntRangOutput(boolean includeIndex, int start, int end) {
         StringBuilder sb = new StringBuilder();
         int cursor = 0;
