@@ -19,6 +19,7 @@ import ballerina/runtime;
 import ballerina/mime;
 import ballerina/log;
 import ballerina/math;
+import ballerina/config;
 
 documentation {
     Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
@@ -68,7 +69,7 @@ public type RedirectClient object {
         io:println("Redirect Get!");
         Request request = buildRequest(message);
         Response|error result = self.httpClient.get(path, message = request);
-        return handleRedirect(result, path, "GET", request, self);
+        return handleRedirect(result, path, "GET", request, self, self.httpClient);
     }
 
     documentation {
@@ -258,14 +259,14 @@ public type RedirectClient object {
 };
 
 function handleRedirect(Response|error result, string path, string httpVerb, Request request,
-                        RedirectClient redirectClient)
+                        RedirectClient redirectClient, CallerActions callerAction)
              returns @untainted Response|error {
     io:println("Handle redirect >> checking redirect eligibility...");
     match result {
         Response response => {
             if (isRedirectResponse(response.statusCode)) {
                 log:printInfo("Redirect status code recevied");
-                return doRedirection(response, path, httpVerb, request, redirectClient);
+                return doRedirection(response, path, httpVerb, request, redirectClient, callerAction);
             } else {
                 return response;
             }
@@ -281,7 +282,7 @@ function isRedirectResponse(int statusCode) returns boolean {
 }
 
 function doRedirection(Response response, string path, string httpVerb, Request request,
-                       RedirectClient redirectClient)
+                       RedirectClient redirectClient, CallerActions callerAction)
              returns @untainted Response|error {
     int currentCount = redirectClient.currentRedirectCount;
     int maxCount = redirectClient.redirectConfig.maxCount;
@@ -300,22 +301,28 @@ function doRedirection(Response response, string path, string httpVerb, Request 
             string redirectMethod => {
                 if (response.hasHeader("location")) {
                     string location = response.getHeader("location");
+                    log:printInfo("Location header value: " + location);
                     if (isCrossDomain(redirectClient.config.url, location)) {
                         log:printInfo("Cross Domain: " + location);
+                        CallerActions newCallerAction = createRetryClient(location,
+                            createNewEndpoint(location, redirectClient.config));
+                        Response|error result = invokeEndpoint("", createRedirectRequest(request),
+                            extractHttpOperation(redirectMethod), newCallerAction);
+                        return handleRedirect(result, path, redirectMethod, request, redirectClient,
+                            newCallerAction);
+                    } else {
+                        log:printInfo("Not Cross Domain: " + location);
                         match resolve(redirectClient.config.url, location) {
                             string resolvedURI => {
-                                location = resolvedURI;
-                                //Create a new endpoint
-                                io:println("No redirection performed");
-                                return response;
+                                log:printInfo("Resolved URI: " + resolvedURI);
+                                Response|error result = invokeEndpoint(getPath(redirectClient.config.url, resolvedURI),
+                                    createRedirectRequest(request),
+                                    extractHttpOperation(redirectMethod), redirectClient.httpClient);
+                                return handleRedirect(result, path, redirectMethod, request, redirectClient,
+                                    callerAction);
                             }
                             error err => return err;
                         }
-                    } else {
-                        log:printInfo("Not Cross Domain: " + location);
-                        Response|error result = invokeEndpoint(location, createRedirectRequest(request),
-                            extractHttpOperation(redirectMethod), redirectClient.httpClient);
-                        return handleRedirect(result, path, redirectMethod, request, redirectClient);
                     }
                 } else {
                     error err = { message: "Location header not available!" };
@@ -324,6 +331,34 @@ function doRedirection(Response response, string path, string httpVerb, Request 
             }
         }
     }
+}
+
+function getPath(string endpointURL, string resolvedURI) returns string {
+    log:printInfo("Calculating path...");
+    log:printInfo("Original endpoint value : " +endpointURL + " resolvedURL : " + resolvedURI);
+    string clientPath =  resolvedURI.substring(endpointURL.length(), resolvedURI.length());
+    log:printInfo("Calculated path: " + clientPath);
+    return clientPath;
+}
+
+function createNewEndpoint(string location, ClientEndpointConfig config) returns ClientEndpointConfig {
+    ClientEndpointConfig newEpConfig = { url: location,
+        circuitBreaker: config.circuitBreaker,
+        timeoutMillis: config.timeoutMillis,
+        keepAlive: config.keepAlive,
+        chunking: config.chunking,
+        httpVersion: config.httpVersion,
+        forwarded: config.forwarded,
+        followRedirects: config.followRedirects,
+        retryConfig: config.retryConfig,
+        proxy: config.proxy,
+        connectionThrottling: config.connectionThrottling,
+        secureSocket: config.secureSocket,
+        cache: config.cache,
+        compression: config.compression,
+        auth: config.auth
+    };
+    return newEpConfig;
 }
 
 function getRedirectMethod(string httpVerb, Response response) returns string|() {
@@ -349,25 +384,26 @@ function createRedirectRequest(Request request) returns Request {
     return request;
 }
 
-function createNewRedirectClient() {
-
-}
-
 function isCrossDomain(string endPointURL, string locationUrl) returns boolean {
-    string httpScheme = locationUrl.substring(0, 7);
-    string httpsScheme = locationUrl.substring(0, 8);
     io:println("Start checking cross domain...");
-    log:printInfo("location scheme : http >> " + httpScheme + " https: >> " + httpsScheme);
-    if (httpScheme.equalsIgnoreCase("http://") || httpsScheme.equalsIgnoreCase("https://")) {
-        URI location = new URI(locationUrl);
-        URI endPoint = new URI(endPointURL);
-        if (location.scheme == endPoint.scheme && location.host == endPoint.host && location.port == endPoint.port) {
-            io:println("This is cross doamin...");
-            return true;
+    if (locationUrl.length() > 6) {
+        string httpScheme = locationUrl.substring(0, 7);
+        string httpsScheme = locationUrl.substring(0, 8);
+        log:printInfo("location scheme : http >> " + httpScheme + " https: >> " + httpsScheme);
+        if (httpScheme.equalsIgnoreCase("http://") || httpsScheme.equalsIgnoreCase("https://")) {
+            URI location = new URI(locationUrl);
+            URI endPoint = new URI(endPointURL);
+            if (location.scheme == endPoint.scheme && location.host == endPoint.host && location.port == endPoint.port) {
+                io:println("This is not cross domain...");
+                return false;
+            } else {
+                log:printInfo("port or host doesn't match so its cross domain");
+                log:printInfo("endpoint host:port >> " + endPoint.scheme + ":" + endPoint.host + ":" + endPoint.port);
+                log:printInfo("location host:port >> " + location.scheme + ":" + location.host + ":" + location.port);
+                return true;
+            }
         } else {
-            log:printInfo("port or host doesn't match");
-            log:printInfo("endpoint host:port >> " + endPoint.scheme +":"+ endPoint.host +":" + endPoint.port);
-            log:printInfo("location host:port >> " + location.scheme +":"+ location.host +":" + location.port);
+            io:println("location doesn't start with http or https...");
             return false;
         }
     } else {

@@ -48,8 +48,8 @@ public class Resolve extends BlockingNativeCallableUnit {
             uri = new URI(path);
             if (!uri.isAbsolute()) {
                 // Url is not absolute, we need to resolve it.
-                    URI baseUri = new URI(url);
-                    uri = baseUri.resolve(uri.normalize());
+                URI baseUri = new URI(url);
+                uri = baseUri.resolve(uri.normalize());
 
             }
             context.setReturnValues(new BString(uri.toString()));
