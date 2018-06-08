@@ -19,7 +19,7 @@
 import _ from 'lodash';
 import ExpressionNode from '../expression-node';
 
-class AbstractTypeofExpressionNode extends ExpressionNode {
+class AbstractTypedescExpressionNode extends ExpressionNode {
 
 
     setTypeNode(newValue, silent, title) {
@@ -51,4 +51,4 @@ class AbstractTypeofExpressionNode extends ExpressionNode {
 
 }
 
-export default AbstractTypeofExpressionNode;
+export default AbstractTypedescExpressionNode;

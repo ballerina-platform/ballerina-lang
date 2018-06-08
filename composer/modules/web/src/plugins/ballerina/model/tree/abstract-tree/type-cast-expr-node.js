@@ -22,33 +22,6 @@ import ExpressionNode from '../expression-node';
 class AbstractTypeCastExprNode extends ExpressionNode {
 
 
-    setExpression(newValue, silent, title) {
-        const oldValue = this.expression;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.expression = newValue;
-
-        this.expression.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'expression',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getExpression() {
-        return this.expression;
-    }
-
-
-
     setTypeNode(newValue, silent, title) {
         const oldValue = this.typeNode;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -72,6 +45,33 @@ class AbstractTypeCastExprNode extends ExpressionNode {
 
     getTypeNode() {
         return this.typeNode;
+    }
+
+
+
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.expression = newValue;
+
+        this.expression.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'expression',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getExpression() {
+        return this.expression;
     }
 
 
