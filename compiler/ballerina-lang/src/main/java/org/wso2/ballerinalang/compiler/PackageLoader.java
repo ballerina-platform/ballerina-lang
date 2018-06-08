@@ -388,7 +388,7 @@ public class PackageLoader {
         ProjectSourceRepo projectSourceRepo = new ProjectSourceRepo(projectPath, testEnabled);
         Patten packageIDPattern = projectSourceRepo.calculate(packageID);
         if (packageIDPattern != Patten.NULL) {
-            Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance());
+            Stream<Path> srcPathStream = packageIDPattern.convert(projectSourceRepo.getConverterInstance(), packageID);
             compiledPackage.srcEntries = srcPathStream
                     .filter(path -> Files.exists(path, LinkOption.NOFOLLOW_LINKS))
                     .map(projectPath::relativize)
@@ -397,7 +397,7 @@ public class PackageLoader {
 
             // Get the Package.md file
             Patten pkgMDPattern = packageIDPattern.sibling(path(PACKAGE_MD_FILE_NAME));
-            pkgMDPattern.convert(projectSourceRepo.getConverterInstance())
+            pkgMDPattern.convert(projectSourceRepo.getConverterInstance(), packageID)
                     .filter(pkgMDPath -> Files.exists(pkgMDPath, LinkOption.NOFOLLOW_LINKS))
                     .map(projectPath::relativize)
                     .map(pkgMDPath -> new PathBasedCompiledPackageEntry(projectPath, pkgMDPath,

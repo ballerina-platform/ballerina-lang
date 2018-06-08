@@ -66,11 +66,12 @@ public class BAnnotationSymbol extends BTypeSymbol implements AnnotationSymbol {
     }
 
     @Override
-    public BAnnotationSymbol copy() {
+    public BAnnotationSymbol createLabelSymbol() {
         BAnnotationSymbol copy = Symbols.createAnnotationSymbol(flags, Names.EMPTY, pkgID, type, owner);
         copy.attributes = attributes;
         copy.attachedType = attachedType;
         copy.attachmentPoints = attachmentPoints;
+        copy.isLabel = true;
         return copy;
     }
 }

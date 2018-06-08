@@ -603,21 +603,20 @@ XmlAttributeAccessExpr
    ;
 
 XmlCommentLiteral
-   : <root?> xml` <!-- <textFragments>* --> `
-   |              <!-- <textFragments>* -->
+   : <root?> <startLiteral> <!-- <textFragments>* --> `
+   |                        <!-- <textFragments>* -->
    ;
 
 XmlElementLiteral
-   : <root?> xml` < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> > `
-   |              < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> >
-   | <root?> xml` < <startTagName.source> <attributes>* />`
-   :              < <startTagName.source> <attributes>* />
+   : <root?> <startLiteral> < <startTagName.source> <attributes>*  > <content>* </ <endTagName.source> > `
+   | <root?> <startLiteral> < <startTagName.source> <attributes>* />                                     `
+   |                        < <startTagName.source> <attributes>*  > <content>* </ <endTagName.source> >
+   |                        < <startTagName.source> <attributes>* />
    ;
 
 XmlPiLiteral
-   : <target.source> <dataTextFragments>*
-   | <dataTextFragments>*
-   | <target.source>
+   : <root?> <startLiteral> <? <target.source> <dataTextFragments>* ?> `
+   |                        <? <target.source> <dataTextFragments>* ?>
    ;
 
 XmlQname
@@ -630,7 +629,8 @@ XmlQuotedString
    ;
 
 XmlTextLiteral
-   : <textFragments>*
+   : <root?> <startLiteral> <textFragments>* `
+   |                        <textFragments>*
    ;
 
 Xmlns

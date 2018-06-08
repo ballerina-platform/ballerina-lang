@@ -282,7 +282,15 @@ public class PackageInfoWriter {
                                                 TypeDefInfo typeDefInfo) throws IOException {
         dataOutStream.writeInt(typeDefInfo.nameCPIndex);
         dataOutStream.writeInt(typeDefInfo.flags);
+        dataOutStream.writeBoolean(typeDefInfo.isLabel);
         dataOutStream.writeInt(typeDefInfo.typeTag);
+
+        if (typeDefInfo.isLabel) {
+            writeLabelTypeDefInfo(dataOutStream, (LabelTypeInfo) typeDefInfo.typeInfo);
+            // Write attribute info
+            writeAttributeInfoEntries(dataOutStream, typeDefInfo.getAttributeInfoEntries());
+            return;
+        }
         switch (typeDefInfo.typeTag) {
             case TypeTags.OBJECT:
                 writeObjectTypeDefInfo(dataOutStream, (ObjectTypeInfo) typeDefInfo.typeInfo);
@@ -293,8 +301,13 @@ public class PackageInfoWriter {
             case TypeTags.FINITE:
                 writeFiniteTypeDefInfo(dataOutStream, (FiniteTypeInfo) typeDefInfo.typeInfo);
                 break;
+            default:
+                writeLabelTypeDefInfo(dataOutStream, (LabelTypeInfo) typeDefInfo.typeInfo);
+                break;
         }
 
+        // Write attribute info
+        writeAttributeInfoEntries(dataOutStream, typeDefInfo.getAttributeInfoEntries());
     }
 
     private static void writeAnnotatoinInfo(DataOutputStream dataOutStream,
@@ -353,9 +366,11 @@ public class PackageInfoWriter {
         for (ValueSpaceItemInfo valueSpaceItem : valueSpaceItemInfos) {
             writeDefaultValue(dataOutStream, valueSpaceItem.value);
         }
+    }
 
-        // Write attribute info
-        writeAttributeInfoEntries(dataOutStream, finiteTypeDefInfo.getAttributeInfoEntries());
+    private static void writeLabelTypeDefInfo(DataOutputStream dataOutStream,
+                                               LabelTypeInfo labelTypeInfo) throws IOException {
+        dataOutStream.writeInt(labelTypeInfo.typeSigCPIndex);
     }
 
     private static void writeServiceInfo(DataOutputStream dataOutStream,

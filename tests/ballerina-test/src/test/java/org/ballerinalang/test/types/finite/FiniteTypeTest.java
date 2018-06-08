@@ -227,5 +227,15 @@ public class FiniteTypeTest {
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals((((BString) returns[1]).stringValue()), "Anne");
     }
+
+    @Test()
+    public void testTypeDefinitionWithArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeDefinitionWithArray");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertTrue(returns[1] instanceof BInteger);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 2);
+        Assert.assertEquals((((BInteger) returns[1]).intValue()), 23);
+    }
 }
 

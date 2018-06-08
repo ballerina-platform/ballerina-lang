@@ -57,7 +57,7 @@ public class Utils {
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
-    public static final String PROTOCOL_PACKAGE_UTIL = "ballerina.util";
+    public static final String PROTOCOL_PACKAGE_UTIL = "ballerina/util";
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina/mime";
     public static final String BASE64_ENCODE_ERROR = "Base64EncodeError";
     public static final String BASE64_DECODE_ERROR = "Base64DecodeError";

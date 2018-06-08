@@ -22,6 +22,152 @@ import Node from '../node';
 class AbstractServiceNode extends Node {
 
 
+    setNamespaceDeclarations(newValue, silent, title) {
+        const oldValue = this.namespaceDeclarations;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.namespaceDeclarations = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'namespaceDeclarations',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getNamespaceDeclarations() {
+        return this.namespaceDeclarations;
+    }
+
+
+    addNamespaceDeclarations(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.namespaceDeclarations.push(node);
+            index = this.namespaceDeclarations.length;
+        } else {
+            this.namespaceDeclarations.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeNamespaceDeclarations(node, silent) {
+        const index = this.getIndexOfNamespaceDeclarations(node);
+        this.removeNamespaceDeclarationsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeNamespaceDeclarationsByIndex(index, silent) {
+        this.namespaceDeclarations.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceNamespaceDeclarations(oldChild, newChild, silent) {
+        const index = this.getIndexOfNamespaceDeclarations(oldChild);
+        this.namespaceDeclarations[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceNamespaceDeclarationsByIndex(index, newChild, silent) {
+        this.namespaceDeclarations[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfNamespaceDeclarations(child) {
+        return _.findIndex(this.namespaceDeclarations, ['id', child.id]);
+    }
+
+    filterNamespaceDeclarations(predicateFunction) {
+        return _.filter(this.namespaceDeclarations, predicateFunction);
+    }
+
+
+    setInitFunction(newValue, silent, title) {
+        const oldValue = this.initFunction;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.initFunction = newValue;
+
+        this.initFunction.parent = this;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'initFunction',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getInitFunction() {
+        return this.initFunction;
+    }
+
+
+
     setEndpointNodes(newValue, silent, title) {
         const oldValue = this.endpointNodes;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -258,33 +404,6 @@ class AbstractServiceNode extends Node {
     filterVariables(predicateFunction) {
         return _.filter(this.variables, predicateFunction);
     }
-
-
-    setInitFunction(newValue, silent, title) {
-        const oldValue = this.initFunction;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.initFunction = newValue;
-
-        this.initFunction.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'initFunction',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getInitFunction() {
-        return this.initFunction;
-    }
-
 
 
     setServiceTypeStruct(newValue, silent, title) {
@@ -750,125 +869,6 @@ class AbstractServiceNode extends Node {
     }
 
 
-    setDeprecatedAttachments(newValue, silent, title) {
-        const oldValue = this.deprecatedAttachments;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.deprecatedAttachments = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'deprecatedAttachments',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getDeprecatedAttachments() {
-        return this.deprecatedAttachments;
-    }
-
-
-    addDeprecatedAttachments(node, i = -1, silent) {
-        node.parent = this;
-        let index = i;
-        if (i === -1) {
-            this.deprecatedAttachments.push(node);
-            index = this.deprecatedAttachments.length;
-        } else {
-            this.deprecatedAttachments.splice(i, 0, node);
-        }
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Add ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeDeprecatedAttachments(node, silent) {
-        const index = this.getIndexOfDeprecatedAttachments(node);
-        this.removeDeprecatedAttachmentsByIndex(index, silent);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${node.kind}`,
-                data: {
-                    node,
-                    index,
-                },
-            });
-        }
-    }
-
-    removeDeprecatedAttachmentsByIndex(index, silent) {
-        this.deprecatedAttachments.splice(index, 1);
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-removed',
-                title: `Removed ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceDeprecatedAttachments(oldChild, newChild, silent) {
-        const index = this.getIndexOfDeprecatedAttachments(oldChild);
-        this.deprecatedAttachments[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    replaceDeprecatedAttachmentsByIndex(index, newChild, silent) {
-        this.deprecatedAttachments[index] = newChild;
-        newChild.parent = this;
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'child-added',
-                title: `Change ${this.kind}`,
-                data: {
-                    node: this,
-                    index,
-                },
-            });
-        }
-    }
-
-    getIndexOfDeprecatedAttachments(child) {
-        return _.findIndex(this.deprecatedAttachments, ['id', child.id]);
-    }
-
-    filterDeprecatedAttachments(predicateFunction) {
-        return _.filter(this.deprecatedAttachments, predicateFunction);
-    }
-
-
     setDocumentationAttachments(newValue, silent, title) {
         const oldValue = this.documentationAttachments;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -985,6 +985,125 @@ class AbstractServiceNode extends Node {
 
     filterDocumentationAttachments(predicateFunction) {
         return _.filter(this.documentationAttachments, predicateFunction);
+    }
+
+
+    setDeprecatedAttachments(newValue, silent, title) {
+        const oldValue = this.deprecatedAttachments;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.deprecatedAttachments = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'deprecatedAttachments',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getDeprecatedAttachments() {
+        return this.deprecatedAttachments;
+    }
+
+
+    addDeprecatedAttachments(node, i = -1, silent) {
+        node.parent = this;
+        let index = i;
+        if (i === -1) {
+            this.deprecatedAttachments.push(node);
+            index = this.deprecatedAttachments.length;
+        } else {
+            this.deprecatedAttachments.splice(i, 0, node);
+        }
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Add ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDeprecatedAttachments(node, silent) {
+        const index = this.getIndexOfDeprecatedAttachments(node);
+        this.removeDeprecatedAttachmentsByIndex(index, silent);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${node.kind}`,
+                data: {
+                    node,
+                    index,
+                },
+            });
+        }
+    }
+
+    removeDeprecatedAttachmentsByIndex(index, silent) {
+        this.deprecatedAttachments.splice(index, 1);
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-removed',
+                title: `Removed ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDeprecatedAttachments(oldChild, newChild, silent) {
+        const index = this.getIndexOfDeprecatedAttachments(oldChild);
+        this.deprecatedAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    replaceDeprecatedAttachmentsByIndex(index, newChild, silent) {
+        this.deprecatedAttachments[index] = newChild;
+        newChild.parent = this;
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'child-added',
+                title: `Change ${this.kind}`,
+                data: {
+                    node: this,
+                    index,
+                },
+            });
+        }
+    }
+
+    getIndexOfDeprecatedAttachments(child) {
+        return _.findIndex(this.deprecatedAttachments, ['id', child.id]);
+    }
+
+    filterDeprecatedAttachments(predicateFunction) {
+        return _.filter(this.deprecatedAttachments, predicateFunction);
     }
 
 

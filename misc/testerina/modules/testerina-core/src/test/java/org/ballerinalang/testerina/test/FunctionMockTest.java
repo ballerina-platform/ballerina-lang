@@ -47,7 +47,7 @@ public class FunctionMockTest {
         Files.createDirectory(filePath);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testBefore2() {
         cleanup();
         TesterinaRegistry.getInstance().setOrgName("$anon");

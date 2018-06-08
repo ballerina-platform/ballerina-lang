@@ -19,7 +19,6 @@ package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.launcher.Main;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
@@ -47,7 +46,6 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -90,7 +88,7 @@ public class PushUtils {
 
         String orgName = manifest.getName();
         String version = manifest.getVersion();
-        String ballerinaVersion = getBallerinaVersion();
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
 
         // Get package path from project directory path
@@ -247,7 +245,7 @@ public class PushUtils {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
         }
         Converter<URI> converter = remoteRepo.getConverterInstance();
-        List<URI> uris = patten.convert(converter).collect(Collectors.toList());
+        List<URI> uris = patten.convert(converter, packageID).collect(Collectors.toList());
         if (uris.isEmpty()) {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
         }
@@ -257,8 +255,8 @@ public class PushUtils {
     /**
      * Read the manifest.
      *
+     * @param prjDirPath project directory path
      * @return manifest configuration object
-     * @param prjDirPath
      */
     private static Manifest readManifestConfigurations(Path prjDirPath) {
         String tomlFilePath = prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME).toString();
@@ -338,20 +336,5 @@ public class PushUtils {
             throw new BLangCompilerException("Summary of the package exceeds 50 characters");
         }
         return firstLine;
-    }
-
-    /**
-     * Get the ballerina version the package is built with.
-     *
-     * @return ballerina version
-     */
-    private static String getBallerinaVersion() {
-        try (InputStream inputStream = Main.class.getResourceAsStream("/META-INF/launcher.properties")) {
-            Properties properties = new Properties();
-            properties.load(inputStream);
-            return properties.getProperty("ballerina.version");
-        } catch (Throwable ignore) {
-        }
-        return "unknown";
     }
 }

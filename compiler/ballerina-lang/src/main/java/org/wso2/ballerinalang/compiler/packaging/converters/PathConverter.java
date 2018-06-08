@@ -3,6 +3,7 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import com.sun.nio.zipfs.ZipFileSystem;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
@@ -12,6 +13,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -36,15 +39,22 @@ public class PathConverter implements Converter<Path> {
     }
 
     @Override
-    public Stream<Path> latest(Path path) {
+    public Stream<Path> latest(Path path, PackageID packageID) {
         if (Files.isDirectory(path)) {
             try {
-                return Files.list(path)
-                            .map(SortablePath::new)
-                            .filter(SortablePath::valid)
-                            .sorted(Comparator.reverseOrder())
-                            .limit(1)
-                            .map(SortablePath::getPath);
+                List<Path> pathList = Files.list(path)
+                                           .map(SortablePath::new)
+                                           .filter(SortablePath::valid)
+                                           .sorted(Comparator.reverseOrder())
+                                           .limit(1)
+                                           .map(SortablePath::getPath)
+                                           .collect(Collectors.toList());
+                if (packageID != null) {
+                    if (packageID.version.value.equals(Names.DEFAULT_VERSION.getValue())) {
+                        packageID.version.value = pathList.get(0).toFile().getName();
+                    }
+                }
+                return pathList.stream();
 
             } catch (IOException ignore) {
             }

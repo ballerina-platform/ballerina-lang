@@ -16,7 +16,7 @@ public class StringConverter implements Converter<String> {
     }
 
     @Override
-    public Stream<String> latest(String s) {
+    public Stream<String> latest(String s, PackageID packageID) {
         return Stream.of(s + "/semVer(*)");
     }
 
