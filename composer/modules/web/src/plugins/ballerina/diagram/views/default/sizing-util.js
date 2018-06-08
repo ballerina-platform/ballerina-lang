@@ -593,24 +593,15 @@ class SizingUtil {
         // Set the service/connector definition height according to the resources/connector definitions
         // This is due to the logic re-use by the connector nodes as well
         let children = [];
-        if (TreeUtil.isService(node)) {
-            children = node.getResources();
-        } else if (TreeUtil.isConnector(node)) {
-            children = node.getActions();
-        }
+        children = node.getResources();
+
         let variables = [];
         let endpoints = [];
-        if (TreeUtil.isService(node)) {
-            variables = node.getVariables();
-            endpoints = node.filterVariables((statement) => {
-                return TreeUtil.isEndpointTypeVariableDef(statement);
-            });
-        } else if (TreeUtil.isConnector(node)) {
-            variables = node.getVariableDefs();
-            endpoints = node.filterVariableDefs((statement) => {
-                return TreeUtil.isEndpointTypeVariableDef(statement);
-            });
-        }
+        variables = node.getVariables();
+        endpoints = node.filterVariables((statement) => {
+            return TreeUtil.isEndpointTypeVariableDef(statement);
+        });
+
         // calculate the annotation height.
         cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
@@ -665,23 +656,6 @@ class SizingUtil {
 
         viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight;
 
-        if (TreeUtil.isConnector(node)) {
-            cmp.argParameterHolder = {};
-            // Creating components for argument parameters
-            if (node.getParameters()) {
-                // Creating component for opening bracket of the parameters view.
-                cmp.argParameterHolder.openingParameter = {};
-                cmp.argParameterHolder.openingParameter.w = this.getTextWidth('(', 0).w;
-
-                // Creating component for closing bracket of the parameters view.
-                cmp.argParameterHolder.closingParameter = {};
-                cmp.argParameterHolder.closingParameter.w = this.getTextWidth(')', 0).w;
-
-                cmp.heading.w += cmp.argParameterHolder.openingParameter.w
-                    + cmp.argParameterHolder.closingParameter.w
-                    + this.getParameterTypeWidth(node.getParameters()) + (this.config.panel.buttonWidth * 3);
-            }
-        }
         // set the components.
         viewState.components = cmp;
 

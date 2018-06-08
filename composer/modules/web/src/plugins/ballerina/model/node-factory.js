@@ -24,7 +24,6 @@ import AnnotationAttachmentNode from './tree/annotation-attachment-node';
 import AnnotationAttributeNode from './tree/annotation-attribute-node';
 import CatchNode from './tree/catch-node';
 import CompilationUnitNode from './tree/compilation-unit-node';
-import ConnectorNode from './tree/connector-node';
 import DeprecatedNode from './tree/deprecated-node';
 import DocumentationNode from './tree/documentation-node';
 import EndpointNode from './tree/endpoint-node';
@@ -36,16 +35,14 @@ import PackageNode from './tree/package-node';
 import PackageDeclarationNode from './tree/package-declaration-node';
 import ResourceNode from './tree/resource-node';
 import ServiceNode from './tree/service-node';
-import StructNode from './tree/struct-node';
-import ObjectNode from './tree/object-node';
 import VariableNode from './tree/variable-node';
 import WorkerNode from './tree/worker-node';
-import TransformerNode from './tree/transformer-node';
 import DocumentationAttributeNode from './tree/documentation-attribute-node';
 import AnnotationAttachmentAttributeNode from './tree/annotation-attachment-attribute-node';
 import AnnotationAttachmentAttributeValueNode from './tree/annotation-attachment-attribute-value-node';
 import ArrayLiteralExprNode from './tree/array-literal-expr-node';
 import BinaryExprNode from './tree/binary-expr-node';
+import ElvisExprNode from './tree/elvis-expr-node';
 import BracedTupleExprNode from './tree/braced-tuple-expr-node';
 import TypeInitExprNode from './tree/type-init-expr-node';
 import FieldBasedAccessExprNode from './tree/field-based-access-expr-node';
@@ -54,10 +51,11 @@ import IntRangeExprNode from './tree/int-range-expr-node';
 import InvocationNode from './tree/invocation-node';
 import LambdaNode from './tree/lambda-node';
 import LiteralNode from './tree/literal-node';
+import SimpleVariableRefNode from './tree/simple-variable-ref-node';
 import StringTemplateLiteralNode from './tree/string-template-literal-node';
 import TernaryExprNode from './tree/ternary-expr-node';
 import AwaitExprNode from './tree/await-expr-node';
-import TypeofExpressionNode from './tree/typeof-expression-node';
+import TypedescExpressionNode from './tree/typedesc-expression-node';
 import TypeCastExprNode from './tree/type-cast-expr-node';
 import TypeConversionExprNode from './tree/type-conversion-expr-node';
 import UnaryExprNode from './tree/unary-expr-node';
@@ -68,14 +66,14 @@ import MatchExpressionNode from './tree/match-expression-node';
 import MatchExpressionPatternClauseNode from './tree/match-expression-pattern-clause-node';
 import SelectExpressionNode from './tree/select-expression-node';
 import AbortNode from './tree/abort-node';
-import FailNode from './tree/fail-node';
+import DoneNode from './tree/done-node';
+import RetryNode from './tree/retry-node';
 import AssignmentNode from './tree/assignment-node';
 import CompoundAssignmentNode from './tree/compound-assignment-node';
 import PostIncrementNode from './tree/post-increment-node';
 import BindNode from './tree/bind-node';
 import BlockNode from './tree/block-node';
 import BreakNode from './tree/break-node';
-import NextNode from './tree/next-node';
 import ExpressionStatementNode from './tree/expression-statement-node';
 import ForeachNode from './tree/foreach-node';
 import ForkJoinNode from './tree/fork-join-node';
@@ -101,7 +99,11 @@ import FunctionTypeNode from './tree/function-type-node';
 import UserDefinedTypeNode from './tree/user-defined-type-node';
 import EndpointTypeNode from './tree/endpoint-type-node';
 import ValueTypeNode from './tree/value-type-node';
+import RecordTypeNode from './tree/record-type-node';
+import ObjectTypeNode from './tree/object-type-node';
 import OrderByNode from './tree/order-by-node';
+import OrderByVariableNode from './tree/order-by-variable-node';
+import LimitNode from './tree/limit-node';
 import GroupByNode from './tree/group-by-node';
 import HavingNode from './tree/having-node';
 import SelectClauseNode from './tree/select-clause-node';
@@ -197,24 +199,6 @@ class NodeFactory {
         return node;
     }
 
-    createConnector(json = {}) {
-        json.kind = 'Connector';
-        let node = new ConnectorNode();
-        node.endpointNodes = [];
-        node.variableDefs = [];
-        node.initFunction = new FunctionNode();
-        node.initAction = new ActionNode();
-        node.name = new IdentifierNode();
-        node.actions = [];
-        node.parameters = [];
-        node.annotationAttachments = [];
-        node.documentationAttachments = [];
-        node.deprecatedAttachments = [];
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
     createDeprecated(json = {}) {
         json.kind = 'Deprecated';
         let node = new DeprecatedNode();
@@ -301,19 +285,15 @@ class NodeFactory {
     createPackage(json = {}) {
         json.kind = 'Package';
         let node = new PackageNode();
-        node.imports = [];
-        node.compilationUnits = [];
-        node.packageDeclaration = new PackageDeclarationNode();
         node.namespaceDeclarations = [];
         node.globalEndpoints = [];
-        node.globalVariables = [];
-        node.services = [];
-        node.connectors = [];
         node.functions = [];
-        node.structs = [];
-        node.objects = [];
+        node.compilationUnits = [];
+        node.globalVariables = [];
+        node.imports = [];
+        node.services = [];
+        node.typeDefinitions = [];
         node.enums = [];
-        node.transformers = [];
         node.annotations = [];
         node = Object.assign(node, json);
         // Set any aditional default properties below.
@@ -369,33 +349,6 @@ class NodeFactory {
         return node;
     }
 
-    createStruct(json = {}) {
-        json.kind = 'Struct';
-        let node = new StructNode();
-        node.name = new IdentifierNode();
-        node.fields = [];
-        node.annotationAttachments = [];
-        node.documentationAttachments = [];
-        node.deprecatedAttachments = [];
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
-    createObject(json = {}) {
-        json.kind = 'Object';
-        let node = new ObjectNode();
-        node.functions = [];
-        node.name = new IdentifierNode();
-        node.fields = [];
-        node.annotationAttachments = [];
-        node.documentationAttachments = [];
-        node.deprecatedAttachments = [];
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
     createVariable(json = {}) {
         json.kind = 'Variable';
         let node = new VariableNode();
@@ -413,27 +366,6 @@ class NodeFactory {
     createWorker(json = {}) {
         json.kind = 'Worker';
         let node = new WorkerNode();
-        node.returnTypeNode = new TypeNode();
-        node.returnTypeAnnotationAttachments = [];
-        node.body = new BlockNode();
-        node.workers = [];
-        node.endpointNodes = [];
-        node.defaultableParameters = [];
-        node.restParameters = new VariableNode();
-        node.name = new IdentifierNode();
-        node.parameters = [];
-        node.annotationAttachments = [];
-        node.documentationAttachments = [];
-        node.deprecatedAttachments = [];
-        node = Object.assign(node, json);
-        // Set any aditional default properties below.
-        return node;
-    }
-
-    createTransformer(json = {}) {
-        json.kind = 'Transformer';
-        let node = new TransformerNode();
-        node.source = new VariableNode();
         node.returnTypeNode = new TypeNode();
         node.returnTypeAnnotationAttachments = [];
         node.body = new BlockNode();

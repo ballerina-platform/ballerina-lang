@@ -17,17 +17,17 @@
  */
 
 import _ from 'lodash';
-import StatementNode from '../statement-node';
+import Node from '../node';
 
-class AbstractIfNode extends StatementNode {
+class AbstractOrderByVariableNode extends Node {
 
 
-    setBody(newValue, silent, title) {
-        const oldValue = this.body;
+    setVariableReference(newValue, silent, title) {
+        const oldValue = this.variableReference;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.body = newValue;
+        this.variableReference = newValue;
 
-        this.body.parent = this;
+        this.variableReference.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractIfNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'body',
+                    attributeName: 'variableReference',
                     newValue,
                     oldValue,
                 },
@@ -43,18 +43,16 @@ class AbstractIfNode extends StatementNode {
         }
     }
 
-    getBody() {
-        return this.body;
+    getVariableReference() {
+        return this.variableReference;
     }
 
 
 
-    setElseStatement(newValue, silent, title) {
-        const oldValue = this.elseStatement;
+    setOrderByType(newValue, silent, title) {
+        const oldValue = this.orderByType;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.elseStatement = newValue;
-
-        this.elseStatement.parent = this;
+        this.orderByType = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -62,7 +60,7 @@ class AbstractIfNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'elseStatement',
+                    attributeName: 'orderByType',
                     newValue,
                     oldValue,
                 },
@@ -70,39 +68,12 @@ class AbstractIfNode extends StatementNode {
         }
     }
 
-    getElseStatement() {
-        return this.elseStatement;
-    }
-
-
-
-    setCondition(newValue, silent, title) {
-        const oldValue = this.condition;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.condition = newValue;
-
-        this.condition.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'condition',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getCondition() {
-        return this.condition;
+    getOrderByType() {
+        return this.orderByType;
     }
 
 
 
 }
 
-export default AbstractIfNode;
+export default AbstractOrderByVariableNode;

@@ -16,10 +16,12 @@
  * under the License.
  */
 
-import AbstractFailNode from './abstract-tree/fail-node';
+import _ from 'lodash';
+import StatementNode from '../statement-node';
 
-class FailNode extends AbstractFailNode {
+class AbstractRetryNode extends StatementNode {
+
 
 }
 
-export default FailNode;
+export default AbstractRetryNode;

@@ -17,17 +17,17 @@
  */
 
 import _ from 'lodash';
-import StatementNode from '../statement-node';
+import Node from '../node';
 
-class AbstractIfNode extends StatementNode {
+class AbstractCheckExprNode extends Node {
 
 
-    setBody(newValue, silent, title) {
-        const oldValue = this.body;
+    setExpression(newValue, silent, title) {
+        const oldValue = this.expression;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.body = newValue;
+        this.expression = newValue;
 
-        this.body.parent = this;
+        this.expression.parent = this;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -35,7 +35,7 @@ class AbstractIfNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'body',
+                    attributeName: 'expression',
                     newValue,
                     oldValue,
                 },
@@ -43,18 +43,16 @@ class AbstractIfNode extends StatementNode {
         }
     }
 
-    getBody() {
-        return this.body;
+    getExpression() {
+        return this.expression;
     }
 
 
 
-    setElseStatement(newValue, silent, title) {
-        const oldValue = this.elseStatement;
+    setOperatorKind(newValue, silent, title) {
+        const oldValue = this.operatorKind;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.elseStatement = newValue;
-
-        this.elseStatement.parent = this;
+        this.operatorKind = newValue;
 
         if (!silent) {
             this.trigger('tree-modified', {
@@ -62,7 +60,7 @@ class AbstractIfNode extends StatementNode {
                 type: 'modify-node',
                 title,
                 data: {
-                    attributeName: 'elseStatement',
+                    attributeName: 'operatorKind',
                     newValue,
                     oldValue,
                 },
@@ -70,39 +68,12 @@ class AbstractIfNode extends StatementNode {
         }
     }
 
-    getElseStatement() {
-        return this.elseStatement;
-    }
-
-
-
-    setCondition(newValue, silent, title) {
-        const oldValue = this.condition;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.condition = newValue;
-
-        this.condition.parent = this;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'condition',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getCondition() {
-        return this.condition;
+    getOperatorKind() {
+        return this.operatorKind;
     }
 
 
 
 }
 
-export default AbstractIfNode;
+export default AbstractCheckExprNode;

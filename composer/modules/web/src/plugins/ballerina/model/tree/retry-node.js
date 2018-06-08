@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractRecordNode from './abstract-tree/record-node';
+import AbstractRetryNode from './abstract-tree/retry-node';
 
-class RecordNode extends AbstractRecordNode {
+class RetryNode extends AbstractRetryNode {
 
 }
 
-export default RecordNode;
+export default RetryNode;

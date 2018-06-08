@@ -16,10 +16,10 @@
  * under the License.
  */
 
-import AbstractStructNode from './abstract-tree/struct-node';
+import AbstractTypeDefinitionNode from './abstract-tree/type-definition-node';
 
-class StructNode extends AbstractStructNode {
+class TypeDefinitionNode extends AbstractTypeDefinitionNode {
 
 }
 
-export default StructNode;
+export default TypeDefinitionNode;

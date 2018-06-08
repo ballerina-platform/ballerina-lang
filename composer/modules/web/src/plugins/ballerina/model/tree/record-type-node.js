@@ -16,12 +16,10 @@
  * under the License.
  */
 
-import _ from 'lodash';
-import StatementNode from '../statement-node';
+import AbstractRecordTypeNode from './abstract-tree/record-type-node';
 
-class AbstractFailNode extends StatementNode {
-
+class RecordTypeNode extends AbstractRecordTypeNode {
 
 }
 
-export default AbstractFailNode;
+export default RecordTypeNode;
