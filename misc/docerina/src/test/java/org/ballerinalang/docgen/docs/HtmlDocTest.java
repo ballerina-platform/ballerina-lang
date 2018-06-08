@@ -660,7 +660,7 @@ public class HtmlDocTest {
     }
 
     /**
-     * Create the package from the bal file
+     * Create the package from the bal file.
      * @param source bal file which contains
      * @return BLangPackage
      */
@@ -675,7 +675,7 @@ public class HtmlDocTest {
     }
 
     /**
-     * Generate the api page using the package
+     * Generate the api page using the package.
      * @param balPackage bal package
      * @return page generated
      */

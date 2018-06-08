@@ -169,6 +169,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -265,6 +266,9 @@ public class Desugar extends BLangNodeVisitor {
             }
         });
         annotationDesugar.rewritePackageAnnotations(pkgNode);
+
+        //Sort type definitions with precedence
+        pkgNode.typeDefinitions.sort(Comparator.comparing(t -> t.precedence));
 
         //Adding object functions to package level.
         addAttachedFunctionsToPackageLevel(pkgNode);

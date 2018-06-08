@@ -34,6 +34,7 @@ import io.ballerina.plugins.idea.psi.BallerinaFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import io.ballerina.plugins.idea.psi.BallerinaMapArrayVariableReference;
 import io.ballerina.plugins.idea.psi.BallerinaNullableTypeName;
+import io.ballerina.plugins.idea.psi.BallerinaObjectFunctionDefinition;
 import io.ballerina.plugins.idea.psi.BallerinaRecordTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaSimpleTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaSimpleVariableReference;
@@ -45,6 +46,7 @@ import io.ballerina.plugins.idea.psi.impl.BallerinaPsiImplUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -188,35 +190,11 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                         return false;
                     }
                 } else if (type instanceof BallerinaSimpleTypeName) {
-                    List<BallerinaFunctionDefinition> functionDefinitions =
-                            BallerinaPsiImplUtil.suggestBuiltInFunctions(type);
-                    for (BallerinaFunctionDefinition functionDefinition : functionDefinitions) {
-                        PsiElement identifier = functionDefinition.getIdentifier();
-                        if (identifier != null) {
-                            if (myResult != null) {
-                                // Todo - Conside oncommit, onabort, etc and set the insert handler
-                                // Note - Child is passed here instead of identifier because it is is top level
-                                // definition.
-                                myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(
-                                        functionDefinition, SmartParenthesisInsertHandler.INSTANCE));
-                            } else if (myElement.getText().equals(identifier.getText())) {
-                                add(identifier);
-                            }
-                        }
-                    }
-                    List<BallerinaTypeDefinition> typeDefinitions = BallerinaPsiImplUtil.suggestBuiltInTypes(type);
-                    for (BallerinaTypeDefinition typeDefinition : typeDefinitions) {
-                        PsiElement identifier = typeDefinition.getIdentifier();
-                        if (identifier != null && type.getText().equals(identifier.getText())) {
-                            processTypeDefinition(typeDefinition, identifier);
-                        }
-                    }
-                } else if (type instanceof BallerinaArrayTypeName) {
-                    if (element.getParent().getPrevSibling() instanceof BallerinaMapArrayVariableReference) {
+                    PsiElement definition =
+                            BallerinaPsiImplUtil.resolveTypeToDefinition((BallerinaTypeName) type);
+                    if (definition == null) {
                         List<BallerinaFunctionDefinition> functionDefinitions =
-                                BallerinaPsiImplUtil.suggestBuiltInFunctions(((BallerinaArrayTypeName) type)
-                                        .getTypeName());
-
+                                BallerinaPsiImplUtil.suggestBuiltInFunctions(type);
                         for (BallerinaFunctionDefinition functionDefinition : functionDefinitions) {
                             PsiElement identifier = functionDefinition.getIdentifier();
                             if (identifier != null) {
@@ -228,6 +206,51 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                                             functionDefinition, SmartParenthesisInsertHandler.INSTANCE));
                                 } else if (myElement.getText().equals(identifier.getText())) {
                                     add(identifier);
+                                }
+                            }
+                        }
+                        List<BallerinaTypeDefinition> typeDefinitions = BallerinaPsiImplUtil.suggestBuiltInTypes(type);
+                        for (BallerinaTypeDefinition typeDefinition : typeDefinitions) {
+                            PsiElement identifier = typeDefinition.getIdentifier();
+                            if (identifier != null && type.getText().equals(identifier.getText())) {
+                                processTypeDefinition(typeDefinition, identifier);
+                            }
+                        }
+                    } else {
+                        if (definition.getParent() instanceof BallerinaTypeDefinition) {
+                            processTypeDefinition(((BallerinaTypeDefinition) definition.getParent()), definition);
+                        }
+                    }
+                } else if (type instanceof BallerinaArrayTypeName) {
+                    if (element.getParent().getPrevSibling() instanceof BallerinaMapArrayVariableReference) {
+
+                        // Resolve type from an array type.
+                        BallerinaTypeName typeName = ((BallerinaArrayTypeName) type).getTypeName();
+                        if (typeName != null) {
+                            PsiElement typeDefinition = BallerinaPsiImplUtil.resolveTypeToDefinition(typeName);
+                            if (typeDefinition != null && typeDefinition.getParent() instanceof
+                                    BallerinaTypeDefinition) {
+
+                                processTypeDefinition(((BallerinaTypeDefinition) typeDefinition.getParent()),
+                                        typeDefinition);
+                            }
+                        } else {
+                            List<BallerinaFunctionDefinition> functionDefinitions =
+                                    BallerinaPsiImplUtil.suggestBuiltInFunctions(((BallerinaArrayTypeName) type)
+                                            .getTypeName());
+
+                            for (BallerinaFunctionDefinition functionDefinition : functionDefinitions) {
+                                PsiElement identifier = functionDefinition.getIdentifier();
+                                if (identifier != null) {
+                                    if (myResult != null) {
+                                        // Todo - Conside oncommit, onabort, etc and set the insert handler
+                                        // Note - Child is passed here instead of identifier because it is is top level
+                                        // definition.
+                                        myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(
+                                                functionDefinition, SmartParenthesisInsertHandler.INSTANCE));
+                                    } else if (myElement.getText().equals(identifier.getText())) {
+                                        add(identifier);
+                                    }
                                 }
                             }
                         }
@@ -276,8 +299,8 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
         return true;
     }
 
-    private void processTypeDefinition(@NotNull BallerinaTypeDefinition typeDefinition, @NotNull PsiElement
-            identifier) {
+    private void processTypeDefinition(@NotNull BallerinaTypeDefinition typeDefinition,
+                                       @NotNull PsiElement identifier) {
         BallerinaFieldDefinitionList fieldDefinitionList =
                 PsiTreeUtil.findChildOfType(typeDefinition, BallerinaFieldDefinitionList.class);
         List<BallerinaFieldDefinition> fieldDefinitions =
@@ -300,6 +323,17 @@ public class BallerinaFieldProcessor extends BallerinaScopeProcessorBase {
                         definitionIdentifier, identifier, typeName, null, null, false));
             } else if (myElement.getText().equals(definitionIdentifier.getText())) {
                 add(definitionIdentifier);
+            }
+        }
+
+        Collection<BallerinaObjectFunctionDefinition> functionDefinitions =
+                PsiTreeUtil.findChildrenOfType(typeDefinition, BallerinaObjectFunctionDefinition.class);
+        for (BallerinaObjectFunctionDefinition functionDefinition : functionDefinitions) {
+            if (myResult != null) {
+                myResult.addElement(BallerinaCompletionUtils.createFunctionLookupElement(
+                        functionDefinition, identifier, SmartParenthesisInsertHandler.INSTANCE));
+            } else if (myElement.getText().equals(identifier.getText())) {
+                add(identifier);
             }
         }
     }

@@ -45,6 +45,7 @@ public class ItemResolverConstants {
     public static final String PRIVATE = "private";
     public static final String MATCH = "match";
     public static final String THROW = "throw";
+    public static final String NEW = "new";
 
     public static final String FUNCTION = "function";
     public static final String MAIN_FUNCTION = "main function";

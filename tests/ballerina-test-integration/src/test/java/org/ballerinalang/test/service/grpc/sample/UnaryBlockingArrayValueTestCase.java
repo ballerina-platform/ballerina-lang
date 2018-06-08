@@ -36,6 +36,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
@@ -59,6 +60,7 @@ public class UnaryBlockingArrayValueTestCase extends IntegrationTestCase {
         ballerinaServer = ServerInstance.initBallerinaServer(9090);
         Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "array_field_type_service.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
+        TestUtils.prepareBalo(this);
     }
 
     @Test

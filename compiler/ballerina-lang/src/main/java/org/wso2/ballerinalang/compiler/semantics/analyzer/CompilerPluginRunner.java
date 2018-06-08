@@ -251,16 +251,17 @@ public class CompilerPluginRunner extends BLangNodeVisitor {
 
     private List<BAnnotationSymbol> getAnnotationSymbols(String annPackage) {
         List<BAnnotationSymbol> annotationSymbols = new ArrayList<>();
-
-        BLangPackage pkgNode = this.packageCache.get(annPackage);
-        if (pkgNode == null) {
+        BPackageSymbol symbol = this.packageCache.getSymbol(annPackage);
+        if (symbol == null) {
             return annotationSymbols;
         }
-        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgNode.symbol);
+        SymbolEnv pkgEnv = symTable.pkgEnvMap.get(symbol);
         if (pkgEnv != null) {
-            for (BLangAnnotation annotationNode : pkgEnv.enclPkg.annotations) {
-                annotationSymbols.add((BAnnotationSymbol) annotationNode.symbol);
-            }
+            symbol.scope.entries.forEach((name, scope) -> {
+                if (SymTag.ANNOTATION == scope.symbol.tag) {
+                    annotationSymbols.add((BAnnotationSymbol) scope.symbol);
+                }
+            });
         }
         return annotationSymbols;
     }

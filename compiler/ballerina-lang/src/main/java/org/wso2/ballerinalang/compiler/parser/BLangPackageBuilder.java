@@ -1450,6 +1450,7 @@ public class BLangPackageBuilder {
         typeDefinition.addWS(ws);
         attachDocumentations(typeDefinition);
         attachDeprecatedNode(typeDefinition);
+        attachAnnotations(typeDefinition);
         this.compUnit.addTopLevelNode(typeDefinition);
     }
 

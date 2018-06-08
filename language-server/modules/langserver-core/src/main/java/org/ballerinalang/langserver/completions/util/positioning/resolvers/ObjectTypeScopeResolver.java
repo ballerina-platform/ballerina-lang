@@ -57,8 +57,7 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
         int line = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
         int col = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
         boolean isLastField = false;
-        
-        
+
         if ((!ownerObject.fields.isEmpty() && node instanceof BLangVariable
                 && ownerObject.fields.indexOf(node) == ownerObject.fields.size() - 1
                 && ownerObject.functions.isEmpty())
@@ -66,7 +65,7 @@ public class ObjectTypeScopeResolver extends CursorPositionResolver {
                 && ownerObject.functions.indexOf(node) == ownerObject.functions.size() - 1)) {
             isLastField = true;
         }
-        
+
         if ((line < zeroBasedPos.getStartLine()
                 || (line == zeroBasedPos.getStartLine() && col < zeroBasedPos.getStartColumn()))
                 || (isLastField && ((blockOwnerPos.getEndLine() > line && zeroBasedPos.getEndLine() < line)

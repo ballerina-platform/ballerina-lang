@@ -1,0 +1,16 @@
+{
+  "position": {
+    "line": 6,
+    "character": 5
+  },
+  "source": "annotation/source/resourceAnnotation2.bal",
+  "items": [
+    {
+      "label":"http:ResourceConfig",
+      "detail":"Annotation",
+      "sortText":"110",
+      "insertText":"http:ResourceConfig {\n\t${1}\n}",
+      "insertTextFormat":"Snippet"
+    }
+  ]
+}
