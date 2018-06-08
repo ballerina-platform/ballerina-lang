@@ -20,11 +20,11 @@ package org.ballerinalang.toml.parser;
 import org.ballerinalang.toml.antlr4.TomlBaseListener;
 import org.ballerinalang.toml.antlr4.TomlParser;
 import org.ballerinalang.toml.model.LockFile;
-import org.ballerinalang.toml.model.LockFilePackage;
 import org.ballerinalang.toml.model.fields.LockFileField;
 import org.ballerinalang.toml.model.fields.LockFileHeader;
 import org.ballerinalang.toml.model.fields.LockFilePackageField;
 import org.ballerinalang.toml.util.SingletonStack;
+import org.wso2.ballerinalang.compiler.LockFilePackage;
 
 import java.util.ArrayList;
 import java.util.List;

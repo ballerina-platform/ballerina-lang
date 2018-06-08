@@ -31,7 +31,6 @@ import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.toml.model.Dependency;
 import org.ballerinalang.toml.model.LockFile;
-import org.ballerinalang.toml.model.LockFilePackage;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -237,7 +236,6 @@ public class PackageLoader {
                                                                     return alias.equals(pkgAlias);
                                                                 })
                                                                 .findFirst();
-            // TODO
             lockFilePackage.ifPresent(lockFilePackage1 -> pkgId.version = new Name(lockFilePackage1.getVersion()));
         }
     }

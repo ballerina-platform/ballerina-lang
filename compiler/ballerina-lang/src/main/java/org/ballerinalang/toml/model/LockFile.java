@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.toml.model;
 
+import org.wso2.ballerinalang.compiler.LockFilePackage;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;

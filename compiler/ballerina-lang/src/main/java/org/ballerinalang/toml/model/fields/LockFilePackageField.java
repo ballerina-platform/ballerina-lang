@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.toml.model.fields;
 
-import org.ballerinalang.toml.model.LockFilePackage;
+import org.wso2.ballerinalang.compiler.LockFilePackage;
 
 import java.util.HashMap;
 import java.util.Locale;
