@@ -72,7 +72,7 @@ public class HttpDispatcher {
             Map<String, HttpService> servicesOnInterface;
             List<String> sortedServiceURIs;
             String hostName = inboundReqMsg.getHeader(HttpHeaderNames.HOST.toString());
-            if (hostName != null && servicesRegistry.getServiceMaps(hostName) != null) {
+            if (hostName != null && servicesRegistry.getServicesMapHolder(hostName) != null) {
                 servicesOnInterface = servicesRegistry.getServicesByHost(hostName);
                 sortedServiceURIs = servicesRegistry.getSortedServiceURIsByHost(hostName);
             } else {

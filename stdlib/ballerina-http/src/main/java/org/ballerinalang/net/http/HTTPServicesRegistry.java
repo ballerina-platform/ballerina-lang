@@ -44,7 +44,7 @@ public class HTTPServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
 
-    private Map<String, ServicesMaps> serviceMapsByHost = new ConcurrentHashMap<>();
+    private Map<String, ServicesMapHolder> servicesMapByHost = new ConcurrentHashMap<>();
     protected Map<String, HttpService> servicesByBasePath;
     protected List<String> sortedServiceURIs;
     private final WebSocketServicesRegistry webSocketServicesRegistry;
@@ -73,13 +73,13 @@ public class HTTPServicesRegistry {
     }
 
     /**
-     * Get ServicesMaps for given host name.
+     * Get ServicesMapHolder for given host name.
      *
      * @param hostName of the service
-     * @return the serviceHost map if exists else null
+     * @return the servicesMapHolder if exists else null
      */
-    public ServicesMaps getServiceMaps(String hostName) {
-        return serviceMapsByHost.get(hostName);
+    public ServicesMapHolder getServicesMapHolder(String hostName) {
+        return servicesMapByHost.get(hostName);
     }
 
     /**
@@ -89,17 +89,17 @@ public class HTTPServicesRegistry {
      * @return the serviceHost map if exists else null
      */
     public Map<String, HttpService> getServicesByHost(String hostName) {
-        return serviceMapsByHost.get(hostName).servicesInfoMap;
+        return servicesMapByHost.get(hostName).servicesInfoMap;
     }
 
     /**
      * Get sortedServiceURIs list for given host name.
      *
      * @param hostName of the service
-     * @return the serviceHost map if exists else null
+     * @return the sorted basePath list if exists else null
      */
     public List<String> getSortedServiceURIsByHost(String hostName) {
-        return serviceMapsByHost.get(hostName).sortedServiceURIs;
+        return servicesMapByHost.get(hostName).sortedServiceURIs;
     }
 
     /**
@@ -112,10 +112,10 @@ public class HTTPServicesRegistry {
 
         for (HttpService httpService : httpServices) {
             String hostName = httpService.getHostName();
-            if (serviceMapsByHost.get(hostName) == null) {
+            if (servicesMapByHost.get(hostName) == null) {
                 servicesByBasePath = new ConcurrentHashMap<>();
                 sortedServiceURIs = new CopyOnWriteArrayList<>();
-                serviceMapsByHost.put(hostName, new ServicesMaps(servicesByBasePath, sortedServiceURIs));
+                servicesMapByHost.put(hostName, new ServicesMapHolder(servicesByBasePath, sortedServiceURIs));
             } else {
                 servicesByBasePath = getServicesByHost(hostName);
                 sortedServiceURIs = getSortedServiceURIsByHost(hostName);
@@ -186,11 +186,11 @@ public class HTTPServicesRegistry {
         return null;
     }
 
-    class ServicesMaps {
+    class ServicesMapHolder {
         private Map<String, HttpService> servicesInfoMap;
         private List<String> sortedServiceURIs;
 
-        public ServicesMaps(Map<String, HttpService> servicesInfoMap, List<String> sortedServiceURIs) {
+        public ServicesMapHolder(Map<String, HttpService> servicesInfoMap, List<String> sortedServiceURIs) {
             this.servicesInfoMap = servicesInfoMap;
             this.sortedServiceURIs = sortedServiceURIs;
         }
