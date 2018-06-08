@@ -11,18 +11,21 @@ documentation {
     This function pulls a package from ballerina central.
 
     P{{definedEndpoint}} Endpoint defined with the proxy configurations
-    P{{url}} url to be invoked
+    P{{url}} Url to be invoked
     P{{dirPath}} Path of the directory to save the pulled package
     P{{pkgPath}} Package path
     P{{fileSeparator}} File separator based on the operating system
     P{{terminalWidth}} Width of the terminal
+    P{{baloRange}} Balo range
 }
-function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator, string terminalWidth) {
+function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator, 
+                        string terminalWidth, string baloRange) {
     endpoint http:Client httpEndpoint = definedEndpoint;
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
     http:Request req = new;
     req.addHeader("Accept-Encoding", "identity");
+    req.addHeader("Balo-Range", baloRange);
 
     http:Response httpResponse = new;
     var result = httpEndpoint -> get("", message=req);
@@ -122,7 +125,7 @@ function main(string... args){
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
     }
-    pullPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[8]);
+    pullPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[8], args[9]);
 }
 
 documentation {
