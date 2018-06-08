@@ -16,7 +16,7 @@
 *
 */
 
-package org.ballerina.testing;
+package org.ballerina.testobserve;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;

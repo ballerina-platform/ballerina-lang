@@ -16,10 +16,10 @@
  * under the License.
  */
 
-package org.ballerina.testing.extension;
+package org.ballerina.testobserve.extension;
 
 import io.opentracing.Tracer;
-import org.ballerina.testing.extension.noop.NoopTracer;
+import org.ballerina.testobserve.extension.noop.NoopTracer;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.tracer.OpenTracer;
 import org.ballerinalang.util.tracer.exception.InvalidConfigurationException;

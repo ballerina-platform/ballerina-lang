@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerina.testing.extension.noop;
+package org.ballerina.testobserve.extension.noop;
 
 import io.opentracing.Scope;
 import io.opentracing.ScopeManager;
