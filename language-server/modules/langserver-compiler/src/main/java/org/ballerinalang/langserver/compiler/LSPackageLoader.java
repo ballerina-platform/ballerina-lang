@@ -99,7 +99,7 @@ public class LSPackageLoader {
         BPackageSymbol packageSymbol;
         synchronized (LSPackageLoader.class) {
             PackageLoader pkgLoader = PackageLoader.getInstance(context);
-            packageSymbol = pkgLoader.loadPackageSymbol(packageID, null);
+            packageSymbol = pkgLoader.loadPackageSymbol(packageID, null, null);
         }
         return packageSymbol;
     }

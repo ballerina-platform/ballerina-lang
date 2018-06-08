@@ -194,8 +194,8 @@ public class PackageLoader {
         return systemList.toArray(new RepoNode[systemList.size()]);
     }
 
-    private PackageEntity loadPackageEntity(PackageID pkgId) {
-        updateVersionFromToml(pkgId);
+    private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId) {
+        updateVersionFromToml(pkgId, enclPackageId);
         Resolution resolution = repos.resolve(pkgId);
         if (resolution == Resolution.NOT_FOUND) {
             return null;
@@ -209,7 +209,7 @@ public class PackageLoader {
         }
     }
 
-    private void updateVersionFromToml(PackageID pkgId) {
+    private void updateVersionFromToml(PackageID pkgId, PackageID enclPackageId) {
         String orgName = pkgId.orgName.value;
         String pkgName = pkgId.name.value;
         String pkgAlias = orgName + "/" + pkgName;
@@ -229,24 +229,51 @@ public class PackageLoader {
             }
         } else {
             // Read from lock file
-            Optional<LockFilePackage> lockFilePackage = lockFile.getPackageList()
+            Optional<LockFilePackage> lockFilePackage = null;
+            if (enclPackageId != null) {
+                String enclPkgAlias = enclPackageId.orgName.value + "/" + enclPackageId.name.value;
+
+                Optional<LockFilePackage> enclosedPkg = lockFile.getPackageList()
                                                                 .stream()
                                                                 .filter(pkg -> {
-                                                                    String alias = pkg.getOrg() + "/" + pkg.getName();
-                                                                    return alias.equals(pkgAlias);
-                                                                })
-                                                                .findFirst();
-            lockFilePackage.ifPresent(lockFilePackage1 -> pkgId.version = new Name(lockFilePackage1.getVersion()));
+                                                                    String org = pkg.getOrg();
+                                                                    if (org.isEmpty()) {
+                                                                        org = manifest.getName();
+                                                                    }
+                                                                    String alias = org + "/" + pkg.getName();
+                                                                    return alias.equals(enclPkgAlias);
+                                                                }).findFirst();
+                if (enclosedPkg.isPresent()) {
+                    lockFilePackage = enclosedPkg.get().getDependencies()
+                                                 .stream()
+                                                 .filter(pkg -> {
+                                                     String alias = pkg.getOrg() + "/" + pkg.getName();
+                                                     return alias.equals(pkgAlias);
+                                                 })
+                                                 .findFirst();
+                }
+            } else {
+                lockFilePackage = lockFile.getPackageList()
+                                          .stream()
+                                          .filter(pkg -> {
+                                              String alias = pkg.getOrg() + "/" + pkg.getName();
+                                              return alias.equals(pkgAlias);
+                                          })
+                                          .findFirst();
+            }
+            if (lockFilePackage != null) {
+                lockFilePackage.ifPresent(lockFilePackage1 -> pkgId.version = new Name(lockFilePackage1.getVersion()));
+            }
         }
     }
 
-    public BLangPackage loadEntryPackage(PackageID pkgId) {
+    public BLangPackage loadEntryPackage(PackageID pkgId, PackageID enclPackageId) {
         //even entry package may be already loaded through an import statement.
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
-        PackageEntity pkgEntity = loadPackageEntity(pkgId);
+        PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId);
         if (pkgEntity == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -261,14 +288,14 @@ public class PackageLoader {
         return packageNode;
     }
 
-    public BLangPackage loadPackage(PackageID pkgId, PackageRepository packageRepo) {
+    public BLangPackage loadPackage(PackageID pkgId, PackageID enclPackageId, PackageRepository packageRepo) {
         // TODO Remove this method()
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
 
-        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId));
+        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId, enclPackageId));
         if (packageNode == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -283,7 +310,7 @@ public class PackageLoader {
 
     public BLangPackage loadAndDefinePackage(PackageID pkgId) {
         // TODO this used only by the language server component and the above method.
-        BLangPackage bLangPackage = loadPackage(pkgId, null);
+        BLangPackage bLangPackage = loadPackage(pkgId, null, null);
         if (bLangPackage == null) {
             return null;
         }
@@ -293,13 +320,14 @@ public class PackageLoader {
         return bLangPackage;
     }
 
-    public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageRepository packageRepo) {
+    public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId,
+                                            PackageRepository packageRepo) {
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
         if (packageSymbol != null) {
             return packageSymbol;
         }
 
-        PackageEntity pkgEntity = loadPackageEntity(packageId);
+        PackageEntity pkgEntity = loadPackageEntity(packageId, enclPackageId);
         if (pkgEntity == null) {
             return null;
         }
