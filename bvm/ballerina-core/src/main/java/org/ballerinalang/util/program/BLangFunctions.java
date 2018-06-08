@@ -120,7 +120,7 @@ public class BLangFunctions {
         orderInitFunctions(programFile);
 
         for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
-            invokePackageInitFunction(info.getInitFunctionInfo());
+            BLangFunctions.invokePackageInitFunction(info.getInitFunctionInfo());
         }
     }
 
@@ -134,7 +134,7 @@ public class BLangFunctions {
         orderInitFunctions(programFile);
 
         for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
-            invokePackageInitFunction(info.getInitFunctionInfo(), context);
+            BLangFunctions.invokePackageInitFunction(info.getInitFunctionInfo(), context);
         }
     }
 
@@ -481,7 +481,7 @@ public class BLangFunctions {
         }
     }
     
-    private static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
+    public static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
         invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
@@ -489,7 +489,7 @@ public class BLangFunctions {
         }
     }
 
-    private static void invokePackageInitFunction(FunctionInfo initFuncInfo) {
+    public static void invokePackageInitFunction(FunctionInfo initFuncInfo) {
         WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
         invokePackageInitFunction(initFuncInfo, context);
     }
