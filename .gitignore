@@ -33,3 +33,5 @@ velocity.log
 .project
 .settings
 .vscode
+/tests/ballerina-test/desc_gen/
+/tests/ballerina-test/google/
