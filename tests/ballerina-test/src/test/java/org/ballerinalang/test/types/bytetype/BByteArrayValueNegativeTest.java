@@ -30,6 +30,6 @@ public class BByteArrayValueNegativeTest {
     @Test(description = "Test blob value negative")
     public void testBlobValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-array-value-negative.bal");
-        Assert.assertEquals(result.getErrorCount(), 40);
+        Assert.assertEquals(result.getErrorCount(), 38);
     }
 }

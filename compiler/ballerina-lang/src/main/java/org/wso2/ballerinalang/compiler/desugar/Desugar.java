@@ -1224,10 +1224,14 @@ public class Desugar extends BLangNodeVisitor {
 
         // Check for bitwise operator and add type conversion to int
         if (isByteRelatedOperation(binaryExpr)) {
-            binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
-                    symTable.intType);
-            binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
-                    symTable.intType);
+            if (TypeTags.BYTE == binaryExpr.rhsExpr.type.tag) {
+                binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
+                        symTable.intType);
+            }
+            if (TypeTags.BYTE == binaryExpr.lhsExpr.type.tag) {
+                binaryExpr.lhsExpr = createTypeConversionExpr(binaryExpr.lhsExpr, binaryExpr.lhsExpr.type,
+                        symTable.intType);
+            }
         }
 
         // Check lhs and rhs type compatibility
