@@ -13,7 +13,7 @@
       padding-right: 5px;
       float: right;
       .item {
-        color: #333;
+        color: $text-color;
         &:before {
           display: none;
         }
@@ -60,7 +60,7 @@
       }
     }
     .rightContainer {
-      background-color: #f1f1f1;
+      background-color: $welcome-details-content-bgcolor;
       padding: 0 35px!important;
 
       .sample-wrapper {
@@ -71,16 +71,16 @@
                 font-size: 16px;
             }
             a {
-                color: #57595d;
+                color: $text-color;
             }
             a:hover {
-                color: #3ad1ca;
+                color: $brand-primary-hover;
             }
         }
         .title {
             font-weight: 600;
             border-bottom: 1px solid #cecfd0;
-            color: #57595d!important;
+            color: $text-color!important;
             padding: 10px 0;
         }
         .list-item {
