@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for InstanceOf function.
+ */
 public class InstanceOfFunctionTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(InstanceOfFunctionTestCase.class);

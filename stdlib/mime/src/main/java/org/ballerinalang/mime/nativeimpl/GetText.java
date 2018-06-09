@@ -47,8 +47,8 @@ import static org.ballerinalang.mime.util.Constants.TEXT_AS_PRIMARY_TYPE;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
         functionName = "getText",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.STRUCT)},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina.mime"),
+        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class GetText extends BlockingNativeCallableUnit {

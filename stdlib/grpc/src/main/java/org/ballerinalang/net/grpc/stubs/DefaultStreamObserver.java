@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -102,7 +102,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onError.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BType errorType = paramDetails.get(0).getVarType();
-        BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
+        BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, t);
         signatureParams[0] = errorStruct;
         BStruct headerStruct = getHeaderStruct(onError);
         Metadata respMetadata = headerCapture.get();

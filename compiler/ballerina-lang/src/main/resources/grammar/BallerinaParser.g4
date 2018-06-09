@@ -68,8 +68,7 @@ callableUnitBody
 
 
 functionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION (LT parameter GT)? callableUnitSignature (callableUnitBody | SEMICOLON)
-    |   (PUBLIC)? (NATIVE)? FUNCTION Identifier DOUBLE_COLON callableUnitSignature callableUnitBody
+    :   (PUBLIC)? (NATIVE)? FUNCTION ((Identifier | typeName) DOUBLE_COLON)? callableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 lambdaFunction
@@ -105,7 +104,7 @@ objectInitializerParameterList
     ;
 
 objectFunctions
-    :   (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
+    :   objectFunctionDefinition+
     ;
 
 // TODO merge with fieldDefinition later
@@ -131,7 +130,7 @@ objectDefaultableParameter
 
 // TODO merge with functionDefinition later
 objectFunctionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 //TODO merge with callableUnitSignature later
@@ -201,7 +200,7 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   LEFT_BRACE fieldDefinitionList RIGHT_BRACE                          # recordTypeNameLabel
+    |   RECORD? LEFT_BRACE fieldDefinitionList RIGHT_BRACE                  # recordTypeNameLabel
     ;
 
 fieldDefinitionList
@@ -273,7 +272,7 @@ statement
     |   matchStatement
     |   foreachStatement
     |   whileStatement
-    |   nextStatement
+    |   continueStatement
     |   breakStatement
     |   forkJoinStatement
     |   tryCatchStatement
@@ -363,11 +362,11 @@ ifElseStatement
     ;
 
 ifClause
-    :   IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   IF expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 elseIfClause
-    :   ELSE IF LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   ELSE IF expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 elseClause
@@ -384,7 +383,7 @@ matchPatternClause
     ;
 
 foreachStatement
-    :   FOREACH LEFT_PARENTHESIS? variableReferenceList IN  (expression | intRangeExpression) RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
+    :   FOREACH LEFT_PARENTHESIS? variableReferenceList IN expression RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 intRangeExpression
@@ -392,11 +391,11 @@ intRangeExpression
     ;
 
 whileStatement
-    :   WHILE LEFT_PARENTHESIS expression RIGHT_PARENTHESIS LEFT_BRACE statement* RIGHT_BRACE
+    :   WHILE expression LEFT_BRACE statement* RIGHT_BRACE
     ;
 
-nextStatement
-    :   NEXT SEMICOLON
+continueStatement
+    :   CONTINUE SEMICOLON
     ;
 
 breakStatement
@@ -590,6 +589,7 @@ expression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
+    |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
     |	expression matchExpression										    # matchExprExpression
@@ -781,6 +781,7 @@ reservedWord
     :   FOREACH
     |   TYPE_MAP
     |   START
+    |   CONTINUE
     ;
 
 

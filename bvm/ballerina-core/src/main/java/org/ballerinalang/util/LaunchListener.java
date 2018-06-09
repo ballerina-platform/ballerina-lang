@@ -18,7 +18,7 @@
 package org.ballerinalang.util;
 
 /**
- * This represents the Java SPI interface for listening Launcher events
+ * This represents the Java SPI interface for listening Launcher events.
  *
  * @since 0.970
  */

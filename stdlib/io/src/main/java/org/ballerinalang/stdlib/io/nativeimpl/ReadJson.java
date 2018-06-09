@@ -43,7 +43,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         orgName = "ballerina",
         packageName = "io",
         functionName = "readJson",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina.io"),
         isPublic = true
 )
 public class ReadJson implements NativeCallableUnit {

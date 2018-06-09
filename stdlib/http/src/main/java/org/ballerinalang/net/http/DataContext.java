@@ -45,7 +45,7 @@ public class DataContext {
         this.correlatedMessage = correlatedMessage;
     }
 
-    public void notifyReply(BStruct response, BStruct httpConnectorError) {
+    public void notifyInboundResponseStatus(BStruct inboundResponse, BStruct httpConnectorError) {
         //Make the request associate with this response consumable again so that it can be reused.
         if (correlatedMessage != null) { //Null check is needed because of http2 scenarios
             BStruct requestStruct = ((BStruct) context.getNullableRefArgument(1));
@@ -63,8 +63,8 @@ public class DataContext {
                 }
             }
         }
-        if (response != null) {
-            context.setReturnValues(response);
+        if (inboundResponse != null) {
+            context.setReturnValues(inboundResponse);
         } else if (httpConnectorError != null) {
             context.setReturnValues(httpConnectorError);
         } else {

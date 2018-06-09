@@ -63,7 +63,7 @@ public enum Snippet {
     NEW_OBJECT_CONSTRUCTOR("new (${1:args}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR
             + "}"),
 
-    NEXT("next;"),
+    CONTINUE("continue;"),
 
     OBJECT_SNIPPET("type ${1:ObjectName} object {" + CommonUtil.LINE_SEPARATOR + "\t${2}"
             + CommonUtil.LINE_SEPARATOR + "};"),
@@ -97,6 +97,8 @@ public enum Snippet {
             + CommonUtil.LINE_SEPARATOR + "}"),
 
     VAR_KEYWORD_SNIPPET("var "),
+
+    PUBLIC_KEYWORD_SNIPPET("public "),
 
     WHILE("while (${1:true}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}"),
 

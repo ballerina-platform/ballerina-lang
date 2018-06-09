@@ -40,7 +40,7 @@ import org.ballerinalang.stdlib.io.events.records.CloseDelimitedRecordEvent;
 import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadEvent;
 import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
@@ -74,7 +74,7 @@ public class IOUtils {
      */
     public static BStruct createError(Context context, String message) {
         PackageInfo ioPkg = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN);
-        StructInfo error = ioPkg.getStructInfo(IO_ERROR_STRUCT);
+        StructureTypeInfo error = ioPkg.getStructInfo(IO_ERROR_STRUCT);
         return BLangVMStructs.createBStruct(error, message);
     }
 
@@ -414,29 +414,6 @@ public class IOUtils {
         FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
         CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
         return new DelimitedRecordChannel(characterChannel, format);
-    }
-
-    /**
-     * Creates a delimited record channel to read from CSV file.
-     *
-     * @param filePath path to the CSV file.
-     * @param encoding the encoding of CSV file.
-     * @param rs       record separator.
-     * @param fs       field separator.
-     * @return delimited record channel to read from CSV.
-     * @throws IOException during I/O error.
-     */
-    public static DelimitedRecordChannel createDelimitedRecordChannel(String filePath, String encoding, String rs,
-                                                                      String fs) throws IOException {
-        Path path = Paths.get(filePath);
-        if (Files.notExists(path)) {
-            String msg = "Unable to find a file in given path: " + filePath;
-            throw new IOException(msg);
-        }
-        FileChannel sourceChannel = FileChannel.open(path, StandardOpenOption.READ);
-        FileIOChannel fileIOChannel = new FileIOChannel(sourceChannel);
-        CharacterChannel characterChannel = new CharacterChannel(fileIOChannel, Charset.forName(encoding).name());
-        return new DelimitedRecordChannel(characterChannel, rs, fs);
     }
 
 }

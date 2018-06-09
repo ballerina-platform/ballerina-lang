@@ -27,7 +27,7 @@ import org.ballerinalang.model.tree.ServiceNode;
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -102,9 +102,9 @@ public class DirectoryListenerCompilerPlugin extends AbstractCompilerPlugin {
                     return;
                 }
                 BType fileEvent = parameters.get(0).getTypeNode().type;
-                if (fileEvent.getKind().equals(TypeKind.STRUCT)) {
-                    if (fileEvent instanceof BStructType) {
-                        BStructType event = (BStructType) fileEvent;
+                if (fileEvent.getKind().equals(TypeKind.OBJECT)) {
+                    if (fileEvent instanceof BStructureType) {
+                        BStructureType event = (BStructureType) fileEvent;
                         if (!"file".equals(event.tsymbol.pkgID.name.value) || !FILE_SYSTEM_EVENT
                                 .equals(event.tsymbol.name.value)) {
                             dlog.logDiagnostic(ERROR, resource.getPosition(), msg);

@@ -21,7 +21,8 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -54,11 +55,11 @@ import java.util.concurrent.CompletableFuture;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "getTable",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CSVChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CSVChannel", structPackage = "ballerina.io"),
         args = {@Argument(name = "structType", type = TypeKind.TYPEDESC)},
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")},
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = "ballerina.builtin")},
         isPublic = true
 )
 public class GetTable implements NativeCallableUnit {
@@ -115,7 +116,7 @@ public class GetTable implements NativeCallableUnit {
     private static BTable getbTable(Context context, List records) throws BallerinaIOException {
         BTypeDescValue type = (BTypeDescValue) context.getRefArgument(1);
         BTable table = new BTable(new BTableType(type.value()), null);
-        BStructType structType = (BStructType) type.value();
+        BStructureType structType = (BStructureType) type.value();
         for (Object obj : records) {
             String[] fields = (String[]) obj;
             final BStruct struct = getStruct(fields, structType);
@@ -126,8 +127,8 @@ public class GetTable implements NativeCallableUnit {
         return table;
     }
 
-    private static BStruct getStruct(String[] fields, final BStructType structType) {
-        BStructType.StructField[] internalStructFields = structType.getStructFields();
+    private static BStruct getStruct(String[] fields, final BStructureType structType) {
+        BField[] internalStructFields = structType.getFields();
         int fieldLength = internalStructFields.length;
         BStruct struct = null;
         if (fields.length > 0) {
@@ -142,7 +143,7 @@ public class GetTable implements NativeCallableUnit {
             int booleanRegIndex = -1;
             for (int i = 0; i < fieldLength; i++) {
                 String value = fields[i];
-                final BStructType.StructField internalStructField = internalStructFields[i];
+                final BField internalStructField = internalStructFields[i];
                 final int type = internalStructField.getFieldType().getTag();
                 switch (type) {
                     case TypeTags.INT_TAG:

@@ -1,20 +1,20 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
- *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+*   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing,
+* software distributed under the License is distributed on an
+* "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+* KIND, either express or implied.  See the License for the
+* specific language governing permissions and limitations
+* under the License.
+*/
 package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
@@ -27,9 +27,10 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.time.util.TimeUtils;
 
 import java.util.Arrays;
+
+import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
 
 /**
  * Get the year,month and date value for the given time.
@@ -39,11 +40,10 @@ import java.util.Arrays;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "getDate",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = TimeUtils.STRUCT_TYPE_TIME,
-                             structPackage = "ballerina.time"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
         returnType = {@ReturnType(type = TypeKind.INT),
-                @ReturnType(type = TypeKind.INT),
-                @ReturnType(type = TypeKind.INT)},
+                      @ReturnType(type = TypeKind.INT),
+                      @ReturnType(type = TypeKind.INT)},
         isPublic = true
 )
 public class GetDate extends AbstractTimeFunction {

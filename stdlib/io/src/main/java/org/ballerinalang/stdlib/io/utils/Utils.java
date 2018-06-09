@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -53,7 +53,7 @@ public class Utils {
     private static final String STRUCT_TYPE = "ByteChannel";
 
     public static BStruct createConversionError(Context context, String msg) {
-        return BLangVMErrors.createError(context, -1, msg);
+        return BLangVMErrors.createError(context, msg);
     }
 
     private static BStruct createBase64Error(Context context, String msg, boolean isMimeSpecific, boolean isEncoder) {
@@ -63,7 +63,7 @@ public class Utils {
         } else {
             filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_UTIL);
         }
-        StructInfo entityErrInfo = filePkg.getStructInfo(isEncoder ? BASE64_ENCODE_ERROR : BASE64_DECODE_ERROR);
+        StructureTypeInfo entityErrInfo = filePkg.getStructInfo(isEncoder ? BASE64_ENCODE_ERROR : BASE64_DECODE_ERROR);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
     }
 
@@ -99,7 +99,8 @@ public class Utils {
                     encodeBlob(context, (BBlob) input, isMimeSpecific);
                 }
                 break;
-            case TypeTags.STRUCT_TAG:
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 if (input instanceof BStruct) {
                     BStruct byteChannel = (BStruct) input;
                     if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
@@ -130,7 +131,8 @@ public class Utils {
                     decodeBlob(context, (BBlob) encodedInput, isMimeSpecific);
                 }
                 break;
-            case TypeTags.STRUCT_TAG:
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 if (encodedInput instanceof BStruct) {
                     decodeByteChannel(context, (BStruct) encodedInput, isMimeSpecific);
                 }
@@ -161,7 +163,7 @@ public class Utils {
             }
             context.setReturnValues(new BString(new String(encodedValue, StandardCharsets.ISO_8859_1)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, -1, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 
@@ -208,7 +210,7 @@ public class Utils {
             }
             context.setReturnValues(new BString(new String(decodedValue, charset)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, -1, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 

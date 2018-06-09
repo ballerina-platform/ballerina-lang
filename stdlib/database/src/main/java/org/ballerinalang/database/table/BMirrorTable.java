@@ -23,7 +23,7 @@ import org.ballerinalang.database.sql.SQLDataIterator;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.ColumnDefinition;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
@@ -33,7 +33,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.TableConstants;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.TableUtils;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -53,12 +53,12 @@ import java.util.List;
 public class BMirrorTable extends BTable {
     private SQLDatasource datasource;
     private String tableName;
-    private StructInfo timeStructInfo;
-    private StructInfo timeZoneStructInfo;
+    private StructureTypeInfo timeStructInfo;
+    private StructureTypeInfo timeZoneStructInfo;
     private Calendar utcCalendar;
 
-    public BMirrorTable(SQLDatasource datasource, String tableName, BStructType constraintType,
-            StructInfo timeStructInfo, StructInfo timeZoneStructInfo, Calendar utcCalendar) {
+    public BMirrorTable(SQLDatasource datasource, String tableName, BStructureType constraintType,
+                        StructureTypeInfo timeStructInfo, StructureTypeInfo timeZoneStructInfo, Calendar utcCalendar) {
         super(tableName, constraintType);
         this.datasource = datasource;
         this.tableName = tableName;
@@ -89,7 +89,7 @@ public class BMirrorTable extends BTable {
         } catch (SQLException e) {
             throw new BallerinaException("execute add failed: " + e.getMessage(), e);
         } finally {
-            SQLDatasourceUtils.cleanupConnection(null, null, conn, isInTransaction);
+            SQLDatasourceUtils.cleanupResources(conn, isInTransaction);
         }
     }
 
@@ -120,7 +120,7 @@ public class BMirrorTable extends BTable {
             context.setReturnValues(TableUtils.createTableOperationError(context, e));
             SQLDatasourceUtils.handleErrorOnTransaction(context);
         } finally {
-            SQLDatasourceUtils.cleanupConnection(null, null, connection, isInTransaction);
+            SQLDatasourceUtils.cleanupResources(connection, isInTransaction);
         }
     }
 
@@ -156,7 +156,7 @@ public class BMirrorTable extends BTable {
             this.iterator = new SQLDataIterator(utcCalendar, constraintType, timeStructInfo, timeZoneStructInfo, rm, rs,
                     columnDefs);
         } catch (SQLException e) {
-            SQLDatasourceUtils.cleanupConnection(rs, preparedStmt, conn, false);
+            SQLDatasourceUtils.cleanupResources(rs, preparedStmt, conn, false);
             throw new BallerinaException("error in populating iterator for table : " + e.getMessage());
         }
     }

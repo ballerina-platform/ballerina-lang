@@ -34,7 +34,7 @@ import org.ballerinalang.stdlib.time.util.TimeUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "weekday",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = TimeUtils.STRUCT_TYPE_TIME,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = TimeUtils.STRUCT_TYPE_TIME,
                              structPackage = "ballerina.time"),
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

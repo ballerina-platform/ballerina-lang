@@ -20,7 +20,7 @@ package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BJSON;
@@ -246,7 +246,7 @@ public class EntityBodyHandler {
      */
     static void setPartsToTopLevelEntity(BStruct entity, ArrayList<BStruct> bodyParts) {
         if (!bodyParts.isEmpty()) {
-            BStructType typeOfBodyPart = bodyParts.get(FIRST_BODY_PART_INDEX).getType();
+            BStructureType typeOfBodyPart = bodyParts.get(FIRST_BODY_PART_INDEX).getType();
             BStruct[] result = bodyParts.toArray(new BStruct[bodyParts.size()]);
             BRefValueArray partsArray = new BRefValueArray(result, typeOfBodyPart);
             entity.addNativeData(BODY_PARTS, partsArray);

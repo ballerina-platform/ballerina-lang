@@ -65,10 +65,10 @@ import static org.ballerinalang.net.grpc.GrpcConstants.STUB_TYPE_STRING_INDEX;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "initStub",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_STUB,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
-                @Argument(name = "clientEndpoint", type = TypeKind.STRUCT, structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC,
+                @Argument(name = "clientEndpoint", type = TypeKind.OBJECT, structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC,
                         structType = "Client"),
                 @Argument(name = "stubType", type = TypeKind.STRING),
                 @Argument(name = "descriptorKey", type = TypeKind.STRING),

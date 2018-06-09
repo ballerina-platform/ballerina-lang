@@ -21,15 +21,16 @@ package org.ballerinalang.test.service.grpc.sample;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -51,6 +52,7 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         ballerinaServer = ServerInstance.initBallerinaServer(9090);
         Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "advanced_type_service.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
+        TestUtils.prepareBalo(this);
     }
 
     @Test
@@ -60,15 +62,15 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Address struct
-        StructInfo addressInfo = packageInfo.getStructInfo("Address");
-        BStructType addressType = addressInfo.getType();
+        StructureTypeInfo addressInfo = packageInfo.getStructInfo("Address");
+        BStructureType addressType = addressInfo.getType();
         BStruct addressStruct = new BStruct(addressType);
         addressStruct.setIntField(0, 10300);
         addressStruct.setStringField(0, "Western");
         addressStruct.setStringField(1, "Sri Lanka");
         // Person struct
-        StructInfo personInfo = packageInfo.getStructInfo("Person");
-        BStructType personType = personInfo.getType();
+        StructureTypeInfo personInfo = packageInfo.getStructInfo("Person");
+        BStructureType personType = personInfo.getType();
         BStruct personStruct = new BStruct(personType);
         personStruct.setStringField(0, "Sam");
         personStruct.setRefField(0, addressStruct);
@@ -105,8 +107,8 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Address struct
-        StructInfo requestInfo = packageInfo.getStructInfo("StockRequest");
-        BStructType requestType = requestInfo.getType();
+        StructureTypeInfo requestInfo = packageInfo.getStructInfo("StockRequest");
+        BStructureType requestType = requestInfo.getType();
         BStruct requestStruct = new BStruct(requestType);
         requestStruct.setStringField(0, "WSO2");
 

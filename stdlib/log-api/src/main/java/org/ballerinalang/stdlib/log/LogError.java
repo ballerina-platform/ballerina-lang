@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "log",
         functionName = "printError",
-        args = {@Argument(name = "msg", type = TypeKind.STRING), @Argument(name = "err", type = TypeKind.STRUCT)},
+        args = {@Argument(name = "msg", type = TypeKind.STRING), @Argument(name = "err", type = TypeKind.RECORD)},
         isPublic = true
 )
 public class LogError extends AbstractLogFunction {

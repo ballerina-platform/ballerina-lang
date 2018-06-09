@@ -33,6 +33,7 @@ public class BJSONType extends BType {
      * Create a {@code BJSONType} which represents the JSON type.
      *
      * @param typeName string name of the type
+     * @param pkgPath of the type
      */
     public BJSONType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BJSON.class);

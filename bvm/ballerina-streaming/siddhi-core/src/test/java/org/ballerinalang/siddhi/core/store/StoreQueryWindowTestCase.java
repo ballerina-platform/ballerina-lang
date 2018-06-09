@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for store queries on window.
+ */
 public class StoreQueryWindowTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(StoreQueryWindowTestCase.class);

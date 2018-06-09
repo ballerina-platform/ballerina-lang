@@ -21,7 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.time.ZoneId;
@@ -41,7 +41,7 @@ public class TimeUtils {
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
 
-    public static BStruct createTimeZone(StructInfo timezoneStructInfo, String zoneIdValue) {
+    public static BStruct createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
         String zoneIdName;
         try {
             ZoneId zoneId = ZoneId.of(zoneIdValue);
@@ -56,13 +56,13 @@ public class TimeUtils {
         }
     }
 
-    public static BStruct createTimeStruct(StructInfo timezoneStructInfo, StructInfo timeStructInfo, long millis,
+    public static BStruct createTimeStruct(StructureTypeInfo timezoneStructInfo, StructureTypeInfo timeStructInfo, long millis,
                                            String zoneIdName) {
         BStruct timezone = createTimeZone(timezoneStructInfo, zoneIdName);
         return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
     }
 
-    public static StructInfo getTimeZoneStructInfo(Context context) {
+    public static StructureTypeInfo getTimeZoneStructInfo(Context context) {
         PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
         if (timePackageInfo == null) {
             return null;
@@ -70,7 +70,7 @@ public class TimeUtils {
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
     }
 
-    public static StructInfo getTimeStructInfo(Context context) {
+    public static StructureTypeInfo getTimeStructInfo(Context context) {
         PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
         if (timePackageInfo == null) {
             return null;

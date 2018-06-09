@@ -76,6 +76,13 @@
       "insertTextFormat":"Snippet"
     },
     {
+      "label":"public",
+      "detail":"Keyword",
+      "sortText":"210",
+      "insertText":"public ",
+      "insertTextFormat":"Snippet"
+    },
+    {
       "label":"xml",
       "detail":"BType",
       "sortText":"170",

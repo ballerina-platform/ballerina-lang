@@ -59,7 +59,10 @@ public class VarLock {
     }
 
     private boolean lockedByParentContext(WorkerExecutionContext ctx) {
-        return current.getLast() == ctx.parent;
+        if (ctx.parent == null) {
+            return false;
+        }
+        return current.getLast() == ctx.parent || lockedByParentContext(ctx.parent);
     }
 
     private boolean lockedBySameContext(WorkerExecutionContext ctx) {

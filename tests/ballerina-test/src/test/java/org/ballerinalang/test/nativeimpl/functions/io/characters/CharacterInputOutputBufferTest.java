@@ -158,7 +158,7 @@ public class CharacterInputOutputBufferTest {
     @Test(description = "Write characters to file")
     public void writeCharacters() throws IOException {
         //Number of characters in this file would be 6
-        ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(currentDirectoryPath + "write.txt");
         Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
 

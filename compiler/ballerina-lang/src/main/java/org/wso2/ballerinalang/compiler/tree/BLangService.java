@@ -33,7 +33,7 @@ import org.ballerinalang.model.tree.statements.VariableDefinitionNode;
 import org.ballerinalang.model.tree.statements.XMLNSDeclStatementNode;
 import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
@@ -61,7 +61,7 @@ public class BLangService extends BLangNode implements ServiceNode {
     public BLangFunction initFunction;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public List<BLangSimpleVarRef> boundEndpoints;
-    public BStructType endpointType, endpointClientType;
+    public BObjectType endpointType, endpointClientType;
     public BLangRecordLiteral anonymousEndpointBind;
     public List<BLangXMLNSStatement> nsDeclarations;
 

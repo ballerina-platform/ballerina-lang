@@ -226,6 +226,23 @@ public class CharacterChannel {
     }
 
     /**
+     * Reads bytes asynchronously from the channel.
+     *
+     * @param numberOfBytesRequired number of bytes required from the channel.
+     * @throws IOException if an error occurs while reading and encoding characters.
+     */
+    private String asyncReadBytesFromChannel(int numberOfBytesRequired)
+            throws IOException {
+        ByteBuffer buffer;
+        CharBuffer intermediateCharacterBuffer;
+        do {
+            buffer = contentBuffer.get(numberOfBytesRequired, channel);
+            intermediateCharacterBuffer = bytesDecoder.decode(buffer);
+        } while (!channel.hasReachedEnd() && buffer.hasRemaining());
+        return intermediateCharacterBuffer.toString();
+    }
+
+    /**
      * <p>
      * When processing characters, there will be instances where due to unavailability of bytes the characters gets
      * marked as malformed.
@@ -294,6 +311,18 @@ public class CharacterChannel {
             throw new IOException("Error occurred while reading characters from buffer", e);
         }
         return content.toString();
+    }
+
+    /**
+     * <p>
+     * Reads all characters to the provided number of bytes.
+     * </p>
+     *
+     * @param nBytes number of bytes.
+     * @return the character decoded for the specified byte length.
+     */
+    public String readAllChars(int nBytes) throws IOException {
+        return asyncReadBytesFromChannel(nBytes);
     }
 
     /**

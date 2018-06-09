@@ -114,30 +114,36 @@ public type HttpCachingClient object {
         origin server. Responses received for POST requests invalidate the cached responses for the same resource.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function post(string path, Request? request = ()) returns Response|error;
+    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
 
     documentation {
         Responses for HEAD requests are cacheable and as such, will be routed through the HTTP cache. Only if a
         suitable response cannot be found will the request be directed to the origin server.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function head(string path, Request? request = ()) returns Response|error;
+    public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
 
     documentation {
         Responses returned for PUT requests are not cacheable. Therefore, the requests are simply directed to the
         origin server. In addition, PUT requests invalidate the currently stored responses for the given path.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function put(string path, Request? request = ()) returns Response|error;
+    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
 
     documentation {
         Invokes an HTTP call with the specified HTTP method. This is not a cacheable operation, unless the HTTP method
@@ -145,50 +151,60 @@ public type HttpCachingClient object {
 
         P{{httpMethod}} HTTP method to be used for the request
         P{{path}} Resource path
-        P{{request}} An HTTP request
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function execute(string httpMethod, string path, Request request) returns Response|error;
+    public function execute(string httpMethod, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                                message) returns Response|error;
 
     documentation {
         Responses returned for PATCH requests are not cacheable. Therefore, the requests are simply directed to
         the origin server. Responses received for PATCH requests invalidate the cached responses for the same resource.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function patch(string path, Request? request = ()) returns Response|error;
+    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
 
     documentation {
         Responses returned for DELETE requests are not cacheable. Therefore, the requests are simply directed to the
         origin server. Responses received for DELETE requests invalidate the cached responses for the same resource.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function delete(string path, Request? request = ()) returns Response|error;
+    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns Response|error;
 
     documentation {
         Responses for GET requests are cacheable and as such, will be routed through the HTTP cache. Only if a suitable
         response cannot be found will the request be directed to the origin server.
 
         P{{path}} Request path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function get(string path, Request? request = ()) returns Response|error;
+    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
 
     documentation {
         Responses returned for OPTIONS requests are not cacheable. Therefore, the requests are simply directed to the
         origin server. Responses received for OPTIONS requests invalidate the cached responses for the same resource.
 
         P{{path}} Request path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response for the request or an `error` if failed to establish communication with the upstream server
     }
-    public function options(string path, Request? request = ()) returns Response|error;
+    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message = ()) returns Response|error;
 
     documentation {
         Forward action can be used to invoke an HTTP call with inbound request's HTTP method. Only inbound requests of
@@ -205,10 +221,12 @@ public type HttpCachingClient object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP request
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an error if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
+    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns HttpFuture|error;
 
     documentation {
         Retrieves the `Response` for a previously submitted request.
@@ -266,11 +284,12 @@ public function createHttpCachingClient(string url, ClientEndpointConfig config,
     return httpCachingClient;
 }
 
-public function HttpCachingClient::post(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function HttpCachingClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                       message) returns Response|error {
+    Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    match self.httpClient.post(path, request = req) {
+    match self.httpClient.post(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -280,17 +299,19 @@ public function HttpCachingClient::post(string path, Request? request = ()) retu
     }
 }
 
-public function HttpCachingClient::head(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function HttpCachingClient::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message = ()) returns Response|error {
+    Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, HEAD, path, self.cacheConfig.isShared);
 }
 
-public function HttpCachingClient::put(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function HttpCachingClient::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message) returns Response|error {
+    Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    match self.httpClient.put(path, request = req) {
+    match self.httpClient.put(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -300,8 +321,9 @@ public function HttpCachingClient::put(string path, Request? request = ()) retur
     }
 }
 
-public function HttpCachingClient::execute(string httpMethod, string path, Request request)
-                                                                                returns Response|error {
+public function HttpCachingClient::execute(string httpMethod, string path, Request|string|xml|json|blob|
+                                                    io:ByteChannel|mime:Entity[]|() message) returns Response|error {
+    Request request = buildRequest(message);
     setRequestCacheControlHeader(request);
 
     if (httpMethod == GET || httpMethod == HEAD) {
@@ -318,11 +340,12 @@ public function HttpCachingClient::execute(string httpMethod, string path, Reque
     }
 }
 
-public function HttpCachingClient::patch(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function HttpCachingClient::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message) returns Response|error {
+    Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    match self.httpClient.patch(path, request = req) {
+    match self.httpClient.patch(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -332,11 +355,12 @@ public function HttpCachingClient::patch(string path, Request? request = ()) ret
     }
 }
 
-public function HttpCachingClient::delete(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function HttpCachingClient::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message) returns Response|error {
+    Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    match self.httpClient.delete(path, request = req) {
+    match self.httpClient.delete(path, req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -346,17 +370,19 @@ public function HttpCachingClient::delete(string path, Request? request = ()) re
     }
 }
 
-public function HttpCachingClient::get(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function HttpCachingClient::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message = ()) returns Response|error {
+    Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
     return getCachedResponse(self.cache, self.httpClient, req, GET, path, self.cacheConfig.isShared);
 }
 
-public function HttpCachingClient::options(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function HttpCachingClient::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message = ()) returns Response|error {
+    Request req = buildRequest(message);
     setRequestCacheControlHeader(req);
 
-    match self.httpClient.options(path, request = req) {
+    match self.httpClient.options(path, message = req) {
         Response inboundResponse => {
             invalidateResponses(self.cache, inboundResponse, path);
             return inboundResponse;
@@ -381,9 +407,10 @@ public function HttpCachingClient::forward(string path, Request request) returns
     }
 }
 
-public function HttpCachingClient::submit(string httpVerb, string path, Request request)
-                                                                            returns HttpFuture|error {
-    return self.httpClient.submit(httpVerb, path, request);
+public function HttpCachingClient::submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
+                                                                            |mime:Entity[]|() message) returns HttpFuture|error {
+    Request req = buildRequest(message);
+    return self.httpClient.submit(httpVerb, path, req);
 }
 
 public function HttpCachingClient::getResponse(HttpFuture httpFuture) returns Response|error {
@@ -684,7 +711,7 @@ function sendValidationRequest(CallerActions httpClient, string path, Response c
 
     // TODO: handle cases where neither of the above 2 headers are present
 
-    match httpClient.get(path, request = validationRequest) {
+    match httpClient.get(path, message = validationRequest) {
         Response validationResponse => return validationResponse;
 
         error err => return err;
@@ -694,9 +721,9 @@ function sendValidationRequest(CallerActions httpClient, string path, Response c
 function sendNewRequest(CallerActions httpClient, Request request, string path, string httpMethod)
                                                                                 returns Response|error {
     if (httpMethod == GET) {
-        return httpClient.get(path, request = request);
+        return httpClient.get(path, message = request);
     } else if (httpMethod == HEAD) {
-        return httpClient.head(path, request = request);
+        return httpClient.head(path, message = request);
     } else {
         error err = {message:"HTTP method not supported in caching client: " + httpMethod};
         return err;
@@ -775,7 +802,7 @@ function retain2xxWarnings(Response cachedResponse) {
             if (warningHeader.contains("214") || warningHeader.contains("299")) {
                 log:printDebug("Adding warning header: " + warningHeader);
                 cachedResponse.addHeader(WARNING, warningHeader);
-                next;
+                continue;
             }
         }
     }

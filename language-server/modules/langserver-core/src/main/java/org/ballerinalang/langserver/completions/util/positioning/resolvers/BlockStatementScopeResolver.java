@@ -22,16 +22,14 @@ import org.ballerinalang.langserver.completions.TreeVisitor;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTryCatchFinally;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -46,8 +44,9 @@ import java.util.Map;
 public class BlockStatementScopeResolver extends CursorPositionResolver {
     /**
      * Check whether the cursor position is located before the evaluating statement node.
+     *
      * @param nodePosition position of the node
-     * @param node statement being evaluated
+     * @param node         statement being evaluated
      * @return true|false
      */
     @Override
@@ -58,16 +57,6 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
         DiagnosticPos zeroBasedPos = CommonUtil.toZeroBasedPosition(nodePosition);
         int nodeSLine = zeroBasedPos.sLine;
         int nodeSCol = zeroBasedPos.sCol;
-        // TODO: Need to remove this particular check after introducing a proper fix for _=.... issue
-        if (node instanceof BLangAssignment) {
-            BLangExpression varRef = ((BLangAssignment) node).varRef;
-            if (varRef instanceof BLangSimpleVarRef
-                    && "_".equals(((BLangSimpleVarRef) varRef).getVariableName().getValue())) {
-                DiagnosticPos zeroBasedVarRefPos = CommonUtil.toZeroBasedPosition(varRef.getPosition());
-                nodeSLine = zeroBasedVarRefPos.sLine;
-                nodeSCol = zeroBasedVarRefPos.sCol;
-            }
-        }
         // node endLine for the BLangIf node has to calculate by considering the else node. End line of the BLangIf
         // node is the endLine of the else node.
         int nodeELine = node instanceof BLangIf ? getIfElseNodeEndLine((BLangIf) node) : zeroBasedPos.eLine;
@@ -91,7 +80,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
         return false;
     }
-    
+
     private boolean isWithinScopeAfterLastChildNode(TreeVisitor treeVisitor, boolean lastChild,
                                                     int nodeELine, int nodeECol, int line, int col, Node node) {
         if (!lastChild) {
@@ -103,11 +92,11 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
             int blockOwnerECol = this.getBlockOwnerECol(blockOwner, bLangBlockStmt);
             boolean isWithinScope = (line < blockOwnerELine || (line == blockOwnerELine && col <= blockOwnerECol)) &&
                     (line > nodeELine || (line == nodeELine && col > nodeECol));
-            
+
             if (isWithinScope) {
                 treeVisitor.setPreviousNode((BLangNode) node);
             }
-            
+
             return isWithinScope;
         }
     }
@@ -115,8 +104,10 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
     private boolean isNodeLastStatement(BLangBlockStmt bLangBlockStmt, Node blockOwner, Node node) {
         if (bLangBlockStmt != null) {
             return (bLangBlockStmt.stmts.indexOf(node) == (bLangBlockStmt.stmts.size() - 1));
-        } else if (blockOwner instanceof BLangStruct) {
-            List<BLangVariable> structFields = ((BLangStruct) blockOwner).getFields();
+        } else if (blockOwner instanceof BLangTypeDefinition
+                && ((BLangTypeDefinition) blockOwner).typeNode instanceof BLangObjectTypeNode) {
+            List<BLangVariable> structFields = (List<BLangVariable>)
+                    ((BLangObjectTypeNode) ((BLangTypeDefinition) blockOwner).typeNode).getFields();
             return (structFields.indexOf(node) == structFields.size() - 1);
         } else {
             return false;
@@ -212,6 +203,7 @@ public class BlockStatementScopeResolver extends CursorPositionResolver {
 
     /**
      * Calculate the end line of the BLangIf node.
+     *
      * @param bLangIf {@link BLangIf}
      * @return end line of the if node
      */

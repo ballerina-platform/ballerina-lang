@@ -26,7 +26,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpUtil;
@@ -50,12 +49,11 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
-        functionName = "respond",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection",
-                structPackage = "ballerina.http"),
-        args = {@Argument(name = "res", type = TypeKind.STRUCT, structType = "Response",
+        functionName = "nativeRespond",
+        args = { @Argument(name = "connection", type = TypeKind.OBJECT),
+                @Argument(name = "res", type = TypeKind.OBJECT, structType = "Response",
                 structPackage = "ballerina.http")},
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+        returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                 structPackage = "ballerina.http"),
         isPublic = true
 )
@@ -74,8 +72,11 @@ public class Respond extends ConnectionAction {
         setCacheControlHeader(outboundResponseStruct, outboundResponseMsg);
         HttpUtil.prepareOutboundResponse(context, inboundRequestMsg, outboundResponseMsg, outboundResponseStruct);
 
+        // Based on https://tools.ietf.org/html/rfc7232#section-4.1
         if (CacheUtils.isValidCachedResponse(outboundResponseMsg, inboundRequestMsg)) {
             outboundResponseMsg.setProperty(HTTP_STATUS_CODE, HttpResponseStatus.NOT_MODIFIED.code());
+            outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
+            outboundResponseMsg.removeHeader(HttpHeaderNames.CONTENT_TYPE.toString());
             outboundResponseMsg.waitAndReleaseAllEntities();
             outboundResponseMsg.completeMessage();
         }

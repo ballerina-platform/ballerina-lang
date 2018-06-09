@@ -32,7 +32,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "runtime",
         functionName = "getInvocationContext",
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "InvocationContext",
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "InvocationContext",
                 structPackage = "ballerina.runtime")},
         isPublic = true
 )

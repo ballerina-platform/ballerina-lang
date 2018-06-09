@@ -51,12 +51,6 @@ function test6(){
     }
 }
 
-function test7(){
-    foreach i in [ "a".."z" ] {
-        io:println(i);
-    }
-}
-
 function test8(){
     json j = ["a" , "b", "c"];
     var a = check <json[]> j;
@@ -75,10 +69,10 @@ function test9(){
     }
     foreach y in slist {
         io:println(y);
-        next;
+        continue;
         io:println(y);
     }
-    next;
+    continue;
     io:println("done");
 }
 

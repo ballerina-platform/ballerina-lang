@@ -41,11 +41,11 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "getNext",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DelimitedTextRecordChannel",
                 structPackage = "ballerina.io"),
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.io")},
         isPublic = true
 )
 public class NextTextRecord implements NativeCallableUnit {

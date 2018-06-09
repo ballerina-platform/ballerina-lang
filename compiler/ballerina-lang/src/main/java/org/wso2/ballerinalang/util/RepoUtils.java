@@ -6,16 +6,25 @@ import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Home repository util methods.
  */
 public class RepoUtils {
+
+    public static final String BALLERINA_INSTALL_DIR_PROP = "ballerina.home";
+    public static final String COMPILE_BALLERINA_ORG_PROP = "BALLERINA_DEV_COMPILE_BALLERINA_ORG";
+    public static final String LOAD_BUILTIN_FROM_SOURCE_PROP = "BALLERINA_DEV_LOAD_BUILTIN_FROM_SOURCE";
+    public static final boolean COMPILE_BALLERINA_ORG = getBooleanProp(COMPILE_BALLERINA_ORG_PROP);
+    public static final boolean LOAD_BUILTIN_FROM_SOURCE = getBooleanProp(LOAD_BUILTIN_FROM_SOURCE_PROP);
+
     private static final String USER_HOME = "user.home";
     private static final String DEFAULT_TERMINAL_SIZE = "80";
     private static final String BALLERINA_CLI_WIDTH = "BALLERINA_CLI_WIDTH";
@@ -23,6 +32,7 @@ public class RepoUtils {
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/packages/";
     private static final boolean BALLERINA_DEV_STAGE_CENTRAL = Boolean.parseBoolean(
             System.getenv("BALLERINA_DEV_STAGE_CENTRAL"));
+
     private static Settings settings = null;
 
     /**
@@ -75,6 +85,10 @@ public class RepoUtils {
         return PRODUCTION_URL;
     }
 
+    public static Path getLibDir() {
+        return Paths.get(System.getProperty(BALLERINA_INSTALL_DIR_PROP, ".")).resolve("lib");
+    }
+
     /**
      * Read Settings.toml to populate the configurations.
      *
@@ -104,5 +118,34 @@ public class RepoUtils {
             return envVariableMap.get(BALLERINA_CLI_WIDTH);
         }
         return DEFAULT_TERMINAL_SIZE;
+    }
+
+    public static Path createAndGetLibsRepoPath() {
+        String ballerinaHome = System.getProperty(ProjectDirConstants.BALLERINA_HOME);
+        if (ballerinaHome == null || ballerinaHome.isEmpty()) {
+            return null;
+        }
+
+        return Paths.get(ballerinaHome).resolve(ProjectDirConstants.BALLERINA_HOME_LIB);
+    }
+
+    private static boolean getBooleanProp(String key) {
+        return Boolean.parseBoolean(System.getProperty(key));
+    }
+
+
+    /**
+     * Get the ballerina version the package is built with.
+     *
+     * @return ballerina version
+     */
+    public static String getBallerinaVersion() {
+        try (InputStream inputStream = RepoUtils.class.getResourceAsStream(ProjectDirConstants.PROPERTIES_FILE)) {
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            return properties.getProperty(ProjectDirConstants.BALLERINA_VERSION);
+        } catch (Throwable ignore) {
+        }
+        return "unknown";
     }
 }

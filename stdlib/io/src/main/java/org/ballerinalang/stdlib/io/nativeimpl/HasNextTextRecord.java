@@ -44,7 +44,7 @@ import java.util.concurrent.CompletableFuture;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "hasNext",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DelimitedTextRecordChannel",
                 structPackage = "ballerina.io"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},

@@ -87,46 +87,56 @@ public type FailoverActions object {
         The POST action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function post(string path, Request? request = ()) returns Response|error;
+    public function post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
 
     documentation {
         The HEAD action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function head(string path, Request? request = ()) returns Response|error;
+    public function head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
 
     documentation {
         The PATCH action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function patch(string path, Request? request = ()) returns Response|error;
+    public function patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns Response|error;
 
     documentation {
         The PUT action  implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function put(string path, Request? request = ()) returns Response|error;
+    public function put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message) returns Response|error;
 
     documentation {
         The OPTIONS action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function options(string path, Request? request = ()) returns Response|error;
+    public function options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message = ()) returns Response|error;
 
     documentation {
         Invokes an HTTP call using the incoming request's HTTP method.
@@ -142,28 +152,34 @@ public type FailoverActions object {
 
         P{{httpVerb}} HTTP method to be used for the request
         P{{path}} Resource path
-        P{{request}} An HTTP request
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function execute(string httpVerb, string path, Request request) returns Response|error;
+    public function execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns Response|error;
 
     documentation {
         The DELETE action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function delete(string path, Request? request = ()) returns Response|error;
+    public function delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                            message) returns Response|error;
 
     documentation {
         The GET action implementation of the Failover Connector.
 
         P{{path}} Resource path
-        P{{request}} An optional HTTP request
+        P{{message}} An optional HTTP request or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
         R{{}} The response or an `error` if failed to fulfill the request
     }
-    public function get(string path, Request? request = ()) returns Response|error;
+    public function get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                        message = ()) returns Response|error;
 
     documentation {
         Submits an HTTP request to a service with the specified HTTP verb. The `submit()` function does not return
@@ -172,10 +188,12 @@ public type FailoverActions object {
 
         P{{httpVerb}} The HTTP verb value
         P{{path}} The resource path
-        P{{request}} An HTTP outbound request message
+        P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
+                     `io:ByteChannel` or `mime:Entity[]`
         R{{}} An `HttpFuture` that represents an asynchronous service invocation, or an `error` if the submission fails
     }
-    public function submit(string httpVerb, string path, Request request) returns HttpFuture|error;
+    public function submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                            message) returns HttpFuture|error;
 
     documentation {
         Retrieves the `Response` for a previously submitted request.
@@ -218,28 +236,33 @@ public type FailoverActions object {
     public function rejectPromise(PushPromise promise);
 };
 
-public function FailoverActions::post(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                    message) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_POST, self.failoverInferredConfig);
 }
 
-public function FailoverActions::head(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::head(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                    message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_HEAD, self.failoverInferredConfig);
 }
 
-public function FailoverActions::patch(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::patch(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PATCH, self.failoverInferredConfig);
 }
 
-public function FailoverActions::put(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::put(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                    message) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_PUT, self.failoverInferredConfig);
 }
 
-public function FailoverActions::options(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::options(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_OPTIONS, self.failoverInferredConfig);
 }
 
@@ -247,21 +270,26 @@ public function FailoverActions::forward(string path, Request request) returns R
     return performFailoverAction(path, request, HTTP_FORWARD, self.failoverInferredConfig);
 }
 
-public function FailoverActions::execute(string httpVerb, string path, Request request) returns Response|error {
-    return performExecuteAction(path, request, httpVerb, self.failoverInferredConfig);
+public function FailoverActions::execute(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
+                                                                |mime:Entity[]|() message) returns Response|error {
+    Request req = buildRequest(message);
+    return performExecuteAction(path, req, httpVerb, self.failoverInferredConfig);
 }
 
-public function FailoverActions::delete(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::delete(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                        message) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_DELETE, self.failoverInferredConfig);
 }
 
-public function FailoverActions::get(string path, Request? request = ()) returns Response|error {
-    Request req = request ?: new;
+public function FailoverActions::get(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
+                                                    message = ()) returns Response|error {
+    Request req = buildRequest(message);
     return performFailoverAction(path, req, HTTP_GET, self.failoverInferredConfig);
 }
 
-public function FailoverActions::submit(string httpVerb, string path, Request request) returns HttpFuture|error {
+public function FailoverActions::submit(string httpVerb, string path, Request|string|xml|json|blob|io:ByteChannel
+                                                            |mime:Entity[]|() message) returns HttpFuture|error {
     error err = {message:"Unsupported action for Failover client."};
     return err;
 }

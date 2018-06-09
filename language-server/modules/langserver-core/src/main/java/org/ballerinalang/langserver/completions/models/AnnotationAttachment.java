@@ -16,8 +16,8 @@
 
 package org.ballerinalang.langserver.completions.models;
 
+import org.ballerinalang.model.elements.AttachPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -83,16 +83,13 @@ public class AnnotationAttachment {
      * @param annotationAttachment The model to be converted.
      * @return Converted model.
      */
-    public static AnnotationAttachment convertToPackageModel(BLangAnnotationAttachmentPoint annotationAttachment) {
+    public static AnnotationAttachment convertToPackageModel(AttachPoint annotationAttachment) {
         if (null != annotationAttachment) {
             AnnotationAttachment tempAnnotationAttachment = new AnnotationAttachment();
 //            tempAnnotationAttachment.setName(annotationAttachment.getName());
 //            tempAnnotationAttachment.setPackageName(annotationAttachment.getPkgName());
 //            tempAnnotationAttachment.setPackagePath(annotationAttachment.getPkgPath());
-            BLangAnnotationAttachmentPoint.AttachmentPoint attachmentPoint = annotationAttachment.getAttachmentPoint();
-            if (attachmentPoint != null) {
-                tempAnnotationAttachment.setAttachedPoint(attachmentPoint.getValue());
-            }
+            tempAnnotationAttachment.setAttachedPoint(annotationAttachment.getValue());
 //
 //            if (null != annotationAttachment.getAttachedPoint()) {
 //                AnnotationAttachmentPoint attachmentPoint = annotationAttachment.getAttachedPoint();

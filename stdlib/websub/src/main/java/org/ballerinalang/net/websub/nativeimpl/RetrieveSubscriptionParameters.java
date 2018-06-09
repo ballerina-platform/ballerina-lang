@@ -39,6 +39,8 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.List;
 
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
+import static org.ballerinalang.net.http.HttpConstants.HTTP_DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_SERVER_CONNECTOR;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_WEBSUB_ATTR_AUTH_CONFIG;
@@ -69,10 +71,12 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "retrieveSubscriptionParameters",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
         returnType = {@ReturnType(type = TypeKind.ARRAY)}
 )
 public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
+
+    private static final String LOCALHOST = "localhost";
 
     @Override
     public void execute(Context context) {
@@ -80,7 +84,7 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
         Struct serviceEndpoint = subscriberServiceEndpoint.getStructField(WEBSUB_HTTP_ENDPOINT);
 
         Object[] webSubHttpServices = ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
-                                        .getServicesInfoByInterface().values().toArray();
+                                        .getServicesByHost(DEFAULT_HOST).values().toArray();
 
         BRefValueArray subscriptionDetailArray = new BRefValueArray();
 
@@ -156,6 +160,9 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
                     } else {
                         callback = ((ServerConnector) serviceEndpoint.getNativeData(HTTP_SERVER_CONNECTOR))
                                 .getConnectorID() + callback;
+                    }
+                    if (callback.startsWith(HTTP_DEFAULT_HOST)) {
+                        callback = callback.replace(HTTP_DEFAULT_HOST, LOCALHOST);
                     }
                     if (!callback.contains("://")) {
                         if (serviceEndpointConfig.getRefField(ENDPOINT_CONFIG_SECURE_SOCKET_CONFIG) != null) {

@@ -15,7 +15,7 @@ documentation {
 function search (http:Client definedEndpoint, string url, string querySearched, string terminalWidth) {
     endpoint http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
-    var result = httpEndpoint -> get(untaint querySearched, request=req);
+    var result = httpEndpoint -> get(untaint querySearched, message=req);
     http:Response httpResponse = new;
     match result {
         http:Response response => httpResponse = response;
@@ -94,7 +94,7 @@ function search (http:Client definedEndpoint, string url, string querySearched, 
                     printInCLI(summary, descColWidth - authorsColWidth);
                     string authors = "";
                     json authorsArr = jsonElement.authors;
-                    foreach authorIndex in [0..lengthof authorsArr - 1] {
+                    foreach authorIndex in 0 ..< lengthof authorsArr {
                         if (authorIndex == lengthof authorsArr - 1) {
                             authors = authors + authorsArr[authorIndex].toString();
                         } else {

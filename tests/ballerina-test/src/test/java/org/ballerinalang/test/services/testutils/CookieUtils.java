@@ -44,6 +44,9 @@ public class CookieUtils {
         return cookie;
     }
 
+    /**
+     * Static Cookie class.
+     */
     public static class Cookie {
         public String name;
         public String value;

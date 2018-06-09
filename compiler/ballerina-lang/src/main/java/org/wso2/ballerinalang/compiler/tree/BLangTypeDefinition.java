@@ -26,10 +26,8 @@ import org.ballerinalang.model.tree.DocumentationNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.TypeDefinition;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 
 import java.util.ArrayList;
@@ -44,19 +42,18 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
 
     public BLangIdentifier name;
     public BLangType typeNode;
-    public List<BLangExpression> valueSpace;
     public List<BLangAnnotationAttachment> annAttachments;
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public Set<Flag> flagSet;
+    public int precedence;
 
-    public BSymbol symbol;
+    public BTypeSymbol symbol;
 
     public BLangTypeDefinition() {
         this.annAttachments = new ArrayList<>();
         this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
-        this.valueSpace = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
     }
 
@@ -75,14 +72,6 @@ public class BLangTypeDefinition extends BLangNode implements TypeDefinition {
 
     public void setTypeNode(TypeNode typeNode) {
         this.typeNode = (BLangType) typeNode;
-    }
-
-    public List<BLangExpression> getValueSet() {
-        return valueSpace;
-    }
-
-    public void addValue(ExpressionNode value) {
-        valueSpace.add((BLangExpression) value);
     }
 
     @Override

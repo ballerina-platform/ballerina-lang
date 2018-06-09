@@ -27,7 +27,8 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
@@ -47,7 +48,7 @@ import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -123,7 +124,7 @@ public class MessageUtils {
     public static BStruct getConnectorError(Context context, Throwable throwable) {
         ProgramFile progFile = context.getProgramFile();
         PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         return getConnectorError(errorStructInfo.getType(), throwable);
     }
     
@@ -136,7 +137,7 @@ public class MessageUtils {
      * @param error     this is StatusRuntimeException send by opposite party.
      * @return error struct.
      */
-    public static BStruct getConnectorError(BStructType errorType, Throwable error) {
+    public static BStruct getConnectorError(BStructureType errorType, Throwable error) {
         BStruct errorStruct = new BStruct(errorType);
         if (error instanceof StatusRuntimeException) {
             StatusRuntimeException statusException = (StatusRuntimeException) error;
@@ -441,7 +442,7 @@ public class MessageUtils {
             }
         } else if (TypeKind.BOOLEAN.typeName().equals(structType.getName())) {
             bValue = new BBoolean((Boolean) fields.get(fieldName));
-        } else if (structType instanceof BStructType) {
+        } else if (structType instanceof BStructureType) {
             BStruct requestStruct = BLangConnectorSPIUtil.createBStruct(programFile,
                     structType.getPackagePath(), structType.getName());
             int stringIndex = 0;
@@ -449,7 +450,7 @@ public class MessageUtils {
             int floatIndex = 0;
             int boolIndex = 0;
             int refIndex = 0;
-            for (BStructType.StructField structField : ((BStructType) structType).getStructFields()) {
+            for (BField structField : ((BStructureType) structType).getFields()) {
                 String structFieldName = structField.getFieldName();
                 BType structFieldType = structField.getFieldType();
                 if (TypeKind.STRING.typeName().equals(structFieldType.getName())) {
@@ -468,7 +469,7 @@ public class MessageUtils {
                     BBoolean bBooleanValue = (BBoolean) generateRequestStruct(request, programFile, structFieldName,
                             structFieldType);
                     requestStruct.setBooleanField(boolIndex++, bBooleanValue.value() ? 1 : 0);
-                } else if (structFieldType instanceof BStructType) {
+                } else if (structFieldType instanceof BStructureType) {
                     if (MessageRegistry.getInstance().getMessageDescriptorMap().containsKey(
                             structFieldType.getName())) {
                         Message message = (Message) fields.get(structFieldName);
@@ -511,7 +512,7 @@ public class MessageUtils {
                             bArrayValue.add(arrayIndex++, booleanValue ? 1 : 0);
                         }
                         requestStruct.setRefField(refIndex++, bArrayValue);
-                    } else if (elementType instanceof BStructType) {
+                    } else if (elementType instanceof BStructureType) {
                         List<Message> messages = (List<Message>) fields.get(structFieldName);
                         BRefValueArray bArrayValue = new BRefValueArray(elementType);
                         for (Message message : messages) {

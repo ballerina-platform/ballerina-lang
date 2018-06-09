@@ -21,7 +21,7 @@ service<http:Service> headerService bind headerServiceEP {
         req.setHeader("core", "aaa");
         req.addHeader("core", "bbb");
 
-        var result = stockqEP -> get("/sample/stocks", request = req);
+        var result = stockqEP -> get("/sample/stocks", message = req);
         match result {
             http:Response clientResponse => {
                 _ = conn -> respond(clientResponse);

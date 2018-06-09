@@ -16,6 +16,7 @@
 package org.ballerinalang.composer.service.ballerina.parser.service.util;
 
 import com.google.common.io.Files;
+
 import org.ballerinalang.composer.service.ballerina.parser.service.model.BuiltInType;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.SymbolInformation;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Action;
@@ -41,7 +42,6 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.ballerinalang.model.tree.types.UserDefinedTypeNode;
 import org.ballerinalang.repository.PackageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,18 +51,13 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
@@ -101,12 +96,12 @@ public class ParserUtils {
         untitledProject = untitledDir.toPath();
         // Now lets create a empty untitled.bal to fool compiler.
         File untitledBal = new File(Paths.get(untitledProject.toString(),
-                                              UNTITLED_BAL).toString());
+                UNTITLED_BAL).toString());
         try {
             untitledBal.createNewFile();
         } catch (IOException e) {
             logger.error("Unable to create untitled project directory, " +
-                                 "unsaved files might not work properly.");
+                    "unsaved files might not work properly.");
         }
     }
 
@@ -257,13 +252,12 @@ public class ParserUtils {
                                       Map<String, ModelPackage> packages) {
         if (pkg != null) {
             pkg.getFunctions().forEach((function) -> extractFunction(packages, packageName, function));
-            pkg.getStructs().forEach((struct) -> extractStruct(packages, packageName, struct));
             pkg.getAnnotations().forEach((annotation) -> extractAnnotation(packages, packageName, annotation));
-            pkg.getConnectors().forEach((connector) -> extractConnector(packages, packageName, connector));
-            pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
-            pkg.objects.forEach((object) -> extractObjects(packages, packageName, object));
-            pkg.records.forEach((record) -> extractRecords(packages, packageName, record));
-            extractEndpoints(packages, packageName, pkg.objects, pkg.functions);
+            // TODO: need to decide whether we extract objects, enums, records from here or from client side.
+            //pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
+            //pkg.objects.forEach((object) -> extractObjects(packages, packageName, object));
+            //pkg.records.forEach((record) -> extractRecords(packages, packageName, record));
+            //extractEndpoints(packages, packageName, pkg.objects, pkg.functions);
         }
     }
 
@@ -284,47 +278,6 @@ public class ParserUtils {
             modelPackage.setName(packagePath);
 
             modelPackage.addAnnotationsItem(AnnotationDef.convertToPackageModel(annotation));
-            packages.put(packagePath, modelPackage);
-        }
-    }
-
-    /**
-     * Extract connectors from ballerina lang.
-     *
-     * @param packages  packages to send
-     * @param connector connector
-     */
-    private static void extractConnector(Map<String, ModelPackage> packages, String packagePath,
-                                         BLangConnector connector) {
-        String fileName = connector.getPosition().getSource().getCompilationUnitName();
-        if (packages.containsKey(packagePath)) {
-            ModelPackage modelPackage = packages.get(packagePath);
-            List<Parameter> parameters = new ArrayList<>();
-            addParameters(parameters, connector.getParameters());
-
-            List<AnnotationAttachment> annotations = new ArrayList<>();
-            addAnnotations(annotations, connector.getAnnotationAttachments());
-
-            List<Action> actions = new ArrayList<>();
-            addActions(actions, connector.getActions());
-
-            modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
-                                                              annotations, actions, parameters, null, fileName));
-        } else {
-            ModelPackage modelPackage = new ModelPackage();
-            modelPackage.setName(packagePath);
-
-            List<Parameter> parameters = new ArrayList<>();
-            addParameters(parameters, connector.getParameters());
-
-            List<AnnotationAttachment> annotations = new ArrayList<>();
-            addAnnotations(annotations, connector.getAnnotationAttachments());
-
-            List<Action> actions = new ArrayList<>();
-            addActions(actions, connector.getActions());
-
-            modelPackage.addConnectorsItem(createNewConnector(connector.getName().getValue(),
-                                                              annotations, actions, parameters, null, fileName));
             packages.put(packagePath, modelPackage);
         }
     }
@@ -429,79 +382,79 @@ public class ParserUtils {
     }
 
     /**
+     * Extract objects from ballerina lang.
+     *
+     * @param packages    packages to send.
+     * @param packagePath packagePath.
+     * @param typeDefinition      struct.
+     */
+//    private static void extractObjects(Map<String, ModelPackage> packages, String packagePath, BLangObject object) {
+//        String fileName = object.getPosition().getSource().getCompilationUnitName();
+//        if (packages.containsKey(packagePath)) {
+//            ModelPackage modelPackage = packages.get(packagePath);
+//            modelPackage.addObjectItem(
+//                    createNewObject(object.name.getValue(), object.fields, object.functions, fileName));
+//        } else {
+//            ModelPackage modelPackage = new ModelPackage();
+//            modelPackage.setName(packagePath);
+//            modelPackage.addObjectItem(
+//                    createNewObject(object.name.getValue(), object.fields, object.functions, fileName));
+//            packages.put(packagePath, modelPackage);
+//        }
+//    }
+
+    /**
      * Extract Structs from ballerina lang.
      *
      * @param packages    packages to send.
      * @param packagePath packagePath.
      * @param struct      struct.
      */
-    private static void extractStruct(Map<String, ModelPackage> packages, String packagePath,
-                                      BLangStruct struct) {
-        String fileName = struct.getPosition().getSource().getCompilationUnitName();
-        if (packages.containsKey(packagePath)) {
-            ModelPackage modelPackage = packages.get(packagePath);
-            modelPackage.addStructsItem(createNewStruct(struct.getName().getValue(), struct.getFields(), fileName));
-        } else {
-            ModelPackage modelPackage = new ModelPackage();
-            modelPackage.setName(packagePath);
-            modelPackage.addStructsItem(createNewStruct(struct.getName().getValue(), struct.getFields(), fileName));
-            packages.put(packagePath, modelPackage);
-        }
-    }
+//    private static void extractRecords(Map<String, ModelPackage> packages, String packagePath, BLangRecord record) {
+//        String fileName = record.getPosition().getSource().getCompilationUnitName();
+//        if (packages.containsKey(packagePath)) {
+//            ModelPackage modelPackage = packages.get(packagePath);
+//            modelPackage.addRecord(createNewRecord(record.name.getValue(), record.fields, fileName));
+//        } else {
+//            ModelPackage modelPackage = new ModelPackage();
+//            modelPackage.setName(packagePath);
+//            modelPackage.addRecord(createNewRecord(record.name.getValue(), record.fields, fileName));
+//            packages.put(packagePath, modelPackage);
+//        }
+//    }
 
-    private static void extractObjects(Map<String, ModelPackage> packages, String packagePath, BLangObject object) {
-        String fileName = object.getPosition().getSource().getCompilationUnitName();
-        if (packages.containsKey(packagePath)) {
-            ModelPackage modelPackage = packages.get(packagePath);
-            modelPackage.addObjectItem(
-                    createNewObject(object.name.getValue(), object.fields, object.functions, fileName));
-        } else {
-            ModelPackage modelPackage = new ModelPackage();
-            modelPackage.setName(packagePath);
-            modelPackage.addObjectItem(
-                    createNewObject(object.name.getValue(), object.fields, object.functions, fileName));
-            packages.put(packagePath, modelPackage);
-        }
-    }
-
-    private static void extractRecords(Map<String, ModelPackage> packages, String packagePath, BLangRecord record) {
-        String fileName = record.getPosition().getSource().getCompilationUnitName();
-        if (packages.containsKey(packagePath)) {
-            ModelPackage modelPackage = packages.get(packagePath);
-            modelPackage.addRecord(createNewRecord(record.name.getValue(), record.fields, fileName));
-        } else {
-            ModelPackage modelPackage = new ModelPackage();
-            modelPackage.setName(packagePath);
-            modelPackage.addRecord(createNewRecord(record.name.getValue(), record.fields, fileName));
-            packages.put(packagePath, modelPackage);
-        }
-    }
-
-    private static void extractEndpoints(Map<String, ModelPackage> packages, String packagePath,
-                                         List<BLangObject> objects, List<BLangFunction> functions) {
-        functions.forEach((function) -> {
-            if (function.getName().getValue().equals("register") && function.receiver != null &&
-                    function.receiver.getTypeNode() instanceof UserDefinedTypeNode) {
-                String objectName = function.receiver.getTypeNode().type.tsymbol.name.getValue();
-                objects.forEach((object) -> {
-                    if (object.name.getValue().equals(objectName)) {
-                        String fileName = object.getPosition().getSource().getCompilationUnitName();
-                        if (packages.containsKey(packagePath)) {
-                            ModelPackage modelPackage = packages.get(packagePath);
-                            modelPackage.addEndpointItem(createNewEndpoint(object.name.getValue(),
-                                    new ArrayList<>(), object.fields, packagePath, fileName));
-                        } else {
-                            ModelPackage modelPackage = new ModelPackage();
-                            modelPackage.setName(packagePath);
-                            modelPackage.addEndpointItem(createNewEndpoint(object.name.getValue(), new ArrayList<>(),
-                                    object.fields, packagePath, fileName));
-                            packages.put(packagePath, modelPackage);
-                        }
-                    }
-                });
-            }
-        });
-    }
+    /**
+     * Extract Structs from ballerina lang.
+     *
+     * @param packages    packages to send.
+     * @param packagePath packagePath.
+     * @param struct      struct.
+     */
+//    private static void extractEndpoints(Map<String, ModelPackage> packages, String packagePath,
+//                                         List<BLangObject> objects, List<BLangFunction> functions) {
+//        functions.forEach((function) -> {
+//            if (function.getName().getValue().equals("register") && function.receiver != null &&
+//                    function.receiver.getTypeNode() instanceof UserDefinedTypeNode) {
+//                String objectName = function.receiver.getTypeNode().type.tsymbol.name.getValue();
+//                objects.forEach((object) -> {
+//                    if (object.name.getValue().equals(objectName)) {
+//                        String fileName = object.getPosition().getSource().getCompilationUnitName();
+//                        if (packages.containsKey(packagePath)) {
+//                            ModelPackage modelPackage = packages.get(packagePath);
+//                            modelPackage.addEndpointItem(createNewEndpoint(object.name.getValue(),
+//                                    new ArrayList<>(), object.fields, packagePath, fileName));
+//                        } else {
+//                            ModelPackage modelPackage = new ModelPackage();
+//                            modelPackage.setName(packagePath);
+//                            modelPackage.addEndpointItem(createNewEndpoint(object.name.getValue(), new ArrayList<>(),
+//                                    object.fields, packagePath, fileName));
+//                            packages.put(packagePath, modelPackage);
+//                        }
+//                    }
+//                });
+//            }
+//        });
+//    }
 
     /**
      * Add parameters to a list from ballerina lang param list.
@@ -590,10 +543,6 @@ public class ParserUtils {
         parameter.setType(type);
         parameter.setName(name);
         BType bType = typeNode.type;
-        if (bType instanceof BConnectorType) {
-            parameter.setPkgAlias(((BLangUserDefinedType) typeNode).pkgAlias.toString());
-            parameter.setConnector(true);
-        }
         return parameter;
     }
 

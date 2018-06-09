@@ -62,7 +62,7 @@ import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
         orgName = "ballerina", packageName = "http",
         functionName = "createHttpClient",
         args = {@Argument(name = "uri", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfig")},
+                @Argument(name = "config", type = TypeKind.RECORD, structType = "ClientEndpointConfig")},
         isPublic = true
 )
 public class CreateHttpClient extends BlockingNativeCallableUnit {

@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tests for doc generation of bal files in the current package
+ * Tests for doc generation of bal files in the current package.
  */
 @Test(groups = "broken")
 public class BallerinaDocGenForCurrentPackageTest {

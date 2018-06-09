@@ -43,7 +43,7 @@ import javax.jms.Message;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "getStringProperty",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "Message",
                              structPackage = "ballerina.jms"),
         args = {

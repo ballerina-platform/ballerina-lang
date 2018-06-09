@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -26,10 +26,11 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.time.util.TimeUtils;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+
+import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
 
 /**
  * Convert a Time to string in the given format.
@@ -39,8 +40,7 @@ import java.time.format.DateTimeFormatter;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "format",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = TimeUtils.STRUCT_TYPE_TIME,
-                             structPackage = "ballerina.time"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
         args = {@Argument(name = "pattern", type = TypeKind.UNION)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

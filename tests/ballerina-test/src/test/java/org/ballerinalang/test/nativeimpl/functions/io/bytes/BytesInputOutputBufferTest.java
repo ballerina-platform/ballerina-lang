@@ -214,7 +214,7 @@ public class BytesInputOutputBufferTest {
         int numberOfBytesWritten;
         //Number of characters in this file would be 6
         ByteChannel readByteChannel = TestUtil.openForReading("datafiles/io/images/ballerina.png");
-        ByteChannel writeByteChannel = TestUtil.openForWriting(currentDirectoryPath + "ballerinaCopy.png");
+        ByteChannel writeByteChannel = TestUtil.openForReadingAndWriting(currentDirectoryPath + "ballerinaCopy.png");
         Channel readChannel = new MockByteChannel(readByteChannel);
         Channel writeChannel = new MockByteChannel(writeByteChannel);
         while (numberOfBytesRead > 0) {
@@ -273,7 +273,7 @@ public class BytesInputOutputBufferTest {
     @Test(description = "Write bytes to file")
     public void writeBytesToFile() throws IOException {
         //Number of characters in this file would be 6
-        ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "write.txt");
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(currentDirectoryPath + "write.txt");
         Channel channel = new MockByteChannel(byteChannel);
         byte[] bytes = "hello".getBytes();
         int numberOfBytesWritten = writeFull(bytes, bytes.length, channel);

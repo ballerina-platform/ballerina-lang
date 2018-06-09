@@ -1000,13 +1000,13 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterNextStatement(BallerinaParser.NextStatementContext ctx) { }
+	@Override public void enterContinueStatement(BallerinaParser.ContinueStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitNextStatement(BallerinaParser.NextStatementContext ctx) { }
+	@Override public void exitContinueStatement(BallerinaParser.ContinueStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -1811,6 +1811,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitBinaryCompareExpression(BallerinaParser.BinaryCompareExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIntegerRangeExpression(BallerinaParser.IntegerRangeExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIntegerRangeExpression(BallerinaParser.IntegerRangeExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

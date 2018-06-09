@@ -22,6 +22,7 @@ SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
 OBJECT      : 'object' ;
+RECORD      : 'record';
 ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
 TRANSFORMER : 'transformer' ;
@@ -106,7 +107,7 @@ MATCH       : 'match' ;
 ELSE        : 'else' ;
 FOREACH     : 'foreach' ;
 WHILE       : 'while' ;
-NEXT        : 'next' ;
+CONTINUE    : 'continue' ;
 BREAK       : 'break' ;
 FORK        : 'fork' ;
 JOIN        : 'join' ;
@@ -197,6 +198,10 @@ COMPOUND_DIV   : '/=' ;
 
 INCREMENT      : '++' ;
 DECREMENT      : '--' ;
+
+// Integer Range Operators.
+// CLOSED_RANGE - ELLIPSIS
+HALF_OPEN_RANGE   : '..<' ;
 
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?

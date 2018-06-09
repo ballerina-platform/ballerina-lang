@@ -25,11 +25,13 @@ import DebugManager from './DebugManager';
 function saveFile(dispatch, activeEditor, onSaveSuccess) {
     if (!activeEditor.file.isDirty) {
         onSaveSuccess();
+    } else {
+        dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
+            file: activeEditor.file,
+            onSaveSuccess,
+        });
     }
-    dispatch(WORKSPACE_COMMANDS.SAVE_FILE, {
-        file: activeEditor.file,
-        onSaveSuccess,
-    });
+
 }
 
 /**

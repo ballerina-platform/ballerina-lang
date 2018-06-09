@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -26,7 +26,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.time.util.TimeUtils;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.time.DateTimeException;
@@ -45,7 +45,7 @@ import java.time.temporal.TemporalAccessor;
         functionName = "parse",
         args = {@Argument(name = "timestamp", type = TypeKind.STRING),
                 @Argument(name = "format", type = TypeKind.UNION)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time", structPackage = "ballerina.time")},
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time", structPackage = "ballerina.time")},
         isPublic = true
 )
 public class Parse extends AbstractTimeFunction {
@@ -67,8 +67,8 @@ public class Parse extends AbstractTimeFunction {
     }
 
     private BStruct getTimeStruct(TemporalAccessor dateTime, Context context, String dateString, String pattern) {
-        StructInfo timeZoneStructInfo = TimeUtils.getTimeZoneStructInfo(context);
-        StructInfo timeStructInfo = TimeUtils.getTimeStructInfo(context);
+        StructureTypeInfo timeZoneStructInfo = TimeUtils.getTimeZoneStructInfo(context);
+        StructureTypeInfo timeStructInfo = TimeUtils.getTimeStructInfo(context);
         long epochTime = -1;
         String zoneId;
         try {

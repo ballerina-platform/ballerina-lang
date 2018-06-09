@@ -99,8 +99,14 @@ class TreeBuilder {
 
     static modifyNode(node, parentKind) {
         const kind = node.kind;
-        if (kind === 'If' && node.elseStatement && node.elseStatement.kind === 'If') {
-            node.ladderParent = true;
+        if (kind === 'If') {
+            if (node.elseStatement) {
+                node.ladderParent = true;
+            }
+
+            if (node.ws && node.ws[0].text === 'else' && node.ws[1].text === 'if') {
+                node.isElseIfBlock = true;
+            }
         }
 
         if (kind === 'Transaction') {
@@ -113,8 +119,64 @@ class TreeBuilder {
                 }
             }
         }
-        if (kind === 'XmlElementLiteral' && parentKind !== 'XmlElementLiteral') {
+
+        if ((kind === 'XmlCommentLiteral' ||
+                kind === 'XmlElementLiteral' ||
+                kind === 'XmlTextLiteral' ||
+                kind === 'XmlPiLiteral') && node.ws && node.ws[0].text.includes('xml `')) {
             node.root = true;
+            node.startLiteral = node.ws[0].text;
+        }
+
+        if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
+            parentKind === 'StringTemplateLiteral' || parentKind === 'XmlTextLiteral' ||
+            parentKind === 'XmlPiLiteral') {
+            node.inTemplateLiteral = true;
+        }
+
+        if (kind === 'XmlPiLiteral' && node.ws) {
+            let startTagWS = {
+                text: '<?',
+                ws: '',
+            };
+
+            let endTagWS = {
+                text: '?>',
+                ws: '',
+            };
+
+            if (node.root && (node.ws.length > 1)) {
+                node.ws.splice(1, 0, startTagWS);
+                node.ws.splice(2, 0, endTagWS);
+            }
+
+            if (!node.root) {
+                node.ws.splice(0, 0, startTagWS);
+                node.ws.splice(node.ws.length, 0, endTagWS);
+            }
+
+            if (node.target && node.target.unescapedValue) {
+                for (let i = 0; i < node.target.ws.length; i++) {
+                    if (node.target.ws[i].text.includes('<?') &&
+                        node.target.ws[i].text.includes(node.target.unescapedValue)) {
+                        node.target.unescapedValue = node.target.ws[i].text.replace('<?', '');
+                    }
+                }
+            }
+        }
+
+        if (kind === 'XmlCommentLiteral' && node.ws) {
+            let length = node.ws.length;
+            for (let i = 0; i < length; i++) {
+                if (node.ws[i].text.includes('-->')) {
+                    let ws = {
+                        text: '-->',
+                        ws: '',
+                    };
+                    node.ws.splice(i + 1, 0, ws);
+                    break;
+                }
+            }
         }
 
         if (kind === 'AnnotationAttachment' && node.packageAlias.value === 'builtin') {
@@ -139,11 +201,6 @@ class TreeBuilder {
                 && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator') {
                 node.isInternal = true;
             }
-        }
-
-        if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
-            parentKind === 'StringTemplateLiteral') {
-            node.inTemplateLiteral = true;
         }
 
         if (parentKind === 'CompilationUnit' && (kind === 'Variable' || kind === 'Xmlns')) {
@@ -182,6 +239,18 @@ class TreeBuilder {
 
             if (node.typeNode && node.typeNode.ws && !node.ws) {
                 node.noVisibleName = true;
+            }
+
+            if (node.ws) {
+                for (let i = 0; i < node.ws.length; i++) {
+                    if (node.ws[i].text === ';') {
+                        node.endWithSemicolon = true;
+                    }
+
+                    if (node.ws[i].text === ',') {
+                        node.endWithComma = true;
+                    }
+                }
             }
         }
 
@@ -257,7 +326,7 @@ class TreeBuilder {
         }
 
         if (node.kind === 'Function') {
-            if (node.returnTypeNode && node.returnTypeNode.typeKind !== 'nil') {
+            if (node.returnTypeNode && node.returnTypeNode.ws && node.returnTypeNode.ws.length > 0) {
                 node.hasReturns = true;
             }
 
@@ -300,16 +369,29 @@ class TreeBuilder {
             }
         }
 
-        if (node.kind === 'Object') {
+        if (node.kind === 'TypeDefinition' && node.typeNode) {
+            if (node.typeNode.kind === 'ObjectType') {
+                node.isObjectType = true;
+            }
+
+            if (node.typeNode.kind === 'RecordType') {
+                node.isRecordType = true;
+                if (node.ws) {
+                    for (let i = 0; i < node.ws.length; i++) {
+                        if (node.ws[i].text === 'record') {
+                            node.isRecordKeywordAvailable = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (node.kind === 'ObjectType') {
             node.publicFields = [];
             node.privateFields = [];
             let fields = node.fields;
             let privateFieldBlockVisible = false;
             let publicFieldBlockVisible = false;
-            let publicFieldsSemicolonCount = 0;
-            let privateFieldsSemicolonCount = 0;
-            let publicFieldsCommaCount = 0;
-            let privateFieldsCommaCount = 0;
 
             for (let i = 0; i < fields.length; i++) {
                 if (fields[i].public) {
@@ -328,40 +410,6 @@ class TreeBuilder {
                     if (node.ws[i].text === 'private' && node.ws[i + 1].text === '{') {
                         privateFieldBlockVisible = true;
                     }
-
-                    if (publicFieldBlockVisible) {
-                        if (node.ws[i].text === ',') {
-                            publicFieldsCommaCount += 1;
-                        } else if (node.ws[i].text === ';') {
-                            publicFieldsSemicolonCount += 1;
-                        }
-                    }
-
-                    if (privateFieldBlockVisible) {
-                        if (node.ws[i].text === ',') {
-                            privateFieldsCommaCount += 1;
-                        } else if (node.ws[i].text === ';') {
-                            privateFieldsSemicolonCount += 1;
-                        }
-                    }
-
-                }
-
-                if (publicFieldsCommaCount > 0) {
-                    node.publicCommaSeparator = true;
-                }
-
-                if (publicFieldsSemicolonCount > 1) {
-                    node.publicSemicolonSeparator = true;
-                }
-
-
-                if (privateFieldsCommaCount > 0) {
-                    node.privateCommaSeparator = true;
-                }
-
-                if (privateFieldsSemicolonCount > 1) {
-                    node.privateSemicolonSeparator = true;
                 }
             }
 
@@ -488,6 +536,47 @@ class TreeBuilder {
                 && node.ws.length < 3 && node.ws[0].text === '(') {
                 node.emptyParantheses = true;
             }
+        }
+
+        if (node.kind === 'Foreach') {
+            if (node.ws && _.find(node.ws, (ws) => ws.text === '(')) {
+                node.withParantheses = true;
+            }
+        }
+
+        if (node.kind === 'Endpoint') {
+            if (node.ws && _.find(node.ws, (ws) => ws.text === '=')) {
+                node.isConfigAssignment = true;
+            }
+        }
+
+        if (node.kind === 'UserDefinedType') {
+            if (node.ws && node.nullable && _.find(node.ws, (ws) => ws.text === '?')) {
+                node.nullableOperatorAvailable = true;
+            }
+        }
+
+        if (node.kind === 'ArrayType') {
+            if (node.dimensions > 0 && node.ws) {
+                node.dimensionAsString = "";
+                for (let j = 0; j < node.ws.length; j++) {
+                    if (node.ws[j].text === '[') {
+                        let startingBracket = node.ws[j];
+                        let endingBracket = node.ws[j + 1];
+
+                        node.dimensionAsString += startingBracket.ws + startingBracket.text +
+                            endingBracket.ws + endingBracket.text;
+                    }
+                }
+            }
+        }
+
+        if (node.kind === 'Block' && node.ws && node.ws[0].text === 'else') {
+            node.isElseBlock = true;
+        }
+
+        if (node.kind === 'FieldBasedAccessExpr' && node.ws && node.ws[0].text === '!') {
+            node.errorLifting = true;
         }
     }
 

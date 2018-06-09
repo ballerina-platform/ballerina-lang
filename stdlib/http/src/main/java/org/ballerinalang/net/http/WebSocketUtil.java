@@ -35,8 +35,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.HandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
+import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 
@@ -76,9 +76,9 @@ public abstract class WebSocketUtil {
         String[] subProtocols = wsService.getNegotiableSubProtocols();
         int idleTimeoutInSeconds = wsService.getIdleTimeoutInSeconds();
         int maxFrameSize = wsService.getMaxFrameSize();
-        HandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers,
-                                                       maxFrameSize);
-        future.setHandshakeListener(new HandshakeListener() {
+        ServerHandshakeFuture future = initMessage.handshake(subProtocols, true, idleTimeoutInSeconds * 1000, headers,
+                                                             maxFrameSize);
+        future.setHandshakeListener(new ServerHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
                 // TODO: Need to create new struct
