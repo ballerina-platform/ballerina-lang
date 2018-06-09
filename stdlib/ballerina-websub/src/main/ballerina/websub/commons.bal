@@ -481,8 +481,7 @@ documentation {
 }
 public function startUpBallerinaHub(int? port = ()) returns WebSubHub {
     int websubHubPort = port but { () => hubPort };
-    string hubUrl = startUpHubService(websubHubPort);
-    WebSubHub ballerinaWebSubHub = new WebSubHub(hubUrl);
+    WebSubHub ballerinaWebSubHub = startUpHubService(websubHubPort);
     return ballerinaWebSubHub;
 }
 

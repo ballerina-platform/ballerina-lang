@@ -32,9 +32,9 @@ documentation {
     Starts up the internal Ballerina Hub.
 
     P{{port}} The port to start up the Hub service on
-    R{{}} `string` The URL of the Hub service
+    R{{}} `WebSubHub` The started up Hub service
 }
-native function startUpHubService(int port) returns string;
+native function startUpHubService(int port) returns WebSubHub;
 
 documentation {
     Stop the Ballerina Hub, if started.
