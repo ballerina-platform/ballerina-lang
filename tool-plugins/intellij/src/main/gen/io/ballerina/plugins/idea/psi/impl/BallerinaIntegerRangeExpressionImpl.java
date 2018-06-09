@@ -26,14 +26,14 @@ import com.intellij.psi.util.PsiTreeUtil;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 import io.ballerina.plugins.idea.psi.*;
 
-public class BallerinaObjectFunctionsImpl extends BallerinaCompositeElementImpl implements BallerinaObjectFunctions {
+public class BallerinaIntegerRangeExpressionImpl extends BallerinaExpressionImpl implements BallerinaIntegerRangeExpression {
 
-  public BallerinaObjectFunctionsImpl(ASTNode node) {
+  public BallerinaIntegerRangeExpressionImpl(ASTNode node) {
     super(node);
   }
 
   public void accept(@NotNull BallerinaVisitor visitor) {
-    visitor.visitObjectFunctions(this);
+    visitor.visitIntegerRangeExpression(this);
   }
 
   public void accept(@NotNull PsiElementVisitor visitor) {
@@ -43,8 +43,20 @@ public class BallerinaObjectFunctionsImpl extends BallerinaCompositeElementImpl 
 
   @Override
   @NotNull
-  public List<BallerinaObjectFunctionDefinition> getObjectFunctionDefinitionList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectFunctionDefinition.class);
+  public List<BallerinaExpression> getExpressionList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaExpression.class);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getEllipsis() {
+    return findChildByType(ELLIPSIS);
+  }
+
+  @Override
+  @Nullable
+  public PsiElement getHalfOpenRange() {
+    return findChildByType(HALF_OPEN_RANGE);
   }
 
 }
