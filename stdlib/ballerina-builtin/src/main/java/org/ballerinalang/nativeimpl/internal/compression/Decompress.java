@@ -66,10 +66,10 @@ public class Decompress extends BlockingNativeCallableUnit {
      * @param dirPath      compressed file path
      * @param outputFolder destination folder
      */
-    private static void decompress(Path dirPath, Path outputFolder) {
+    private static void decompress(Path dirPath, Path outputFolder, Context context) {
         try {
             InputStream inputStream = new FileInputStream(dirPath.toFile());
-            DecompressFromBlob.decompress(inputStream, outputFolder);
+            DecompressFromBlob.decompress(inputStream, outputFolder, context);
         } catch (IOException e) {
             throw new BLangRuntimeException("Error occurred when decompressing");
         }
@@ -91,7 +91,7 @@ public class Decompress extends BlockingNativeCallableUnit {
                     "Path to place the decompressed file " +
                             "is not available"));
         } else {
-            decompress(srcPath, destPath);
+            decompress(srcPath, destPath, context);
             context.setReturnValues();
         }
     }

@@ -23,6 +23,8 @@ import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -48,6 +50,8 @@ import java.util.zip.ZipInputStream;
         isPublic = true
 )
 public class DecompressFromBlob extends BlockingNativeCallableUnit {
+
+    private static final Logger log = LoggerFactory.getLogger(DecompressFromBlob.class);
     /**
      * File content as byte array defined.
      */
@@ -63,7 +67,7 @@ public class DecompressFromBlob extends BlockingNativeCallableUnit {
      * @param inputStream file content as an inputstream
      * @param outdir      path of the destination folder
      */
-    static void decompress(InputStream inputStream, Path outdir) throws IOException {
+    static void decompress(InputStream inputStream, Path outdir, Context context) throws IOException {
         ZipInputStream zin;
         // try {
         zin = new ZipInputStream(inputStream);
@@ -71,6 +75,11 @@ public class DecompressFromBlob extends BlockingNativeCallableUnit {
         String name, dir;
         while ((entry = zin.getNextEntry()) != null) {
             name = entry.getName();
+            if (!isDecompressDestinationValid(outdir.resolve(name), outdir)) {
+                context.setReturnValues(CompressionUtils.createCompressionError(context,
+                        "Arbitrary File Write attack attempted via an archive file. File name: " + entry.getName()));
+                return;
+            }
             if (entry.isDirectory()) {
                 Files.createDirectories(outdir.resolve(name));
                 continue;
@@ -82,6 +91,26 @@ public class DecompressFromBlob extends BlockingNativeCallableUnit {
             extractFile(zin, outdir, name);
         }
         zin.close();
+    }
+
+    /**
+     * Validate if the files being extracted will remain within the expected destination path. This is used to prevent
+     * Arbitrary File Write attack attempts (Zip Slip).
+     *
+     * @param extractedFilePath path of the file after extraction is complete.
+     * @param destinationPath expected destination path of the extract operation.
+     * @return validation status
+     * @throws IOException
+     */
+    private static boolean isDecompressDestinationValid(Path extractedFilePath, Path destinationPath)
+            throws IOException {
+        String extractedFileCanonicalPath = extractedFilePath.toFile().getCanonicalPath();
+        String intendedDestinationCanonicalPath = destinationPath.toFile().getCanonicalPath();
+
+        if (extractedFileCanonicalPath.startsWith(intendedDestinationCanonicalPath)) {
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -133,7 +162,7 @@ public class DecompressFromBlob extends BlockingNativeCallableUnit {
                         "Path to place the decompressed file is not available"));
             } else {
                 try {
-                    decompress(inputStream, destPath);
+                    decompress(inputStream, destPath, context);
                     context.setReturnValues();
                 } catch (IOException e) {
                     context.setReturnValues(CompressionUtils.createCompressionError(context,

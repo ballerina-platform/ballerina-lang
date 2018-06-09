@@ -205,6 +205,10 @@ public class BallerinaPathModificationTracker {
             String fileName = zipEntry.getName();
             // Construct the output file.
             File outputFile = new File(destinationDirectory + File.separator + fileName);
+            // Skip extraction of the file, if Arbitrary File Write attack attempts (Zip Slip) was detected.
+            if (!outputFile.getCanonicalPath().startsWith(new File(destinationDirectory).getCanonicalPath())) {
+                continue;
+            }
             // If the zip entry is for a directory, we create the directory and continue with the next entry.
             if (zipEntry.isDirectory()) {
                 outputFile.mkdir();
