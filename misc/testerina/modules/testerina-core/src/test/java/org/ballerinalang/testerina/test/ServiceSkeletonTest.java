@@ -47,7 +47,7 @@ public class ServiceSkeletonTest {
                                                                      + "/src/test/resources");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testBefore() {
         cleanup();
         BTestRunner bTestRunner = new BTestRunner();

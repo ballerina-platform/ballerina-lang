@@ -100,6 +100,7 @@ public class JSONUtils {
      * Convert {@link BMap} to {@link BJSON}.
      *
      * @param map {@link BMap} to be converted to {@link BJSON}
+     * @param targetType to be converted
      * @return JSON representation of the provided map
      */
     @SuppressWarnings("unchecked")
