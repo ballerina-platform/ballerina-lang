@@ -996,6 +996,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
+        tableLiteral.tableDataRows = rewriteExprs(tableLiteral.tableDataRows);
         result = tableLiteral;
     }
 

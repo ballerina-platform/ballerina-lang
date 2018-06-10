@@ -38,6 +38,7 @@ public enum DiagnosticCode {
     UNDEFINED_FUNCTION_IN_STRUCT("undefined.function.in.struct"),
     UNDEFINED_CONNECTOR("undefined.connector"),
     UNDEFINED_STRUCT_FIELD("undefined.field.in.struct"),
+    UNDEFINED_TABLE_COLUMN("undefined.column.in.table"),
     UNDEFINED_OBJECT_FIELD("undefined.field.in.object"),
     CANNOT_INFER_OBJECT_TYPE_FROM_LHS("cannot.infer.object.type.from.lhs"),
     OBJECT_UN_INITIALIZABLE_FIELD("object.non.initialised.field"),

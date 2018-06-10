@@ -956,11 +956,12 @@ public class BLangPackageBuilder {
             //Value
             keyValue.valueExpr = (BLangExpression) e;
             //key
-            BLangLiteral keyExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
-            keyExpr.addWS(ws);
+            BLangSimpleVarRef keyExpr = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
             keyExpr.pos = pos;
-            keyExpr.typeTag = TypeTags.STRING;
-            keyExpr.value = keyNames.get(index);
+            keyExpr.addWS(ws);
+            IdentifierNode identifierNode = TreeBuilder.createIdentifierNode();
+            identifierNode.setValue(keyNames.get(index).columnName);
+            keyExpr.variableName = (BLangIdentifier) identifierNode;
             keyValue.key = new BLangRecordKey(keyExpr);
             //Key-Value pair
             recordLiteral.keyValuePairs.add(keyValue);
