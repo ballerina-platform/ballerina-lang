@@ -48,19 +48,19 @@ function main(string... args) {
         io:println("xml at ", i, ": ", x);
     }
 
-    io:println("\nIterating over a Closed Integer Range:-");
+    io:println("\nIterating over a closed integer range:-");
     int endValue = 10;
     int sum;
-    // A Closed Integer Range in the foreach statement represents an incremental integer value range from the start
+    // A closed integer range in the foreach statement represents an incremental integer value range from the start
     // expression (1) to the end expression (endValue) inclusively.
     foreach i in 1 ... endValue {
         sum = sum + i;
     }
     io:println("summation from 1 to " + endValue + " is " + sum);
 
-    io:println("\nIterating over a Half Open Integer Range:-");
+    io:println("\nIterating over a half open integer range:-");
     sum = 0;
-    // A Half Open Integer Range in the foreach statement represents an incremental integer value range from the start
+    // A half open integer range in the foreach statement represents an incremental integer value range from the start
     // expression (1) inclusively, to the end expression (endValue) exclusively.
     foreach i in 1 ..< endValue {
         sum = sum + i;
