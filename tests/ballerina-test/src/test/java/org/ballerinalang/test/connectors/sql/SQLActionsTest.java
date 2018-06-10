@@ -29,6 +29,10 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.test.utils.SQLDBUtils.ContainerizedTestDatabase;
+import org.ballerinalang.test.utils.SQLDBUtils.DBType;
+import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
+import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testng.Assert;
@@ -38,13 +42,12 @@ import org.testng.annotations.Optional;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.util.Calendar;
 
-import static org.ballerinalang.test.connectors.sql.SQLActionsTest.DBType.H2;
-import static org.ballerinalang.test.connectors.sql.SQLActionsTest.DBType.HSQLDB;
-import static org.ballerinalang.test.connectors.sql.SQLActionsTest.DBType.MYSQL;
-import static org.ballerinalang.test.connectors.sql.SQLActionsTest.DBType.POSTGRES;
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType.HSQLDB;
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType.MYSQL;
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType.POSTGRES;
 
 /**
  * Test class for SQL Connector actions test.
@@ -63,6 +66,7 @@ public class SQLActionsTest {
     private DBType dbType;
     private MySQLContainer mysql;
     private PostgreSQLContainer postgres;
+    private TestDatabase testDatabase;
     private BValue[] connectionArgs = new BValue[3];
 
     @Parameters({"dataClientTestDBType"})
@@ -72,42 +76,28 @@ public class SQLActionsTest {
 
     @BeforeClass
     public void setup() {
-        String jdbcURL, username, password;
         switch (dbType) {
         case MYSQL:
-            mysql = new MySQLContainer();
-            mysql.start();
-            jdbcURL = mysql.getJdbcUrl();
-            username = mysql.getUsername();
-            password = mysql.getPassword();
-            SQLDBUtils.initDatabase(jdbcURL, username, password, "datafiles/sql/SQLConnectorMYSQLDataFile.sql");
+            testDatabase = new ContainerizedTestDatabase(dbType, "datafiles/sql/SQLConnectorMYSQLDataFile.sql");
             break;
         case POSTGRES:
-            postgres = new PostgreSQLContainer();
-            postgres.start();
-            jdbcURL = postgres.getJdbcUrl();
-            username = postgres.getUsername();
-            password = postgres.getPassword();
-            SQLDBUtils.initDatabase(jdbcURL, username, password, "datafiles/sql/SQLConnectorPostgresDataFile.sql");
+            testDatabase = new ContainerizedTestDatabase(dbType, "datafiles/sql/SQLConnectorPostgresDataFile.sql");
             break;
         case H2:
-            SQLDBUtils.deleteFiles(new File(DB_DIRECTORY_H2), DB_NAME);
-            jdbcURL = "jdbc:h2:file:" + DB_DIRECTORY_H2 + DB_NAME_H2;
-            username = "sa";
-            password = "";
-            SQLDBUtils.initDatabase(jdbcURL, username, password, "datafiles/sql/SQLConnectorH2DataFile.sql");
+            testDatabase = new FileBasedTestDatabase(dbType, "datafiles/sql/SQLConnectorH2DataFile.sql",
+                    DB_DIRECTORY_H2, DB_NAME_H2);
+            break;
+        case HSQLDB:
+            testDatabase = new FileBasedTestDatabase(dbType, "datafiles/sql/SQLConnectorDataFile.sql",
+                    SQLDBUtils.DB_DIRECTORY, DB_NAME);
             break;
         default:
-            SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-            jdbcURL = "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR";
-            username = "SA";
-            password = "";
-            SQLDBUtils.initDatabase(jdbcURL, username, password, "datafiles/sql/SQLConnectorDataFile.sql");
-            break;
+            throw new UnsupportedOperationException("Unsupported database type: " + dbType);
         }
-        connectionArgs[0] = new BString(jdbcURL);
-        connectionArgs[1] = new BString(username);
-        connectionArgs[2] = new BString(password);
+
+        connectionArgs[0] = new BString(testDatabase.getJDBCUrl());
+        connectionArgs[1] = new BString(testDatabase.getUsername());
+        connectionArgs[2] = new BString(testDatabase.getPassword());
 
         result = BCompileUtil.compile("test-src/connectors/sql/sql_actions_test.bal");
         resultNegative = BCompileUtil.compile("test-src/connectors/sql/sql_actions_negative_test.bal");
@@ -825,27 +815,9 @@ public class SQLActionsTest {
 
     @AfterSuite
     public void cleanup() {
-        switch (dbType) {
-        case HSQLDB:
-            SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
-            break;
-        case H2:
-            SQLDBUtils.deleteDirectory(new File(DB_DIRECTORY_H2));
-            break;
-        case MYSQL:
-            if (mysql != null) {
-                mysql.stop();
-            }
-            break;
-        case POSTGRES:
-            if (postgres != null) {
-                postgres.stop();
-            }
-            break;
+        if (testDatabase != null) {
+            testDatabase.stop();;
         }
     }
 
-    enum DBType {
-        MYSQL, ORACLE, POSTGRES, HSQLDB, H2
-    }
 }

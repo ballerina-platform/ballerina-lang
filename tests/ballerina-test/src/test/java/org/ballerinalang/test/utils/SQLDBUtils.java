@@ -20,6 +20,9 @@ package org.ballerinalang.test.utils;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.containers.JdbcDatabaseContainer;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.containers.PostgreSQLContainer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -157,5 +160,84 @@ public class SQLDBUtils {
         } catch (SQLException e) {
             //Do nothing
         }
+    }
+
+    public abstract static class TestDatabase {
+        String jdbcUrl;
+        String username;
+        String password;
+
+        public String getJDBCUrl() {
+            return jdbcUrl;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public abstract void stop();
+    }
+
+    public static class ContainerizedTestDatabase extends TestDatabase {
+        JdbcDatabaseContainer databaseContainer;
+
+        public ContainerizedTestDatabase(DBType dbType, String databaseScript) {
+            switch (dbType) {
+            case MYSQL:
+                databaseContainer = new MySQLContainer();
+                break;
+            case POSTGRES:
+                databaseContainer = new PostgreSQLContainer();
+                break;
+            default:
+                throw new UnsupportedOperationException(
+                        "Creating a containerized database is not supported for: " + dbType);
+            }
+            databaseContainer.start();
+            jdbcUrl = databaseContainer.getJdbcUrl();
+            username = databaseContainer.getUsername();
+            password = databaseContainer.getPassword();
+        }
+
+        public void stop() {
+            databaseContainer.stop();
+        }
+    }
+
+    public static class FileBasedTestDatabase extends TestDatabase {
+        private String dbDirectory;
+
+        public FileBasedTestDatabase(DBType dbType, String databaseScript, String dbDirectory, String dbName) {
+            this.dbDirectory = dbDirectory;
+            switch (dbType) {
+            case H2:
+                SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
+                jdbcUrl = "jdbc:h2:file:" + dbDirectory + dbName;
+                username = "sa";
+                break;
+            case HSQLDB:
+                SQLDBUtils.deleteFiles(new File(dbDirectory), dbName);
+                jdbcUrl = "jdbc:hsqldb:file:" + dbDirectory + dbName;
+                username = "SA";
+                break;
+            default:
+                throw new UnsupportedOperationException(
+                        "Creating a file based database is not supported for: " + dbType);
+            }
+            password = "";
+            SQLDBUtils.initDatabase(jdbcUrl, username, password, databaseScript);
+        }
+
+        public void stop() {
+            SQLDBUtils.deleteDirectory(new File(this.dbDirectory));
+        }
+    }
+
+    public enum DBType {
+        MYSQL, ORACLE, POSTGRES, HSQLDB, H2
     }
 }

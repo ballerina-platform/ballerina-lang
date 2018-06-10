@@ -27,14 +27,18 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Optional;
+import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -55,6 +59,12 @@ public class TableTest {
     private CompileResult nillableMappingNegativeResult;
     private CompileResult nillableMappingResult;
     private static final String DB_NAME = "TEST_DATA_TABLE_DB";
+    private static final String DB_NAME_H2 = "TEST_TABLE_TYPE_H2";
+    private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
+    private SQLDBUtils.DBType dbType;
+    private TestDatabase testDatabase;
+    private BValue[] connectionArgs = new BValue[3];
+
     private static final String TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD =
             ".*Trying to assign a Nil value to a non-nillable field.*";
     private static final String INVALID_UNION_FIELD_ASSIGNMENT =
@@ -63,8 +73,26 @@ public class TableTest {
             ".*Trying to assign an array containing NULL values to an array of a non-nillable element type.*";
     private static final double DELTA = 0.01;
 
+    @Parameters({ "dataClientTestDBType"})
+    public TableTest(@Optional("HSQLDB") SQLDBUtils.DBType dataClientTestDBType) {
+        this.dbType = dataClientTestDBType;
+    }
+
     @BeforeClass
     public void setup() {
+        switch (dbType) {
+        case HSQLDB:
+            testDatabase = new SQLDBUtils.FileBasedTestDatabase(dbType, "datafiles/sql/DataTableDataFile.sql",
+                    SQLDBUtils.DB_DIRECTORY, DB_NAME);
+            break;
+        default:
+            throw new UnsupportedOperationException("Unsupported database type: " + dbType);
+        }
+
+        connectionArgs[0] = new BString(testDatabase.getJDBCUrl());
+        connectionArgs[1] = new BString(testDatabase.getUsername());
+        connectionArgs[2] = new BString(testDatabase.getPassword());
+
         result = BCompileUtil.compile("test-src/types/table/table_type.bal");
         nillableMappingNegativeResult = BCompileUtil
                 .compile("test-src/types/table/table_nillable_mapping_negative.bal");
@@ -75,7 +103,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check retrieving primitive types.")
     public void testGetPrimitiveTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetPrimitiveTypes");
+        BValue[] returns = BRunUtil.invoke(result, "testGetPrimitiveTypes", connectionArgs);
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
@@ -87,7 +115,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check table to JSON conversion.")
     public void testToJson() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJson");
+        BValue[] returns = BRunUtil.invoke(result, "testToJson", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
@@ -97,7 +125,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check table to XML conversion.")
     public void testToXml() {
-        BValue[] returns = BRunUtil.invoke(result, "testToXml");
+        BValue[] returns = BRunUtil.invoke(result, "testToXml", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
@@ -108,7 +136,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check xml streaming when result set consumed once.")
     public void testToXmlMultipleConsume() {
-        BValue[] returns = BRunUtil.invoke(result, "testToXmlMultipleConsume");
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlMultipleConsume", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<results><result><INT_TYPE>1</INT_TYPE>"
@@ -119,7 +147,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check table to XML conversion with concat operation.")
     public void testToXmlWithAdd() {
-        BValue[] returns = BRunUtil.invoke(result, "testToXmlWithAdd");
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlWithAdd", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<results><result><INT_TYPE>1</INT_TYPE></result>"
@@ -128,7 +156,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check xml streaming when result set consumed once.")
     public void testToJsonMultipleConsume() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJsonMultipleConsume");
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonMultipleConsume", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,"
@@ -138,7 +166,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check xml conversion with complex element.")
     public void testToXmlComplex() {
-        BValue[] returns = BRunUtil.invoke(result, "toXmlComplex");
+        BValue[] returns = BRunUtil.invoke(result, "toXmlComplex", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
@@ -157,7 +185,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check xml conversion with complex element.")
     public void testToXmlComplexWithStructDef () {
-        BValue[] returns = BRunUtil.invoke(result, "testToXmlComplexWithStructDef");
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlComplexWithStructDef", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<results><result><i>1</i><iA><element>1</element>"
@@ -172,7 +200,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check json conversion with complex element.")
     public void testToJsonComplex() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJsonComplex");
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonComplex", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "[{\"INT_TYPE\":1,\"INT_ARRAY\":[1,2,3],"
@@ -184,7 +212,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check json conversion with complex element.")
     public void testToJsonComplexWithStructDef() {
-        BValue[] returns = BRunUtil.invoke(result, "testToJsonComplexWithStructDef");
+        BValue[] returns = BRunUtil.invoke(result, "testToJsonComplexWithStructDef", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(), "[{\"i\":1,\"iA\":[1,2,3],\"l\":9223372036854774807,"
@@ -195,7 +223,7 @@ public class TableTest {
 
     @Test(groups = "TableTest",  description = "Check retrieving blob clob binary data.")
     public void testGetComplexTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetComplexTypes");
+        BValue[] returns = BRunUtil.invoke(result, "testGetComplexTypes", connectionArgs);
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals((returns[0]).stringValue(), "wso2 ballerina blob test.");
         Assert.assertEquals((returns[1]).stringValue(), "very long text");
@@ -204,7 +232,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check array data types.")
     public void testArrayData() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayData");
+        BValue[] returns = BRunUtil.invoke(result, "testArrayData", connectionArgs);
         assertNonNullArray(returns);
     }
 
@@ -212,14 +240,15 @@ public class TableTest {
           description = "Test mapping array to non-nillable type with nillable element type.")
     public void testMapArrayToNonNillableTypeWithNillableElementType() {
         BValue[] returns = BRunUtil
-                .invoke(nillableMappingResult, "testMapArrayToNonNillableTypeWithNillableElementType");
+                .invoke(nillableMappingResult, "testMapArrayToNonNillableTypeWithNillableElementType", connectionArgs);
         assertNonNullArray(returns);
     }
 
     @Test(groups = "TableTest",
           description = "Test mapping array to nillable type with nillable element type.")
     public void testMapArrayToNillableTypeWithNillableElementType() {
-        BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMapArrayToNillableTypeWithNillableElementType");
+        BValue[] returns = BRunUtil
+                .invoke(nillableMappingResult, "testMapArrayToNillableTypeWithNillableElementType", connectionArgs);
         assertNonNullArray(returns);
     }
 
@@ -227,7 +256,7 @@ public class TableTest {
           description = "Test mapping array to nillable type with non-nillable element type.")
     public void testMapArrayToNillableTypeWithNonNillableElementType() {
         BValue[] returns = BRunUtil
-                .invoke(nillableMappingResult, "testMapArrayToNillableTypeWithNonNillableElementType");
+                .invoke(nillableMappingResult, "testMapArrayToNillableTypeWithNonNillableElementType", connectionArgs);
         assertNonNullArray(returns);
     }
 
@@ -235,7 +264,8 @@ public class TableTest {
           description = "Test mapping array with nil elements to non-nillable type with nillable element type.")
     public void testMapNillIncludedArrayNonNillableTypeWithNillableElementType() {
         BValue[] returns = BRunUtil
-                .invoke(nillableMappingResult, "testMapNillIncludedArrayNonNillableTypeWithNillableElementType");
+                .invoke(nillableMappingResult, "testMapNillIncludedArrayNonNillableTypeWithNillableElementType",
+                        connectionArgs);
         assertNilIncludedArray(returns);
     }
 
@@ -243,14 +273,15 @@ public class TableTest {
           description = "Test mapping array with nil elements to nillable type with nillable element type.")
     public void testMapNillIncludedArrayNillableTypeWithNillableElementType() {
         BValue[] returns = BRunUtil
-                .invoke(nillableMappingResult, "testMapNillIncludedArrayNillableTypeWithNillableElementType");
+                .invoke(nillableMappingResult, "testMapNillIncludedArrayNillableTypeWithNillableElementType",
+                        connectionArgs);
         assertNilIncludedArray(returns);
     }
 
     @Test(groups = "TableTest",
           description = "Test array with only nil elements.")
     public void testMapNillElementsOnlyArray() {
-        BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMapNillElementsOnlyArray");
+        BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMapNillElementsOnlyArray", connectionArgs);
         Assert.assertEquals(returns.length, 5);
         for (BValue bValue : returns) {
             Assert.assertTrue(bValue instanceof BRefValueArray);
@@ -265,7 +296,7 @@ public class TableTest {
           description = "Test mapping a null array to nillable type with nillable element type.")
     public void testMapNilArrayToNillableTypeWithNillableElementTypes() {
         BValue[] returns = BRunUtil
-                .invoke(nillableMappingResult, "testMapNilArrayToNillableTypeWithNillableElementTypes");
+                .invoke(nillableMappingResult, "testMapNilArrayToNillableTypeWithNillableElementTypes", connectionArgs);
         Assert.assertEquals(returns.length, 5);
         for (BValue bValue : returns) {
             Assert.assertNull(bValue);
@@ -276,7 +307,8 @@ public class TableTest {
           description = "Test mapping a null array to non-nillable type with nillable element type.")
     public void testMapNilArrayToNillableTypeWithNonNillableElementTypes() {
         BValue[] returns = BRunUtil
-                .invoke(nillableMappingResult, "testMapNilArrayToNillableTypeWithNonNillableElementTypes");
+                .invoke(nillableMappingResult, "testMapNilArrayToNillableTypeWithNonNillableElementTypes",
+                        connectionArgs);
         Assert.assertEquals(returns.length, 5);
         for (BValue bValue : returns) {
             Assert.assertNull(bValue);
@@ -285,7 +317,8 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check date time operation")
     public void testDateTime() {
-        BValue[] args = new BValue[3];
+        BValue[] args = new BValue[6];
+        System.arraycopy(connectionArgs, 0, args, 0, 3);
         Calendar cal = Calendar.getInstance();
 
         cal.clear();
@@ -293,14 +326,14 @@ public class TableTest {
         cal.set(Calendar.MONTH, 5);
         cal.set(Calendar.DAY_OF_MONTH, 23);
         long dateInserted = cal.getTimeInMillis();
-        args[0] = new BInteger(dateInserted);
+        args[3] = new BInteger(dateInserted);
 
         cal.clear();
         cal.set(Calendar.HOUR, 14);
         cal.set(Calendar.MINUTE, 15);
         cal.set(Calendar.SECOND, 23);
         long timeInserted = cal.getTimeInMillis();
-        args[1] = new BInteger(timeInserted);
+        args[4] = new BInteger(timeInserted);
 
         cal.clear();
         cal.set(Calendar.HOUR, 16);
@@ -310,7 +343,7 @@ public class TableTest {
         cal.set(Calendar.MONTH, 1);
         cal.set(Calendar.DAY_OF_MONTH, 25);
         long timestampInserted = cal.getTimeInMillis();
-        args[2] = new BInteger(timestampInserted);
+        args[5] = new BInteger(timestampInserted);
 
         BValue[] returns = BRunUtil.invoke(result,  "testDateTime", args);
         Assert.assertEquals(returns.length, 4);
@@ -319,7 +352,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check date time operation")
     public void testDateTimeAsTimeStruct() {
-        BValue[] returns = BRunUtil.invoke(result,  "testDateTimeAsTimeStruct");
+        BValue[] returns = BRunUtil.invoke(result,  "testDateTimeAsTimeStruct", connectionArgs);
         Assert.assertEquals(returns.length, 8);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
         Assert.assertEquals(((BInteger) returns[2]).intValue(), ((BInteger) returns[3]).intValue());
@@ -329,7 +362,8 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check date time operation")
     public void testDateTimeInt() {
-        BValue[] args = new BValue[3];
+        BValue[] args = new BValue[6];
+        System.arraycopy(connectionArgs, 0, args, 0, 3);
         Calendar cal = Calendar.getInstance();
 
         cal.clear();
@@ -337,14 +371,14 @@ public class TableTest {
         cal.set(Calendar.MONTH, 5);
         cal.set(Calendar.DAY_OF_MONTH, 23);
         long dateInserted = cal.getTimeInMillis();
-        args[0] = new BInteger(dateInserted);
+        args[3] = new BInteger(dateInserted);
 
         cal.clear();
         cal.set(Calendar.HOUR, 14);
         cal.set(Calendar.MINUTE, 15);
         cal.set(Calendar.SECOND, 23);
         long timeInserted = cal.getTimeInMillis();
-        args[1] = new BInteger(timeInserted);
+        args[4] = new BInteger(timeInserted);
 
         cal.clear();
         cal.set(Calendar.HOUR, 16);
@@ -354,7 +388,7 @@ public class TableTest {
         cal.set(Calendar.MONTH, 1);
         cal.set(Calendar.DAY_OF_MONTH, 25);
         long timestampInserted = cal.getTimeInMillis();
-        args[2] = new BInteger(timestampInserted);
+        args[5] = new BInteger(timestampInserted);
 
         BValue[] returns = BRunUtil.invoke(result,  "testDateTimeInt", args);
         Assert.assertEquals(returns.length, 4);
@@ -364,7 +398,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check JSON conversion with null values.")
     public void testJsonWithNull() {
-        BValue[] returns = BRunUtil.invoke(result,  "testJsonWithNull");
+        BValue[] returns = BRunUtil.invoke(result,  "testJsonWithNull", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
@@ -374,7 +408,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check xml conversion with null values.")
     public void testXmlWithNull() {
-        BValue[] returns = BRunUtil.invoke(result, "testXmlWithNull");
+        BValue[] returns = BRunUtil.invoke(result, "testXmlWithNull", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(),
@@ -386,7 +420,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check xml conversion within transaction.")
     public void testToXmlWithinTransaction() {
-        BValue[] returns = BRunUtil.invoke(result, "testToXmlWithinTransaction");
+        BValue[] returns = BRunUtil.invoke(result, "testToXmlWithinTransaction", connectionArgs);
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals((returns[0]).stringValue(), "<results><result><INT_TYPE>1</INT_TYPE><LONG_TYPE>"
                 + "9223372036854774807</LONG_TYPE></result></results>");
@@ -395,7 +429,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check JSON conversion within transaction.")
     public void testToJsonWithinTransaction() {
-        BValue[] returns = BRunUtil.invoke(result,  "testToJsonWithinTransaction");
+        BValue[] returns = BRunUtil.invoke(result,  "testToJsonWithinTransaction", connectionArgs);
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals((returns[0]).stringValue(), "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807}]");
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
@@ -403,14 +437,14 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check blob data support.")
     public void testBlobData() {
-        BValue[] returns = BRunUtil.invoke(result,  "testBlobData");
+        BValue[] returns = BRunUtil.invoke(result,  "testBlobData", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals((returns[0]).stringValue(), "wso2 ballerina blob test.");
     }
 
     @Test(groups = "TableTest", description = "Check values retrieved with column alias.")
     public void testColumnAlias() {
-        BValue[] returns = BRunUtil.invoke(result, "testColumnAlias");
+        BValue[] returns = BRunUtil.invoke(result, "testColumnAlias", connectionArgs);
         Assert.assertEquals(returns.length, 7);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
@@ -423,7 +457,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check inserting blob data.")
     public void testBlobInsert() {
-        BValue[] returns = BRunUtil.invoke(result, "testBlobInsert");
+        BValue[] returns = BRunUtil.invoke(result, "testBlobInsert", connectionArgs);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
@@ -434,7 +468,7 @@ public class TableTest {
         try {
             System.setOut(new PrintStream(outContent));
             final String expected = "\n";
-            BRunUtil.invoke(result, "testTablePrintAndPrintln");
+            BRunUtil.invoke(result, "testTablePrintAndPrintln", connectionArgs);
             Assert.assertEquals(outContent.toString().replace("\r", ""), expected);
         } finally {
             outContent.close();
@@ -444,7 +478,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check auto close resources in table.")
     public void testTableAutoClose() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableAutoClose");
+        BValue[] returns = BRunUtil.invoke(result, "testTableAutoClose", connectionArgs);
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(returns[1].stringValue(), "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,"
@@ -454,28 +488,28 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check manual close resources in table.")
     public void testTableManualClose() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableManualClose");
+        BValue[] returns = BRunUtil.invoke(result, "testTableManualClose", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
     @Test(dependsOnGroups = "TableTest", description = "Check whether all sql connectors are closed properly.")
     public void testCloseConnectionPool() {
-        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool");
+        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
     @Test(groups = "TableTest", description = "Check select data with multiple rows for primitive types.")
     public void testMutltipleRows() {
-        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRows");
+        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRows", connectionArgs);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
 
     @Test(groups = "TableTest", description = "Check select data with multiple rows accessing without getNext.")
     public void testMutltipleRowsWithoutLoop() {
-        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithoutLoop");
+        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithoutLoop", connectionArgs);
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
@@ -487,7 +521,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check select data with multiple rows accessing without getNext.")
     public void testHasNextWithoutConsume() {
-        BValue[] returns = BRunUtil.invoke(result, "testHasNextWithoutConsume");
+        BValue[] returns = BRunUtil.invoke(result, "testHasNextWithoutConsume", connectionArgs);
         Assert.assertEquals(returns.length, 3);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
         Assert.assertEquals(((BBoolean) returns[1]).booleanValue(), true);
@@ -496,7 +530,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check get float and double types.")
     public void testGetFloatTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetFloatTypes");
+        BValue[] returns = BRunUtil.invoke(result, "testGetFloatTypes", connectionArgs);
         Assert.assertEquals(returns.length, 4);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 238999.34);
         Assert.assertEquals(((BFloat) returns[1]).floatValue(), 238999.34);
@@ -506,7 +540,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check array data insert and println on arrays")
     public void testArrayDataInsertAndPrint() {
-        BValue[] returns = BRunUtil.invoke(result, "testArrayDataInsertAndPrint");
+        BValue[] returns = BRunUtil.invoke(result, "testArrayDataInsertAndPrint", connectionArgs);
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 3);
@@ -518,7 +552,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check get float and double min and max types.")
     public void testSignedIntMaxMinValues() {
-        BValue[] returns = BRunUtil.invoke(result, "testSignedIntMaxMinValues");
+        BValue[] returns = BRunUtil.invoke(result, "testSignedIntMaxMinValues", connectionArgs);
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
@@ -541,7 +575,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check blob binary and clob types types.")
     public void testComplexTypeInsertAndRetrieval() {
-        BValue[] returns = BRunUtil.invoke(result, "testComplexTypeInsertAndRetrieval");
+        BValue[] returns = BRunUtil.invoke(result, "testComplexTypeInsertAndRetrieval", connectionArgs);
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
@@ -561,7 +595,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check result sets with same column name or complex name.")
     public void testJsonXMLConversionwithDuplicateColumnNames() {
-        BValue[] returns = BRunUtil.invoke(result, "testJsonXMLConversionwithDuplicateColumnNames");
+        BValue[] returns = BRunUtil.invoke(result, "testJsonXMLConversionwithDuplicateColumnNames", connectionArgs);
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals((returns[0]).stringValue(), "[{\"ROW_ID\":1,\"INT_TYPE\":1,\"DATATABLEREP.ROW_ID\":1,"
                 + "\"DATATABLEREP.INT_TYPE\":100}]");
@@ -572,7 +606,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check result sets with same column name or complex name.")
     public void testStructFieldNotMatchingColumnName() {
-        BValue[] returns = BRunUtil.invoke(result, "testStructFieldNotMatchingColumnName");
+        BValue[] returns = BRunUtil.invoke(result, "testStructFieldNotMatchingColumnName", connectionArgs);
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
@@ -583,7 +617,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check retrieving data using foreach")
     public void testGetPrimitiveTypesWithForEach() {
-        BValue[] returns = BRunUtil.invoke(result, "testGetPrimitiveTypesWithForEach");
+        BValue[] returns = BRunUtil.invoke(result, "testGetPrimitiveTypesWithForEach", connectionArgs);
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
@@ -595,7 +629,7 @@ public class TableTest {
 
     @Test(groups = "TableTest", description = "Check retrieving data using foreach with multiple rows")
     public void testMutltipleRowsWithForEach() {
-        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithForEach");
+        BValue[] returns = BRunUtil.invoke(result, "testMutltipleRowsWithForEach", connectionArgs);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 100);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 200);
     }
@@ -603,13 +637,13 @@ public class TableTest {
     @Test(groups = "TableTest",
           description = "Test adding data to database table")
     public void testTableAddInvalid() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid");
+        BValue[] returns = BRunUtil.invoke(result, "testTableAddInvalid", connectionArgs);
         Assert.assertEquals((returns[0]).stringValue(), "data cannot be added to a table returned from a database");
     }
 
     @Test(groups = "TableTest", description = "Test deleting data from a database table")
     public void testTableRemoveInvalid() {
-        BValue[] returns = BRunUtil.invoke(result, "testTableRemoveInvalid");
+        BValue[] returns = BRunUtil.invoke(result, "testTableRemoveInvalid", connectionArgs);
         Assert.assertEquals((returns[0]).stringValue(), "data cannot be deleted from a table returned from a database");
     }
     
@@ -617,7 +651,7 @@ public class TableTest {
     @Test(groups = "TableTest",
           description = "Test mapping to nillable type fields")
     public void testMappingToNillableTypeFields() {
-        BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingToNillableTypeFields");
+        BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingToNillableTypeFields", connectionArgs);
         Assert.assertNotNull(returns);
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
@@ -638,7 +672,7 @@ public class TableTest {
     @Test(groups = "TableTest",
           description = "Test mapping date to nillable Time field")
     public void testMapptingDatesToNillableTime() {
-        BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingDatesToNillableTimeType");
+        BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingDatesToNillableTimeType", connectionArgs);
         Assert.assertEquals(returns.length, 8);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), ((BInteger) returns[1]).intValue());
         Assert.assertEquals(((BInteger) returns[2]).intValue(), ((BInteger) returns[3]).intValue());
@@ -649,7 +683,8 @@ public class TableTest {
     @Test(groups = "TableTest",
           description = "Test mapping date to nillable int field")
     public void testMappingDatesToNillableIntType() {
-        BValue[] args = new BValue[3];
+        BValue[] args = new BValue[6];
+        System.arraycopy(connectionArgs, 0, args, 0, 3);
         Calendar cal = Calendar.getInstance();
 
         cal.clear();
@@ -657,14 +692,14 @@ public class TableTest {
         cal.set(Calendar.MONTH, 5);
         cal.set(Calendar.DAY_OF_MONTH, 23);
         long dateInserted = cal.getTimeInMillis();
-        args[0] = new BInteger(dateInserted);
+        args[3] = new BInteger(dateInserted);
 
         cal.clear();
         cal.set(Calendar.HOUR, 14);
         cal.set(Calendar.MINUTE, 15);
         cal.set(Calendar.SECOND, 23);
         long timeInserted = cal.getTimeInMillis();
-        args[1] = new BInteger(timeInserted);
+        args[4] = new BInteger(timeInserted);
 
         cal.clear();
         cal.set(Calendar.HOUR, 16);
@@ -674,7 +709,7 @@ public class TableTest {
         cal.set(Calendar.MONTH, 1);
         cal.set(Calendar.DAY_OF_MONTH, 25);
         long timestampInserted = cal.getTimeInMillis();
-        args[2] = new BInteger(timestampInserted);
+        args[5] = new BInteger(timestampInserted);
 
         BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingDatesToNillableIntType", args);
         Assert.assertEquals(returns.length, 4);
@@ -686,7 +721,8 @@ public class TableTest {
     @Test(groups = "TableTest",
           description = "Test mapping date to nillable string field")
     public void testMappingDatesToNillableStringType() {
-        BValue[] args = new BValue[3];
+        BValue[] args = new BValue[6];
+        System.arraycopy(connectionArgs, 0, args, 0, 3);
         Calendar cal = Calendar.getInstance();
 
         cal.clear();
@@ -694,14 +730,14 @@ public class TableTest {
         cal.set(Calendar.MONTH, 5);
         cal.set(Calendar.DAY_OF_MONTH, 23);
         long dateInserted = cal.getTimeInMillis();
-        args[0] = new BInteger(dateInserted);
+        args[3] = new BInteger(dateInserted);
 
         cal.clear();
         cal.set(Calendar.HOUR, 14);
         cal.set(Calendar.MINUTE, 15);
         cal.set(Calendar.SECOND, 23);
         long timeInserted = cal.getTimeInMillis();
-        args[1] = new BInteger(timeInserted);
+        args[4] = new BInteger(timeInserted);
 
         cal.clear();
         cal.set(Calendar.HOUR, 16);
@@ -711,7 +747,7 @@ public class TableTest {
         cal.set(Calendar.MONTH, 1);
         cal.set(Calendar.DAY_OF_MONTH, 25);
         long timestampInserted = cal.getTimeInMillis();
-        args[2] = new BInteger(timestampInserted);
+        args[5] = new BInteger(timestampInserted);
 
         BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingDatesToNillableStringType", args);
         Assert.assertEquals(returns.length, 4);
@@ -721,7 +757,7 @@ public class TableTest {
     @Test(groups = "TableTest",
           description = "Test mapping to nillable type fields")
     public void testMappingNullToNillableTypes() {
-        BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingNullToNillableTypes");
+        BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMappingNullToNillableTypes", connectionArgs);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 18);
         for (BValue returnVal : returns) {
@@ -735,7 +771,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableInt() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableInt");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableInt", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -743,7 +779,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableLong() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableLong");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableLong", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -751,7 +787,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableFloat() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableFloat");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableFloat", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -759,7 +795,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableDouble() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableDouble");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableDouble", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -767,7 +803,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableBoolean() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableBoolean");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableBoolean", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -775,7 +811,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableString() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableString");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableString", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -783,7 +819,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableNumeric() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableNumeric");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableNumeric", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -791,7 +827,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableSmallint() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableSmallint");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableSmallint", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -799,7 +835,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableTinyInt() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableTinyInt");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableTinyInt", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -807,7 +843,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableDecimal() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableDecimal");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableDecimal", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -815,7 +851,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableReal() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableReal");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableReal", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -823,7 +859,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableClob() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableClob");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableClob", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -831,7 +867,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableBlob() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableBlob");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableBlob", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -839,7 +875,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableBinary() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableBinary");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableBinary", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -847,7 +883,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableDate() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableDate");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableDate", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -855,7 +891,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableTime() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableTime");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableTime", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -863,7 +899,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableDateTime() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableDateTime");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableDateTime", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -871,133 +907,133 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNilToNonNillableTimeStamp() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableTimeStamp");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNilToNonNillableTimeStamp", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionInt() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionInt");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionInt", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionLong() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionLong");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionLong", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionFloat() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionFloat");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionFloat", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionDouble() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionDouble");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionDouble", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionBoolean() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionBoolean");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionBoolean", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionString() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionString");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionString", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionNumeric() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionNumeric");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionNumeric", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionSmallint() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionSmallint");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionSmallint", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionTinyInt() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionTinyInt");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionTinyInt", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionDecimal() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionDecimal");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionDecimal", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionReal() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionReal");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionReal", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionClob() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionClob");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionClob", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionBlob() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionBlob");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionBlob", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionBinary() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionBinary");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionBinary", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionDate() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionDate");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionDate", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionTime() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionTime");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionTime", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionDateTime() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionDateTime");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionDateTime", connectionArgs);
     }
 
     @Test(groups = "TableTest",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignToInvalidUnionTimeStamp() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionTimeStamp");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignToInvalidUnionTimeStamp", connectionArgs);
     }
 
 
@@ -1006,7 +1042,8 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNullArrayToNonNillableWithNonNillableElements() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNullArrayToNonNillableWithNonNillableElements");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNullArrayToNonNillableWithNonNillableElements",
+                connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -1014,7 +1051,8 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
     public void testAssignNullArrayToNonNillableTypeWithNillableElements() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNullArrayToNonNillableTypeWithNillableElements");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignNullArrayToNonNillableTypeWithNillableElements",
+                connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -1023,7 +1061,7 @@ public class TableTest {
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_ARRAY_FIELD)
     public void testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() {
         BRunUtil.invoke(nillableMappingNegativeResult,
-                "testAssignNullElementArrayToNonNillableTypeWithNonNillableElements");
+                "testAssignNullElementArrayToNonNillableTypeWithNonNillableElements", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -1032,7 +1070,7 @@ public class TableTest {
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_ARRAY_FIELD)
     public void testAssignNullElementArrayToNillableTypeWithNonNillableElements() {
         BRunUtil.invoke(nillableMappingNegativeResult,
-                "testAssignNullElementArrayToNillableTypeWithNonNillableElements");
+                "testAssignNullElementArrayToNillableTypeWithNonNillableElements", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -1040,7 +1078,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignInvalidUnionArray() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignInvalidUnionArray");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignInvalidUnionArray", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -1048,7 +1086,7 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignInvalidUnionArray2() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignInvalidUnionArray2");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignInvalidUnionArray2", connectionArgs);
     }
 
     @Test(groups = "TableTest",
@@ -1056,12 +1094,14 @@ public class TableTest {
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
     public void testAssignInvalidUnionArrayElement() {
-        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignInvalidUnionArrayElement");
+        BRunUtil.invoke(nillableMappingNegativeResult, "testAssignInvalidUnionArrayElement", connectionArgs);
     }
 
     @AfterSuite
     public void cleanup() {
-        SQLDBUtils.deleteDirectory(new File(SQLDBUtils.DB_DIRECTORY));
+        if (testDatabase != null) {
+            testDatabase.stop();;
+        }
     }
 
     private void assertDateStringValues(BValue[] returns, long dateInserted, long timeInserted,
