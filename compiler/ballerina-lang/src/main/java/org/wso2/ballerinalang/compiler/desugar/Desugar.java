@@ -996,10 +996,6 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
-        if (tableLiteral.configurationExpr == null) {
-            tableLiteral.configurationExpr = ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.nilType, null);
-        }
-        tableLiteral.configurationExpr = rewriteExpr(tableLiteral.configurationExpr);
         result = tableLiteral;
     }
 

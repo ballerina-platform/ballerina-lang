@@ -21,5 +21,4 @@ package org.ballerinalang.model.tree.expressions;
  */
 public interface TableLiteralNode extends ExpressionNode {
 
-    ExpressionNode getConfigurationExpression();
 }

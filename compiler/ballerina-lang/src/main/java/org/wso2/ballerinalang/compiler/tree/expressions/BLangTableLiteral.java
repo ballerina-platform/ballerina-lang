@@ -16,10 +16,16 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.tree.NodeKind;
-import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TableLiteralNode;
+import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
+
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Implementation of {@link TableLiteralNode}.
@@ -28,11 +34,24 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangTableLiteral extends BLangExpression implements TableLiteralNode {
 
-    public BLangExpression configurationExpr;
+    public List<BLangTableColumn> columns;
 
-    @Override
-    public ExpressionNode getConfigurationExpression() {
-        return configurationExpr;
+    public List<BLangExpression> tableDataRows;
+
+    public BLangTableLiteral() {
+        columns = new ArrayList<>();
+        tableDataRows = new ArrayList<>();
+    }
+
+    public BLangTableColumn getColumn(String columnName) {
+        BLangTableColumn column = null;
+        for(BLangTableColumn c: columns) {
+            if (c.columnName.equals(columnName)) {
+                column = c;
+                break;
+            }
+        }
+        return column;
     }
 
     @Override
@@ -43,5 +62,32 @@ public class BLangTableLiteral extends BLangExpression implements TableLiteralNo
     @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
+    }
+
+
+    /**
+     * This class represents a column of a table.
+     *
+     * @since 0.975.0
+     */
+    public static class BLangTableColumn extends BLangNode {
+
+        public String columnName;
+        public Set<TableColumnFlag> flagSet;
+
+        public BLangTableColumn(String columnName) {
+            this.columnName = columnName;
+            this.flagSet = EnumSet.noneOf(TableColumnFlag.class);
+        }
+
+        @Override
+        public NodeKind getKind() {
+            return null;
+        }
+
+        @Override
+        public void accept(BLangNodeVisitor visitor) {
+
+        }
     }
 }

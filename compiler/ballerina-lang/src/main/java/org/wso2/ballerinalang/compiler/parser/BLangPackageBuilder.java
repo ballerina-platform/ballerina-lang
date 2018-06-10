@@ -25,6 +25,7 @@ import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
@@ -246,6 +247,8 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> invocationWsStack = new Stack<>();
 
     private Stack<BLangRecordLiteral> recordLiteralNodes = new Stack<>();
+
+    private Stack<BLangTableLiteral> tableLiteralNodes = new Stack<>();
 
     private Stack<BLangTryCatchFinally> tryCatchFinallyNodesStack = new Stack<>();
 
@@ -926,11 +929,57 @@ public class BLangPackageBuilder {
         addExpressionNode(recordTypeLiteralNode);
     }
 
-    void addTableLiteral(DiagnosticPos pos, Set<Whitespace> ws) {
+    void startTableLiteral() {
         final BLangTableLiteral tableLiteral = (BLangTableLiteral) TreeBuilder.createTableLiteralNode();
+        tableLiteralNodes.push(tableLiteral);
+    }
+
+    void addTableColumn(String columnName) {
+        this.tableLiteralNodes.peek().columns.add(new BLangTableLiteral.BLangTableColumn(columnName));
+    }
+
+    void markPrimaryKeyColumn(String columnName) {
+        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        BLangTableLiteral.BLangTableColumn column = tableLiteral.getColumn(columnName);
+        if (column != null) {
+            column.flagSet.add(TableColumnFlag.PRIMARYKEY);
+        }
+    }
+
+    void endTableDataList(DiagnosticPos pos, Set<Whitespace> ws) {
+        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) TreeBuilder.createRecordLiteralNode();
+        List<BLangTableLiteral.BLangTableColumn> keyNames = tableLiteralNodes.peek().columns;
+        List<ExpressionNode> recordValues = exprNodeListStack.pop();
+        int index = 0;
+        for(ExpressionNode e : recordValues) {
+            BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
+            //Value
+            keyValue.valueExpr = (BLangExpression) e;
+            //key
+            BLangLiteral keyExpr = (BLangLiteral) TreeBuilder.createLiteralExpression();
+            keyExpr.addWS(ws);
+            keyExpr.pos = pos;
+            keyExpr.typeTag = TypeTags.STRING;
+            keyExpr.value = keyNames.get(index);
+            keyValue.key = new BLangRecordKey(keyExpr);
+            //Key-Value pair
+            recordLiteral.keyValuePairs.add(keyValue);
+            ++index;
+        }
+        this.tableLiteralNodes.peek().tableDataRows.add(recordLiteral);
+    }
+
+    void endTableDataRow() {
+        List<ExpressionNode> argExprList = exprNodeListStack.pop();
+        BLangTableLiteral tableLiteral = this.tableLiteralNodes.peek();
+        tableLiteral.tableDataRows = argExprList.stream().map(expr -> (BLangExpression) expr)
+                .collect(Collectors.toList());
+    }
+
+    void addTableLiteral(DiagnosticPos pos, Set<Whitespace> ws) {
+        final BLangTableLiteral tableLiteral = tableLiteralNodes.pop();
         tableLiteral.addWS(ws);
         tableLiteral.pos = pos;
-        tableLiteral.configurationExpr = (BLangExpression) this.exprNodeStack.pop();
         addExpressionNode(tableLiteral);
     }
 
