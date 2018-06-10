@@ -654,16 +654,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTableLiteral(BallerinaParser.TableLiteralContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#tableInitialization}.
-	 * @param ctx the parse tree
-	 */
-	void enterTableInitialization(BallerinaParser.TableInitializationContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#tableInitialization}.
-	 * @param ctx the parse tree
-	 */
-	void exitTableInitialization(BallerinaParser.TableInitializationContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#tableColumnDefinition}.
 	 * @param ctx the parse tree
 	 */

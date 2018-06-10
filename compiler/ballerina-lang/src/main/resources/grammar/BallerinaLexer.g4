@@ -136,6 +136,7 @@ AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
 DONE        : 'done' ;
+PRIMARYKEY  : 'primarykey' ;
 
 // Separators
 
