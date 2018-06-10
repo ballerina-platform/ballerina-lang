@@ -31,10 +31,13 @@ native function retrieveIntendedTopic() returns string;
 documentation {
     Starts up the internal Ballerina Hub.
 
-    P{{port}} The port to start up the Hub service on
+    P{{topicRegistrationRequired}}  Whether a topic needs to be registered at the hub prior to publishing/subscribing
+                                        to the topic
+    P{{publicUrl}}                  The URL for the hub to be included in content delivery requests, defaults to
+                                        `http(s)://localhost:{port}/websub/hub` if unspecified
     R{{}} `WebSubHub` The started up Hub service
 }
-native function startUpHubService(int port) returns WebSubHub;
+native function startUpHubService(boolean topicRegistrationRequired, string publicUrl) returns WebSubHub;
 
 documentation {
     Stop the Ballerina Hub, if started.

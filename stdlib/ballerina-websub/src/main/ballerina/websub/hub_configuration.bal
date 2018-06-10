@@ -29,14 +29,14 @@ import ballerina/log;
 @final string DEFAULT_DB_PASSWORD = "ballerina";
 
 @readonly int hubPort = config:getAsInt("b7a.websub.hub.port", default = DEFAULT_PORT);
-@final int hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime", default = DEFAULT_LEASE_SECONDS_VALUE);
-@final string hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
+@readonly int hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime", default = DEFAULT_LEASE_SECONDS_VALUE);
+@readonly string hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
     default = DEFAULT_SIGNATURE_METHOD);
-@final boolean hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish");
-@final string hubRemotePublishingMode = config:getAsString("b7a.websub.hub.remotepublish.mode",
+@readonly boolean hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish");
+@readonly string hubRemotePublishingMode = config:getAsString("b7a.websub.hub.remotepublish.mode",
     default = REMOTE_PUBLISHING_MODE_DIRECT);
-@final boolean hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration", default = true);
-@final string hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = getHubUrl());
+@readonly boolean hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration", default = true);
+@readonly string hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = getHubUrl());
 
 @final boolean hubPersistenceEnabled = config:getAsBoolean("b7a.websub.hub.enablepersistence");
 @final string hubDatabaseUrl = config:getAsString("b7a.websub.hub.db.url", default = "localhost");
@@ -44,20 +44,17 @@ import ballerina/log;
 @final string hubDatabasePassword = config:getAsString("b7a.websub.hub.db.password", default = DEFAULT_DB_PASSWORD);
 //TODO:add pool options
 
-@final boolean hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = true);
-http:ServiceSecureSocket? serviceSecureSocket = getServiceSecureSocketConfig();
-http:SecureSocket? secureSocket = getSecureSocketConfig();
+@readonly boolean hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = true);
+@readonly http:ServiceSecureSocket? serviceSecureSocket = getServiceSecureSocketConfig();
+@readonly http:SecureSocket? secureSocket = getSecureSocketConfig();
 
 documentation {
     Function to bind and start the Ballerina WebSub Hub service.
-
-    P{{port}} The port to start up on
 }
-function startHubService(int port) {
-    hubPort = port;
+function startHubService() {
     http:Listener hubServiceEP = new;
     hubServiceEP.init({
-            port:port,
+            port:hubPort,
             secureSocket:serviceSecureSocket
     });
     hubServiceEP.register(hubService);

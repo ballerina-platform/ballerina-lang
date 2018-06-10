@@ -476,12 +476,37 @@ public type SubscriptionChangeResponse {
 documentation {
     Starts up the Ballerina Hub.
 
-    P{{port}} The port to start up the hub on
-    R{{}} `WebSubHub` The WebSubHub object representing the started up hub
+    P{{port}}                       The port to start up the hub on
+    P{{leaseSeconds}}               The default lease seconds value to honour if not specified in subscription requests
+    P{{signatureMethod}}            The signature method to use for authenticated content delivery (`SHA1`|`SHA256`)
+    P{{remotePublishingEnabled}}    Whether remote publishers should be allowed to publish to this hub (HTTP requests)
+    P{{remotePublishingMode}}       If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
+                                        the notification payload specified or `fetch` - the hub fetches the topic URL
+                                        specified in the "publish" request to identify the payload
+    P{{topicRegistrationRequired}}  Whether a topic needs to be registered at the hub prior to publishing/subscribing
+                                        to the topic
+    P{{publicUrl}}                  The URL for the hub to be included in content delivery requests, defaults to
+                                        `http(s)://localhost:{port}/websub/hub` if unspecified
+    P{{sslEnabled}}                 Whether SSL needs to be enabled for the hub, enabled by default
+    R{{}} `WebSubHub`               The WebSubHub object representing the started up hub
 }
-public function startUpBallerinaHub(int? port = ()) returns WebSubHub {
-    int websubHubPort = port but { () => hubPort };
-    WebSubHub ballerinaWebSubHub = startUpHubService(websubHubPort);
+public function startUpBallerinaHub(int? port = (), int? leaseSeconds = (), string? signatureMethod = (),
+                                    boolean? remotePublishingEnabled = (), string? remotePublishingMode = (),
+                                    boolean? topicRegistrationRequired = (), string? publicUrl = (),
+                                    boolean? sslEnabled = ()) returns WebSubHub {
+    hubPort = port but { () => hubPort };
+    hubLeaseSeconds = leaseSeconds but { () => hubLeaseSeconds };
+    hubSignatureMethod = signatureMethod but { () => hubSignatureMethod };
+    hubRemotePublishingEnabled = remotePublishingEnabled but { () => hubRemotePublishingEnabled };
+    hubRemotePublishingMode = remotePublishingMode but { () => hubRemotePublishingMode };
+    hubTopicRegistrationRequired = topicRegistrationRequired but { () => hubTopicRegistrationRequired };
+    hubSslEnabled = sslEnabled but { () => hubSslEnabled };
+    //reset serviceSecureSocket and secureSocket after hubSslEnabled is set
+    serviceSecureSocket = getServiceSecureSocketConfig();
+    secureSocket = getSecureSocketConfig();
+    //reset the hubUrl once the other parameters are set
+    hubPublicUrl = publicUrl but { () => getHubUrl() };
+    WebSubHub ballerinaWebSubHub = startUpHubService(hubTopicRegistrationRequired, hubPublicUrl);
     return ballerinaWebSubHub;
 }
 

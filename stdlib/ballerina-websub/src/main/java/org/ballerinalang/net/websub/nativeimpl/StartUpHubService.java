@@ -22,7 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -39,7 +40,8 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACK
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "startUpHubService",
-        args = {@Argument(name = "port", type = TypeKind.INT)},
+        args = {@Argument(name = "topicRegistrationRequired", type = TypeKind.BOOLEAN),
+                @Argument(name = "publicUrl", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
@@ -52,8 +54,10 @@ public class StartUpHubService extends BlockingNativeCallableUnit {
         if (hubInstance.isStarted()) {
             hubUrl = hubInstance.retrieveHubUrl();
         } else {
-            BInteger port = new BInteger(context.getIntArgument(0));
-            hubUrl = hubInstance.startUpHubService(context.getProgramFile(), port);
+            BBoolean topicRegistrationRequired = new BBoolean(context.getBooleanArgument(0));
+            BString publicUrl = new BString(context.getStringArgument(0));
+            hubInstance.startUpHubService(context.getProgramFile(), topicRegistrationRequired, publicUrl);
+            hubUrl = hubInstance.retrieveHubUrl();
         }
         context.setReturnValues(BLangConnectorSPIUtil.createBStruct(context, WEBSUB_PACKAGE,
                                                                     STRUCT_WEBSUB_BALLERINA_HUB, hubUrl));

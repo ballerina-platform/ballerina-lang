@@ -21,7 +21,7 @@ package org.ballerinalang.net.websub.hub;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -67,6 +67,10 @@ public class Hub {
     }
 
     private Hub() {
+    }
+
+    private void setHubUrl(String hubUrl) {
+        this.hubUrl = hubUrl;
     }
 
     public String retrieveHubUrl() {
@@ -220,32 +224,31 @@ public class Hub {
     /**
      * Method to compile and start up the default Ballerina WebSub Hub.
      */
-    public String startUpHubService(ProgramFile hubProgramFile, BInteger port) {
+    public void startUpHubService(ProgramFile hubProgramFile, BBoolean topicRegistrationRequired, BString publicUrl) {
         synchronized (this) {
             if (!isStarted()) {
                 PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
                 if (hubPackageInfo != null) {
-                    BValue[] args = {port};
-                    BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"), args);
-                    args = new BValue[0];
-                    String webSubHubUrl = (BLangFunctions.invokeCallable(
-                            hubPackageInfo.getFunctionInfo("getHubUrl"), args)[0]).stringValue();
+                    BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"),
+                                                  new BValue[] {});
+                    hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
+
+                    String hubUrl = publicUrl.stringValue();
+                    BValue[] args = new BValue[0];
+                    //TODO: change once made public and available as a param
                     hubPersistenceEnabled = Boolean.parseBoolean((BLangFunctions.invokeCallable(
                         hubPackageInfo.getFunctionInfo("isHubPersistenceEnabled"), args)[0]).stringValue());
-                    hubTopicRegistrationRequired = Boolean.parseBoolean((BLangFunctions.invokeCallable(
-                        hubPackageInfo.getFunctionInfo("isHubTopicRegistrationRequired"), args)[0])
-                                                                                .stringValue());
-                    logger.info("Default Ballerina WebSub Hub started up at " + webSubHubUrl);
-                    PrintStream console = System.out;
-                    console.println("ballerina: Default Ballerina WebSub Hub started up at " + webSubHubUrl);
-                    hubUrl = webSubHubUrl;
+
+                    PrintStream console = System.err;
+                    console.println("ballerina: Default Ballerina WebSub Hub started up at " + hubUrl);
                     setHubProgramFile(hubProgramFile);
                     started = true;
                     BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);
+                    setHubUrl(hubUrl);
                 }
             }
+            //TODO: handle if started
         }
-        return hubUrl;
     }
 
     /**
