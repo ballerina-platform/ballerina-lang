@@ -664,6 +664,56 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitTableInitialization(BallerinaParser.TableInitializationContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tableColumnDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableColumnDefinition(BallerinaParser.TableColumnDefinitionContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tableColumnDefinition}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableColumnDefinition(BallerinaParser.TableColumnDefinitionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tableColumn}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableColumn(BallerinaParser.TableColumnContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tableColumn}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableColumn(BallerinaParser.TableColumnContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tableDataArray}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableDataArray(BallerinaParser.TableDataArrayContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tableDataArray}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableDataArray(BallerinaParser.TableDataArrayContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tableDataList}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableDataList(BallerinaParser.TableDataListContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tableDataList}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableDataList(BallerinaParser.TableDataListContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#tableData}.
+	 * @param ctx the parse tree
+	 */
+	void enterTableData(BallerinaParser.TableDataContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#tableData}.
+	 * @param ctx the parse tree
+	 */
+	void exitTableData(BallerinaParser.TableDataContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#arrayLiteral}.
 	 * @param ctx the parse tree
 	 */
