@@ -33,13 +33,7 @@ public interface BallerinaIfClause extends BallerinaCompositeElement {
   PsiElement getLeftBrace();
 
   @Nullable
-  PsiElement getLeftParenthesis();
-
-  @Nullable
   PsiElement getRightBrace();
-
-  @Nullable
-  PsiElement getRightParenthesis();
 
   @NotNull
   PsiElement getIf();
