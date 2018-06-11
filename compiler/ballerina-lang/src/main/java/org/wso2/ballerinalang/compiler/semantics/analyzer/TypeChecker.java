@@ -51,8 +51,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -109,8 +109,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -795,15 +793,15 @@ public class TypeChecker extends BLangNodeVisitor {
         conversionExpr.targetType = targetType;
         BType sourceType = checkExpr(conversionExpr.expr, env, symTable.noType);
 
-            // Lookup for built-in type conversion operator symbol
-            BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
-            if (symbol == symTable.notFoundSymbol) {
-                dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
-            } else {
-                BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
-                conversionExpr.conversionSymbol = conversionSym;
-                actualType = conversionSym.type.getReturnType();
-            }
+        // Lookup for built-in type conversion operator symbol
+        BSymbol symbol = symResolver.resolveConversionOperator(sourceType, targetType);
+        if (symbol == symTable.notFoundSymbol) {
+            dlog.error(conversionExpr.pos, DiagnosticCode.INCOMPATIBLE_TYPES_CONVERSION, sourceType, targetType);
+        } else {
+            BConversionOperatorSymbol conversionSym = (BConversionOperatorSymbol) symbol;
+            conversionExpr.conversionSymbol = conversionSym;
+            actualType = conversionSym.type.getReturnType();
+        }
 
         resultType = types.checkType(conversionExpr, actualType, expType);
     }
@@ -1749,7 +1747,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.STREAM:
                 BType streamConstraintType = ((BStreamType) varRefType).constraint;
-                if (streamConstraintType.tag == TypeTags.STRUCT) {
+                if (streamConstraintType.tag == TypeTags.OBJECT) {
                     actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, streamConstraintType);
                 }
                 break;
