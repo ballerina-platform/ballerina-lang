@@ -229,7 +229,7 @@ public class PackageLoader {
             }
         } else {
             // Read from lock file
-            if (enclPackageId != null) {
+            if (enclPackageId != null) { // Not a top level package or bal
                 String enclPkgAlias = enclPackageId.orgName.value + "/" + enclPackageId.name.value;
 
                 lockFile.getPackageList()
@@ -252,15 +252,6 @@ public class PackageLoader {
                                                        .findFirst()
                                                        .ifPresent(lockFilePackage -> pkgId.version = new Name(
                                                                lockFilePackage.getVersion())));
-            } else {
-                lockFile.getPackageList()
-                        .stream()
-                        .filter(pkg -> {
-                            String alias = pkg.getOrg() + "/" + pkg.getName();
-                            return alias.equals(pkgAlias);
-                        })
-                        .findFirst()
-                        .ifPresent(lockFilePackage -> pkgId.version = new Name(lockFilePackage.getVersion()));
             }
         }
     }
