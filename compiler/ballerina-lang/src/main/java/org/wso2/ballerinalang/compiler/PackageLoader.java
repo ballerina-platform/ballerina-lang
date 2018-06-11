@@ -229,40 +229,38 @@ public class PackageLoader {
             }
         } else {
             // Read from lock file
-            Optional<LockFilePackage> lockFilePackage = null;
             if (enclPackageId != null) {
                 String enclPkgAlias = enclPackageId.orgName.value + "/" + enclPackageId.name.value;
 
-                Optional<LockFilePackage> enclosedPkg = lockFile.getPackageList()
-                                                                .stream()
-                                                                .filter(pkg -> {
-                                                                    String org = pkg.getOrg();
-                                                                    if (org.isEmpty()) {
-                                                                        org = manifest.getName();
-                                                                    }
-                                                                    String alias = org + "/" + pkg.getName();
-                                                                    return alias.equals(enclPkgAlias);
-                                                                }).findFirst();
-                if (enclosedPkg.isPresent()) {
-                    lockFilePackage = enclosedPkg.get().getDependencies()
-                                                 .stream()
-                                                 .filter(pkg -> {
-                                                     String alias = pkg.getOrg() + "/" + pkg.getName();
-                                                     return alias.equals(pkgAlias);
-                                                 })
-                                                 .findFirst();
-                }
+                lockFile.getPackageList()
+                        .stream()
+                        .filter(pkg -> {
+                            String org = pkg.getOrg();
+                            if (org.isEmpty()) {
+                                org = manifest.getName();
+                            }
+                            String alias = org + "/" + pkg.getName();
+                            return alias.equals(enclPkgAlias);
+                        })
+                        .findFirst()
+                        .ifPresent(aPackage -> aPackage.getDependencies()
+                                                       .stream()
+                                                       .filter(pkg -> {
+                                                           String alias = pkg.getOrg() + "/" + pkg.getName();
+                                                           return alias.equals(pkgAlias);
+                                                       })
+                                                       .findFirst()
+                                                       .ifPresent(lockFilePackage -> pkgId.version = new Name(
+                                                               lockFilePackage.getVersion())));
             } else {
-                lockFilePackage = lockFile.getPackageList()
-                                          .stream()
-                                          .filter(pkg -> {
-                                              String alias = pkg.getOrg() + "/" + pkg.getName();
-                                              return alias.equals(pkgAlias);
-                                          })
-                                          .findFirst();
-            }
-            if (lockFilePackage != null) {
-                lockFilePackage.ifPresent(lockFilePackage1 -> pkgId.version = new Name(lockFilePackage1.getVersion()));
+                lockFile.getPackageList()
+                        .stream()
+                        .filter(pkg -> {
+                            String alias = pkg.getOrg() + "/" + pkg.getName();
+                            return alias.equals(pkgAlias);
+                        })
+                        .findFirst()
+                        .ifPresent(lockFilePackage -> pkgId.version = new Name(lockFilePackage.getVersion()));
             }
         }
     }
