@@ -92,7 +92,9 @@ public class Decompress extends BlockingNativeCallableUnit {
                             "is not available"));
         } else {
             decompress(srcPath, destPath, context);
-            context.setReturnValues();
+            if (context.getReturnValues() == null) {
+                context.setReturnValues();
+            }
         }
     }
 }

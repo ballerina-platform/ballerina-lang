@@ -75,6 +75,7 @@ under the License.
             <package name="org.ballerinalang.test.net.grpc"/>
             <package name="org.ballerinalang.test.runtime.*"/>
             <package name="org.ballerinalang.test.balo.*" />
+            <package name="org.ballerinalang.test.compression.*"/>
         </packages>
 
 		<!-- TODO: remove once constraint tests are fixed -->

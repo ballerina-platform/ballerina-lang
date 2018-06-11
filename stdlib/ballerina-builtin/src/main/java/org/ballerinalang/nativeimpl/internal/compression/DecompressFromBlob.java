@@ -74,7 +74,7 @@ public class DecompressFromBlob extends BlockingNativeCallableUnit {
             if (!isDecompressDestinationValid(outdir.resolve(name), outdir)) {
                 context.setReturnValues(CompressionUtils.createCompressionError(context,
                         "Arbitrary File Write attack attempted via an archive file. File name: " + entry.getName()));
-                return;
+                break;
             }
             if (entry.isDirectory()) {
                 Files.createDirectories(outdir.resolve(name));
@@ -159,7 +159,9 @@ public class DecompressFromBlob extends BlockingNativeCallableUnit {
             } else {
                 try {
                     decompress(inputStream, destPath, context);
-                    context.setReturnValues();
+                    if (context.getReturnValues() == null) {
+                        context.setReturnValues();
+                    }
                 } catch (IOException e) {
                     context.setReturnValues(CompressionUtils.createCompressionError(context,
                             "Error occurred when decompressing " + e.getMessage()));
