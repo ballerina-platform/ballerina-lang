@@ -23,6 +23,7 @@ documentation {
     Contains the configurations for an HTTP service.
 
     F{{endpoints}} An array of endpoints the service would be attached to
+    F{{host}} Domain name of the service
     F{{basePath}} Service base path
     F{{compression}} The status of compression
     F{{chunking}} Configures the chunking behaviour for the service
@@ -32,6 +33,7 @@ documentation {
 }
 public type HttpServiceConfig {
     Listener[] endpoints,
+    string host = "b7a.default",
     string basePath,
     Compression compression = "AUTO",
     Chunking chunking = CHUNKING_AUTO,

@@ -137,22 +137,28 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
                 break;
             }
             Token token = CommonUtil.getNextDefaultToken(tokenStream, startIndex);
-            if (token.getText().equals(UtilSymbolKeys.OPEN_BRACE_KEY)) {
+            if (token.getLine() - 1 > line) {
+                /*
+                Only breaks when the token line is greater than the cursor line. This is since, there can be
+                multiple annotations attached.
+                 */
+                break;
+            } else if (token.getText().equals(UtilSymbolKeys.OPEN_BRACE_KEY)) {
                 annotationName = tempTokenString;
                 startIndex = token.getTokenIndex();
-                break;
+                // For each annotation found, capture the package alias
+                if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                        .equals(CommonUtil.getNthDefaultTokensToLeft(tokenStream, startIndex, 2).getText())) {
+                    pkgAlias = CommonUtil.getNthDefaultTokensToLeft(tokenStream, startIndex, 3).getText();
+                }
+            } else {
+                tempTokenString = token.getText();
+                startIndex = token.getTokenIndex();
             }
-            tempTokenString = token.getText();
-            startIndex = token.getTokenIndex();
         }
         
         if (annotationName.isEmpty()) {
             return completionItems;
-        }
-        
-        if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD
-                .equals(CommonUtil.getNthDefaultTokensToLeft(tokenStream, startIndex, 2).getText())) {
-            pkgAlias = CommonUtil.getNthDefaultTokensToLeft(tokenStream, startIndex, 3).getText();
         }
         
         while (true) {
@@ -255,8 +261,20 @@ public class AnnotationAttachmentResolver extends AbstractItemResolver {
         int tokenCol = token.getCharPositionInLine();
         int line = cursorPosition.getLine();
         int col = cursorPosition.getCharacter();
+
+        while (true) {
+            if (tokenLine > line) {
+                break;
+            } else if (token.getText().equals(UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY)
+                    && line == tokenLine && tokenCol == col - 1) {
+                return true;
+            }
+            token = CommonUtil.getNextDefaultToken(tokenStream, token.getTokenIndex());
+            tokenLine = token.getLine() - 1;
+            tokenCol = token.getCharPositionInLine();
+        }
         
-        return line == tokenLine && tokenCol == col - 1;
+        return false;
     }
 
     /**

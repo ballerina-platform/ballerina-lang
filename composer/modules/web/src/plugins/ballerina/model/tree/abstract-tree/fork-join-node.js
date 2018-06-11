@@ -22,6 +22,31 @@ import StatementNode from '../statement-node';
 class AbstractForkJoinNode extends StatementNode {
 
 
+    setJoinCount(newValue, silent, title) {
+        const oldValue = this.joinCount;
+        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
+        this.joinCount = newValue;
+
+        if (!silent) {
+            this.trigger('tree-modified', {
+                origin: this,
+                type: 'modify-node',
+                title,
+                data: {
+                    attributeName: 'joinCount',
+                    newValue,
+                    oldValue,
+                },
+            });
+        }
+    }
+
+    getJoinCount() {
+        return this.joinCount;
+    }
+
+
+
     setWorkers(newValue, silent, title) {
         const oldValue = this.workers;
         title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
@@ -283,31 +308,6 @@ class AbstractForkJoinNode extends StatementNode {
     filterJoinedWorkerIdentifiers(predicateFunction) {
         return _.filter(this.joinedWorkerIdentifiers, predicateFunction);
     }
-
-
-    setJoinCount(newValue, silent, title) {
-        const oldValue = this.joinCount;
-        title = (_.isNil(title)) ? `Modify ${this.kind}` : title;
-        this.joinCount = newValue;
-
-        if (!silent) {
-            this.trigger('tree-modified', {
-                origin: this,
-                type: 'modify-node',
-                title,
-                data: {
-                    attributeName: 'joinCount',
-                    newValue,
-                    oldValue,
-                },
-            });
-        }
-    }
-
-    getJoinCount() {
-        return this.joinCount;
-    }
-
 
 
     setJoinBody(newValue, silent, title) {

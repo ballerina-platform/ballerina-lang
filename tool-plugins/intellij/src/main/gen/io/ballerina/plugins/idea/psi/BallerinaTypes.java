@@ -122,6 +122,7 @@ public interface BallerinaTypes {
   IElementType IMPORT_DECLARATION = new BallerinaCompositeElementType("IMPORT_DECLARATION");
   IElementType INDEX = new BallerinaCompositeElementType("INDEX");
   IElementType INTEGER_LITERAL = new BallerinaCompositeElementType("INTEGER_LITERAL");
+  IElementType INTEGER_RANGE_EXPRESSION = new BallerinaCompositeElementType("INTEGER_RANGE_EXPRESSION");
   IElementType INT_RANGE_EXPRESSION = new BallerinaCompositeElementType("INT_RANGE_EXPRESSION");
   IElementType INVOCATION = new BallerinaCompositeElementType("INVOCATION");
   IElementType INVOCATION_ARG = new BallerinaCompositeElementType("INVOCATION_ARG");
@@ -372,6 +373,7 @@ public interface BallerinaTypes {
   IElementType GROUP = new BallerinaTokenType("group");
   IElementType GT = new BallerinaTokenType(">");
   IElementType GT_EQUAL = new BallerinaTokenType(">=");
+  IElementType HALF_OPEN_RANGE = new BallerinaTokenType("HALF_OPEN_RANGE");
   IElementType HAVING = new BallerinaTokenType("having");
   IElementType HEX_INTEGER_LITERAL = new BallerinaTokenType("HEX_INTEGER_LITERAL");
   IElementType HOUR = new BallerinaTokenType("hour");
@@ -802,6 +804,9 @@ public interface BallerinaTypes {
       }
       else if (type == INTEGER_LITERAL) {
         return new BallerinaIntegerLiteralImpl(node);
+      }
+      else if (type == INTEGER_RANGE_EXPRESSION) {
+        return new BallerinaIntegerRangeExpressionImpl(node);
       }
       else if (type == INT_RANGE_EXPRESSION) {
         return new BallerinaIntRangeExpressionImpl(node);

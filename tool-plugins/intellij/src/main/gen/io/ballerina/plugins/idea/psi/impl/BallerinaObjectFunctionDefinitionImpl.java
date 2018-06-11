@@ -42,6 +42,12 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
   }
 
   @Override
+  @NotNull
+  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
+    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
+  }
+
+  @Override
   @Nullable
   public BallerinaCallableUnitBody getCallableUnitBody() {
     return PsiTreeUtil.getChildOfType(this, BallerinaCallableUnitBody.class);
@@ -51,6 +57,18 @@ public class BallerinaObjectFunctionDefinitionImpl extends BallerinaCompositeEle
   @Nullable
   public BallerinaObjectCallableUnitSignature getObjectCallableUnitSignature() {
     return PsiTreeUtil.getChildOfType(this, BallerinaObjectCallableUnitSignature.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaDeprecatedAttachment getDeprecatedAttachment() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDeprecatedAttachment.class);
+  }
+
+  @Override
+  @Nullable
+  public BallerinaDocumentationAttachment getDocumentationAttachment() {
+    return PsiTreeUtil.getChildOfType(this, BallerinaDocumentationAttachment.class);
   }
 
   @Override

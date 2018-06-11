@@ -206,11 +206,13 @@ function testCallProcedureWithMultipleResultSetsAndLowerConstraintCount(string j
                 ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
                 firstName2 = rs.FIRSTNAME;
             }
-
             testDB.stop();
             return (firstName1, firstName2);
         }
-        () => return ("", "");
+        () => {
+            testDB.stop();
+            return ("", "");
+        }
         error e => {
             testDB.stop();
             return e;
@@ -247,7 +249,10 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string 
             testDB.stop();
             return (firstName1, firstName2);
         }
-        () => return ("", "");
+        () => {
+            testDB.stop();
+            return ("", "");
+        }
         error e => {
             testDB.stop();
             return e;
@@ -256,7 +261,7 @@ function testCallProcedureWithMultipleResultSetsAndHigherConstraintCount(string 
 }
 
 function testCallProcedureWithMultipleResultSetsAndNilConstraintCount(string jdbcUrl, string userName, string password)
-             returns ((string, string)|error) {
+             returns (string|(string, string)|error) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -280,10 +285,13 @@ function testCallProcedureWithMultipleResultSetsAndNilConstraintCount(string jdb
                 ResultCustomers rs = check <ResultCustomers>dts[1].getNext();
                 firstName2 = rs.FIRSTNAME;
             }
-
+            testDB.stop();
             return (firstName1, firstName2);
         }
-        () => return ("", "");
+        () => {
+            testDB.stop();
+            return "nil";
+        }
         error e => {
             testDB.stop();
             return e;

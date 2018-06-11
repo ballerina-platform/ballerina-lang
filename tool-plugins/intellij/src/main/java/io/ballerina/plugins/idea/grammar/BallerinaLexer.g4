@@ -203,6 +203,10 @@ COMPOUND_DIV   : '/=' ;
 INCREMENT      : '++' ;
 DECREMENT      : '--' ;
 
+// Integer Range Operators.
+// CLOSED_RANGE - ELLIPSIS
+HALF_OPEN_RANGE   : '..<' ;
+
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?
     ;

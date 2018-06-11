@@ -21,6 +21,7 @@ import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.DocAttachment;
 import org.ballerinalang.model.elements.DocTag;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -56,8 +57,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint.AttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -89,6 +88,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -409,9 +409,19 @@ public class CompiledPackageSymbolEnter {
     private void defineTypeDef(DataInputStream dataInStream) throws IOException {
         String typeDefName = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
+        boolean isLabel = dataInStream.readBoolean();
         int typeTag = dataInStream.readInt();
 
         BTypeSymbol typeDefSymbol;
+
+        if (isLabel) {
+            typeDefSymbol = readLabelTypeSymbol(dataInStream, typeDefName, flags);
+            // Read and ignore attributes
+            readAttributes(dataInStream);
+
+            this.env.pkgSymbol.scope.define(typeDefSymbol.name, typeDefSymbol);
+            return;
+        }
 
         switch (typeTag) {
             case TypeTags.OBJECT:
@@ -424,8 +434,11 @@ public class CompiledPackageSymbolEnter {
                 typeDefSymbol = readFiniteTypeSymbol(dataInStream, typeDefName, flags);
                 break;
             default:
-                typeDefSymbol = symTable.errSymbol;
+                typeDefSymbol = readLabelTypeSymbol(dataInStream, typeDefName, flags);
         }
+
+        // Read and ignore attributes
+        readAttributes(dataInStream);
 
         this.env.pkgSymbol.scope.define(typeDefSymbol.name, typeDefSymbol);
     }
@@ -433,17 +446,13 @@ public class CompiledPackageSymbolEnter {
     private void defineAnnotations(DataInputStream dataInStream) throws IOException {
         String name = getUTF8CPEntryValue(dataInStream);
         int flags = dataInStream.readInt();
+        int attachPoints = dataInStream.readInt();
         int typeSig = dataInStream.readInt();
 
-        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, names.fromString(name),
+        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(flags, attachPoints, names.fromString(name),
                 this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
         annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
-        int attachCount = dataInStream.readInt();
-        for (int i = 0; i < attachCount; i++) {
-            String attachPoint = getUTF8CPEntryValue(dataInStream);
-            ((BAnnotationSymbol) annotationSymbol).attachmentPoints
-                    .add(new BLangAnnotationAttachmentPoint(AttachmentPoint.getAttachmentPoint(attachPoint)));
-        }
+
         this.env.pkgSymbol.scope.define(annotationSymbol.name, annotationSymbol);
         if (typeSig > 0) {
             UTF8CPEntry typeSigCPEntry = (UTF8CPEntry) this.env.constantPool[typeSig];
@@ -485,7 +494,6 @@ public class CompiledPackageSymbolEnter {
         BRecordType type = new BRecordType(symbol);
         symbol.type = type;
 
-
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
                 defineStructureField(dataInStream, symbol, type)));
@@ -511,15 +519,24 @@ public class CompiledPackageSymbolEnter {
         BFiniteType finiteType = new BFiniteType(symbol);
         symbol.type = finiteType;
 
-
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->
                 defineValueSpace(dataInStream, finiteType)));
 
-        // Read and ignore attributes
-        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+        return symbol;
+    }
 
-        setDocumentation(symbol, attrDataMap);
+    private BTypeSymbol readLabelTypeSymbol(DataInputStream dataInStream,
+                                             String name, int flags) throws IOException {
+        String typeSig = getUTF8CPEntryValue(dataInStream);
+        BType type = getBTypeFromDescriptor(typeSig);
+
+        BTypeSymbol symbol = type.tsymbol.createLabelSymbol();
+        symbol.type = type;
+
+        symbol.name = names.fromString(name);
+        symbol.pkgID = this.env.pkgSymbol.pkgID;
+        symbol.flags = flags;
 
         return symbol;
     }
@@ -561,6 +578,8 @@ public class CompiledPackageSymbolEnter {
             default:
                 throw new BLangCompilerException("unknown default value type " + typeDesc);
         }
+
+        litExpr.type = symTable.getTypeFromTag(litExpr.typeTag);
 
         finiteType.valueSpace.add(litExpr);
     }
@@ -1103,7 +1122,9 @@ public class CompiledPackageSymbolEnter {
 
         @Override
         public BType getArrayType(BType elementType) {
-            return new BArrayType(elementType);
+            BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
+                    .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+            return new BArrayType(elementType, arrayTypeSymbol);
         }
 
         @Override
@@ -1111,10 +1132,14 @@ public class CompiledPackageSymbolEnter {
 
             switch (typeChar) {
                 case 'O':
-                    return new BUnionType(null, new LinkedHashSet<>(memberTypes),
+                    BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet
+                            .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+                    return new BUnionType(unionTypeSymbol, new LinkedHashSet<>(memberTypes),
                             memberTypes.contains(symTable.nilType));
                 case 'P':
-                    return new BTupleType(memberTypes);
+                    BTypeSymbol tupleTypeSymbol = Symbols.createTypeSymbol(SymTag.TUPLE_TYPE, Flags.asMask(EnumSet
+                            .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+                    return new BTupleType(tupleTypeSymbol, memberTypes);
                 default:
                     throw new IllegalArgumentException("unsupported collection type char: " + typeChar);
             }
@@ -1125,6 +1150,7 @@ public class CompiledPackageSymbolEnter {
             if (retType == null) {
                 retType = symTable.nilType;
             }
+            //TODO need to consider a symbol for lambda functions for type definitions.
             return new BInvokableType(funcParams, retType, null);
         }
     }

@@ -19,6 +19,7 @@
 package org.ballerinalang.test.service.websocket;
 
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 
@@ -38,8 +39,22 @@ public class WebSocketIntegrationTest {
     /**
      * Initializes Ballerina with the given bal file.
      *
-     * @param fileName the filename to initialize the Ballerina server with
-     * @throws BallerinaTestException on Ballerina related issues
+     * @param fileName the filename to initialize the Ballerina server with.
+     * @param logLeecher Log leecher match the logs in the bal file.
+     * @throws BallerinaTestException on Ballerina related issues.
+     */
+    public void initBallerinaServer(String fileName, LogLeecher logLeecher) throws BallerinaTestException {
+        String balPath = new File("src/test/resources/websocket/" + fileName).getAbsolutePath();
+        ballerinaServerInstance = ServerInstance.initBallerinaServer();
+        ballerinaServerInstance.addLogLeecher(logLeecher);
+        ballerinaServerInstance.startBallerinaServer(balPath);
+    }
+
+    /**
+     * Initializes Ballerina with the given bal file.
+     *
+     * @param fileName the filename to initialize the Ballerina server with.
+     * @throws BallerinaTestException on Ballerina related issues.
      */
     public void initBallerinaServer(String fileName) throws BallerinaTestException {
         String balPath = new File("src/test/resources/websocket/" + fileName).getAbsolutePath();

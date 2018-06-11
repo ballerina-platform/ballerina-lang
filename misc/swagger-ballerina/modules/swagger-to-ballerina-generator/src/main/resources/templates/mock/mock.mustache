@@ -1,5 +1,6 @@
-import ballerina/log;
 import ballerina/http;
+import ballerina/log;
+import ballerina/mime;
 import ballerina/swagger;
 
 {{#servers}}endpoint http:Listener ep{{@index}} { {{#host}}
@@ -46,12 +47,15 @@ service {{cut info.title " "}} bind {{#servers}}ep{{@index}}{{#unless @last}}, {
     @http:ResourceConfig { {{#equals key "multi"}}{{#if methods}}
         methods:[{{#methods}}"{{.}}"{{#unless @last}}, {{/unless}}{{/methods}}],{{/if}}{{else}}
         methods:["{{upper key}}"],{{/equals}}
-        path:"{{../../key}}"
+        path:"{{../../key}}"{{#requestBody}}{{#equals "multipart/form-data" requestBody.selectedMedia.mediaType}}{{else}},
+        body:"_{{operationId}}Body"{{/equals}}{{/requestBody}}
     }{{#deprecated}}
     deprecated {}{{/deprecated}}
-    {{operationId}} (endpoint outboundEp, http:Request req{{#parameters}}{{>pathParams}}{{/parameters}}) {
-        http:Response res = {{operationId}}(req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}});
-        outboundEp->respond(res) but { error e => log:printError("Error while responding", err = e) };
+    {{operationId}} (endpoint outboundEp, http:Request _{{operationId}}Req{{#parameters}}{{>pathParams}}{{/parameters}}{{#requestBody}}{{>reqBody}}{{/requestBody}}) { {{#equals requestBody.selectedMedia.mediaType "multipart/form-data"}}
+        mime:Entity[] _{{operationId}}Body = check _{{operationId}}Req.getBodyParts();
+    {{/equals}}
+        http:Response _{{operationId}}Res = {{operationId}}(_{{operationId}}Req{{#parameters}}{{#equals in "path"}}, {{name}}{{/equals}}{{/parameters}}{{#requestBody}}, _{{operationId}}Body{{/requestBody}});
+        outboundEp->respond(_{{operationId}}Res) but { error e => log:printError("Error while responding", err = e) };
     }
 {{/value}}{{/operations}}{{/value}}{{/paths}}
 }

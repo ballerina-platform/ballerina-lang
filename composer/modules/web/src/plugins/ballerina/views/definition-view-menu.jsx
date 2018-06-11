@@ -21,6 +21,7 @@ import PropTypes from 'prop-types';
 import { Header, Icon, Grid, Popup, Button, Label } from 'semantic-ui-react';
 import CompilationUnitNode from '../model/tree/compilation-unit-node';
 import TreeUtil from '../model/tree-util';
+import { RESPOSIVE_MENU_TRIGGER } from '../constants';
 
 class DefinitionViewMenu extends React.Component {
 
@@ -64,32 +65,43 @@ class DefinitionViewMenu extends React.Component {
     render() {
         let structs = [];
         let endpoints = [];
+        let records = [];
 
         if (this.props.model) {
             structs = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isObject(node); });
             endpoints = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isEndpoint(node); });
+            records = this.props.model.topLevelNodes.filter((node) => { return TreeUtil.isRecord(node); });
         }
         return (
-            <Popup 
-                trigger={ 
+            <Popup
+                trigger={
                     <Button as='div' labelPosition='right'>
-                        <Grid divided className='top-bar' columns={2}>
+                        <Grid divided className={'top-bar ' + (this.props.width > RESPOSIVE_MENU_TRIGGER.ICON_MODE ? '' : 'mobile-top-bar')} columns={2}>
                             <Grid.Row>
-                                <Grid.Column mobile={16} tablet={8} computer={8} floated='right'>
+                                <Grid.Column width={5} floated='right'>
                                     <Grid.Row className='top-bar-row'>
-                                        <Label> 
+                                        <Label className='top-bar-icon'>
                                             <Icon name={'fw fw-struct'} />
                                         </Label>
                                         <Label >Objects</Label>
                                         <Label >{structs.length}</Label>
                                     </Grid.Row>
                                 </Grid.Column>
-                                <Grid.Column mobile={16} tablet={8} computer={8} floated='right'>
+                                <Grid.Column width={5} floated='right'>
                                     <Grid.Row className='top-bar-row'>
-                                        <Label> 
+                                        <Label className='top-bar-icon'>
+                                            <Icon name={'fw fw-records'} />
+                                        </Label>
+                                        <Label>Records</Label>
+                                        <Label >{records.length}</Label>
+                                    </Grid.Row>
+                                </Grid.Column>
+                                <Grid.Column width={5} floated='right'>
+                                    <Grid.Row className='top-bar-row'>
+                                        <Label className='top-bar-icon'>
                                             <Icon name={'fw fw-endpoint'} />
                                         </Label>
-                                        <Label left >Endpoints</Label>
+                                        <Label>Endpoints</Label>
                                         <Label >{endpoints.length}</Label>
                                     </Grid.Row>
                                 </Grid.Column>
@@ -107,30 +119,42 @@ class DefinitionViewMenu extends React.Component {
             >
                 {
                     <Grid divided columns={2} className='menu-pop-content'>
-                            <Grid.Column mobile={16} tablet={8} computer={8}>
-                                <Header as='h5'>
-                                    <Icon name={'fw fw-struct'} />
-                                    <Header.Content>Objects</Header.Content>
-                                </Header>
-                                {
+                        <Grid.Column mobile={16} tablet={5} computer={5}>
+                            <Header as='h5'>
+                                <Icon name={'fw fw-struct'} />
+                                <Header.Content>Objects</Header.Content>
+                            </Header>
+                            {
                                     structs.map((element) => {
                                         return this.getItem(element.getName().getValue(),
                                                             () => { this.onDelete(element); });
                                     })
                                 }
-                            </Grid.Column>
-                            <Grid.Column mobile={16} tablet={8} computer={8}>
-                                <Header as='h5'>
-                                    <Icon size='mini' name={'fw fw-endpoint'} />
-                                    <Header.Content>Endpoints</Header.Content>
-                                </Header>
-                                {
+                        </Grid.Column>
+                        <Grid.Column mobile={16} tablet={5} computer={5}>
+                            <Header as='h5'>
+                                <Icon name={'fw fw-records'} />
+                                <Header.Content>Records</Header.Content>
+                            </Header>
+                            {
+                                    records.map((element) => {
+                                        return this.getItem(element.getName().getValue(),
+                                                            () => { this.onDelete(element); });
+                                    })
+                                }
+                        </Grid.Column>
+                        <Grid.Column mobile={16} tablet={5} computer={5}>
+                            <Header as='h5'>
+                                <Icon size='mini' name={'fw fw-endpoint'} />
+                                <Header.Content>Endpoints</Header.Content>
+                            </Header>
+                            {
                                     endpoints.map((element) => {
                                         return this.getItem(element.getName().getValue(),
                                                             () => { this.onDelete(element); });
                                     })
                                 }
-                            </Grid.Column>
+                        </Grid.Column>
                     </Grid>
             }
 

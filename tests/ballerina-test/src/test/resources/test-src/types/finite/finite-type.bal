@@ -207,3 +207,10 @@ function testTypeDefinitionWithVarArgs() returns (ParamTest, ParamTest) {
 function testVarArgs(ParamTest... p1) returns ParamTest {
     return p1[0];
 }
+
+type ArrayCustom int[];
+
+function testTypeDefinitionWithArray() returns (int, int) {
+    ArrayCustom val = [34, 23];
+    return (lengthof val , val[1]);
+}

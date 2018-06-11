@@ -26,6 +26,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -47,6 +48,7 @@ public class ClientStreamingTestCase extends IntegrationTestCase {
         ballerinaServer = ServerInstance.initBallerinaServer(9090);
         Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "client_streaming_service.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
+        TestUtils.prepareBalo(this);
     }
 
     @Test
