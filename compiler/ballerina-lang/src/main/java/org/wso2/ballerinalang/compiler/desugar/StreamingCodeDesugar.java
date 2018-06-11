@@ -260,9 +260,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         final BLangExpressionStmt windowStatement = ASTBuilderUtil.createExpressionStmt(windowClause.pos, ifNode.body);
 
-
-        System.out.println("");
-
     }
 
 
