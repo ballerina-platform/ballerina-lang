@@ -414,6 +414,11 @@ public class TypeChecker extends BLangNodeVisitor {
         resultType = types.checkType(varRefExpr, actualType, expType);
     }
 
+    /**
+     * This method will recursively traverse and find the symbol environment of a lambda node (which is given as the
+     * enclosing invokable node) which is needed to lookup closure variables. The variable lookup will start from the
+     * enclosing invokable node's environment, which are outside of the scope of a lambda function.
+     */
     private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
         if (env.enclInvokable == encInvokable) {
             return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
