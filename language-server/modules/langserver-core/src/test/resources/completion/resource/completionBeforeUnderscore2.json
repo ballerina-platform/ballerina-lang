@@ -43,7 +43,7 @@
     {
       "label":"cacheControl",
       "kind":"Unit",
-      "detail":"ballerina.http:RequestCacheControl?",
+      "detail":"ballerina/http:RequestCacheControl?",
       "sortText":"110",
       "insertText":"cacheControl"
     },
@@ -80,7 +80,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getEntity()(ballerina.mime:Entity|error)",
+      "label":"getEntity()(ballerina/mime:Entity|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -88,7 +88,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getEntityWithoutBody()(ballerina.mime:Entity)",
+      "label":"getEntityWithoutBody()(ballerina/mime:Entity)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -216,7 +216,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getByteChannel()(ballerina.io:ByteChannel|error)",
+      "label":"getByteChannel()(ballerina/io:ByteChannel|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -240,7 +240,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getBodyParts()(ballerina.mime:Entity[]|error)",
+      "label":"getBodyParts()(ballerina/mime:Entity[]|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -304,7 +304,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"setPayload(string|xml|json|blob|ballerina.io:ByteChannel|ballerina.mime:Entity[] payload)",
+      "label":"setPayload(string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[] payload)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
