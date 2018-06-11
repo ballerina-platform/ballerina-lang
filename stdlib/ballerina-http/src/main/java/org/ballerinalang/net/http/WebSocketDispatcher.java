@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.CorruptedFrameException;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
@@ -30,6 +32,11 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -50,6 +57,8 @@ import java.util.Map;
  * @since 0.94
  */
 public class WebSocketDispatcher {
+
+    private static final Logger log = LoggerFactory.getLogger(WebSocketDispatcher.class);
 
     /**
      * This will find the best matching service for given web socket request.
@@ -203,6 +212,50 @@ public class WebSocketDispatcher {
             }
         };
         Executor.submit(onCloseResource, onCloseCallback, null, null, bValues);
+    }
+
+    public static void dispatchError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
+        WebSocketService webSocketService = connectionInfo.getService();
+        Resource onErrorResource = webSocketService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_ERROR);
+        if (isUnexpectedError(throwable)) {
+            log.error("Unexpected error", throwable);
+        }
+        if (onErrorResource == null) {
+            ErrorHandlerUtils.printError(throwable);
+            return;
+        }
+        BValue[] bValues = new BValue[onErrorResource.getParamDetails().size()];
+        bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[1] = getError(webSocketService, throwable);
+        CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
+            @Override
+            public void notifySuccess() {
+                // Do nothing.
+            }
+
+            @Override
+            public void notifyFailure(BStruct error) {
+                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+            }
+        };
+        Executor.submit(onErrorResource, onErrorCallback, null, null, bValues);
+    }
+
+    private static BStruct getError(WebSocketService webSocketService, Throwable throwable) {
+        ProgramFile programFile = webSocketService.getServiceInfo().getPackageInfo().getProgramFile();
+        PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangVMErrors.PACKAGE_BUILTIN);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+        String errMsg;
+        if (isUnexpectedError(throwable)) {
+            errMsg = "Unexpected internal error. Please check internal-log for more details!";
+        } else {
+            errMsg = throwable.getMessage();
+        }
+        return BLangVMStructs.createBStruct(errorStructInfo, errMsg);
+    }
+
+    private static boolean isUnexpectedError(Throwable throwable) {
+        return !(throwable instanceof CorruptedFrameException);
     }
 
     public static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo,

@@ -5,7 +5,7 @@ import com.intellij.psi.tree.IElementType;
 
 import static com.intellij.psi.TokenType.BAD_CHARACTER;
 import static com.intellij.psi.TokenType.WHITE_SPACE;
-import static BallerinaTypes.*;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.*;
 
 %%
 
@@ -459,6 +459,8 @@ STRING_TEMPLATE_TEXT = {STRING_TEMPLATE_VALID_CHAR_SEQUENCE}? ({STRING_TEMPLATE_
 
     "++"                                        { return INCREMENT; }
     "--"                                        { return DECREMENT; }
+
+    "..<"                                       { return HALF_OPEN_RANGE; }
 
     "from"                                      { inSiddhi = false; inTableSqlQuery = true; inSiddhiInsertQuery = true; inSiddhiOutputRateLimit = true; return FROM; }
     "on"                                        { return ON; }
