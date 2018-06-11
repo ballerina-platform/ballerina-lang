@@ -10,6 +10,11 @@
           text-align: center;
       }
     }
+    & .panel-title-wrapper {
+        background-color: #383838;
+        height: 35px;
+        border-bottom: 1px solid #565656;
+    }
     & .panel-title {
         @extend .unseletable-content;
         float: left;
