@@ -16,10 +16,10 @@ documentation {
     P{{pkgPath}} Package path
     P{{fileSeparator}} File separator based on the operating system
     P{{terminalWidth}} Width of the terminal
-    P{{baloRange}} Balo range
+    P{{versionRange}} Supported version range
 }
 function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator, 
-                        string terminalWidth, string baloRange) {
+                        string terminalWidth, string versionRange) {
     endpoint http:Client httpEndpoint = definedEndpoint;
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -27,7 +27,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     req.addHeader("Accept-Encoding", "identity");
 
     http:Response httpResponse = new;
-    var result = httpEndpoint -> get(untaint baloRange, message=req);
+    var result = httpEndpoint -> get(untaint versionRange, message=req);
 
     match result {
         http:Response response => httpResponse = response;

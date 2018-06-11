@@ -84,7 +84,7 @@ public class URIConverter implements Converter<URI> {
             String fullPkgPath = orgName + "/" + pkgName;
             Proxy proxy = RepoUtils.readSettings().getProxy();
 
-            String supportedVersionRange = "?baloRange=" + ProgramFileConstants.MIN_SUPPORTED_VERSION + "," +
+            String supportedVersionRange = "?supported-version-range=" + ProgramFileConstants.MIN_SUPPORTED_VERSION + "," +
                     ProgramFileConstants.MAX_SUPPORTED_VERSION;
             EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
             executor.execute("packaging_pull/packaging_pull.balx", true, u.toString(), destDirPath.toString(),
