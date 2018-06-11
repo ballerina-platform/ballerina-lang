@@ -177,8 +177,8 @@ Function
    | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <isStreamAction?> =>                                                          ( <allParams-joined-by,>*                                           )                                                                                         { <endpointNodes>* <body.source> <workers>* }
    | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                               ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> ) <hasReturns?> =>                                             <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
    | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                               ( <allParams-joined-by,>*                                           ) <hasReturns?> =>                                             <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
-   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                               ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> )               =>                                           (                         )  { <endpointNodes>* <body.source> <workers>* }
-   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                               ( <allParams-joined-by,>*                                           )               =>                                           (                         )  { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                               ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> )               =>                                                                        { <endpointNodes>* <body.source> <workers>* }
+   | <lambda?>                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                                                                               ( <allParams-joined-by,>*                                           )               =>                                                                        { <endpointNodes>* <body.source> <workers>* }
    | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                                         <name.value> ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> ) <hasReturns?>    returns <returnTypeAnnotationAttachments>*  <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
    | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                                         <name.value> ( <allParams-joined-by,>*                                           ) <hasReturns?>    returns <returnTypeAnnotationAttachments>*  <returnTypeNode.source>    { <endpointNodes>* <body.source> <workers>* }
    | <noVisibleReceiver?>      <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> function                                         <name.value> ( <allParams-joined-by,>* <hasRestParams?,> <restParameters.source> )                                                                                         { <endpointNodes>* <body.source> <workers>* }
@@ -603,21 +603,20 @@ XmlAttributeAccessExpr
    ;
 
 XmlCommentLiteral
-   : <root?> xml` <!-- <textFragments>* --> `
-   |              <!-- <textFragments>* -->
+   : <root?> <startLiteral> <!-- <textFragments>* --> `
+   |                        <!-- <textFragments>* -->
    ;
 
 XmlElementLiteral
-   : <root?> xml` < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> > `
-   |              < <startTagName.source> <attributes>* > <content>* </ <endTagName.source> >
-   | <root?> xml` < <startTagName.source> <attributes>* />`
-   :              < <startTagName.source> <attributes>* />
+   : <root?> <startLiteral> < <startTagName.source> <attributes>*  > <content>* </ <endTagName.source> > `
+   | <root?> <startLiteral> < <startTagName.source> <attributes>* />                                     `
+   |                        < <startTagName.source> <attributes>*  > <content>* </ <endTagName.source> >
+   |                        < <startTagName.source> <attributes>* />
    ;
 
 XmlPiLiteral
-   : <target.source> <dataTextFragments>*
-   | <dataTextFragments>*
-   | <target.source>
+   : <root?> <startLiteral> <? <target.source> <dataTextFragments>* ?> `
+   |                        <? <target.source> <dataTextFragments>* ?>
    ;
 
 XmlQname
@@ -630,7 +629,8 @@ XmlQuotedString
    ;
 
 XmlTextLiteral
-   : <textFragments>*
+   : <root?> <startLiteral> <textFragments>* `
+   |                        <textFragments>*
    ;
 
 Xmlns

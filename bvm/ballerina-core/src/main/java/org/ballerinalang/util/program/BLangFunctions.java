@@ -86,7 +86,7 @@ public class BLangFunctions {
      * @param packageName the package the callable is residing
      * @param callableName the callable name
      * @param args the callable arguments
-     * @return
+     * @return return values of the function
      */
     public static BValue[] invokeEntrypointCallable(ProgramFile bLangProgram, String packageName, String callableName,
                                      BValue[] args) {
@@ -120,7 +120,7 @@ public class BLangFunctions {
         orderInitFunctions(programFile);
 
         for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
-            BLangFunctions.invokePackageInitFunction(info.getInitFunctionInfo());
+            invokePackageInitFunction(info.getInitFunctionInfo());
         }
     }
 
@@ -134,7 +134,7 @@ public class BLangFunctions {
         orderInitFunctions(programFile);
 
         for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
-            BLangFunctions.invokePackageInitFunction(info.getInitFunctionInfo(), context);
+            invokePackageInitFunction(info.getInitFunctionInfo(), context);
         }
     }
 
@@ -481,7 +481,7 @@ public class BLangFunctions {
         }
     }
     
-    public static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
+    private static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
         invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
@@ -489,7 +489,7 @@ public class BLangFunctions {
         }
     }
 
-    public static void invokePackageInitFunction(FunctionInfo initFuncInfo) {
+    private static void invokePackageInitFunction(FunctionInfo initFuncInfo) {
         WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
         invokePackageInitFunction(initFuncInfo, context);
     }

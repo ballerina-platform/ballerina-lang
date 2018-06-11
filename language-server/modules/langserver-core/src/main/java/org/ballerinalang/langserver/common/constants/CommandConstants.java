@@ -35,6 +35,8 @@ public class CommandConstants {
 
     public static final String ARG_KEY_RETURN_DEFAULT_VAL = "function.returns.default";
 
+    public static final String ARG_KEY_FUNC_ARGS = "function.arguments";
+
     public static final String ARG_KEY_NODE_TYPE = "node.type";
 
     public static final String ARG_KEY_NODE_LINE = "node.line";

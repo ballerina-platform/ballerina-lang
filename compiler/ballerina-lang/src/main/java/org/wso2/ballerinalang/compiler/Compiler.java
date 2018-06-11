@@ -18,6 +18,8 @@
 package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -41,9 +43,11 @@ public class Compiler {
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
+    private final LockFileWriter lockFileWriter;
     private final DependencyTree dependencyTree;
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
+    private final Manifest manifest;
 
     public static Compiler getInstance(CompilerContext context) {
         Compiler compiler = context.get(COMPILER_KEY);
@@ -59,9 +63,11 @@ public class Compiler {
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
+        this.lockFileWriter = LockFileWriter.getInstance(context);
         this.dependencyTree = DependencyTree.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
+        this.manifest = ManifestProcessor.getInstance(context).getManifest();
     }
 
     public BLangPackage compile(String sourcePackage) {
@@ -74,7 +80,10 @@ public class Compiler {
     }
 
     public void build() {
-        compilePackages().forEach(this.binaryFileWriter::write);
+        List<BLangPackage> packageList = compilePackages();
+        packageList.forEach(this.binaryFileWriter::write);
+        packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
+        this.lockFileWriter.writeLockFile(this.manifest);
     }
 
     public void build(String sourcePackage, String targetFileName) {
@@ -85,6 +94,8 @@ public class Compiler {
 
         // Code gen and save...
         this.binaryFileWriter.write(bLangPackage, targetFileName);
+        this.lockFileWriter.addEntryPkg(bLangPackage.symbol);
+        this.lockFileWriter.writeLockFile(this.manifest);
     }
 
     public void list() {

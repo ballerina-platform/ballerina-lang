@@ -257,8 +257,8 @@ public class Generator {
             dataType = getTypeName(annotationNode.typeNode);
             href = extractLink(annotationNode.typeNode);
         }
-        String attachments = annotationNode.attachmentPoints.stream().map(attachmentPoint -> attachmentPoint
-                .attachmentPoint.getValue()).collect(Collectors.joining(", "));
+        String attachments = annotationNode.attachPoints.stream().map(attachmentPoint -> attachmentPoint
+                .getValue()).collect(Collectors.joining(", "));
 
         return new AnnotationDoc(annotationName, description(annotationNode), dataType, href, attachments);
     }

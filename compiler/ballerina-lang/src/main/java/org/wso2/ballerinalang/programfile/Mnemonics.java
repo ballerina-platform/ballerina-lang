@@ -135,7 +135,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.FLT] = "flt";
         mnemonics[InstructionCodes.ILE] = "ile";
         mnemonics[InstructionCodes.FLE] = "fle";
-        
+
         mnemonics[InstructionCodes.REQ_NULL] = "reg_null";
         mnemonics[InstructionCodes.RNE_NULL] = "rne_null";
         mnemonics[InstructionCodes.BR_TRUE] = "br_true";
@@ -230,6 +230,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
         mnemonics[InstructionCodes.ITR_HAS_NEXT] = "itr_has_next";
         mnemonics[InstructionCodes.ITR_NEXT] = "itr_next";
+        mnemonics[InstructionCodes.INT_RANGE] = "int_range";
 
         mnemonics[InstructionCodes.IRET] = "iret";
         mnemonics[InstructionCodes.FRET] = "fret";

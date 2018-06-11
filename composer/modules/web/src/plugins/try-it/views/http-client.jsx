@@ -21,7 +21,7 @@ import _ from 'lodash';
 import { invokeTryIt, getTryItUrl } from 'api-client/api-client';
 import cn from 'classnames';
 import AceEditor from 'react-ace';
-import { Container, Accordion, Form, Button, Divider, Segment, Icon, Select } from 'semantic-ui-react';
+import { Loader, Container, Accordion, Form, Button, Divider, Segment, Icon, Select } from 'semantic-ui-react';
 import copy from 'copy-to-clipboard';
 import PropTypes from 'prop-types';
 import React from 'react';
@@ -586,12 +586,18 @@ class HttpClient extends React.Component {
      */
     renderSendOrCancelButton() {
         if (this.state.waitingForResponse === false) {
-            return (<Button primary className='send-request' onClick={this.onInvoke} >Send</Button>);
+            return (
+                <Button primary className='send-request' onClick={this.onInvoke} >
+                    Send
+                </Button>
+            );
         } else {
-            return (<Button primary className='cancel-request' onClick={this.onInvokeCancel} >
-                <i className='fw fw-loader5 fw-spin fw-1x' />
-                <span>Cancel</span>
-            </Button>);
+            return (
+                <Button primary className='cancel-request' onClick={this.onInvokeCancel} >
+                    <Loader active inline size='mini' />
+                    <span>&nbsp;Cancel</span>
+                </Button>
+            );
         }
     }
 
@@ -810,9 +816,13 @@ class HttpClient extends React.Component {
                                                         </Form.Field>
                                                     </Form.Group>
                                                 </Form>
-                                            ) : (<p className='response-empty'>
-                                                Click Send button to send a request.
-                                            </p>)
+                                            ) : (
+                                                <Segment inverted loading={this.state.waitingForResponse} className='response-empty-segment'>
+                                                    <p className='response-empty'>
+                                                        Click Send button to send a request.
+                                                    </p>
+                                                </Segment>
+                                            )
                                         }
 
                                     </Segment>

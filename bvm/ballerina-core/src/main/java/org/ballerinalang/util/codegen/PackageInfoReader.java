@@ -360,26 +360,43 @@ public class PackageInfoReader {
 
             int typeDefNameCPIndex = dataInStream.readInt();
             int flags = dataInStream.readInt();
+            boolean isLabel = dataInStream.readBoolean();
             int typeTag = dataInStream.readInt();
             UTF8CPEntry typeDefNameUTF8Entry = (UTF8CPEntry) packageInfo.getCPEntry(typeDefNameCPIndex);
             String typeDefName = typeDefNameUTF8Entry.getValue();
             TypeDefInfo typeDefInfo = new TypeDefInfo(packageInfo.getPkgNameCPIndex(), packageInfo.getPkgPath(),
                     typeDefNameCPIndex, typeDefName, flags);
-            packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
 
             typeDefInfo.typeTag = typeTag;
+
+            if (isLabel) {
+                //Read index and ignore as this type is not needed for runtime
+                dataInStream.readInt();
+                // Read attributes of the struct info
+                readAttributeInfoEntries(packageInfo, packageInfo, typeDefInfo);
+                continue;
+            }
 
             switch (typeDefInfo.typeTag) {
                 case TypeTags.OBJECT_TYPE_TAG:
                     readObjectInfoEntry(packageInfo, typeDefInfo);
+                    packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
                     break;
                 case TypeTags.RECORD_TYPE_TAG:
                     readRecordInfoEntry(packageInfo, typeDefInfo);
+                    packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
                     break;
                 case TypeTags.FINITE_TYPE_TAG:
                     readFiniteTypeInfoEntry(packageInfo, typeDefInfo);
+                    packageInfo.addTypeDefInfo(typeDefName, typeDefInfo);
+                    break;
+                default:
+                    //Read index and ignore as this type is not needed for runtime
+                    dataInStream.readInt();
                     break;
             }
+            // Read attributes of the struct info
+            readAttributeInfoEntries(packageInfo, packageInfo, typeDefInfo);
         }
 
     }
@@ -387,15 +404,10 @@ public class PackageInfoReader {
     private void readAnnotationInfoEntries(PackageInfo packageInfo) throws IOException {
         int typeDefCount = dataInStream.readShort();
         for (int i = 0; i < typeDefCount; i++) {
-
             dataInStream.readInt();
             dataInStream.readInt();
             dataInStream.readInt();
-            //TODO any better way?
-            int count = dataInStream.readInt();
-            for (int j = 0; j < count; j++) {
-                dataInStream.readInt();
-            }
+            dataInStream.readInt();
         }
     }
 
@@ -532,8 +544,6 @@ public class PackageInfoReader {
         for (int k = 0; k < valueSpaceCount; k++) {
             finiteType.valueSpace.add(getDefaultValueToBValue(getDefaultValue(packageInfo)));
         }
-
-        readAttributeInfoEntries(packageInfo, packageInfo, typeDefInfo);
 
         typeDefInfo.typeInfo = typeInfo;
     }
@@ -1317,6 +1327,7 @@ public class PackageInfoReader {
                 case InstructionCodes.MAP2JSON:
                 case InstructionCodes.JSON2MAP:
                 case InstructionCodes.JSON2ARRAY:
+                case InstructionCodes.INT_RANGE:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
