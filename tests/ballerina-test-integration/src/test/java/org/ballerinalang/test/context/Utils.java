@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.test.context;
 
-import org.ballerinalang.nativeimpl.internal.compression.CompressionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
