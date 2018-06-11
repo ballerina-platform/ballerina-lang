@@ -23,12 +23,15 @@ import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import io.ballerina.plugins.idea.psi.impl.BallerinaElementFactory;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Responsible for resolving package names.
  */
 public class BallerinaPackageNameReference extends BallerinaCachedReference<BallerinaIdentifier> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BallerinaPackageNameReference.class);
     private PsiReference reference;
 
     public BallerinaPackageNameReference(@NotNull BallerinaIdentifier element, PsiReference reference) {
@@ -47,7 +50,12 @@ public class BallerinaPackageNameReference extends BallerinaCachedReference<Ball
     @Override
     public PsiElement resolveInner() {
         if (reference != null) {
-            return reference.resolve();
+            try {
+                // This try catch is added to handle any issues which occur due to user repo changes.
+                return reference.resolve();
+            } catch (Exception e) {
+                LOGGER.debug(e.getMessage(), e);
+            }
         }
         return null;
     }
