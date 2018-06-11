@@ -23,6 +23,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.CorruptedFrameException;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
@@ -73,6 +74,7 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
     private ChannelPromise closePromise;
     private WebSocketFrameType continuationFrameType;
     private boolean closeFrameReceived;
+    private boolean caughtException;
 
     /**
      * @param connectorFuture {@link ServerConnectorFuture} to notify messages to application.
@@ -146,7 +148,7 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
             handlerExecutor = null;
         }
 
-        if (webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null) {
+        if (!caughtException && webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null) {
             // Notify abnormal closure.
             DefaultWebSocketMessage webSocketCloseMessage =
                     new DefaultWebSocketCloseMessage(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
@@ -212,7 +214,7 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
     private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment)
             throws ServerConnectorException {
         DefaultWebSocketMessage webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content,
-                                                                                           finalFragment);
+                finalFragment);
         setupCommonProperties(webSocketBinaryMessage);
         connectorFuture.notifyWSListener((WebSocketBinaryMessage) webSocketBinaryMessage);
     }
@@ -224,8 +226,8 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
         if (closePromise == null) {
             DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage);
-            connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
             closeFrameReceived = true;
+            connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
         } else {
             if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
                 String errMsg = String.format(
@@ -270,17 +272,22 @@ public class WebSocketSourceHandler extends WebSocketInboundFrameHandler {
 
         webSocketMessage.setProperty(Constants.SRC_HANDLER, this);
         webSocketMessage.setProperty(Constants.LISTENER_PORT,
-                                     ((InetSocketAddress) ctx.channel().localAddress()).getPort());
+                ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         webSocketMessage.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         webSocketMessage.setProperty(
                 Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
-                Constants.WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION, "Encountered an unexpected condition"));
-        closeFrameFuture.addListener(future -> ctx.close().addListener(
-                closeFuture -> connectorFuture.notifyWSListener(cause)));
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws ServerConnectorException {
+        caughtException = true;
+        if (!(cause instanceof CorruptedFrameException)) {
+            ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
+                    Constants.WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION, "Encountered an unexpected condition"));
+            closeFrameFuture.addListener(future -> ctx.close().addListener(
+                    closeFuture -> connectorFuture.notifyWSListener(webSocketConnection, cause)));
+            return;
+        }
+        connectorFuture.notifyWSListener(webSocketConnection, cause);
     }
 }

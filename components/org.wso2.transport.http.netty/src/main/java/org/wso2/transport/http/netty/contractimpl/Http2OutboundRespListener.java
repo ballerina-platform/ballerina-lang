@@ -196,7 +196,7 @@ public class Http2OutboundRespListener implements HttpConnectorListener {
             contentLength += httpContent.content().readableBytes();
             validatePromisedStreamState();
             ChannelFuture channelFuture = encoder.writeData(
-                    ctx, streamId, httpContent.content().retain(), 0, endStream, ctx.newPromise());
+                    ctx, streamId, httpContent.content(), 0, endStream, ctx.newPromise());
             encoder.flowController().writePendingBytes();
             ctx.flush();
             if (endStream) {

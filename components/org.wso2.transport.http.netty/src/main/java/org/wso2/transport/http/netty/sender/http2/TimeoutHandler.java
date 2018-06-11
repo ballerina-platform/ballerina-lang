@@ -190,8 +190,8 @@ public class TimeoutHandler  implements Http2DataEventListener {
     }
 
     private void closeStream(int streamId, ChannelHandlerContext ctx) {
-        ClientOutboundHandler clientOutboundHandler =
-                (ClientOutboundHandler) ctx.pipeline().get(Constants.OUTBOUND_HANDLER);
+        Http2TargetHandler clientOutboundHandler =
+                (Http2TargetHandler) ctx.pipeline().get(Constants.HTTP2_TARGET_HANDLER);
         clientOutboundHandler.resetStream(ctx, streamId, Http2Error.STREAM_CLOSED);
     }
 

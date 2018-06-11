@@ -67,7 +67,7 @@ public class WebSocketPassThroughClientConnectorListener implements WebSocketCon
     }
 
     @Override
-    public void onError(Throwable throwable) {
+    public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
     }
 
     @Override

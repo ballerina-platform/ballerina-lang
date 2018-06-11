@@ -15,12 +15,11 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.wso2.transport.http.netty.listener;
+package org.wso2.transport.http.netty.listener.http2;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
@@ -29,13 +28,9 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http2.Http2Connection;
-import io.netty.handler.codec.http2.Http2ConnectionDecoder;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
-import io.netty.handler.codec.http2.Http2ConnectionHandler;
-import io.netty.handler.codec.http2.Http2EventAdapter;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
-import io.netty.handler.codec.http2.Http2Settings;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,9 +38,11 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contractimpl.Http2OutboundRespListener;
-import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
+import org.wso2.transport.http.netty.listener.HttpServerChannelInitializer;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.Http2DataFrame;
+import org.wso2.transport.http.netty.message.Http2HeadersFrame;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 import org.wso2.transport.http.netty.message.PooledDataStreamerFactory;
 
@@ -53,38 +50,32 @@ import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.Map;
 
-import static io.netty.handler.codec.http2.Http2CodecUtil.getEmbeddedHttp2Exception;
-import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
-
 /**
  * {@code HTTP2SourceHandler} read the HTTP/2 binary frames sent from client through the channel.
  *
  * This is also responsible for building the {@link HttpCarbonRequest} and forward to the listener
  * interested in request messages.
  */
-public final class Http2SourceHandler extends Http2ConnectionHandler {
+public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(Http2SourceHandler.class);
 
     // streamIdRequestMap contains mapping of http carbon messages vs stream id to support multiplexing
     private Map<Integer, HTTPCarbonMessage> streamIdRequestMap = PlatformDependent.newConcurrentHashMap();
     private ChannelHandlerContext ctx;
-    private Http2FrameListener http2FrameListener;
     private String interfaceId;
     private ServerConnectorFuture serverConnectorFuture;
     private Http2Connection conn;
     private String serverName;
     private HttpServerChannelInitializer serverChannelInitializer;
     private String remoteAddress;
+    private Http2ConnectionEncoder encoder;
 
-    Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer,
-                       Http2ConnectionDecoder decoder, Http2ConnectionEncoder encoder,
-                       Http2Settings initialSettings,
+    public Http2SourceHandler(HttpServerChannelInitializer serverChannelInitializer, Http2ConnectionEncoder encoder,
                        String interfaceId, Http2Connection conn, ServerConnectorFuture serverConnectorFuture,
                        String serverName) {
-        super(decoder, encoder, initialSettings);
         this.serverChannelInitializer = serverChannelInitializer;
-        http2FrameListener = new Http2FrameListener();
+        this.encoder = encoder;
         this.interfaceId = interfaceId;
         this.serverConnectorFuture = serverConnectorFuture;
         this.conn = conn;
@@ -94,9 +85,6 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
-        // Remove unwanted handlers after upgrade
-        safelyRemoveHandlers(ctx.pipeline(), Constants.HTTP2_TO_HTTP_FALLBACK_HANDLER, Constants.HTTP_COMPRESSOR,
-                                  Constants.HTTP_TRACE_LOG_HANDLER, Constants.HTTP_ACCESS_LOG_HANDLER);
         this.ctx = ctx;
         // Populate remote address
         SocketAddress address = ctx.channel().remoteAddress();
@@ -105,22 +93,6 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
             if (remoteAddress.startsWith("/")) {
                 remoteAddress = remoteAddress.substring(1);
             }
-        }
-    }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (ctx != null && ctx.channel().isActive()) {
-            ctx.writeAndFlush(Unpooled.EMPTY_BUFFER).addListener(ChannelFutureListener.CLOSE);
-        }
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        ctx.close();
-        if (HTTPTransportContextHolder.getInstance().getHandlerExecutor() != null) {
-            HTTPTransportContextHolder.getInstance().getHandlerExecutor()
-                    .executeAtSourceConnectionTermination(Integer.toString(ctx.hashCode()));
         }
     }
 
@@ -148,24 +120,51 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     }
 
     @Override
-    public void onError(ChannelHandlerContext ctx, Throwable cause) {
-        Http2Exception embedded = getEmbeddedHttp2Exception(cause);
-        if (embedded instanceof Http2Exception.ClosedStreamCreationException) {
-            // We will end up here if we try to write to a already rejected stream
-            log.warn("Stream creation failed, {}, {}",
-                     Constants.PROMISED_STREAM_REJECTED_ERROR, embedded.getMessage());
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (msg instanceof Http2HeadersFrame) {
+            Http2HeadersFrame headersFrame = (Http2HeadersFrame) msg;
+            int streamId = headersFrame.getStreamId();
+
+            // Construct new HTTP Request
+            HTTPCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
+            if (headersFrame.isEndOfStream()) {
+                // Add empty last http content if no data frames available in the http request
+                sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
+            } else {
+                streamIdRequestMap.put(streamId, sourceReqCMsg);   // storing to add HttpContent later
+            }
+            notifyRequestListener(sourceReqCMsg, streamId);
+
+        } else if (msg instanceof Http2DataFrame) {
+            Http2DataFrame dataFrame = (Http2DataFrame) msg;
+            int streamId = dataFrame.getStreamId();
+            ByteBuf data = dataFrame.getData();
+            HTTPCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
+            if (sourceReqCMsg != null) {
+                if (dataFrame.isEndOfStream()) {
+                    sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data));
+                    streamIdRequestMap.remove(streamId);
+                } else {
+                    sourceReqCMsg.addHttpContent(new DefaultHttpContent(data));
+                }
+            } else {
+                log.warn("Inconsistent state detected : data has received before headers");
+            }
         } else {
-            super.onError(ctx, cause);
+            ctx.fireChannelRead(msg);
         }
     }
 
-    /**
-     * Gets the listener which listen to the HTTP/2 frames.
-     *
-     * @return the {@code Http2FrameListener} which listens for the HTTP/2 frames
-     */
-    Http2FrameListener getHttp2FrameListener() {
-        return http2FrameListener;
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        destroy();
+        ctx.fireChannelInactive();
+    }
+
+    @Override
+    public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+        destroy();
+        ctx.fireChannelUnregistered();
     }
 
     /**
@@ -179,7 +178,7 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
             try {
                 ServerConnectorFuture outboundRespFuture = httpRequestMsg.getHttpResponseFuture();
                 outboundRespFuture.setHttpConnectorListener(new Http2OutboundRespListener(
-                        serverChannelInitializer, httpRequestMsg, ctx, conn, encoder(), streamId, serverName,
+                        serverChannelInitializer, httpRequestMsg, ctx, conn, encoder, streamId, serverName,
                         remoteAddress));
                 serverConnectorFuture.notifyHttpListener(httpRequestMsg);
             } catch (Exception e) {
@@ -191,57 +190,13 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
     }
 
     /**
-     * listener which listen to the HTTP/2 frames.
+     * Creates a carbon message for HTTP/2 request.
+     *
+     * @param http2Headers the Http2 headers
+     * @return a HTTPCarbonMessage
      */
-    private class Http2FrameListener extends Http2EventAdapter {
-
-        @Override
-        public void onHeadersRead(ChannelHandlerContext ctx, int streamId,
-                                  Http2Headers headers, int padding, boolean endOfStream) throws Http2Exception {
-            HTTPCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headers, streamId);
-
-            if (endOfStream) {
-                // Add empty last http content if no data frames available in the http request
-                sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
-            } else {
-                streamIdRequestMap.put(streamId, sourceReqCMsg);   // storing to add HttpContent later
-            }
-            notifyRequestListener(sourceReqCMsg, streamId);
-        }
-
-        @Override
-        public void onHeadersRead(ChannelHandlerContext ctx, int streamId, Http2Headers headers, int streamDependency,
-                                  short weight, boolean exclusive, int padding, boolean endOfStream)
-                throws Http2Exception {
-            onHeadersRead(ctx, streamId, headers, padding, endOfStream);
-        }
-
-        @Override
-        public int onDataRead(ChannelHandlerContext ctx, int streamId, ByteBuf data, int padding, boolean endOfStream)
-                throws Http2Exception {
-            HTTPCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
-            if (sourceReqCMsg != null) {
-                if (endOfStream) {
-                    sourceReqCMsg.addHttpContent(new DefaultLastHttpContent(data.retain()));
-                    streamIdRequestMap.remove(streamId);
-                } else {
-                    sourceReqCMsg.addHttpContent(new DefaultHttpContent(data.retain()));
-                }
-            } else {
-                log.warn("Inconsistent state detected : data has received before headers");
-            }
-            return data.readableBytes() + padding;
-        }
-
-        /**
-         * Creates a carbon message for HTTP/2 request.
-         *
-         * @param http2Headers the Http2 headers
-         * @return a HTTPCarbonMessage
-         */
-        private HTTPCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) throws Http2Exception {
-            return setupCarbonRequest(Util.createHttpRequestFromHttp2Headers(http2Headers, streamId));
-        }
+    private HTTPCarbonMessage setupHttp2CarbonMsg(Http2Headers http2Headers, int streamId) throws Http2Exception {
+        return setupCarbonRequest(Util.createHttpRequestFromHttp2Headers(http2Headers, streamId));
     }
 
     /**
@@ -273,5 +228,9 @@ public final class Http2SourceHandler extends Http2ConnectionHandler {
         sourceReqCMsg.setProperty(Constants.TO, uri);
         return sourceReqCMsg;
     }
-}
 
+    private void destroy() {
+        streamIdRequestMap.clear();
+    }
+
+}
