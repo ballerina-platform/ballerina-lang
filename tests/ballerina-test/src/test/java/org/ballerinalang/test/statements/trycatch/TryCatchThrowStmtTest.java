@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -143,12 +144,15 @@ public class TryCatchThrowStmtTest {
         Assert.assertEquals(value, 3);
     }
 
-    @Test(description = "Test function call in finally block when error there is a error thrown.",
-            expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: error, message: test.*")
+    @Test(description = "Test function call in finally block when an error is thrown.")
     public void testMethodCallInFinally() {
         BValue[] args = {};
-        BRunUtil.invoke(compileResult, "testMethodCallInFinally", args);
+        BValue[] returns = BRunUtil.invoke(compileResult, "testMethodCallInFinally", args);
+
+        Assert.assertNotNull(returns);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(returns[0].stringValue(), "startdone");
     }
 
     @Test()
