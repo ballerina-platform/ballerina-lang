@@ -25,10 +25,9 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     string destDirPath = dirPath;
     http:Request req = new;
     req.addHeader("Accept-Encoding", "identity");
-    req.addHeader("Balo-Range", baloRange);
 
     http:Response httpResponse = new;
-    var result = httpEndpoint -> get("", message=req);
+    var result = httpEndpoint -> get(untaint baloRange, message=req);
 
     match result {
         http:Response response => httpResponse = response;
