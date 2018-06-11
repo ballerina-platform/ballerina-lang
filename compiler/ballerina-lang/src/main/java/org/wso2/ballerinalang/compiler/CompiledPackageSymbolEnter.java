@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.DocAttachment;
+import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -399,6 +401,8 @@ public class CompiledPackageSymbolEnter {
         // set taint table to the function symbol
         setTaintTable(invokableSymbol, attrDataMap);
 
+        setDocumentation(invokableSymbol, attrDataMap);
+
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
     }
 
@@ -466,7 +470,9 @@ public class CompiledPackageSymbolEnter {
                 defineObjectAttachedFunction(dataInStream)));
 
         // Read and ignore attributes
-        readAttributes(dataInStream);
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+
+        setDocumentation(symbol, attrDataMap);
 
         return symbol;
     }
@@ -490,7 +496,9 @@ public class CompiledPackageSymbolEnter {
                 defineObjectAttachedFunction(dataInStream)));
 
         // Read and ignore attributes
-        readAttributes(dataInStream);
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+
+        setDocumentation(symbol, attrDataMap);
 
         return symbol;
     }
@@ -509,7 +517,9 @@ public class CompiledPackageSymbolEnter {
                 defineValueSpace(dataInStream, finiteType)));
 
         // Read and ignore attributes
-        readAttributes(dataInStream);
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+
+        setDocumentation(symbol, attrDataMap);
 
         return symbol;
     }
@@ -632,7 +642,7 @@ public class CompiledPackageSymbolEnter {
         int flags = dataInStream.readInt();
         int memIndex = dataInStream.readInt();
 
-        readAttributes(dataInStream);
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
         // Create variable symbol
         BType varType = getBTypeFromDescriptor(typeSig);
@@ -650,6 +660,8 @@ public class CompiledPackageSymbolEnter {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
                     enclScope.owner);
         }
+
+        setDocumentation(varSymbol, attrDataMap);
 
         varSymbol.varIndex = new RegIndex(memIndex, varType.tag);
         enclScope.define(varSymbol.name, varSymbol);
@@ -802,6 +814,37 @@ public class CompiledPackageSymbolEnter {
             TaintRecord taintRecord = new TaintRecord(retParamTaintedStatus, null);
             invokableSymbol.taintTable.put(paramIndex, taintRecord);
         }
+    }
+
+    private void setDocumentation(BSymbol symbol, Map<AttributeInfo.Kind, byte[]> attrDataMap) throws IOException {
+        if (!attrDataMap.containsKey(Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE)) {
+            return;
+        }
+
+        byte[] documentationBytes = attrDataMap.get(AttributeInfo.Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE);
+        DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(documentationBytes));
+
+        String docDesc = getUTF8CPEntryValue(documentDataStream);
+
+        DocAttachment docAttachment = new DocAttachment();
+        docAttachment.description = docDesc;
+
+        int noOfParams = documentDataStream.readShort();
+        for (int i = 0; i < noOfParams; i++) {
+            String name = getUTF8CPEntryValue(documentDataStream);
+            documentDataStream.readInt();
+            String paramKind = getUTF8CPEntryValue(documentDataStream);
+            String paramDesc = getUTF8CPEntryValue(documentDataStream);
+
+            DocAttachment.DocAttribute attribute = new DocAttachment
+                    .DocAttribute(name,
+                    paramDesc,
+                    DocTag.valueOf(paramKind));
+
+            docAttachment.attributes.add(attribute);
+        }
+
+        symbol.documentation = docAttachment;
     }
 
     private String getVarName(DataInputStream dataInStream) throws IOException {
