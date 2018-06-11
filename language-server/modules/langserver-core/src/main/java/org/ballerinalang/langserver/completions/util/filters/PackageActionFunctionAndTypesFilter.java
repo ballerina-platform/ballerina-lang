@@ -26,6 +26,10 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.ballerinalang.langserver.index.LSIndexImpl;
+import org.ballerinalang.model.elements.PackageID;
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -33,6 +37,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +50,7 @@ import java.util.List;
 public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
     @Override
-    public List<SymbolInfo> filterItems(LSServiceOperationContext completionContext) {
+    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext completionContext) {
 
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         int delimiterIndex;
@@ -70,7 +77,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
             returnSymbolsInfoList.addAll(filteredList);
         }
 
-        return returnSymbolsInfoList;
+        return Either.forRight(returnSymbolsInfoList);
     }
 
     /**
@@ -101,8 +108,22 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
         if (packageSymbolInfo != null) {
             Scope.ScopeEntry packageEntry = packageSymbolInfo.getScopeEntry();
+            PackageID packageID = packageEntry.symbol.pkgID;
             SymbolInfo symbolInfo = new SymbolInfo(packageSymbolInfo.getSymbolName(), packageEntry);
 
+            try {
+                ResultSet rs = LSIndexImpl.getInstance().getQueryProcessor()
+                        .getFunctionsFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue(),
+                                packageID.getPackageVersion().getValue());
+                while (rs.next()) {
+                    byte[] bytes = rs.getBytes(1);
+                    CompletionItem completionItem = (CompletionItem) LSIndexImpl.getInstance().getQueryProcessor()
+                            .getDeserializedObject(bytes, CompletionItem.class);
+                    System.out.println(completionItem);
+                }
+            } catch (SQLException | IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
             symbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, value) -> {
                 BSymbol symbol = value.symbol;
                 if ((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
