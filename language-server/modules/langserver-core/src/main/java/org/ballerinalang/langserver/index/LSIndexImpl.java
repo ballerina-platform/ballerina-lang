@@ -1,5 +1,7 @@
 package org.ballerinalang.langserver.index;
 
+import org.h2.tools.Script;
+
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -120,6 +122,11 @@ public class LSIndexImpl implements LSIndex {
      */
     @Override
     public boolean saveIndexDump(Path path) {
+        try {
+            Script.process(connection, path.toString(), "", "");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 }

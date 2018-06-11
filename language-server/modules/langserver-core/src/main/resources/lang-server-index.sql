@@ -4,15 +4,15 @@ CREATE TABLE bLangAnnotation (
   attachmentPoint varchar(64) DEFAULT NULL,
   fields blob,
   fieldsCompletionItems blob,
-  completionItem blob
+  completionItem varchar(MAX) NOT NULL
 );
 
 CREATE TABLE bLangFunction (
   id int(11) NOT NULL,
   packageId int(11) NOT NULL,
-  objectId int(11) NOT NULL,
+  objectId int(11) NOT NULL DEFAULT '-1',
   name varchar(256) NOT NULL,
-  completionItem varchar(256) NOT NULL
+  completionItem varchar(MAX) NOT NULL
 );
 
 CREATE TABLE bLangObject (
@@ -20,7 +20,9 @@ CREATE TABLE bLangObject (
   packageId int(11) NOT NULL,
   name varchar(256) NOT NULL,
   fields varchar(256),
-  type int(2) NOT NULL DEFAULT '3'
+  type int(2) NOT NULL DEFAULT '3',
+  actionHolderId int(11) DEFAULT '-1',
+  completionItem varchar(MAX) DEFAULT NULL
 );
 
 CREATE TABLE bLangPackage (
@@ -34,7 +36,8 @@ CREATE TABLE bLangRecord (
   id int(11) NOT NULL,
   packageId int(11) NOT NULL,
   name varchar(256) NOT NULL,
-  fields varchar(256) NOT NULL
+  fields varchar(MAX) NOT NULL,
+  completionItem varchar(MAX) DEFAULT NULL
 );
 
 CREATE TABLE bLangResource (

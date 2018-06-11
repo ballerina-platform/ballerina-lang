@@ -22,6 +22,7 @@ import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.BLangFunctionUtil;
+import org.ballerinalang.langserver.common.utils.completion.BLangPackageUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -30,7 +31,6 @@ import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
@@ -44,13 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -87,7 +81,7 @@ public abstract class AbstractItemResolver {
                         && !(bSymbol instanceof BAnnotationSymbol)
                         && !(bSymbol.getName().getValue().equals("runtime"))
                         && !(bSymbol instanceof BServiceSymbol)) {
-                    completionItem = this.populateBTypeCompletionItem(symbolInfo);
+                    completionItem = BLangPackageUtil.getBTypeCompletionItem(symbolInfo.getSymbolName());
                 }
             }
 
@@ -149,21 +143,6 @@ public abstract class AbstractItemResolver {
         String typeName = symbolInfo.getScopeEntry().symbol.type.toString();
         completionItem.setDetail((typeName.equals("")) ? ItemResolverConstants.NONE : typeName);
         completionItem.setKind(CompletionItemKind.Unit);
-
-        return completionItem;
-    }
-
-    /**
-     * Populate the BType Completion Item.
-     * @param symbolInfo - symbol information
-     * @return completion item
-     */
-    public CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(symbolInfo.getSymbolName());
-        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
-        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
-        completionItem.setDetail(ItemResolverConstants.B_TYPE);
 
         return completionItem;
     }
@@ -269,7 +248,7 @@ public abstract class AbstractItemResolver {
                     && !((bSymbol instanceof BPackageSymbol) && bSymbol.pkgID.getName().getValue().equals("runtime"))
                     && !(bSymbol instanceof BAnnotationSymbol)
                     && !(bSymbol instanceof BServiceSymbol)) {
-                completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
+                completionItems.add(BLangPackageUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()));
             }
         });
     }

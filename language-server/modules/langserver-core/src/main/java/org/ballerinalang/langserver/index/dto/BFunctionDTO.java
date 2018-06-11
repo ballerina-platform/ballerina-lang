@@ -15,22 +15,43 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.langserver.common.utils.completion;
+package org.ballerinalang.langserver.index.dto;
 
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 
 /**
- * Utilities for BLangFunction items.
+ * DTO for BInvokeableSymbol.
  */
-public class BLangPackageUtil {
-    public static CompletionItem getBTypeCompletionItem(String name) {
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(name);
-        String[] delimiterSeparatedTokens = (name).split("\\.");
-        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
-        completionItem.setDetail(ItemResolverConstants.B_TYPE);
+public class BFunctionDTO {
 
+    private int packageId;
+    
+    private int objectId;
+    
+    private String name;
+    
+    private CompletionItem completionItem;
+
+    public BFunctionDTO(int packageId, int objectId, String name, CompletionItem completionItem) {
+        this.packageId = packageId;
+        this.objectId = objectId;
+        this.name = name;
+        this.completionItem = completionItem;
+    }
+
+    public int getPackageId() {
+        return packageId;
+    }
+
+    public int getObjectId() {
+        return objectId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public CompletionItem getCompletionItem() {
         return completionItem;
     }
 }
