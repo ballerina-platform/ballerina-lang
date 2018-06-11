@@ -4,21 +4,17 @@
     .ui.button.debug-button{
         background      : #252525;
         text-align      : left;
-        color : #f1f1f1!important;
+        color : #f1f1f1;
         background  : #252525; 
         &:hover{
-            color       : #f1f1f1!important;
-            background  : #444!important;
+            color       : #f1f1f1;
+            background  : #444;
         }
     }
 }
 
 .debugger-threads{
-    padding: 10px;
 
-    .debug-threads-header {
-        border-bottom: 1px solid #9a9a9a
-    }
     ul {
         padding: 0;
         margin: 0;
