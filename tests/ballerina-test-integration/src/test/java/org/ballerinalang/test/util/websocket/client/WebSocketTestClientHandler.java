@@ -57,6 +57,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     private CountDownLatch countDownLatch = null;
     private ChannelHandlerContext ctx;
     private HttpHeaders headers;
+    private CloseWebSocketFrame receiveCloseFrame;
 
     public WebSocketTestClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
@@ -122,7 +123,8 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
                 isPong = true;
                 bufferReceived = pongFrame.content().nioBuffer();
             } else if (frame instanceof CloseWebSocketFrame) {
-                int statusCode = ((CloseWebSocketFrame) frame).statusCode();
+                CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) frame;
+                int statusCode = closeWebSocketFrame.statusCode();
                 if (ch.isOpen()) {
                     ch.writeAndFlush(new CloseWebSocketFrame(statusCode, null)).addListener(future -> {
                         if (ch.isOpen()) {
@@ -130,6 +132,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
                         }
                     }).sync();
                 }
+                receiveCloseFrame = closeWebSocketFrame.retain();
             }
             if (countDownLatch != null) {
                 countDownLatch.countDown();
@@ -185,6 +188,18 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     public boolean isPong() {
         boolean temp = isPong;
         isPong = false;
+        return temp;
+    }
+
+    /**
+     * Retrieve the received close frame to the client.
+     * <b>Note: Release the close frame after using it using CloseWebSocketFrame.release()</b>
+     *
+     * @return the close frame received to the client.
+     */
+    public CloseWebSocketFrame getReceiveCloseFrame() {
+        CloseWebSocketFrame temp = receiveCloseFrame;
+        receiveCloseFrame = null;
         return temp;
     }
 

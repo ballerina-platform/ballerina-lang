@@ -115,7 +115,7 @@
 
     extends("(FunctionInvocation|SimpleVariable|MapArrayVariable|FieldVariable|XmlAttribVariable|Invocation|AwaitExpression)Reference") = VariableReference
 
-    extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|TypeInit|Type(Casting|Conversion|Access)|BracedOrTuple|Await|TableQuery|MatchExpr|Checked|TableLiteral|Elvis|ActionInvocation|typeAccess)Expression") = Expression
+    extends("((Simple|Array|Record|Xml|StringTemplate)Literal|(ValueType|BuiltInReferenceType)Type|VariableReference|LambdaFunction|TypeInit|Type(Casting|Conversion|Access)|BracedOrTuple|Await|TableQuery|MatchExpr|Checked|TableLiteral|Elvis|ActionInvocation|typeAccess|IntegerRange)Expression") = Expression
     extends("(Unary|Binary|Ternary)Expression") = Expression
 
     extends("Binary(Pow|DivMulMod|AddSub|Compare|Equal|And|Or)Expression") = BinaryExpression
@@ -254,7 +254,7 @@ ObjectInitializer ::= AnnotationAttachment* documentationAttachment? (public)? n
 
 ObjectInitializerParameterList ::= LEFT_PARENTHESIS ObjectParameterList? RIGHT_PARENTHESIS {pin=1}
 
-ObjectFunctions ::= (AnnotationAttachment* documentationAttachment? deprecatedAttachment? ObjectFunctionDefinition)+
+ObjectFunctions ::= ObjectFunctionDefinition+
 
 // TODO merge with fieldDefinition later
 fieldDefinition ::= AnnotationAttachment* TypeName identifier (ASSIGN Expression)? (COMMA | SEMICOLON) {pin=3}
@@ -270,7 +270,7 @@ ObjectParameter ::= AnnotationAttachment* (TypeName identifier | identifier)
 ObjectDefaultableParameter ::= ObjectParameter ASSIGN Expression
 
 // TODO merge with functionDefinition later
-ObjectFunctionDefinition ::= (public)? (native)? function ObjectCallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=3}
+ObjectFunctionDefinition ::= AnnotationAttachment* documentationAttachment? deprecatedAttachment? (public)? (native)? function ObjectCallableUnitSignature (CallableUnitBody | SEMICOLON) {pin=6}
 
 //TODO merge with callableUnitSignature later
 ObjectCallableUnitSignature ::= AnyIdentifierName LEFT_PARENTHESIS FormalParameterList? RIGHT_PARENTHESIS ReturnParameter? {pin=1}
@@ -492,7 +492,7 @@ matchPatternClause ::= namedPattern | unnamedPattern
 unnamedPattern ::= TypeName EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=2}
 namedPattern ::= TypeName identifier EQUAL_GT (LEFT_BRACE Block RIGHT_BRACE | Statement) {pin=3}
 
-ForeachStatement ::= foreach (LEFT_PARENTHESIS? VariableReferenceList in (IntRangeExpression | Expression) RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
+ForeachStatement ::= foreach (LEFT_PARENTHESIS? VariableReferenceList in Expression RIGHT_PARENTHESIS? (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
 
 IntRangeExpression ::= openRange | closedRange
 private openRange ::= Expression RANGE Expression {pin=2}
@@ -656,7 +656,8 @@ Expression
     |   CheckedExpression
     |   ElvisExpression
     |   AwaitExpression
-    |   typeAccessExpression {
+    |   typeAccessExpression
+    |   IntegerRangeExpression {
     recoverWhile=ExpressionRecover
 }
 
@@ -701,6 +702,7 @@ TernaryExpression ::= Expression QUESTION_MARK Expression COLON Expression {pin=
 AwaitExpression ::= await Expression
 MatchExprExpression ::= Expression matchExpression
 CheckedExpression ::= check Expression
+IntegerRangeExpression ::= Expression (ELLIPSIS | HALF_OPEN_RANGE) Expression
 
 matchExpression ::= but (LEFT_BRACE MatchExpressionPatternClause (COMMA MatchExpressionPatternClause)* RIGHT_BRACE) {pin(".*")=1}
 
