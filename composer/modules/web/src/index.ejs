@@ -25,13 +25,12 @@
     <!-- Favion -->
     <link rel="shortcut icon" href="favicon.ico" />
     <link href="css/preloader.css" rel="stylesheet" type="text/css"/>
-
+    <link rel="stylesheet" type="text/css" href=<%=JSON.stringify("bundle-less-" + webpack.hash + ".css")%>/>
     <link rel="stylesheet" type="text/css" href=<%=JSON.stringify("bundle-bundle-" + webpack.hash + ".css")%>/>
     <link rel="stylesheet" type="text/css" href=<%=JSON.stringify("bundle-vendor-" + webpack.hash + ".css")%>/>
     <link rel="stylesheet" href="themes/default.css" title="default"/>
     <link rel="stylesheet" href="themes/light.css" title="light" disabled/>
     <link rel="stylesheet" href="themes/dark.css" title="dark" disabled/>
-    <link rel="stylesheet" type="text/css" href=<%=JSON.stringify("bundle-less-" + webpack.hash + ".css")%>/>
 
 </head>
 <body class="loading" data-toggle="loading" data-loading-style="overlay">
