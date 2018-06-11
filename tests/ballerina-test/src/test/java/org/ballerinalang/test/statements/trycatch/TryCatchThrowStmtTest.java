@@ -177,4 +177,19 @@ public class TryCatchThrowStmtTest {
         BAssertUtil.validateError(compileResultNegative, 3, "error 'TestError' already caught in catch block", 38, 14);
     }
 
+    @Test(description = "test not all catch blocks including a return statement when the finally block does not "
+            + "contain a return statement")
+    public void testIncorrectReturnsInCatchBlocks() {
+        BAssertUtil.validateError(compileResultNegative, 4, "this function must return a result", 44, 1);
+    }
+
+    @Test()
+    public void testUnreachableReturnWithTryCatch() {
+        BAssertUtil.validateError(compileResultNegative, 5, "unreachable code", 64, 5);
+    }
+
+    @Test()
+    public void testUnreachableReturnWithTryCatchFinally() {
+        BAssertUtil.validateError(compileResultNegative, 6, "unreachable code", 77, 5);
+    }
 }
