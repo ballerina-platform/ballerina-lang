@@ -17,8 +17,10 @@
 package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
+import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
@@ -27,7 +29,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -35,6 +39,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamAction;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangStreamingInput;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhere;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangWindow;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
@@ -42,12 +47,14 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
@@ -73,10 +80,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private final Names names;
     private final Types types;
     private int lambdaFunctionCount = 0;
-    private BLangFunction funcNode;
+    private BLangFunction lambdaFunctionNode;
     private BLangIf ifNode;
     private BLangExpressionStmt foreverReplaceStatement;
     private BLangExpression conditionalExpression;
+    private SymbolEnv env;
+    private BLangBlockStmt lambdaBody;
 
     private StreamingCodeDesugar(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
@@ -102,7 +111,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<? extends StatementNode> statementNodes = foreverStatement.getStreamingQueryStatements();
 
         // Generate Streaming Consumer Function
-        generateStreamConsumerFunction(foreverStatement);
+        //generateStreamConsumerFunction(foreverStatement);
+
         statementNodes.forEach(statementNode -> ((BLangStatement) statementNode).accept(this));
         return foreverReplaceStatement;
     }
@@ -111,19 +121,34 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
+
+            BLangLambdaFunction lambdaFunction = (BLangLambdaFunction)
+                    (streamingQueryStatement.getStreamingAction()).getInvokableBody();
+            lambdaFunctionNode = lambdaFunction.function;
+
+            lambdaBody = ASTBuilderUtil.createBlockStmt(streamingQueryStatement.pos);
             ((BLangStreamingInput) streamingInput).accept(this);
+
+            WindowClauseNode windowClauseNode = streamingInput.getWindowClause();
+            if (windowClauseNode != null) {
+                ((BLangWindow) windowClauseNode).accept(this);
+            }
+
+            BLangStreamAction streamingAction = (BLangStreamAction) streamingQueryStatement.getStreamingAction();
+            streamingAction.accept(this);
+
+            lambdaFunction.function.body = lambdaBody;
+            lambdaFunction.function.desugared = false;
 
             foreverReplaceStatement = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
             foreverReplaceStatement.pos = streamingQueryStatement.pos;
             BInvokableSymbol subscribeMethodSymbol = (BInvokableSymbol) symTable.rootScope.
                     lookup(names.fromString("stream.subscribe"))
                     .symbol;
-            BVarSymbol functionVarSymbol = funcNode.symbol;
-            BLangSimpleVarRef simpleVarRef = new BLangSimpleVarRef.BLangFunctionVarRef(functionVarSymbol);
-            simpleVarRef.type = ((funcNode).symbol).type;
 
-            List<BLangSimpleVarRef> variables = new ArrayList<>(1);
-            variables.add(simpleVarRef);
+            List<BLangExpression> variables = new ArrayList<>(1);
+            variables.add(lambdaFunction);
+
             BLangInvocation invocationExpr = ASTBuilderUtil.
                     createInvocationExprForMethod(streamingQueryStatement.pos, subscribeMethodSymbol, variables,
                             symResolver);
@@ -132,9 +157,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             invocationExpr.expr = ASTBuilderUtil.createVariableRef(streamingQueryStatement.pos, varSymbol);
             foreverReplaceStatement.expr = invocationExpr;
         }
-
-        BLangStreamAction streamingAction = (BLangStreamAction) streamingQueryStatement.getStreamingAction();
-        streamingAction.accept(this);
     }
 
     @Override
@@ -156,12 +178,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         }
     }
 
-
     @Override
     public void visit(BLangWhere where) {
 
         //Create IF Clause
-        ifNode = ASTBuilderUtil.createIfStmt(where.pos, funcNode.body);
+        ifNode = ASTBuilderUtil.createIfStmt(where.pos, lambdaBody);
         final BLangBinaryExpr equality = (BLangBinaryExpr) TreeBuilder.createBinaryExpressionNode();
         equality.pos = where.pos;
         equality.type = symTable.booleanType;
@@ -192,7 +213,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos,
-                (funcNode).requiredParams.get(0).symbol);
+                (lambdaFunctionNode).requiredParams.get(0).symbol);
         conditionalExpression = ASTBuilderUtil.createFieldAccessExpr(varRef,
                 fieldAccessExpr.field);
         ((BLangFieldBasedAccess) conditionalExpression).symbol = fieldAccessExpr.symbol;
@@ -212,6 +233,33 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     createExpressionStmt(bLangLambdaFunction.pos, ifNode.body);
             exprStmt.expr = ((BLangExpressionStmt) statementNode).expr;
         }
+    }
+
+    public void visit(BLangWindow windowClause) {
+
+        long windowSize = (long) ((BLangLiteral)
+                ((BLangInvocation) windowClause.getFunctionInvocation()).argExprs.get(0)).value;
+
+        BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
+        literal.setValue("ALL");
+        BTypeSymbol bTypeSymbol = (BTypeSymbol) symResolver.resolvePkgSymbol(((BLangFunction) lambdaFunctionNode).pos,
+                env, names.fromString("streams")).scope.lookup(new Name("EventType")).symbol;
+
+        BType type = symResolver.resolvePkgSymbol((lambdaFunctionNode).pos, env, names.
+                fromString("streams")).scope.lookup(new Name("EventType")).symbol.type;
+        BVarSymbol varSymbol = new BVarSymbol(0, new Name("evType"), bTypeSymbol.pkgID, type,
+                env.scope.owner);
+        BLangVariable variable = ASTBuilderUtil.
+                createVariable(windowClause.pos, "evType", type, literal, varSymbol);
+
+
+        ASTBuilderUtil.createVariableDef(windowClause.pos);
+
+        final BLangExpressionStmt windowStatement = ASTBuilderUtil.createExpressionStmt(windowClause.pos, ifNode.body);
+
+
+        System.out.println("");
+
     }
 
 
@@ -244,13 +292,14 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         // }
 
         final DiagnosticPos pos = foreverStatement.pos;
-        funcNode = ASTBuilderUtil.createFunction(pos, getFunctionName(FUNC_CALLER));
+        this.env = foreverStatement.getEnv();
+        lambdaFunctionNode = ASTBuilderUtil.createFunction(pos, getFunctionName(FUNC_CALLER));
 
-        funcNode.requiredParams.add((BLangVariable) foreverStatement.getStreamingQueryStatements().get(0).
+        lambdaFunctionNode.requiredParams.add((BLangVariable) foreverStatement.getStreamingQueryStatements().get(0).
                 getStreamingAction().getInvokableBody().getFunctionNode().getParameters().get(0));
-        funcNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.nilType);
-        funcNode.desugaredReturnType = true;
-        defineFunction(funcNode, foreverStatement.getEnv().enclPkg);
+        lambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.nilType);
+        //lambdaFunctionNode.desugaredReturnType = true;
+        //defineFunction(lambdaFunctionNode, foreverStatement.getEnv().enclPkg);
     }
 
     private String getFunctionName(String name) {
@@ -265,4 +314,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         packageEnv.enclPkg.topLevelNodes.add(funcNode);
     }
 
+    private void defineVariable(BLangVariable variable, PackageID pkgID, BLangFunction funcNode) {
+        variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), pkgID, variable.type, funcNode.symbol);
+    }
 }

@@ -1327,6 +1327,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        bLangLambdaFunction.function = rewrite(bLangLambdaFunction.function, env);
         result = bLangLambdaFunction;
     }
 
