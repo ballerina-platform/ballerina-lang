@@ -1747,7 +1747,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.STREAM:
                 BType streamConstraintType = ((BStreamType) varRefType).constraint;
-                if (streamConstraintType.tag == TypeTags.OBJECT) {
+                if (streamConstraintType.tag == TypeTags.RECORD) {
                     actualType = checkStructFieldAccess(fieldAccessExpr, fieldName, streamConstraintType);
                 }
                 break;

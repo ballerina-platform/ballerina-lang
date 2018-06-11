@@ -51,7 +51,7 @@ function testQuery() {
 
     forever {
         from employeeStream
-        window lengthWindow(10)
+       // window lengthWindow(10)
         where employeeStream.age > 20 && employeeStream.status == "single" && employeeStream.batch == "LK1998"
         select employeeStream.name, employeeStream.age, employeeStream.status, employeeStream.batch, employeeStream.school
         => (Teacher emp) {
