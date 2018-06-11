@@ -16,6 +16,7 @@
 
 import ballerina/runtime;
 import ballerina/io;
+import ballerina/streams;
 
 type Teacher {
     string name;
@@ -31,13 +32,25 @@ int employeeIndex = 0;
 stream<Teacher> employeeStream;
 stream<Teacher> outputEmployeeStream;
 
+
+
 function startFilterQuery() {
 
-    Teacher t1 = {name:"Raja", age:25, status:"single", batch:"LK2014", school:"Hindu College"};
-    Teacher t2 = {name:"Shareek", age:33, status:"single", batch:"LK1998", school:"Thomas College"};
-    Teacher t3 = {name:"Nimal", age:45, status:"married", batch:"LK1988", school:"Ananda College"};
+    Teacher t1 = {name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College"};
+    Teacher t2 = {name: "Shareek", age: 33, status: "single", batch: "LK1998", school: "Thomas College"};
+    Teacher t3 = {name: "Nimal", age: 45, status: "married", batch: "LK1988", school: "Ananda College"};
 
-    employeeStream.subscribe(printEmployeeNumber);
+    streams:EventType evType = "ALL";
+    streams:LengthWindow lengthWindow = streams:lengthWindow(5, outputEmployeeStream, evType);
+
+    employeeStream.subscribe((Teacher e) => {
+
+            if (e.age > 25) {
+                outputEmployeeStream.publish(e);
+            }
+
+            //addToGlobalEmployeeArray(e);
+        });
     outputEmployeeStream.subscribe(addToGlobalEmployeeArray);
 
     employeeStream.publish(t1);
@@ -47,14 +60,6 @@ function startFilterQuery() {
     runtime:sleep(1000);
 }
 
-function printEmployeeNumber(Teacher e) {
-
-    if(e.age > 25) {
-        outputEmployeeStream.publish(e);
-    }
-
-    //addToGlobalEmployeeArray(e);
-}
 
 function addToGlobalEmployeeArray(Teacher e) {
     io:println("GOT EVENT !!!!");

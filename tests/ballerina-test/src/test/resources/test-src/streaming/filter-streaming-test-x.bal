@@ -31,60 +31,6 @@ type Teacher {
     string school;
 };
 
-
-
-//type TimeWindow object {
-//    private {
-//        int counter;
-//        int timeLength;
-//        Queue eventQueue;
-//    }
-//
-//    new(int timeLength) {
-//        self.timeLength = timeLength;
-//        self.eventQueue = new;
-//    }
-//
-//    public function startEventRemovalWorker() {
-//        if (!eventQueue.isEmpty()) {
-//            StreamEvent frontEvent = check <StreamEvent>eventQueue.peekFront();
-//            io:println(frontEvent);
-//            StreamEvent rearEvent = check <StreamEvent>eventQueue.peekRear();
-//            io:println(rearEvent);
-//            while (rearEvent.timestamp > frontEvent.timestamp + timeLength) {
-//                if (!eventQueue.isEmpty()) {
-//                    _ = eventQueue.dequeue();
-//                    StreamEvent frontEvent = check <StreamEvent>eventQueue.peekFront();
-//                    StreamEvent rearEvent = check <StreamEvent>eventQueue.peekRear();
-//                }
-//            }
-//        }
-//    }
-//
-//    public function add(StreamEvent event) {
-//        if (!eventQueue.isEmpty()) {
-//            StreamEvent rearEvent = check <StreamEvent>eventQueue.peekRear();
-//            if (rearEvent.timestamp <= event.timestamp) {
-//                eventQueue.enqueue(event);
-//            }
-//        } else {
-//            eventQueue.enqueue(event);
-//        }
-//    }
-//
-//    public function returnContent() returns StreamEvent[] {
-//        StreamEvent[] events = [];
-//        int i = 0;
-//        while (i < 10) {
-//            events[i] = check <StreamEvent>eventQueue.peekRear();
-//            i = i + 1;
-//        }
-//        return events;
-//    }
-//};
-
-
-
 int sumValue = 0;
 int employeeIndex = 0;
 stream<Teacher> teacherStream1;

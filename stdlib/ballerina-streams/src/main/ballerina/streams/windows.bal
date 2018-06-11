@@ -26,6 +26,7 @@ public type LengthWindow object {
     public function add(any event) {
         events[counter % size] = event;
         counter = counter + 1;
+        io:println(event);
     }
 
     public function returnContent() returns (any[]) {

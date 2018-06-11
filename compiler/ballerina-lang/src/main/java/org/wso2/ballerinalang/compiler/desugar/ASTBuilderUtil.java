@@ -375,13 +375,13 @@ public class ASTBuilderUtil {
     }
 
     static BLangInvocation createInvocationExprForMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
-                                                List<BLangSimpleVarRef> requiredArgs, SymbolResolver symResolver) {
+                                                List<BLangExpression> requiredArgs, SymbolResolver symResolver) {
         return createInvocationExprMethod(pos, invokableSymbol, requiredArgs, new ArrayList<>(), new ArrayList<>(),
                 symResolver);
     }
 
     static BLangInvocation createInvocationExprMethod(DiagnosticPos pos, BInvokableSymbol invokableSymbol,
-                                                List<BLangSimpleVarRef> requiredArgs, List<BLangVariable> namedArgs,
+                                                List<BLangExpression> requiredArgs, List<BLangVariable> namedArgs,
                                                 List<BLangVariable> restArgs, SymbolResolver symResolver) {
         final BLangInvocation invokeLambda = (BLangInvocation) TreeBuilder.createInvocationNode();
         invokeLambda.pos = pos;

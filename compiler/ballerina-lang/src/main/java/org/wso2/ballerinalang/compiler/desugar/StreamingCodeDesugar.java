@@ -86,6 +86,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangExpression conditionalExpression;
     private SymbolEnv env;
     private BLangBlockStmt lambdaBody;
+    private BLangBlockStmt blockStmt;
 
     private StreamingCodeDesugar(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
@@ -108,6 +109,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     public BLangExpressionStmt desugar(BLangForever foreverStatement, Desugar desugar) {
 
         this.parentDesugar = desugar;
+        this.blockStmt = (BLangBlockStmt) foreverStatement.parent;
         List<? extends StatementNode> statementNodes = foreverStatement.getStreamingQueryStatements();
 
         // Generate Streaming Consumer Function
@@ -242,6 +244,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.setValue("ALL");
+
         BTypeSymbol bTypeSymbol = (BTypeSymbol) symResolver.resolvePkgSymbol(((BLangFunction) lambdaFunctionNode).pos,
                 env, names.fromString("streams")).scope.lookup(new Name("EventType")).symbol;
 
