@@ -2174,7 +2174,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int addPackageRefCPEntry(ConstantPool pool, PackageID pkgID) {
-        int nameCPIndex = addUTF8CPEntry(pool, pkgID.getAlias());
+        int nameCPIndex = addUTF8CPEntry(pool, pkgID.toString());
         int versionCPIndex = addUTF8CPEntry(pool, pkgID.version.value);
         PackageRefCPEntry packageRefCPEntry = new PackageRefCPEntry(nameCPIndex, versionCPIndex);
         return pool.addCPEntry(packageRefCPEntry);
@@ -3364,15 +3364,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (pkgNode == null) {
             // This is a package loaded from a BALO
             packageSymbol.imports.forEach(importPkdSymbol -> addPackageInfo(importPkdSymbol, programFile));
-            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.getAlias())) {
-                programFile.packageFileMap.put(packageSymbol.pkgID.getAlias(), packageSymbol.packageFile);
+            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())) {
+                programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
             }
             return;
         }
 
         pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
-        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.getAlias())) {
-            programFile.packageFileMap.put(packageSymbol.pkgID.getAlias(), packageSymbol.packageFile);
+        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())) {
+            programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
         }
     }
 

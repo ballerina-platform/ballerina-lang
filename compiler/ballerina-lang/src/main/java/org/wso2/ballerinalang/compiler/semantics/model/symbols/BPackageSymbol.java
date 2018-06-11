@@ -85,6 +85,6 @@ public class BPackageSymbol extends BTypeSymbol {
 
     @Override
     public String toString() {
-        return pkgID.getAlias();
+        return pkgID.toString();
     }
 }

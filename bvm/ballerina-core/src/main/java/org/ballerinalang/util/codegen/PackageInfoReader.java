@@ -45,7 +45,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
@@ -299,13 +298,15 @@ public class PackageInfoReader {
         UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
         packageInfo.nameCPIndex = pkgNameCPIndex;
 
-        packageInfo.pkgPath = getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue());
 
         // Read package version
         int pkgVersionCPIndex = dataInStream.readInt();
         UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
         packageInfo.versionCPIndex = pkgVersionCPIndex;
         packageInfo.pkgVersion = pkgVersionCPEntry.getValue();
+
+        packageInfo.pkgPath =
+                getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue());
 
         packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
@@ -359,10 +360,12 @@ public class PackageInfoReader {
             int pkgNameCPIndex = dataInStream.readInt();
             UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
 
-            String pkgPath = getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue());
-
             int pkgVersionCPIndex = dataInStream.readInt();
             UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
+
+            String pkgPath =
+                    getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue());
+            
             ImportPackageInfo importPackageInfo = new ImportPackageInfo(orgNameCPIndex, pkgNameCPIndex, pkgPath,
                     pkgVersionCPIndex, pkgVersionCPEntry.getValue());
             packageInfo.importPkgInfoList.add(importPackageInfo);
@@ -1669,12 +1672,18 @@ public class PackageInfoReader {
         return this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo), desc);
     }
 
-    private String getPackagePath(String orgName, String pkgName) {
-        if (Names.ANON_ORG.value.equals(orgName)) {
-            return pkgName;
+    private String getPackagePath(String orgName, String pkgName, String version) {
+        if (orgName.equals(Names.ANON_ORG.value)) {
+            orgName = "";
+        } else {
+            orgName = orgName + Names.ORG_NAME_SEPARATOR.value;
         }
 
-        return orgName + BLangConstants.ORG_NAME_SEPARATOR + pkgName;
+        if (Names.DEFAULT_VERSION.value.equals(version) || Names.EMPTY.value.equals(version)) {
+            return orgName + pkgName;
+        }
+
+        return orgName + pkgName + Names.VERSION_SEPARATOR.value + version;
     }
 
     /**

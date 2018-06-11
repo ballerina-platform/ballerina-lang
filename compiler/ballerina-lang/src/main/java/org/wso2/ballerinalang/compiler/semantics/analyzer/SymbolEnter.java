@@ -1186,7 +1186,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void createPackageInitFunctions(BLangPackage pkgNode) {
-        String alias = pkgNode.symbol.pkgID.getAlias();
+        String alias = pkgNode.symbol.pkgID.toString();
         pkgNode.initFunction = createInitFunction(pkgNode.pos, alias,
                 Names.INIT_FUNCTION_SUFFIX);
         pkgNode.startFunction = createInitFunction(pkgNode.pos, alias,
