@@ -125,7 +125,7 @@ type BarRecord {
 {
      string s;
      Baz z = 1;
-     Foo foo;
+     Foo foo1;
      BarRecord br;
 } anonRecord;
 
@@ -145,7 +145,7 @@ function test5() returns string {
     {
          string s;
          Baz z = 1;
-         Foo foo;
+         Foo foo1;
          BarRecord br;
     } m = {};
 
@@ -155,7 +155,7 @@ function test5() returns string {
 public function test6({
                           string s;
                           Baz z = 1;
-                          Foo foo;
+                          Foo foo1;
                           BarRecord br;
                       } anonRecord1) returns string {
     return "K";
@@ -164,13 +164,13 @@ public function test6({
 public function test7() returns {
                                     string s;
                                     Baz z = 1;
-                                    Foo foo;
+                                    Foo foo1;
                                     BarRecord br;
                                 }{
     {
           string s;
           Baz z = 1;
-          Foo foo;
+          Foo foo1;
           BarRecord br;
       } m = {};
 
