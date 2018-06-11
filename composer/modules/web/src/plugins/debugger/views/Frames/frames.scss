@@ -4,8 +4,8 @@
     color: #f2f0ec;
 }
 
-.debug-frames-container .tree-view .node{
-    padding-top: 6px;
+.debug-frames-container .tree-view{
+    padding: 5px;
 }
 
 .debug-frames-container .tree-view .tree-view_item{
@@ -74,6 +74,8 @@
 .debug-panel-header{
     color: #FFF !important;
     font-weight: bold;
+    border-bottom: 1px solid #565656;
+    background-color: #383838;
 }
 
 .debug-panel-header a{
@@ -87,9 +89,12 @@
 }
 
 .debugger-frames-wrapper {
-    padding: 0 10px;
     font-size: 14px;
     line-height: 23px;
+    margin-top: 5px;
+    .tree-view {
+        padding: 0 5px;
+    }
     .HTMLTree{
         background-color: inherit;
         font-size: 11px;
@@ -98,6 +103,7 @@
         border-bottom: solid 1px #5f5f5f;
         font-size: 14px;
         margin-top: 5px;
+        padding: 0 5px;
     }
 
     .debug-frame-pkg-name {

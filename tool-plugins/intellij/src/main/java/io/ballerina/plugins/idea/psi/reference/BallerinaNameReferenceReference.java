@@ -356,7 +356,9 @@ public class BallerinaNameReferenceReference extends BallerinaCachedReference<Ba
                 return false;
             }
             if (processor instanceof BallerinaTopLevelScopeProcessor) {
-                if (!((BallerinaTopLevelScopeProcessor) processor).isLookupElementsFound()) {
+                // If the processor is in the completion mode, we need to look for elements in other files as well.
+                if (!((BallerinaTopLevelScopeProcessor) processor).isLookupElementsFound()
+                        || processor.isCompletion()) {
                     PsiFile originalFile = containingFile.getOriginalFile();
                     // Get suggestions from current file.
                     if (!processor.execute(originalFile, resolveState)) {
