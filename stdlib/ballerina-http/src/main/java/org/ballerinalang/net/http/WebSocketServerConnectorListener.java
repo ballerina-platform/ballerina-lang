@@ -179,8 +179,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     }
 
     @Override
-    public void onError(Throwable throwable) {
-        log.error("Unexpected error occurred in WebSocket transport", throwable);
+    public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
+        WebSocketDispatcher.dispatchError(
+                connectionManager.removeConnectionInfo(webSocketConnection.getId()), throwable);
     }
 
     @Override
