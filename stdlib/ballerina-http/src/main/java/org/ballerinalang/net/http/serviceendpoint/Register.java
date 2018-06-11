@@ -85,9 +85,8 @@ public class Register extends AbstractHttpNativeFunction {
         serverConnectorFuture.setHttpConnectorListener(
                 new BallerinaHTTPConnectorListener(httpServicesRegistry, serviceEndpoint
                         .getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
-        serverConnectorFuture
-                .setWSConnectorListener(new WebSocketServerConnectorListener(webSocketServicesRegistry, serviceEndpoint
-                        .getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
+        serverConnectorFuture.setWebSocketConnectorListener(new WebSocketServerConnectorListener(
+                webSocketServicesRegistry, serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
 
         serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
         try {
