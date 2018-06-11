@@ -349,7 +349,7 @@ class Utils {
             HttpResponseFuture responseFuture = httpClientConnector.send(msg);
             responseFuture.setHttpConnectorListener(listener);
 
-            latch.await(10, TimeUnit.SECONDS);
+            latch.await(30, TimeUnit.SECONDS);
 
             HTTPCarbonMessage response = listener.getHttpResponseMessage();
             assertNotNull(response);
