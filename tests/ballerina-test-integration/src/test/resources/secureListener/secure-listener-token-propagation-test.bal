@@ -21,7 +21,7 @@ endpoint http:SecureListener listener {
 
 endpoint http:Client nyseEP {
     url: "http://localhost:9092",
-    auth: {scheme: "jwt"}
+    auth: {scheme: "JWT"}
 };
 
 @http:ServiceConfig {basePath:"/passthrough"}
