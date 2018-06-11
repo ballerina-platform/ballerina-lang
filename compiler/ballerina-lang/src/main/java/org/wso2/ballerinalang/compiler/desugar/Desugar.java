@@ -416,8 +416,18 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangForever foreverStatement) {
-        result = streamingCodeDesugar.desugar(foreverStatement, this);
-        result = rewrite(result, env);
+
+        if (foreverStatement.isSiddhiRuntimeEnabled()) {
+            siddhiQueryBuilder.visit(foreverStatement);
+            BLangExpressionStmt stmt = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+            stmt.expr = createInvocationForForeverBlock(foreverStatement);
+            stmt.pos = foreverStatement.pos;
+            stmt.addWS(foreverStatement.getWS());
+            result = rewrite(stmt, env);
+        } else {
+            result = streamingCodeDesugar.desugar(foreverStatement, this);
+            result = rewrite(result, env);
+        }
     }
 
     private BLangStruct rewriteObjectToStruct(BLangObject objectNode, SymbolEnv env) {

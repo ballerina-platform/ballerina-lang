@@ -195,6 +195,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType expType;
     private DiagnosticCode diagCode;
     private BType resType;
+    private boolean isSiddhiRuntimeEnabled;
 
     private Map<BLangBlockStmt, SymbolEnv> blockStmtEnvMap = new HashMap<>();
 
@@ -1275,16 +1276,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangForever foreverStatement) {
 
+        isSiddhiRuntimeEnabled = foreverStatement.isSiddhiRuntimeEnabled();
         foreverStatement.setEnv(env);
         for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
             analyzeStmt((BLangStatement) streamingQueryStatement, env);
         }
 
-//        //Validate output attribute names with stream/struct
-//        for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
-//            checkOutputAttributes((BLangStatement) streamingQueryStatement);
-//            validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
-//        }
+        if (isSiddhiRuntimeEnabled) {
+            //Validate output attribute names with stream/struct
+            for (StreamingQueryStatementNode streamingQueryStatement : foreverStatement.getStreamingQueryStatements()) {
+                checkOutputAttributes((BLangStatement) streamingQueryStatement);
+                validateOutputAttributeTypes((BLangStatement) streamingQueryStatement);
+            }
+        }
     }
 
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
@@ -1408,7 +1412,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangBinaryExpr binaryExpr) {
-        this.typeChecker.checkExpr(binaryExpr, env);
+        if (isSiddhiRuntimeEnabled) {
+            ExpressionNode leftExpression = binaryExpr.getLeftExpression();
+            ((BLangExpression) leftExpression).accept(this);
+
+            ExpressionNode rightExpression = binaryExpr.getRightExpression();
+            ((BLangExpression) rightExpression).accept(this);
+        } else {
+            this.typeChecker.checkExpr(binaryExpr, env);
+        }
     }
 
     @Override
@@ -1502,45 +1514,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         ((BLangVariableReference) variableReferenceNode).accept(this);
     }
 
-//    @Override
-//    public void visit(BLangIndexBasedAccess indexAccessExpr) {
-//        // ignore
-//    }
-//
-//    @Override
-//    public void visit(BLangSimpleVarRef varRefExpr) {
-//        // ignore
-//    }
-//
-//    @Override
-//    public void visit(BLangLiteral literalExpr) {
-//        //ignore
-//    }
-//
-//    @Override
-//    public void visit(BLangTernaryExpr ternaryExpr) {
-//        //ignore
-//    }
-
-
     @Override
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
-        this.typeChecker.checkExpr(indexAccessExpr, env);
+        if (!isSiddhiRuntimeEnabled) {
+            this.typeChecker.checkExpr(indexAccessExpr, env);
+        }
     }
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
-        this.typeChecker.checkExpr(varRefExpr, env);
+        if (!isSiddhiRuntimeEnabled) {
+            this.typeChecker.checkExpr(varRefExpr, env);
+        }
     }
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        this.typeChecker.checkExpr(literalExpr, env);
+        if (!isSiddhiRuntimeEnabled) {
+            this.typeChecker.checkExpr(literalExpr, env);
+        }
     }
 
     @Override
     public void visit(BLangTernaryExpr ternaryExpr) {
-        this.typeChecker.checkExpr(ternaryExpr, env);
+        if (!isSiddhiRuntimeEnabled) {
+            this.typeChecker.checkExpr(ternaryExpr, env);
+        }
     }
 
 
