@@ -26,46 +26,34 @@ public enum Representation {
     /**
      * Represents a 64 bit value.
      */
-    BIT_64(8),
+    BIT_64(8, Byte.SIZE),
     /**
      * Represents a 32 bit value.
      */
-    BIT_32(4),
+    BIT_32(4, Byte.SIZE),
     /**
      * Represents a 16 bit value.
      */
-    BIT_16(2),
+    BIT_16(2, Byte.SIZE),
     /**
      * Represents a variable value which does not have a size defined.
      */
-    VARIABLE(-1);
+    VARIABLE(-1, 7);
 
     private int numberOfBytes;
 
-    Representation(int numberOfBytes) {
+    private int base;
+
+    Representation(int numberOfBytes, int base) {
         this.numberOfBytes = numberOfBytes;
+        this.base = base;
     }
 
     public int getNumberOfBytes() {
         return numberOfBytes;
     }
 
-    /**
-     * finds a matching representation for the provided input string.
-     *
-     * @param representation the size representation string.
-     * @return the corresponding representation.
-     */
-    public static Representation find(String representation) {
-        switch (representation) {
-            case "64b":
-                return BIT_64;
-            case "32b":
-                return BIT_32;
-            case "16b":
-                return BIT_16;
-            default:
-                return BIT_64;
-        }
+    public int getBase() {
+        return base;
     }
 }
