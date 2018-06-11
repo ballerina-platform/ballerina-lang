@@ -21,33 +21,15 @@ import java.util.List;
 import org.jetbrains.annotations.*;
 import com.intellij.psi.PsiElement;
 
-public interface BallerinaForeachStatement extends BallerinaCompositeElement {
-
-  @Nullable
-  BallerinaBlock getBlock();
-
-  @Nullable
-  BallerinaExpression getExpression();
-
-  @Nullable
-  BallerinaVariableReferenceList getVariableReferenceList();
-
-  @Nullable
-  PsiElement getLeftBrace();
-
-  @Nullable
-  PsiElement getLeftParenthesis();
-
-  @Nullable
-  PsiElement getRightBrace();
-
-  @Nullable
-  PsiElement getRightParenthesis();
+public interface BallerinaIntegerRangeExpression extends BallerinaExpression {
 
   @NotNull
-  PsiElement getForeach();
+  List<BallerinaExpression> getExpressionList();
 
   @Nullable
-  PsiElement getIn();
+  PsiElement getEllipsis();
+
+  @Nullable
+  PsiElement getHalfOpenRange();
 
 }
