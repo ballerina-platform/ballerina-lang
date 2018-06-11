@@ -12,6 +12,11 @@ type Job record {
     string description,
 };
 
+type Person record {
+    int id,
+    string name,
+};
+
 function testInvalidObjectPublishingToStream () {
     stream<Employee> s1;
     Job j1 = { description:"Dummy Description 1" };
@@ -172,6 +177,25 @@ function testStreamPublishingAndSubscriptionForUnconstrainedStream () returns (a
     }
     return (publishedEvents, globalAnyArray);
 }
+
+function testStreamsPublishingForStructurallyEquivalentRecords() returns (any[], any[]) {
+    globalEmployeeArray = [];
+    arrayIndex = 0;
+    stream<Employee> emplyeeStream;
+    emplyeeStream.subscribe(addToGlobalEmployeeArray);
+    Person p1 = { id:3000, name:"Maryam" };
+    Person p2 = { id:3003, name:"Ziyad" };
+    Person[] publishedEvents = [p1, p2];
+    foreach event in publishedEvents {
+        emplyeeStream.publish(event);
+    }
+    int startTime = time:currentTime().time;
+    while (lengthof globalEmployeeArray < lengthof publishedEvents && time:currentTime().time - startTime < 5000) {
+        //allow for value update
+    }
+    return (publishedEvents, globalEmployeeArray);
+}
+
 
 function printJobDescription (Job j) {
     log:printInfo(j.description);

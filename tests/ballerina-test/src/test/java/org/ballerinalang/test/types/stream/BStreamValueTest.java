@@ -243,4 +243,21 @@ public class BStreamValueTest {
         }
     }
 
+
+    @Test(description = "Test stream publish with structurally equivalent records")
+    public void testStreamsPublishingForStructurallyEquivalentRecords() {
+        BValue[] returns = BRunUtil.invoke(result, "testStreamsPublishingForStructurallyEquivalentRecords");
+        BRefValueArray publishedEvents = (BRefValueArray) returns[0];
+        BRefValueArray receivedEvents = (BRefValueArray) returns[1];
+
+        Assert.assertNotNull(publishedEvents);
+        Assert.assertNotNull(receivedEvents);
+        Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
+                + "match the number published");
+        for (int i = 0; i < publishedEvents.size(); i++) {
+            Assert.assertEquals(receivedEvents.get(i), publishedEvents.get(i),
+                                "Received event does not match the published event");
+        }
+    }
+
 }
