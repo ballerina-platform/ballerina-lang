@@ -33,6 +33,10 @@ public class DocAttachment {
         this.attributes = new ArrayList<>();
     }
 
+    public String getDescription() {
+        return description;
+    }
+
     /**
      * Represents Doc attachment attribute.
      */
@@ -48,6 +52,18 @@ public class DocAttachment {
             this.name = name;
             this.description = description;
             this.docTag = docTag;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public DocTag getDocTag() {
+            return docTag;
         }
 
     }

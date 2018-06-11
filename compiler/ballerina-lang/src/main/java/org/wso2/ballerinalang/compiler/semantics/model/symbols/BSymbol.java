@@ -60,6 +60,10 @@ public class BSymbol implements Symbol {
         this.owner = owner;
     }
 
+    public DocAttachment getDocAttachment() {
+        return documentation;
+    }
+
     @Override
     public Name getName() {
         return name;

@@ -109,7 +109,6 @@ import org.wso2.ballerinalang.util.Flags;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -1297,11 +1296,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private DocAttachment getDocAttachment(List<BLangDocumentation> docNodes) {
-        // At max we can have only one doc node.
-        BLangDocumentation docNode = docNodes.get(0);
-        if (Objects.isNull(docNode)) {
+        if (docNodes.isEmpty()) {
             return new DocAttachment();
         }
+
+        // At max we can have only one doc node.
+        BLangDocumentation docNode = docNodes.get(0);
 
         DocAttachment docAttachment = new DocAttachment();
         docAttachment.description = docNode.documentationText;

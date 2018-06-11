@@ -858,7 +858,7 @@ public class CompiledPackageSymbolEnter {
             DocAttachment.DocAttribute attribute = new DocAttachment
                     .DocAttribute(name,
                     paramDesc,
-                    DocTag.valueOf(paramKind));
+                    DocTag.fromString(paramKind));
 
             docAttachment.attributes.add(attribute);
         }
