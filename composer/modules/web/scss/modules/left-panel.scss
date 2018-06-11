@@ -1,11 +1,11 @@
 .left-panel {
     color:white;
-    background-color: #333;
+    background-color: $gray05;
     width: 100%;
     & .tab-content {
         left: $activity-bar-width !important;
         position: fixed;
-        background-color: #252525;
+        background-color: $gray03 ;
       & .tab-pane {
           text-align: center;
       }
@@ -15,7 +15,7 @@
         float: left;
         padding: 8.5px 0 8.5px 5px;
         text-transform: capitalize;
-        color: #c7c7c7;
+        color: $white01;
         font-size: 14px;
         text-align: left;
     }
@@ -24,18 +24,18 @@
     }
     .ui.vertical.tabular.menu {
         .item {
-            color: #999999;
+            color: $gray08;
             &.active {
                 cursor: pointer !important;
                 padding-left: 12px;
-                background-color: #252525 !important;
-                color: white !important;
+                background-color: $gray03 !important;
+                color: $white !important;
             }
         }
     }
     .item:hover i{
         cursor: pointer !important;
-        color: white !important;
+        color: $white !important;
     }
     .panel-actions {
         float: right;
@@ -50,7 +50,7 @@
                 &:hover {
                     opacity: 1;
                     cursor: pointer;
-                    background-color: #222;
+                    background-color:$gray04;
                 }
             }
         }
