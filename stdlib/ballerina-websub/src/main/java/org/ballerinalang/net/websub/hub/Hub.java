@@ -18,6 +18,7 @@
 
 package org.ballerinalang.net.websub.hub;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
@@ -51,6 +53,7 @@ public class Hub {
     private static final Logger logger = LoggerFactory.getLogger(Hub.class);
 
     private static Hub instance = new Hub();
+    private BStruct hubObject = null;
     private String hubUrl;
     private boolean hubTopicRegistrationRequired;
     private boolean hubPersistenceEnabled;
@@ -73,8 +76,16 @@ public class Hub {
         this.hubUrl = hubUrl;
     }
 
-    public String retrieveHubUrl() {
+    public String getHubUrl() {
         return hubUrl;
+    }
+
+    private void setHubObject(BStruct hubObject) {
+        this.hubObject = hubObject;
+    }
+
+    public BStruct getHubObject() {
+        return hubObject;
     }
 
     public void registerTopic(String topic, String secret, boolean loadingOnStartUp) throws BallerinaWebSubException {
@@ -224,9 +235,10 @@ public class Hub {
     /**
      * Method to compile and start up the default Ballerina WebSub Hub.
      */
-    public void startUpHubService(ProgramFile hubProgramFile, BBoolean topicRegistrationRequired, BString publicUrl) {
+    public void startUpHubService(Context context, BBoolean topicRegistrationRequired, BString publicUrl) {
         synchronized (this) {
             if (!isStarted()) {
+                ProgramFile hubProgramFile = context.getProgramFile();
                 PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
                 if (hubPackageInfo != null) {
                     BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"),
@@ -245,6 +257,8 @@ public class Hub {
                     started = true;
                     BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);
                     setHubUrl(hubUrl);
+                    setHubObject(BLangConnectorSPIUtil.createBStruct(context, WEBSUB_PACKAGE,
+                                                                     STRUCT_WEBSUB_BALLERINA_HUB, hubUrl));
                 }
             }
             //TODO: handle if started

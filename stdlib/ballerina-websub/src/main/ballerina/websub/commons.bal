@@ -488,12 +488,14 @@ documentation {
     P{{publicUrl}}                  The URL for the hub to be included in content delivery requests, defaults to
                                         `http(s)://localhost:{port}/websub/hub` if unspecified
     P{{sslEnabled}}                 Whether SSL needs to be enabled for the hub, enabled by default
-    R{{}} `WebSubHub`               The WebSubHub object representing the started up hub
+    R{{}} `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
+                        that the hub is already started, and including the WebSubHub object representing the
+                        already started up hub
 }
 public function startUpBallerinaHub(int? port = (), int? leaseSeconds = (), string? signatureMethod = (),
                                     boolean? remotePublishingEnabled = (), string? remotePublishingMode = (),
                                     boolean? topicRegistrationRequired = (), string? publicUrl = (),
-                                    boolean? sslEnabled = ()) returns WebSubHub {
+                                    boolean? sslEnabled = ()) returns WebSubHub|HubStartedUpError {
     hubPort = port but { () => hubPort };
     hubLeaseSeconds = leaseSeconds but { () => hubLeaseSeconds };
     hubSignatureMethod = signatureMethod but { () => hubSignatureMethod };
@@ -506,8 +508,7 @@ public function startUpBallerinaHub(int? port = (), int? leaseSeconds = (), stri
     secureSocket = getSecureSocketConfig();
     //reset the hubUrl once the other parameters are set
     hubPublicUrl = publicUrl but { () => getHubUrl() };
-    WebSubHub ballerinaWebSubHub = startUpHubService(hubTopicRegistrationRequired, hubPublicUrl);
-    return ballerinaWebSubHub;
+    return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl);
 }
 
 documentation {
@@ -664,3 +665,14 @@ type WebSubContent {
 function isSuccessStatusCode(int statusCode) returns boolean {
     return (200 <= statusCode && statusCode < 300);
 }
+
+documentation {
+    Error to represent that a WebSubHub is already started up, encapsulating the started up Hub.
+
+    F{{message}}        The error message
+    F{{startedUpHub}}   The `WebSubHub` object representing the started up Hub
+}
+public type HubStartedUpError record {
+    string message;
+    WebSubHub startedUpHub;
+};

@@ -24,12 +24,13 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.websub.hub.Hub;
 
-import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
@@ -50,17 +51,19 @@ public class StartUpHubService extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         Hub hubInstance = Hub.getInstance();
-        String hubUrl;
         if (hubInstance.isStarted()) {
-            hubUrl = hubInstance.retrieveHubUrl();
+            BStruct hubStartedUpError =
+                    BLangConnectorSPIUtil.createBStruct(context, WEBSUB_PACKAGE,
+                                                        STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR,
+                                                        "Ballerina Hub already started up",
+                                                        hubInstance.getHubObject());
+            context.setReturnValues(hubStartedUpError);
         } else {
             BBoolean topicRegistrationRequired = new BBoolean(context.getBooleanArgument(0));
             BString publicUrl = new BString(context.getStringArgument(0));
-            hubInstance.startUpHubService(context.getProgramFile(), topicRegistrationRequired, publicUrl);
-            hubUrl = hubInstance.retrieveHubUrl();
+            hubInstance.startUpHubService(context, topicRegistrationRequired, publicUrl);
+            context.setReturnValues(hubInstance.getHubObject());
         }
-        context.setReturnValues(BLangConnectorSPIUtil.createBStruct(context, WEBSUB_PACKAGE,
-                                                                    STRUCT_WEBSUB_BALLERINA_HUB, hubUrl));
     }
 
 }
