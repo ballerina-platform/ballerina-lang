@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>ballerina-parent</artifactId>
-        <version>0.971.1-SNAPSHOT</version>
+        <version>0.974.1-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -35,6 +35,11 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina</artifactId>
             <type>zip</type>
+        </dependency>
+        <dependency>
+            <groupId>com.github.chewiebug</groupId>
+            <artifactId>gcviewer</artifactId>
+            <type>jar</type>
         </dependency>
     </dependencies>
 
@@ -58,6 +63,17 @@
                             <overWriteReleases>true</overWriteReleases>
                             <overWriteSnapshots>true</overWriteSnapshots>
                             <overWriteIfNewer>true</overWriteIfNewer>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>initialize</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <skip>${skipBenchmarks}</skip>
+                            <outputDirectory>target</outputDirectory>
+                            <includeArtifactIds>gcviewer</includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -100,6 +116,8 @@
                                 <argument>${warmup.iterations}</argument>
                                 <argument>${benchmark.iterations}</argument>
                                 <argument>benchmark-ballerina_${project.version}</argument>
+                                <argument>${project.basedir}/target/</argument>
+                                <argument>${chewiebug.gcviewer.version}</argument>
                             </arguments>
                         </configuration>
                     </execution>

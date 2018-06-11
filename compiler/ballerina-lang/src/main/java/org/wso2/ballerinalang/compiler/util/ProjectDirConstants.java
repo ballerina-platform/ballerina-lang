@@ -45,4 +45,10 @@ public class ProjectDirConstants {
     public static final String HOME_REPO_ENV_KEY = "BALLERINA_HOME_DIR";
     public static final String HOME_REPO_DEFAULT_DIRNAME = ".ballerina";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
+
+    public static final String BALLERINA_HOME = "ballerina.home";
+    public static final String BALLERINA_HOME_LIB = "lib";
+
+    public static final String BALLERINA_VERSION = "ballerina.version";
+    public static final String PROPERTIES_FILE = "/META-INF/launcher.properties";
 }

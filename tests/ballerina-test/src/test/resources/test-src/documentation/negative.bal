@@ -32,21 +32,24 @@ documentation {
 Gets a access parameter value (`true` or `false`) for a given key. Please note that #foo will always be bigger than #bar.
 Example:
 ``SymbolEnv pkgEnv = symbolEnter.packageEnvs.get(pkgNode.symbol);``
-T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
-T{{file}} file path ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
+P{{accessMode}} read or write mode
 P{{accessMode}} read or write mode
 R{{successful}} boolean `true` or `false`
 }
-public function <File file> open (string accessMode) returns (boolean) {
+public function File::open (string accessMode) returns (boolean) {
     boolean successful;
     return successful;
 }
 
-documentation { Documentation for File struct
-F{{path}} struct `field path` documentation
+documentation { Documentation for File object
+F{{path}} file path. Example: ``C:\users\OddThinking\Documents\My Source\Widget\foo.src``
 }
-public type File {
-    string path;
+public type File object {
+    public {
+        string path;
+    }
+
+    public function open(string accessMode) returns boolean;
 };
 
 //documentation {

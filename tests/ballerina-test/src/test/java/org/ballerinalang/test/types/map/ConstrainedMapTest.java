@@ -518,4 +518,66 @@ public class ConstrainedMapTest {
         Assert.assertEquals(((BString) returns[0]).stringValue(), "TR-ID");
     }
 
+    @Test(description = "Test basic map constrained to union.")
+    public void testMapConstrainedToUnion() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testMapConstrainedToUnion");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "test-value");
+    }
+
+    @Test(description = "Test basic map constrained to union case two.")
+    public void testMapConstrainedToUnionCaseTwo() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testMapConstrainedToUnionCaseTwo");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
+    @Test(description = "Test basic map constrained to union case three.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'non-existing-key'.*")
+    public void testMapConstrainedToUnionCaseThree() {
+        BRunUtil.invoke(compileResult,
+                "testMapConstrainedToUnionCaseThree");
+    }
+
+    @Test(description = "Test basic map constrained to nullable union.")
+    public void testMapConstrainedToNullableUnion() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testMapConstrainedToNullableUnion");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertTrue(returns[0] instanceof BString);
+        Assert.assertEquals(((BString) returns[0]).stringValue(), "test-nullable-union");
+    }
+
+    @Test(description = "Test basic map constrained to nullable union retrieve non existing key.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'nonexist'.*")
+    public void testMapConstrainedToNullableUnionNonExistingKey() {
+        BRunUtil.invoke(compileResult,
+                "testMapConstrainedToNullableUnionNonExistingKey");
+    }
+
+    @Test(description = "Test basic map constrained to nullable union retrieve non existing key with index access.")
+    public void testMapConstrainedToNullableUnionNonExistingKeyWithIndexAccess() {
+        BValue[] returns = BRunUtil.invoke(compileResult,
+                "testMapConstrainedToNullableUnionNonExistingKeyWithIndexAccess");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNull(returns[0]);
+    }
+
+    @Test(description = "Test basic map constrained to string non existing key retrieve.",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = "error: error, message: cannot find key 'nonexist-key'.*")
+    public void testMapConstrainedStringNonExistingKeyRetrieve() {
+        BRunUtil.invoke(compileResult,
+                "testMapConstrainedStringNonExistingKeyRetrieve");
+    }
+
 }

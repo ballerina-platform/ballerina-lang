@@ -26,6 +26,7 @@ import ScrollBarsWithContextAPI from './../../view/scroll-bars/ScrollBarsWithCon
 import Dialog from './../../view/Dialog';
 import FileTree from './../../view/tree-view/FileTree';
 import { create, exists as checkFileExists, createProject } from './../fs-util';
+import { isOnElectron } from './../../utils/client-info';
 
 const HISTORY_LAST_ACTIVE_PATH = 'composer.history.workspace.create-project-dialog.last-active-path';
 
@@ -223,31 +224,53 @@ class CreateProjectDialog extends React.Component {
                                         dirPath: evt.target.value,
                                     });
                                 }}
+                                action={isOnElectron() &&
+                                    <Button
+                                        icon='folder open'
+                                        content='Select'
+                                        onClick={(evt) => {
+                                            const { ipcRenderer } = require('electron');
+                                            ipcRenderer.send('show-folder-open-dialog', 'Select Project Path',
+                                                'select parent folder for the project');
+                                            ipcRenderer.once('folder-open-wizard-closed', (e, dirPath) => {
+                                                if (dirPath) {
+                                                    this.updateState({
+                                                        error: '',
+                                                        dirPath,
+                                                    });
+                                                }
+                                            });
+                                            evt.preventDefault();
+                                        }}
+                                    />
+                                }
                             />
                         </Form.Group>
 
                     </Form>
-                    <ScrollBarsWithContextAPI
-                        style={{
-                            height: 300,
-                        }}
-                        autoHide
-                    >
-                        <FileTree
-                            activeKey={this.state.dirPath}
-                            onSelect={
-                                (node) => {
-                                    const dirPath = node.id;
-                                    const projectName = node.fileName;
-                                    this.updateState({
-                                        error: '',
-                                        dirPath,
-                                        projectName,
-                                    });
+                    {!isOnElectron() &&
+                        <ScrollBarsWithContextAPI
+                            style={{
+                                height: 300,
+                            }}
+                            autoHide
+                        >
+                            <FileTree
+                                activeKey={this.state.dirPath}
+                                onSelect={
+                                    (node) => {
+                                        const dirPath = node.id;
+                                        const projectName = node.fileName;
+                                        this.updateState({
+                                            error: '',
+                                            dirPath,
+                                            projectName,
+                                        });
+                                    }
                                 }
-                            }
-                        />
-                    </ScrollBarsWithContextAPI>
+                            />
+                        </ScrollBarsWithContextAPI>
+                    }
                 </Dialog>
             </div>
         );

@@ -43,7 +43,7 @@ import java.util.Set;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "acceptWebSocketUpgrade",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CONNECTION,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CONNECTION,
                              structPackage = "ballerina.http"),
         args = {
                 @Argument(name = "headers", type = TypeKind.MAP)

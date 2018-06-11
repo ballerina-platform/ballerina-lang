@@ -40,22 +40,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntermediateCollectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -83,6 +85,15 @@ public class CommonUtil {
     private static final String OPEN_BRACKET_KEY_WORD = "(";
     
     public static final String LINE_SEPARATOR = System.lineSeparator();
+
+    public static final String LINE_SEPARATOR_SPLIT = "\\r?\\n";
+
+    public static final boolean LS_DEBUG_ENABLED;
+
+    static {
+        String debugLogStr = System.getProperty("ballerina.debugLog");
+        LS_DEBUG_ENABLED =  debugLogStr != null && Boolean.parseBoolean(debugLogStr);
+    }
 
     /**
      * Get the package URI to the given package name.
@@ -221,7 +232,7 @@ public class CommonUtil {
         Token token = null;
         while (true) {
             startIndex += direction;
-            if (startIndex < 0) {
+            if (startIndex < 0 || startIndex == tokenStream.size()) {
                 break;
             }
             token = tokenStream.get(startIndex);
@@ -290,7 +301,7 @@ public class CommonUtil {
         List<String> topLevelKeywords = Arrays.asList("function", "service", "resource", "endpoint", "type");
         LSDocument document = new LSDocument(identifier.getUri());
         String fileContent = docManager.getFileContent(getPath(document));
-        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR);
+        String[] splitedFileContent = fileContent.split(LINE_SEPARATOR_SPLIT);
         if ((splitedFileContent.length - 1) >= startPosition.getLine()) {
             String lineContent = splitedFileContent[startPosition.getLine()];
             List<String> alphaNumericTokens = new ArrayList<>(Arrays.asList(lineContent.split("[^\\w']+")));
@@ -337,12 +348,12 @@ public class CommonUtil {
      * Get the Annotation completion Item.
      *
      * @param packageID  Package Id
-     * @param annotation BLang annotation to extract the completion Item
+     * @param annotationSymbol BLang annotation to extract the completion Item
      * @return {@link CompletionItem}   Completion item for the annotation
      */
-    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BLangAnnotation annotation) {
-        String label = getAnnotationLabel(packageID, annotation);
-        String insertText = getAnnotationInsertText(packageID, annotation);
+    public static CompletionItem getAnnotationCompletionItem(PackageID packageID, BAnnotationSymbol annotationSymbol) {
+        String label = getAnnotationLabel(packageID, annotationSymbol);
+        String insertText = getAnnotationInsertText(packageID, annotationSymbol);
         CompletionItem annotationItem = new CompletionItem();
         annotationItem.setLabel(label);
         annotationItem.setInsertText(insertText);
@@ -356,25 +367,16 @@ public class CommonUtil {
      * Get the annotation Insert text.
      *
      * @param packageID  Package ID
-     * @param annotation Annotation to get the insert text
+     * @param annotationSymbol Annotation to get the insert text
      * @return {@link String}   Insert text
      */
-    private static String getAnnotationInsertText(PackageID packageID, BLangAnnotation annotation) {
+    private static String getAnnotationInsertText(PackageID packageID, BAnnotationSymbol annotationSymbol) {
         String pkgAlias = packageID.getNameComps().get(packageID.getNameComps().size() - 1).getValue();
         StringBuilder annotationStart = new StringBuilder();
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
             annotationStart.append(pkgAlias).append(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
         }
-        annotationStart.append(annotation.getName().getValue()).append(" ").append(UtilSymbolKeys.OPEN_BRACE_KEY);
-
-        // Note: Code has been commented on purpose since the implementation can be revert back
-//        if (annotation.typeNode.type instanceof BStructType) {
-//            ((BStructType) annotation.typeNode.type).fields.forEach(bStructField -> {
-//                String defaultFieldEntry = System.lineSeparator() + "\t" + bStructField.getName().getValue()
-//                        + UtilSymbolKeys.PKG_DELIMITER_KEYWORD + getDefaultValueForType(bStructField.getType());
-//                fieldEntries.add(defaultFieldEntry);
-//            });
-//        }
+        annotationStart.append(annotationSymbol.getName().getValue()).append(" ").append(UtilSymbolKeys.OPEN_BRACE_KEY);
 
         annotationStart.append(LINE_SEPARATOR).append("\t").append("${1}").append(LINE_SEPARATOR)
                 .append(UtilSymbolKeys.CLOSE_BRACE_KEY);
@@ -389,7 +391,7 @@ public class CommonUtil {
      * @param annotation BLang annotation
      * @return {@link String}          Label string
      */
-    private static String getAnnotationLabel(PackageID packageID, BLangAnnotation annotation) {
+    private static String getAnnotationLabel(PackageID packageID, BAnnotationSymbol annotation) {
         String pkgComponent = "";
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
 
@@ -429,7 +431,6 @@ public class CommonUtil {
                 typeString = "[]";
                 break;
             case RECORD:
-            case STRUCT:
                 typeString = "{}";
                 break;
             case FINITE:
@@ -537,10 +538,8 @@ public class CommonUtil {
             }
 
             entries.forEach((name, scopeEntry) -> {
-                if (scopeEntry.symbol instanceof BInvokableSymbol
-                        && ((BInvokableSymbol) scopeEntry.symbol).receiverSymbol != null) {
-                    String symbolBoundedName = ((BInvokableSymbol) scopeEntry.symbol)
-                            .receiverSymbol.getType().toString();
+                if (scopeEntry.symbol instanceof BInvokableSymbol && scopeEntry.symbol.owner != null) {
+                    String symbolBoundedName = scopeEntry.symbol.owner.toString();
 
                     if (symbolBoundedName.equals(bTypeValue)) {
                         // TODO: Need to handle the name in a proper manner
@@ -574,9 +573,9 @@ public class CommonUtil {
      * @return {@link Boolean}  Symbol evaluation status
      */
     public static boolean isEndpointObject(BSymbol bSymbol) {
-        if (SymbolKind.OBJECT.equals(bSymbol.kind) && bSymbol instanceof BStructSymbol) {
-            List<BStructSymbol.BAttachedFunction> attachedFunctions = ((BStructSymbol) bSymbol).attachedFuncs;
-            for (BStructSymbol.BAttachedFunction attachedFunction : attachedFunctions) {
+        if (SymbolKind.OBJECT.equals(bSymbol.kind)) {
+            List<BAttachedFunction> attachedFunctions = ((BObjectTypeSymbol) bSymbol).attachedFuncs;
+            for (BAttachedFunction attachedFunction : attachedFunctions) {
                 if (attachedFunction.funcName.getValue().equals(UtilSymbolKeys.EP_OBJECT_IDENTIFIER)) {
                     return true;
                 }
@@ -602,12 +601,12 @@ public class CommonUtil {
      * @param structFields      List of struct fields
      * @return {@link List}     List of completion items for the struct fields
      */
-    public static List<CompletionItem> getStructFieldPopulateCompletionItems(List<BStructType.BStructField>
+    public static List<CompletionItem> getStructFieldPopulateCompletionItems(List<BField>
                                                                                      structFields) {
         List<CompletionItem> completionItems = new ArrayList<>();
         structFields.forEach(bStructField -> {
             StringBuilder insertText = new StringBuilder(bStructField.getName().getValue() + ": ");
-            if (bStructField.getType() instanceof BStructType) {
+            if (bStructField.getType() instanceof BStructureType) {
                 insertText.append("{").append(LINE_SEPARATOR).append("\t${1}").append(LINE_SEPARATOR).append("}");
             } else {
                 insertText.append("${1:").append(getDefaultValueForType(bStructField.getType())).append("}");
@@ -629,7 +628,7 @@ public class CommonUtil {
      * @param fields                    List of struct fields
      * @return {@link CompletionItem}   Completion Item to fill all the options
      */
-    public static CompletionItem getFillAllStructFieldsItem(List<BStructType.BStructField> fields) {
+    public static CompletionItem getFillAllStructFieldsItem(List<BField> fields) {
         List<String> fieldEntries = new ArrayList<>();
 
         fields.forEach(bStructField -> {

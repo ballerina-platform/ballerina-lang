@@ -12,17 +12,15 @@
                     margin-top: -10px;
                     &:hover{
                         cursor: pointer;
-                        color: #bebebe;
+                        color: $rc-tabs-hover-color;
                         background-color: #222;
                     }
                 }
             }
-            & .rc-tabs-nav-container {
-            }
             & .rc-tabs-nav-container-scrolling {
                 & .rc-tabs-tab-next, .rc-tabs-tab-prev {
                     @extend .unseletable-content;
-                    color: #999999;
+                    color: #999;
                     &.rc-tabs-tab-btn-disabled {
                         color: #686868;
                     }
@@ -38,10 +36,10 @@
             color: #6D6D6D;
             min-width: 120px;
             &:hover{
-                color: #bebebe;
+                color: $rc-tabs-hover-color;
             }
             &.rc-tabs-tab-active {
-                color: #bebebe;
+                color: $rc-tabs-hover-color;
             }
         }
     }

@@ -20,7 +20,7 @@ package org.ballerinalang.net.grpc.proto.definition;
 import com.google.protobuf.DescriptorProtos;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 
 import java.util.HashMap;
@@ -61,7 +61,7 @@ public class Field {
     }
 
     /**
-     * FieldDefinition.Builder
+     * FieldDefinition.Builder.
      */
     public static class Builder {
         private DescriptorProtos.FieldDescriptorProto.Builder fieldDescriptorBuilder;
@@ -102,7 +102,7 @@ public class Field {
             if (primType != null) {
                 fieldDescriptorBuilder.setType(primType);
             } else {
-                if (type instanceof BStructType) {
+                if (type instanceof BStructureType) {
                     fieldDescriptorBuilder.setTypeName(fieldType);
                 } else {
                     throw new GrpcServerException("Unsupported field type, field type " + type.getKind().typeName() +

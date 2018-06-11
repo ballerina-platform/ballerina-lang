@@ -41,6 +41,8 @@ import File from './model/file';
 import Folder from './model/folder';
 import CreateProjectDialog from './dialogs/CreateProjectDialog';
 
+import { isOnElectron } from './../utils/client-info';
+
 // FIXME: Find a proper way of removing circular deps from serialization
 const skipEventAndCustomPropsSerialization = (key, value) => {
     return key === '_events' || key === '_props' ? undefined : value;
@@ -325,6 +327,12 @@ class WorkspacePlugin extends Plugin {
         if (this.config && this.config.startupFile) {
             this.openFile(this.config.startupFile);
         }
+        if (isOnElectron()) {
+            const { ipcRenderer } = require('electron');
+            ipcRenderer.on('open-file', (e, filePath) => {
+                this.openFile(filePath);
+            });
+        }
     }
 
     /**
@@ -365,7 +373,7 @@ class WorkspacePlugin extends Plugin {
                     region: REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
-                        activityBarIcon: 'file-browse',
+                        activityBarIcon: 'folder-open',
                         panelTitle: 'Explorer',
                         panelActions: [
                             {

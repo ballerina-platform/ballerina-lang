@@ -29,8 +29,9 @@ import org.eclipse.lsp4j.SignatureInformation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
@@ -169,11 +170,11 @@ public class SignatureHelpUtil {
         BLangPackage bLangPackage = LSPackageLoader.getPackageById(compilerContext, bInvokableSymbol.pkgID);
         
         if (bInvokableSymbol.owner.kind.equals(SymbolKind.OBJECT)) {
-            BLangObject filteredObject = bLangPackage.getObjects().stream()
+            BLangTypeDefinition filteredObject = bLangPackage.typeDefinitions.stream()
                     .filter(object -> object.name.getValue().equals(bInvokableSymbol.owner.name.getValue()))
                     .findFirst()
                     .orElse(null);
-            functionList = filteredObject.getFunctions();
+            functionList = ((BLangObjectTypeNode) filteredObject.typeNode).getFunctions();
         } else {
             functionList = bLangPackage.getFunctions();
         }

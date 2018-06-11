@@ -17,39 +17,34 @@
 documentation {
     Removes the specified element from the map.
 
-    T{{m}} The map object
     P{{key}} The key to be removed
     R{{}} A boolean to indicate whether the key is removed or not from map
 }
-public native function<map m> remove(string key) returns (boolean);
+public native function map::remove(string key) returns (boolean);
 
 documentation {
     Returns an array of keys contained in the specified map.
 
-    T{{m}} The map object
     R{{}} A string array of keys contained in the specified map
 }
-public native function<map m> keys() returns (string[]);
+public native function map::keys() returns (string[]);
 
 documentation {
     Check whether specific key exists from the given map.
 
-    T{{m}} The map object
     P{{key}} The key to be find existence
 }
-public native function<map m> hasKey(string key) returns (boolean);
+public native function map::hasKey(string key) returns (boolean);
 
 documentation {
     Clear the items from given map.
 
-    T{{m}} The map object
 }
-public native function<map m> clear();
+public native function map::clear();
 
 documentation {
     Returns an array of values contained in the specified map.
 
-    T{{m}} The map object
     R{{}} An any array of values contained in the specified map
 }
-public native function<map m> values() returns (any[]);
+public native function map::values() returns (any[]);

@@ -35,7 +35,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "receive",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
+                   receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = "DurableTopicSubscriberActions",
                                         structPackage = "ballerina.jms"),
                    args = {
@@ -43,7 +43,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
                                      type = TypeKind.INT)
                    },
                    returnType = {
-                           @ReturnType(type = TypeKind.STRUCT,
+                           @ReturnType(type = TypeKind.OBJECT,
                                        structPackage = "ballerina.jms",
                                        structType = "Message")
                    },

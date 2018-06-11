@@ -41,6 +41,11 @@ class Frames extends React.Component {
         const unescaped = str.replace(/\\"/g, '"');
         return JSON5.parse(unescaped);
     }
+
+    getJsonObject(str = '') {
+        const unescaped = str.replace(/\\"/g, '"');
+        return JSON5.parse((unescaped.substring(str.indexOf('{'), unescaped.lastIndexOf('}') + 1)));
+    }
     /**
      * @description Parse string to JSON
      * @param {any} str
@@ -63,51 +68,80 @@ class Frames extends React.Component {
             <div key={i}>
                 {frame.variables.map((variable) => {
                     const { type = '', name, value } = variable;
+
                     const label = <span className='node'><strong>{name}</strong>{` (${type})`}</span>;
-                    if (type.toLowerCase().includes('json')
-                        || type.toLowerCase().includes('struct')
+                    const defaultComponent = (<TreeView key={name} nodeLabel={label} defaultCollapsed>
+                        <div className='node'>Value: {value}</div>
+                    </TreeView>);
+
+                    if (type.toLowerCase().includes('json')) {
+                        try {
+                            return (
+                                <TreeView key={name} nodeLabel={label} defaultCollapsed>
+                                    <div className='node'>Value:</div>
+                                    <ReactJson
+                                        src={this.getObject(variable.value)}
+                                        theme='eighties'
+                                        name={name}
+                                        displayDataTypes={false}
+                                        collapsed={1}
+                                        displayObjectSize={false}
+                                    />
+                                </TreeView>);
+                        } catch (error) {
+                            return defaultComponent;
+                        }
+
+                    } else if (type.toLowerCase().includes('struct')
                         || type.toLowerCase().includes('map')
                         || variable.value.startsWith('struct')) {
-                        return (
-                            <TreeView key={name} nodeLabel={label} defaultCollapsed>
-                                <div className='node'>Value:</div>
-                                <ReactJson
-                                    src={this.getObject(variable.value)}
-                                    theme='eighties'
-                                    name={name}
-                                    displayDataTypes={false}
-                                    collapsed={1}
-                                    displayObjectSize={false}
-                                />
-                            </TreeView>);
+                        try {
+                            return (
+                                <TreeView key={name} nodeLabel={label} defaultCollapsed>
+                                    <div className='node'>Value:</div>
+                                    <ReactJson
+                                        src={this.getJsonObject(variable.value)}
+                                        theme='eighties'
+                                        name={name}
+                                        displayDataTypes={false}
+                                        collapsed={1}
+                                        displayObjectSize={false}
+                                    />
+                                </TreeView>);
+                        } catch (error) {
+                            return defaultComponent;
+                        }
                     } else if (type.toLowerCase().includes('array')) {
-                        return (
-                            <TreeView key={name} nodeLabel={label} defaultCollapsed>
-                                <div className='node'>Value:</div>
-                                <ReactJson
-                                    src={this.getArray(variable.value)}
-                                    theme='eighties'
-                                    name={name}
-                                    displayDataTypes={false}
-                                    collapsed={1}
-                                    displayObjectSize={false}
-                                />
-                            </TreeView>
-                        );
+                        try {
+                            return (
+                                <TreeView key={name} nodeLabel={label} defaultCollapsed>
+                                    <div className='node'>Value:</div>
+                                    <ReactJson
+                                        src={this.getArray(variable.value)}
+                                        theme='eighties'
+                                        name={name}
+                                        displayDataTypes={false}
+                                        collapsed={1}
+                                        displayObjectSize={false}
+                                    />
+                                </TreeView>
+                            );
+                        } catch (error) {
+                            return defaultComponent;
+                        }
                     } else if (type.toLowerCase().includes('xml')) {
-                        return (
-                            <TreeView key={name} nodeLabel={label} defaultCollapsed>
-                                <div className='node'>Value:</div>
-                                <HtmlTree source={variable.value.substr(1)} theme='firefox-devtools.dark' />
-                            </TreeView>
-                        );
+                        try {
+                            return (
+                                <TreeView key={name} nodeLabel={label} defaultCollapsed>
+                                    <div className='node'>Value:</div>
+                                    <HtmlTree source={variable.value.substr(1)} theme='firefox-devtools.dark' />
+                                </TreeView>
+                            );
+                        } catch (error) {
+                            return defaultComponent;
+                        }
                     } else {
-                        const varLabel = <span className='node'><strong>{name}</strong>{` (${type})`}</span>;
-                        return (
-                            <TreeView key={name} nodeLabel={varLabel} defaultCollapsed>
-                                <div className='node'>Value: {value}</div>
-                            </TreeView>
-                        );
+                        return defaultComponent;
                     }
                 })}
             </div>

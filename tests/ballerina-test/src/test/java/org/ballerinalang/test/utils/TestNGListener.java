@@ -8,7 +8,7 @@ import java.io.PrintStream;
 import java.util.HashSet;
 
 /**
- * Test listener for listening to test events
+ * Test listener for listening to test events.
  *
  * @since 0.970.0-alpha1
  */

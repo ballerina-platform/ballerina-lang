@@ -29,6 +29,9 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+/**
+ * Class used for test purposes related to invalid input types.
+ */
 public class InvalidInputTypes {
     private static String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
     private static Path resourceDir = Paths.get(

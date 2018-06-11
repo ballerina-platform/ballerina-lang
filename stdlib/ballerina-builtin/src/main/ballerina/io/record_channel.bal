@@ -62,10 +62,10 @@ public type DelimitedTextRecordChannel object {
     documentation {
         Writes records to a given input/output resource.
 
-        P{{record}} list of fields which should be written
+        P{{textRecord}} List of fields to be written
         R{{}} An error if the records could not be written properly
     }
-    public native function write(string[] record) returns error?;
+    public native function write(string[] textRecord) returns error?;
 
     documentation {
         Closes a given record channel.

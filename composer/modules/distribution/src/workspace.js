@@ -19,46 +19,64 @@
 
 const {ipcMain, dialog} = require('electron');
 
+const extensions = [
+    { name: 'Ballerina files', extensions: ['bal']}, 
+    { name: 'XML files ', extensions: ['xml']},
+    { name: 'JSON files', extensions: ['json']}, 
+    { name: 'TOML files', extensions: ['toml']}, 
+    { name: 'Conf files', extensions: ['conf']},
+    { name: 'Text files', extensions: ['txt']}, 
+    { name: 'YAML files', extensions: ['yml']}, 
+    { name: 'Markdown files', extensions: ['md']},
+    { name: 'SQL files', extensions: ['sql']}, 
+    { name: 'Shell scripts', extensions: ['sh']}, 
+    { name: 'Bat scripts', extensions: ['bat']}
+];
+
 function setupNativeWizards(mainWindow) {
-    ipcMain.on('show-file-open-dialog', function (event) {
+    ipcMain.on('show-file-open-dialog', function (event, title, message, exts, props) {
         dialog.showOpenDialog(
           mainWindow,
             {
-                title: 'Open Ballerina File',
-                filters: [
-                    {name: 'Ballerina Files (*.bal) ', extensions: ['bal']},
-                ],
-                properties: ['openFile', 'promptToCreate']
+                title,
+                message,
+                filters: exts ? exts : extensions,
+                properties: props ? props : ['openFile', 'promptToCreate']
             }, function (file) {
-                if (file) event.sender.send('file-opened', file);
+                event.sender.send('file-open-wizard-closed', file)
             }
         );
     });
 
-    ipcMain.on('show-file-save-dialog', function (event) {
+    ipcMain.on('show-file-save-dialog', function (event, title, message, exts, props) {
         dialog.showSaveDialog(
           mainWindow,
             {
-                title: 'Save Ballerina File',
-                filters: [
-                    {name: 'Ballerina Files (*.bal) ', extensions: ['bal']},
-                ]
+                title,
+                message,
+                filters: exts ? exts : extensions,
+                properties: props ? props : []
             }, function (file) {
-                if (file) event.sender.send('file-save-path-selected', file);
+                event.sender.send('file-save-wizard-closed', file);
             }
         );
     });
 
-    ipcMain.on('show-folder-open-dialog', function (event) {
+    ipcMain.on('show-folder-open-dialog', function (event, title, message, props) {
         dialog.showOpenDialog(
           mainWindow,
             {
-                title: 'Open Ballerina Folder',
-                properties: ['openDirectory', 'createDirectory']
-            }, function (folder) {
-                if (folder) event.sender.send('folder-opened', folder);
+                title,
+                message,
+                properties: props ? props : ['openDirectory', 'createDirectory']
+            }, function (folders) {
+                event.sender.send('folder-open-wizard-closed', folders ? folders[0] : undefined);
             }
         );
+    });
+
+    ipcMain.on('show-error-dialog', function (event, title, message) {
+        dialog.showErrorBox(title, message);
     });
 }
 

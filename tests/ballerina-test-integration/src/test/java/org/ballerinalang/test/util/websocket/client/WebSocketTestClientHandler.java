@@ -25,6 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
@@ -55,6 +56,8 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     private boolean isPing;
     private CountDownLatch countDownLatch = null;
     private ChannelHandlerContext ctx;
+    private HttpHeaders headers;
+    private CloseWebSocketFrame receiveCloseFrame;
 
     public WebSocketTestClientHandler(WebSocketClientHandshaker handshaker) {
         this.handshaker = handshaker;
@@ -88,7 +91,9 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
     public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel ch = ctx.channel();
         if (!handshaker.isHandshakeComplete()) {
-            handshaker.finishHandshake(ch, (FullHttpResponse) msg);
+            FullHttpResponse fullHttpResponse = (FullHttpResponse) msg;
+            headers = fullHttpResponse.headers();
+            handshaker.finishHandshake(ch, fullHttpResponse);
             logger.info("WebSocket Client connected!");
             handshakeFuture.setSuccess();
             return;
@@ -118,7 +123,8 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
                 isPong = true;
                 bufferReceived = pongFrame.content().nioBuffer();
             } else if (frame instanceof CloseWebSocketFrame) {
-                int statusCode = ((CloseWebSocketFrame) frame).statusCode();
+                CloseWebSocketFrame closeWebSocketFrame = (CloseWebSocketFrame) frame;
+                int statusCode = closeWebSocketFrame.statusCode();
                 if (ch.isOpen()) {
                     ch.writeAndFlush(new CloseWebSocketFrame(statusCode, null)).addListener(future -> {
                         if (ch.isOpen()) {
@@ -126,6 +132,7 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
                         }
                     }).sync();
                 }
+                receiveCloseFrame = closeWebSocketFrame.retain();
             }
             if (countDownLatch != null) {
                 countDownLatch.countDown();
@@ -133,7 +140,6 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
             }
         }
     }
-
 
 
     /**
@@ -185,6 +191,18 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
         return temp;
     }
 
+    /**
+     * Retrieve the received close frame to the client.
+     * <b>Note: Release the close frame after using it using CloseWebSocketFrame.release()</b>
+     *
+     * @return the close frame received to the client.
+     */
+    public CloseWebSocketFrame getReceiveCloseFrame() {
+        CloseWebSocketFrame temp = receiveCloseFrame;
+        receiveCloseFrame = null;
+        return temp;
+    }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         if (!handshakeFuture.isDone()) {
@@ -195,4 +213,13 @@ public class WebSocketTestClientHandler extends SimpleChannelInboundHandler<Obje
         ctx.close();
     }
 
+    /**
+     * Gets the header value from the response headers.
+     *
+     * @param headerName the header name
+     * @return the header value from the response headers.
+     */
+    public String getHeader(String headerName) {
+        return headers.get(headerName);
+    }
 }

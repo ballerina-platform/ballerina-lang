@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -38,8 +38,8 @@ import org.ballerinalang.net.websub.hub.Hub;
         orgName = "ballerina", packageName = "websub",
         functionName = "publishToInternalHub",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
-                @Argument(name = "payload", type = TypeKind.JSON)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+                @Argument(name = "content", type = TypeKind.OBJECT)},
+        returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
 public class PublishToInternalHub extends BlockingNativeCallableUnit {
@@ -47,10 +47,9 @@ public class PublishToInternalHub extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String topic = context.getStringArgument(0);
-        BJSON jsonPayload = (BJSON) context.getRefArgument(0);
-        String payload = jsonPayload.stringValue();
+        BStruct content = (BStruct) context.getRefArgument(0);
         try {
-            Hub.getInstance().publish(topic, payload);
+            Hub.getInstance().publish(topic, content);
             context.setReturnValues();
         } catch (BallerinaWebSubException e) {
             context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));

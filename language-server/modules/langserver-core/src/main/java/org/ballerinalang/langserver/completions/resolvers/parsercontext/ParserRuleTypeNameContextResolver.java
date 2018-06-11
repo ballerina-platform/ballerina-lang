@@ -37,7 +37,8 @@ import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -119,20 +120,20 @@ public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
 
         return symbolInfos.stream().filter(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return bSymbol.getType() instanceof BStructType
-                    && checkErrorStructEquivalence((BStructType) bSymbol.getType());
+            return bSymbol.getType() instanceof BRecordType
+                    && checkErrorStructEquivalence((BRecordType) bSymbol.getType());
         }).collect(Collectors.toList());
     }
     
-    private static boolean checkErrorStructEquivalence(BStructType bStructType) {
-        List<BStructType.BStructField> fields = bStructType.getFields();
+    private static boolean checkErrorStructEquivalence(BRecordType bStructType) {
+        List<BField> fields = bStructType.getFields();
         String errorField = "cause";
         String errorType = "error";
         String msgField = "message";
         String msgType = "string";
         int fieldCounter = 0;
 
-        for (BStructType.BStructField field : fields) {
+        for (BField field : fields) {
             if ((field.getName().getValue().equals(errorField) && field.getType().toString().equals(errorType))
                     || (field.getName().getValue().equals(msgField) && field.getType().toString().equals(msgType))) {
                 fieldCounter++;

@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/http;
 
 ///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Subscriber Natives ////////////////////
@@ -55,10 +56,10 @@ documentation {
     Publishes an update against the topic in the Ballerina Hub.
 
     P{{topic}} The topic for which the update should happen
-    P{{payload}} The update payload
+    P{{content}} The content to send to subscribers, with the payload and content-type specified
     R{{}} `error` if an error occurred during publishing
 }
-native function publishToInternalHub(string topic, json payload) returns error?;
+native function publishToInternalHub(string topic, WebSubContent content) returns error?;
 
 documentation {
     Removes a subscription added for the specified topic in the Ballerina Hub.
@@ -111,7 +112,9 @@ documentation {
 
     P{{hubUrl}} The URL of the Ballerina WebSub Hub as included in the WebSubHub struct
     P{{topic}} The topic for which the update should happen
-    P{{payload}} The update payload
+    P{{content}} The content to send to subscribers, with the payload and content-type specified
     R{{}} `error` if an error occurred during publishing
 }
-native function validateAndPublishToInternalHub(string hubUrl, string topic, json payload) returns error?;
+native function validateAndPublishToInternalHub(string hubUrl, string topic, WebSubContent content) returns error?;
+
+native function constructBlob(io:ByteChannel byteChannel) returns blob;

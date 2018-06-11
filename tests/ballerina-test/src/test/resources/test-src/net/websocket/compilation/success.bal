@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 import ballerina/http;
 import ballerina/io;
 
@@ -10,27 +26,27 @@ endpoint http:WebSocketListener echoEP {
     path:"/echo"
 }
 service<http:WebSocketService> echo bind echoEP {
-    onOpen(endpoint conn) {
+    onOpen(endpoint caller) {
     }
 
-    onText(endpoint conn, string text) {
+    onText(endpoint caller, string text) {
     }
 
-    onBinary(endpoint conn, blob text, boolean final) {
-
+    onBinary(endpoint caller, blob text, boolean final) {
     }
 
-    onClose(endpoint conn, int val, string text) {
-
+    onClose(endpoint caller, int val, string text) {
     }
 
-    onIdleTimeout(endpoint conn) {
-
+    onIdleTimeout(endpoint caller) {
     }
-    onPing(endpoint conn, blob so) {
 
+    onPing(endpoint caller, blob so) {
     }
-    onPong(endpoint conn, blob yes) {
 
+    onPong(endpoint caller, blob yes) {
+    }
+
+    onError(endpoint caller, error err) {
     }
 }

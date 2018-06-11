@@ -896,6 +896,14 @@ class TreeUtil extends AbstractTreeUtil {
         }
         return endpoints;
     }
+
+    isObject(node) {
+        return node.typeNode && (node.typeNode.kind === 'ObjectType');
+    }
+
+    isRecord(node) {
+        return node.typeNode && (node.typeNode.kind === 'RecordType');
+    }
 }
 
 export default new TreeUtil();

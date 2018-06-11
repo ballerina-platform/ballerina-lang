@@ -40,7 +40,7 @@ import java.util.Map;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "h2",
         functionName = "createClient",
-        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ClientEndpointConfiguration")},
+        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ClientEndpointConfiguration")},
         isPublic = true
 )
 public class CreateClient extends BlockingNativeCallableUnit {

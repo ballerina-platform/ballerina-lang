@@ -38,7 +38,7 @@ public class SiddhiMemoryUsageMetric implements MemoryUsageTracker {
     }
 
     /**
-     * Register the object that needs to be measured the memory usage
+     * Register the object that needs to be measured the memory usage.
      *
      * @param object Object
      * @param name   An unique value to identify the object.

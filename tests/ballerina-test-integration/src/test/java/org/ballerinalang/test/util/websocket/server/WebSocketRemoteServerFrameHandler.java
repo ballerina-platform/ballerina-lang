@@ -21,6 +21,7 @@ package org.ballerinalang.test.util.websocket.server;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
@@ -41,30 +42,41 @@ public class WebSocketRemoteServerFrameHandler extends SimpleChannelInboundHandl
     private static final Logger log = LoggerFactory.getLogger(WebSocketRemoteServerFrameHandler.class);
     private boolean isOpen = true;
     private static final String PING = "ping";
+    private static final String CUSTOM_HEADERS = "custom-headers";
+    private WebSocketHeadersHandler headersHandler;
+
+    public WebSocketRemoteServerFrameHandler(WebSocketHeadersHandler headersHandler) {
+        this.headersHandler = headersHandler;
+    }
 
     public boolean isOpen() {
         return isOpen;
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(ChannelHandlerContext ctx) {
         log.debug("channel is active");
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+    public void channelInactive(ChannelHandlerContext ctx) {
         log.debug("channel is inactive");
         isOpen = false;
     }
 
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, WebSocketFrame frame) {
         if (frame instanceof TextWebSocketFrame) {
             // Echos the same text
             String text = ((TextWebSocketFrame) frame).text();
             if (PING.equals(text)) {
                 ctx.channel().writeAndFlush(new PingWebSocketFrame(
                         Unpooled.wrappedBuffer(ByteBuffer.wrap("data".getBytes(StandardCharsets.UTF_8)))));
+                return;
+            }
+            if (text.contains(CUSTOM_HEADERS)) {
+                HttpHeaders headers = headersHandler.getRequestHeaders();
+                ctx.writeAndFlush(new TextWebSocketFrame(headers.get(text.split(":")[1])));
                 return;
             }
             ctx.channel().writeAndFlush(new TextWebSocketFrame(frame.isFinalFragment(), 0, text));

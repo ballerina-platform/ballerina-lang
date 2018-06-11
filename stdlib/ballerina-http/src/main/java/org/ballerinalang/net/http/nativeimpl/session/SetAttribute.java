@@ -40,7 +40,7 @@ import java.util.IllegalFormatException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "setAttribute",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
                              structPackage = "ballerina.http"),
         args = {@Argument(name = "attributeKey", type = TypeKind.STRING),
                 @Argument(name = "attributeValue", type = TypeKind.ANY)},

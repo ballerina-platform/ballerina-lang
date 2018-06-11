@@ -32,6 +32,7 @@ import org.ballerinalang.net.websub.WebSubServicesRegistry;
 
 import java.util.Optional;
 
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
@@ -47,7 +48,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERV
         functionName = "setTopic",
         args = {@Argument(name = "webSubServiceName", type = TypeKind.STRING),
                 @Argument(name = "topic", type = TypeKind.STRING)},
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = WEBSUB_PACKAGE),
         isPublic = true
 )
 public class SetTopic extends AbstractHttpNativeFunction {
@@ -60,7 +61,7 @@ public class SetTopic extends AbstractHttpNativeFunction {
 
         Optional<HttpService> webSubHttpService =
                 ((WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY))
-                        .getServicesInfoByInterface().values().stream().filter(
+                        .getServicesByHost(DEFAULT_HOST).values().stream().filter(
                                 httpService -> webSubServiceName.equals(httpService.getBalService().getServiceInfo()
                                                                               .getType().getName()))
                         .findFirst();

@@ -19,6 +19,7 @@ Currently the Ballerina Language Server has been integrated to Ballerina [VSCode
 - <a href="#SignatureHelp">Signature  Help</a>
 - <a href="#CodeAction">Code Action</a>
     - <a href="#AddImports">Add Imports</a>
+    - <a href="#CreateFunctions">Create Functions</a>
     - <a href="#AddDocumentationAndDocumentAll">Add Documentation and Document All</a>
 - <a href="#KnownIssues">Known Issues</a>
     
@@ -181,6 +182,13 @@ You can get an overview of a function signature with the signature help feature.
 When you need to add the import statement for a package which is not imported and where there is a usage, you can use the code action to add the particular import. These Identified imports will only be packages under ballerina organization name.
 
 ![](../docs/images/addImport.gif)
+
+<a name="CreateFunctions" />
+
+#### Create Functions
+When you need to generate a function which is not still implemented, you can use the code action to generate new function matching the function signature.
+
+![](../docs/images/generateFunction.gif)
 
 <a name="AddDocumentationAndDocumentAll" />
 

@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http.nativeimpl.connection;
 
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
@@ -158,8 +157,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
 
         @Override
         public void onError(Throwable throwable) {
-            BStruct httpConnectorError = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
-                    HttpConstants.PACKAGE_BALLERINA_BUILTIN, HttpConstants.STRUCT_GENERIC_ERROR);
+            BStruct httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
             if (outboundMsgDataStreamer != null) {
                 if (throwable instanceof IOException) {
                     this.outboundMsgDataStreamer.setIoException((IOException) throwable);
@@ -167,7 +165,6 @@ public abstract class ConnectionAction implements NativeCallableUnit {
                     this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
                 }
             }
-            httpConnectorError.setStringField(0, throwable.getMessage());
             this.dataContext.notifyOutboundResponseStatus(httpConnectorError);
         }
     }

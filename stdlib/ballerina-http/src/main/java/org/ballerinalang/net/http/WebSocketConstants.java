@@ -46,6 +46,7 @@ public class WebSocketConstants {
     public static final String RESOURCE_NAME_ON_PONG = "onPong";
     public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
     public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
+    public static final String RESOURCE_NAME_ON_ERROR = "onError";
 
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
@@ -62,6 +63,7 @@ public class WebSocketConstants {
     public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
 
+    //The indexes of WebSocket endpoints
     public static final int LISTENER_ID_INDEX = 0;
     public static final int LISTENER_NEGOTIATED_SUBPROTOCOLS_INDEX = 1;
     public static final int LISTENER_IS_SECURE_INDEX = 0;
@@ -70,6 +72,8 @@ public class WebSocketConstants {
     public static final int LISTENER_CONNECTOR_INDEX = 1;
     public static final int LISTENER_CONFIG_INDEX = 2;
     public static final int LISTENER_HTTP_ENDPOINT_INDEX = 3;
+    public static final int CLIENT_RESPONSE_INDEX = 0;
+    public static final int CLIENT_CONNECTOR_INDEX = 2;
 
     public static final int CONNECTOR_IS_READY_INDEX = 0;
 

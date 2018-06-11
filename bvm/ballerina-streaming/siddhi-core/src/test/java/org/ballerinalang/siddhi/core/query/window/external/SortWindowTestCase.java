@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for defined window with sorting.
+ */
 public class SortWindowTestCase {
     private static final Logger log = LoggerFactory.getLogger(SortWindowTestCase.class);
     private int inEventCount;

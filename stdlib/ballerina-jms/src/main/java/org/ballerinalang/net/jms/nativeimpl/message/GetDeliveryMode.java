@@ -41,7 +41,7 @@ import javax.jms.Message;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "getDeliveryMode",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "Message",
                              structPackage = "ballerina.jms"),
         returnType = { @ReturnType(type = TypeKind.INT) },

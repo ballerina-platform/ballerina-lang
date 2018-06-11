@@ -30,6 +30,9 @@ import org.testng.annotations.Test;
 
 import java.sql.SQLException;
 
+/**
+ * Testcase for set operation when performing table updates.
+ */
 public class SetUpdateInMemoryTableTestCase {
     private static final Logger log = LoggerFactory.getLogger(SetUpdateInMemoryTableTestCase.class);
 

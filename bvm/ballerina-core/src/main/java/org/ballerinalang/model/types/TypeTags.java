@@ -35,9 +35,7 @@ public class TypeTags {
     public static final int MESSAGE_TAG = 10;
     public static final int TABLE_TAG = 11;
     public static final int VOID_TAG = 12;
-    public static final int CONNECTOR_TAG = 13;
     public static final int FUNCTION_POINTER_TAG = 14;
-    public static final int STRUCT_TAG = 15;
     public static final int ARRAY_TAG = 16;
     public static final int ANNOTATION_TAG = 17;
     public static final int NULL_TAG = 18;
@@ -51,5 +49,7 @@ public class TypeTags {
     public static final int FUTURE_TAG = 26;
     public static final int UNION_TAG = 27;
     public static final int TUPLE_TAG = 28;
-    public static final int FINITE_TYPE_TAG = 29;
+    public static final int FINITE_TYPE_TAG = 31;
+    public static final int OBJECT_TYPE_TAG = 32;
+    public static final int RECORD_TYPE_TAG = 33;
 }

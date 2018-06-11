@@ -63,9 +63,9 @@ Here `upgradeService` is a `WebSocketService`.
 
 **onIdleTimeout**: This resource is dispatched when idle timeout is reached. idleTimeout has to be configured by the user.
 
-**onClose**: This resource is dispatched when a close message is recieved.
+**onClose**: This resource is dispatched when a close message is received.
 
-
+**onError**: This resource is dispatched when an error occurred in a particular WebSocket connection. This will always be followed by a connection closure.
 
 See [WebSocket Basic Example](https://ballerina.io/learn/by-example/websocket-basic-sample.html), 
 [HTTP to WebSocket Upgrade Example](https://ballerina.io/learn/by-example/http-to-websocket-upgrade.html),

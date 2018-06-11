@@ -40,16 +40,16 @@ import org.wso2.transport.http.netty.message.Http2PushPromise;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getPromisedResponse",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CALLER_ACTIONS,
                 structPackage = "ballerina.http"),
         args = {
-                @Argument(name = "client", type = TypeKind.STRUCT),
-                @Argument(name = "promise", type = TypeKind.STRUCT, structType = "PushPromise",
+                @Argument(name = "client", type = TypeKind.OBJECT),
+                @Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
                         structPackage = "ballerina.http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "InResponse", structPackage = "ballerina.http"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "HttpConnectorError",
+                @ReturnType(type = TypeKind.OBJECT, structType = "InResponse", structPackage = "ballerina.http"),
+                @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
                         structPackage = "ballerina.http"),
         }
 )
@@ -71,7 +71,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
                 setPushResponseListener(new PushResponseListener(dataContext), http2PushPromise.getPromisedStreamId());
     }
 
-    private class PushResponseListener implements HttpClientConnectorListener {
+    private static class PushResponseListener implements HttpClientConnectorListener {
 
         private DataContext dataContext;
 
@@ -81,16 +81,14 @@ public class GetPromisedResponse extends AbstractHTTPAction {
 
         @Override
         public void onPushResponse(int promisedId, HTTPCarbonMessage httpCarbonMessage) {
-            dataContext.notifyReply(
-                    createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
+            dataContext.notifyInboundResponseStatus(
+                    HttpUtil.createResponseStruct(this.dataContext.context, httpCarbonMessage), null);
         }
 
         @Override
         public void onError(Throwable throwable) {
-            BStruct httpConnectorError = createStruct(
-                    dataContext.context, HttpConstants.STRUCT_GENERIC_ERROR, HttpConstants.PACKAGE_BALLERINA_BUILTIN);
-            httpConnectorError.setStringField(0, throwable.getMessage());
-            dataContext.notifyReply(null, httpConnectorError);
+            BStruct httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
+            dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }
 }

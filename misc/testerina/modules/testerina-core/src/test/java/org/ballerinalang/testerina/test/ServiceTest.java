@@ -53,7 +53,7 @@ public class ServiceTest {
         System.setProperty("java.util.logging.config.file", "logging.properties");
     }
 
-    @Test
+    @Test(enabled = false)
     public void testBefore() {
         TesterinaRegistry.getInstance().setOrgName("$anon");
         BTestRunner bTestRunner = new BTestRunner();

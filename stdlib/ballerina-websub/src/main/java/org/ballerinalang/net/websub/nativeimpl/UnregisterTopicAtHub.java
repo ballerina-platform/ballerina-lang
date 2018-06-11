@@ -38,7 +38,7 @@ import org.ballerinalang.net.websub.hub.Hub;
         functionName = "unregisterTopicAtHub",
         args = {@Argument(name = "topic", type = TypeKind.STRING),
                 @Argument(name = "secret", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
 public class UnregisterTopicAtHub extends BlockingNativeCallableUnit {

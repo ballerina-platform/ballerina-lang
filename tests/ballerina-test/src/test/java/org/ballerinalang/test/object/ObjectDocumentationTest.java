@@ -26,7 +26,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 
 import java.util.List;
 
@@ -44,7 +44,8 @@ public class ObjectDocumentationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangTypeDefinition) packageNode
+                .getTypeDefinitions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
@@ -68,7 +69,8 @@ public class ObjectDocumentationTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object_doc_annotation.bal");
         Assert.assertEquals(0, compileResult.getWarnCount());
         PackageNode packageNode = compileResult.getAST();
-        List<BLangDocumentation> docNodes = ((BLangStruct) packageNode.getStructs().get(0)).docAttachments;
+        List<BLangDocumentation> docNodes = ((BLangTypeDefinition) packageNode
+                .getTypeDefinitions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
         Assert.assertEquals(dNode.documentationText, " Documentation for Test struct\n");
@@ -100,21 +102,21 @@ public class ObjectDocumentationTest {
         BAssertUtil.validateWarning(compileResult, 3,
                 "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
         BAssertUtil.validateWarning(compileResult, 4,
-                "already documented attribute 'file'", 45, 1);
+                "already documented attribute 'accessMode'", 45, 1);
 //        BAssertUtil.validateWarning(compileResult, 5,
 //                "no such documentable attribute 'successfuls' with doc prefix 'R'", 47, 1);
         BAssertUtil.validateWarning(compileResult, 5,
-                "already documented attribute 'url'", 89, 1);
+                "already documented attribute 'url'", 91, 1);
         BAssertUtil.validateWarning(compileResult, 6,
-                "no such documentable attribute 'urls' with doc prefix 'P'", 90, 1);
+                "no such documentable attribute 'urls' with doc prefix 'P'", 92, 1);
         BAssertUtil.validateWarning(compileResult, 7,
-                "no such documentable attribute 'conn' with doc prefix 'P'", 104, 1);
+                "no such documentable attribute 'conn' with doc prefix 'P'", 106, 1);
         BAssertUtil.validateWarning(compileResult, 8,
-                "already documented attribute 'req'", 110, 5);
+                "already documented attribute 'req'", 112, 5);
         BAssertUtil.validateWarning(compileResult, 9,
-                "no such documentable attribute 'reqest' with doc prefix 'P'", 111, 5);
+                "no such documentable attribute 'reqest' with doc prefix 'P'", 113, 5);
         BAssertUtil.validateWarning(compileResult, 10,
-                "no such documentable attribute 'testConstd' with doc prefix 'V'", 121, 1);
+                "no such documentable attribute 'testConstd' with doc prefix 'V'", 123, 1);
 //        BAssertUtil.validateWarning(compileResult, 12,
 //                "no such documentable attribute 'c' with doc prefix 'F'", 33, 1);
 //        BAssertUtil.validateWarning(compileResult, 8,

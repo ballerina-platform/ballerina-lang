@@ -17,7 +17,6 @@
 */
 package org.ballerinalang.langserver.compiler.workspace.repository;
 
-import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.packaging.converters.Converter;
@@ -34,42 +33,33 @@ public class LangServerFSProjectDirectory extends FileSystemProjectDirectory {
 
     private Path projectDirPath;
     private WorkspaceDocumentManager documentManager;
-    private LSContext lsContext;
-    private static Converter<Path> converter = null;
 
     public static LangServerFSProjectDirectory getInstance(CompilerContext context, Path projectDirPath,
-                                                           WorkspaceDocumentManager documentManager,
-                                                           LSContext lsContext) {
+                                                           WorkspaceDocumentManager documentManager) {
         LangServerFSProjectDirectory lsFSProjectDirectory = context.get(LS_PROJECT_DIRECTORY);
         if (lsFSProjectDirectory == null) {
             synchronized (LangServerFSProjectDirectory.class) {
                 lsFSProjectDirectory = context.get(LS_PROJECT_DIRECTORY);
                 if (lsFSProjectDirectory == null) {
-                    lsFSProjectDirectory = new LangServerFSProjectDirectory(context, projectDirPath, documentManager,
-                            lsContext);
+                    lsFSProjectDirectory = new LangServerFSProjectDirectory(context, projectDirPath, documentManager);
                 }
             }
         }
         lsFSProjectDirectory.documentManager = documentManager;
-        lsFSProjectDirectory.lsContext = lsContext;
-        if (converter != null) {
-            ((LSPathConverter) converter).resetLSContext(lsContext);
-        }
+
         return lsFSProjectDirectory;
     }
 
     private LangServerFSProjectDirectory(CompilerContext context, Path projectDirPath,
-                                         WorkspaceDocumentManager documentManager, LSContext lsContext) {
+                                         WorkspaceDocumentManager documentManager) {
         super(projectDirPath);
         context.put(LS_PROJECT_DIRECTORY, this);
         this.projectDirPath = projectDirPath;
         this.documentManager = documentManager;
-        this.lsContext = lsContext;
     }
 
-    // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
+    @Override
     public Converter<Path> getConverter() {
-        converter = new LSPathConverter(projectDirPath, documentManager, lsContext);
-        return converter;
+        return new LSPathConverter(projectDirPath, documentManager);
     }
 }
