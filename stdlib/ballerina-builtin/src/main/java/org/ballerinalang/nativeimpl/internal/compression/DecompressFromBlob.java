@@ -23,8 +23,6 @@ import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -50,8 +48,6 @@ import java.util.zip.ZipInputStream;
         isPublic = true
 )
 public class DecompressFromBlob extends BlockingNativeCallableUnit {
-
-    private static final Logger log = LoggerFactory.getLogger(DecompressFromBlob.class);
     /**
      * File content as byte array defined.
      */
