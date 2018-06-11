@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
@@ -390,10 +391,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkSefReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
-                if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.LAMBDA) &&
-                        env.enclEnv.enclEnv != null && !(symbol.owner instanceof BPackageSymbol)) {
-                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv,
-                            symbol.name, SymTag.VARIABLE_NAME);
+                BLangInvokableNode encInvokable = env.enclInvokable;
+                if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
+                        !(symbol.owner instanceof BPackageSymbol)) {
+                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                            SymTag.VARIABLE_NAME);
                     if (closureVarSymbol != symTable.notFoundSymbol &&
                             !isFunctionArgument(closureVarSymbol, env.enclInvokable.requiredParams)) {
                         ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
@@ -409,6 +412,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Check type compatibility
         resultType = types.checkType(varRefExpr, actualType, expType);
+    }
+
+    private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
+        if (env.enclInvokable == encInvokable) {
+            return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
+        }
+        return env;
     }
 
     private boolean isFunctionArgument(BSymbol symbol, List<BLangVariable> params) {
