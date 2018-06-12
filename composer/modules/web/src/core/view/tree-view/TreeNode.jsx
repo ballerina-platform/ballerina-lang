@@ -217,12 +217,11 @@ class TreeNode extends React.Component {
                             const { editor, command: { dispatch } } = this.context;
                             if (editor.isFileOpenedInEditor(node.id)) {
                                 const targetEditor = editor.getEditorByID(node.id);
-                                const wasActive = editor.getActiveEditor().id === targetEditor.id;
+                                editor.closeEditor(targetEditor);
                                 dispatch(WORKSPACE_CMDS.OPEN_FILE, {
                                     filePath: newFullPath,
-                                    activate: wasActive,
+                                    activate: true,
                                 });
-                                editor.closeEditor(targetEditor, wasActive ? editor.getActiveEditor() : undefined);
                             }
                             this.props.onNodeRefresh(this.props.parentNode);
                         }
