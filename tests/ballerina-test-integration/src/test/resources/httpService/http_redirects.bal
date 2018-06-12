@@ -11,8 +11,8 @@ endpoint http:Listener serviceEndpoint2 {
 };
 
 endpoint http:Client endPoint1 {
-   url: "http://localhost:9090",
-   followRedirects : { enabled : true, maxCount : 3 }
+    url: "http://localhost:9090",
+    followRedirects : { enabled : true, maxCount : 3 }
 };
 
 endpoint http:Client endPoint2 {
@@ -31,6 +31,7 @@ endpoint http:Client endPoint3 {
 service<http:Service> testRedirect bind serviceEndpoint {
 
     @http:ResourceConfig {
+        methods:["GET"],
         path:"/"
     }
     redirectClient (endpoint client, http:Request req) {
@@ -40,13 +41,14 @@ service<http:Service> testRedirect bind serviceEndpoint {
         match response {
             error connectorErr => {io:println("Connector error!");}
             http:Response httpResponse => {
-                  finalResponse.setPayload(httpResponse.resolvedRequestedURI);
-                  _ = client -> respond(finalResponse);
+                finalResponse.setPayload(httpResponse.resolvedRequestedURI);
+                _ = client -> respond(finalResponse);
             }
         }
     }
 
     @http:ResourceConfig {
+        methods:["GET"],
         path:"/maxRedirect"
     }
     maxRedirectClient (endpoint client, http:Request req) {
@@ -66,6 +68,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
     }
 
     @http:ResourceConfig {
+        methods:["GET"],
         path:"/crossDomain"
     }
     crossDomain (endpoint client, http:Request req) {
@@ -82,6 +85,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
     }
 
     @http:ResourceConfig {
+        methods:["GET"],
         path:"/noRedirect"
     }
     NoRedirect (endpoint client, http:Request req) {
@@ -98,6 +102,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
     }
 
     @http:ResourceConfig {
+        methods:["GET"],
         path:"/qpWithRelativePath"
     }
     qpWithRelativePath (endpoint client, http:Request req) {
@@ -114,6 +119,7 @@ service<http:Service> testRedirect bind serviceEndpoint {
     }
 
     @http:ResourceConfig {
+        methods:["GET"],
         path:"/qpWithAbsolutePath"
     }
     qpWithAbsolutePath (endpoint client, http:Request req) {
@@ -128,10 +134,44 @@ service<http:Service> testRedirect bind serviceEndpoint {
             }
         }
     }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/originalRequestWithQP"
+    }
+    originalRequestWithQP (endpoint client, http:Request req) {
+        http:Request clientRequest = new;
+        var response = endPoint2 -> get("/redirect1/round4?key=value&lang=ballerina");
+        match response {
+            error connectorErr => {io:println("Connector error!");}
+            http:Response httpResponse => {
+                string value = check httpResponse.getTextPayload();
+                value = value + ":" + httpResponse.resolvedRequestedURI;
+                _ = client -> respond(value);
+            }
+        }
+    }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/test303"
+    }
+    test303 (endpoint client, http:Request req) {
+        http:Request clientRequest = new;
+        var response = endPoint3 -> post("/redirect2/test303", "Test value!");
+        match response {
+            error connectorErr => {io:println("Connector error!");}
+            http:Response httpResponse => {
+                string value = check httpResponse.getTextPayload();
+                value = value + ":" + httpResponse.resolvedRequestedURI;
+                _ = client -> respond(value);
+            }
+        }
+    }
 }
 
 @http:ServiceConfig {
-      basePath:"/redirect1"
+    basePath:"/redirect1"
 }
 service<http:Service> redirect1 bind serviceEndpoint {
 
@@ -150,7 +190,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
     }
     round1 (endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client -> redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["/redirect1/round2"]);
+        _ = client -> redirect(res, http:REDIRECT_PERMANENT_REDIRECT_308, ["/redirect1/round2"]);
     }
 
     @http:ResourceConfig {
@@ -159,7 +199,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
     }
     round2 (endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client -> redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["/redirect1/round3"]);
+        _ = client -> redirect(res, http:REDIRECT_USE_PROXY_305, ["/redirect1/round3"]);
     }
 
     @http:ResourceConfig {
@@ -168,7 +208,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
     }
     round3 (endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client -> redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["/redirect1/round4"]);
+        _ = client -> redirect(res, http:REDIRECT_MULTIPLE_CHOICES_300, ["/redirect1/round4"]);
     }
 
     @http:ResourceConfig {
@@ -177,7 +217,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
     }
     round4 (endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client -> redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["/redirect1/round5"]);
+        _ = client -> redirect(res, http:REDIRECT_MOVED_PERMANENTLY_301, ["/redirect1/round5"]);
     }
 
     @http:ResourceConfig {
@@ -186,7 +226,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
     }
     round5 (endpoint client, http:Request req) {
         http:Response res = new;
-        _ = client -> redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, ["http://localhost:9093/redirect2"]);
+        _ = client -> redirect(res, http:REDIRECT_FOUND_302, ["http://localhost:9093/redirect2"]);
     }
 
     @http:ResourceConfig {
@@ -231,5 +271,14 @@ service<http:Service> redirect2 bind serviceEndpoint2 {
         http:Response res = new;
         res. setPayload("hello world");
         _ = client -> respond( res);
+    }
+
+    @http:ResourceConfig {
+        methods:["POST"],
+        path:"/test303"
+    }
+    test303 (endpoint client, http:Request req) {
+        http:Response res = new;
+        _ = client -> redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect2"]);
     }
 }

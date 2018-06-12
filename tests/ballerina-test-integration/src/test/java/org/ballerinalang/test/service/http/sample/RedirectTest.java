@@ -95,6 +95,25 @@ public class RedirectTest extends IntegrationTestCase {
                 "processQP?key=value&lang=ballerina", "Incorrect resolvedRequestedURI");
     }
 
+    @Test(description = "Test original request with query params. NOTE:Query params in the original request should" +
+            "be ignored while resolving redirect url.")
+    public void testOriginalRequestWithQP() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                "service1/originalRequestWithQP"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "hello world:http://localhost:9093/redirect2",
+                "Incorrect resolvedRequestedURI");
+    }
+
+    @Test
+    public void test303Status() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                "service1/test303"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "hello world:http://localhost:9093/redirect2",
+                "Incorrect resolvedRequestedURI");
+    }
+
     @AfterClass
     private void cleanup() throws Exception {
         ballerinaServer.stopServer();
