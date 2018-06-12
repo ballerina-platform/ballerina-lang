@@ -33,6 +33,7 @@ import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.BinaryWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
+import io.netty.handler.codec.http.websocketx.ContinuationWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.PingWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
@@ -100,6 +101,7 @@ public class WebSocketTestClient {
      * Send text to the server.
      *
      * @param text text need to be sent.
+     * @throws InterruptedException if connection is interrupted while sending the message.
      */
     public void sendText(String text) throws InterruptedException {
         if (channel == null) {
@@ -113,6 +115,7 @@ public class WebSocketTestClient {
      * Send binary data to server.
      *
      * @param buf buffer containing the data need to be sent.
+     * @throws InterruptedException if connection is interrupted while sending the message.
      */
     public void sendBinary(ByteBuffer buf) throws InterruptedException {
         if (channel == null) {
@@ -126,6 +129,7 @@ public class WebSocketTestClient {
      * Send a ping message to the server.
      *
      * @param buf content of the ping message to be sent.
+     * @throws InterruptedException if connection is interrupted while sending the message.
      */
     public void sendPing(ByteBuffer buf) throws InterruptedException {
         if (channel == null) {
@@ -133,6 +137,19 @@ public class WebSocketTestClient {
             throw new IllegalArgumentException("Cannot find the channel to write");
         }
         channel.writeAndFlush(new PingWebSocketFrame(Unpooled.wrappedBuffer(buf))).sync();
+    }
+
+    /**
+     * Send corrupted frame to the server.
+     *
+     * @throws InterruptedException if connection is interrupted while sending the message.
+     */
+    public void sendCorruptedFrame() throws InterruptedException {
+        if (channel == null) {
+            logger.error("Channel is null. Cannot send text.");
+            throw new IllegalArgumentException("Cannot find the channel to write");
+        }
+        channel.writeAndFlush(new ContinuationWebSocketFrame(Unpooled.wrappedBuffer(new byte[]{1, 2, 3, 4}))).sync();
     }
 
     /**
@@ -184,6 +201,16 @@ public class WebSocketTestClient {
      */
     public String getHeader(String headerName) {
         return webSocketHandler.getHeader(headerName);
+    }
+
+    /**
+     * Retrieve the received close frame to the client.
+     * <b>Note: Release the close frame after using it using CloseWebSocketFrame.release()</b>
+     *
+     * @return the close frame received to the client.
+     */
+    public CloseWebSocketFrame getReceiveCloseFrame() {
+        return webSocketHandler.getReceiveCloseFrame();
     }
 
     /**

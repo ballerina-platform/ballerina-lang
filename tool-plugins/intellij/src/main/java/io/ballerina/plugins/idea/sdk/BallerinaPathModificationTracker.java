@@ -110,6 +110,8 @@ public class BallerinaPathModificationTracker {
     }
 
     private void recalculateFiles() {
+        organizationNames.clear();
+        packageMap.clear();
         Collection<VirtualFile> result = ContainerUtil.newLinkedHashSet();
         // Iterate through all paths which are tracked.
         for (String path : pathsToTrack) {

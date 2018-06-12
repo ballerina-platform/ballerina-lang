@@ -61,20 +61,8 @@ public class BallerinaIfClauseImpl extends BallerinaCompositeElementImpl impleme
 
   @Override
   @Nullable
-  public PsiElement getLeftParenthesis() {
-    return findChildByType(LEFT_PARENTHESIS);
-  }
-
-  @Override
-  @Nullable
   public PsiElement getRightBrace() {
     return findChildByType(RIGHT_BRACE);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightParenthesis() {
-    return findChildByType(RIGHT_PARENTHESIS);
   }
 
   @Override

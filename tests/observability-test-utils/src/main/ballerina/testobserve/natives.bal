@@ -14,4 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public native function getFinishedSpansCount () returns (string);
+documentation {
+    Get the number of finished spans.
+
+    R{{}} Total number of spans finished
+}
+public native function getFinishedSpansCount () returns string;
