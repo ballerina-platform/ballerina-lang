@@ -90,3 +90,111 @@ function nestedArrayInit() returns (int, int) {
     int[][][] a = [[[100, 200, 3], [2, 5, 6]], [[100, 200, 3], [2, 5, 6], [12, 15, 16]]];
     return (a[1][2][0], a[0][1][2]);
 }
+
+function testStringArrayIterator() returns string {
+    string[][][] sss;
+    string[][] ss;
+    string[] s;
+    s[3] = "B";
+    ss[2] = s;
+    sss[5] = ss;
+
+    string str;
+
+    foreach s1 in sss {
+        foreach s2 in ss {
+            foreach s3 in s2 {
+                str = str + s3;
+            }
+        }
+    }
+
+    return str;
+}
+
+function testIntArrayIterator() returns int {
+    int[][][] sss;
+    int[][] ss;
+    int[] s;
+    s[3] = 7;
+    ss[2] = s;
+    sss[5] = ss;
+
+    int a = 3;
+
+    foreach s1 in sss {
+        foreach s2 in ss {
+            foreach s3 in s2 {
+                a = a + s3;
+            }
+        }
+    }
+
+    return a;
+}
+
+function testFloatArrayIterator() returns float {
+    float[][][] sss;
+    float[][] ss;
+    float[] s;
+    s[3] = 4;
+    ss[2] = s;
+    sss[5] = ss;
+
+    float f = 3.1;
+
+    foreach s1 in sss {
+        foreach s2 in ss {
+            foreach s3 in s2 {
+                f = f + s3;
+            }
+        }
+    }
+
+    return f;
+}
+
+
+
+function testBlobArrayIterator() returns blob {
+    blob[][][] sss;
+    blob[][] ss;
+    blob[] s;
+    s[3] = base16 `aa`;
+    ss[2] = s;
+    sss[5] = ss;
+
+    blob a;
+    foreach s1 in sss {
+        foreach s2 in ss {
+            foreach s3 in s2 {
+                a = s3;
+            }
+        }
+    }
+
+    return a;
+}
+
+function testRefArrayIterator() returns A {
+    A[][][] sss;
+    A[][] ss;
+    A[] s;
+    s[3] = {name:"ballerina"};
+    ss[2] = s;
+    sss[5] = ss;
+
+    A a;
+    foreach s1 in sss {
+        foreach s2 in ss {
+            foreach s3 in s2 {
+                a = s3;
+            }
+        }
+    }
+    return a;
+}
+
+type A {
+    string name;
+};
