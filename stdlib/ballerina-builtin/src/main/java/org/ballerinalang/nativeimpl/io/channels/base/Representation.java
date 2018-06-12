@@ -19,6 +19,8 @@
 
 package org.ballerinalang.nativeimpl.io.channels.base;
 
+import org.ballerinalang.nativeimpl.io.IOConstants;
+
 /**
  * Defines how the bytes will be represented for different data types.
  */
@@ -38,7 +40,7 @@ public enum Representation {
     /**
      * Represents a variable value which does not have a size defined.
      */
-    VARIABLE(-1, 7);
+    VARIABLE(-1, IOConstants.PROTO_BUF_BASE);
 
     private int numberOfBytes;
 

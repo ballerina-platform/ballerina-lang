@@ -76,7 +76,7 @@ public class DataChannel {
     }
 
     /**
-     * Iteratively identify the value for long.
+     * Merge bytes and encodes long.
      *
      * @param representation the capacity of the long value i.e whether it's 32bit, 64bit.
      * @param buffer         holds the bytes which represents the long.
