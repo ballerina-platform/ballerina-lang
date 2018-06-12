@@ -50,9 +50,9 @@ public class PathConverter implements Converter<Path> {
                                            .map(SortablePath::getPath)
                                            .collect(Collectors.toList());
                 if (packageID != null) {
-                    if (!packageID.orgName.value.equals("ballerina") &&
-                            (packageID.version.value.equals(Names.DEFAULT_VERSION.getValue()) ||
-                                    packageID.version.value.isEmpty())) {
+                    if (packageID.version.equals(Names.DEFAULT_VERSION) ||
+                            (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
+                                    && !packageID.orgName.equals(Names.ANON_ORG))) {
                         packageID.version.value = pathList.get(0).toFile().getName();
                     }
                 }
