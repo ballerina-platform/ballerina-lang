@@ -24,13 +24,16 @@ import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpServerUpgradeHandler;
 import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2Connection;
 import io.netty.handler.codec.http2.Http2ConnectionEncoder;
 import io.netty.handler.codec.http2.Http2Exception;
 import io.netty.handler.codec.http2.Http2Headers;
+import io.netty.handler.codec.http2.HttpConversionUtil;
 import io.netty.util.internal.PlatformDependent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,19 +124,24 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+
         if (msg instanceof Http2HeadersFrame) {
             Http2HeadersFrame headersFrame = (Http2HeadersFrame) msg;
             int streamId = headersFrame.getStreamId();
 
-            // Construct new HTTP Request
-            HTTPCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
+            HTTPCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
+            if (sourceReqCMsg == null) {
+                // Construct new HTTP Request
+                sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
+            }
             if (headersFrame.isEndOfStream()) {
                 // Add empty last http content if no data frames available in the http request
-                sourceReqCMsg.addHttpContent(new DefaultLastHttpContent());
+                readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
+                streamIdRequestMap.remove(streamId);
             } else {
                 streamIdRequestMap.put(streamId, sourceReqCMsg);   // storing to add HttpContent later
+                notifyRequestListener(sourceReqCMsg, streamId);
             }
-            notifyRequestListener(sourceReqCMsg, streamId);
 
         } else if (msg instanceof Http2DataFrame) {
             Http2DataFrame dataFrame = (Http2DataFrame) msg;
@@ -153,6 +161,18 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
         } else {
             ctx.fireChannelRead(msg);
         }
+    }
+
+    private void readTrailerHeaders(int streamId, Http2Headers headers, HTTPCarbonMessage responseMessage) throws
+            Http2Exception {
+
+        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
+        HttpHeaders trailers = lastHttpContent.trailingHeaders();
+
+        HttpConversionUtil.addHttp2ToHttpHeaders(
+                streamId, headers, trailers, version, true, false);
+        responseMessage.addHttpContent(lastHttpContent);
     }
 
     @Override
