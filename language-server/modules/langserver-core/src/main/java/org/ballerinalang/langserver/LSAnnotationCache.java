@@ -85,7 +85,7 @@ public class LSAnnotationCache {
             try {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
                 BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
-                staticPackages.put(bPackageSymbol.pkgID.bvmAlias(), bPackageSymbol);
+                staticPackages.put(bPackageSymbol.pkgID.toString(), bPackageSymbol);
             } catch (Exception e) {
                 logger.warn("Error while loading package :" + sdkPackage.getPackageName());
             }
@@ -188,7 +188,7 @@ public class LSAnnotationCache {
     private static boolean containsPackageWithBvmAlias(PackageID packageID, HashMap<PackageID,
             List<BAnnotationSymbol>> map) {
         return map.entrySet().stream()
-                .filter(entry -> entry.getKey().bvmAlias().equals(packageID.bvmAlias()))
+                .filter(entry -> entry.getKey().toString().equals(packageID.toString()))
                 .findFirst()
                 .orElse(null) != null;
     }

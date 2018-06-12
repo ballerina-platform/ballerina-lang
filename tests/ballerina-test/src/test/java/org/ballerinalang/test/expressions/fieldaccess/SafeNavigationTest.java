@@ -280,8 +280,8 @@ public class SafeNavigationTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:CallFailedException, message: call failed.*" +
-                    "caused by ballerina.runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: ballerina/runtime:CallFailedException, message: call failed.*" +
+                    "caused by ballerina/runtime:NullReferenceException.*")
     public void testCountOnNullJSON() {
         BValue[] vals = { new BJSON("\"hello\"") };
         BRunUtil.invoke(result, "testCountOnNullJSON", vals);

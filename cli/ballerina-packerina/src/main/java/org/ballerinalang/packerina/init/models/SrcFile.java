@@ -28,18 +28,27 @@ public class SrcFile {
                                                   "import ballerina/http;\n" +
                                                   "import ballerina/io;\n" +
                                                   "\n" +
-                                                  "// A service endpoint represents a listener\n" +
+                                                  "documentation {\n" +
+                                                  "   A service endpoint represents a listener.\n" +
+                                                  "}\n" +
                                                   "endpoint http:Listener listener {\n" +
                                                   "    port:9090\n" +
                                                   "};\n" +
                                                   "\n" +
-                                                  "// A service is a network-accessible API\n" +
-                                                  "// Advertised on '/hello', port comes from listener endpoint\n" +
+                                                  "documentation {\n" +
+                                                  "   A service is a network-accessible API\n" +
+                                                  "   Advertised on '/hello', port comes from listener endpoint\n" +
+                                                  "}\n" +
                                                   "service<http:Service> hello bind listener {\n" +
                                                   "\n" +
-                                                  "    // A resource is an invokable API method\n" +
-                                                  "    // Accessible at '/hello/sayHello\n" +
-                                                  "    // 'caller' is the client invoking this resource \n" +
+                                                  "    documentation {\n" +
+                                                  "       A resource is an invokable API method\n" +
+                                                  "       Accessible at '/hello/sayHello\n" +
+                                                  "       'caller' is the client invoking this resource \n" +
+                                                  "\n" +
+                                                  "       P{{caller}} Server Connector\n" +
+                                                  "       P{{request}} Request\n" +
+                                                  "    }\n" +
                                                   "    sayHello (endpoint caller, http:Request request) {\n" +
                                                   "\n" +
                                                   "        // Create object to carry data back to caller\n" +
@@ -56,6 +65,10 @@ public class SrcFile {
                                                   "}";
 
     private static final String MAIN_FUNCTION_CONTENT = "import ballerina/io;\n" +
+                                                        "\n" +
+                                                        "documentation {\n" +
+                                                        "   Prints `Hello World`.\n" +
+                                                        "}\n" +
                                                         "function main(string... args) {\n" +
                                                         "    io:println(\"Hello World!\");\n" +
                                                         "}\n";
@@ -63,18 +76,24 @@ public class SrcFile {
     private static final String MAIN_FUNCTION_TEST_CONTENT = "import ballerina/test;\n" +
                                                              "import ballerina/io;\n" +
                                                              "\n" +
-                                                             "// Before Suite Function\n" +
+                                                             "documentation {\n" +
+                                                             "   Before Suite Function\n" +
+                                                             "}\n" +
                                                              "@test:BeforeSuite\n" +
                                                              "function beforeSuiteFunc () {\n" +
                                                              "    io:println(\"I'm the before suite function!\");\n" +
                                                              "}\n" +
                                                              "\n" +
-                                                             "// Before test function\n" +
+                                                             "documentation {\n" +
+                                                             "   Before test function\n" +
+                                                             "}\n" +
                                                              "function beforeFunc () {\n" +
                                                              "    io:println(\"I'm the before function!\");\n" +
                                                              "}\n" +
                                                              "\n" +
-                                                             "// Test function\n" +
+                                                             "documentation {\n" +
+                                                             "   Test function\n" +
+                                                             "}\n" +
                                                              "@test:Config{\n" +
                                                              "    before:\"beforeFunc\",\n" +
                                                              "    after:\"afterFunc\"\n" +
@@ -84,12 +103,16 @@ public class SrcFile {
                                                              "    test:assertTrue(true , msg = \"Failed!\");\n" +
                                                              "}\n" +
                                                              "\n" +
-                                                             "// after test function\n" +
+                                                             "documentation {\n" +
+                                                             "   After test function\n" +
+                                                             "}\n" +
                                                              "function afterFunc () {\n" +
                                                              "    io:println(\"I'm the after function!\");\n" +
                                                              "}\n" +
                                                              "\n" +
-                                                             "// Before Suite Function\n" +
+                                                             "documentation {\n" +
+                                                             "   Before Suite Function\n" +
+                                                             "}\n" +
                                                              "@test:AfterSuite\n" +
                                                              "function afterSuiteFunc () {\n" +
                                                              "    io:println(\"I'm the After suite function!\");\n" +
@@ -98,21 +121,27 @@ public class SrcFile {
     private static final String SERVICE_TEST_CONTENT = "import ballerina/test;%n" +
                                                        "import ballerina/io;%n" +
                                                        "%n" +
-                                                       "// Before Suite Function can be used to start the service%n" +
+                                                        "documentation {%n" +
+                                                        "   Before Suite Function can be used to start the service%n" +
+                                                        "}%n" +
                                                        "@test:BeforeSuite%n" +
                                                        "function beforeSuiteFunc () {%n" +
                                                        "    io:println(\"Start the Service!\");%n" +
                                                        "    boolean status = test:startServices(\"%1$s\");%n" +
                                                        "}%n" +
                                                        "%n" +
-                                                       "// Test function%n" +
+                                                       "documentation {%n" +
+                                                       "   Test function%n" +
+                                                       "}%n" +
                                                        "@test:Config%n" +
                                                        "function testFunction () {%n" +
                                                        "    io:println(\"Do your service Tests!\");%n" +
                                                        "    test:assertTrue(true , msg = \"Failed!\");%n" +
                                                        "}%n" +
                                                        "%n" +
-                                                       "// After Suite Function is used to stop the service%n" +
+                                                       "documentation {%n" +
+                                                       "   After Suite Function is used to stop the service%n" +
+                                                       "}%n" +
                                                        "@test:AfterSuite%n" +
                                                        "function afterSuiteFunc () {%n" +
                                                        "    io:println(\"Stop the service!\");%n" +

@@ -50,7 +50,7 @@ import javax.jms.Session;
         functionName = "initQueueSender",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "QueueSender",
-                             structPackage = "ballerina.jms"),
+                             structPackage = "ballerina/jms"),
         args = {
                 @Argument(name = "session",
                           type = TypeKind.OBJECT,

@@ -38,7 +38,7 @@ import java.util.Set;
         orgName = "ballerina", packageName = "http",
         functionName = "getHeaderNames",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "PushPromise",
-                structPackage = "ballerina.http"),
+                structPackage = "ballerina/http"),
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
         isPublic = true
 )

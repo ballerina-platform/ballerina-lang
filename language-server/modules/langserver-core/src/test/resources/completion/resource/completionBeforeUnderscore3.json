@@ -170,7 +170,7 @@
     {
       "label":"res",
       "kind":"Unit",
-      "detail":"ballerina.http:Response",
+      "detail":"ballerina/http:Response",
       "sortText":"110",
       "insertText":"res"
     },
@@ -195,7 +195,7 @@
     {
       "label":"request",
       "kind":"Unit",
-      "detail":"ballerina.http:Request",
+      "detail":"ballerina/http:Request",
       "sortText":"110",
       "insertText":"request"
     },
@@ -238,7 +238,7 @@
     {
       "label":"caller",
       "kind":"Unit",
-      "detail":"ballerina.http:Listener",
+      "detail":"ballerina/http:Listener",
       "sortText":"110",
       "insertText":"caller"
     },

@@ -60,7 +60,7 @@
       "insertText":"Mode"
     },
     {
-      "label":"openFile(string path, io:Mode accessMode)(ballerina.io:ByteChannel)",
+      "label":"openFile(string path, io:Mode accessMode)(ballerina/io:ByteChannel)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -68,7 +68,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"openSocket(string host, int port, io:SocketProperties options)(ballerina.io:Socket|error)",
+      "label":"openSocket(string host, int port, io:SocketProperties options)(ballerina/io:Socket|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -76,7 +76,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"openSecureSocket(string host, int port, io:SocketProperties options)(ballerina.io:Socket|error)",
+      "label":"openSecureSocket(string host, int port, io:SocketProperties options)(ballerina/io:Socket|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -84,7 +84,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"openCsvFile(string path, io:Mode mode \u003d r, io:Separator fieldSeparator \u003d ,, string charset \u003d UTF-8, int skipHeaders \u003d 0)(ballerina.io:CSVChannel)",
+      "label":"openCsvFile(string path, io:Mode mode \u003d r, io:Separator fieldSeparator \u003d ,, string charset \u003d UTF-8, int skipHeaders \u003d 0)(ballerina/io:CSVChannel)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",

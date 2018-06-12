@@ -32,6 +32,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -243,7 +244,7 @@ public class WebSocketDispatcher {
 
     private static BStruct getError(WebSocketService webSocketService, Throwable throwable) {
         ProgramFile programFile = webSocketService.getServiceInfo().getPackageInfo().getProgramFile();
-        PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangVMErrors.PACKAGE_BUILTIN);
+        PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         String errMsg;
         if (isUnexpectedError(throwable)) {

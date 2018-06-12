@@ -65,17 +65,17 @@ import javax.net.ssl.TrustManagerFactory;
         args = { @Argument(name = "host", type = TypeKind.STRING),
                  @Argument(name = "port", type = TypeKind.INT),
                  @Argument(name = "option", type = TypeKind.RECORD, structType = "SocketProperties",
-                           structPackage = "ballerina.io") },
+                           structPackage = "ballerina/io") },
         returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina.io"),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.io") },
+                @ReturnType(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io") },
         isPublic = true)
 public class OpenSecureSocket extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(OpenSecureSocket.class);
 
     private static final String SEPARATOR = ",";
-    private static final String SOCKET_PACKAGE = "ballerina.io";
+    private static final String SOCKET_PACKAGE = "ballerina/io";
     private static final String SOCKET_STRUCT_TYPE = "Socket";
     private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
 

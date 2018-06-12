@@ -28,7 +28,7 @@ documentation { Map which stores all of the caches. }
 map<Cache> cacheMap;
 
 documentation { Cleanup task which cleans the cache periodically. }
-task:Timer timer = createCacheCleanupTask();
+task:Timer cacheCleanupTimer = createCacheCleanupTask();
 
 documentation {
     Represents a cache entry.

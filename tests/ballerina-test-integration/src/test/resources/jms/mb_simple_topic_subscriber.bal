@@ -2,14 +2,14 @@ import ballerina/mb;
 import ballerina/io;
 import ballerina/http;
 
-endpoint mb:SimpleTopicSubscriber subscriber {
+endpoint mb:SimpleTopicSubscriber topicSubscriber {
     host: "localhost",
     port: 5772,
     topicPattern: "testMbSimpleTopicSubscriberPublisher"
 };
 
 // Bind the created consumer to the listener service.
-service<mb:Consumer> jmsListener bind subscriber {
+service<mb:Consumer> jmsListener bind topicSubscriber {
 
     // OnMessage resource get invoked when a message is received.
     onMessage(endpoint subscriber, mb:Message message) {

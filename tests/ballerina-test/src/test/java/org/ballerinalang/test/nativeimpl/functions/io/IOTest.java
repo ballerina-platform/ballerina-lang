@@ -87,7 +87,7 @@ public class IOTest {
         return pathValue;
     }
 
-    @Test(description = "Test 'readBytes' function in ballerina.io package")
+    @Test(description = "Test 'readBytes' function in ballerina/io package")
     public void testReadBytes() throws URISyntaxException {
         int numberOfBytesToRead = 3;
         String resourceToRead = "datafiles/io/text/6charfile.txt";
@@ -141,7 +141,7 @@ public class IOTest {
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'readCharacters' function in ballerina.io package")
+    @Test(description = "Test 'readCharacters' function in ballerina/io package")
     public void testReadCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/utf8file.txt";
         int numberOfCharactersToRead = 3;
@@ -195,7 +195,7 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'readCharacters' function in ballerina.io package")
+    @Test(description = "Test 'readCharacters' function in ballerina/io package")
     public void testReadAllCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/fileThatExceeds2MB.txt";
         BString readCharacters;
@@ -212,7 +212,7 @@ public class IOTest {
         Assert.assertEquals(returnedString.length(), expectedNumberOfCharacters);
     }
 
-    @Test(description = "Test 'readCharacters' function in ballerina.io package")
+    @Test(description = "Test 'readCharacters' function in ballerina/io package")
     public void testReadAllCharactersFromEmptyFile() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/emptyFile.txt";
         BString readCharacters;
@@ -229,7 +229,7 @@ public class IOTest {
         Assert.assertEquals(returnedString.length(), expectedNumberOfCharacters);
     }
 
-    @Test(description = "Test 'readRecords' function in ballerina.io package")
+    @Test(description = "Test 'readRecords' function in ballerina/io package")
     public void testReadRecords() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
         BStringArray records;
@@ -289,7 +289,7 @@ public class IOTest {
     }
 
 
-    @Test(description = "Test 'writeBytes' function in ballerina.io package")
+    @Test(description = "Test 'writeBytes' function in ballerina/io package")
     public void testWriteBytes() {
         byte[] content = {-1, 46, 77, 90, 38};
         String sourceToWrite = currentDirectoryPath + "/bytesFile.txt";
@@ -304,7 +304,7 @@ public class IOTest {
         BRunUtil.invokeStateful(bytesInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'writeCharacters' function in ballerina.io package")
+    @Test(description = "Test 'writeCharacters' function in ballerina/io package")
     public void testWriteCharacters() {
         String content = "The quick brown fox jumps over the lazy dog";
         String sourceToWrite = currentDirectoryPath + "/characterFile.txt";
@@ -319,7 +319,7 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'writeRecords' function in ballerina.io package")
+    @Test(description = "Test 'writeRecords' function in ballerina/io package")
     public void testWriteRecords() {
         String[] content = {"Name", "Email", "Telephone"};
         BStringArray record = new BStringArray(content);
@@ -336,7 +336,7 @@ public class IOTest {
         BRunUtil.invokeStateful(recordsInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'readJson' function in ballerina.io package")
+    @Test(description = "Test 'readJson' function in ballerina/io package")
     public void testJsonCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/web-app.json";
 
@@ -352,7 +352,7 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'writeJson' function in ballerina.io package")
+    @Test(description = "Test 'writeJson' function in ballerina/io package")
     public void testWriteJsonCharacters() {
         String content = "{\n" +
                 "  \"test\": { \"name\": \"Foo\" }\n" +
@@ -373,7 +373,7 @@ public class IOTest {
         BRunUtil.invokeStateful(characterInputOutputProgramFile, "close");
     }
 
-    @Test(description = "Test 'writeXml' function in ballerina.io package")
+    @Test(description = "Test 'writeXml' function in ballerina/io package")
     public void testWriteXmlCharacters() {
         String content = "\t<test>\n" +
                 "\t\t<name>Foo</name>\n" +
@@ -395,7 +395,7 @@ public class IOTest {
     }
 
 
-    @Test(description = "Test 'readXml' function in ballerina.io package")
+    @Test(description = "Test 'readXml' function in ballerina/io package")
     public void testXmlCharacters() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/cd_catalog.xml";
 
