@@ -312,26 +312,30 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
         }
 
         if (isServerPush) {
-            HTTPCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
-            // Create response carbon message. if response message doesn't exist.
-            if (responseMessage == null) {
-                responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(),
-                        outboundMsgHolder);
+            if (endOfStream) {
+                 // Retrieve response message.
+                HTTPCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
+                if (responseMessage != null) {
+                    onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
+                }
+            } else {
+                // Create response carbon message.
+                HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
+                        .getHeaders(), outboundMsgHolder);
                 outboundMsgHolder.addPushResponse(streamId, (HttpCarbonResponse) responseMessage);
             }
-            if (endOfStream) {
-                onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
-            }
         } else {
-            HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
-            // Create response carbon message. if response message doesn't exist.
-            if (responseMessage == null) {
-                responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(),
-                        outboundMsgHolder);
-                outboundMsgHolder.setResponse((HttpCarbonResponse) responseMessage);
-            }
             if (endOfStream) {
-                onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
+                // Retrieve response message.
+                HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
+                if (responseMessage != null) {
+                    onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
+                }
+            } else {
+                // Create response carbon message.
+                HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
+                        .getHeaders(), outboundMsgHolder);
+                outboundMsgHolder.setResponse((HttpCarbonResponse) responseMessage);
             }
         }
     }

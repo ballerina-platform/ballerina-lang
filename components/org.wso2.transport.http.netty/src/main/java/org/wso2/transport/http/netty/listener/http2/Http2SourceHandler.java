@@ -129,16 +129,16 @@ public final class Http2SourceHandler extends ChannelInboundHandlerAdapter {
             Http2HeadersFrame headersFrame = (Http2HeadersFrame) msg;
             int streamId = headersFrame.getStreamId();
 
-            HTTPCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
-            if (sourceReqCMsg == null) {
-                // Construct new HTTP Request
-                sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
-            }
             if (headersFrame.isEndOfStream()) {
-                // Add empty last http content if no data frames available in the http request
-                readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
-                streamIdRequestMap.remove(streamId);
+                // Retrieve HTTP request and add last http content with trailer headers.
+                HTTPCarbonMessage sourceReqCMsg = streamIdRequestMap.get(streamId);
+                if (sourceReqCMsg != null) {
+                    readTrailerHeaders(streamId, headersFrame.getHeaders(), sourceReqCMsg);
+                    streamIdRequestMap.remove(streamId);
+                }
             } else {
+                // Construct new HTTP Request
+                HTTPCarbonMessage sourceReqCMsg = setupHttp2CarbonMsg(headersFrame.getHeaders(), streamId);
                 streamIdRequestMap.put(streamId, sourceReqCMsg);   // storing to add HttpContent later
                 notifyRequestListener(sourceReqCMsg, streamId);
             }
