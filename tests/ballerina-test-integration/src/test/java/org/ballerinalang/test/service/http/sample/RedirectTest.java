@@ -50,6 +50,51 @@ public class RedirectTest extends IntegrationTestCase {
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
         Assert.assertEquals(response.getData(), "http://localhost:9093/redirect2", "Incorrect resolvedRequestedURI");
     }
+
+    @Test(description = "When the maximum redirect count is reached, client should do no more redirects.")
+    public void testMaxRedirect() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("service1/maxRedirect"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "/redirect1/round5:http://localhost:9090/redirect1/round4",
+                "Incorrect resolvedRequestedURI");
+    }
+
+    @Test(description = "Original request and the final redirect request goes to two different domains and the " +
+            "max redirect count gets equal to current redirect count.")
+    public void testCrossDomain() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("service1/crossDomain"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "hello world:http://localhost:9093/redirect2",
+                "Incorrect resolvedRequestedURI");
+    }
+
+    @Test(description = "Redirect is on, but the first response received is not a redirect.")
+    public void testNoRedirect() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("service1/noRedirect"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "hello world:http://localhost:9093/redirect2",
+                "Incorrect resolvedRequestedURI");
+    }
+
+
+    @Test(description = "Include query params in relative path of a redirect location")
+    public void testQPWithRelativePath() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                "service1/qpWithRelativePath"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "value:ballerina:http://localhost:9090/redirect1/" +
+                        "processQP?key=value&lang=ballerina", "Incorrect resolvedRequestedURI");
+    }
+
+    @Test(description = "Include query params in absolute path of a redirect location")
+    public void testQPWithAbsolutePath() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                "service1/qpWithAbsolutePath"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "value:ballerina:http://localhost:9090/redirect1/" +
+                "processQP?key=value&lang=ballerina", "Incorrect resolvedRequestedURI");
+    }
+
     @AfterClass
     private void cleanup() throws Exception {
         ballerinaServer.stopServer();
