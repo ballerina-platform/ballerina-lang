@@ -190,7 +190,7 @@ public type ConnectionThrottling {
 documentation {
     AuthConfig record can be used to configure the authentication mechanism used by the HTTP endpoint.
 
-    F{{scheme}} Scheme of the configuration (Basic, OAuth, JWT etc.)
+    F{{scheme}} Scheme of the configuration (Basic, OAuth2, JWT etc.)
     F{{username}} Username for Basic authentication
     F{{password}} Password for Basic authentication
     F{{accessToken}} Access token for OAuth2 authentication
@@ -203,7 +203,7 @@ documentation {
     F{{clientSecret}} Client secret for OAuth2 authentication
 }
 public type AuthConfig {
-    string scheme,
+    AuthScheme scheme,
     string username,
     string password,
     string accessToken,

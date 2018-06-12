@@ -26,8 +26,14 @@ under the License.
         <!--<listener class-name="org.ballerinalang.test.utils.TestNGListener"/>-->
     </listeners>
 
+
     <!-- Ballerina language Test Cases. -->
     <test name="ballerina-lang-test-suite" preserve-order="true" parallel="false">
+        <groups>
+            <run>
+                <exclude name="HSQLDBNotSupported"/>
+            </run>
+        </groups>
         <packages>
             <package name="org.ballerinalang.test.vm.*"/>
             <package name="org.ballerinalang.test.annotations.*"/>

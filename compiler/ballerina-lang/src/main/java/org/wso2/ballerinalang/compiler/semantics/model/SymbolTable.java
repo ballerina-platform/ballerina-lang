@@ -94,6 +94,7 @@ public class SymbolTable {
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
     public final BType endpointType = new BType(TypeTags.ENDPOINT, null);
     public final BType arrayType = new BArrayType(noType);
+    public final BType intArrayType = new BArrayType(intType);
 
     public final BTypeSymbol errSymbol;
     public final BType errType;
@@ -296,6 +297,9 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, intType, booleanType, InstructionCodes.FGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, floatType, booleanType, InstructionCodes.FGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, floatType, booleanType, InstructionCodes.FGE);
+
+        defineBinaryOperator(OperatorKind.CLOSED_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
+        defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
 
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType, -1);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType, -1);

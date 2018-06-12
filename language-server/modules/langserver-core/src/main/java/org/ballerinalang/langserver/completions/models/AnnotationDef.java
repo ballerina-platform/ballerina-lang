@@ -16,9 +16,9 @@
 
 package org.ballerinalang.langserver.completions.models;
 
+import org.ballerinalang.model.elements.AttachPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,9 +50,8 @@ public class AnnotationDef {
         //tempAnnotation.setPackagePath(annotationDef.getPkgPath());
         tempAnnotation.setName(annotationDef.getName().getValue());
         ArrayList<String> attachmentPoints = new ArrayList<String>();
-        List<BLangAnnotationAttachmentPoint> attachmentPointsList = annotationDef.getAttachmentPoints();
-        attachmentPointsList.forEach((annotationAttachmentPoint) -> attachmentPoints.add(annotationAttachmentPoint
-                .getAttachmentPoint().getValue()));
+        List<AttachPoint> attachmentPointsList = annotationDef.getAttachPoints();
+        attachmentPointsList.forEach((attachPoint) -> attachmentPoints.add(attachPoint.getValue()));
         tempAnnotation.setAttachmentPoints(attachmentPoints);
 
         //Annotation Definitions
@@ -64,10 +63,9 @@ public class AnnotationDef {
         });
 
         //Annotation Attachments
-        List<BLangAnnotationAttachmentPoint> annotationAttachmentpoints = annotationDef.getAttachmentPoints();
-        annotationAttachmentpoints.forEach((annotationAttachmentpoint) -> {
-            AnnotationAttachment tempAnnotationAttachment = AnnotationAttachment
-                    .convertToPackageModel(annotationAttachmentpoint);
+        List<AttachPoint> annotationAttachmentpoints = annotationDef.getAttachPoints();
+        annotationAttachmentpoints.forEach((attachPoint) -> {
+            AnnotationAttachment tempAnnotationAttachment = AnnotationAttachment.convertToPackageModel(attachPoint);
             tempAnnotation.getAnnotationAttachments().add(tempAnnotationAttachment);
         });
         return tempAnnotation;

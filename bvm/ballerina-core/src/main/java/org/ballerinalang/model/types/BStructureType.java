@@ -39,6 +39,8 @@ public abstract class BStructureType extends BType {
      *
      * @param typeName string name of the type
      * @param pkgPath  package of the struct
+     * @param flags of the structure type
+     * @param valueClass of the structure type
      */
     public BStructureType(String typeName, String pkgPath, int flags, Class<? extends BValue> valueClass) {
         super(typeName, pkgPath, valueClass);

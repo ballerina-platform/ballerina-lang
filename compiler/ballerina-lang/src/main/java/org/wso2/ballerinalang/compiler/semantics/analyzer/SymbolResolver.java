@@ -425,7 +425,7 @@ public class SymbolResolver extends BLangNodeVisitor {
      * @return resolved closure variable symbol for the given name.
      */
     public BSymbol lookupClosureVarSymbol(SymbolEnv env, Name name, int expSymTag) {
-        ScopeEntry entry = env.enclEnv.scope.lookup(name);
+        ScopeEntry entry = env.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
             if (symTable.rootPkgSymbol.pkgID.equals(entry.symbol.pkgID) &&
                     (entry.symbol.tag & SymTag.VARIABLE_NAME) == SymTag.VARIABLE_NAME) {
@@ -561,7 +561,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         // The value of the dimensions field should always be >= 1
         resultType = resolveTypeNode(arrayTypeNode.elemtype, env, diagCode);
         for (int i = 0; i < arrayTypeNode.dimensions; i++) {
-            resultType = new BArrayType(resultType);
+            BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
+                    .of(Flag.PUBLIC)), Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+            resultType = new BArrayType(resultType, arrayTypeSymbol);
+            arrayTypeSymbol.type = resultType;
         }
     }
 

@@ -31,6 +31,8 @@ public class TypeDefInfo extends StructureTypeInfo {
 
     public int typeTag;
 
+    public boolean isLabel;
+
     public TypeDefInfo(int pkgNameCPIndex, int nameCPIndex, int flags) {
         super(pkgNameCPIndex, nameCPIndex, flags);
     }

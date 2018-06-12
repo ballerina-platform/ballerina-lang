@@ -101,6 +101,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
+import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -130,6 +131,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final EndpointSPIAnalyzer endpointSPIAnalyzer;
     private final Types types;
     private List<BLangTypeDefinition> unresolvedTypes;
+    private int typePrecedence;
 
     private SymbolEnv env;
 
@@ -190,6 +192,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         pkgNode.imports.forEach(importNode -> defineNode(importNode, pkgEnv));
 
         // Define type definitions.
+        this.typePrecedence = 0;
         defineTypeNodes(pkgNode.typeDefinitions, pkgEnv);
 
         // Define type def fields (if any)
@@ -236,11 +239,10 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotation annotationNode) {
-        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet), names.
-                fromIdNode(annotationNode.name), env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        BSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
+                AttachPoints.asMask(annotationNode.attachPoints), names.fromIdNode(annotationNode.name),
+                env.enclPkg.symbol.pkgID, null, env.scope.owner);
         annotationSymbol.type = new BAnnotationType((BAnnotationSymbol) annotationSymbol);
-        annotationNode.attachmentPoints.forEach(point ->
-                ((BAnnotationSymbol) annotationSymbol).attachmentPoints.add(point));
         annotationNode.symbol = annotationSymbol;
         defineSymbol(annotationNode.pos, annotationSymbol);
         SymbolEnv annotationEnv = SymbolEnv.createAnnotationEnv(annotationNode, annotationSymbol.scope, env);
@@ -301,6 +303,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // define the import package symbol in the current package scope
         importPkgNode.symbol = pkgSymbol;
+        ((BPackageSymbol) this.env.scope.owner).imports.add(pkgSymbol);
         this.env.scope.define(pkgAlias, pkgSymbol);
     }
 
@@ -361,9 +364,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             this.unresolvedTypes.add(typeDefinition);
             return;
         }
+        typeDefinition.precedence = this.typePrecedence++;
         BTypeSymbol typeDefSymbol;
         if (definedType.tsymbol.name != Names.EMPTY) {
-            typeDefSymbol = definedType.tsymbol.copy();
+            typeDefSymbol = definedType.tsymbol.createLabelSymbol();
         } else  {
             typeDefSymbol = definedType.tsymbol;
         }

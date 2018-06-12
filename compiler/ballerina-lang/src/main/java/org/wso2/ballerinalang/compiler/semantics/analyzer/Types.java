@@ -1165,6 +1165,7 @@ public class Types {
      * i.e: A variable of the given type can be initialized without a rhs expression.
      * eg: foo x;
      *
+     * @param pos position of the variable.
      * @param type Type to check the existence if a default value
      * @return Flag indicating whether the given type has a default value
      */

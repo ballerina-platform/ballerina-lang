@@ -63,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangMatchExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 
 import java.util.Collections;
@@ -106,7 +107,7 @@ public enum CompletionItemResolver {
             new BLangEndpointContextResolver()),
     FUNCTION_DEF_CONTEXT(BLangFunction.class,
             new FunctionContextResolver()),
-    OBJECT_TYPE_CONTEXT(BLangRecordTypeNode.class,
+    OBJECT_TYPE_CONTEXT(BLangObjectTypeNode.class,
             new ObjectTypeContextResolver()),
     RECORD_LITERAL_CONTEXT(BLangRecordLiteral.class,
             new BLangRecordLiteralContextResolver()),

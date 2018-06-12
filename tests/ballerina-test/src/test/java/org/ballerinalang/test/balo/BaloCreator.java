@@ -58,7 +58,7 @@ public class BaloCreator {
         BuilderUtils.compileAndWrite(projectPath, packageId, TARGET + "/" + BALLERINA_HOME_LIB + "/", false, true);
 
         // copy the balo to the temp-ballerina-home/libs/
-        BFileUtil.delete(Paths.get(TARGET, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName));
+        BFileUtil.delete(Paths.get(TARGET, BALLERINA_HOME_LIB, DOT_BALLERINA_REPO_DIR_NAME, orgName, packageId));
         BFileUtil.copy(projectPath.resolve(baloPath), Paths.get(TARGET, BALLERINA_HOME_LIB));
     }
 

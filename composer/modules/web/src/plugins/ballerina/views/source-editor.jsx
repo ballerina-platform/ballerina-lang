@@ -32,7 +32,9 @@ import BAL_LANG_CONFIG from '../utils/monaco-lang-config';
 
 const BAL_LANGUAGE = 'ballerina-lang';
 
-const webpackHash = process.env.NODE_ENV === 'production' ? __webpack_hash__ : __webpack_hash__();
+const webpackHash = process.env.NODE_ENV === 'production'
+            || process.env.NODE_ENV === 'electron'
+            ? __webpack_hash__ : __webpack_hash__();
 
 self.MonacoEnvironment = {
     getWorkerUrl: function (moduleId, label) {

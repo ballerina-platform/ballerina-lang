@@ -30,6 +30,7 @@ import io.ballerina.plugins.idea.psi.BallerinaExpression;
 import io.ballerina.plugins.idea.psi.BallerinaExpressionStmt;
 import io.ballerina.plugins.idea.psi.BallerinaIdentifier;
 import io.ballerina.plugins.idea.psi.BallerinaNullableTypeName;
+import io.ballerina.plugins.idea.psi.BallerinaObjectTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaUnionTypeName;
 import io.ballerina.plugins.idea.psi.BallerinaVariableReferenceExpression;
@@ -102,7 +103,7 @@ public class BallerinaPostfixUtils {
         // Sometimes while the typing, the code can be interpreted as a variable definition statement if there are
         // content after the caret. In that case, we return the context as the topmost expression.
         BallerinaTypeName ballerinaTypeName = PsiTreeUtil.getNonStrictParentOfType(context, BallerinaTypeName.class);
-        if (ballerinaTypeName != null) {
+        if (ballerinaTypeName != null && !(ballerinaTypeName instanceof BallerinaObjectTypeName)) {
             return context;
         }
         return null;

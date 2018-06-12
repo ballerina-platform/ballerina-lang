@@ -27,11 +27,11 @@ import org.ballerinalang.nativeimpl.io.events.EventResult;
 public class NumericResult implements EventResult<Integer, EventContext> {
 
     /**
-     * Will represent a count.
+     * Will represent a value.
      * <p>
      * This could be numberOfBytes, numberOfCharacters.
      */
-    private int count;
+    private int value;
 
     /**
      * Holds the context to the event.
@@ -43,7 +43,7 @@ public class NumericResult implements EventResult<Integer, EventContext> {
     }
 
     public NumericResult(int count, EventContext context) {
-        this.count = count;
+        this.value = count;
         this.context = context;
     }
 
@@ -57,6 +57,6 @@ public class NumericResult implements EventResult<Integer, EventContext> {
      */
     @Override
     public Integer getResponse() {
-        return count;
+        return value;
     }
 }

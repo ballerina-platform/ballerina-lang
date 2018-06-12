@@ -30,6 +30,7 @@ import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -52,7 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
@@ -175,6 +175,7 @@ import org.wso2.ballerinalang.programfile.Instruction.Operand;
 import org.wso2.ballerinalang.programfile.Instruction.RegIndex;
 import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.programfile.InstructionFactory;
+import org.wso2.ballerinalang.programfile.LabelTypeInfo;
 import org.wso2.ballerinalang.programfile.LineNumberInfo;
 import org.wso2.ballerinalang.programfile.LocalVariableInfo;
 import org.wso2.ballerinalang.programfile.ObjectTypeInfo;
@@ -218,7 +219,6 @@ import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -1001,7 +1001,18 @@ public class CodeGenerator extends BLangNodeVisitor {
             genNode(binaryExpr.lhsExpr, this.env);
             genNode(binaryExpr.rhsExpr, this.env);
             RegIndex regIndex = calcAndGetExprRegIndex(binaryExpr);
-            emit(binaryExpr.opSymbol.opcode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
+            int opCode = binaryExpr.opSymbol.opcode;
+            if (opCode == InstructionCodes.INT_RANGE) {
+                if (binaryExpr.parent instanceof BLangForeach) {
+                    // Avoid creating an array if the range is only used in a foreach statement
+                    emit(InstructionCodes.NEW_INT_RANGE, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex,
+                         regIndex);
+                } else {
+                    emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
+                }
+            } else {
+                emit(opCode, binaryExpr.lhsExpr.regIndex, binaryExpr.rhsExpr.regIndex, regIndex);
+            }
         }
     }
 
@@ -1789,123 +1800,91 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (annotation.typeNode != null) {
             typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, annotation.typeNode.type.getDesc());
         }
-        //TODO any better way?
-        int[] attachPointCPIndexes = new int[annotation.attachmentPoints.size()];
-        List<BLangAnnotationAttachmentPoint> attachmentPoints = annotation.attachmentPoints;
-        for (int i = 0; i < attachmentPoints.size(); i++) {
-            String pointName = attachmentPoints.get(i).attachmentPoint.getValue();
-            attachPointCPIndexes[i] = addUTF8CPEntry(currentPkgInfo, pointName);
-        }
 
         AnnotationInfo annotationInfo = new AnnotationInfo(nameCPIndex, typeSigCPIndex,
-                annotation.symbol.flags, attachPointCPIndexes);
+                annotation.symbol.flags, ((BAnnotationSymbol) annotation.symbol).attachPoints);
         currentPkgInfo.annotationInfoMap.put(annotation.name.value, annotationInfo);
     }
 
     private void createTypeDefinitionInfoEntry(BLangTypeDefinition typeDefinition) {
-        if (typeDefinition.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-            return;
-        }
         BTypeSymbol typeDefSymbol = typeDefinition.symbol;
         int typeDefNameCPIndex = addUTF8CPEntry(currentPkgInfo, typeDefSymbol.name.value);
         TypeDefInfo typeDefInfo = new TypeDefInfo(currentPackageRefCPIndex,
                 typeDefNameCPIndex, typeDefSymbol.flags);
+        typeDefInfo.isLabel = typeDefinition.symbol.isLabel;
+
         typeDefInfo.typeTag = typeDefSymbol.type.tag;
-        if (typeDefinition.symbol.tag == SymTag.OBJECT) {
-            ObjectTypeInfo objInfo = new ObjectTypeInfo();
-            BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) typeDefSymbol;
-            // Add Struct name as an UTFCPEntry to the constant pool
-            objInfo.objectType = (BObjectType) objectSymbol.type;
 
-            BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
-
-            List<BLangVariable> objFields = objectTypeNode.fields;
-            for (BLangVariable objField : objFields) {
-                // Create StructFieldInfo Entry
-                int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, objField.name.value);
-                int sigCPIndex = addUTF8CPEntry(currentPkgInfo, objField.type.getDesc());
-
-                objField.symbol.varIndex = getFieldIndex(objField.symbol.type.tag);
-                StructFieldInfo objFieldInfo = new StructFieldInfo(fieldNameCPIndex,
-                        sigCPIndex, objField.symbol.flags, objField.symbol.varIndex.value);
-                objFieldInfo.fieldType = objField.type;
-
-                // Populate default values
-                if (objField.expr != null && objField.expr.getKind() == NodeKind.LITERAL) {
-                    DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) objField.expr);
-                    objFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
-                }
-
-                objInfo.fieldInfoEntries.add(objFieldInfo);
-
-                // Add documentation attributes
-                addDocumentAttachmentAttrInfo(objField.docAttachments, objFieldInfo);
-            }
-
-            // Create variable count attribute info
-            prepareIndexes(fieldIndexes);
-            int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                    fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
-            addVariableCountAttributeInfo(currentPkgInfo, objInfo, fieldCount);
-            fieldIndexes = new VariableIndex(FIELD);
-
-            // Create attached function info entries
-            for (BAttachedFunction attachedFunc : objectSymbol.attachedFuncs) {
-                int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
-
-                // Remove the first type. The first type is always the type to which the function is attached to
-                BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
-                int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
-                        generateFunctionSig(paramTypes, attachedFunc.type.retType));
-                int flags = attachedFunc.symbol.flags;
-                objInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
-            }
-
-            typeDefInfo.typeInfo = objInfo;
+        if (typeDefinition.symbol.isLabel) {
+            createLabelTypeTypeDef(typeDefinition, typeDefInfo);
             // Add documentation attributes
-            addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, objInfo);
+            addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
+
             currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
-        } else if (typeDefinition.symbol.tag == SymTag.RECORD) {
-            RecordTypeInfo recordInfo = new RecordTypeInfo();
-            BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) typeDefSymbol;
-            // Add Struct name as an UTFCPEntry to the constant pool
-            recordInfo.recordType = (BRecordType) recordSymbol.type;
+            return;
+        }
 
-            BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
+        switch (typeDefinition.symbol.tag) {
+            case SymTag.OBJECT:
+                createObjectTypeTypeDef(typeDefinition, typeDefInfo, typeDefSymbol);
+                break;
+            case SymTag.RECORD:
+                createRecordTypeTypeDef(typeDefinition, typeDefInfo, typeDefSymbol);
+                break;
+            case SymTag.FINITE_TYPE:
+                createFiniteTypeTypeDef(typeDefinition, typeDefInfo);
+                break;
+            default:
+                createLabelTypeTypeDef(typeDefinition, typeDefInfo);
+                break;
+        }
+        // Add documentation attributes
+        addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
 
-            List<BLangVariable> recordFields = recordTypeNode.fields;
-            for (BLangVariable recordField : recordFields) {
-                // Create StructFieldInfo Entry
-                int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.name.value);
-                int sigCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.type.getDesc());
+        currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
+    }
 
-                recordField.symbol.varIndex = getFieldIndex(recordField.symbol.type.tag);
-                StructFieldInfo recordFieldInfo = new StructFieldInfo(fieldNameCPIndex,
-                        sigCPIndex, recordField.symbol.flags, recordField.symbol.varIndex.value);
-                recordFieldInfo.fieldType = recordField.type;
+    private void createObjectTypeTypeDef(BLangTypeDefinition typeDefinition,
+                                         TypeDefInfo typeDefInfo, BTypeSymbol typeDefSymbol) {
+        ObjectTypeInfo objInfo = new ObjectTypeInfo();
+        BObjectTypeSymbol objectSymbol = (BObjectTypeSymbol) typeDefSymbol;
+        // Add Struct name as an UTFCPEntry to the constant pool
+        objInfo.objectType = (BObjectType) objectSymbol.type;
 
-                // Populate default values
-                if (recordField.expr != null && recordField.expr.getKind() == NodeKind.LITERAL) {
-                    DefaultValueAttributeInfo defaultVal
-                            = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
-                    recordFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
-                }
+        BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) typeDefinition.typeNode;
 
-                recordInfo.fieldInfoEntries.add(recordFieldInfo);
+        List<BLangVariable> objFields = objectTypeNode.fields;
+        for (BLangVariable objField : objFields) {
+            // Create StructFieldInfo Entry
+            int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, objField.name.value);
+            int sigCPIndex = addUTF8CPEntry(currentPkgInfo, objField.type.getDesc());
 
-                // Add documentation attributes
-                addDocumentAttachmentAttrInfo(recordField.docAttachments, recordFieldInfo);
+            objField.symbol.varIndex = getFieldIndex(objField.symbol.type.tag);
+            StructFieldInfo objFieldInfo = new StructFieldInfo(fieldNameCPIndex,
+                    sigCPIndex, objField.symbol.flags, objField.symbol.varIndex.value);
+            objFieldInfo.fieldType = objField.type;
+
+            // Populate default values
+            if (objField.expr != null && objField.expr.getKind() == NodeKind.LITERAL) {
+                DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) objField.expr);
+                objFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
 
-            // Create variable count attribute info
-            prepareIndexes(fieldIndexes);
-            int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
-                    fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
-            addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
-            fieldIndexes = new VariableIndex(FIELD);
+            objInfo.fieldInfoEntries.add(objFieldInfo);
 
-            // ----- TODO remove below block once record init function removed ------------
-            BAttachedFunction attachedFunc = recordSymbol.initializerFunc;
+            // Add documentation attributes
+            addDocumentAttachmentAttrInfo(objField.docAttachments, objFieldInfo);
+        }
+
+        // Create variable count attribute info
+        prepareIndexes(fieldIndexes);
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
+                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+        addVariableCountAttributeInfo(currentPkgInfo, objInfo, fieldCount);
+        fieldIndexes = new VariableIndex(FIELD);
+
+        // Create attached function info entries
+        for (BAttachedFunction attachedFunc : objectSymbol.attachedFuncs) {
             int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
 
             // Remove the first type. The first type is always the type to which the function is attached to
@@ -1913,30 +1892,85 @@ public class CodeGenerator extends BLangNodeVisitor {
             int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
                     generateFunctionSig(paramTypes, attachedFunc.type.retType));
             int flags = attachedFunc.symbol.flags;
-            recordInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
-            // ------------- end of temp block--------------
+            objInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
+        }
 
-            typeDefInfo.typeInfo = recordInfo;
-            // Add documentation attributes
-            addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
-            currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
-        } else if (typeDefinition.symbol.tag == SymTag.FINITE_TYPE) {
+        //TODO decide what happens to documentations for interface functions and their implementations.
 
-            BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) typeDefinition.typeNode;
-            FiniteTypeInfo typeInfo = new FiniteTypeInfo();
+        typeDefInfo.typeInfo = objInfo;
+    }
 
-            Iterator<BLangExpression> valueSpaceIterator = typeNode.valueSpace.iterator();
-            while (valueSpaceIterator.hasNext()) {
-                BLangExpression literal = valueSpaceIterator.next();
-                typeInfo.valueSpaceItemInfos.add(new ValueSpaceItemInfo(getDefaultValue((BLangLiteral) literal)));
+    private void createRecordTypeTypeDef(BLangTypeDefinition typeDefinition,
+                                         TypeDefInfo typeDefInfo, BTypeSymbol typeDefSymbol) {
+        RecordTypeInfo recordInfo = new RecordTypeInfo();
+        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) typeDefSymbol;
+        // Add Struct name as an UTFCPEntry to the constant pool
+        recordInfo.recordType = (BRecordType) recordSymbol.type;
+
+        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
+
+        List<BLangVariable> recordFields = recordTypeNode.fields;
+        for (BLangVariable recordField : recordFields) {
+            // Create StructFieldInfo Entry
+            int fieldNameCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.name.value);
+            int sigCPIndex = addUTF8CPEntry(currentPkgInfo, recordField.type.getDesc());
+
+            recordField.symbol.varIndex = getFieldIndex(recordField.symbol.type.tag);
+            StructFieldInfo recordFieldInfo = new StructFieldInfo(fieldNameCPIndex,
+                    sigCPIndex, recordField.symbol.flags, recordField.symbol.varIndex.value);
+            recordFieldInfo.fieldType = recordField.type;
+
+            // Populate default values
+            if (recordField.expr != null && recordField.expr.getKind() == NodeKind.LITERAL) {
+                DefaultValueAttributeInfo defaultVal
+                        = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
+                recordFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
 
-            typeDefInfo.typeInfo = typeInfo;
+            recordInfo.fieldInfoEntries.add(recordFieldInfo);
 
             // Add documentation attributes
-            addDocumentAttachmentAttrInfo(typeDefinition.docAttachments, typeDefInfo);
-            currentPkgInfo.addTypeDefInfo(typeDefSymbol.name.value, typeDefInfo);
+            addDocumentAttachmentAttrInfo(recordField.docAttachments, recordFieldInfo);
         }
+
+        // Create variable count attribute info
+        prepareIndexes(fieldIndexes);
+        int[] fieldCount = new int[]{fieldIndexes.tInt, fieldIndexes.tFloat,
+                fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
+        addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
+        fieldIndexes = new VariableIndex(FIELD);
+
+        // ----- TODO remove below block once record init function removed ------------
+        BAttachedFunction attachedFunc = recordSymbol.initializerFunc;
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
+
+        // Remove the first type. The first type is always the type to which the function is attached to
+        BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
+        int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                generateFunctionSig(paramTypes, attachedFunc.type.retType));
+        int flags = attachedFunc.symbol.flags;
+        recordInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
+        // ------------- end of temp block--------------
+
+        typeDefInfo.typeInfo = recordInfo;
+    }
+
+    private void createFiniteTypeTypeDef(BLangTypeDefinition typeDefinition,
+                                         TypeDefInfo typeDefInfo) {
+        BLangFiniteTypeNode typeNode = (BLangFiniteTypeNode) typeDefinition.typeNode;
+        FiniteTypeInfo typeInfo = new FiniteTypeInfo();
+
+        for (BLangExpression literal : typeNode.valueSpace) {
+            typeInfo.valueSpaceItemInfos.add(new ValueSpaceItemInfo(getDefaultValue((BLangLiteral) literal)));
+        }
+
+        typeDefInfo.typeInfo = typeInfo;
+    }
+
+    private void createLabelTypeTypeDef(BLangTypeDefinition typeDefinition,
+                                         TypeDefInfo typeDefInfo) {
+        int sigCPIndex = addUTF8CPEntry(currentPkgInfo, typeDefinition.typeNode.type.getDesc());
+        typeDefInfo.typeInfo = new LabelTypeInfo(sigCPIndex);
     }
 
     /**
@@ -2978,16 +3012,6 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(endExpr, env);
         rangeExpr.regIndex = calcAndGetExprRegIndex(rangeExpr);
 
-        if (!rangeExpr.includeStart || !rangeExpr.includeEnd) {
-            RegIndex const1RegIndex = getRegIndex(TypeTags.INT);
-            emit(InstructionCodes.ICONST_1, const1RegIndex);
-            if (!rangeExpr.includeStart) {
-                emit(InstructionCodes.IADD, startExpr.regIndex, const1RegIndex, startExpr.regIndex);
-            }
-            if (!rangeExpr.includeEnd) {
-                emit(InstructionCodes.ISUB, endExpr.regIndex, const1RegIndex, endExpr.regIndex);
-            }
-        }
         emit(InstructionCodes.NEW_INT_RANGE, startExpr.regIndex, endExpr.regIndex, rangeExpr.regIndex);
     }
 

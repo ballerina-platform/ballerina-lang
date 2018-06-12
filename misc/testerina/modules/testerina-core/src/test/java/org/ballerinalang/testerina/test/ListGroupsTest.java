@@ -31,6 +31,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * Test cases for list grouping.
+ */
 public class ListGroupsTest {
 
     @Test

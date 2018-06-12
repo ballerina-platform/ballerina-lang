@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Test cases for before,after attribute
+ * Test cases for before,after attribute.
  */
 public class BeforeAfterTest {
 

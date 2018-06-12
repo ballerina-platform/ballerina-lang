@@ -30,14 +30,14 @@ import java.util.List;
  *
  * @since 0.971.0
  */
-public class BStructureTypeSymbol extends BTypeSymbol {
+public abstract class BStructureTypeSymbol extends BTypeSymbol {
 
     public List<BAttachedFunction> attachedFuncs;
     public BAttachedFunction initializerFunc;
     public BAttachedFunction defaultsValuesInitFunc;
 
-    public BStructureTypeSymbol(SymbolKind kind, int symTag, int flags, Name name, PackageID pkgID, BType type,
-            BSymbol owner) {
+    BStructureTypeSymbol(SymbolKind kind, int symTag, int flags, Name name, PackageID pkgID, BType type,
+                         BSymbol owner) {
         super(symTag, flags, name, pkgID, type, owner);
         this.attachedFuncs = new ArrayList<>(0);
         this.kind = kind;

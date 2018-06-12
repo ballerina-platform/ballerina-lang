@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.970.0-alpha1-SNAPSHOT</version>
+        <version>0.973.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -14,21 +15,49 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+            <version>${project.version}</version>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-composer-web</artifactId>
             <version>${project.version}</version>
             <type>zip</type>
         </dependency>
-
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-composer-web</artifactId>
+            <classifier>ballerina-composer-library</classifier>
+            <version>${project.version}</version>
+            <type>zip</type>
+        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>composer-server-distribution</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>unpack-dependencies</id>
+                        <phase>generate-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeClassifiers>ballerina-binary-repo</includeClassifiers>
+                            <outputDirectory>${project.build.directory}/lib</outputDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -62,7 +91,7 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-dependencies</id>
+                        <id>unpack-composer-dependencies</id>
                         <phase>generate-test-resources</phase>
                         <goals>
                             <goal>unpack-dependencies</goal>
@@ -78,6 +107,23 @@
                             <includes>
                                 */resources/composer/web/public/vendor-*.js,*/resources/composer/web/public/testable-*.js,*/resources/composer/web/public/tree-*.js
                             </includes>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>unpack-composer-library</id>
+                        <phase>generate-test-resources</phase>
+                        <goals>
+                            <goal>unpack-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <includeGroupIds>org.ballerinalang</includeGroupIds>
+                            <includeClassifiers>ballerina-composer-library</includeClassifiers>
+                            <includeArtifactIds>ballerina-composer-web</includeArtifactIds>
+                            <outputDirectory>${project.build.directory}/extracted-web-lib</outputDirectory>
+                            <overWriteReleases>true</overWriteReleases>
+                            <overWriteSnapshots>true</overWriteSnapshots>
+                            <useSubDirectoryPerArtifact>false</useSubDirectoryPerArtifact>
+                            <stripVersion>true</stripVersion>
                         </configuration>
                     </execution>
                 </executions>
@@ -96,15 +142,22 @@
                         <configuration>
                             <skip>${maven.test.skip}</skip>
                             <target name="copy js files to target">
-                                <mkdir dir="${project.build.directory}/js-files-from-web" />
-                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true" flatten="true">
+                                <mkdir dir="${project.build.directory}/js-files-from-web"/>
+                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true"
+                                      flatten="true">
                                     <fileset dir="${project.build.directory}/extracted-web/">
-                                        <include name="**/*.js" />
+                                        <include name="**/*.js"/>
                                     </fileset>
                                     <chainedmapper>
-                                        <flattenmapper />
-                                        <regexpmapper from="(.+)-([0-9a-f]+).js" to="\1.js" />
+                                        <flattenmapper/>
+                                        <regexpmapper from="(.+)-([0-9a-f]+).js" to="\1.js"/>
                                     </chainedmapper>
+                                </copy>
+                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true"
+                                      flatten="true">
+                                    <fileset dir="${project.build.directory}/extracted-web-lib/">
+                                        <include name="**/*.js"/>
+                                    </fileset>
                                 </copy>
                             </target>
                         </configuration>
@@ -128,7 +181,6 @@
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>

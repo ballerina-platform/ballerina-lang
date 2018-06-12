@@ -40,11 +40,12 @@ public class BConnectorSymbol extends BTypeSymbol {
     }
 
     @Override
-    public BConnectorSymbol copy() {
+    public BConnectorSymbol createLabelSymbol() {
         BConnectorSymbol copy = Symbols.createConnectorSymbol(flags, Names.EMPTY, pkgID, type, owner);
         copy.params = params;
         copy.initFunctionSymbol = initFunctionSymbol;
         copy.taintTable = taintTable;
+        copy.isLabel = true;
         return copy;
     }
 }
