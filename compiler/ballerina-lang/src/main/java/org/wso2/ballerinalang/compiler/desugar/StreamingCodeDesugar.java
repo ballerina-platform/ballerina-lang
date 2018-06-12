@@ -53,6 +53,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -86,7 +87,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangExpression conditionalExpression;
     private SymbolEnv env;
     private BLangBlockStmt lambdaBody;
-    private BLangBlockStmt blockStmt;
+    private List<BLangStatement> stmts;
 
     private StreamingCodeDesugar(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
@@ -106,17 +107,19 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return desugar;
     }
 
-    public BLangExpressionStmt desugar(BLangForever foreverStatement, Desugar desugar) {
+    public BLangBlockStmt desugar(BLangForever foreverStatement, Desugar desugar) {
 
         this.parentDesugar = desugar;
-        this.blockStmt = (BLangBlockStmt) foreverStatement.parent;
+        this.env = foreverStatement.getEnv();
+        stmts = new ArrayList<>();
         List<? extends StatementNode> statementNodes = foreverStatement.getStreamingQueryStatements();
 
         // Generate Streaming Consumer Function
         //generateStreamConsumerFunction(foreverStatement);
 
         statementNodes.forEach(statementNode -> ((BLangStatement) statementNode).accept(this));
-        return foreverReplaceStatement;
+        stmts.add(foreverReplaceStatement);
+        return ASTBuilderUtil.createBlockStmt(foreverStatement.pos, stmts);
     }
 
     @Override
@@ -239,27 +242,55 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     public void visit(BLangWindow windowClause) {
 
-        long windowSize = (long) ((BLangLiteral)
-                ((BLangInvocation) windowClause.getFunctionInvocation()).argExprs.get(0)).value;
+        BLangLiteral windowSize = (BLangLiteral) ((BLangInvocation) windowClause.getFunctionInvocation()).
+                argExprs.get(0);
+        windowSize.type = symTable.intType;
+
+        // Create variable for event type in window
+        BTypeSymbol windowEventTypeSymbol = (BTypeSymbol) symResolver.resolvePkgSymbol((lambdaFunctionNode).pos,
+                env, names.fromString("streams")).scope.lookup(new Name("EventType")).symbol;
+        BType windowEventType = symResolver.resolvePkgSymbol((lambdaFunctionNode).pos, env, names.
+                fromString("streams")).scope.lookup(new Name("EventType")).symbol.type;
+        BVarSymbol windowEventTypeVarSymbol = new BVarSymbol(0, new Name("evType"),
+                windowEventTypeSymbol.pkgID, windowEventType, env.scope.owner);
 
         BLangLiteral literal = (BLangLiteral) TreeBuilder.createLiteralExpression();
         literal.setValue("ALL");
-
-        BTypeSymbol bTypeSymbol = (BTypeSymbol) symResolver.resolvePkgSymbol(((BLangFunction) lambdaFunctionNode).pos,
-                env, names.fromString("streams")).scope.lookup(new Name("EventType")).symbol;
-
-        BType type = symResolver.resolvePkgSymbol((lambdaFunctionNode).pos, env, names.
-                fromString("streams")).scope.lookup(new Name("EventType")).symbol.type;
-        BVarSymbol varSymbol = new BVarSymbol(0, new Name("evType"), bTypeSymbol.pkgID, type,
-                env.scope.owner);
-        BLangVariable variable = ASTBuilderUtil.
-                createVariable(windowClause.pos, "evType", type, literal, varSymbol);
+        literal.type = windowEventType;
+        BLangVariable windowEventTypeVariable = ASTBuilderUtil.
+                createVariable(windowClause.pos, "evType", windowEventType, literal, windowEventTypeVarSymbol);
+        BLangVariableDef windowEventTypeVariableDef = ASTBuilderUtil.createVariableDef(windowClause.pos,
+                windowEventTypeVariable);
+        BLangSimpleVarRef windowEventTypeSimpleVarRef = ASTBuilderUtil.createVariableRef(windowClause.pos,
+                windowEventTypeVarSymbol);
+        stmts.add(windowEventTypeVariableDef);
 
 
-        ASTBuilderUtil.createVariableDef(windowClause.pos);
+        // Create variable for the window instance
+        BInvokableSymbol windowInvokableSymbol = (BInvokableSymbol) symResolver.
+                resolvePkgSymbol((lambdaFunctionNode).pos, env, names.fromString("streams")).
+                scope.lookup(new Name("lengthWindow")).symbol;
+        BType windowInvokableType = symResolver.resolvePkgSymbol((lambdaFunctionNode).pos, env, names.
+                fromString("streams")).scope.lookup(new Name("lengthWindow")).symbol.type;
+        BVarSymbol windowInvokableTypeVarSymbol = new BVarSymbol(0, new Name("lengthWindow11"),
+                windowEventTypeSymbol.pkgID, windowEventType, env.scope.owner);
 
-        final BLangExpressionStmt windowStatement = ASTBuilderUtil.createExpressionStmt(windowClause.pos, ifNode.body);
+        List<BLangExpression> args = new ArrayList<>();
+        args.add(windowSize);
+        args.add(windowEventTypeSimpleVarRef);
+        BLangInvocation windowMethodInvocation = ASTBuilderUtil.
+                createInvocationExprForMethod(windowClause.pos, windowInvokableSymbol, args,
+                        symResolver);
+        BLangVariable windowInvokableTypeVariable = ASTBuilderUtil.
+                createVariable(windowClause.pos, "lengthWindow11", windowInvokableType, windowMethodInvocation,
+                        windowInvokableTypeVarSymbol);
 
+        BLangSimpleVarRef windowInvokableSimpleVarRef = ASTBuilderUtil.createVariableRef(windowClause.pos,
+                windowInvokableTypeVarSymbol);
+
+        BLangVariableDef windowInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(windowClause.pos,
+                windowInvokableTypeVariable);
+        stmts.add(windowInvokableTypeVariableDef);
     }
 
 
