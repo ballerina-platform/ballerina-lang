@@ -47,9 +47,9 @@ import java.io.IOException;
  */
 public class XMLLiteralTest {
 
-    CompileResult result;
-    CompileResult literalWithNamespacesResult;
-    CompileResult negativeResult;
+    private CompileResult result;
+    private CompileResult literalWithNamespacesResult;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
