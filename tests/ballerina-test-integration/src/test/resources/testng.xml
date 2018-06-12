@@ -64,19 +64,8 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
-        </classes>
-    </test>
-
-    <test name="ballerina-observability-tests" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
-            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
-        </classes>
-    </test>
-
-    <test name="ballerina-streaming-tests" preserve-order="true" parallel="false">
-        <classes>
-            <class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.tool.ClientStubGeneratorTestCase" />
+            <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase" />
         </classes>
     </test>
 

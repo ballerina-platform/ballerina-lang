@@ -29,7 +29,7 @@ import java.nio.file.Paths;
  * Test class for gRPC unsupported types.
  *
  */
-public class UnsupportedTypesTest {
+public class UnsupportedFieldTypesTest {
 
     @Test
     public void testUnsupportedJsonType() {

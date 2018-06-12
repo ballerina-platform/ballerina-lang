@@ -15,14 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.test.net.grpc;
+package org.ballerinalang.test.service.grpc.tool;
 
 import org.ballerinalang.protobuf.cmd.GrpcCmd;
 import org.ballerinalang.protobuf.cmd.OSDetector;
 import org.ballerinalang.protobuf.exception.BalGenToolException;
 import org.ballerinalang.protobuf.utils.BalFileGenerationUtils;
+import org.ballerinalang.test.util.TestUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -32,42 +34,49 @@ import java.nio.file.Paths;
 /**
  * Class used for test purposes related to invalid input types.
  */
-public class InvalidInputTypes {
+public class InvalidServiceContractTestCase {
+
     private static String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
     private static Path resourceDir = Paths.get(
-            BalGenToolTest.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-    
+            ClientStubGeneratorTestCase.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+
+    @BeforeClass
+    private void setup() {
+
+        TestUtils.prepareBalo(this);
+    }
+
     @Test
     public void testInvalidProtoFileInput() throws ClassNotFoundException, IllegalAccessException,
             InstantiationException {
+
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
-        Path sourcePath = Paths.get("protoFiles");
+        Path sourcePath = Paths.get("grpc", "tool");
         Path sourceRoot = resourceDir.resolve(sourcePath);
-        String protoFileName = "protoFiles/helloWorld2.proto";
-        Path protoPath = Paths.get(protoFileName);
+        Path protoPath = Paths.get("grpc", "tool", "helloWorld2.proto");
         Path protoRoot = resourceDir.resolve(protoPath);
         grpcCmd1.setBalOutPath(sourceRoot.toString());
         grpcCmd1.setProtoPath(protoRoot.toString());
         try {
             grpcCmd1.execute();
         } catch (BalGenToolException e) {
-            Assert.assertEquals(e.getMessage(), "Invalid proto file location. Please input valid proto " +
-                    "file location.");
+            Assert.assertEquals(e.getMessage(), "Provided service proto file is not readable. Please input valid " +
+                    "proto file location.");
         }
     }
-    
+
     @Test
     public void testInvalidProtoSyntax() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
+
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
-        Path sourcePath = Paths.get("protoFiles");
+        Path sourcePath = Paths.get("grpc", "tool");
         Path sourceRoot = resourceDir.resolve(sourcePath);
-        String protoFileName = "protoFiles/helloWorldErrorSyntax.proto";
-        Path protoPath = Paths.get(protoFileName);
+        Path protoPath = Paths.get("grpc", "tool", "helloWorldErrorSyntax.proto");
         Path protoRoot = resourceDir.resolve(protoPath);
-        grpcCmd1.setBalOutPath(sourceRoot.toString());
-        grpcCmd1.setProtoPath(protoRoot.toString());
+        grpcCmd1.setBalOutPath(sourceRoot.toAbsolutePath().toString());
+        grpcCmd1.setProtoPath(protoRoot.toAbsolutePath().toString());
         try {
             grpcCmd1.execute();
         } catch (BalGenToolException e) {
@@ -75,9 +84,10 @@ public class InvalidInputTypes {
                     "is not defined.");
         }
     }
-    
+
     @AfterClass
     public void clean() {
+
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
 }
