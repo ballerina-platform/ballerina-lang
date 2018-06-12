@@ -58,7 +58,8 @@ public class WebSocketServerFunctionalityTestCase {
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                 listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
-        connectorFuture.setWSConnectorListener(serverConnectorListener = new WebSocketTestServerConnectorListener());
+        connectorFuture.setWebSocketConnectorListener(
+                serverConnectorListener = new WebSocketTestServerConnectorListener());
         connectorFuture.sync();
     }
 
