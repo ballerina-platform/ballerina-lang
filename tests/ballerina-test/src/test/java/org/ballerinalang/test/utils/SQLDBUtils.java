@@ -201,6 +201,7 @@ public class SQLDBUtils {
             jdbcUrl = databaseContainer.getJdbcUrl();
             username = databaseContainer.getUsername();
             password = databaseContainer.getPassword();
+            SQLDBUtils.initDatabase(jdbcUrl, username, password, databaseScript);
         }
 
         public void stop() {

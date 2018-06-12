@@ -1260,6 +1260,7 @@ function testTableAddInvalid(string jdbcUrl, string userName, string password) r
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 

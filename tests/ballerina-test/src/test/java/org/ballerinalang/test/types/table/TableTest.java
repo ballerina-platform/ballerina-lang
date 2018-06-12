@@ -32,6 +32,8 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.test.utils.SQLDBUtils;
+import org.ballerinalang.test.utils.SQLDBUtils.ContainerizedTestDatabase;
+import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -42,13 +44,15 @@ import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType.MYSQL;
+import static org.ballerinalang.test.utils.SQLDBUtils.DB_DIRECTORY;
 
 /**
  * Class to test functionality of tables.
@@ -59,8 +63,6 @@ public class TableTest {
     private CompileResult nillableMappingNegativeResult;
     private CompileResult nillableMappingResult;
     private static final String DB_NAME = "TEST_DATA_TABLE_DB";
-    private static final String DB_NAME_H2 = "TEST_TABLE_TYPE_H2";
-    private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
     private SQLDBUtils.DBType dbType;
     private TestDatabase testDatabase;
     private BValue[] connectionArgs = new BValue[3];
@@ -81,9 +83,12 @@ public class TableTest {
     @BeforeClass
     public void setup() {
         switch (dbType) {
+        case MYSQL:
+            testDatabase = new ContainerizedTestDatabase(dbType, "datafiles/sql/DataTableMySQLDataFile.sql");
+            break;
         case HSQLDB:
-            testDatabase = new SQLDBUtils.FileBasedTestDatabase(dbType, "datafiles/sql/DataTableDataFile.sql",
-                    SQLDBUtils.DB_DIRECTORY, DB_NAME);
+            testDatabase = new FileBasedTestDatabase(dbType, "datafiles/sql/DataTableDataFile.sql",
+                    DB_DIRECTORY, DB_NAME);
             break;
         default:
             throw new UnsupportedOperationException("Unsupported database type: " + dbType);
@@ -97,8 +102,6 @@ public class TableTest {
         nillableMappingNegativeResult = BCompileUtil
                 .compile("test-src/types/table/table_nillable_mapping_negative.bal");
         nillableMappingResult = BCompileUtil.compile("test-src/types/table/table_nillable_mapping.bal");
-        SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initHSQLDBDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/DataTableDataFile.sql");
     }
 
     @Test(groups = "TableTest", description = "Check retrieving primitive types.")
@@ -107,7 +110,7 @@ public class TableTest {
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
@@ -139,10 +142,18 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlMultipleConsume", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<results><result><INT_TYPE>1</INT_TYPE>"
-                + "<LONG_TYPE>9223372036854774807</LONG_TYPE><FLOAT_TYPE>123.34</FLOAT_TYPE>"
-                + "<DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE><BOOLEAN_TYPE>true</BOOLEAN_TYPE>"
-                + "<STRING_TYPE>Hello</STRING_TYPE></result></results>");
+        String expected;
+        if (dbType == MYSQL) {
+            expected = "<results><result><int_type>1</int_type><long_type>9223372036854774807</long_type><float_type"
+                    + ">123.34</float_type><double_type>2.139095039E9</double_type><boolean_type>true</boolean_type>"
+                    + "<string_type>Hello</string_type></result></results>";
+        } else {
+            expected = "<results><result><INT_TYPE>1</INT_TYPE>"
+                    + "<LONG_TYPE>9223372036854774807</LONG_TYPE><FLOAT_TYPE>123.34</FLOAT_TYPE>"
+                    + "<DOUBLE_TYPE>2.139095039E9</DOUBLE_TYPE><BOOLEAN_TYPE>true</BOOLEAN_TYPE>"
+                    + "<STRING_TYPE>Hello</STRING_TYPE></result></results>";
+        }
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test(groups = "TableTest", description = "Check table to XML conversion with concat operation.")
@@ -150,8 +161,15 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlWithAdd", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<results><result><INT_TYPE>1</INT_TYPE></result>"
-                + "</results><results><result><INT_TYPE>1</INT_TYPE></result></results>");
+        String expected;
+        if (dbType == MYSQL) {
+            expected = "<results><result><int_type>1</int_type></result></results><results><result><int_type>1"
+                    + "</int_type></result></results>";
+        } else {
+            expected = "<results><result><INT_TYPE>1</INT_TYPE></result></results><results><result><INT_TYPE>1"
+                    + "</INT_TYPE></result></results>";
+        }
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
     @Test(groups = "TableTest", description = "Check xml streaming when result set consumed once.")
@@ -159,12 +177,19 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonMultipleConsume", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BJSON);
-        Assert.assertEquals(returns[0].stringValue(), "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,"
-                + "\"FLOAT_TYPE\":123.34,\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,"
-                + "\"STRING_TYPE\":\"Hello\"}]");
+        String expected;
+        if (dbType == MYSQL) {
+            expected = "[{\"int_type\":1,\"long_type\":9223372036854774807,\"float_type\":123.34,"
+                    + "\"double_type\":2.139095039E9,\"boolean_type\":true,\"string_type\":\"Hello\"}]";
+        } else {
+            expected = "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,\"FLOAT_TYPE\":123.34,"
+                    + "\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\"}]";
+        }
+        Assert.assertEquals(returns[0].stringValue(), expected);
     }
 
-    @Test(groups = "TableTest", description = "Check xml conversion with complex element.")
+    // Disabling for MySQL as array types are not supported.
+    @Test(groups = {"TableTest", "MySQLNotSupported"}, description = "Check xml conversion with complex element.")
     public void testToXmlComplex() {
         BValue[] returns = BRunUtil.invoke(result, "toXmlComplex", connectionArgs);
         Assert.assertEquals(returns.length, 1);
@@ -183,7 +208,8 @@ public class TableTest {
                         + "<element>Ballerina</element></STRING_ARRAY></result></results>");
     }
 
-    @Test(groups = "TableTest", description = "Check xml conversion with complex element.")
+    // Disabling for MySQL as array types are not supported.
+    @Test(groups = {"TableTest", "MySQLNotSupported"}, description = "Check xml conversion with complex element.")
     public void testToXmlComplexWithStructDef () {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlComplexWithStructDef", connectionArgs);
         Assert.assertEquals(returns.length, 1);
@@ -198,7 +224,8 @@ public class TableTest {
                 + "<sA><element>Hello</element><element>Ballerina</element></sA></result></results>");
     }
 
-    @Test(groups = "TableTest", description = "Check json conversion with complex element.")
+    // Disabling for MySQL as array types are not supported.
+    @Test(groups = {"TableTest", "MySQLNotSupported"}, description = "Check json conversion with complex element.")
     public void testToJsonComplex() {
         BValue[] returns = BRunUtil.invoke(result, "testToJsonComplex", connectionArgs);
         Assert.assertEquals(returns.length, 1);
@@ -230,13 +257,13 @@ public class TableTest {
         Assert.assertEquals((returns[2]).stringValue(), "wso2 ballerina binary test.");
     }
 
-    @Test(groups = "TableTest", description = "Check array data types.")
+    @Test(groups = {"TableTest", "MySQLNotSupported"}, description = "Check array data types.")
     public void testArrayData() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayData", connectionArgs);
         assertNonNullArray(returns);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping array to non-nillable type with nillable element type.")
     public void testMapArrayToNonNillableTypeWithNillableElementType() {
         BValue[] returns = BRunUtil
@@ -244,7 +271,7 @@ public class TableTest {
         assertNonNullArray(returns);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping array to nillable type with nillable element type.")
     public void testMapArrayToNillableTypeWithNillableElementType() {
         BValue[] returns = BRunUtil
@@ -252,7 +279,7 @@ public class TableTest {
         assertNonNullArray(returns);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping array to nillable type with non-nillable element type.")
     public void testMapArrayToNillableTypeWithNonNillableElementType() {
         BValue[] returns = BRunUtil
@@ -260,7 +287,7 @@ public class TableTest {
         assertNonNullArray(returns);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping array with nil elements to non-nillable type with nillable element type.")
     public void testMapNillIncludedArrayNonNillableTypeWithNillableElementType() {
         BValue[] returns = BRunUtil
@@ -269,7 +296,7 @@ public class TableTest {
         assertNilIncludedArray(returns);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping array with nil elements to nillable type with nillable element type.")
     public void testMapNillIncludedArrayNillableTypeWithNillableElementType() {
         BValue[] returns = BRunUtil
@@ -278,7 +305,7 @@ public class TableTest {
         assertNilIncludedArray(returns);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test array with only nil elements.")
     public void testMapNillElementsOnlyArray() {
         BValue[] returns = BRunUtil.invoke(nillableMappingResult, "testMapNillElementsOnlyArray", connectionArgs);
@@ -292,7 +319,7 @@ public class TableTest {
         }
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping a null array to nillable type with nillable element type.")
     public void testMapNilArrayToNillableTypeWithNillableElementTypes() {
         BValue[] returns = BRunUtil
@@ -303,7 +330,7 @@ public class TableTest {
         }
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping a null array to non-nillable type with nillable element type.")
     public void testMapNilArrayToNillableTypeWithNonNillableElementTypes() {
         BValue[] returns = BRunUtil
@@ -422,8 +449,15 @@ public class TableTest {
     public void testToXmlWithinTransaction() {
         BValue[] returns = BRunUtil.invoke(result, "testToXmlWithinTransaction", connectionArgs);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals((returns[0]).stringValue(), "<results><result><INT_TYPE>1</INT_TYPE><LONG_TYPE>"
-                + "9223372036854774807</LONG_TYPE></result></results>");
+        String expected;
+        if (dbType == MYSQL) {
+            expected = "<results><result><int_type>1</int_type><long_type>9223372036854774807</long_type></result>"
+                    + "</results>";
+        } else {
+            expected = "<results><result><INT_TYPE>1</INT_TYPE><LONG_TYPE>9223372036854774807</LONG_TYPE></result>"
+                    + "</results>";
+        }
+        Assert.assertEquals((returns[0]).stringValue(), expected);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
@@ -431,7 +465,13 @@ public class TableTest {
     public void testToJsonWithinTransaction() {
         BValue[] returns = BRunUtil.invoke(result,  "testToJsonWithinTransaction", connectionArgs);
         Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals((returns[0]).stringValue(), "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807}]");
+        String expected;
+        if (dbType == MYSQL) {
+            expected = "[{\"int_type\":1,\"long_type\":9223372036854774807}]";
+        } else {
+            expected = "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807}]";
+        }
+        Assert.assertEquals((returns[0]).stringValue(), expected);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
@@ -448,7 +488,7 @@ public class TableTest {
         Assert.assertEquals(returns.length, 7);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
@@ -481,9 +521,15 @@ public class TableTest {
         BValue[] returns = BRunUtil.invoke(result, "testTableAutoClose", connectionArgs);
         Assert.assertEquals(returns.length, 2);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
-        Assert.assertEquals(returns[1].stringValue(), "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,"
-                + "\"FLOAT_TYPE\":123.34,\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,"
-                + "\"STRING_TYPE\":\"Hello\"}]");
+        String expected;
+        if (dbType == MYSQL) {
+            expected = "[{\"int_type\":1,\"long_type\":9223372036854774807,\"float_type\":123.34,"
+                    + "\"double_type\":2.139095039E9,\"boolean_type\":true,\"string_type\":\"Hello\"}]";
+        } else {
+            expected = "[{\"INT_TYPE\":1,\"LONG_TYPE\":9223372036854774807,\"FLOAT_TYPE\":123.34,"
+                    + "\"DOUBLE_TYPE\":2.139095039E9,\"BOOLEAN_TYPE\":true,\"STRING_TYPE\":\"Hello\"}]";
+        }
+        Assert.assertEquals(returns[1].stringValue(), expected);
     }
 
     @Test(groups = "TableTest", description = "Check manual close resources in table.")
@@ -532,13 +578,13 @@ public class TableTest {
     public void testGetFloatTypes() {
         BValue[] returns = BRunUtil.invoke(result, "testGetFloatTypes", connectionArgs);
         Assert.assertEquals(returns.length, 4);
-        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 238999.34);
-        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 238999.34);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 238999.34);
-        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 238999.34);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 238999.34, DELTA);
+        Assert.assertEquals(((BFloat) returns[1]).floatValue(), 238999.34, DELTA);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 238999.34, DELTA);
+        Assert.assertEquals(((BFloat) returns[3]).floatValue(), 238999.34, DELTA);
     }
 
-    @Test(groups = "TableTest", description = "Check array data insert and println on arrays")
+    @Test(groups = {"TableTest", "MySQLNotSupported"}, description = "Check array data insert and println on arrays")
     public void testArrayDataInsertAndPrint() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayDataInsertAndPrint", connectionArgs);
         Assert.assertEquals(returns.length, 6);
@@ -557,18 +603,34 @@ public class TableTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 1);
-        Assert.assertEquals((returns[3]).stringValue(), "[{\"ID\":1,\"TINYINTDATA\":127,\"SMALLINTDATA\":32767,"
-                + "\"INTDATA\":2147483647,\"BIGINTDATA\":9223372036854775807},"
-                + "{\"ID\":2,\"TINYINTDATA\":-128,\"SMALLINTDATA\":-32768,\"INTDATA\":-2147483648,"
-                + "\"BIGINTDATA\":-9223372036854775808},"
-                + "{\"ID\":3,\"TINYINTDATA\":0,\"SMALLINTDATA\":0,\"INTDATA\":0,\"BIGINTDATA\":0}]");
-        Assert.assertEquals((returns[4]).stringValue(), "<results><result><ID>1</ID><TINYINTDATA>127</TINYINTDATA>"
-                + "<SMALLINTDATA>32767</SMALLINTDATA><INTDATA>2147483647</INTDATA>"
-                + "<BIGINTDATA>9223372036854775807</BIGINTDATA></result>"
-                + "<result><ID>2</ID><TINYINTDATA>-128</TINYINTDATA><SMALLINTDATA>-32768</SMALLINTDATA>"
-                + "<INTDATA>-2147483648</INTDATA><BIGINTDATA>-9223372036854775808</BIGINTDATA></result>"
-                + "<result><ID>3</ID><TINYINTDATA>0</TINYINTDATA><SMALLINTDATA>0</SMALLINTDATA><INTDATA>0</INTDATA>"
-                + "<BIGINTDATA>0</BIGINTDATA></result></results>");
+        String expectedJson, expectedXML;
+        if (dbType == MYSQL) {
+            expectedJson = "[{\"id\":1,\"tinyIntData\":127,\"smallIntData\":32767,\"intData\":2147483647,"
+                    + "\"bigIntData\":9223372036854775807},{\"id\":2,\"tinyIntData\":-128,\"smallIntData\":-32768,"
+                    + "\"intData\":-2147483648,\"bigIntData\":-9223372036854775808},{\"id\":3,\"tinyIntData\":0,"
+                    + "\"smallIntData\":0,\"intData\":0,\"bigIntData\":0}]";
+            expectedXML = "<results><result><id>1</id><tinyIntData>127</tinyIntData><smallIntData>32767</smallIntData"
+                    + "><intData>2147483647</intData><bigIntData>9223372036854775807</bigIntData></result><result><id"
+                    + ">2</id><tinyIntData>-128</tinyIntData><smallIntData>-32768</smallIntData><intData>-2147483648"
+                    + "</intData><bigIntData>-9223372036854775808</bigIntData></result><result><id>3</id><tinyIntData"
+                    + ">0</tinyIntData><smallIntData>0</smallIntData><intData>0</intData><bigIntData>0</bigIntData"
+                    + "></result></results>";
+        } else {
+            expectedJson = "[{\"ID\":1,\"TINYINTDATA\":127,\"SMALLINTDATA\":32767,"
+                    + "\"INTDATA\":2147483647,\"BIGINTDATA\":9223372036854775807},"
+                    + "{\"ID\":2,\"TINYINTDATA\":-128,\"SMALLINTDATA\":-32768,\"INTDATA\":-2147483648,"
+                    + "\"BIGINTDATA\":-9223372036854775808},"
+                    + "{\"ID\":3,\"TINYINTDATA\":0,\"SMALLINTDATA\":0,\"INTDATA\":0,\"BIGINTDATA\":0}]";
+            expectedXML = "<results><result><ID>1</ID><TINYINTDATA>127</TINYINTDATA>"
+                    + "<SMALLINTDATA>32767</SMALLINTDATA><INTDATA>2147483647</INTDATA>"
+                    + "<BIGINTDATA>9223372036854775807</BIGINTDATA></result>"
+                    + "<result><ID>2</ID><TINYINTDATA>-128</TINYINTDATA><SMALLINTDATA>-32768</SMALLINTDATA>"
+                    + "<INTDATA>-2147483648</INTDATA><BIGINTDATA>-9223372036854775808</BIGINTDATA></result>"
+                    + "<result><ID>3</ID><TINYINTDATA>0</TINYINTDATA><SMALLINTDATA>0</SMALLINTDATA><INTDATA>0</INTDATA>"
+                    + "<BIGINTDATA>0</BIGINTDATA></result></results>";
+        }
+        Assert.assertEquals((returns[3]).stringValue(), expectedJson);
+        Assert.assertEquals((returns[4]).stringValue(), expectedXML);
         Assert.assertEquals((returns[5]).stringValue(), "1|127|32767|2147483647|9223372036854775807#2|-128|-32768|"
                 + "-2147483648|-9223372036854775808#3|-1|-1|-1|-1#");
     }
@@ -579,17 +641,33 @@ public class TableTest {
         Assert.assertEquals(returns.length, 5);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 1);
-        Assert.assertEquals((returns[2]).stringValue(), "[{\"ROW_ID\":100,\"BLOB_TYPE\":\"U2FtcGxlIFRleHQ=\","
-                + "\"CLOB_TYPE\":\"Sample Text\",\"BINARY_TYPE\":\"U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA\"},"
-                + "{\"ROW_ID\":200,\"BLOB_TYPE\":null,\"CLOB_TYPE\":null,\"BINARY_TYPE\":null}]");
-        Assert.assertEquals((returns[3]).stringValue(), "<results><result><ROW_ID>100</ROW_ID>"
-                + "<BLOB_TYPE>U2FtcGxlIFRleHQ=</BLOB_TYPE><CLOB_TYPE>Sample Text</CLOB_TYPE>"
-                + "<BINARY_TYPE>U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA</BINARY_TYPE>" + "</result>"
-                + "<result><ROW_ID>200</ROW_ID>"
-                + "<BLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
-                + "<CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
-                + "<BINARY_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
-                + "</result></results>");
+        String expectedJson, expectedXML;
+        if (dbType == MYSQL) {
+            expectedJson = "[{\"row_id\":100,\"blob_type\":\"U2FtcGxlIFRleHQ=\",\"clob_type\":\"Sample Text\","
+                    + "\"binary_type\":\"U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA\"},{\"row_id\":200,\"blob_type\":null,"
+                    + "\"clob_type\":null,\"binary_type\":null}]";
+            expectedXML = "<results><result><row_id>100</row_id><blob_type>U2FtcGxlIFRleHQ=</blob_type><clob_type"
+                    + ">Sample Text</clob_type><binary_type>U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA</binary_type"
+                    + "></result><result><row_id>200</row_id><blob_type xmlns:xsi=\"http://www"
+                    + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/><clob_type xmlns:xsi=\"http://www"
+                    + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/><binary_type xmlns:xsi=\"http://www"
+                    + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/></result></results>";
+
+        } else {
+            expectedJson = "[{\"ROW_ID\":100,\"BLOB_TYPE\":\"U2FtcGxlIFRleHQ=\",\"CLOB_TYPE\":\"Sample Text\","
+                    + "\"BINARY_TYPE\":\"U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA\"},{\"ROW_ID\":200,\"BLOB_TYPE\":null,"
+                    + "\"CLOB_TYPE\":null,\"BINARY_TYPE\":null}]";
+            expectedXML = "<results><result><ROW_ID>100</ROW_ID>"
+                    + "<BLOB_TYPE>U2FtcGxlIFRleHQ=</BLOB_TYPE><CLOB_TYPE>Sample Text</CLOB_TYPE>"
+                    + "<BINARY_TYPE>U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA</BINARY_TYPE></result>"
+                    + "<result><ROW_ID>200</ROW_ID>"
+                    + "<BLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                    + "<CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                    + "<BINARY_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                    + "</result></results>";
+        }
+        Assert.assertEquals((returns[2]).stringValue(), expectedJson);
+        Assert.assertEquals((returns[3]).stringValue(), expectedXML);
         Assert.assertEquals((returns[4]).stringValue(), "100|Sample Text|Sample Text|200|nil|nil|");
     }
 
@@ -621,7 +699,7 @@ public class TableTest {
         Assert.assertEquals(returns.length, 6);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34D, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039D);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
@@ -656,7 +734,7 @@ public class TableTest {
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 9223372036854774807L);
-        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34);
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 123.34, DELTA);
         Assert.assertEquals(((BFloat) returns[3]).floatValue(), 2139095039, DELTA);
         Assert.assertEquals(((BBoolean) returns[4]).booleanValue(), true);
         Assert.assertEquals(returns[5].stringValue(), "Hello");
@@ -1037,7 +1115,7 @@ public class TableTest {
     }
 
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping a null array to non-nillable type with non-nillable element type.",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
@@ -1046,7 +1124,7 @@ public class TableTest {
                 connectionArgs);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping a null array to non-nillable type with nillable element type.",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_FIELD)
@@ -1055,7 +1133,7 @@ public class TableTest {
                 connectionArgs);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping a null array to non-nillable type with non-nillable element type.",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_ARRAY_FIELD)
@@ -1064,7 +1142,7 @@ public class TableTest {
                 "testAssignNullElementArrayToNonNillableTypeWithNonNillableElements", connectionArgs);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping a null element array to nillable type with non-nillable element type.",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = TRYING_TO_ASSIGN_NIL_TO_NON_NILLABLE_ARRAY_FIELD)
@@ -1073,7 +1151,7 @@ public class TableTest {
                 "testAssignNullElementArrayToNillableTypeWithNonNillableElements", connectionArgs);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping an array to invald union type.",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
@@ -1081,7 +1159,7 @@ public class TableTest {
         BRunUtil.invoke(nillableMappingNegativeResult, "testAssignInvalidUnionArray", connectionArgs);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping an array to invald union type.",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
@@ -1089,7 +1167,7 @@ public class TableTest {
         BRunUtil.invoke(nillableMappingNegativeResult, "testAssignInvalidUnionArray2", connectionArgs);
     }
 
-    @Test(groups = "TableTest",
+    @Test(groups = {"TableTest", "MySQLNotSupported"},
           description = "Test mapping an array to invald union type.",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = INVALID_UNION_FIELD_ASSIGNMENT)
