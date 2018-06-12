@@ -1,4 +1,15 @@
-# Ballerina by Example
+Ballerina makes it easy to write microservices that integrate APIs.
+
+#### Integration Syntax
+A compiled, transactional, statically and strongly typed programming language with textual and graphical syntaxes. Ballerina incorporates fundamental concepts of distributed system integration and offers a type safe, concurrent environment to implement microservices.
+
+#### Networked Type System
+A type system that embraces network payload variability with primitive, object, union, and tuple types.
+
+#### Concurrency
+An execution model composed of lightweight parallel worker units that are non-blocking where no function can lock an executing thread manifesting sequence concurrency.
+
+## Ballerina by Example
 
 [Ballerina by Example](https://ballerina.io/learn/by-example/) teaches you the Ballerina language incrementally with commented examples that cover every nuance of the syntax. The source for these can be found in this repository.
 
