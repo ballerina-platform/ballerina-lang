@@ -24,7 +24,7 @@ import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,8 +40,8 @@ public class ParserRuleThrowStatementContext extends AbstractItemResolver {
         List<SymbolInfo> symbolInfoList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         List<SymbolInfo> filteredList = symbolInfoList.stream().filter(symbolInfo -> {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            if (bSymbol instanceof BVarSymbol && bSymbol.getType() instanceof BStructType) {
-                List<String> structFieldNames = ((BStructType) bSymbol.getType()).getFields().stream()
+            if (bSymbol instanceof BVarSymbol && bSymbol.getType() instanceof BStructureType) {
+                List<String> structFieldNames = ((BStructureType) bSymbol.getType()).getFields().stream()
                         .map(bStructField -> bStructField.getName().getValue())
                         .collect(Collectors.toList());
                 

@@ -28,7 +28,6 @@ public class WebSocketConstants {
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String WEBSOCKET_ENDPOINT = "WebSocketListener";
     public static final String WEBSOCKET_CLIENT_ENDPOINT = "WebSocketClient";
-    public static final String WEBSOCKET_CONNECTOR_ERROR = "WebSocketConnectorError";
     public static final String WEBSOCKET_SERVICE = "WebSocketService";
     public static final String WEBSOCKET_CLIENT_SERVICE = "WebSocketClientService";
 
@@ -47,6 +46,7 @@ public class WebSocketConstants {
     public static final String RESOURCE_NAME_ON_PONG = "onPong";
     public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
     public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
+    public static final String RESOURCE_NAME_ON_ERROR = "onError";
 
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
@@ -62,6 +62,20 @@ public class WebSocketConstants {
     public static final String CLIENT_READY_ON_CONNECT = "readyOnConnect";
     public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
+
+    //The indexes of WebSocket endpoints
+    public static final int LISTENER_ID_INDEX = 0;
+    public static final int LISTENER_NEGOTIATED_SUBPROTOCOLS_INDEX = 1;
+    public static final int LISTENER_IS_SECURE_INDEX = 0;
+    public static final int LISTENER_IS_OPEN_INDEX = 1;
+    public static final int LISTENER_ATTRIBUTES_INDEX = 0;
+    public static final int LISTENER_CONNECTOR_INDEX = 1;
+    public static final int LISTENER_CONFIG_INDEX = 2;
+    public static final int LISTENER_HTTP_ENDPOINT_INDEX = 3;
+    public static final int CLIENT_RESPONSE_INDEX = 0;
+    public static final int CLIENT_CONNECTOR_INDEX = 2;
+
+    public static final int CONNECTOR_IS_READY_INDEX = 0;
 
     public static final int STATUS_CODE_ABNORMAL_CLOSURE = 1006;
 }

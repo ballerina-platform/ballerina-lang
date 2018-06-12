@@ -55,6 +55,9 @@ public class PushCommand implements BLauncherCmd {
     @Parameter(names = "--repository", hidden = true)
     private String repositoryHome;
 
+    @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
+    private String sourceRoot;
+
     @Override
     public void execute() {
         if (helpFlag) {
@@ -77,7 +80,7 @@ public class PushCommand implements BLauncherCmd {
         }
 
         String packageName = argList.get(0);
-        PushUtils.pushPackages(packageName, repositoryHome);
+        PushUtils.pushPackages(packageName, sourceRoot, repositoryHome);
         Runtime.getRuntime().exit(0);
     }
 

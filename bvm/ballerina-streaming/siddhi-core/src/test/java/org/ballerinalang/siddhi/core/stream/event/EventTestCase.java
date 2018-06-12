@@ -69,6 +69,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Testcase to validate stream events.
+ */
 public class EventTestCase {
 
     @Test

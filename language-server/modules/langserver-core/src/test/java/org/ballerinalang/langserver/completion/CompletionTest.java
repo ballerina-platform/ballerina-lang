@@ -27,16 +27,12 @@ import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
 import org.testng.Assert;
 import org.testng.ITestResult;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 import org.testng.log4testng.Logger;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 
 /**
@@ -46,23 +42,9 @@ public abstract class CompletionTest {
 
     private static final Logger LOGGER = Logger.getLogger(CompletionTest.class);
 
-    private static final String TESTS_SAMPLES = "src" + File.separator + "test" + File.separator + "resources"
-            + File.separator + "completion";
-
-    private static final String ROOT_DIR = Paths.get("").toAbsolutePath().toString() + File.separator;
-
-    protected static final String SAMPLES_COPY_DIR = ROOT_DIR + "samples" + File.separator + "completion";
-
-    @BeforeMethod
-    public void loadTestCases() throws IOException {
-        File source = new File(TESTS_SAMPLES);
-        File destination = new File(SAMPLES_COPY_DIR);
-        org.apache.commons.io.FileUtils.copyDirectory(source, destination);
-    }
-
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) {
-        String configJsonPath = SAMPLES_COPY_DIR + File.separator + configPath + File.separator + config;
+        String configJsonPath = "completion" + File.separator + configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);
         List<CompletionItem> expectedList = getExpectedList(configJsonObject);
@@ -71,14 +53,15 @@ public abstract class CompletionTest {
 
     protected List<CompletionItem> getResponseItemList(JsonObject configJsonObject) {
         JsonObject positionObj = configJsonObject.get("position").getAsJsonObject();
-        String balPath = SAMPLES_COPY_DIR + File.separator + configJsonObject.get("source").getAsString();
+        String balPath = "completion" + File.separator + configJsonObject.get("source").getAsString();
         Position position = new Position();
         String content = FileUtils.fileContent(balPath);
         position.setLine(positionObj.get("line").getAsInt());
         position.setCharacter(positionObj.get("character").getAsInt());
         TextDocumentPositionParams positionParams =
-                CompletionTestUtil.getPositionParams(position, balPath);
-        WorkspaceDocumentManager documentManager = CompletionTestUtil.prepareDocumentManager(balPath, content);
+                CompletionTestUtil.getPositionParams(position, FileUtils.RES_DIR.resolve(balPath).toString());
+        WorkspaceDocumentManager documentManager =
+                CompletionTestUtil.prepareDocumentManager(FileUtils.RES_DIR.resolve(balPath).toString(), content);
         return CompletionTestUtil.getCompletions(documentManager, positionParams);
     }
 
@@ -95,10 +78,5 @@ public abstract class CompletionTest {
         if (result.getStatus() == ITestResult.FAILURE) {
             LOGGER.error("Test Failed for: [" + result.getParameters()[1] + "/" + result.getParameters()[0] + "]");
         }
-    }
-
-    @AfterClass
-    public void cleanSamplesCopy() throws IOException {
-        org.apache.commons.io.FileUtils.deleteDirectory(new File(ROOT_DIR + "samples"));
     }
 }

@@ -18,9 +18,9 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.BStructType.StructField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -207,14 +207,14 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             return node.toString();
         }
 
-        BStructType constrainedType = (BStructType) ((BJSONType) this.type).getConstrainedType();
+        BStructureType constrainedType = (BStructureType) ((BJSONType) this.type).getConstrainedType();
         if (constrainedType == null) {
             return node.toString();
         }
 
         // If constrained JSON, print the only the fields in the constrained type.
         StringJoiner sj = new StringJoiner(",", "{", "}");
-        for (StructField field : constrainedType.getStructFields()) {
+        for (BField field : constrainedType.getFields()) {
             String key = field.fieldName;
             String stringValue = this.value().get(key).toString();
             sj.add("\"" + key + "\":" + stringValue);

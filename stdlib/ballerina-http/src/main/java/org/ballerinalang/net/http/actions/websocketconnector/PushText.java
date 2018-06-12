@@ -25,6 +25,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.net.http.WebSocketConstants;
 import org.ballerinalang.net.http.WebSocketOpenConnectionInfo;
 import org.ballerinalang.net.http.WebSocketUtil;
@@ -35,10 +36,10 @@ import org.ballerinalang.net.http.WebSocketUtil;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "pushText",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
                              structPackage = "ballerina.http"),
         args = {
-                @Argument(name = "wsConnector", type = TypeKind.STRUCT),
+                @Argument(name = "wsConnector", type = TypeKind.OBJECT),
                 @Argument(name = "text", type = TypeKind.STRING),
                 @Argument(name = "final", type = TypeKind.BOOLEAN)
         }
@@ -56,7 +57,7 @@ public class PushText implements NativeCallableUnit {
             ChannelFuture future = connectionInfo.getWebSocketConnection().pushText(text, finalFrame);
             WebSocketUtil.handleWebSocketCallback(context, callback, future);
         } catch (Throwable throwable) {
-            context.setReturnValues(WebSocketUtil.createWebSocketConnectorError(context, throwable.getMessage()));
+            context.setReturnValues(HttpUtil.getError(context, throwable));
             callback.notifySuccess();
         }
     }

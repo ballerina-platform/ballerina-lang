@@ -29,6 +29,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for Pol2Cart function.
+ */
 public class Pol2CartFunctionTestCase {
     private static final Logger log = LoggerFactory.getLogger(Pol2CartFunctionTestCase.class);
     private int inEventCount;

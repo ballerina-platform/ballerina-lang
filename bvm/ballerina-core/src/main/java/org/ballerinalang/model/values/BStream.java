@@ -21,13 +21,13 @@ package org.ballerinalang.model.values;
 import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
-import io.netty.buffer.UnpooledByteBufAllocator;
-import io.netty.buffer.UnpooledHeapByteBuf;
+import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.model.types.BAnyType;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.BUnionType;
@@ -114,7 +114,7 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("incompatible types: value of type:" + dataType.getName()
                     + " cannot be added to a stream of type:" + this.constraintType.getName());
         }
-        BrokerUtils.publish(topicName, new BallerinaStreamByteBuf(data));
+        BrokerUtils.publish(topicName, new BallerinaBrokerByteBuf(data));
     }
 
     /**
@@ -125,8 +125,9 @@ public class BStream implements BRefType<Object> {
      */
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
-        if (parameters[0].getTag() != constraintType.getTag() || (constraintType instanceof BStructType
-                                          && ((BStructType) parameters[0]).structInfo.getType() != constraintType)) {
+        if (parameters[0].getTag() != constraintType.getTag()
+                || (constraintType instanceof BStructureType && ((BStructureType) parameters[0])
+                .getTypeInfo().getType() != constraintType)) {
             throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
                                                  + ":" + this.constraintType.getName());
         }
@@ -135,7 +136,8 @@ public class BStream implements BRefType<Object> {
     }
 
     public void subscribe(InputHandler inputHandler) {
-        if (constraintType.getTag() != TypeTags.STRUCT_TAG) {
+        if (constraintType.getTag() != TypeTags.OBJECT_TYPE_TAG
+                && constraintType.getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaException("Streaming Support is only available with streams accepting objects");
         }
         String queueName = String.valueOf(UUID.randomUUID());
@@ -154,7 +156,7 @@ public class BStream implements BRefType<Object> {
         @Override
         protected void send(Message message) throws BrokerException {
             BValue data =
-                    ((BallerinaStreamByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).streamEvent;
+                    ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
             BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), new BValue[] { data });
         }
 
@@ -194,7 +196,7 @@ public class BStream implements BRefType<Object> {
         @Override
         protected void send(Message message) throws BrokerException {
             BValue data =
-                    ((BallerinaStreamByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).streamEvent;
+                    ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
             Object[] event = createEvent((BStruct) data);
             try {
                 inputHandler.send(event);
@@ -205,14 +207,14 @@ public class BStream implements BRefType<Object> {
         }
 
         private Object[] createEvent(BStruct data) {
-            BStructType streamType = data.getType();
+            BStructureType streamType = data.getType();
             int intValueIndex = -1;
             int floatValueIndex = -1;
             int stringValueIndex = -1;
             int boolValueIndex = -1;
-            Object[] event = new Object[streamType.getStructFields().length];
-            for (int index = 0; index < streamType.getStructFields().length; index++) {
-                BStructType.StructField field = streamType.getStructFields()[index];
+            Object[] event = new Object[streamType.getFields().length];
+            for (int index = 0; index < streamType.getFields().length; index++) {
+                BField field = streamType.getFields()[index];
                 switch (field.getFieldType().getTag()) {
                     case TypeTags.INT_TAG:
                         event[index] = data.getIntField(++intValueIndex);
@@ -253,19 +255,6 @@ public class BStream implements BRefType<Object> {
         @Override
         public boolean isReady() {
             return true;
-        }
-    }
-
-    /**
-     * Implementation of {@link io.netty.buffer.ByteBuf} for Ballerina Streams, to hold a {@link BValue}
-     */
-    private class BallerinaStreamByteBuf extends UnpooledHeapByteBuf {
-
-        private final BValue streamEvent;
-
-        BallerinaStreamByteBuf(BValue streamEvent) {
-            super(UnpooledByteBufAllocator.DEFAULT, 0, 0);
-            this.streamEvent = streamEvent;
         }
     }
 }

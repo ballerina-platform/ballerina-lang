@@ -32,7 +32,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
- * Native function ballerina.compression:decompress
+ * Native function ballerina.compression:decompress.
  *
  * @since 0.970.0
  */
@@ -40,23 +40,23 @@ import java.nio.file.Path;
         orgName = "ballerina", packageName = "internal",
         functionName = "decompress",
         args = {
-                @Argument(name = "dirPath", type = TypeKind.STRUCT, structType = "Path",
+                @Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
                         structPackage = "ballerina.file"),
-                @Argument(name = "destDir", type = TypeKind.STRUCT, structType = "Path",
+                @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
                         structPackage = "ballerina.file")
         },
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class Decompress extends BlockingNativeCallableUnit {
 
     /**
-     * File path defined in ballerina.compression
+     * File path defined in ballerina.compression.
      */
     private static final int SRC_PATH_FIELD_INDEX = 0;
 
     /**
-     * File path of the destination directory defined in ballerina.compression
+     * File path of the destination directory defined in ballerina.compression.
      */
     private static final int DEST_PATH_FIELD_INDEX = 1;
 

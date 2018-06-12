@@ -62,6 +62,7 @@ public class HttpConstants {
     public static final String FORWARDED_TRANSITION = "transition";
     public static final String FORWARDED_DISABLE = "disable";
     public static final String DISABLE = "disable";
+    public static final String DEFAULT_HOST = "b7a.default";
 
     public static final String HTTP_PACKAGE_PATH = "ballerina.http";
 
@@ -189,7 +190,7 @@ public class HttpConstants {
     public static final int ENTITY_INDEX = 1;
 
     // ServeConnector struct indices
-    public static final int SERVICE_ENDPOINT_CONNECTION_INDEX = 0;
+    public static final int SERVICE_ENDPOINT_CONNECTION_INDEX = 2;
 
     //Connection struct indexes
     public static final int CONNECTION_HOST_INDEX = 0;
@@ -353,12 +354,12 @@ public class HttpConstants {
     public static final int SERVICE_ENDPOINT_PROTOCOL_INDEX = 0;
 
     //Remote struct indexes
-    public static final int REMOTE_STRUCT_INDEX = 2;
+    public static final int REMOTE_STRUCT_INDEX = 0;
     public static final int REMOTE_HOST_INDEX = 0;
     public static final int REMOTE_PORT_INDEX = 0;
 
     //Local struct indexes
-    public static final int LOCAL_STRUCT_INDEX = 3;
+    public static final int LOCAL_STRUCT_INDEX = 1;
     public static final int LOCAL_HOST_INDEX = 0;
     public static final int LOCAL_PORT_INDEX = 0;
 

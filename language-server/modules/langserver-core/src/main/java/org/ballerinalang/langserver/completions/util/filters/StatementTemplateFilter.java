@@ -112,12 +112,12 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         if (completionContext.get(CompletionKeys.LOOP_COUNT_KEY) > 0
                 && !completionContext.get(CompletionKeys.CURRENT_NODE_TRANSACTION_KEY)) {
             /*
-            Populate Next Statement template only if enclosed within a looping construct
+            Populate Continue Statement template only if enclosed within a looping construct
             and not in immediate transaction construct
              */
             CompletionItem nextItem = new CompletionItem();
-            nextItem.setLabel(ItemResolverConstants.NEXT);
-            nextItem.setInsertText(Snippet.NEXT.toString());
+            nextItem.setLabel(ItemResolverConstants.CONTINUE);
+            nextItem.setInsertText(Snippet.CONTINUE.toString());
             nextItem.setDetail(ItemResolverConstants.STATEMENT_TYPE);
             completionItems.add(nextItem);
         }

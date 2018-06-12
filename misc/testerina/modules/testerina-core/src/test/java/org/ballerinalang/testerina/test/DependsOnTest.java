@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Test cases for dependsOn attribute
+ * Test cases for dependsOn attribute.
  */
 public class DependsOnTest {
 

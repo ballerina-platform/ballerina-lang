@@ -17,13 +17,12 @@
 */
 package org.ballerinalang.test.service.http.configuration;
 
-import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -34,7 +33,7 @@ import java.util.Map;
 /**
  * Testing accept-encoding header.
  */
-public class AcceptEncodingHeaderTestCase extends IntegrationTestCase {
+public class AcceptEncodingHeaderTestCase {
 
     private static final String ACCEPT_ENCODING = "accept-encoding";
     private static final String CONTENT_TYPE = "Content-Type";
@@ -42,8 +41,8 @@ public class AcceptEncodingHeaderTestCase extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
     Map<String, String> headers = new HashMap<>();
 
-    @BeforeTest
-    private void setup() throws Exception {
+    @BeforeClass
+    public void setup() throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer();
         String balFile = new File(
                 "src" + File.separator + "test" + File.separator + "resources" + File.separator + "httpService"
@@ -93,8 +92,8 @@ public class AcceptEncodingHeaderTestCase extends IntegrationTestCase {
                 "Response does not contains accept-encoding value.");
     }
 
-    @AfterTest
-    private void cleanup() throws Exception {
+    @AfterClass
+    public void cleanup() throws Exception {
         ballerinaServer.stopServer();
     }
 }

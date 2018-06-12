@@ -30,13 +30,14 @@ import Header from './Header';
 import ToolArea from './ToolArea';
 import { REGIONS, HISTORY, EVENTS } from './../constants';
 import { withReRenderEnabled } from './utils';
+import { isOnElectron } from './../../utils/client-info';
 
 const leftPanelDefaultSize = 300;
 const leftPanelMaxSize = 700;
 const leftPanelClosedSize = 42;
 const bottomPanelDefaultSize = 300;
 const bottomPanelMaxSize = 700;
-const headerHeight = 30;
+const headerHeight = isOnElectron() ? 0 : 30;
 const toolAreaHeight = 0;
 const resizerSize = 1;
 /**
@@ -183,12 +184,12 @@ class App extends React.Component {
 
         return (
             <div className='' onContextMenu={() => false}>
-                <Header
+                {!isOnElectron() && <Header
                     views={this.getViewsForRegion(REGIONS.HEADER)}
                     panelResizeInProgress={this.state.panelResizeInProgress}
                     width={this.state.documentWidth}
                     height={headerHeight}
-                />
+                />}
                 <SplitPane
                     ref={(ref) => { this.leftRightSplitPane = ref; }}
                     split='vertical'

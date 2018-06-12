@@ -173,7 +173,7 @@ public class BLangVMUtils {
                 break;
             case TypeTags.BLOB_TAG:
                 if (vals[i] == null) {
-                    data.byteRegs[callersRetRegIndex] = new byte[0];
+                    data.byteRegs[callersRetRegIndex] = BLangConstants.BLOB_EMPTY_VALUE;
                     break;
                 }
                 data.byteRegs[callersRetRegIndex] = ((BBlob) vals[i]).blobValue();
@@ -228,7 +228,7 @@ public class BLangVMUtils {
                 break;
             case TypeTags.BLOB_TAG:
                 if (vals[i] == null) {
-                    result.byteRegs[byteRegCount++] = new byte[0];
+                    result.byteRegs[byteRegCount++] = BLangConstants.BLOB_EMPTY_VALUE;
                     break;
                 }
                 result.byteRegs[byteRegCount++] = ((BBlob) vals[i]).blobValue();

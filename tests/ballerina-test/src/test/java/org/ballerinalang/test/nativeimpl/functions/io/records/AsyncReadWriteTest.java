@@ -97,7 +97,7 @@ public class AsyncReadWriteTest {
     @Test(description = "Test which will write records to a channel using async io framework")
     public void writeRecords() throws IOException, ExecutionException, InterruptedException {
         //Number of characters in this file would be 6
-        ByteChannel byteChannel = TestUtil.openForWriting(currentDirectoryPath + "records.csv");
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(currentDirectoryPath + "records.csv");
         Channel channel = new MockByteChannel(byteChannel);
         CharacterChannel characterChannel = new CharacterChannel(channel, StandardCharsets.UTF_8.name());
         DelimitedRecordChannel recordChannel = new DelimitedRecordChannel(characterChannel, "\n", ",");

@@ -28,7 +28,6 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
@@ -37,6 +36,7 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -441,46 +441,64 @@ public abstract class AbstractItemResolver {
      */
     protected List<CompletionItem> getVariableDefinitionCompletionItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ConnectorInitExpressionItemFilter connectorInitItemFilter = new ConnectorInitExpressionItemFilter();
-        // Fill completions if user is writing a connector init
-        List<SymbolInfo> filteredConnectorInitSuggestions = connectorInitItemFilter.filterItems(completionContext);
-        if (!filteredConnectorInitSuggestions.isEmpty()) {
-            populateCompletionItemList(filteredConnectorInitSuggestions, completionItems);
+        List<SymbolInfo> filteredList;
+        String tokenString = CommonUtil.getPreviousDefaultToken(
+                completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY),
+                completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY)).getText();
+        if (ItemResolverConstants.NEW.equals(tokenString)) {
+            filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
+                    .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.kind == SymbolKind.OBJECT)
+                    .collect(Collectors.toList());
+            filteredList.forEach(symbolInfo -> {
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolInfo.getScopeEntry().symbol;
+                BInvokableSymbol initializerFunction = objectTypeSymbol.initializerFunc.symbol;
+                initializerFunction.name = new Name(objectTypeSymbol.getName().getValue());
+                FunctionSignature functionSignature =
+                        this.getFunctionSignature(objectTypeSymbol.initializerFunc.symbol);
+                CompletionItem completionItem = new CompletionItem();
+                completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
+                completionItem.setLabel(functionSignature.getLabel());
+                completionItem.setInsertText(functionSignature.getInsertText());
+                completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
+                completionItem.setKind(CompletionItemKind.Function);
+                completionItems.add(completionItem);
+            });
+            this.populateCompletionItemList(filteredList, completionItems);
+        } else {
+            // Add the check keyword
+            CompletionItem createKeyword = new CompletionItem();
+            createKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
+            createKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
+            createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
+
+            // Add But keyword item
+            CompletionItem butKeyword = new CompletionItem();
+            butKeyword.setInsertText(Snippet.BUT.toString());
+            butKeyword.setLabel(ItemResolverConstants.BUT);
+            butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
+            butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+
+            filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+                    .stream()
+                    .filter(symbolInfo -> {
+                        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                        SymbolKind symbolKind = bSymbol.kind;
+
+                        // Here we return false if the BType is not either a package symbol or ENUM
+                        return !((bSymbol instanceof BTypeSymbol) && !(bSymbol instanceof BPackageSymbol
+                                || SymbolKind.ENUM.equals(symbolKind)));
+                    })
+                    .collect(Collectors.toList());
+
+            // Remove the functions without a receiver symbol
+            filteredList.removeIf(symbolInfo -> {
+                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
+            });
+            populateCompletionItemList(filteredList, completionItems);
+            completionItems.add(createKeyword);
+            completionItems.add(butKeyword);
         }
-
-        // Add the check keyword
-        CompletionItem createKeyword = new CompletionItem();
-        createKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
-        createKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
-        createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-        
-        // Add But keyword item
-        CompletionItem butKeyword = new CompletionItem();
-        butKeyword.setInsertText(Snippet.BUT.toString());
-        butKeyword.setLabel(ItemResolverConstants.BUT);
-        butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
-        butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
-
-        List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                .stream()
-                .filter(symbolInfo -> {
-                    BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                    SymbolKind symbolKind = bSymbol.kind;
-
-                    // Here we return false if the BType is not either a package symbol or ENUM
-                    return !((bSymbol instanceof BTypeSymbol) && !(bSymbol instanceof BPackageSymbol
-                            || SymbolKind.ENUM.equals(symbolKind)));
-                })
-                .collect(Collectors.toList());
-
-        // Remove the functions without a receiver symbol
-        filteredList.removeIf(symbolInfo -> {
-            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
-        });
-        populateCompletionItemList(filteredList, completionItems);
-        completionItems.add(createKeyword);
-        completionItems.add(butKeyword);
         
         return completionItems;
     }

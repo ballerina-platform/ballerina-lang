@@ -24,14 +24,19 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 /**
  * File utils for reading the file content.
  */
 public class FileUtils {
+
     private static final JsonParser JSON_PARSER = new JsonParser();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FileUtils.class);
+    
+    public static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
 
     /**
      * Get the file content.
@@ -41,7 +46,7 @@ public class FileUtils {
     public static JsonObject fileContentAsObject(String filePath) {
         String contentAsString = "";
         try {
-            contentAsString = new String(Files.readAllBytes(Paths.get(filePath)));
+            contentAsString = new String(Files.readAllBytes(RES_DIR.resolve(filePath)));
         } catch (IOException ex) {
             LOGGER.error(ex.getMessage());
         }
@@ -56,7 +61,7 @@ public class FileUtils {
     public static String fileContent(String filePath) {
         String stringContent = "";
         try {
-            stringContent = new String(Files.readAllBytes(Paths.get(filePath)));
+            stringContent = new String(Files.readAllBytes(RES_DIR.resolve(filePath)));
         } catch (IOException ex) {
             LOGGER.error(ex.getMessage());
         }

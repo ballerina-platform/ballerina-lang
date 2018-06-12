@@ -68,6 +68,8 @@ public interface MessageDataSource {
 
     /**
      * Serialize data in to a byte stream.
+     *
+     * @param outputStream Represent the outputstream that the data will be written to
      */
     public void serializeData(OutputStream outputStream);
 

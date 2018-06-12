@@ -22,26 +22,28 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BConnectorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType.BStructField;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -68,7 +70,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
-import java.util.stream.Collectors;
 
 /**
  * This class consists of utility methods which operate on types.
@@ -259,7 +260,8 @@ public class Types {
             }
         }
 
-        if (source.tag == TypeTags.STRUCT && target.tag == TypeTags.STRUCT) {
+        if ((source.tag == TypeTags.OBJECT || source.tag == TypeTags.RECORD)
+                && (target.tag == TypeTags.OBJECT || target.tag == TypeTags.RECORD)) {
             return checkStructEquivalency(source, target);
         }
 
@@ -341,7 +343,8 @@ public class Types {
     }
 
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {
-        if (rhsType.tag != TypeTags.STRUCT || lhsType.tag != TypeTags.STRUCT) {
+        if ((rhsType.tag != TypeTags.OBJECT && rhsType.tag != TypeTags.RECORD)
+                || (lhsType.tag != TypeTags.OBJECT && lhsType.tag != TypeTags.RECORD)) {
             return false;
         }
 
@@ -360,8 +363,8 @@ public class Types {
         }
 
         //RHS type should have at least all the fields as well attached functions of LHS type.
-        BStructType lhsStructType = (BStructType) lhsType;
-        BStructType rhsStructType = (BStructType) rhsType;
+        BStructureType lhsStructType = (BStructureType) lhsType;
+        BStructureType rhsStructType = (BStructureType) rhsType;
         if (lhsStructType.fields.size() > rhsStructType.fields.size()) {
             return false;
         }
@@ -369,40 +372,6 @@ public class Types {
         return Symbols.isPrivate(lhsType.tsymbol) && rhsType.tsymbol.pkgID == lhsType.tsymbol.pkgID ?
                 checkEquivalencyOfTwoPrivateStructs(lhsStructType, rhsStructType) :
                 checkEquivalencyOfPublicStructs(lhsStructType, rhsStructType);
-    }
-
-    public boolean checkConnectorEquivalency(BType actualType, BType expType) {
-        if (actualType.tag != TypeTags.CONNECTOR || expType.tag != TypeTags.CONNECTOR) {
-            return false;
-        }
-
-        if (isSameType(actualType, expType)) {
-            return true;
-        }
-
-        BConnectorType expConnectorType = (BConnectorType) expType;
-        BConnectorType actualConnectorType = (BConnectorType) actualType;
-
-        // take actions in connectors
-        List<BInvokableSymbol> expActions = symResolver.getConnectorActionSymbols(expConnectorType.tsymbol.scope);
-        List<BInvokableSymbol> actActions = symResolver.getConnectorActionSymbols(actualConnectorType.tsymbol.scope);
-
-        if (expActions.isEmpty() && actActions.isEmpty()) {
-            return true;
-        }
-
-        if (expActions.size() != actActions.size()) {
-            return false;
-        }
-
-        //check every action signatures are matching or not
-        for (BInvokableSymbol expAction : expActions) {
-            if (actActions.stream().filter(v -> checkActionTypeEquality(expAction, v))
-                    .collect(Collectors.toList()).size() != 1) {
-                return false;
-            }
-        }
-        return true;
     }
 
     List<BType> checkForeachTypes(BLangNode collection, int variableSize) {
@@ -521,11 +490,11 @@ public class Types {
      * @return flag indicating possibility of constraining
      */
     public boolean checkStructToJSONCompatibility(BType type) {
-        if (type.tag != TypeTags.STRUCT) {
+        if (type.tag != TypeTags.OBJECT && type.tag != TypeTags.RECORD) {
             return false;
         }
 
-        List<BStructField> fields = ((BStructType) type).fields;
+        List<BField> fields = ((BStructureType) type).fields;
         for (int i = 0; i < fields.size(); i++) {
             BType fieldType = fields.get(i).type;
             if (checkStructFieldToJSONCompatibility(type, fieldType)) {
@@ -598,7 +567,8 @@ public class Types {
             return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
         }
 
-        if (s.tag == TypeTags.STRUCT && t.tag == TypeTags.STRUCT) {
+        if ((s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD)
+                && (t.tag == TypeTags.OBJECT || t.tag == TypeTags.RECORD)) {
             if (checkStructEquivalency(s, t)) {
                 return createConversionOperatorSymbol(origS, origT, true, InstructionCodes.NOP);
             } else {
@@ -623,7 +593,7 @@ public class Types {
             return true;
         }
 
-        if (fieldType.tag == TypeTags.STRUCT) {
+        if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
             return checkStructToJSONCompatibility(fieldType);
         }
 
@@ -645,11 +615,11 @@ public class Types {
      * @return flag indicating possibility of conversion
      */
     private boolean checkStructToJSONConvertibility(BType type) {
-        if (type.tag != TypeTags.STRUCT) {
+        if (type.tag != TypeTags.OBJECT && type.tag != TypeTags.RECORD) {
             return false;
         }
 
-        List<BStructField> fields = ((BStructType) type).fields;
+        List<BField> fields = ((BStructureType) type).fields;
         for (int i = 0; i < fields.size(); i++) {
             BType fieldType = fields.get(i).type;
             if (checkStructFieldToJSONConvertibility(type, fieldType)) {
@@ -675,7 +645,7 @@ public class Types {
             return true;
         }
 
-        if (fieldType.tag == TypeTags.STRUCT) {
+        if (fieldType.tag == TypeTags.OBJECT || fieldType.tag == TypeTags.RECORD) {
             return checkStructToJSONConvertibility(fieldType);
         }
 
@@ -744,7 +714,7 @@ public class Types {
                 } else {
                     return symTable.notFoundSymbol;
                 }
-            } else if (s.tag == TypeTags.STRUCT) {
+            } else if (s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.T2MAP);
             } else if (s.tag == TypeTags.JSON) {
                 if (!checkJsonToMapConvertibility((BJSONType) s, t)) {
@@ -770,7 +740,7 @@ public class Types {
             // Handle constrained JSON
             if (isSameType(s, t)) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.STRUCT) {
+            } else if (s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD) {
 //                TODO: do type checking and fail for obvious incompatible types
 //                if (checkStructToJSONConvertibility(s)) {
 //                    return createConversionOperatorSymbol(s, t, false, InstructionCodes.T2JSON);
@@ -815,14 +785,33 @@ public class Types {
         }
 
         @Override
-        public BSymbol visit(BStructType t, BType s) {
+        public BSymbol visit(BObjectType t, BType s) {
             if (s == symTable.anyType) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2T);
             }
 
-            if (s.tag == TypeTags.STRUCT && checkStructEquivalency(s, t)) {
+            if ((s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD) && checkStructEquivalency(s, t)) {
                 return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            } else if (s.tag == TypeTags.STRUCT || s.tag == TypeTags.ANY) {
+            } else if (s.tag == TypeTags.OBJECT || s.tag == TypeTags.RECORD || s.tag == TypeTags.ANY) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            } else if (s.tag == TypeTags.MAP) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.MAP2T);
+            } else if (s.tag == TypeTags.JSON) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.JSON2T);
+            }
+
+            return symTable.notFoundSymbol;
+        }
+
+        @Override
+        public BSymbol visit(BRecordType t, BType s) {
+            if (s == symTable.anyType) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2T);
+            }
+
+            if ((s.tag == TypeTags.RECORD || s.tag == TypeTags.OBJECT) && checkStructEquivalency(s, t)) {
+                return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            } else if (s.tag == TypeTags.RECORD || s.tag == TypeTags.OBJECT || s.tag == TypeTags.ANY) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
             } else if (s.tag == TypeTags.MAP) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.MAP2T);
@@ -856,17 +845,6 @@ public class Types {
         }
 
         @Override
-        public BSymbol visit(BConnectorType t, BType s) {
-            if (s == symTable.anyType) {
-                return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2C);
-            } else if (s.tag == TypeTags.CONNECTOR && checkConnectorEquivalency(s, t)) {
-                return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
-            }
-
-            return symTable.notFoundSymbol;
-        }
-
-        @Override
         public BSymbol visit(BEnumType t, BType s) {
             if (s == symTable.anyType) {
                 return createConversionOperatorSymbol(s, t, false, InstructionCodes.ANY2E);
@@ -877,6 +855,12 @@ public class Types {
 
         @Override
         public BSymbol visit(BInvokableType t, BType s) {
+            if (s == symTable.anyType) {
+                return createConversionOperatorSymbol(s, t, false, InstructionCodes.CHECKCAST);
+            } else if (s.tag == TypeTags.INVOKABLE && checkFunctionTypeEquality((BInvokableType) s, t)) {
+                return createConversionOperatorSymbol(s, t, true, InstructionCodes.NOP);
+            }
+
             return symTable.notFoundSymbol;
         }
 
@@ -963,7 +947,12 @@ public class Types {
         }
 
         @Override
-        public Boolean visit(BStructType t, BType s) {
+        public Boolean visit(BObjectType t, BType s) {
+            return t == s;
+        }
+
+        @Override
+        public Boolean visit(BRecordType t, BType s) {
             return t == s;
         }
 
@@ -993,11 +982,6 @@ public class Types {
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
-            return t == s;
-        }
-
-        @Override
-        public Boolean visit(BConnectorType t, BType s) {
             return t == s;
         }
 
@@ -1050,10 +1034,10 @@ public class Types {
         }
     };
 
-    private boolean checkEquivalencyOfTwoPrivateStructs(BStructType lhsType, BStructType rhsType) {
+    private boolean checkEquivalencyOfTwoPrivateStructs(BStructureType lhsType, BStructureType rhsType) {
         for (int fieldCounter = 0; fieldCounter < lhsType.fields.size(); fieldCounter++) {
-            BStructField lhsField = lhsType.fields.get(fieldCounter);
-            BStructField rhsField = rhsType.fields.get(fieldCounter);
+            BField lhsField = lhsType.fields.get(fieldCounter);
+            BField rhsField = rhsType.fields.get(fieldCounter);
             if (lhsField.name.equals(rhsField.name) &&
                     isSameType(rhsField.type, lhsField.type)) {
                 continue;
@@ -1061,9 +1045,9 @@ public class Types {
             return false;
         }
 
-        BStructSymbol lhsStructSymbol = (BStructSymbol) lhsType.tsymbol;
+        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
         List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
         int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
         if (lhsAttachedFuncCount > rhsFuncs.size()) {
             return false;
@@ -1082,11 +1066,11 @@ public class Types {
         return true;
     }
 
-    private boolean checkEquivalencyOfPublicStructs(BStructType lhsType, BStructType rhsType) {
+    private boolean checkEquivalencyOfPublicStructs(BStructureType lhsType, BStructureType rhsType) {
         int fieldCounter = 0;
         for (; fieldCounter < lhsType.fields.size(); fieldCounter++) {
-            BStructField lhsField = lhsType.fields.get(fieldCounter);
-            BStructField rhsField = rhsType.fields.get(fieldCounter);
+            BField lhsField = lhsType.fields.get(fieldCounter);
+            BField rhsField = rhsType.fields.get(fieldCounter);
             if (Symbols.isPrivate(lhsField.symbol) ||
                     Symbols.isPrivate(rhsField.symbol)) {
                 return false;
@@ -1106,9 +1090,9 @@ public class Types {
             }
         }
 
-        BStructSymbol lhsStructSymbol = (BStructSymbol) lhsType.tsymbol;
+        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
         List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = ((BStructSymbol) rhsType.tsymbol).attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
         int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
         if (lhsAttachedFuncCount > rhsFuncs.size()) {
             return false;
@@ -1181,6 +1165,7 @@ public class Types {
      * i.e: A variable of the given type can be initialized without a rhs expression.
      * eg: foo x;
      *
+     * @param pos position of the variable.
      * @param type Type to check the existence if a default value
      * @return Flag indicating whether the given type has a default value
      */
@@ -1219,11 +1204,11 @@ public class Types {
             return true;
         }
 
-        if (type.tag == TypeTags.STRUCT) {
-            BStructType structType = (BStructType) type;
+        if (type.tag == TypeTags.OBJECT || type.tag == TypeTags.RECORD) {
+            BStructureType structType = (BStructureType) type;
 
             if (structType.tsymbol.kind == SymbolKind.RECORD) {
-                for (BStructField field : structType.fields) {
+                for (BField field : structType.fields) {
                     if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
                         return false;
                     }
@@ -1231,7 +1216,7 @@ public class Types {
                 return true;
             }
 
-            BStructSymbol structSymbol = (BStructSymbol) structType.tsymbol;
+            BObjectTypeSymbol structSymbol = (BObjectTypeSymbol) structType.tsymbol;
             if (structSymbol.initializerFunc.symbol.params.size() > 0) {
                 return false;
             }
@@ -1241,7 +1226,7 @@ public class Types {
                     return false;
                 }
             }
-            for (BStructField field : structType.fields) {
+            for (BField field : structType.fields) {
                 if (!field.expAvailable && !defaultValueExists(pos, field.type)) {
                     return false;
                 }

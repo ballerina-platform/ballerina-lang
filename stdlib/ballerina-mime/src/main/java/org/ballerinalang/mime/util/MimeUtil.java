@@ -30,7 +30,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,7 +132,7 @@ public class MimeUtil {
      * @param parameterName Name of the parameter
      * @return Parameter value as a string
      */
-    static String getContentTypeParamValue(String contentType, String parameterName) {
+    public static String getContentTypeParamValue(String contentType, String parameterName) {
         try {
             MimeType mimeType = new MimeType(contentType);
             MimeTypeParameterList parameterList = mimeType.getParameters();
@@ -370,7 +370,7 @@ public class MimeUtil {
      * @return A byte array
      * @throws IOException In case an error occurs while reading input stream
      */
-    static byte[] getByteArray(InputStream input) throws IOException {
+    public static byte[] getByteArray(InputStream input) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[READABLE_BUFFER_SIZE];
             for (int len; (len = input.read(buffer)) != -1; ) {
@@ -452,7 +452,7 @@ public class MimeUtil {
      */
     public static BStruct createEntityError(Context context, String msg) {
         PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+        StructureTypeInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         BStruct genericError = new BStruct(entityErrInfo.getType());
         genericError.setStringField(0, msg);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
@@ -467,7 +467,7 @@ public class MimeUtil {
      */
     public static BStruct getParserError(Context context, String errMsg) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
 
         BStruct parserError = new BStruct(errorStructInfo.getType());
         parserError.setStringField(0, errMsg);

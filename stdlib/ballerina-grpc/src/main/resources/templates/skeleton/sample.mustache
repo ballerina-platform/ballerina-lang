@@ -1,14 +1,12 @@
 import ballerina/io;
 import ballerina/grpc;
 
-function main (string[] args) {
+function main (string... args) {
 {{#nonBlockingEndpoint}}
-     endpoint {{connectorId}}Client {{connectorId}}Ep {
+     endpoint {{connectorId}}Client {{connectorIdName}}Ep {
         url:"http://localhost:9090"
-     };
-{{/nonBlockingEndpoint}}
-{{#blockingEndpoint}}
-    endpoint {{connectorId}}BlockingClient {{connectorId}}BlockingEp {
+     };{{/nonBlockingEndpoint}}{{#blockingEndpoint}}
+    endpoint {{connectorId}}BlockingClient {{connectorIdName}}BlockingEp {
         url:"http://localhost:9090"
     };
 {{/blockingEndpoint}}

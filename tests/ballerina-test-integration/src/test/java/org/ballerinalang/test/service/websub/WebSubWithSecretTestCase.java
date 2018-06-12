@@ -61,18 +61,10 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
             "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"internal-hub\"}";
     private static final String REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG =
             "WebSub Notification Received: {\"action\":\"publish\",\"mode\":\"remote-hub\"}";
-    private static final String INTERNAL_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG =
-            "WebSub Notification from Request: {\"action\":\"publish\",\"mode\":\"internal-hub\"}";
-    private static final String REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG =
-            "WebSub Notification from Request: {\"action\":\"publish\",\"mode\":\"remote-hub\"}";
 
     private LogLeecher intentVerificationLogLeecher = new LogLeecher(INTENT_VERIFICATION_SUBSCRIBER_LOG);
     private LogLeecher internalHubNotificationLogLeecher = new LogLeecher(INTERNAL_HUB_NOTIFICATION_SUBSCRIBER_LOG);
     private LogLeecher remoteHubNotificationLogLeecher = new LogLeecher(REMOTE_HUB_NOTIFICATION_SUBSCRIBER_LOG);
-    private LogLeecher internalHubNotificationFromRequestLogLeecher = new LogLeecher(
-                                                                INTERNAL_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
-    private LogLeecher remoteHubNotificationFromRequestLogLeecher = new LogLeecher(
-                                                                REMOTE_HUB_NOTIFICATION_FROM_REQUEST_SUBSCRIBER_LOG);
 
     private ServerInstance ballerinaWebSubSubscriber;
     private ServerInstance ballerinaWebSubPublisher;
@@ -89,9 +81,7 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
         ballerinaWebSubSubscriber = ServerInstance.initBallerinaServer(8181);
         ballerinaWebSubSubscriber.addLogLeecher(intentVerificationLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(internalHubNotificationFromRequestLogLeecher);
         ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationLogLeecher);
-        ballerinaWebSubSubscriber.addLogLeecher(remoteHubNotificationFromRequestLogLeecher);
 
         Executors.newSingleThreadExecutor().execute(() -> {
             try {
@@ -125,7 +115,7 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
 
     @Test
     public void testSubscriptionAndIntentVerification() throws BallerinaTestException, InterruptedException {
-        intentVerificationLogLeecher.waitForText(10000);
+        intentVerificationLogLeecher.waitForText(30000);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
@@ -133,19 +123,9 @@ public class WebSubWithSecretTestCase extends IntegrationTestCase {
         internalHubNotificationLogLeecher.waitForText(30000);
     }
 
-    @Test(dependsOnMethods = "testContentReceiptForDirectHubNotification")
-    public void testContentReceiptAsRequestForDirectHubNotification() throws BallerinaTestException {
-        internalHubNotificationFromRequestLogLeecher.waitForText(30000);
-    }
-
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
     public void testContentReceiptForRemoteHubNotification() throws BallerinaTestException {
         remoteHubNotificationLogLeecher.waitForText(30000);
-    }
-
-    @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")
-    public void testContentReceiptAsRequestForRemoteHubNotification() throws BallerinaTestException {
-        remoteHubNotificationFromRequestLogLeecher.waitForText(30000);
     }
 
     @Test(dependsOnMethods = "testSubscriptionAndIntentVerification")

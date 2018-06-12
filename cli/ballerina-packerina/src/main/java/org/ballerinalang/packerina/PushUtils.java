@@ -18,6 +18,7 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Manifest;
@@ -69,10 +70,12 @@ public class PushUtils {
      * Push/Uploads packages to the central repository.
      *
      * @param packageName   path of the package folder to be pushed
+     * @param sourceRoot    path to the directory containing source files and packages
      * @param installToRepo if it should be pushed to central or home
      */
-    public static void pushPackages(String packageName, String installToRepo) {
-        Manifest manifest = readManifestConfigurations();
+    public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
+        Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        Manifest manifest = readManifestConfigurations(prjDirPath);
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
@@ -85,10 +88,8 @@ public class PushUtils {
 
         String orgName = manifest.getName();
         String version = manifest.getVersion();
-
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
-
-        Path prjDirPath = Paths.get(".").toAbsolutePath().normalize();
 
         // Get package path from project directory path
         Path pkgPathFromPrjtDir = Paths.get(prjDirPath.toString(), ProjectDirConstants.DOT_BALLERINA_DIR_NAME,
@@ -123,8 +124,8 @@ public class PushUtils {
 
             executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
                              description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
-                             resourcePath, pkgPathFromPrjtDir.toString(), msg, proxy.getHost(), proxy.getPort(),
-                             proxy.getUserName(), proxy.getPassword());
+                             resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
+                             proxy.getPort(), proxy.getUserName(), proxy.getPassword());
 
         } else {
             if (!installToRepo.equals("home")) {
@@ -244,7 +245,7 @@ public class PushUtils {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
         }
         Converter<URI> converter = remoteRepo.getConverterInstance();
-        List<URI> uris = patten.convert(converter).collect(Collectors.toList());
+        List<URI> uris = patten.convert(converter, packageID).collect(Collectors.toList());
         if (uris.isEmpty()) {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
         }
@@ -254,11 +255,11 @@ public class PushUtils {
     /**
      * Read the manifest.
      *
+     * @param prjDirPath project directory path
      * @return manifest configuration object
      */
-    private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
-                (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
+    private static Manifest readManifestConfigurations(Path prjDirPath) {
+        String tomlFilePath = prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME).toString();
         try {
             return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
         } catch (IOException e) {

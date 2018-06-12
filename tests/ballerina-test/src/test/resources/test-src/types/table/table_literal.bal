@@ -72,7 +72,7 @@ function checkTableCount(string tablePrefix) returns (int) {
         table dt = check testDB->select("SELECT count(*) as count FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME like
          ?", ResultCount, p1);
         while (dt.hasNext()) {
-            var rs = check <ResultCount>dt.getNext();
+            ResultCount rs = check <ResultCount>dt.getNext();
             count = rs.COUNTVAL;
         }
     } finally {
@@ -107,7 +107,7 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
     int[] dt1data;
     int i = 0;
     while (dt1.hasNext()) {
-        var p = check <Person>dt1.getNext();
+        Person p = check <Person>dt1.getNext();
         dt1data[i] = p.id;
         i = i + 1;
     }
@@ -116,7 +116,7 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
     int[] dt2data;
     i = 0;
     while (dt2.hasNext()) {
-        var p = check <Person>dt2.getNext();
+        Person p = check <Person>dt2.getNext();
         dt2data[i] = p.id;
         i = i + 1;
     }
@@ -125,7 +125,7 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
     int[] ct1data;
     i = 0;
     while (ct1.hasNext()) {
-        var p = check <Company>ct1.getNext();
+        Company p = check <Company>ct1.getNext();
         ct1data[i] = p.id;
         i = i + 1;
     }
@@ -159,7 +159,7 @@ function testMultipleAccess() returns (int, int, int[], int[]) {
     int[] dtdata1;
     int i = 0;
     while (dt1.hasNext()) {
-        var p = check <Person>dt1.getNext();
+        Person p = check <Person>dt1.getNext();
         dtdata1[i] = p.id;
         i = i + 1;
     }
@@ -168,7 +168,7 @@ function testMultipleAccess() returns (int, int, int[], int[]) {
     int[] dtdata2;
     i = 0;
     while (dt1.hasNext()) {
-        var p = check <Person>dt1.getNext();
+        Person p = check <Person>dt1.getNext();
         dtdata2[i] = p.id;
         i = i + 1;
     }
@@ -188,7 +188,7 @@ function testLoopingTable() returns (string) {
     string names = "";
 
     while (dt.hasNext()) {
-        var p = check <Person>dt.getNext();
+        Person p = check <Person>dt.getNext();
         names = names + p.name + "_";
     }
     return names;
@@ -204,7 +204,7 @@ function testToJson() returns (json) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    var j = check <json>dt;
+    json j = check <json>dt;
     return j;
 }
 
@@ -218,7 +218,7 @@ function testToXML() returns (xml) {
     _ = dt.add(p2);
     _ = dt.add(p3);
 
-    var x = check <xml>dt;
+    xml x = check <xml>dt;
     return x;
 }
 
@@ -257,7 +257,7 @@ function testTableWithAllDataToJson() returns (json) {
     _ = dt1.add(t1);
     _ = dt1.add(t2);
 
-    var j = check <json>dt1;
+    json j = check <json>dt1;
     return j;
 }
 
@@ -271,7 +271,7 @@ function testTableWithAllDataToXml() returns (xml) {
     _ = dt1.add(t1);
     _ = dt1.add(t2);
 
-    var x = check <xml>dt1;
+    xml x = check <xml>dt1;
     return x;
 }
 
@@ -287,7 +287,7 @@ function testTableWithAllDataToStruct() returns (json, xml) {
     json jData;
     xml xData;
     while (dt1.hasNext()) {
-        var x = check <TypeTest>dt1.getNext();
+        TypeTest x = check <TypeTest>dt1.getNext();
         jData = x.jsonData;
         xData = x.xmlData;
     }
@@ -302,7 +302,7 @@ function testTableWithBlobDataToJson() returns (json) {
     table<BlobTypeTest> dt1 = table{};
     _ = dt1.add(t1);
 
-    var j = check <json>dt1;
+    json j = check <json>dt1;
     return j;
 }
 
@@ -314,7 +314,7 @@ function testTableWithBlobDataToXml() returns (xml) {
     table<BlobTypeTest> dt1 = table{};
     _ = dt1.add(t1);
 
-    var x = check <xml>dt1;
+    xml x = check <xml>dt1;
     return x;
 }
 
@@ -328,7 +328,7 @@ function testTableWithBlobDataToStruct() returns (blob) {
 
     blob bData;
     while (dt1.hasNext()) {
-        var x = check <BlobTypeTest>dt1.getNext();
+        BlobTypeTest x = check <BlobTypeTest>dt1.getNext();
         bData = x.blobData;
     }
     return bData;
@@ -340,7 +340,7 @@ function testTableWithAnyDataToJson() returns (json) {
     table<AnyTypeTest> dt1 = table{};
     _ = dt1.add(t1);
 
-    var j = check <json>dt1;
+    json j = check <json>dt1;
     return j;
 }
 
@@ -350,7 +350,7 @@ function testStructWithDefaultDataToJson() returns (json) {
     table<Person> dt1 = table{};
     _ = dt1.add(p1);
 
-    var j = check <json>dt1;
+    json j = check <json>dt1;
     return j;
 }
 
@@ -360,7 +360,7 @@ function testStructWithDefaultDataToXml() returns (xml) {
     table<Person> dt1 = table{};
     _ = dt1.add(p1);
 
-    var x = check <xml>dt1;
+    xml x = check <xml>dt1;
     return x;
 }
 
@@ -377,7 +377,7 @@ function testStructWithDefaultDataToStruct() returns (int, float, string, boolea
     boolean bData;
 
     while (dt1.hasNext()) {
-        var x = check <Person>dt1.getNext();
+        Person x = check <Person>dt1.getNext();
         iData = x.age;
         fData = x.salary;
         sData = x.name;
@@ -405,7 +405,7 @@ function testTableWithArrayDataToJson() returns (json) {
     _ = dt1.add(t1);
     _ = dt1.add(t2);
 
-    var j = check <json>dt1;
+    json j = check <json>dt1;
     return j;
 }
 
@@ -428,7 +428,7 @@ function testTableWithArrayDataToXml() returns (xml) {
     _ = dt1.add(t1);
     _ = dt1.add(t2);
 
-    var x = check <xml>dt1;
+    xml x = check <xml>dt1;
     return x;
 }
 
@@ -449,7 +449,7 @@ function testTableWithArrayDataToStruct() returns (int[], float[], string[], boo
     boolean[] boolArr;
 
     while (dt1.hasNext()) {
-        var x = check <ArraTypeTest>dt1.getNext();
+        ArraTypeTest x = check <ArraTypeTest>dt1.getNext();
         intArr = x.intArrData;
         floatArr = x.floatArrData;
         stringArr = x.stringArrData;
@@ -469,7 +469,7 @@ function testTableRemoveSuccess() returns (int, json) {
     _ = dt.add(p3);
 
     int count = check dt.remove(isBellow35);
-    var j = check <json>dt;
+    json j = check <json>dt;
 
     return (count, j);
 }
@@ -485,7 +485,7 @@ function testTableRemoveSuccessMultipleMatch() returns (int, json) {
     _ = dt.add(p3);
 
     int count = check dt.remove(isJohn);
-    var j = check <json>dt;
+    json j = check <json>dt;
 
     return (count, j);
 }
@@ -502,7 +502,7 @@ function testTableRemoveFailed() returns (int, json) {
     _ = dt.add(p3);
 
     int count = check dt.remove(isBellow35);
-    var j = check <json>dt;
+    json j = check <json>dt;
 
     return (count, j);
 }
@@ -517,15 +517,60 @@ function testTableAddAndAccess() returns (string, string) {
     _ = dt.add(p1);
     _ = dt.add(p2);
 
-    var j1 = check <json>dt;
+    json j1 = check <json>dt;
     string s1 = j1.toString();
 
     _ = dt.add(p3);
-    var j2 = check <json>dt;
+    json j2 = check <json>dt;
     string s2 = j2.toString();
 
     return (s1, s2);
 }
+
+function testRemoveWithInvalidRecordType() returns string {
+    Person p1 = { id: 1, age: 35, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 40, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
+
+
+    table<Person> dt = table{};
+    _ = dt.add(p1);
+    _ = dt.add(p2);
+    _ = dt.add(p3);
+
+    string returnStr;
+    var ret = dt.remove(isBellow35Invalid);
+
+    match ret {
+        int i => returnStr = <string>i;
+        error e => returnStr = e.message;
+    }
+
+    return returnStr;
+}
+
+function testRemoveWithInvalidParamType() returns string {
+    Person p1 = { id: 1, age: 35, salary: 300.50, name: "jane", married: true };
+    Person p2 = { id: 2, age: 40, salary: 200.50, name: "martin", married: true };
+    Person p3 = { id: 3, age: 42, salary: 100.50, name: "john", married: false };
+
+
+    table<Person> dt = table{};
+    _ = dt.add(p1);
+    _ = dt.add(p2);
+    _ = dt.add(p3);
+
+    string returnStr;
+    var ret = dt.remove(isBellow35InvalidParam);
+
+    match ret {
+        int i => returnStr = <string>i;
+        error e => returnStr = e.message;
+    }
+
+    return returnStr;
+}
+
 
 function getPersonId(Person p) returns (int) {
     return p.id;
@@ -541,4 +586,12 @@ function isBellow35(Person p) returns (boolean) {
 
 function isJohn(Person p) returns (boolean) {
     return p.name == "john";
+}
+
+function isBellow35Invalid(Company p) returns (boolean) {
+    return p.id < 35;
+}
+
+function isBellow35InvalidParam(int p) returns (boolean) {
+    return true;
 }

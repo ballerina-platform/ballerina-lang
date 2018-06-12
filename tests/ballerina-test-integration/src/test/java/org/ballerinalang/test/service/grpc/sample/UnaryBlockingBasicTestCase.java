@@ -21,7 +21,7 @@ package org.ballerinalang.test.service.grpc.sample;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
@@ -32,8 +32,9 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -56,6 +57,7 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
         ballerinaServer = ServerInstance.initBallerinaServer(9090);
         Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "unary_server1.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
+        TestUtils.prepareBalo(this);
     }
 
     @Test
@@ -134,8 +136,8 @@ public class UnaryBlockingBasicTestCase extends IntegrationTestCase {
         Path balFilePath = Paths.get("src", "test", "resources", "grpc", "unary1_blocking_client.bal");
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo httpPackageInfo = result.getProgFile().getPackageInfo(".");
-        StructInfo structInfo = httpPackageInfo.getStructInfo("Request");
-        BStructType structType = structInfo.getType();
+        StructureTypeInfo structInfo = httpPackageInfo.getStructInfo("Request");
+        BStructureType structType = structInfo.getType();
         BStruct request = new BStruct(structType);
         request.setStringField(0, "Sam");
         request.setStringField(1, "Testing.");

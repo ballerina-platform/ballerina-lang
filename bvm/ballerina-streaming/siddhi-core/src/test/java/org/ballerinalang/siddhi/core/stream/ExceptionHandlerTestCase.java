@@ -34,6 +34,9 @@ import org.testng.annotations.Test;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * Testcase to validate exception handler.
+ */
 public class ExceptionHandlerTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(CallbackTestCase.class);
@@ -78,7 +81,7 @@ public class ExceptionHandlerTestCase {
     }
 
     /**
-     * Send 6 test events (2 valid -> 2 invalid -> 2 valid)
+     * Send 6 test events (2 valid -> 2 invalid -> 2 valid).
      *
      * @param inputHandler input handler
      * @throws Exception

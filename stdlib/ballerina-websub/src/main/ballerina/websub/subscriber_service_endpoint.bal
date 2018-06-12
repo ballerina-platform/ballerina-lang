@@ -118,7 +118,6 @@ public function Listener::init(SubscriberServiceEndpointConfiguration config) {
 }
 
 public function Listener::register(typedesc serviceType) {
-    self.serviceEndpoint.register(serviceType);
     self.registerWebSubSubscriberServiceEndpoint(serviceType);
 }
 
@@ -140,7 +139,7 @@ function Listener::sendSubscriptionRequests() {
 
     foreach subscriptionDetails in subscriptionDetailsArray {
         if (lengthof subscriptionDetails.keys() == 0) {
-            next;
+            continue;
         }
 
         string strSubscribeOnStartUp = <string>subscriptionDetails["subscribeOnStartUp"];
@@ -188,7 +187,7 @@ function Listener::sendSubscriptionRequests() {
                     }
                     error websubError => {
                         log:printError("Error sending out subscription request on start up: " + websubError.message);
-                        next;
+                        continue;
                     }
                 }
             }
@@ -235,7 +234,7 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
     };
 
     http:Request request = new;
-    var discoveryResponse = resourceEP->get("", request = request);
+    var discoveryResponse = resourceEP->get("", message = request);
     error websubError = {};
     match (discoveryResponse) {
         http:Response response => {

@@ -30,6 +30,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for frequent defined window.
+ */
 public class FrequentWindowEventTbaleTestCase {
     private static final Logger log = LoggerFactory.getLogger(FrequentWindowEventTbaleTestCase.class);
 

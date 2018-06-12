@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.tree;
 
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationAttributeNode;
@@ -46,24 +47,24 @@ public class BLangAnnotation extends BLangNode implements AnnotationNode {
     public List<BLangDocumentation> docAttachments;
     public List<BLangDeprecatedNode> deprecatedAttachments;
     public BSymbol symbol;
-    public List<BLangAnnotationAttachmentPoint> attachmentPoints;
+    public Set<AttachPoint> attachPoints;
     public BLangType typeNode;
 
     public BLangAnnotation() {
         this.attributes = new ArrayList<>();
         this.flagSet = EnumSet.noneOf(Flag.class);
         this.annAttachments = new ArrayList<>();
-        this.attachmentPoints = new ArrayList<>();
+        this.attachPoints = EnumSet.noneOf(AttachPoint.class);
         this.docAttachments = new ArrayList<>();
         this.deprecatedAttachments = new ArrayList<>();
     }
 
-    public void addAttachmentPoint(BLangAnnotationAttachmentPoint attachmentPoint) {
-        attachmentPoints.add(attachmentPoint);
+    public void addAttachPoint(AttachPoint attachmentPoint) {
+        attachPoints.add(attachmentPoint);
     }
 
-    public List<BLangAnnotationAttachmentPoint> getAttachmentPoints() {
-        return attachmentPoints;
+    public List<AttachPoint> getAttachPoints() {
+        return new ArrayList<>(attachPoints);
     }
 
     @Override

@@ -28,6 +28,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for orderby limit queries.
+ */
 public class OrderByLimitTestCase {
     private int inEventCount;
     private int removeEventCount;

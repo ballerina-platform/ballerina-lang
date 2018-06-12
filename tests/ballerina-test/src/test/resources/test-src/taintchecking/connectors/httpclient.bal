@@ -12,7 +12,7 @@ function main (string... args) {
     http:Request req = new;
     req.setHeader(headerName, headerValue);
 
-    var response = clientEndpoint -> get("/get?test=" + param, request = req);
+    var response = clientEndpoint -> get("/get?test=" + param, message = req);
     match response {
         http:Response resp => {
             var msg = resp.getTextPayload();

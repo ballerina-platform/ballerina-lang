@@ -68,9 +68,7 @@ public class BFunctionType extends BType {
 
     @Override
     public TypeSignature getSig() {
-        return new TypeSignature(TypeSignature.SIG_FUNCTION);
-        // TODO: Fix this for Runtime function types. Without this Type Casting doesn't work.
-//        return new TypeSignature(TypeSignature.SIG_FUNCTION, getSigString());
+        return new TypeSignature(TypeSignature.SIG_FUNCTION, getSigString());
     }
 
     @Override
@@ -80,17 +78,17 @@ public class BFunctionType extends BType {
 
 
     private String getSigString() {
-        return "(" + getBTypListAsString(paramTypes, true) + ")("
-                + getBTypListAsString(retParamTypes, true) + ")";
+        return "(" + getBTypeListAsString(paramTypes, true) + ")("
+                + getBTypeListAsString(retParamTypes, true) + ")";
     }
 
     public static String getTypeName(BType[] parameterType, BType[] returnParameterType) {
-        return "function (" + (parameterType != null ? getBTypListAsString(parameterType, false) : "") + ")"
-                + (returnParameterType != null ? " returns (" + getBTypListAsString(returnParameterType, false) +
+        return "function (" + (parameterType != null ? getBTypeListAsString(parameterType, false) : "") + ")"
+                + (returnParameterType != null ? " returns (" + getBTypeListAsString(returnParameterType, false) +
                 ")" : "");
     }
 
-    private static String getBTypListAsString(BType[] typeNames, boolean isSigNature) {
+    private static String getBTypeListAsString(BType[] typeNames, boolean isSigNature) {
         StringBuffer br = new StringBuffer();
         int i = 0;
         for (BType type : typeNames) {
@@ -127,6 +125,11 @@ public class BFunctionType extends BType {
         result = 31 * result + Arrays.hashCode(paramTypes);
         result = 31 * result + Arrays.hashCode(retParamTypes);
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return getTypeName(paramTypes, retParamTypes);
     }
 
     /* Utility methods for Composer. */

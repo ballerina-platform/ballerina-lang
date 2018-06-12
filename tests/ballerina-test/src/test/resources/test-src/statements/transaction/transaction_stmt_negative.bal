@@ -51,7 +51,7 @@ function testNextWithinTransaction() returns (string) {
         i = i + 1;
         transaction {
             if (i == 2) {
-                next;
+                continue;
             }
         }
     }

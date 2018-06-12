@@ -6,7 +6,7 @@
     width: 100%;
     z-index: 10000000;
     opacity: 0.6;
-    filter: alpha(opacity=60); 
+    filter: alpha(opacity=60);
 }
 .loading[data-loading-style=icon-only] .loading-bg {
     display: none; }
@@ -29,6 +29,9 @@
     -ms-transform: translate(-50%, -50%);
     -o-transform: translate(-50%, -50%);
     transform: translate(-50%, -50%); }
+
+/* Blob animation */
+
 .loading .loading-animation .logo {
     position: relative;
     width: 50px;
@@ -39,7 +42,7 @@
     text-align: center;
     font-size: 11px;
     margin-top: 4px;
-    text-transform: uppercase; 
+    text-transform: uppercase;
 }
 
 body.loading > .loading-animation {
@@ -103,4 +106,44 @@ body.loading > .loading-bg {
     75% { transform: translateX(7.5rem) scale(0.5); }
     95% { transform: translateX(0rem) scale(1); }
 }
- 
+
+/* Flip animation */
+
+body.loading > .loading-animation.flip .icon {
+    width: 80px;
+    height: 80px;
+    overflow: hidden;
+    border-radius: 50%;
+    border: 0px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    -webkit-transition: transform 1s ease;
+    -moz-transition: transform 1s ease;
+    -ms-transition: transform 1s ease;
+    -o-transition: transform 1s ease;
+    transition: transform 1s ease;
+}
+
+body.loading > .loading-animation.flip .icon img {
+    height: 100%;
+    width: auto;
+}
+
+body.loading > .loading-animation.flip .text {
+    text-align: center;
+    white-space: nowrap;
+    color: #E7EAEB;
+    font-family: sans-serif;
+    margin-top: 20px;
+    display: none;
+}
+
+body.loading > .loading-animation.flip .icon {
+    animation: flip_animation 1s infinite;
+}
+
+@keyframes flip_animation {
+    from { transform: rotateY(0deg); }
+  	to { transform: rotateY(360deg); }
+}

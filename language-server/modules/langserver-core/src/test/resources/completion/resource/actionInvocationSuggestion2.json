@@ -14,11 +14,11 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"respond(http:Response response)(error?)",
+      "label":"respond(ballerina.http:Response|string|xml|json|blob|ballerina.io:ByteChannel|ballerina.mime:Entity[]? message)(error?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"respond(${1:response})",
+      "insertText":"respond(${1:message})",
       "insertTextFormat":"Snippet"
     },
     {
@@ -46,7 +46,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"cancelWebSocketUpgrade(int status, string reason)",
+      "label":"cancelWebSocketUpgrade(int status, string reason)(error?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",

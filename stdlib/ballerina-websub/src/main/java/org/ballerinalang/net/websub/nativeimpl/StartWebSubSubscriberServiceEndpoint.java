@@ -44,7 +44,7 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "startWebSubSubscriberServiceEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
                 structPackage = WebSubSubscriberConstants.WEBSUB_PACKAGE),
         isPublic = true
 )

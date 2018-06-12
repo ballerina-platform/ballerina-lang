@@ -21,7 +21,7 @@ endpoint http:SecureListener listener {
 
 endpoint http:Client nyseEP {
     url: "http://localhost:9092",
-    auth: {scheme: "jwt"}
+    auth: {scheme: "JWT"}
 };
 
 @http:ServiceConfig {basePath:"/passthrough"}
@@ -32,7 +32,7 @@ service<http:Service> passthroughService bind listener {
         path:"/"
     }
     passthrough (endpoint caller, http:Request clientRequest) {
-        var response = nyseEP -> get("/nyseStock/stocks", request = clientRequest);
+        var response = nyseEP -> get("/nyseStock/stocks", message = clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);

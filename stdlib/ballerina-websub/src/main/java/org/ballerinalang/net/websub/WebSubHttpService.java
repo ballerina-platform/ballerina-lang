@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PATH_FIELD;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
@@ -68,12 +69,10 @@ public class WebSubHttpService extends HttpService {
             logger.debug("ServiceConfig not specified in the Service instance, using default base path");
             //service name cannot start with / hence concat
             websubHttpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(websubHttpService.getName()));
-            return websubHttpService;
+        } else {
+            Struct serviceConfig = serviceConfigAnnotation.getValue();
+            websubHttpService.setBasePath(serviceConfig.getStringField(PATH_FIELD));
         }
-
-        Struct serviceConfig = serviceConfigAnnotation.getValue();
-
-        websubHttpService.setBasePath(serviceConfig.getStringField(PATH_FIELD));
 
         List<HttpResource> resources = new ArrayList<>();
         for (Resource resource : websubHttpService.getBallerinaService().getResources()) {
@@ -82,6 +81,7 @@ public class WebSubHttpService extends HttpService {
         }
         websubHttpService.setResources(resources);
         websubHttpService.setAllAllowedMethods(DispatcherUtil.getAllResourceMethods(websubHttpService));
+        websubHttpService.setHostName(DEFAULT_HOST);
 
         return websubHttpService;
     }

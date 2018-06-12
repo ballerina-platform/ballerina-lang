@@ -48,10 +48,10 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
         orgName = ORG_NAME,
         packageName = GrpcConstants.PROTOCOL_PACKAGE_GRPC,
         functionName = "send",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = GrpcConstants.GRPC_CLIENT,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = GrpcConstants.GRPC_CLIENT,
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "res", type = TypeKind.ANY)},
-        returnType = @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage =
+        returnType = @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage =
                 PACKAGE_BUILTIN),
         isPublic = true
 )

@@ -22,11 +22,8 @@ import org.ballerinalang.docgen.model.PackageDoc;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangStruct;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,13 +48,14 @@ public class BallerinaRecordDocGenTest {
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
 
-            BLangPackage balPackage = docsMap.get(".").bLangPackage;
-            List<BLangStruct> structs = balPackage.getStructs();
-
-            Assert.assertEquals(structs.size(), 1);
-            BLangStruct struct = (BLangStruct) structs.iterator().next();
-            Assert.assertEquals(struct.getFields().size(), 3);
-            Assert.assertEquals(struct.getAnnotationAttachments().size(), 4);
+            // commenting since the test is anyway disabled, fix when enabling.
+//            BLangPackage balPackage = docsMap.get(".").bLangPackage;
+//            List<BLangStruct> structs = balPackage.getStructs();
+//
+//            Assert.assertEquals(structs.size(), 1);
+//            BLangStruct struct = (BLangStruct) structs.iterator().next();
+//            Assert.assertEquals(struct.getFields().size(), 3);
+//            Assert.assertEquals(struct.getAnnotationAttachments().size(), 4);
         } catch (IOException e) {
             Assert.fail();
         } finally {

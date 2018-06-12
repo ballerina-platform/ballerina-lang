@@ -16,102 +16,16 @@
  * under the License.
  */
 
-@mixin bootstrap-dropdown() {
-    position: relative;
-    .dropdown {
-        .dropdown-toggle{
-            background-color: #333;
-            color: #f1f1f1;
-            text-shadow: none;
-            box-shadow: none;
-            border: 0px solid #333;
-            width: 200px;
-            margin: 1px 10px;
-            text-align: left;
-            border-bottom: 1px solid #555;
-            z-index: auto;
-            border-left: 0;
-            border-top: 0;
-            border-right: 0;
-        }
-        .dropdown-menu {
-            background: #565656;
-            margin:-5px 10px;
-            padding: 9px 0;
-            height: 34px;
-            width: 200px;
-            border: 0;
-            > li > a {
-                display: block;
-                padding: -6px 20px;
-                clear: both;
-                font-weight: normal;
-                line-height: 25px;
-                white-space: nowrap;
-                height: 33px;
-                margin-top: -9px;
-                background: #585858;
-                color: #f1f1f1;
-            }
-        }
-    }
-    .fw-down {
-        position: absolute;
-        right: 18px;
-        top: 10px;
-        color: #2b7b5e;
-        cursor: pointer;
-    }
-}
-
-@mixin autosuggest-dropdown() {
-    .react-autosuggest__container {
-        .inputContainer {
-            border: none;
-            border-bottom: 1px solid #555;
-            input[type=text]{
-                color: #fff;
-            }
-            i {
-                color: #2b7b5e;
-                cursor: pointer;
-            }
-        }
-        .react-autosuggest__suggestions-container--open {
-            background: #585858;
-            color: #f1f1f1;
-            ul {
-                li {
-                    cursor: pointer;
-                }
-                li:hover {
-                    font-weight: bold;
-                }
-            }
-        }
-    }
-    .react-autosuggest__container {
-        float: left;
-        color: black;
-        position: relative;
-    }
-    .react-autosuggest__input {
-        padding: 1px 10px;
-    }
-    .react-autosuggest__suggestions-container {
-        z-index: 10000;
-        overflow: visible;
-        background: #E2E2E5;
-        width: 187px;
-        position: absolute;
-    }
-}
-
 .http-client-wrapper {
-    // height: calc(100% - 375px);
     border-top: 1px solid #333;
     margin-top: 20px;
     clear: both;
+    label{
+        font-weight: 500;
+    }
+    .key{
+        font-weight: 400;
+    }
 }
 
 .http-client-main-wrapper{
@@ -121,19 +35,6 @@
         height: 45px;
         .http-client-request-method-wrapper {
             float: left;
-            @include autosuggest-dropdown();
-            .react-autosuggest__container {
-                .inputContainer {
-                    padding: 6px;
-                    height: 33px;
-                    input[type=text]{
-                        color: #fff;
-                        background-color: #333;
-                        border: 0 solid #333;
-                        width: 85px;
-                    }
-                }
-            }
         }
         .http-method-container{
             padding-top: 0.5em;
@@ -149,9 +50,6 @@
         }
         .selectors {
             float: left;
-            .dropdown-wrapper {
-                @include bootstrap-dropdown();
-            }
         }
         .url-separator {
             float: left;
@@ -172,69 +70,6 @@
             padding: 8px 0 7px 7px;
             color: #616161;
             border-bottom: 1px solid #555;
-        }
-        .http-client-path-container {
-            float: left;
-            padding-top:1px ;
-            display: table;
-            .http-client-path {
-                width: 435px;
-                color: #fcfcfc;
-                height: 33px;
-                padding:5px 0 7px 1px;
-                background-color: #333333;
-                border: none;
-                border-bottom: 1px solid #555;
-                box-shadow: none;
-                display: table-cell;
-                float: left;
-            }
-            .ui.button {
-                display: table-cell;
-                width: auto;
-                float: left;
-                padding-left: 20px;
-            }
-            .send-request {
-                color: #fcfcfc;
-                border: none;
-                padding: 6px 20px;
-                background-color: #398B72;
-                border-color: #398B72;
-                width: 90px;
-            }
-            .cancel-request {
-                color: #000;
-                border: none;
-                padding: 6px 20px;
-                background-color: #eb6526;
-                border-color: #eb6526;
-                width: 90px;
-                span {
-                    padding-left: 5px;
-                }
-            }
-            .copy-url-wrapper {
-                position: relative;
-                display: table-cell;
-                float: left;
-                padding: 8px 6px 4px 6px;
-                font-size: 16px;
-                background-color: #1c1c1c;
-                cursor: pointer;
-                color: #ddd;
-                .copy-url-notification {
-                    position: absolute;
-                    width: 79px;
-                    bottom: 36px;
-                    left: -22px;
-                    background: #3b3b3b;
-                    padding: 4px;
-                    border: 1px solid black;
-                    border-radius: 5px;
-                    font-size: 10px;
-                }
-            }
         }
     }
     input[type=text].header-input{
@@ -265,17 +100,19 @@
             display: block;
         }
     }
+    .send-request, .cancel-request{
+        width: 160px!important;
+    }
 }
 
 .http-client-request {
-    padding: 20px;
+    padding: 0 20px;
     height: 100%;
     width: 100%;
     background: #252525;
-    border-top: 1px solid #333;
 
-    .content{
-        overflow: hidden;
+    .request-title{
+        font-size: 16px;
     }
 
     .header{
@@ -312,21 +149,6 @@
     .http-client-action-wrapper {
         padding: 20px 15px;
         background-color: #333;
-        .react-autosuggest__container {
-            float: left;
-            color: black;
-            position: relative;
-        }
-        .react-autosuggest__input {
-            padding: 1px 10px;
-        }
-        .react-autosuggest__suggestions-container {
-            z-index: 10000;
-            overflow: visible;
-            background: #E2E2E5;
-            width: 187px;
-            position: absolute
-        }
     }
     .http-client-content-type-wrapper{
         margin: 15px 0 15px 0;
@@ -345,19 +167,6 @@
             height: 30px;
             background-color: #434343;
             box-shadow: none;
-        }
-        @include autosuggest-dropdown();
-        .react-autosuggest__container {
-            .inputContainer {
-                input[type=text]{
-                    color: #fff;
-                    background-color: #434343;
-                    width: 555px;
-                }
-            }
-        }
-        .react-autosuggest__suggestions-container {
-            width: 560px;
         }
     }
 }
@@ -395,14 +204,11 @@
     display: block;
 }
 
-.http-client-headers-wrapper, .http-client-body-wrapper {
-    padding-top: 10px;
-    margin-bottom: 30px;
-}
-
 .http-client-body-wrapper, .http-client-response-attributes {
     .ACE-editor-wrapper, .body-content{
         width: 96%;
+        margin-top: 10px;
+        margin-bottom: 10px;
         .ace-monokai{
             background: #222;
         }
@@ -432,25 +238,45 @@
 }
 
 .http-client-wrapper{
-    .http-client-request .current-headers input[type=text] {
-        height: 28px!important;
+    .http-client-request .current-headers .ui.button {
+        height: 40px;
+    }
+    .current-headers{
+        margin-top: 5px;
+    }
+    .request-title {
+        padding-left: 15px;
+        margin-top: 10px;
+    }
+    .content{
+        overflow: hidden;
+        border-bottom: 1px solid #333!important;
+    }
+    .title.active{
+        border-bottom: none;
+    }
+    .title {
+        border-bottom: 1px solid #333!important;
+    }
+    .response-empty{
+        padding: 20px;
+    }
+    .response-empty-segment::before {
+        background-color: #262626!important;
     }
 }
 
 .header-content {
     white-space: pre-wrap;
-    @mixin header-attribute() {
-
-    }
-        .header-attribute {
-            padding-bottom: 5px;
-            .key, .value {
-                display: inline-flex;
-                min-width: 150px;
-                padding-left: 10px;
-                font-weight: 300;
-            }
+    .header-attribute {
+        padding: 5px;
+        .key, .value {
+            display: inline-flex;
+            min-width: 150px;
+            padding-left: 10px;
+            font-weight: 300;
         }
+    }
     .response-headers {
         margin-right: 30px;
     }
@@ -493,13 +319,9 @@
     .http-status-code-5__ {
         color: #e74c3c;
     }
-}
-
-hr{
-    margin-top: 0px;
-    margin-bottom: 10px;
-    border: 0;
-    border-top: 1px solid #464343;
+    p{
+        margin: 10px 0;
+    }
 }
 
 .add-header-button{

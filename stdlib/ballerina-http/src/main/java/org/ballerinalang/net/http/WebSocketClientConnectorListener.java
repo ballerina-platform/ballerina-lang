@@ -21,6 +21,7 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
@@ -65,8 +66,8 @@ public class WebSocketClientConnectorListener implements WebSocketConnectorListe
     }
 
     @Override
-    public void onError(Throwable throwable) {
-        throw new BallerinaConnectorException("Unexpected error occurred in WebSocket transport", throwable);
+    public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
+        WebSocketDispatcher.dispatchError(connectionInfo, throwable);
     }
 
     @Override

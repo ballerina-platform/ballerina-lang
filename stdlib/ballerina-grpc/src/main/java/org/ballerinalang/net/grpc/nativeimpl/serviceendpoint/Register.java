@@ -50,7 +50,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_ENDPOINT_TYPE,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_ENDPOINT_TYPE,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true

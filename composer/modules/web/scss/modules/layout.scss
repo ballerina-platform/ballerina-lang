@@ -1,14 +1,14 @@
 .left-right-split-pane {
-  background-color: #333;
+  background-color: $split-pane;
 }
 
 .top-bottom-split-pane {
-  background-color: #3c3c3c;
+  background-color:$split-pane;
 }
 
 .bottom-panel {
   color:white;
-  background-color: #333;
+  background-color: $split-pane;
   width: 100%;
   height: 100%;
   .rc-tabs.rc-tabs-top {
@@ -31,17 +31,6 @@
 
 .hide {
   display: none !important;
-}
-
-.thumbnail {
-  &> img,
-  a > img {
-      display: block;
-      max-width: 100%;
-      height: auto;
-      margin-left: auto;
-      margin-right: auto;
-  }
 }
 
 @mixin box-sizing($box-sizing) {
@@ -67,26 +56,26 @@
   &.vertical {
     width: 11px;
     margin: 0 -5px;
-    border-left: 5px solid rgba(255, 255, 255, 0);
-    border-right: 5px solid rgba(255, 255, 255, 0);
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
     cursor: col-resize;
 
     :hover {
-      border-left: 5px solid rgba(0, 0, 0, 0.5);
-      border-right: 5px solid rgba(0, 0, 0, 0.5);
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
     }
   }
 
   &.horizontal {
     height: 11px;
     margin: -5px 0;
-    border-top: 5px solid rgba(255, 255, 255, 0);
-    border-bottom: 5px solid rgba(255, 255, 255, 0);
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
     cursor: row-resize;
     width: 100%;
     :hover {
-      border-top: 5px solid rgba(0, 0, 0, 0.5);
-      border-bottom: 5px solid rgba(0, 0, 0, 0.5);
+      border-top: 5px solid $black;
+      border-bottom: 5px solid $black;
     }
   }
 
@@ -100,7 +89,7 @@
 
 .Pane{
   &1{
-    z-index: 2;
+    z-index: 10;
   }
   &2{
     z-index: 1;

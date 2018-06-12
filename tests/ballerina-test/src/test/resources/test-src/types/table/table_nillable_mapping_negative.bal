@@ -93,6 +93,50 @@ type InvalidUnion {
     (int|string) val;
 };
 
+type InvalidUnionArrayElement {
+    (int|string)[] val,
+};
+
+type InvalidUnionArray {
+    int[]|string val,
+};
+
+type InvalidUnionArray2 {
+    string?[] val,
+};
+
+type ResultMap {
+    int[] INT_ARRAY,
+    int[] LONG_ARRAY,
+    float[] FLOAT_ARRAY,
+    boolean[] BOOLEAN_ARRAY,
+    string[] STRING_ARRAY,
+};
+
+type ResultMapNonNillableTypeNillableElements {
+    int?[] INT_ARRAY,
+    int?[] LONG_ARRAY,
+    float?[] FLOAT_ARRAY,
+    boolean?[] BOOLEAN_ARRAY,
+    string?[] STRING_ARRAY,
+};
+
+type ResultMapNillable {
+    int?[]? INT_ARRAY,
+    int?[]? LONG_ARRAY,
+    float?[]? FLOAT_ARRAY,
+    boolean?[]? BOOLEAN_ARRAY,
+    string?[]? STRING_ARRAY,
+};
+
+type ResultMapNillableTypeNonNillableElements {
+    int[]? INT_ARRAY;
+    int[]? LONG_ARRAY;
+    float[]? FLOAT_ARRAY;
+    boolean[]? BOOLEAN_ARRAY;
+    string[]? STRING_ARRAY;
+};
+
 function testAssignNilToNonNillableInt() {
     testAssignNilToNonNillableField("int_type", NonNillableInt);
 }
@@ -255,6 +299,34 @@ function testAssignToInvalidUnionTimeStamp() {
     testAssignToInvalidUnionField("timestamp_type");
 }
 
+function testAssignNullArrayToNonNillableWithNonNillableElements() {
+    testAssignArrayToInvalidField(ResultMap, 3);
+}
+
+function testAssignNullArrayToNonNillableTypeWithNillableElements() {
+    testAssignArrayToInvalidField(ResultMapNonNillableTypeNillableElements, 3);
+}
+
+function testAssignNullElementArrayToNonNillableTypeWithNonNillableElements() {
+    testAssignArrayToInvalidField(ResultMap, 2);
+}
+
+function testAssignNullElementArrayToNillableTypeWithNonNillableElements() {
+    testAssignArrayToInvalidField(ResultMapNillableTypeNonNillableElements, 2);
+}
+
+function testAssignInvalidUnionArray() {
+    testInvalidUnionForArrays(InvalidUnionArray);
+}
+
+function testAssignInvalidUnionArrayElement() {
+    testInvalidUnionForArrays(InvalidUnionArrayElement);
+}
+
+function testAssignInvalidUnionArray2() {
+    testInvalidUnionForArrays(InvalidUnionArray2);
+}
+
 function testAssignToInvalidUnionField(string field) {
     endpoint jdbc:Client testDB {
         url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
@@ -267,6 +339,43 @@ function testAssignToInvalidUnionField(string field) {
     try {
         while (dt.hasNext()) {
             var rs = <InvalidUnion>dt.getNext();
+        }
+    } finally {
+        testDB.stop();
+    }
+}
+
+function testAssignArrayToInvalidField(typedesc invalidType, int id) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->select("SELECT int_array, long_array, float_array, boolean_array,
+              string_array from ArrayTypes where row_id = ?", invalidType, id);
+
+    try {
+        while (dt.hasNext()) {
+            var rs = dt.getNext();
+        }
+    } finally {
+        testDB.stop();
+    }
+}
+
+function testInvalidUnionForArrays(typedesc invalidUnion) {
+    endpoint jdbc:Client testDB {
+        url: "jdbc:hsqldb:file:./target/tempdb/TEST_DATA_TABLE_DB",
+        username: "SA",
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    table dt = check testDB->select("SELECT int_array from ArrayTypes where row_id = 1", invalidUnion);
+
+    try {
+        while (dt.hasNext()) {
+            var rs = dt.getNext();
         }
     } finally {
         testDB.stop();

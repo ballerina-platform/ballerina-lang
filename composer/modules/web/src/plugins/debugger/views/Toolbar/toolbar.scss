@@ -1,0 +1,12 @@
+.debugger-tools {
+    border-bottom: 1px solid #565656;
+    .toolbar-icons{
+        width: 20%;
+        background-color: #282828;
+        color: inherit;
+        &:hover{
+            background-color: #282828;
+            color: #eee;
+        }
+    }
+}

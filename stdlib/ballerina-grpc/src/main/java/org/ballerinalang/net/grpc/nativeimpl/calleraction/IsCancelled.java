@@ -42,7 +42,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "isCancelled",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = CALLER_ACTION,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER_ACTION,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         returnType = {
                 @ReturnType(type = TypeKind.BOOLEAN)

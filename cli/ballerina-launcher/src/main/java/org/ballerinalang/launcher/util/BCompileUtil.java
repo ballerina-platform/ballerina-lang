@@ -19,11 +19,11 @@ package org.ballerinalang.launcher.util;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.diagnostic.DiagnosticListener;
 import org.wso2.ballerinalang.compiler.Compiler;
@@ -362,8 +362,8 @@ public class BCompileUtil {
 
     public static BStruct createAndGetStruct(ProgramFile programFile, String packagePath, String structName) {
         PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
-        StructInfo structInfo = structPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
+        StructureTypeInfo typeInfo = structPackageInfo.getStructInfo(structName);
+        BStructureType structType = typeInfo.getType();
         return new BStruct(structType);
     }
 

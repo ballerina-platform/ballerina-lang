@@ -35,12 +35,12 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
 import static org.ballerinalang.mime.util.Constants.BOUNDARY;
-import static org.ballerinalang.mime.util.Constants.BYTE_LIMIT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_STRUCT;
 import static org.ballerinalang.mime.util.Constants.CONTENT_ID_INDEX;
 import static org.ballerinalang.mime.util.Constants.ENTITY;
 import static org.ballerinalang.mime.util.Constants.ENTITY_HEADERS;
 import static org.ballerinalang.mime.util.Constants.FIRST_ELEMENT;
+import static org.ballerinalang.mime.util.Constants.MAX_THRESHOLD_PERCENTAGE;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.NO_CONTENT_LENGTH_FOUND;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
@@ -95,8 +95,19 @@ public class MultipartDecoder {
      */
     private static MIMEConfig getMimeConfig() {
         MIMEConfig mimeConfig = new MIMEConfig();
-        mimeConfig.setMemoryThreshold(BYTE_LIMIT);
+        mimeConfig.setMemoryThreshold(getMemoryThreshold());
         return mimeConfig;
+    }
+
+    /**
+     * Get the maximum memory threshold value to be used with multiparts.
+     *
+     * @return max threshold value
+     */
+    private static Long getMemoryThreshold() {
+        Long freeMemorySize = Runtime.getRuntime().freeMemory();
+        Double maxThreshold = freeMemorySize * MAX_THRESHOLD_PERCENTAGE;
+        return maxThreshold.longValue();
     }
 
     /**
