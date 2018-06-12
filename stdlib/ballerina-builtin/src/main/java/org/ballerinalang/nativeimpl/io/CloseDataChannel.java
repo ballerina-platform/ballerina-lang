@@ -55,7 +55,7 @@ public class CloseDataChannel implements NativeCallableUnit {
     private static final int DATA_CHANNEL_INDEX = 0;
 
     /**
-     * Closes data channel.
+     * Close data channel.
      *
      * @param result the response received after the channel is closed.
      * @return the result of the close response.
@@ -72,10 +72,9 @@ public class CloseDataChannel implements NativeCallableUnit {
         callback.notifySuccess();
         return result;
     }
-
     /**
      * <p>
-     * Closes data channel.
+     * Close data channel.
      * </p>
      * <p>
      * {@inheritDoc}

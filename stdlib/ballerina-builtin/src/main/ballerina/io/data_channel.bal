@@ -153,7 +153,7 @@ public type DataChannel object {
     documentation {
         Closes the data channel.
 
-        R{{}} nill if the channel is closes successfully or an i/o error
+        R{{}} nill if the channel is closed successfully or an i/o error
     }
     public native function close() returns error?;
 };

@@ -241,7 +241,7 @@ public class DataChannel {
     }
 
     /**
-     * Closes the channel.
+     * Close the channel.
      *
      * @throws IOException during i/o error.
      */

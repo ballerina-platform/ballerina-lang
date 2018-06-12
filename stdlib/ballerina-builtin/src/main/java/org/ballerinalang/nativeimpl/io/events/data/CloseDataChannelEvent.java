@@ -37,7 +37,6 @@ public class CloseDataChannelEvent implements Event {
      * Channel which will be closed.
      */
     private DataChannel channel;
-
     /**
      * Holds the context to the event.
      */
