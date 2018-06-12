@@ -69,6 +69,19 @@
         </classes>
     </test>
 
+    <test name="ballerina-observability-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.observability.tracing.TracingTestCase"/>
+            <class name="org.ballerinalang.test.observability.metrics.MetricsTestCase"/>
+        </classes>
+    </test>
+
+    <test name="ballerina-streaming-tests" preserve-order="true" parallel="false">
+        <classes>
+            <class name="org.ballerinalang.test.streaming.StreamsWithinServicesTestCase"/>
+        </classes>
+    </test>
+
     <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
         <classes>
             <class name="org.ballerinalang.test.packaging.PackagingPullTestCase"/>
