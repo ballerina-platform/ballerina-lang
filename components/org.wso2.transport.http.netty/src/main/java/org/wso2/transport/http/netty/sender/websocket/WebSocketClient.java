@@ -43,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
-import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultClientHandshakeFuture;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
@@ -60,34 +59,30 @@ public class WebSocketClient {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketClient.class);
 
-    private WebSocketTargetHandler webSocketTargetHandler;
+    private WebSocketClientHandshakeHandler clientHandshakeHandler;
 
     private final String url;
     private final String subProtocols;
     private final int idleTimeout;
     private final Map<String, String> headers;
-    private final WebSocketConnectorListener connectorListener;
     private final EventLoopGroup wsClientEventLoopGroup;
     private final boolean autoRead;
     private Channel channel = null;
 
     /**
-     * @param url url of the remote endpoint
-     * @param subProtocols subProtocols the negotiable sub-protocol if server is asking for it
-     * @param idleTimeout Idle timeout of the connection
+     * @param url                    url of the remote endpoint
+     * @param subProtocols           subProtocols the negotiable sub-protocol if server is asking for it
+     * @param idleTimeout            Idle timeout of the connection
      * @param wsClientEventLoopGroup of the client connector
-     * @param headers any specific headers which need to send to the server
-     * @param connectorListener connector listener to notify incoming messages
-     * @param autoRead sets the read interest
+     * @param headers                any specific headers which need to send to the server
+     * @param autoRead               sets the read interest
      */
     public WebSocketClient(String url, String subProtocols, int idleTimeout, EventLoopGroup wsClientEventLoopGroup,
-                           Map<String, String> headers, WebSocketConnectorListener connectorListener,
-                           boolean autoRead) {
+                           Map<String, String> headers, boolean autoRead) {
         this.url = url;
         this.subProtocols = subProtocols;
         this.idleTimeout = idleTimeout;
         this.headers = headers;
-        this.connectorListener = connectorListener;
         this.wsClientEventLoopGroup = wsClientEventLoopGroup;
         this.autoRead = autoRead;
     }
@@ -119,52 +114,53 @@ public class WebSocketClient {
                 headers.forEach(httpHeaders::add);
             }
 
-            WebSocketClientHandshaker websocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
+            WebSocketClientHandshaker webSocketHandshaker = WebSocketClientHandshakerFactory.newHandshaker(
                     uri, WebSocketVersion.V13, subProtocols, true, httpHeaders);
             WebSocketFramesBlockingHandler blockingHandler = new WebSocketFramesBlockingHandler();
-            webSocketTargetHandler = new WebSocketTargetHandler(websocketHandshaker, blockingHandler, ssl, autoRead,
-                                                                url, connectorListener);
+            clientHandshakeHandler = new WebSocketClientHandshakeHandler(webSocketHandshaker, blockingHandler, ssl,
+                    autoRead, url, handshakeFuture);
 
             Bootstrap clientBootstrap = new Bootstrap();
             clientBootstrap.group(wsClientEventLoopGroup).channel(NioSocketChannel.class).handler(
-                new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) {
-                        ChannelPipeline pipeline = ch.pipeline();
-                        if (sslCtx != null) {
-                            pipeline.addLast(sslCtx.newHandler(ch.alloc(), host, port));
+                    new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) {
+                            ChannelPipeline pipeline = ch.pipeline();
+                            if (sslCtx != null) {
+                                pipeline.addLast(sslCtx.newHandler(ch.alloc(), host, port));
+                            }
+                            pipeline.addLast(new HttpClientCodec());
+                            // Assuming that WebSocket Handshake messages will not be large than 8KB
+                            pipeline.addLast(new HttpObjectAggregator(8192));
+                            pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
+                            if (idleTimeout > 0) {
+                                pipeline.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
+                                        idleTimeout, TimeUnit.MILLISECONDS));
+                            }
+                            pipeline.addLast(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER, clientHandshakeHandler);
                         }
-                        pipeline.addLast(new HttpClientCodec());
-                        // Assuming that WebSocket Handshake messages will not be large than 8KB
-                        pipeline.addLast(new HttpObjectAggregator(8192));
-                        pipeline.addLast(WebSocketClientCompressionHandler.INSTANCE);
-                        if (idleTimeout > 0) {
-                            pipeline.addLast(new IdleStateHandler(idleTimeout, idleTimeout,
-                                                           idleTimeout, TimeUnit.MILLISECONDS));
-                        }
-                        pipeline.addLast(Constants.WEBSOCKET_FRAME_HANDLER, webSocketTargetHandler);
-                    }
-                });
+                    });
 
             channel = clientBootstrap.connect(uri.getHost(), port).sync().channel();
-            webSocketTargetHandler
+            clientHandshakeHandler
                     .handshakeFuture().addListener((ChannelFutureListener) clientHandshakeFuture -> {
                 Throwable cause = clientHandshakeFuture.cause();
                 if (clientHandshakeFuture.isSuccess() && cause == null) {
                     channel.config().setAutoRead(autoRead);
-                    DefaultWebSocketConnection webSocketConnection = webSocketTargetHandler.getWebSocketConnection();
-                    String actualSubProtocol = websocketHandshaker.actualSubprotocol();
+                    DefaultWebSocketConnection webSocketConnection =
+                            clientHandshakeHandler.getInboundFrameHandler().getWebSocketConnection();
+                    String actualSubProtocol = webSocketHandshaker.actualSubprotocol();
                     webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(actualSubProtocol);
-                    handshakeFuture.notifySuccess(webSocketConnection, webSocketTargetHandler.getHttpCarbonResponse());
+                    handshakeFuture.notifySuccess(webSocketConnection, clientHandshakeHandler.getHttpCarbonResponse());
                 } else {
-                    handshakeFuture.notifyError(cause, webSocketTargetHandler.getHttpCarbonResponse());
+                    handshakeFuture.notifyError(cause, clientHandshakeHandler.getHttpCarbonResponse());
                 }
             });
         } catch (Throwable t) {
-            if (webSocketTargetHandler != null) {
-                handshakeFuture.notifyError(t, webSocketTargetHandler.getHttpCarbonResponse());
+            if (clientHandshakeHandler != null) {
+                handshakeFuture.notifyError(t, clientHandshakeHandler.getHttpCarbonResponse());
             } else {
-              handshakeFuture.notifyError(t, null);
+                handshakeFuture.notifyError(t, null);
             }
         }
         return handshakeFuture;
