@@ -251,24 +251,6 @@ public function Client::init(ClientEndpointConfig config) {
     } else {
         self.httpClient = createCircuitBreakerClient(url, config);
     }
-
-    //if (httpClientRequired) {
-    //    var retryConfigVal = config.retryConfig;
-    //    match retryConfigVal {
-    //        RetryConfig retryConfig => {
-    //            self.httpClient = createRetryClient(url, config);
-    //        }
-    //        () => {
-    //            if (config.cache.enabled) {
-    //                self.httpClient = createHttpCachingClient(url, config, config.cache);
-    //            } else {
-    //                self.httpClient = createHttpSecureClient(url, config);
-    //            }
-    //        }
-    //    }
-    //} else {
-    //    self.httpClient = createCircuitBreakerClient(url, config);
-    //}
 }
 
 function createRedirectClient(string url, ClientEndpointConfig configuration) returns CallerActions {
@@ -310,19 +292,6 @@ function createCircuitBreakerClient(string uri, ClientEndpointConfig configurati
             validateCircuitBreakerConfiguration(cb);
             boolean [] statusCodes = populateErrorCodeIndex(cb.statusCodes);
             CallerActions cbHttpClient = new;
-            //var retryConfigVal = configuration.retryConfig;
-            //match retryConfigVal {
-            //    RetryConfig retryConfig => {
-            //        cbHttpClient = createRetryClient(uri, configuration);
-            //    }
-            //    () => {
-            //        if (configuration.cache.enabled) {
-            //            cbHttpClient = createHttpCachingClient(uri, configuration, configuration.cache);
-            //        } else{
-            //            cbHttpClient = createHttpSecureClient(uri, configuration);
-            //        }
-            //    }
-            //}
             var redirectConfigVal = configuration.followRedirects;
             match redirectConfigVal {
                 FollowRedirects redirectConfig => {

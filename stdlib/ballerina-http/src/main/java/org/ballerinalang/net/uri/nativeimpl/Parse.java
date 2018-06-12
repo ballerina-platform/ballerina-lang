@@ -33,14 +33,15 @@ import java.net.URISyntaxException;
 
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 
+/**
+ * Given a url as a string, construct ballerina URI object with host, port and scheme.
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "parse",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "URI",
-                structPackage = "ballerina.http"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "URI", structPackage = "ballerina.http"),
         args = {@Argument(name = "uri", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING),
-                @ReturnType(type = TypeKind.RECORD, structType = "Error")},
+        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD, structType = "Error")},
         isPublic = true
 )
 public class Parse extends BlockingNativeCallableUnit {

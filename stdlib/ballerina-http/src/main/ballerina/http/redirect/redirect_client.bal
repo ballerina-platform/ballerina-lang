@@ -22,13 +22,13 @@ import ballerina/math;
 import ballerina/config;
 
 documentation {
-    Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
-    to provide retrying over HTTP requests.
+    Provides redirect functionality for HTTP client.
 
     F{{serviceUri}} Target service url
     F{{config}}  HTTP ClientEndpointConfig to be used for HTTP client invocation
-    F{{redirectConfig}} Configurations associated with retry
+    F{{redirectConfig}} Configurations associated with redirect
     F{{httpClient}}  HTTP client for outbound HTTP requests
+    F{{currentRedirectCount}}  Current redirect count of the HTTP client
 }
 public type RedirectClient object {
     public {
@@ -40,8 +40,7 @@ public type RedirectClient object {
     }
 
     documentation {
-        Provides the HTTP actions for interacting with an HTTP endpoint. This is created by wrapping the HTTP client
-        to provide retrying over HTTP requests.
+        Create a redirect client with the given configurations.
 
         P{{serviceUri}} Target service url
         P{{config}}  HTTP ClientEndpointConfig to be used for HTTP client invocation
@@ -56,8 +55,8 @@ public type RedirectClient object {
     }
 
     documentation {
-        The `get()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
+        If the received response for the `get()` action is redirect eligible, redirect will be performed automatically
+        by this `get()` function.
 
         P{{path}} Resource path
         P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
@@ -71,8 +70,8 @@ public type RedirectClient object {
     }
 
     documentation {
-        The `post()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
+       If the received response for the `post()` action is redirect eligible, redirect will be performed automatically
+       by this `post()` function.
 
         P{{path}} Resource path
         P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
@@ -86,8 +85,8 @@ public type RedirectClient object {
     }
 
     documentation {
-        The `head()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
+        If the received response for the `head()` action is redirect eligible, redirect will be performed automatically
+        by this `head()` function.
 
         P{{path}} Resource path
         P{{message}} An optional HTTP outbound request message or or any payload of type `string`, `xml`, `json`,
@@ -101,8 +100,8 @@ public type RedirectClient object {
     }
 
     documentation {
-        The `put()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
+        If the received response for the `put()` action is redirect eligible, redirect will be performed automatically
+        by this `put()` function.
 
         P{{path}} Resource path
         P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
@@ -116,8 +115,7 @@ public type RedirectClient object {
     }
 
     documentation {
-        The `forward()` function wraps the underlying HTTP actions in a way to provide retrying functionality
-        for a given endpoint with inbound request's HTTP verb to recover from network level failures.
+        The `forward()` function is used to invoke an HTTP call with inbound request's HTTP verb.
 
         P{{path}} Resource path
         P{{request}} An HTTP inbound request message
@@ -128,9 +126,8 @@ public type RedirectClient object {
     }
 
     documentation {
-        The `execute()` sends an HTTP request to a service with the specified HTTP verb. The function wraps the
-        underlying HTTP actions in a way to provide retrying functionality for a given endpoint to recover
-        from network level failures.
+        The `execute()` sends an HTTP request to a service with the specified HTTP verb. Redirect will be performed
+        only for HTTP methods.
 
         P{{path}} Resource path
         P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
@@ -149,8 +146,8 @@ public type RedirectClient object {
     }
 
     documentation {
-        The `patch()` function wraps the undeline underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
+        If the received response for the `patch()` action is redirect eligible, redirect will be performed automatically
+        by this `patch()` function.
 
         P{{path}} Resource path
         P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
@@ -164,8 +161,8 @@ public type RedirectClient object {
     }
 
     documentation {
-        The `delete()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
+        If the received response for the `delete()` action is redirect eligible, redirect will be performed automatically
+        by this `delete()` function.
 
         P{{path}} Resource path
         P{{message}} An HTTP outbound request message or any payload of type `string`, `xml`, `json`, `blob`,
@@ -179,8 +176,8 @@ public type RedirectClient object {
     }
 
     documentation {
-        The `options()` function wraps the underlying HTTP actions in a way to provide
-        retrying functionality for a given endpoint to recover from network level failures.
+        If the received response for the `options()` action is redirect eligible, redirect will be performed automatically
+        by this `options()` function.
 
         P{{path}} Resource path
         P{{message}} An optional HTTP outbound request message or any payload of type `string`, `xml`, `json`,
@@ -271,9 +268,7 @@ function performRedirectIfEligible(RedirectClient redirectClient, string path, R
 }
 
 function checkRedirectEligibility(Response|error result, string resolvedRequestedURI, HttpOperation httpVerb, Request
-    request,
-                                  RedirectClient redirectClient, CallerActions callerAction)
-             returns @untainted Response|error {
+    request, RedirectClient redirectClient, CallerActions callerAction) returns @untainted Response|error {
     match result {
         Response response => {
             if (isRedirectResponse(response.statusCode)) {
@@ -358,8 +353,7 @@ function redirectUsingExistingClient(string resolvedURI, RedirectClient redirect
              returns @untainted Response|error {
     log:printDebug("Redirect using existing clientEP : " + resolvedURI);
     Response|error result = invokeEndpoint(resolvePath(redirectClient.config.url, resolvedURI),
-        createRedirectRequest(response.statusCode, request),
-        redirectMethod, redirectClient.httpClient);
+        createRedirectRequest(response.statusCode, request), redirectMethod, redirectClient.httpClient);
     return checkRedirectEligibility(result, resolvedURI, redirectMethod, request, redirectClient,
         callerAction);
 }

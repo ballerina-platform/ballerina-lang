@@ -30,12 +30,14 @@ import org.ballerinalang.net.http.HttpUtil;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+/**
+ * Resolve a given path against a given URI.
+ */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "resolve",
         args = {@Argument(name = "uri", type = TypeKind.STRING), @Argument(name = "path", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRING),
-                @ReturnType(type = TypeKind.RECORD, structType = "Error")},
+        returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD, structType = "Error")},
         isPublic = true
 )
 public class Resolve extends BlockingNativeCallableUnit {
@@ -59,5 +61,3 @@ public class Resolve extends BlockingNativeCallableUnit {
         }
     }
 }
-
-
