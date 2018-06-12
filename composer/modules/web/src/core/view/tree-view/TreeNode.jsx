@@ -196,12 +196,9 @@ class TreeNode extends React.Component {
                         }
                     })
                     .catch((error) => {
-                        log.error(error.message);
-                        if (_.has(error, 'response.data.Error')) {
-                            this.setState({
-                                editError: error.response.data.Error,
-                            });
-                        }
+                        this.setState({
+                            editError: error.message,
+                        });
                     });
             }
         } else if (!_.isEmpty(this.state.inputValue) && editType === EDIT_TYPES.RENAME) {
@@ -227,12 +224,9 @@ class TreeNode extends React.Component {
                         }
                     })
                     .catch((error) => {
-                        log.error(error.message);
-                        if (_.has(error, 'response.data.Error')) {
-                            this.setState({
-                                editError: error.response.data.Error,
-                            });
-                        }
+                        this.setState({
+                            editError: error.message,
+                        });
                     });
             }
         }
