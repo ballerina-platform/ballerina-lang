@@ -75,14 +75,26 @@ public class DataChannelTest {
     @Test(description = "read and write bool")
     public void processBool() {
         String sourceToWrite = currentDirectoryPath + "/boolean.bin";
-        //Will initialize the channel
-        boolean value = false;
-        BValue[] args = {new BBoolean(value), new BString(sourceToWrite)};
+        BValue[] args = {new BBoolean(false), new BString(sourceToWrite)};
         BRunUtil.invokeStateful(dataChannel, "testWriteBool", args);
 
         BValue[] args2 = {new BString(sourceToWrite)};
         BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadBool", args2);
 
-        Assert.assertEquals(value, ((BBoolean) result[0]).booleanValue());
+        Assert.assertEquals(false, ((BBoolean) result[0]).booleanValue());
+    }
+
+    @Test(description = "read and write string")
+    public void processString() {
+        String sourceToWrite = currentDirectoryPath + "/string.bin";
+        String content = "Ballerina";
+        String encoding = "UTF-8";
+        BValue[] args = {new BString(sourceToWrite), new BString(content), new BString(encoding)};
+        BRunUtil.invokeStateful(dataChannel, "testWriteString", args);
+
+        BValue[] args2 = {new BString(sourceToWrite), new BInteger(content.getBytes().length), new BString(encoding)};
+        BValue[] result = BRunUtil.invokeStateful(dataChannel, "testReadString", args2);
+
+        Assert.assertEquals(content, result[0].stringValue());
     }
 }
