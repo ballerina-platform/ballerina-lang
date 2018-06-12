@@ -46,13 +46,13 @@ public class BLangFunction extends BLangInvokableNode implements FunctionNode {
 
     public boolean interfaceFunction;
 
-    public BLangBlockStmt enclBlockStmt;
-
     public Set<BVarSymbol> closureVarSymbols =  new LinkedHashSet<>();
 
     public Map<BSymbol, BLangStatement> initFunctionStmts = new LinkedHashMap<>();
 
     public BInvokableSymbol originalFuncSymbol;
+
+    public boolean isTypeChecked = false;
 
     public VariableNode getReceiver() {
         return receiver;
