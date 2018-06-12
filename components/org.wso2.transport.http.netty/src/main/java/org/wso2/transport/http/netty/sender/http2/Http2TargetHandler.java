@@ -317,7 +317,14 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 HTTPCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
                 if (responseMessage != null) {
                     onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
+                } else if (http2HeadersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
+                    // if the header frame is an initial header frame and also it has endOfStream
+                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
+                            .getHeaders(), outboundMsgHolder);
+                    responseMessage.addHttpContent(new DefaultLastHttpContent());
+                    outboundMsgHolder.addPushResponse(streamId, (HttpCarbonResponse) responseMessage);
                 }
+                http2ClientChannel.removePromisedMessage(streamId);
             } else {
                 // Create response carbon message.
                 HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
@@ -330,7 +337,14 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
                 if (responseMessage != null) {
                     onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
+                } else if (http2HeadersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
+                    // if the header frame is an initial header frame and also it has endOfStream
+                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
+                            .getHeaders(), outboundMsgHolder);
+                    responseMessage.addHttpContent(new DefaultLastHttpContent());
+                    outboundMsgHolder.setResponse((HttpCarbonResponse) responseMessage);
                 }
+                http2ClientChannel.removeInFlightMessage(streamId);
             } else {
                 // Create response carbon message.
                 HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
@@ -355,7 +369,6 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                     notifyHttpListener(new Exception("Error while setting http headers", e));
         }
         responseMessage.addHttpContent(lastHttpContent);
-        http2ClientChannel.removeInFlightMessage(streamId);
     }
 
     private void onDataRead(Http2DataFrame dataFrame) throws Http2Exception {
