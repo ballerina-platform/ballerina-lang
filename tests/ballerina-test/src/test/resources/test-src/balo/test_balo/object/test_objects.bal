@@ -133,10 +133,10 @@ type Vehicle object {
     }
 };
 
-Vehicle p;
+Vehicle v;
 
 function testGetDefaultValuesInObjectGlobalVar() returns (int, string, int, string) {
-    return (p.age, p.emp.name, p.foo.key, p.bar.address);
+    return (v.age, v.emp.name, v.foo.key, v.bar.address);
 }
 
 function testGetDefaultValuesInObject() returns (int, string, int, string) {

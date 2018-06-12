@@ -19,14 +19,14 @@ type Person object {
 
 type Employee object {
     public {
-        Person? p1 = new,
-        Person? p2 = new (),
-        Person? p3,
-        Person? p4,
+        Person? p3 = new,
+        Person? p4 = new (),
+        Person? p5,
+        Person? p6,
     }
     new () {
-        p3 = new;
-        p4 = new();
+        p5 = new;
+        p6 = new();
     }
 };
 

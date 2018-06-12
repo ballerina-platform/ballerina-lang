@@ -555,7 +555,7 @@ public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:B
     }
 
     match(contentType) {
-        string contentType => content.contentType = contentType;
+        string stringContentType => content.contentType = stringContentType;
         () => {
             match(payload) {
                 string => content.contentType = mime:TEXT_PLAIN;

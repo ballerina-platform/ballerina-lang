@@ -57,4 +57,9 @@ public class IOConstants {
      * Specifies the io package information.
      */
     public static final String IO_PACKAGE = "ballerina/io";
+
+    /**
+     * Represents the base number of protobuf.
+     */
+    public static final int PROTO_BUF_BASE = 7;
 }

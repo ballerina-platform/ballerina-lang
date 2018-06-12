@@ -20,22 +20,21 @@
 package org.ballerinalang.nativeimpl.io.events.data;
 
 import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.Representation;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.result.DoubleResult;
+import org.ballerinalang.nativeimpl.io.events.result.AlphaResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 /**
- * Represents the event to read float values.
+ * Represents the event to read string.
  */
-public class ReadFloatEvent implements Event {
+public class ReadStringEvent implements Event {
     /**
-     * Will be used to read float.
+     * Will be used to read string.
      */
     private DataChannel channel;
     /**
@@ -43,16 +42,21 @@ public class ReadFloatEvent implements Event {
      */
     private EventContext context;
     /**
-     * Holds the representation.
+     * Number of bytes which will represent the string.
      */
-    private Representation representation;
+    private int nBytes;
+    /**
+     * Represents the char-set encoding.
+     */
+    private String encoding;
 
-    private static final Logger log = LoggerFactory.getLogger(ReadFloatEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(ReadStringEvent.class);
 
-    public ReadFloatEvent(DataChannel channel, Representation representation, EventContext context) {
+    public ReadStringEvent(DataChannel channel, EventContext context, int nBytes, String encoding) {
         this.channel = channel;
         this.context = context;
-        this.representation = representation;
+        this.nBytes = nBytes;
+        this.encoding = encoding;
     }
 
     /**
@@ -60,20 +64,19 @@ public class ReadFloatEvent implements Event {
      */
     @Override
     public EventResult get() {
-        DoubleResult result;
+        AlphaResult result;
         try {
-            double numericResult = channel.readDouble(representation);
-            result = new DoubleResult(numericResult, context);
+            String alphaResult = channel.readString(nBytes, encoding);
+            result = new AlphaResult(alphaResult, context);
         } catch (IOException e) {
-            log.error("Error occurred while reading float", e);
+            log.error("Error occurred while reading string", e);
             context.setError(e);
-            result = new DoubleResult(context);
+            result = new AlphaResult(context);
         } catch (Throwable e) {
-            log.error("Unidentified error occurred while reading float", e);
+            log.error("Unidentified error occurred while reading string", e);
             context.setError(e);
-            result = new DoubleResult(context);
+            result = new AlphaResult(context);
         }
         return result;
     }
-
 }

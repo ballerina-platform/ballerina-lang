@@ -20,60 +20,50 @@
 package org.ballerinalang.nativeimpl.io.events.data;
 
 import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.Representation;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.result.DoubleResult;
+import org.ballerinalang.nativeimpl.io.events.result.BooleanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
 /**
- * Represents the event to read float values.
+ * Represents the close event of data channel.
  */
-public class ReadFloatEvent implements Event {
+public class CloseDataChannelEvent implements Event {
     /**
-     * Will be used to read float.
+     * Channel which will be closed.
      */
     private DataChannel channel;
     /**
-     * Holds context to the event.
+     * Holds the context to the event.
      */
     private EventContext context;
-    /**
-     * Holds the representation.
-     */
-    private Representation representation;
 
-    private static final Logger log = LoggerFactory.getLogger(ReadFloatEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(CloseDataChannelEvent.class);
 
-    public ReadFloatEvent(DataChannel channel, Representation representation, EventContext context) {
+    public CloseDataChannelEvent(DataChannel channel, EventContext context) {
         this.channel = channel;
         this.context = context;
-        this.representation = representation;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public EventResult get() {
-        DoubleResult result;
+        BooleanResult result;
         try {
-            double numericResult = channel.readDouble(representation);
-            result = new DoubleResult(numericResult, context);
+            channel.close();
+            result = new BooleanResult(true, context);
         } catch (IOException e) {
-            log.error("Error occurred while reading float", e);
+            log.error("Error occurred while closing data channel", e);
             context.setError(e);
-            result = new DoubleResult(context);
+            result = new BooleanResult(context);
         } catch (Throwable e) {
-            log.error("Unidentified error occurred while reading float", e);
+            log.error("Unidentified error occurred while closing data channel", e);
             context.setError(e);
-            result = new DoubleResult(context);
+            result = new BooleanResult(context);
         }
         return result;
     }
-
 }
