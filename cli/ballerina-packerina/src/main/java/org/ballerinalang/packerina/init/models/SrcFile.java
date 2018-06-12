@@ -41,7 +41,7 @@ public class SrcFile {
                                                   "}\n" +
                                                   "service<http:Service> hello bind listener {\n" +
                                                   "\n" +
-                                                  "    documentation{\n" +
+                                                  "    documentation {\n" +
                                                   "       A resource is an invokable API method\n" +
                                                   "       Accessible at '/hello/sayHello\n" +
                                                   "       'caller' is the client invoking this resource \n" +
@@ -65,6 +65,7 @@ public class SrcFile {
                                                   "}";
 
     private static final String MAIN_FUNCTION_CONTENT = "import ballerina/io;\n" +
+                                                        "\n" +
                                                         "documentation {\n" +
                                                         "   Prints `Hello World`.\n" +
                                                         "}\n" +
