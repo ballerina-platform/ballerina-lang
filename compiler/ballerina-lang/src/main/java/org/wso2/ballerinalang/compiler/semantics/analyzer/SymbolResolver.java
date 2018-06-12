@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -193,8 +192,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             return false;
         }
         // We allow variable shadowing for xml namespaces. For all other types, we do not allow variable shadowing.
-        if ((foundSym.owner instanceof BPackageSymbol) && (foundSym.getKind() != SymbolKind.XMLNS)
-                || (foundSym.owner instanceof BVarSymbol)) {
+        if ((foundSym.owner.tag == SymTag.PACKAGE) && (foundSym.getKind() != SymbolKind.XMLNS)
+                || (foundSym.owner.tag == SymTag.VARIABLE)) {
             // Found symbol is a global definition but not a xmlns, or it is a variable symbol, it is an redeclared
             // symbol.
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
