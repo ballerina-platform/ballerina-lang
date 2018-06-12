@@ -92,7 +92,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.StringJoiner;
 import java.util.function.Consumer;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
@@ -192,16 +191,18 @@ public class CompiledPackageSymbolEnter {
         this.env.constantPool = readConstantPool(dataInStream);
 
         // Read packageName and version
+        String orgName = getUTF8CPEntryValue(dataInStream);
         String pkgName = getUTF8CPEntryValue(dataInStream);
         String pkgVersion = getUTF8CPEntryValue(dataInStream);
-        return definePackage(dataInStream, pkgName, pkgVersion);
+        return definePackage(dataInStream, orgName, pkgName, pkgVersion);
     }
 
     private BPackageSymbol definePackage(DataInputStream dataInStream,
+                                         String orgName,
                                          String pkgName,
                                          String pkgVersion) throws IOException {
 
-        PackageID pkgId = createPackageID(pkgName, pkgVersion);
+        PackageID pkgId = createPackageID(orgName, pkgName, pkgVersion);
         this.env.pkgSymbol = Symbols.createPackageSymbol(pkgId, this.symTable);
 //        this.env.pkgSymbol.packageRepository = this.env.loadedRepository;
 
@@ -324,9 +325,10 @@ public class CompiledPackageSymbolEnter {
 
     // TODO do we need to load all the import packages of a compiled package.
     private void defineImportPackage(DataInputStream dataInStream) throws IOException {
+        String orgName = getUTF8CPEntryValue(dataInStream);
         String pkgName = getUTF8CPEntryValue(dataInStream);
         String pkgVersion = getUTF8CPEntryValue(dataInStream);
-        PackageID importPkgID = createPackageID(pkgName, pkgVersion);
+        PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
         BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.loadedRepository);
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
@@ -867,17 +869,13 @@ public class CompiledPackageSymbolEnter {
         return pkgNameCPEntry.getValue();
     }
 
-    private PackageID createPackageID(String pkgName, String pkgVersion) {
-        String[] parts = pkgName.split("\\.");
-        if (parts.length < 2) {
+    private PackageID createPackageID(String orgName, String pkgName, String pkgVersion) {
+        if (orgName == null || orgName.isEmpty()) {
             throw new BLangCompilerException("Invalid package name '" + pkgName + "' in compiled package file");
         }
 
-        StringJoiner joiner = new StringJoiner(Names.DOT.value);
-        Arrays.stream(parts, 1, parts.length).forEachOrdered(joiner::add);
-        Name orgName = names.fromString(parts[0]);
-        return new PackageID(orgName,
-                names.fromString(joiner.toString()),
+        return new PackageID(names.fromString(orgName),
+                names.fromString(pkgName),
                 names.fromString(pkgVersion));
     }
 
@@ -888,31 +886,29 @@ public class CompiledPackageSymbolEnter {
         return (BInvokableType) typeStack.pop();
     }
 
-    private BPackageSymbol lookupPackageSymbol(Name packagePath) {
+    private BPackageSymbol lookupPackageSymbol(String packagePath) {
         //TODO below is a temporary fix, this needs to be removed later.
-        if (packagePath.equals(names.fromString(env.pkgSymbol.pkgID.orgName + "." + env.pkgSymbol.pkgID.name))) {
+        PackageID pkgID = getPackageID(packagePath);
+        if (pkgID.equals(env.pkgSymbol.pkgID)) {
             return env.pkgSymbol;
         }
-//        if (packageName.equals(env.pkgSymbol.pkgID.name)) {
-//            return env.pkgSymbol;
-//        }
-        //TODO: fix for non-ballerina packages
-        Name packageName = new Name(packagePath.getValue().replaceFirst("^ballerina\\.", ""));
-        BSymbol symbol = lookupMemberSymbol(this.env.pkgSymbol.scope, packageName, SymTag.PACKAGE);
 
-        if (symbol == this.symTable.notFoundSymbol && packagePath.getValue().startsWith("ballerina")) {
-            symbol = this.packageLoader.loadPackageSymbol(new PackageID(
-                    new Name("ballerina"),
-                    packageName,
-                    new Name("0.0.0")
-            ), env.loadedRepository);
-
+        BSymbol symbol = lookupMemberSymbol(this.env.pkgSymbol.scope, pkgID.name, SymTag.PACKAGE);
+        if (symbol == this.symTable.notFoundSymbol && pkgID.orgName.equals(Names.BUILTIN_ORG)) {
+            symbol = this.packageLoader.loadPackageSymbol(pkgID, env.loadedRepository);
             if (symbol == null) {
-                throw new BLangCompilerException("Unknown imported package: " + packageName);
+                throw new BLangCompilerException("Unknown imported package: " + pkgID.name);
             }
         }
 
         return (BPackageSymbol) symbol;
+    }
+
+    private PackageID getPackageID(String packagePath) {
+        String[] orgNameParts = packagePath.split(Names.ORG_NAME_SEPARATOR.value);
+        String[] pkgNameParts = orgNameParts[1].split(":");
+        String version = pkgNameParts.length == 2 ? pkgNameParts[1] : Names.EMPTY.value;
+        return createPackageID(orgNameParts[0], pkgNameParts[0], version);
     }
 
     private BSymbol lookupMemberSymbol(Scope scope, Name name, int expSymTag) {
@@ -949,15 +945,15 @@ public class CompiledPackageSymbolEnter {
     private void assignInitFunctions() {
         BPackageSymbol pkgSymbol = this.env.pkgSymbol;
         PackageID pkgId = pkgSymbol.pkgID;
-        Name initFuncName = names.merge(names.fromString(pkgId.bvmAlias()), Names.INIT_FUNCTION_SUFFIX);
+        Name initFuncName = names.merge(names.fromString(pkgId.toString()), Names.INIT_FUNCTION_SUFFIX);
         BSymbol initFuncSymbol = lookupMemberSymbol(pkgSymbol.scope, initFuncName, SymTag.FUNCTION);
         pkgSymbol.initFunctionSymbol = (BInvokableSymbol) initFuncSymbol;
 
-        Name startFuncName = names.merge(names.fromString(pkgId.bvmAlias()), Names.START_FUNCTION_SUFFIX);
+        Name startFuncName = names.merge(names.fromString(pkgId.toString()), Names.START_FUNCTION_SUFFIX);
         BSymbol startFuncSymbol = lookupMemberSymbol(pkgSymbol.scope, startFuncName, SymTag.FUNCTION);
         pkgSymbol.startFunctionSymbol = (BInvokableSymbol) startFuncSymbol;
 
-        Name stopFuncName = names.merge(names.fromString(pkgId.bvmAlias()), Names.STOP_FUNCTION_SUFFIX);
+        Name stopFuncName = names.merge(names.fromString(pkgId.toString()), Names.STOP_FUNCTION_SUFFIX);
         BSymbol stopFuncSymbol = lookupMemberSymbol(pkgSymbol.scope, stopFuncName, SymTag.FUNCTION);
         pkgSymbol.stopFunctionSymbol = (BInvokableSymbol) stopFuncSymbol;
     }
@@ -1037,14 +1033,14 @@ public class CompiledPackageSymbolEnter {
         }
 
         @Override
-        public BType getRefType(char typeChar, String pkgId, String typeName) {
+        public BType getRefType(char typeChar, String pkgPath, String typeName) {
             if (typeName.isEmpty()) {
                 return null;
             }
 
             BPackageSymbol pkgSymbol;
-            if (pkgId != null) {
-                pkgSymbol = lookupPackageSymbol(names.fromString(pkgId));
+            if (pkgPath != null) {
+                pkgSymbol = lookupPackageSymbol(pkgPath);
             } else {
                 pkgSymbol = env.pkgSymbol;
             }

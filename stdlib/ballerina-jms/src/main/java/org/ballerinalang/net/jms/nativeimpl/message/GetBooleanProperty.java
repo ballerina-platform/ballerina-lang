@@ -44,7 +44,7 @@ import javax.jms.Message;
         functionName = "getBooleanProperty",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "Message",
-                             structPackage = "ballerina.jms"),
+                             structPackage = "ballerina/jms"),
         args = {
                 @Argument(name = "key", type = TypeKind.STRING),
         },

@@ -36,6 +36,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+
 /**
  * Copy file/directory to another directory.
  *
@@ -54,7 +56,7 @@ import java.nio.file.Path;
         },
         returnType = {
                 @ReturnType(type = TypeKind.OBJECT, structType = BLangVMErrors.STRUCT_GENERIC_ERROR,
-                            structPackage = BLangVMErrors.PACKAGE_BUILTIN)
+                            structPackage = BALLERINA_BUILTIN_PKG)
         },
         isPublic = true
 )

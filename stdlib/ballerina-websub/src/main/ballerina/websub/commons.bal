@@ -98,7 +98,7 @@ documentation {
 @final string MD5 = "MD5";
 
 @final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
-@final string WEBSUB_PACKAGE_NAME = "ballerina.websub";
+@final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
 
 //TODO: Make public once extension story is finalized.
 documentation {

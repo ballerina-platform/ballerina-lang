@@ -149,12 +149,14 @@ public class PackageInfoWriter {
         writeCP(dataOutStream, packageInfo.getConstPoolEntries());
 
         // Write package name and version number
+        dataOutStream.writeInt(packageInfo.orgNameCPIndex);
         dataOutStream.writeInt(packageInfo.nameCPIndex);
         dataOutStream.writeInt(packageInfo.versionCPIndex);
 
         // Write import package entries
         dataOutStream.writeShort(packageInfo.importPkgInfoSet.size());
         for (ImportPackageInfo importPkgInfo : packageInfo.importPkgInfoSet) {
+            dataOutStream.writeInt(importPkgInfo.orgNameCPIndex);
             dataOutStream.writeInt(importPkgInfo.nameCPIndex);
             dataOutStream.writeInt(importPkgInfo.versionCPIndex);
         }

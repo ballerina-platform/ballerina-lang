@@ -310,7 +310,7 @@ public class CsvChannelTest {
         args = new BValue[]{record};
         BRunUtil.invokeStateful(csvInputOutputProgramFile, "writeRecord", args);
 
-        String[] data = {"Foo,12", "foo@ballerina.io", "332424242"};
+        String[] data = {"Foo,12", "foo@ballerina/io", "332424242"};
         record = new BStringArray(data);
 
         args = new BValue[]{record};

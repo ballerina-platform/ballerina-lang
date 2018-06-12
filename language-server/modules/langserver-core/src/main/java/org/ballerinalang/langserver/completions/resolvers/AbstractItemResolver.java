@@ -417,7 +417,7 @@ public abstract class AbstractItemResolver {
      */
     protected List<SymbolInfo> removeInvalidStatementScopeSymbols(List<SymbolInfo> symbolInfoList) {
         // We need to remove the functions having a receiver symbol and the bTypes of the following
-        // ballerina.coordinator, ballerina.runtime, and anonStructs
+        // ballerina.coordinator, ballerina/runtime, and anonStructs
         ArrayList<String> invalidPkgs = new ArrayList<>(Arrays.asList("runtime",
                 "transactions"));
         symbolInfoList.removeIf(symbolInfo -> {

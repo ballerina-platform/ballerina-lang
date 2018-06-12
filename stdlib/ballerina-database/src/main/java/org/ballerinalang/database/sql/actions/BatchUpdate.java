@@ -29,6 +29,9 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.database.sql.Constants.SQL_PACKAGE_PATH;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+
 /**
  * {@code BatchUpdate} is the Batch update action implementation of the SQL Connector.
  *
@@ -39,7 +42,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "batchUpdate",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = Constants.CALLER_ACTIONS,
-                             structPackage = "ballerina.sql"),
+                             structPackage = SQL_PACKAGE_PATH),
         args = {
                 @Argument(name = "client", type = TypeKind.OBJECT),
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
@@ -48,7 +51,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         },
         returnType = {
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.INT),
-                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = "ballerina.builtin")
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
 public class BatchUpdate extends AbstractSQLAction {
