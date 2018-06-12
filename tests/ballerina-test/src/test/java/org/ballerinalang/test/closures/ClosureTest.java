@@ -197,4 +197,11 @@ public class ClosureTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
     }
+
+    @Test(description = "Test multi level block statements with closure test case")
+    public void testMultiLevelBlockStatements() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test27");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 57);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 167);
+    }
 }

@@ -519,3 +519,54 @@ function testLocalVarModifyWithinClosureScope() returns (float){
     float fsum = fadd;
     return (fsum);
 }
+
+function testMultiLevelBlockStatements1() returns (function () returns (function(int) returns int)) {
+    int sum1 = 23;
+    var bar = () => (function (int) returns int) {
+        float f = 23.7;
+        var foo = (int i) => (int) {
+            int sum2 = 7;
+            if (i < 7) {
+                if (i < 6) {
+                    if (i < 5) {
+                        if (i == 4) {
+                            sum1 = sum1 + sum2 + i + <int>f;
+                        }
+                    }
+                }
+            }
+            return sum1;
+        };
+        return foo;
+    };
+    return bar;
+}
+
+function testMultiLevelBlockStatements2() returns (function(int[], int[], int[]) returns int) {
+    int sum = 23;
+    var foo = (int[] i, int[] j, int[] k) => int {
+        foreach x in i {
+            foreach y in j {
+                foreach z in k {
+                    sum = sum + x + y + z;
+                }
+            }
+        }
+        return sum;
+    };
+
+    return foo;
+}
+
+
+function test27() returns (int, int) {
+    var foo = testMultiLevelBlockStatements1();
+    var baz = foo();
+    var bar = testMultiLevelBlockStatements2();
+    int[] i = [1,2];
+    int[] j = [1,2,3];
+    int[] k = [1,2,3,4];
+    return (baz(4), bar(i,j,k));
+}
+
+
