@@ -27,6 +27,10 @@ public class BalGenerationConstants {
     public static final String OS_ARCH_SYSTEM_PROPERTY = "os.arch";
     public static final String FILE_SEPARATOR = File.separator;
     public static final String META_LOCATION = "desc_gen";
+    public static final String TEMP_GOOGLE_DIRECTORY = "google";
+    public static final String TEMP_PROTOBUF_DIRECTORY = "protobuf";
+    public static final String TEMP_COMPILER_DIRECTORY = "compiler";
+
     public static final String META_DEPENDENCY_LOCATION = "desc_gen" + FILE_SEPARATOR
             + "dependencies";
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");

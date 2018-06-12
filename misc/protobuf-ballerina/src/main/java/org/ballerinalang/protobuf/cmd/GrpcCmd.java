@@ -49,10 +49,14 @@ import java.util.regex.Pattern;
 import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
 import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
 import static org.ballerinalang.protobuf.BalGenerationConstants.FILE_SEPARATOR;
+import static org.ballerinalang.protobuf.BalGenerationConstants.META_LOCATION;
 import static org.ballerinalang.protobuf.BalGenerationConstants.NEW_LINE_CHARACTER;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_URL_SUFFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_SUFFIX;
+import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_COMPILER_DIRECTORY;
+import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_GOOGLE_DIRECTORY;
+import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_PROTOBUF_DIRECTORY;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.delete;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.grantPermission;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
@@ -99,7 +103,7 @@ public class GrpcCmd implements BLauncherCmd {
     @Override
     public void execute() {
 
-        if (protoPath == null || !protoPath.toLowerCase(Locale.ENGLISH).endsWith(".proto")) {
+        if (protoPath == null || !protoPath.toLowerCase(Locale.ENGLISH).endsWith(PROTO_SUFFIX)) {
             String errorMessage = "Invalid proto file path. Please input valid proto file location.";
             outStream.println(errorMessage);
             throw new BalGenToolException(errorMessage);
@@ -156,8 +160,8 @@ public class GrpcCmd implements BLauncherCmd {
             LOG.debug("Successfully generated dependent descriptor.");
         } finally {
             //delete temporary meta files
-            delete(new File(BalGenerationConstants.META_LOCATION));
-            delete(new File("google"));
+            delete(new File(META_LOCATION));
+            delete(new File(TEMP_GOOGLE_DIRECTORY));
             LOG.debug("Successfully deleted temporary files.");
         }
 
@@ -188,22 +192,22 @@ public class GrpcCmd implements BLauncherCmd {
      */
     private File generateTempDirectory() {
 
-        File metadataHome = new File(BalGenerationConstants.META_LOCATION);
+        File metadataHome = new File(META_LOCATION);
         if (!metadataHome.exists() && !metadataHome.mkdir()) {
             throw new IllegalStateException("Couldn't create dir: " + metadataHome);
         }
 
-        File googleHome = new File("google");
+        File googleHome = new File(TEMP_GOOGLE_DIRECTORY);
         if (!googleHome.exists() && !googleHome.mkdir()) {
             throw new IllegalStateException("Couldn't create dir: " + googleHome);
         }
 
-        File protobufHome = new File(googleHome, "protobuf");
+        File protobufHome = new File(googleHome, TEMP_PROTOBUF_DIRECTORY);
         if (!protobufHome.exists() && !protobufHome.mkdir()) {
             throw new IllegalStateException("Couldn't create dir: " + protobufHome);
         }
 
-        File compilerHome = new File(protobufHome, "compiler");
+        File compilerHome = new File(protobufHome, TEMP_COMPILER_DIRECTORY);
         if (!compilerHome.exists() && !compilerHome.mkdir()) {
             throw new IllegalStateException("Couldn't create dir: " + compilerHome);
         }
