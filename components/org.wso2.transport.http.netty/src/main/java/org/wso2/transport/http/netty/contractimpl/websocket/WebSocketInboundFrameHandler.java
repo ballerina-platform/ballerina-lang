@@ -136,7 +136,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             DefaultWebSocketMessage webSocketCloseMessage =
                     new DefaultWebSocketCloseMessage(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
             setupCommonProperties(webSocketCloseMessage);
-            connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
+            connectorFuture.notifyWebSocketListener((WebSocketCloseMessage) webSocketCloseMessage);
             return;
         }
 
@@ -193,17 +193,17 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             ChannelFuture closeFrameFuture = ctx.channel().writeAndFlush(new CloseWebSocketFrame(
                     Constants.WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION, "Encountered an unexpected condition"));
             closeFrameFuture.addListener(future -> ctx.close().addListener(
-                    closeFuture -> connectorFuture.notifyWSListener(webSocketConnection, cause)));
+                    closeFuture -> connectorFuture.notifyWebSocketListener(webSocketConnection, cause)));
             return;
         }
-        connectorFuture.notifyWSListener(webSocketConnection, cause);
+        connectorFuture.notifyWebSocketListener(webSocketConnection, cause);
     }
 
     private void notifyTextMessage(WebSocketFrame frame, String text, boolean finalFragment)
             throws WebSocketConnectorException {
         DefaultWebSocketMessage webSocketTextMessage = WebSocketUtil.getWebSocketMessage(frame, text, finalFragment);
         setupCommonProperties(webSocketTextMessage);
-        connectorFuture.notifyWSListener((WebSocketTextMessage) webSocketTextMessage);
+        connectorFuture.notifyWebSocketListener((WebSocketTextMessage) webSocketTextMessage);
     }
 
     private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment)
@@ -211,7 +211,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
         DefaultWebSocketMessage webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content,
                 finalFragment);
         setupCommonProperties(webSocketBinaryMessage);
-        connectorFuture.notifyWSListener((WebSocketBinaryMessage) webSocketBinaryMessage);
+        connectorFuture.notifyWebSocketListener((WebSocketBinaryMessage) webSocketBinaryMessage);
     }
 
     private void notifyCloseMessage(CloseWebSocketFrame closeWebSocketFrame) throws WebSocketConnectorException {
@@ -222,7 +222,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage);
             closeFrameReceived = true;
-            connectorFuture.notifyWSListener((WebSocketCloseMessage) webSocketCloseMessage);
+            connectorFuture.notifyWebSocketListener((WebSocketCloseMessage) webSocketCloseMessage);
         } else {
             if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
                 String errMsg = String.format(
@@ -240,21 +240,21 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
         WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
                 getWebSocketControlMessage(pingWebSocketFrame, WebSocketControlSignal.PING);
         setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage);
-        connectorFuture.notifyWSListener(webSocketControlMessage);
+        connectorFuture.notifyWebSocketListener(webSocketControlMessage);
     }
 
     private void notifyPongMessage(PongWebSocketFrame pongWebSocketFrame) throws WebSocketConnectorException {
         WebSocketControlMessage webSocketControlMessage = WebSocketUtil.
                 getWebSocketControlMessage(pongWebSocketFrame, WebSocketControlSignal.PONG);
         setupCommonProperties((DefaultWebSocketMessage) webSocketControlMessage);
-        connectorFuture.notifyWSListener(webSocketControlMessage);
+        connectorFuture.notifyWebSocketListener(webSocketControlMessage);
     }
 
     private void notifyIdleTimeout() throws WebSocketConnectorException {
         DefaultWebSocketMessage webSocketControlMessage = new DefaultWebSocketControlMessage(
                 WebSocketControlSignal.IDLE_TIMEOUT, null);
         setupCommonProperties(webSocketControlMessage);
-        connectorFuture.notifyWSIdleTimeout((WebSocketControlMessage) webSocketControlMessage);
+        connectorFuture.notifyWebSocketIdleTimeout((WebSocketControlMessage) webSocketControlMessage);
     }
 
     private void setupCommonProperties(DefaultWebSocketMessage webSocketMessage) {

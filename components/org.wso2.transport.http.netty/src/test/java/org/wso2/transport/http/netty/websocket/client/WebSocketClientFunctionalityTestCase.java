@@ -249,7 +249,7 @@ public class WebSocketClientFunctionalityTestCase {
 
     private ClientHandshakeFuture handshake(WebSocketConnectorListener connectorListener) {
         ClientHandshakeFuture clientHandshakeFuture = clientConnector.connect();
-        clientHandshakeFuture.setWSConnectorListener(connectorListener);
+        clientHandshakeFuture.setWebSocketConnectorListener(connectorListener);
         return clientHandshakeFuture;
     }
 

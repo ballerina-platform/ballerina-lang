@@ -59,7 +59,7 @@ public class WebSocketServerHandshakeFunctionalityTestCase {
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
-        connectorFuture.setWSConnectorListener(listener = new WebSocketServerHandshakeFunctionalityListener());
+        connectorFuture.setWebSocketConnectorListener(listener = new WebSocketServerHandshakeFunctionalityListener());
         connectorFuture.sync();
     }
 

@@ -57,7 +57,7 @@ public class WebSocketPassThroughServerConnectorListener implements WebSocketCon
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
         WebSocketConnectorListener clientConnectorListener = new WebSocketPassThroughClientConnectorListener();
         ClientHandshakeFuture clientHandshakeFuture = clientConnector.connect();
-        clientHandshakeFuture.setWSConnectorListener(clientConnectorListener);
+        clientHandshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
         clientHandshakeFuture.setClientHandshakeListener(new ClientHandshakeListener() {
             @Override
             public void onSuccess(WebSocketConnection clientWebSocketConnection, HttpCarbonResponse response) {

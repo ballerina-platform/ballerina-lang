@@ -24,66 +24,67 @@ package org.wso2.transport.http.netty.contract.websocket;
 public interface WebSocketConnectorFuture {
 
     /**
-     *  Set Connector listener for WebSocket.
-     * @param connectorListener Connector listener for WebSocket.
+     * Set Connector listener for WebSocket.
+     *
+     * @param connectorListener Connector listener for WebSocket
      */
-    void setWSConnectorListener(WebSocketConnectorListener connectorListener);
+    void setWebSocketConnectorListener(WebSocketConnectorListener connectorListener);
 
     /**
      * Notify WebSocket connection initialization for the listener.
      *
-     * @param initMessage {@link WebSocketInitMessage} to notify connection initialization.
-     * @throws WebSocketConnectorException if any error occurred during the notification.
+     * @param initMessage {@link WebSocketInitMessage} to notify connection initialization
+     * @throws WebSocketConnectorException if any error occurred during the notification
      */
-    void notifyWSListener(WebSocketInitMessage initMessage) throws WebSocketConnectorException;
+    void notifyWebSocketListener(WebSocketInitMessage initMessage) throws WebSocketConnectorException;
 
     /**
      * Notify incoming WebSocket text message for the listener.
      *
-     * @param textMessage {@link WebSocketTextMessage} to notify incoming WebSocket text message.
-     * @throws WebSocketConnectorException if any error occurred during the notification.
+     * @param textMessage {@link WebSocketTextMessage} to notify incoming WebSocket text message
+     * @throws WebSocketConnectorException if any error occurred during the notification
      */
-    void notifyWSListener(WebSocketTextMessage textMessage) throws WebSocketConnectorException;
+    void notifyWebSocketListener(WebSocketTextMessage textMessage) throws WebSocketConnectorException;
 
     /**
      * Notify incoming WebSocket binary message for the listener.
      *
-     * @param binaryMessage {@link WebSocketBinaryMessage} to notify incoming WebSocket binary message.
-     * @throws WebSocketConnectorException if any error occurred during the notification.
+     * @param binaryMessage {@link WebSocketBinaryMessage} to notify incoming WebSocket binary message
+     * @throws WebSocketConnectorException if any error occurred during the notification
      */
-    void notifyWSListener(WebSocketBinaryMessage binaryMessage)throws WebSocketConnectorException;
+    void notifyWebSocketListener(WebSocketBinaryMessage binaryMessage)throws WebSocketConnectorException;
 
     /**
      * Notify incoming WebSocket pong message for the listener.
      *
-     * @param controlMessage {@link WebSocketControlMessage} to Notify incoming WebSocket pong message.
-     * @throws WebSocketConnectorException if any error occurred during the notification.
+     * @param controlMessage {@link WebSocketControlMessage} to Notify incoming WebSocket pong message
+     * @throws WebSocketConnectorException if any error occurred during the notification
      */
-    void notifyWSListener(WebSocketControlMessage controlMessage) throws WebSocketConnectorException;
+    void notifyWebSocketListener(WebSocketControlMessage controlMessage) throws WebSocketConnectorException;
 
     /**
      * Notify incoming WebSocket connection closure for the listener.
      *
-     * @param closeMessage {@link WebSocketCloseMessage} to notify incoming WebSocket connection closure.
-     * @throws WebSocketConnectorException if any error occurred during the notification.
+     * @param closeMessage {@link WebSocketCloseMessage} to notify incoming WebSocket connection closure
+     * @throws WebSocketConnectorException if any error occurred during the notification
      */
-    void notifyWSListener(WebSocketCloseMessage closeMessage) throws WebSocketConnectorException;
+    void notifyWebSocketListener(WebSocketCloseMessage closeMessage) throws WebSocketConnectorException;
 
     /**
      * Notify any error occurred in transport for the listener.
      *
-     * @param webSocketConnection {@link WebSocketConnection} which causes the error.
-     * @param throwable {@link Throwable} error occurred.
-     * @throws WebSocketConnectorException if any error occurred during the notification.
+     * @param webSocketConnection {@link WebSocketConnection} which causes the error
+     * @param throwable {@link Throwable} error occurred
+     * @throws WebSocketConnectorException if any error occurred during the notification
      */
-    void notifyWSListener(WebSocketConnection webSocketConnection, Throwable throwable)
+    void notifyWebSocketListener(WebSocketConnection webSocketConnection, Throwable throwable)
             throws WebSocketConnectorException;
 
     /**
      * Notify idle timeout of WebSocket connection.
      *
-     * @param controlMessage Indicate WebSocket connection timeout.
-     * @throws WebSocketConnectorException if any error occurred during notification to the listener.
+     * @param controlMessage Indicate WebSocket connection timeout
+     * @throws WebSocketConnectorException if any error occurred during notification to the listener
      */
-    void notifyWSIdleTimeout(WebSocketControlMessage controlMessage) throws WebSocketConnectorException;
+    void notifyWebSocketIdleTimeout(WebSocketControlMessage controlMessage) throws WebSocketConnectorException;
 }

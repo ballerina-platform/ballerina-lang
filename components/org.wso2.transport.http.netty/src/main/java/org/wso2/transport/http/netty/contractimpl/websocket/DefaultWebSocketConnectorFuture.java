@@ -37,12 +37,12 @@ public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture
 
 
     @Override
-    public void setWSConnectorListener(WebSocketConnectorListener wsConnectorListener) {
+    public void setWebSocketConnectorListener(WebSocketConnectorListener wsConnectorListener) {
         this.wsConnectorListener = wsConnectorListener;
     }
 
     @Override
-    public void notifyWSListener(WebSocketInitMessage initMessage) throws WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketInitMessage initMessage) throws WebSocketConnectorException {
         if (wsConnectorListener == null) {
             throw new WebSocketConnectorException("WebSocket connector listener is not set");
         }
@@ -50,7 +50,7 @@ public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture
     }
 
     @Override
-    public void notifyWSListener(WebSocketTextMessage textMessage) throws WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketTextMessage textMessage) throws WebSocketConnectorException {
         if (wsConnectorListener == null) {
             throw new WebSocketConnectorException("WebSocket connector listener is not set");
         }
@@ -58,7 +58,7 @@ public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture
     }
 
     @Override
-    public void notifyWSListener(WebSocketBinaryMessage binaryMessage) throws WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketBinaryMessage binaryMessage) throws WebSocketConnectorException {
         if (wsConnectorListener == null) {
             throw new WebSocketConnectorException("WebSocket connector listener is not set");
         }
@@ -66,7 +66,7 @@ public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture
     }
 
     @Override
-    public void notifyWSListener(WebSocketControlMessage controlMessage) throws WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketControlMessage controlMessage) throws WebSocketConnectorException {
         if (wsConnectorListener == null) {
             throw new WebSocketConnectorException("WebSocket connector listener is not set");
         }
@@ -74,7 +74,7 @@ public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture
     }
 
     @Override
-    public void notifyWSListener(WebSocketCloseMessage closeMessage) throws WebSocketConnectorException {
+    public void notifyWebSocketListener(WebSocketCloseMessage closeMessage) throws WebSocketConnectorException {
         if (wsConnectorListener == null) {
             throw new WebSocketConnectorException("WebSocket connector listener is not set");
         }
@@ -82,7 +82,7 @@ public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture
     }
 
     @Override
-    public void notifyWSListener(WebSocketConnection webSocketConnection, Throwable throwable)
+    public void notifyWebSocketListener(WebSocketConnection webSocketConnection, Throwable throwable)
             throws WebSocketConnectorException {
         if (wsConnectorListener == null) {
             throw new WebSocketConnectorException("WebSocket connector listener is not set");
@@ -91,7 +91,7 @@ public class DefaultWebSocketConnectorFuture implements WebSocketConnectorFuture
     }
 
     @Override
-    public void notifyWSIdleTimeout(WebSocketControlMessage controlMessage) throws WebSocketConnectorException {
+    public void notifyWebSocketIdleTimeout(WebSocketControlMessage controlMessage) throws WebSocketConnectorException {
         if (wsConnectorListener == null) {
             throw new WebSocketConnectorException("WebSocket connector listener is not set");
         }
