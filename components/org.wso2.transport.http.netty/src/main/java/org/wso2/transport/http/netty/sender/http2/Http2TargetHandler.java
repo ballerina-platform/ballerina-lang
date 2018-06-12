@@ -310,22 +310,48 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 return;
             }
         }
-        // Create response carbon message
-        HttpCarbonResponse responseMessage =
-                setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder);
+
         if (isServerPush) {
-            outboundMsgHolder.addPushResponse(streamId, responseMessage);
+            HTTPCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
+            // Create response carbon message. if response message doesn't exist.
+            if (responseMessage == null) {
+                responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(),
+                        outboundMsgHolder);
+                outboundMsgHolder.addPushResponse(streamId, (HttpCarbonResponse) responseMessage);
+            }
             if (endOfStream) {
-                responseMessage.addHttpContent(new DefaultLastHttpContent());
-                http2ClientChannel.removePromisedMessage(streamId);
+                onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
             }
         } else {
-            if (endOfStream) {
-                responseMessage.addHttpContent(new DefaultLastHttpContent());
-                http2ClientChannel.removeInFlightMessage(streamId);
+            HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
+            // Create response carbon message. if response message doesn't exist.
+            if (responseMessage == null) {
+                responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(),
+                        outboundMsgHolder);
+                outboundMsgHolder.setResponse((HttpCarbonResponse) responseMessage);
             }
-            outboundMsgHolder.setResponse(responseMessage);
+            if (endOfStream) {
+                onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
+            }
         }
+    }
+
+    private void onTrailersRead(int streamId, Http2Headers headers, OutboundMsgHolder outboundMsgHolder,
+                                HTTPCarbonMessage responseMessage) {
+
+        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
+        HttpHeaders trailers = lastHttpContent.trailingHeaders();
+
+        try {
+            HttpConversionUtil.addHttp2ToHttpHeaders(
+                    streamId, headers, trailers, version, true, false);
+        } catch (Http2Exception e) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyHttpListener(new Exception("Error while setting http headers", e));
+        }
+        responseMessage.addHttpContent(lastHttpContent);
+        http2ClientChannel.removeInFlightMessage(streamId);
     }
 
     private void onDataRead(Http2DataFrame dataFrame) throws Http2Exception {
