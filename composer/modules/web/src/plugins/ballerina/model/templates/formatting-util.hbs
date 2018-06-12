@@ -16,10 +16,25 @@
  * under the License.
  */
 
-import AbstractRecordTypeNode from './abstract-tree/record-type-node';
+import _ from 'lodash';
+import TreeUtil from './../../../model/tree-util';
 
-class RecordTypeNode extends AbstractRecordTypeNode {
+class FormattingUtil {
+
+{{#each this}}
+
+    /**
+     * format {{kind}} nodes.
+     *
+     * @param {object} node
+     *
+     */
+    format{{ kind }}Node(node) {
+        // Not implemented.
+    }
+
+{{/each}}
 
 }
 
-export default RecordTypeNode;
+export default FormattingUtil;

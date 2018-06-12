@@ -63,44 +63,45 @@ public class BallerinaObjectFieldProcessor extends BallerinaScopeProcessorBase {
     public boolean execute(@NotNull PsiElement element, @NotNull ResolveState state) {
         ProgressManager.checkCanceled();
         if (accept(element)) {
-            BallerinaObjectBody ballerinaObjectBody = PsiTreeUtil.findChildOfType(element, BallerinaObjectBody.class);
-            if (ballerinaObjectBody != null) {
-                processObjectDefinition(ballerinaObjectBody);
-            } else {
-                PsiElement owner = ((BallerinaTypeDefinition) element).getIdentifier();
-                if (owner == null) {
-                    return true;
-                }
-                BallerinaFiniteType ballerinaFiniteType = PsiTreeUtil.getChildOfType(element,
-                        BallerinaFiniteType.class);
-                if (ballerinaFiniteType == null) {
-                    return true;
-                }
+            BallerinaFiniteType ballerinaFiniteType = PsiTreeUtil.getChildOfType(element, BallerinaFiniteType.class);
+            if (ballerinaFiniteType == null) {
+                return true;
+            }
 
-                List<BallerinaFiniteTypeUnit> finiteTypeUnitList = ballerinaFiniteType.getFiniteTypeUnitList();
-                for (BallerinaFiniteTypeUnit ballerinaFiniteTypeUnit : finiteTypeUnitList) {
-                    BallerinaTypeName typeName = ballerinaFiniteTypeUnit.getTypeName();
-                    if (typeName instanceof BallerinaRecordTypeName) {
-                        BallerinaFieldDefinitionList fieldDefinitionList =
-                                ((BallerinaRecordTypeName) typeName).getFieldDefinitionList();
-                        List<BallerinaFieldDefinition> fieldList = fieldDefinitionList.getFieldDefinitionList();
-                        for (BallerinaFieldDefinition ballerinaFieldDefinition : fieldList) {
-                            PsiElement identifier = ballerinaFieldDefinition.getIdentifier();
-                            if (myResult != null) {
-                                BallerinaTypeName fieldTypeName = ballerinaFieldDefinition.getTypeName();
-                                String type;
-                                if (fieldTypeName instanceof BallerinaRecordTypeName) {
-                                    type = "record {}";
-                                } else {
-                                    type = fieldTypeName.getText();
-                                }
-                                myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier, owner,
-                                        type, BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition),
-                                        null, false));
-                            } else if (myElement.getText().equals(identifier.getText())) {
-                                add(identifier);
-                            }
+            PsiElement firstChild = ballerinaFiniteType.getFirstChild();
+            if (firstChild instanceof BallerinaObjectBody) {
+                processObjectDefinition(((BallerinaObjectBody) firstChild));
+                return true;
+            }
+            PsiElement owner = ((BallerinaTypeDefinition) element).getIdentifier();
+            if (owner == null) {
+                return true;
+            }
+
+            List<BallerinaFiniteTypeUnit> finiteTypeUnitList = ballerinaFiniteType.getFiniteTypeUnitList();
+            for (BallerinaFiniteTypeUnit ballerinaFiniteTypeUnit : finiteTypeUnitList) {
+                BallerinaTypeName typeName = ballerinaFiniteTypeUnit.getTypeName();
+                if (!(typeName instanceof BallerinaRecordTypeName)) {
+                    continue;
+                }
+                BallerinaFieldDefinitionList fieldDefinitionList =
+                        ((BallerinaRecordTypeName) typeName).getFieldDefinitionList();
+                List<BallerinaFieldDefinition> fieldList = fieldDefinitionList.getFieldDefinitionList();
+                for (BallerinaFieldDefinition ballerinaFieldDefinition : fieldList) {
+                    PsiElement identifier = ballerinaFieldDefinition.getIdentifier();
+                    if (myResult != null) {
+                        BallerinaTypeName fieldTypeName = ballerinaFieldDefinition.getTypeName();
+                        String type;
+                        if (fieldTypeName instanceof BallerinaRecordTypeName) {
+                            type = "record {}";
+                        } else {
+                            type = fieldTypeName.getText();
                         }
+                        myResult.addElement(BallerinaCompletionUtils.createFieldLookupElement(identifier, owner,
+                                type, BallerinaPsiImplUtil.getObjectFieldDefaultValue(ballerinaFieldDefinition),
+                                null, false));
+                    } else if (myElement.getText().equals(identifier.getText())) {
+                        add(identifier);
                     }
                 }
             }
