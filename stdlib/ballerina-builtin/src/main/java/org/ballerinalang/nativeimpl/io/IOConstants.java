@@ -69,7 +69,7 @@ public class IOConstants {
     public static final String IO_ERROR_STRUCT = "error";
 
     /**
-     * Represents the base number of protobuf
+     * Represents the base number of protobuf.
      */
     public static final int PROTO_BUF_BASE = 7;
 }
