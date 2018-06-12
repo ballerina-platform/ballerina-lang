@@ -79,6 +79,4 @@ public class WriteStringEvent implements Event {
         }
         return result;
     }
-
-
 }

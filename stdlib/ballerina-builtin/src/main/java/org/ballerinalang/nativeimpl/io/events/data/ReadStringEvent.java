@@ -78,6 +78,5 @@ public class ReadStringEvent implements Event {
             result = new AlphaResult(context);
         }
         return result;
-
     }
 }

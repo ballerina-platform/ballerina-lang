@@ -54,6 +54,12 @@ public class CloseDataChannel implements NativeCallableUnit {
      */
     private static final int DATA_CHANNEL_INDEX = 0;
 
+    /**
+     * Closes data channel.
+     *
+     * @param result the response received after the channel is closed.
+     * @return the result of the close response.
+     */
     private static EventResult closeResponse(EventResult<Boolean, EventContext> result) {
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();

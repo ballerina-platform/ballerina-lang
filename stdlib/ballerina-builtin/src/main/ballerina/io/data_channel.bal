@@ -105,7 +105,7 @@ public type DataChannel object {
         Writes 32 bit float.
 
         P{{value}}   float which will be written
-        R{{}} value of the float which is read or an error
+        R{{}} nill if the float is written successfully or an error
     }
     public native function writeFloat32(float value) returns error?;
 
@@ -113,7 +113,7 @@ public type DataChannel object {
         Writes 64 bit float.
 
         P{{value}}   float which will be written
-        R{{}} value of the float which is read or an error
+        R{{}} nill if the float is written successfully or an error
     }
     public native function writeFloat64(float value) returns error?;
 
