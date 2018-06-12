@@ -1,3 +1,9 @@
+# Ballerina by Example
+
+[Ballerina by Example](https://ballerina.io/learn/by-example/) teaches you the Ballerina language incrementally with commented examples that cover every nuance of the syntax. The source for these can be found in this repository.
+
+## About Ballerina
+
 Ballerina makes it easy to write microservices that integrate APIs.
 
 #### Integration Syntax
@@ -8,10 +14,6 @@ A type system that embraces network payload variability with primitive, object, 
 
 #### Concurrency
 An execution model composed of lightweight parallel worker units that are non-blocking where no function can lock an executing thread manifesting sequence concurrency.
-
-## Ballerina by Example
-
-[Ballerina by Example](https://ballerina.io/learn/by-example/) teaches you the Ballerina language incrementally with commented examples that cover every nuance of the syntax. The source for these can be found in this repository.
 
 ## Contributing to Ballerina
 
