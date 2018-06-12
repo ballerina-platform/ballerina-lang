@@ -1,0 +1,48 @@
+/*
+ * Copyright 2014, gRPC Authors All rights reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.ballerinalang.net.grpc;
+
+import io.netty.handler.codec.http.HttpHeaders;
+
+/** An observer of client-side stream events. */
+public interface ClientStreamListener extends StreamListener {
+  /**
+   * Called upon receiving all header information from the remote end-point. Note that transports
+   * are not required to call this method if no header information is received, this would occur
+   * when a stream immediately terminates with an error and only
+   * {@link #closed(Status, HttpHeaders)} is called.
+   *
+   * <p>This method should return quickly, as the same thread may be used to process other streams.
+   *
+   * @param headers the fully buffered received headers.
+   */
+  void headersRead(HttpHeaders headers);
+
+  /**
+   * Called when the stream is fully closed. {@link
+   * io.grpc.Status.Code#OK} is the only status code that is guaranteed
+   * to have been sent from the remote server. Any other status code may have been caused by
+   * abnormal stream termination. This is guaranteed to always be the final call on a listener. No
+   * further callbacks will be issued.
+   *
+   * <p>This method should return quickly, as the same thread may be used to process other streams.
+   *
+   * @param status details about the remote closure
+   * @param trailers trailing metadata
+   */
+  void closed(Status status, HttpHeaders trailers);
+}

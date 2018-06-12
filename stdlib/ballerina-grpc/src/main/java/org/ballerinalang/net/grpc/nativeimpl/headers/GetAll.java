@@ -15,26 +15,17 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
-import io.grpc.Metadata;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.MessageHeaders;
-
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 
 /**
  * Get the Headers of the Message.
@@ -54,15 +45,16 @@ import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 public class GetAll extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        String headerName = context.getStringArgument(0);
+        //TODO: redesign headers support
+/*        String headerName = context.getStringArgument(0);
         BStruct headerValues = (BStruct) context.getRefArgument(0);
         MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
                 : null;
         String[] headerValue = getHeaderValues(metadata, headerName);
-        context.setReturnValues(new BStringArray(headerValue));
+        context.setReturnValues(new BStringArray(headerValue));*/
     }
 
-    private String[] getHeaderValues(MessageHeaders metadata, String keyName) {
+/*    private String[] getHeaderValues(MessageHeaders metadata, String keyName) {
 
         List<String> headerValues = new ArrayList<>();
         if (metadata != null) {
@@ -85,5 +77,5 @@ public class GetAll extends BlockingNativeCallableUnit {
             }
         }
         return headerValues.toArray(new String[headerValues.size()]);
-    }
+    }*/
 }

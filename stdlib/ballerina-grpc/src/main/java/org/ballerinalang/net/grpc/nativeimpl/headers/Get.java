@@ -15,24 +15,17 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
-import io.grpc.Metadata;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.MessageHeaders;
-
-import java.util.Base64;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 
 /**
  * Get the Headers of the Message.
@@ -52,7 +45,8 @@ import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 public class Get extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        String headerName = context.getStringArgument(0);
+        //TODO: redesign headers support
+/*        String headerName = context.getStringArgument(0);
         BStruct headerValues = (BStruct) context.getRefArgument(0);
         MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
                 : null;
@@ -61,10 +55,10 @@ public class Get extends BlockingNativeCallableUnit {
             context.setReturnValues(new BString(headerValue));
         } else {
             context.setReturnValues();
-        }
+        }*/
     }
 
-    private String getHeaderValue(MessageHeaders metadata, String keyName) {
+/*    private String getHeaderValue(MessageHeaders metadata, String keyName) {
         String headerValue = null;
         if (metadata != null) {
             if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
@@ -80,5 +74,5 @@ public class Get extends BlockingNativeCallableUnit {
             }
         }
         return headerValue;
-    }
+    }*/
 }

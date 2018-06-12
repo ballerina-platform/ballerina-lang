@@ -19,7 +19,6 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.GeneratedMessageV3;
 import com.google.protobuf.MessageLite;
-import io.grpc.Status;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 
 import java.util.ArrayList;
@@ -432,7 +431,7 @@ public class Message extends GeneratedMessageV3 {
         size = 0;
         Descriptors.Descriptor messageDescriptor = getDescriptor();
         if (messageDescriptor == null) {
-            throw Status.INTERNAL
+            throw Status.Code.INTERNAL.toStatus()
                     .withDescription("Error while processing the message, Couldn't find message descriptor.")
                     .asRuntimeException();
         }

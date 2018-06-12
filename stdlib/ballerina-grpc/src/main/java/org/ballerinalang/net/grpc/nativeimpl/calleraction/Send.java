@@ -16,9 +16,6 @@
 package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
 import com.google.protobuf.Descriptors;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
@@ -31,6 +28,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.net.grpc.StatusRuntimeException;
+import org.ballerinalang.net.grpc.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +42,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.RESPONSE_MESSAGE_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 
 /**
  * Native function to respond the caller.
@@ -73,18 +72,18 @@ public class Send extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct clientEndpoint = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
         BValue responseValue = context.getRefArgument(RESPONSE_MESSAGE_REF_INDEX);
-        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
+//        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
         StreamObserver<Message> responseObserver = MessageUtils.getResponseObserver(clientEndpoint);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) clientEndpoint.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
-        io.grpc.Context msgContext = getContextHeader(headerValues);
+//        io.grpc.Context msgContext = getContextHeader(headerValues);
         
         if (responseObserver == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while initializing connector. " +
-                            "response sender does not exist"))));
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
+                            "connector. Response sender does not exist"))));
         } else {
-            io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
+//            io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
             try {
                 // If there is no response message like conn -> send(), system doesn't send the message.
                 if (!MessageUtils.isEmptyResponse(outputType)) {
@@ -94,11 +93,11 @@ public class Send extends BlockingNativeCallableUnit {
             } catch (Throwable e) {
                 LOG.error("Error while sending client response.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));
-            } finally {
+            } /*finally {
                 if (previous != null) {
                     msgContext.detach(previous);
                 }
-            }
+            }*/
         }
     }
 }

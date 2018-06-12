@@ -15,22 +15,17 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
-import io.grpc.Metadata;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.net.grpc.MessageHeaders;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 
 /**
  * Check whether the Header exists in the Message.
@@ -50,7 +45,8 @@ import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 public class Exists extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        String headerName = context.getStringArgument(0);
+        //TODO: redesign headers support
+/*        String headerName = context.getStringArgument(0);
         BStruct headerValues = (BStruct) context.getRefArgument(0);
         MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
                 : null;
@@ -64,6 +60,6 @@ public class Exists extends BlockingNativeCallableUnit {
                 isExist = metadata.containsKey(key);
             }
         }
-        context.setReturnValues(new BBoolean(isExist));
+        context.setReturnValues(new BBoolean(isExist));*/
     }
 }

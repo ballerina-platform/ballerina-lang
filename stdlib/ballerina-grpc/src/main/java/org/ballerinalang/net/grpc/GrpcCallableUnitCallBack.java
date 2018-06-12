@@ -17,8 +17,6 @@
  */
 package org.ballerinalang.net.grpc;
 
-import io.grpc.stub.ServerCallStreamObserver;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
 

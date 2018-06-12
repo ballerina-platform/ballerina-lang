@@ -17,10 +17,11 @@ package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import io.grpc.MethodDescriptor;
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
+import io.netty.handler.codec.http.DefaultHttpRequest;
+import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -50,14 +51,21 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
 import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 
 /**
  * Util methods to generate protobuf message.
@@ -67,6 +75,9 @@ import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 public class MessageUtils {
     private static final Logger LOG = LoggerFactory.getLogger(MessageUtils.class);
     private static final String UNKNOWN_ERROR = "Unknown Error";
+
+    /** maximum buffer to be read is 16 KB. */
+    private static final int MAX_BUFFER_LENGTH = 16384;
 
     public static BStruct getHeaderStruct(Resource resource) {
         if (resource == null || resource.getParamDetails() == null) {
@@ -85,29 +96,44 @@ public class MessageUtils {
         return headerStruct;
     }
 
-    public static io.grpc.Context getContextHeader(BValue headerValues) {
-
-        // Set response headers.
-        if (headerValues instanceof BStruct) {
-            MessageHeaders metadata = (MessageHeaders) ((BStruct) headerValues).getNativeData(METADATA_KEY);
-            if (metadata != null) {
-                return io.grpc.Context.current().withValue(MessageHeaders.DATA_KEY, metadata);
+    public static long copy(InputStream from, OutputStream to) throws IOException {
+        // Copied from guava com.google.common.io.ByteStreams because its API is unstable (beta)
+        byte[] buf = new byte[MAX_BUFFER_LENGTH];
+        long total = 0;
+        while (true) {
+            int r = from.read(buf);
+            if (r == -1) {
+                break;
             }
+            to.write(buf, 0, r);
+            total += r;
         }
-        return null;
+        return total;
     }
 
+//    public static io.grpc.Context getContextHeader(BValue headerValues) {
+//
+//        // Set response headers.
+//        if (headerValues instanceof BStruct) {
+//            MessageHeaders metadata = (MessageHeaders) ((BStruct) headerValues).getNativeData(METADATA_KEY);
+//            if (metadata != null) {
+//                return io.grpc.Context.current().withValue(MessageHeaders.DATA_KEY, metadata);
+//            }
+//        }
+//        return null;
+//    }
 
 
-    public static MessageHeaders getMessageHeaders(BValue headerValues) {
 
-        // Set request headers.
-        MessageHeaders metadata = null;
-        if (headerValues instanceof BStruct) {
-            metadata = (MessageHeaders) ((BStruct) headerValues).getNativeData(METADATA_KEY);
-        }
-        return metadata;
-    }
+//    public static MessageHeaders getMessageHeaders(BValue headerValues) {
+//
+//        // Set request headers.
+//        MessageHeaders metadata = null;
+//        if (headerValues instanceof BStruct) {
+//            metadata = (MessageHeaders) ((BStruct) headerValues).getNativeData(METADATA_KEY);
+//        }
+//        return metadata;
+//    }
 
     public static StreamObserver<Message> getResponseObserver(BRefType refType) {
         Object observerObject = null;
@@ -567,5 +593,100 @@ public class MessageUtils {
             }
         }
         return false;
+    }
+
+    /** Quietly closes all messages in MessageProducer. */
+    static void closeQuietly(StreamListener.MessageProducer producer) {
+        InputStream message;
+        while ((message = producer.next()) != null) {
+            closeQuietly(message);
+        }
+    }
+
+    /** Closes an InputStream, ignoring IOExceptions. */
+    static void closeQuietly(InputStream message) {
+        try {
+            message.close();
+        } catch (IOException ioException) {
+            // do nothing
+        }
+    }
+
+    /**
+     * Indicates whether or not the given value is a valid gRPC content-type.
+     */
+    public static boolean isGrpcContentType(String contentType) {
+        if (contentType == null) {
+            return false;
+        }
+
+        if (CONTENT_TYPE_GRPC.length() > contentType.length()) {
+            return false;
+        }
+
+        contentType = contentType.toLowerCase();
+        if (!contentType.startsWith(CONTENT_TYPE_GRPC)) {
+            // Not a gRPC content-type.
+            return false;
+        }
+
+        if (contentType.length() == CONTENT_TYPE_GRPC.length()) {
+            // The strings match exactly.
+            return true;
+        }
+
+        // The contentType matches, but is longer than the expected string.
+        // We need to support variations on the content-type (e.g. +proto, +json) as defined by the
+        // gRPC wire spec.
+        char nextChar = contentType.charAt(CONTENT_TYPE_GRPC.length());
+        return nextChar == '+' || nextChar == ';';
+    }
+
+    public static HttpWsConnectorFactory createHttpWsConnectionFactory() {
+        return new DefaultHttpWsConnectorFactory();
+    }
+
+    public static HTTPCarbonMessage createHttpCarbonMessage(boolean isRequest) {
+        HTTPCarbonMessage httpCarbonMessage;
+        if (isRequest) {
+            httpCarbonMessage = new HTTPCarbonMessage(
+                    new DefaultHttpRequest(HttpVersion.HTTP_1_1, HttpMethod.GET, ""));
+        } else {
+            httpCarbonMessage = new HTTPCarbonMessage(
+                    new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
+        }
+        //httpCarbonMessage.completeMessage();
+        return httpCarbonMessage;
+    }
+
+    public static Status httpStatusToGrpcStatus(int httpStatusCode) {
+        return httpStatusToGrpcCode(httpStatusCode).toStatus()
+                .withDescription("HTTP status code " + httpStatusCode);
+    }
+
+    private static Status.Code httpStatusToGrpcCode(int httpStatusCode) {
+        if (httpStatusCode >= 100 && httpStatusCode < 200) {
+            // 1xx. These headers should have been ignored.
+            return Status.Code.INTERNAL;
+        }
+        switch (httpStatusCode) {
+            case HttpURLConnection.HTTP_BAD_REQUEST:  // 400
+            case 431: // Request Header Fields Too Large
+                // TODO(carl-mastrangelo): this should be added to the http-grpc-status-mapping.md doc.
+                return Status.Code.INTERNAL;
+            case HttpURLConnection.HTTP_UNAUTHORIZED:  // 401
+                return Status.Code.UNAUTHENTICATED;
+            case HttpURLConnection.HTTP_FORBIDDEN:  // 403
+                return Status.Code.PERMISSION_DENIED;
+            case HttpURLConnection.HTTP_NOT_FOUND:  // 404
+                return Status.Code.UNIMPLEMENTED;
+            case 429:  // Too Many Requests
+            case HttpURLConnection.HTTP_BAD_GATEWAY:  // 502
+            case HttpURLConnection.HTTP_UNAVAILABLE:  // 503
+            case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:  // 504
+                return Status.Code.UNAVAILABLE;
+            default:
+                return Status.Code.UNKNOWN;
+        }
     }
 }

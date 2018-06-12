@@ -19,20 +19,27 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.net.grpc.GrpcServicesBuilderUtils;
+import org.ballerinalang.net.grpc.GrpcServicesRegistry;
+import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.ServerConnectorListener;
+import org.ballerinalang.net.grpc.ServerConnectorPortBindingListener;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
+import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.contract.ServerConnector;
+import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 
-import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
-import static org.ballerinalang.net.grpc.GrpcServicesBuilder.registerService;
 
 /**
  * Native function to register service to service endpoint.
@@ -52,16 +59,40 @@ public class Register extends AbstractGrpcNativeFunction {
     
     @Override
     public void execute(Context context) {
-        BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
+        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
+        GrpcServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(serviceEndpoint);
         try {
-            if (serverBuilder != null) {
-                registerService(serverBuilder, service);
+            if (servicesRegistryBuilder == null) {
+                context.setReturnValues(MessageUtils.getConnectorError(context, new BallerinaConnectorException
+                        ("Error when initializing service register builder.")));
+                return;
             }
+
+            servicesRegistryBuilder.addService(GrpcServicesBuilderUtils.getServiceDefinition(service));
+            if (!isConnectorStarted(serviceEndpoint)) {
+                startServerConnector(serviceEndpoint, servicesRegistryBuilder.build());
+            }
+
             context.setReturnValues();
         } catch (GrpcServerException e) {
             throw new BallerinaConnectorException("Error occurred while registering the service. " + e.getMessage(), e);
         }
+    }
+
+    private void startServerConnector(Struct serviceEndpoint, GrpcServicesRegistry grpcServicesRegistry) {
+        ServerConnector serverConnector = getServerConnector(serviceEndpoint);
+        ServerConnectorFuture serverConnectorFuture = serverConnector.start();
+        serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(grpcServicesRegistry,
+                null));
+
+        serverConnectorFuture.setPortBindingEventListener(new ServerConnectorPortBindingListener());
+        try {
+            serverConnectorFuture.sync();
+        } catch (Throwable ex) {
+            throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
+                    + "': " + ex.getMessage(), ex);
+        }
+        serviceEndpoint.addNativeData(HttpConstants.CONNECTOR_STARTED, true);
     }
 }

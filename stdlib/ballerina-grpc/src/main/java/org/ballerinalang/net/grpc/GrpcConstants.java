@@ -16,14 +16,10 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.DescriptorProtos;
-import io.grpc.Context;
-import io.grpc.Metadata;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
-import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
 
 /**
  * Proto Message Constants Class.
@@ -32,9 +28,10 @@ import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
  */
 public class GrpcConstants {
     public static final int MAX_MESSAGE_SIZE = 16 * 1024 * 1024;
-    public static final Context.Key<String> CONTENT_TYPE_KEY = Context.key("content-type");
-    public static final Metadata.Key<String> CONTENT_TYPE_MD_KEY = Metadata.Key.of("content-type",
-            ASCII_STRING_MARSHALLER);
+    public static final CallOptions.Key<String> COMPRESSOR_NAME = CallOptions.Key.of("compressor-name",
+            Codec.Identity.NONE.getMessageEncoding());
+//    public static final Metadata.Key<String> CONTENT_TYPE_MD_KEY = Metadata.Key.of("content-type",
+//            ASCII_STRING_MARSHALLER);
     
     //gRPC package name.
     public static final String PROTOCOL_PACKAGE_GRPC = "grpc";
@@ -45,7 +42,9 @@ public class GrpcConstants {
     public static final String STRUCT_GENERIC_ERROR = "error";
 
     //server side endpoint constants.
-    public static final String SERVICE_BUILDER = "SERVICE_BUILDER";
+    public static final String SERVICE_REGISTRY_BUILDER = "SERVICE_REGISTRY_BUILDER";
+    public static final String SERVER_CONNECTOR = "SERVER_CONNECTOR";
+    public static final String CONNECTOR_STARTED = "CONNECTOR_STARTED";
     public static final String GRPC_SERVER = "SERVER";
     public static final String SERVICE_ENDPOINT_TYPE = "Listener";
     public static final String CALLER_ACTION = "CallerAction";
@@ -57,7 +56,10 @@ public class GrpcConstants {
     //client side endpoint constants
     public static final String CLIENT_ENDPOINT_TYPE = "Client";
     public static final String DEFAULT_HOSTNAME = "localhost";
-    public static final String CHANNEL_KEY = "channel";
+    public static final String CALLER_ACTIONS = "CallerActions";
+    public static final String CLIENT_ENDPOINT_CONFIG = "config";
+
+
     public static final String ENUM_KEY = "enum";
     public static final String SERVICE_STUB = "Stub";
     public static final String METHOD_DESCRIPTORS = "MethodDescriptors";
@@ -78,10 +80,10 @@ public class GrpcConstants {
     public static final String TRUST_FILE = "trustStoreFile";
     public static final String KEY_FILE = "keyStoreFile";
     public static final String ANN_ATTR_RESOURCE_SERVER_STREAM = "streaming";
-    // Request Message Param index in service resource.
+    // InboundMessage Message Param index in service resource.
     public static final int REQUEST_MESSAGE_PARAM_INDEX = 1;
     
-    // Response Message Param index in callback service
+    // OutboundMessage Message Param index in callback service
     public static final int CALLBACK_MESSAGE_PARAM_INDEX = 0;
     
     public static final Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> WIRE_TYPE_MAP;
@@ -182,5 +184,50 @@ public class GrpcConstants {
     public static final String CLIENT_EP_HTTP_VERSION = "httpVersion";
     
     public static final String CLIENT_ENDPOINT_URL = "url";
+
+    /**
+     * Content-Type used for GRPC-over-HTTP/2.
+     */
+    public static final String CONTENT_TYPE_GRPC = "application/grpc";
+
+    /**
+     * The HTTP method used for GRPC requests.
+     */
+    public static final String HTTP_METHOD = "POST";
+
+    /**
+     * The TE (transport encoding) header for requests over HTTP/2.
+     */
+    public static final String TE_TRAILERS = "trailers";
+
+    /**
+     * The Timeout header name.
+     */
+    public static final String TIMEOUT = "grpc-timeout";
+
+    /**
+     * The message encoding (i.e. compression) that can be used in the stream.
+     */
+    public static final String MESSAGE_ENCODING = "grpc-encoding";
+
+    /**
+     * The accepted message encodings (i.e. compression) that can be used in the stream.
+     */
+    public static final String MESSAGE_ACCEPT_ENCODING = "grpc-accept-encoding";
+
+    /**
+     * The content-encoding used to compress the full gRPC stream.
+     */
+    public static final String CONTENT_ENCODING = "content-encoding";
+
+    /**
+     * The accepted content-encodings that can be used to compress the full gRPC stream.
+     */
+    public static final String CONTENT_ACCEPT_ENCODING = "accept-encoding";
+
+    /**
+     * The default maximum uncompressed size (in bytes) for inbound messages. Defaults to 4 MiB.
+     */
+    public static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
     
 }

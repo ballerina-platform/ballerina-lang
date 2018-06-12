@@ -16,10 +16,10 @@
 package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
-import io.grpc.stub.ServerCalls;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.ServerCalls;
+import org.ballerinalang.net.grpc.StreamObserver;
 
 /**
  * This is Server Streaming Method Implementation for gRPC Service Call.

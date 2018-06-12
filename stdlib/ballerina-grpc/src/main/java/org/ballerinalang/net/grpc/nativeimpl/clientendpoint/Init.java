@@ -17,10 +17,6 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.clientendpoint;
 
-import io.grpc.ManagedChannel;
-import io.grpc.ManagedChannelBuilder;
-import io.grpc.netty.NettyChannelBuilder;
-import io.netty.handler.ssl.SslContext;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -34,26 +30,26 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
-import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
+import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.http.HttpConnectionManager;
+import org.ballerinalang.net.http.HttpConstants;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
+import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.net.ssl.SSLException;
-
-import static org.ballerinalang.net.grpc.GrpcConstants.CHANNEL_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTIONS;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_CONFIG;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
-import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_HOSTNAME;
-import static org.ballerinalang.net.grpc.GrpcConstants.MAX_MESSAGE_SIZE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -74,57 +70,46 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
         isPublic = true
 )
 public class Init extends BlockingNativeCallableUnit {
+
+    private HttpWsConnectorFactory httpConnectorFactory = MessageUtils.createHttpWsConnectionFactory();
     
     @Override
     public void execute(Context context) {
 
-            Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            // Creating client endpoint with channel as native data.
-            BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
-            Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-            String urlString = endpointConfig.getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
-            String scheme;
-            URL url;
-            try {
-                url = new URL(urlString);
-            } catch (MalformedURLException e) {
-                throw new BallerinaConnectorException("Malformed URL: " + urlString);
-            }
-            scheme = url.getProtocol();
-            SenderConfiguration configuration = populateSenderConfigurationOptions(endpointConfig, scheme);
-            ManagedChannel channel;
-            if (configuration.getSSLConfig() == null) {
-                channel = ManagedChannelBuilder.forAddress(url.getHost(), url.getPort())
-                        .usePlaintext(true)
-                        .build();
-            } else {
-                try {
-                    SslContext sslContext = new SSLHandlerFactory(configuration.getSSLConfig())
-                            .createHttp2TLSContextForClient();
-                    channel = NettyChannelBuilder
-                            .forAddress(generateSocketAddress(url.getHost(), url.getPort()))
-                            .flowControlWindow(65 * 1024)
-                            .maxInboundMessageSize(MAX_MESSAGE_SIZE)
-                            .sslContext(sslContext).build();
-                } catch (SSLException e) {
-                    throw new BallerinaConnectorException("Error while generating SSL context. " + e.getMessage(), e);
-                }
-            }
-            clientEndpoint.addNativeData(CHANNEL_KEY, channel);
-
-    }
-    
-    /**
-     * Creates a new {@link InetSocketAddress} on localhost that overrides the host with.
-     */
-    private static InetSocketAddress generateSocketAddress(String host, int port) {
+        Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+        // Creating client endpoint with channel as native data.
+        BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+        Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
+        String urlString = endpointConfig.getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
+        HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
+        String scheme;
+        URL url;
         try {
-            InetAddress inetAddress = InetAddress.getByName(DEFAULT_HOSTNAME);
-            inetAddress = InetAddress.getByAddress(host, inetAddress.getAddress());
-            return new InetSocketAddress(inetAddress, port);
-        } catch (UnknownHostException e) {
-            throw new BallerinaConnectorException(e.getMessage(), e);
+            url = new URL(urlString);
+        } catch (MalformedURLException e) {
+            throw new BallerinaConnectorException("Malformed URL: " + urlString);
         }
+
+        scheme = url.getProtocol();
+        Map<String, Object> properties =
+                HTTPConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
+        SenderConfiguration senderConfiguration =
+                HTTPConnectorUtil.getSenderConfiguration(connectionManager.getTransportConfig(), scheme);
+
+        if (connectionManager.isHTTPTraceLoggerEnabled()) {
+            senderConfiguration.setHttpTraceLogEnabled(true);
+        }
+        senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
+
+        senderConfiguration = populateSenderConfigurationOptions(endpointConfig, scheme);
+        senderConfiguration.setHttpVersion("2.0");
+        senderConfiguration.setForceHttp2(true);
+        HttpClientConnector clientConnector = httpConnectorFactory.createHttpClientConnector(properties,
+                senderConfiguration);
+
+        clientEndpoint.addNativeData(CALLER_ACTIONS, clientConnector);
+        clientEndpoint.addNativeData(CLIENT_ENDPOINT_CONFIG, endpointConfig);
+
     }
     
     private SenderConfiguration populateSenderConfigurationOptions(Struct clientEndpointConfig, String scheme) {

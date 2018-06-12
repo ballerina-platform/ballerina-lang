@@ -15,10 +15,8 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
-import io.netty.handler.ssl.SslContext;
 import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
@@ -30,11 +28,14 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
-import org.ballerinalang.net.grpc.GrpcServicesBuilder;
-import org.ballerinalang.net.grpc.ssl.SSLHandlerFactory;
+import org.ballerinalang.net.grpc.GrpcServicesRegistry;
+import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
+import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
+import org.wso2.transport.http.netty.contract.ServerConnector;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,8 +45,9 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_BUILDER;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
+import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -63,26 +65,27 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)},
         isPublic = true
 )
-public class Init extends BlockingNativeCallableUnit {
+public class Init extends AbstractGrpcNativeFunction {
     private static final ConfigRegistry configRegistry = ConfigRegistry.getInstance();
     
     @Override
     public void execute(Context context) {
+        try {
+            Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
+            BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+            Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
+            ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
+            ServerConnector httpServerConnector =
+                    HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
 
-        Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
-        Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
-        ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
-        io.grpc.ServerBuilder serverBuilder;
-        if (configuration.getSSLConfig() != null) {
-            SslContext sslCtx = new SSLHandlerFactory(configuration.getSSLConfig())
-                    .createHttp2TLSContextForServer();
-            serverBuilder = GrpcServicesBuilder.initService(configuration, sslCtx);
-        } else {
-            serverBuilder = GrpcServicesBuilder.initService(configuration, null);
+            GrpcServicesRegistry.Builder grpcServicesRegistryBuilder = new GrpcServicesRegistry.Builder();
+            serviceEndpoint.addNativeData(SERVER_CONNECTOR, httpServerConnector);
+            serviceEndpoint.addNativeData(SERVICE_REGISTRY_BUILDER, grpcServicesRegistryBuilder);
+            context.setReturnValues();
+        } catch (Throwable throwable) {
+            BStruct errorStruct = MessageUtils.getConnectorError(context, throwable);
+            context.setReturnValues(errorStruct);
         }
-        serviceEndpoint.addNativeData(SERVICE_BUILDER, serverBuilder);
-        context.setReturnValues();
     }
     
     private ListenerConfiguration getListenerConfig(Struct endpointConfig) {
@@ -109,6 +112,7 @@ public class Init extends BlockingNativeCallableUnit {
         }
         
         listenerConfiguration.setServerHeader(getServerName());
+        listenerConfiguration.setVersion("2.0");
         
         return listenerConfiguration;
     }

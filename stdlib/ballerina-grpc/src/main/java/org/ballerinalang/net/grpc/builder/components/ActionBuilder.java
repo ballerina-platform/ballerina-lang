@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.net.grpc.builder.components;
 
-import io.grpc.MethodDescriptor.MethodType;
+import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.BalGenerationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +29,7 @@ public class ActionBuilder {
     public static final Logger LOG = LoggerFactory.getLogger(ActionBuilder.class);
     
     public static void build(String methodName, String reqMessageName, String resMessageName, String methodID,
-                             MethodType methodType, ClientBuilder clientStubBal) {
+                             MethodDescriptor.MethodType methodType, ClientBuilder clientStubBal) {
         switch (methodType) {
             case UNARY: {
                 clientStubBal.addBlockingFunction(methodName, reqMessageName, resMessageName, methodID);

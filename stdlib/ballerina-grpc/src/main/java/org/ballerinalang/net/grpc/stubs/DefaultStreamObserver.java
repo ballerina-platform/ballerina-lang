@@ -15,8 +15,6 @@
  */
 package org.ballerinalang.net.grpc.stubs;
 
-import io.grpc.Metadata;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
@@ -29,8 +27,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageHeaders;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
-import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
 
 /**
@@ -51,9 +47,8 @@ import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
 public class DefaultStreamObserver implements StreamObserver<Message> {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultStreamObserver.class);
     private Map<String, Resource> resourceMap = new HashMap<>();
-    private AtomicReference<Metadata> headerCapture;
     
-    public DefaultStreamObserver(Service callbackService, AtomicReference<Metadata> headerCapture) throws
+    public DefaultStreamObserver(Service callbackService) throws
             GrpcClientException {
         if (callbackService == null) {
             throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
@@ -62,7 +57,6 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         for (Resource resource : callbackService.getResources()) {
             resourceMap.put(resource.getName(), resource);
         }
-        this.headerCapture = headerCapture;
     }
     
     @Override
@@ -76,10 +70,10 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BStruct headerStruct = getHeaderStruct(resource);
-        Metadata respMetadata = headerCapture.get();
-        if (headerStruct != null && respMetadata != null) {
-            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
-        }
+//        Metadata respMetadata = headerCapture.get();
+//        if (headerStruct != null && respMetadata != null) {
+//            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
+//        }
         BValue requestParam = getRequestParameter(resource, value, headerStruct != null);
         if (requestParam != null) {
             signatureParams[0] = requestParam;
@@ -105,10 +99,10 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
         signatureParams[0] = errorStruct;
         BStruct headerStruct = getHeaderStruct(onError);
-        Metadata respMetadata = headerCapture.get();
-        if (headerStruct != null && respMetadata != null) {
-            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
-        }
+//        Metadata respMetadata = headerCapture.get();
+//        if (headerStruct != null && respMetadata != null) {
+//            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
+//        }
         
         if (headerStruct != null && signatureParams.length == 2) {
             signatureParams[1] = headerStruct;
@@ -129,10 +123,10 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BStruct headerStruct = getHeaderStruct(onCompleted);
-        Metadata respMetadata = headerCapture.get();
-        if (headerStruct != null && respMetadata != null) {
-            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
-        }
+//        Metadata respMetadata = headerCapture.get();
+//        if (headerStruct != null && respMetadata != null) {
+//            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
+//        }
         
         if (headerStruct != null && signatureParams.length == 1) {
             signatureParams[0] = headerStruct;

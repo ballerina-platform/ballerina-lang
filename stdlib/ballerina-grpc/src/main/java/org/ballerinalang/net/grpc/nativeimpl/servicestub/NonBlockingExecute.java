@@ -17,10 +17,8 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
-import io.grpc.Metadata;
-import io.grpc.MethodDescriptor;
-import io.grpc.stub.MetadataUtils;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Value;
@@ -34,17 +32,16 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageHeaders;
 import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
-import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
+import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
@@ -54,7 +51,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
 
 /**
  * {@code NonBlockingExecute} is the NonBlockingExecute action implementation of the gRPC Connector.
@@ -85,7 +81,7 @@ public class NonBlockingExecute extends AbstractExecute {
     private static final int MESSAGE_HEADER_REF_INDEX = 3;
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         if (serviceStub == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector is " +
@@ -123,21 +119,21 @@ public class NonBlockingExecute extends AbstractExecute {
 
 
         // Update request headers when request headers exists in the context.
-        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
-        MessageHeaders headers = getMessageHeaders(headerValues);
+//        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
+//        MessageHeaders headers = getMessageHeaders(headerValues);
 
-        if (connectionStub instanceof GrpcNonBlockingStub) {
+        if (connectionStub instanceof NonBlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
             Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
-            GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
+            NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
 
             // Attach header read/write listener to the service stub.
-            AtomicReference<Metadata> headerCapture = new AtomicReference<>();
-            AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
-            if (headers != null) {
-                grpcNonBlockingStub = MetadataUtils.attachHeaders(grpcNonBlockingStub, headers.getMessageMetadata());
-            }
-            grpcNonBlockingStub = MetadataUtils.captureMetadata(grpcNonBlockingStub, headerCapture, trailerCapture);
+//            AtomicReference<Metadata> headerCapture = new AtomicReference<>();
+//            AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
+//            if (headers != null) {
+//                nonBlockingStub = MetadataUtils.attachHeaders(nonBlockingStub, headers.getMessageMetadata());
+//            }
+//            nonBlockingStub = MetadataUtils.captureMetadata(nonBlockingStub, headerCapture, trailerCapture);
 
             BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(2);
             Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
@@ -145,11 +141,11 @@ public class NonBlockingExecute extends AbstractExecute {
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    grpcNonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(callbackService,
-                            headerCapture), methodDescriptors.get(methodName));
+                    nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(callbackService),
+                            methodDescriptors.get(methodName), callback);
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
-                    grpcNonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(callbackService,
-                            headerCapture), methodDescriptors.get(methodName));
+                    nonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(callbackService),
+                            methodDescriptors.get(methodName), callback);
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
@@ -164,6 +160,12 @@ public class NonBlockingExecute extends AbstractExecute {
         }
         notifyErrorReply(context, "Error while processing the request message. Connection Sub " +
                 "type not supported");
+    }
+
+    @Override
+    public boolean isBlocking() {
+
+        return false;
     }
 
     private Value getTypeField(BTypeDescValue refField) {

@@ -16,7 +16,6 @@
 package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
@@ -29,8 +28,8 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageHeaders;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
 import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
 
@@ -125,9 +123,8 @@ abstract class MethodListener {
         BStruct errorStruct = MessageUtils.getConnectorError((BStructType) errorType, t);
         signatureParams[1] = errorStruct;
         BStruct headerStruct = getHeaderStruct(resource);
-        if (headerStruct != null && MessageHeaders.isPresent()) {
-            MessageHeaders context = MessageHeaders.current();
-            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(context));
+        if (headerStruct != null) {
+            //headerStruct.addNativeData(METADATA_KEY, TODO: Add headers object);
         }
         
         if (headerStruct != null && signatureParams.length == 3) {
@@ -147,9 +144,8 @@ abstract class MethodListener {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BStruct headerStruct = getHeaderStruct(resource);
-        if (headerStruct != null && MessageHeaders.isPresent()) {
-            MessageHeaders context = MessageHeaders.current();
-            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(context));
+        if (headerStruct != null) {
+            //headerStruct.addNativeData(METADATA_KEY, TODO: Add headers object);
         }
         BValue requestParam = getRequestParameter(resource, request, (headerStruct != null));
         if (requestParam != null) {

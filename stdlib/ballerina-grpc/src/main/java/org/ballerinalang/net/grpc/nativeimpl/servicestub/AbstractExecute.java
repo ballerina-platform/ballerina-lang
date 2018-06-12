@@ -19,14 +19,14 @@ package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
-import io.grpc.MethodDescriptor;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BStructType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructInfo;
@@ -40,8 +40,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
  *
  * @since 1.0.0
  */
-abstract class AbstractExecute extends BlockingNativeCallableUnit {
-    
+abstract class AbstractExecute implements NativeCallableUnit {
+
     /**
      * Returns corresponding Ballerina type for the proto buffer type.
      *

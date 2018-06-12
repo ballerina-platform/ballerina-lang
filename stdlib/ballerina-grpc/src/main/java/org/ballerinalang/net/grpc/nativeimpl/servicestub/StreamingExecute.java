@@ -17,11 +17,8 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
-import io.grpc.Metadata;
-import io.grpc.MethodDescriptor;
-import io.grpc.stub.MetadataUtils;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Value;
@@ -29,22 +26,21 @@ import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageHeaders;
 import org.ballerinalang.net.grpc.MessageRegistry;
+import org.ballerinalang.net.grpc.MethodDescriptor;
+import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
-import org.ballerinalang.net.grpc.stubs.GrpcNonBlockingStub;
+import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
@@ -59,7 +55,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_MESSAGE_DEFINITIO
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
-import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
 
 /**
  * {@code StreamingExecute} is the StreamingExecute action implementation of the gRPC Connector.
@@ -90,7 +85,7 @@ public class StreamingExecute extends AbstractExecute {
     private static final int MESSAGE_HEADER_REF_INDEX = 2;
 
     @Override
-    public void execute(Context context) {
+    public void execute(Context context, CallableUnitCallback callback) {
         BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         if (serviceStub == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
@@ -128,34 +123,34 @@ public class StreamingExecute extends AbstractExecute {
         }
 
         // Update request headers when request headers exists in the context.
-        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
-        MessageHeaders headers = getMessageHeaders(headerValues);
+//        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
+//        MessageHeaders headers = getMessageHeaders(headerValues);
 
-        if (connectionStub instanceof GrpcNonBlockingStub) {
-            GrpcNonBlockingStub grpcNonBlockingStub = (GrpcNonBlockingStub) connectionStub;
+        if (connectionStub instanceof NonBlockingStub) {
+            NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
 
             // Attach header read/write listener to the service stub.
-            AtomicReference<Metadata> headerCapture = new AtomicReference<>();
-            AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
-            if (headers != null) {
-                grpcNonBlockingStub = MetadataUtils.attachHeaders(grpcNonBlockingStub, headers.getMessageMetadata());
-            }
-            grpcNonBlockingStub = MetadataUtils.captureMetadata(grpcNonBlockingStub, headerCapture, trailerCapture);
+//            AtomicReference<Metadata> headerCapture = new AtomicReference<>();
+//            AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
+//            if (headers != null) {
+//                nonBlockingStub = MetadataUtils.attachHeaders(nonBlockingStub, headers.getMessageMetadata());
+//            }
+//            nonBlockingStub = MetadataUtils.captureMetadata(nonBlockingStub, headerCapture, trailerCapture);
 
             BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(1);
             Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
                     (serviceType));
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
-                DefaultStreamObserver responseObserver = new DefaultStreamObserver(callbackService, headerCapture);
+                DefaultStreamObserver responseObserver = new DefaultStreamObserver(callbackService);
                 StreamObserver<Message> requestSender;
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
-                    requestSender = grpcNonBlockingStub.executeClientStreaming
-                            (responseObserver, methodDescriptors.get(methodName));
+                    requestSender = nonBlockingStub.executeClientStreaming
+                            (responseObserver, methodDescriptors.get(methodName), callback);
                     
                 } else if (methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
-                    requestSender = grpcNonBlockingStub.executeBidiStreaming
-                            (responseObserver, methodDescriptors.get(methodName));
+                    requestSender = nonBlockingStub.executeBidiStreaming
+                            (responseObserver, methodDescriptors.get(methodName), callback);
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
@@ -173,7 +168,13 @@ public class StreamingExecute extends AbstractExecute {
             }
         }
     }
-    
+
+    @Override
+    public boolean isBlocking() {
+
+        return false;
+    }
+
     private Value getTypeField(BTypeDescValue refField) {
         if (refField == null) {
             return null;

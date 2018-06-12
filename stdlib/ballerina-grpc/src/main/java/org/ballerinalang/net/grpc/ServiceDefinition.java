@@ -20,7 +20,6 @@ package org.ballerinalang.net.grpc;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
-import io.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 
 import java.io.ByteArrayInputStream;
@@ -32,8 +31,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static io.grpc.MethodDescriptor.generateFullMethodName;
 import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
+import static org.ballerinalang.net.grpc.MethodDescriptor.generateFullMethodName;
 
 /**
  * This class contains proto descriptors of the service.
@@ -111,11 +110,9 @@ public final class ServiceDefinition {
                     MethodDescriptor.<Message, Message>newBuilder()
                             .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
                             .setFullMethodName(fullMethodName)
-                            .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                                    org.ballerinalang.net.grpc.Message
+                            .setRequestMarshaller(ProtoUtils.marshaller(org.ballerinalang.net.grpc.Message
                                             .newBuilder(reqMessage.getName()).build()))
-                            .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                                    org.ballerinalang.net.grpc.Message
+                            .setResponseMarshaller(ProtoUtils.marshaller(org.ballerinalang.net.grpc.Message
                                             .newBuilder(resMessage.getName()).build()))
                             .setSchemaDescriptor(methodDescriptor)
                             .build();

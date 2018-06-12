@@ -16,18 +16,17 @@
 package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
-import io.grpc.stub.ServerCalls.UnaryMethod;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.grpc.Message;
-
+import org.ballerinalang.net.grpc.ServerCalls;
+import org.ballerinalang.net.grpc.StreamObserver;
 
 /**
  * This is Unary Method Implementation for gRPC Service Call.
  *
  * @since 1.0.0
  */
-public class UnaryMethodListener extends MethodListener implements UnaryMethod<Message, Message> {
+public class UnaryMethodListener extends MethodListener implements ServerCalls.UnaryMethod<Message, Message> {
     
     public Resource resource;
     

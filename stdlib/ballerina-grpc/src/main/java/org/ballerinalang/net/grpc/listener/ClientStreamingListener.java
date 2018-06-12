@@ -16,14 +16,14 @@
 package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
-import io.grpc.stub.ServerCalls;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.Message;
+import org.ballerinalang.net.grpc.ServerCalls;
+import org.ballerinalang.net.grpc.StreamObserver;
 
 import java.util.Map;
 

@@ -15,19 +15,18 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.calleraction;
 
-import io.grpc.Status;
-import io.grpc.StatusRuntimeException;
-import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.net.grpc.StatusRuntimeException;
+import org.ballerinalang.net.grpc.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +37,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDE
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
-import static org.ballerinalang.net.grpc.MessageUtils.getContextHeader;
 
 /**
  * Native function to send server error the caller.
@@ -69,29 +67,29 @@ public class SendError extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
-        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
+//        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
         long statusCode = context.getIntArgument(0);
         String errorMsg = context.getStringArgument(0);
-        io.grpc.Context msgContext = getContextHeader(headerValues);
+//        io.grpc.Context msgContext = getContextHeader(headerValues);
 
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         if (responseObserver == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                    .fromCode(Status.INTERNAL.getCode()).withDescription("Error while sending the error. Response" +
-                            " observer not found."))));
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
+                            "error. Response observer not found."))));
         } else {
-            io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
+//            io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
             try {
                 responseObserver.onError(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
                         .withDescription(errorMsg)));
             } catch (Throwable e) {
                 LOG.error("Error while sending error to caller.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));
-            } finally {
+            } /*finally {
                 if (previous != null) {
                     msgContext.detach(previous);
                 }
-            }
+            }*/
         }
     }
 }
