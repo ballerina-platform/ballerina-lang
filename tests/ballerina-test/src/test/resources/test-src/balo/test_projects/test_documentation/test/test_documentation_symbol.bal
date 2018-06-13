@@ -8,3 +8,4 @@ R{{}} success or not
 public function open (string accessMode) returns (boolean) {
     return true;
 }
+
