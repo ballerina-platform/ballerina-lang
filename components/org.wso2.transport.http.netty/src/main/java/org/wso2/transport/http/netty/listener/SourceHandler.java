@@ -72,7 +72,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     private KeepAliveConfig keepAliveConfig;
 
     private final ServerConnectorFuture serverConnectorFuture;
-    private HttpResponseFuture outboundRespFuture;
+    private HttpResponseFuture outboundRespStatusFuture;
 
     private String interfaceId;
     private String serverName;
@@ -115,7 +115,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         ctx.close();
         if (!idleTimeout) {
-            sourceErrorHandler.handleErrorCloseScenario(inboundRequestMsg, outboundRespFuture);
+            sourceErrorHandler.handleErrorCloseScenario(inboundRequestMsg, outboundRespStatusFuture);
         }
         closeTargetChannels();
         if (handlerExecutor != null) {
@@ -159,7 +159,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                         if (isDiffered(inboundRequestMsg)) {
                             this.serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
                         }
-                        outboundRespFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
+                        outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
                         inboundRequestMsg = null;
                         sourceErrorHandler.setState(ENTITY_BODY_RECEIVED);
                     }
@@ -251,7 +251,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             this.idleTimeout = true;
             this.channelInactive(ctx);
-            this.sourceErrorHandler.handleIdleErrorScenario(inboundRequestMsg, outboundRespFuture);
+            this.sourceErrorHandler.handleIdleErrorScenario(inboundRequestMsg, outboundRespStatusFuture);
 
             log.debug("Idle timeout has reached hence closing the connection {}", ctx.channel().id().asShortText());
         } else if (evt instanceof HttpServerUpgradeHandler.UpgradeEvent) {
