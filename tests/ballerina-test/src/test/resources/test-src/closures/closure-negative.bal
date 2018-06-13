@@ -70,3 +70,33 @@ function testVariableShadowingInClosure(int a) returns function (float) returns 
     };
     return fooOut;
 }
+
+function testClosureScopingNegative() returns int {
+    int i = 34;
+    var addFunc1 = (int a) => (int) {
+        int j = 23;
+        var addFunc2 = (float b) => (int) {
+            int k = 45;
+            var addFunc3 = (float c) => (int) {
+                return a + <int>b + <int>c + i + j + k + l + m + n;
+            };
+            int l = 2;
+            return addFunc3(2.3) + l + m + n;
+        };
+        int m = 6;
+        return addFunc2(4.2) + m + n;
+    };
+    int n = 2;
+    return addFunc1(6);
+}
+
+function() foo = () => () {
+    int i = 34;
+    var addFunc1 = (int a) => (int) {
+        return a + p + m + i;
+    };
+    int m = 3;
+    int k = addFunc1(6);
+};
+
+int p = 2;
