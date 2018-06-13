@@ -139,7 +139,9 @@ export function getHandlerDefinitions(plugin) {
                     );
                     if (!refExpr.error) {
                         success = processJSONStruct(structNode, refExpr.variable.initialExpression, topLevelNodes, removeDefaults);
-                        topLevelNodes.addTopLevelNodes(structNode);
+                        if (success) {
+                            topLevelNodes.addTopLevelNodes(structNode);
+                        }
                     } else {
                         success = false;
                     }
