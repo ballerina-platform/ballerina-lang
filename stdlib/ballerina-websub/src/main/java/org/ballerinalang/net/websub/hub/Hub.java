@@ -260,8 +260,9 @@ public class Hub {
                     setHubObject(BLangConnectorSPIUtil.createBStruct(context, WEBSUB_PACKAGE,
                                                                      STRUCT_WEBSUB_BALLERINA_HUB, hubUrl));
                 }
+            } else {
+                throw new BallerinaWebSubException("Hub Service already started up");
             }
-            //TODO: handle if started
         }
     }
 

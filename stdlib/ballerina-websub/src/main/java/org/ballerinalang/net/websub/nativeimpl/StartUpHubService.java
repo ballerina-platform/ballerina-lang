@@ -28,6 +28,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR;
@@ -52,18 +53,25 @@ public class StartUpHubService extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted()) {
-            BStruct hubStartedUpError =
-                    BLangConnectorSPIUtil.createBStruct(context, WEBSUB_PACKAGE,
-                                                        STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR,
-                                                        "Ballerina Hub already started up",
-                                                        hubInstance.getHubObject());
-            context.setReturnValues(hubStartedUpError);
+            context.setReturnValues(getHubStartedUpError(context, hubInstance));
         } else {
             BBoolean topicRegistrationRequired = new BBoolean(context.getBooleanArgument(0));
             BString publicUrl = new BString(context.getStringArgument(0));
-            hubInstance.startUpHubService(context, topicRegistrationRequired, publicUrl);
+            try {
+                hubInstance.startUpHubService(context, topicRegistrationRequired, publicUrl);
+            } catch (BallerinaWebSubException e) {
+                context.setReturnValues(getHubStartedUpError(context, hubInstance));
+                return;
+            }
             context.setReturnValues(hubInstance.getHubObject());
         }
+    }
+
+    private BStruct getHubStartedUpError(Context context, Hub hubInstance) {
+        return BLangConnectorSPIUtil.createBStruct(context, WEBSUB_PACKAGE,
+                                                    STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR,
+                                                    "Ballerina Hub already started up",
+                                                    hubInstance.getHubObject());
     }
 
 }
