@@ -102,8 +102,11 @@ public class BLangFunctions {
     public static BValue[] invokeEntrypointCallable(ProgramFile programFile,
             FunctionInfo functionInfo, BValue[] args) {
         WorkerExecutionContext parentCtx = new WorkerExecutionContext(programFile);
-        if (functionInfo.getParamTypes().length != args.length) {
-            throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
+        int requiredArgNo = functionInfo.getParamTypes().length;
+        int providedArgNo = args.length;
+        if (requiredArgNo != providedArgNo) {
+            throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
+                    providedArgNo + ".");
         }
         invokePackageInitFunctions(programFile, parentCtx);
         invokePackageStartFunctions(programFile, parentCtx);

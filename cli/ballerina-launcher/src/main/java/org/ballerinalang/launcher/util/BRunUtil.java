@@ -97,8 +97,11 @@ public class BRunUtil {
             throw new RuntimeException("Function '" + functionName + "' is not defined");
         }
 
-        if (functionInfo.getParamTypes().length != args.length) {
-            throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
+        int requiredArgNo = functionInfo.getParamTypes().length;
+        int providedArgNo = args.length;
+        if (requiredArgNo != providedArgNo) {
+            throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
+                    providedArgNo + ".");
         }
 
         BValue[] response = BLangFunctions.invokeCallable(functionInfo,
