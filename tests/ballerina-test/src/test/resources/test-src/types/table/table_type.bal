@@ -127,7 +127,6 @@ function testToJson() returns (json) {
     } finally {
         testDB.stop();
     }
-    return null;
 }
 
 function testToXml() returns (xml) {
@@ -145,7 +144,6 @@ function testToXml() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 function testToXmlMultipleConsume() returns (xml) {
@@ -165,7 +163,6 @@ function testToXmlMultipleConsume() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 function testToXmlWithAdd() returns (xml) {
@@ -189,7 +186,6 @@ function testToXmlWithAdd() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 function testToJsonMultipleConsume() returns (json) {
@@ -209,7 +205,6 @@ function testToJsonMultipleConsume() returns (json) {
     } finally {
         testDB.stop();
     }
-    return null;
 }
 
 
@@ -229,7 +224,6 @@ function toXmlComplex() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 function testToXmlComplexWithStructDef() returns (xml) {
@@ -248,7 +242,6 @@ function testToXmlComplexWithStructDef() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 
@@ -268,7 +261,6 @@ function testToJsonComplex() returns (json) {
     } finally {
         testDB.stop();
     }
-    return null;
 }
 
 
@@ -288,7 +280,6 @@ function testToJsonComplexWithStructDef() returns (json) {
     } finally {
         testDB.stop();
     }
-    return null;
 }
 
 function testJsonWithNull() returns (json) {
@@ -306,7 +297,6 @@ function testJsonWithNull() returns (json) {
     } finally {
         testDB.stop();
     }
-    return null;
 }
 
 function testXmlWithNull() returns (xml) {
@@ -324,7 +314,6 @@ function testXmlWithNull() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 function testToXmlWithinTransaction() returns (string, int) {
@@ -347,7 +336,6 @@ function testToXmlWithinTransaction() returns (string, int) {
     } finally {
         testDB.stop();
     }
-    return ("<fail></fail>", -1);
 }
 
 function testToJsonWithinTransaction() returns (string, int) {
@@ -370,7 +358,6 @@ function testToJsonWithinTransaction() returns (string, int) {
     } finally {
         testDB.stop();
     }
-    return ("", -2);
 }
 
 function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string) {
