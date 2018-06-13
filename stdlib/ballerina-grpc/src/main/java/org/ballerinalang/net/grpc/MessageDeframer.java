@@ -208,7 +208,7 @@ public class MessageDeframer implements Closeable {
         inDelivery = true;
         try {
             // Process the uncompressed bytes.
-            while (!stopDelivery && pendingDeliveries > 0 && readRequiredBytes()) {
+            while (!stopDelivery /*&& pendingDeliveries > 0*/ && readRequiredBytes()) {
                 switch (state) {
                     case HEADER:
                         processHeader();
@@ -219,7 +219,7 @@ public class MessageDeframer implements Closeable {
 
                         // Since we've delivered a message, decrement the number of pending
                         // deliveries remaining.
-                        pendingDeliveries--;
+/*                        pendingDeliveries--;*/
                         break;
                     default:
                         throw new AssertionError("Invalid state: " + state);

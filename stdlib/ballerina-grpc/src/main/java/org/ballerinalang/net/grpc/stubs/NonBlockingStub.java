@@ -17,19 +17,18 @@
  */
 package org.ballerinalang.net.grpc.stubs;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.net.grpc.CallOptions;
+import org.ballerinalang.net.grpc.CallStreamObserver;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.ClientCallImpl;
 import org.ballerinalang.net.grpc.MethodDescriptor;
+import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 
-import static org.ballerinalang.net.grpc.ClientCalls.asyncBidiStreamingCall;
-import static org.ballerinalang.net.grpc.ClientCalls.asyncClientStreamingCall;
-import static org.ballerinalang.net.grpc.ClientCalls.asyncServerStreamingCall;
-import static org.ballerinalang.net.grpc.ClientCalls.asyncUnaryCall;
+import javax.annotation.Nullable;
 
 /**
  * This class handles Non Blocking client connection.
@@ -59,11 +58,16 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
      * @param methodDescriptor method descriptor
      */
     public <ReqT, RespT> void executeServerStreaming(ReqT request, StreamObserver<RespT> responseObserver,
-                                       MethodDescriptor<ReqT, RespT> methodDescriptor, CallableUnitCallback
-                                               callback) {
+                                       MethodDescriptor<ReqT, RespT> methodDescriptor) {
         ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(),
-                methodDescriptor, getCallOptions(), callback);
-        asyncServerStreamingCall(call, request, responseObserver);
+                methodDescriptor, getCallOptions());
+        call.start(new NonblockingCallListener<>(responseObserver, true));
+        try {
+            call.sendMessage(request);
+            call.halfClose();
+        } catch (RuntimeException | Error e) {
+            throw cancelThrow(call, e);
+        }
     }
 
     /**
@@ -75,11 +79,12 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
     public <ReqT, RespT> StreamObserver<ReqT> executeClientStreaming(StreamObserver<RespT>
                                                                                responseObserver,
                                                                        MethodDescriptor<ReqT, RespT>
-                                                                               methodDescriptor, CallableUnitCallback
-                                                                  callback) {
+                                                                               methodDescriptor) {
         ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(),
-                methodDescriptor, getCallOptions(), callback);
-        return asyncClientStreamingCall(call, responseObserver);
+                methodDescriptor, getCallOptions());
+        ClientCallStreamObserver<ReqT> streamObserver = new ClientCallStreamObserver<>(call);
+        call.start(new NonblockingCallListener<>(responseObserver, false));
+        return streamObserver;
     }
 
     /**
@@ -90,12 +95,17 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
      * @param methodDescriptor method descriptor
      */
     public <ReqT, RespT> void executeUnary(ReqT request, StreamObserver<RespT> responseObserver,
-                                           MethodDescriptor<ReqT, RespT> methodDescriptor, CallableUnitCallback
-                                                   callback) {
+                                           MethodDescriptor<ReqT, RespT> methodDescriptor) {
 
         ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(),
-                methodDescriptor, getCallOptions(), callback);
-        asyncUnaryCall(call, request, responseObserver);
+                methodDescriptor, getCallOptions());
+        call.start(new NonblockingCallListener<>(responseObserver, false));
+        try {
+            call.sendMessage(request);
+            call.halfClose();
+        } catch (RuntimeException | Error e) {
+            throw cancelThrow(call, e);
+        }
     }
 
     /**
@@ -107,12 +117,104 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
     public <ReqT, RespT> StreamObserver<ReqT> executeBidiStreaming(StreamObserver<RespT>
                                                                                responseObserver,
                                                                      MethodDescriptor<ReqT, RespT>
-                                                                             methodDescriptor, CallableUnitCallback
-                                                                callback) {
+                                                                             methodDescriptor) {
         ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(), methodDescriptor,
-                getCallOptions(), callback);
-        return asyncBidiStreamingCall(call, responseObserver);
+                getCallOptions());
+        ClientCallStreamObserver<ReqT> streamObserver = new ClientCallStreamObserver<>(call);
+        call.start(new NonblockingCallListener<>(responseObserver, true));
+        return streamObserver;
     }
 
+    private static final class NonblockingCallListener<RespT> extends ClientCall.Listener<RespT> {
 
+        private final StreamObserver<RespT> observer;
+        private final boolean streamingResponse;
+        private boolean firstResponseReceived;
+
+        // Non private to avoid synthetic class
+        NonblockingCallListener(StreamObserver<RespT> observer, boolean streamingResponse) {
+
+            this.observer = observer;
+            this.streamingResponse = streamingResponse;
+        }
+
+        @Override
+        public void onHeaders(HttpHeaders headers) {
+
+        }
+
+        @Override
+        public void onMessage(RespT message) {
+
+            if (firstResponseReceived && !streamingResponse) {
+                throw Status.Code.INTERNAL.toStatus()
+                        .withDescription("More than one responses received for unary or client-streaming call")
+                        .asRuntimeException();
+            }
+            firstResponseReceived = true;
+            observer.onNext(message);
+        }
+
+        @Override
+        public void onClose(Status status, HttpHeaders trailers) {
+
+            if (status.isOk()) {
+                observer.onCompleted();
+            } else {
+                observer.onError(status.asRuntimeException());
+            }
+        }
+    }
+
+    private static final class ClientCallStreamObserver<T> extends CallStreamObserver<T> {
+
+        private final ClientCall<T, ?> call;
+
+        // Non private to avoid synthetic class
+        ClientCallStreamObserver(ClientCall<T, ?> call) {
+
+            this.call = call;
+        }
+
+        @Override
+        public void onNext(T value) {
+
+            call.sendMessage(value);
+        }
+
+        @Override
+        public void onError(Throwable t) {
+
+            call.cancel("Cancelled by client with StreamObserver.onError()", t);
+        }
+
+        @Override
+        public void onCompleted() {
+
+            call.halfClose();
+        }
+
+        @Override
+        public boolean isReady() {
+
+            return call.isReady();
+        }
+
+        @Override
+        public void request(int count) {
+
+            call.request(count);
+        }
+
+        @Override
+        public void setMessageCompression(boolean enable) {
+
+            call.setMessageCompression(enable);
+        }
+
+        public void cancel(@Nullable String message, @Nullable Throwable cause) {
+
+            call.cancel(message, cause);
+        }
+    }
 }

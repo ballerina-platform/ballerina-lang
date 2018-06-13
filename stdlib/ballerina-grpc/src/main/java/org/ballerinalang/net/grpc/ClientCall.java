@@ -17,7 +17,6 @@
 package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.HttpHeaders;
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 
 /**
  * An instance of a call to a remote method. A call will send zero or more
@@ -39,7 +38,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
  * <p>Methods are guaranteed to be non-blocking. Implementations are not required to be thread-safe.
  * <p>
  * <p>There is no interaction between the states on the {@link Listener Listener} and {@link
- * io.grpc.ClientCall}, i.e., if {@link Listener#onClose Listener.onClose()} is called, it has no bearing on
+ * ClientCall}, i.e., if {@link Listener#onClose Listener.onClose()} is called, it has no bearing on
  * the permitted operations on {@code ClientCall} (but it may impact whether they do anything).
  * <p>
  * <p>There is a race between {@link #cancel} and the completion/failure of the RPC in other ways.
@@ -244,6 +243,4 @@ public abstract class ClientCall<ReqT, RespT> {
     public void setMessageCompression(boolean enabled) {
         // noop
     }
-
-    public abstract CallableUnitCallback getBallerinaCallback();
 }

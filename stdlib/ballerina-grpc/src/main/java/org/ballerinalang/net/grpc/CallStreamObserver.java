@@ -48,48 +48,6 @@ public abstract class CallStreamObserver<V> implements StreamObserver<V> {
   public abstract boolean isReady();
 
   /**
-   * Set a {@link Runnable} that will be executed every time the stream {@link #isReady()} state
-   * changes from {@code false} to {@code true}.  While it is not guaranteed that the same
-   * thread will always be used to execute the {@link Runnable}, it is guaranteed that executions
-   * are serialized with calls to the 'inbound' {@link StreamObserver}.
-   *
-   * <p>On client-side this method may only be called during {@link
-   * ClientResponseObserver#beforeStart}. On server-side it may only be called during the initial
-   * call to the application, before the service returns its {@code StreamObserver}.
-   *
-   * <p>Note that the handler may be called some time after {@link #isReady} has transitioned to
-   * true as other callbacks may still be executing in the 'inbound' observer.
-   *
-   * @param onReadyHandler to call when peer is ready to receive more messages.
-   */
-  public abstract void setOnReadyHandler(Runnable onReadyHandler);
-
-  /**
-   * Disables automatic flow control where a token is returned to the peer after a call
-   * to the 'inbound' {@link io.grpc.stub.StreamObserver#onNext(Object)} has completed. If disabled
-   * an application must make explicit calls to {@link #request} to receive messages.
-   *
-   * <p>On client-side this method may only be called during {@link
-   * ClientResponseObserver#beforeStart}. On server-side it may only be called during the initial
-   * call to the application, before the service returns its {@code StreamObserver}.
-   *
-   * <p>Note that for cases where the runtime knows that only one inbound message is allowed
-   * calling this method will have no effect and the runtime will always permit one and only
-   * one message. This is true for:
-   * <ul>
-   *   <li>{@link io.grpc.MethodDescriptor.MethodType#UNARY} operations on both the
-   *   client and server.
-   *   </li>
-   *   <li>{@link io.grpc.MethodDescriptor.MethodType#CLIENT_STREAMING} operations on the server.
-   *   </li>
-   *   <li>{@link io.grpc.MethodDescriptor.MethodType#SERVER_STREAMING} operations on the client.
-   *   </li>
-   * </ul>
-   * </p>
-   */
-  public abstract void disableAutoInboundFlowControl();
-
-  /**
    * Requests the peer to produce {@code count} more messages to be delivered to the 'inbound'
    * {@link StreamObserver}.
    *

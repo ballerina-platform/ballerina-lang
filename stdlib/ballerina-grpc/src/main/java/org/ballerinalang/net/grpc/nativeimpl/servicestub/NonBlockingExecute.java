@@ -32,7 +32,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
@@ -110,8 +109,8 @@ public class NonBlockingExecute extends AbstractExecute {
             return;
         }
 
-        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
-                .getMethodDescriptor(methodName);
+        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors.get(methodName) != null
+                ? methodDescriptors.get(methodName).getSchemaDescriptor() : null;
         if (methodDescriptor == null) {
             notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
             return;
@@ -142,24 +141,28 @@ public class NonBlockingExecute extends AbstractExecute {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
                     nonBlockingStub.executeUnary(requestMsg, new DefaultStreamObserver(callbackService),
-                            methodDescriptors.get(methodName), callback);
+                            methodDescriptors.get(methodName));
                 } else if (methodType.equals(MethodDescriptor.MethodType.SERVER_STREAMING)) {
                     nonBlockingStub.executeServerStreaming(requestMsg, new DefaultStreamObserver(callbackService),
-                            methodDescriptors.get(methodName), callback);
+                            methodDescriptors.get(methodName));
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
+                    callback.notifySuccess();
                     return;
                 }
                 context.setReturnValues();
+                callback.notifySuccess();
                 return;
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
+                callback.notifySuccess();
                 return;
             }
         }
         notifyErrorReply(context, "Error while processing the request message. Connection Sub " +
                 "type not supported");
+        callback.notifySuccess();
     }
 
     @Override

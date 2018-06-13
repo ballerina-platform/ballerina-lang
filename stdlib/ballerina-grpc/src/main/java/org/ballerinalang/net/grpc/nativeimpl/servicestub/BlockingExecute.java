@@ -17,15 +17,11 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
-import com.google.protobuf.Descriptors;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -33,11 +29,11 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.BlockingStub;
+import org.ballerinalang.net.http.DataContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,16 +106,12 @@ public class BlockingExecute extends AbstractExecute {
             return;
         }
         
-        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
-                .getMethodDescriptor(methodName);
+        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors.get(methodName) != null
+                ? methodDescriptors.get(methodName).getSchemaDescriptor() : null;
         if (methodDescriptor == null) {
             notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
             return;
         }
-        
-        // Update request headers when request headers exists in the context.
-//        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
-//        MessageHeaders headers = getMessageHeaders(headerValues);
         
         if (connectionStub instanceof BlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
@@ -127,49 +119,25 @@ public class BlockingExecute extends AbstractExecute {
             BlockingStub blockingStub = (BlockingStub) connectionStub;
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
-                //TODO : check whether we can support blocking server streaming.
                 if (methodType.equals(MethodDescriptor.MethodType.UNARY)) {
-                    
-                    // Attach header read/write listener to the service stub.
-//                    AtomicReference<Metadata> headerCapture = new AtomicReference<>();
-//                    AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
-//                    if (headers != null) {
-//                        blockingStub = MetadataUtils.attachHeaders(blockingStub, headers.getMessageMetadata
-// ());
-//                    }
-//                    blockingStub = MetadataUtils.captureMetadata(blockingStub, headerCapture, trailerCapture);
-                    Message responseMsg = blockingStub.executeUnary(requestMsg, methodDescriptors.get(methodName),
-                            callback);
-                    Descriptors.Descriptor outputDescriptor = methodDescriptor.getOutputType();
-                    BValue responseBValue = MessageUtils.generateRequestStruct(responseMsg, context
-                            .getProgramFile(), outputDescriptor.getName(), getBalType(outputDescriptor.getName(),
-                            context));
-                    // Set response headers, when response headers exists in the message context.
-                    BStruct headerStruct = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
-                            PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
-//                    Metadata respMetadata = headerCapture.get();
-//                    if (respMetadata != null) {
-//                        headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
-//                    }
-                    BRefValueArray contentTuple = new BRefValueArray(respTupleType);
-                    contentTuple.add(0, (BRefType) responseBValue);
-                    contentTuple.add(1, headerStruct);
-                    context.setReturnValues(contentTuple);
-                    callback.notifySuccess();
-                    return;
+
+                    DataContext dataContext = new DataContext(context, callback, null);
+                    blockingStub.executeUnary(requestMsg, methodDescriptors.get(methodName),
+                            dataContext);
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
-                    return;
+                    callback.notifySuccess();
                 }
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
                 callback.notifySuccess();
-                return;
             }
+        } else {
+            notifyErrorReply(context, "Error while processing the request message. Connection Sub " +
+                    "type not supported");
+            callback.notifySuccess();
         }
-        notifyErrorReply(context, "Error while processing the request message. Connection Sub " +
-                "type not supported");
     }
 
     @Override

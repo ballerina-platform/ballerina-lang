@@ -19,7 +19,6 @@ package org.ballerinalang.net.grpc;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 
-import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -50,17 +49,15 @@ public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
     private final boolean unaryRequest;
     private HttpClientConnector connector;
     private final OutboundMessage outboundMessage;
-    private final CallableUnitCallback callback;
 
     private ClientConnectorListener connectorListener;
     private boolean cancelCalled;
     private boolean halfCloseCalled;
-    private boolean fullStreamDecompression;
     private DecompressorRegistry decompressorRegistry = DecompressorRegistry.getDefaultInstance();
     private CompressorRegistry compressorRegistry = CompressorRegistry.getDefaultInstance();
 
     public ClientCallImpl(HttpClientConnector connector, OutboundMessage outboundMessage,  MethodDescriptor<ReqT, RespT>
-            method, CallOptions callOptions, CallableUnitCallback callback) {
+            method, CallOptions callOptions) {
 
         this.method = method;
         this.unaryRequest = method.getType() == MethodDescriptor.MethodType.UNARY
@@ -68,25 +65,6 @@ public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
         this.callOptions = callOptions;
         this.connector = connector;
         this.outboundMessage = outboundMessage;
-        this.callback = callback;
-    }
-
-    ClientCallImpl<ReqT, RespT> setFullStreamDecompression(boolean fullStreamDecompression) {
-
-        this.fullStreamDecompression = fullStreamDecompression;
-        return this;
-    }
-
-    ClientCallImpl<ReqT, RespT> setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {
-
-        this.decompressorRegistry = decompressorRegistry;
-        return this;
-    }
-
-    ClientCallImpl<ReqT, RespT> setCompressorRegistry(CompressorRegistry compressorRegistry) {
-
-        this.compressorRegistry = compressorRegistry;
-        return this;
     }
 
     public void prepareHeaders(
@@ -103,20 +81,11 @@ public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
             outboundMessage.setHeader("grpc-accept-encoding", advertisedEncodings);
         }
 
-        outboundMessage.removeHeader("content-encoding");
-        outboundMessage.removeHeader("accept-encoding");
-        if (fullStreamDecompression) {
-            outboundMessage.setHeader("accept-encoding", FULL_STREAM_DECOMPRESSION_ENCODINGS);
-        }
-
-
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
         outboundMessage.setProperty(Constants.HTTP_METHOD, GrpcConstants.HTTP_METHOD);
         outboundMessage.setProperty(Constants.HTTP_VERSION, "2.0");
         outboundMessage.setHeader("content-type", GrpcConstants.CONTENT_TYPE_GRPC);
         outboundMessage.setHeader("te", GrpcConstants.TE_TRAILERS);
-//
-//        outboundMessage.setProperty(Constants.HTTP_METHOD, Constants.HTTP_POST_METHOD);
     }
 
     @Override
@@ -228,12 +197,6 @@ public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
 
         checkState(outboundMessage != null, "Not started");
         outboundMessage.setMessageCompression(enabled);
-    }
-
-    @Override
-    public CallableUnitCallback getBallerinaCallback() {
-
-        return callback;
     }
 
     private void closeObserver(Listener<RespT> observer, Status status, HttpHeaders trailers) {

@@ -22,8 +22,6 @@ import com.google.protobuf.Descriptors;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
@@ -41,33 +39,6 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
  * @since 1.0.0
  */
 abstract class AbstractExecute implements NativeCallableUnit {
-
-    /**
-     * Returns corresponding Ballerina type for the proto buffer type.
-     *
-     * @param protoType Protocol buffer type
-     * @param context   Ballerina Context
-     * @return .
-     */
-    BType getBalType(String protoType, Context context) {
-        if (protoType.equalsIgnoreCase("DoubleValue") || protoType
-                .equalsIgnoreCase("FloatValue")) {
-            return BTypes.typeFloat;
-        } else if (protoType.equalsIgnoreCase("Int32Value") || protoType
-                .equalsIgnoreCase("Int64Value") || protoType
-                .equalsIgnoreCase("UInt32Value") || protoType
-                .equalsIgnoreCase("UInt64Value")) {
-            return BTypes.typeInt;
-        } else if (protoType.equalsIgnoreCase("BoolValue")) {
-            return BTypes.typeBoolean;
-        } else if (protoType.equalsIgnoreCase("StringValue")) {
-            return BTypes.typeString;
-        } else if (protoType.equalsIgnoreCase("BytesValue")) {
-            return BTypes.typeBlob;
-        } else {
-            return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
-        }
-    }
     
     MethodDescriptor.MethodType getMethodType(Descriptors.MethodDescriptor
                                                       methodDescriptor) throws GrpcClientException {

@@ -31,7 +31,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.Message;
-import org.ballerinalang.net.grpc.MessageRegistry;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
@@ -116,8 +115,8 @@ public class StreamingExecute extends AbstractExecute {
             return;
         }
 
-        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = MessageRegistry.getInstance()
-                .getMethodDescriptor(methodName);
+        com.google.protobuf.Descriptors.MethodDescriptor methodDescriptor = methodDescriptors.get(methodName) != null
+                ? methodDescriptors.get(methodName).getSchemaDescriptor() : null;
         if (methodDescriptor == null) {
             notifyErrorReply(context, "No registered method descriptor for '" + methodName + "'");
             return;
@@ -147,11 +146,11 @@ public class StreamingExecute extends AbstractExecute {
                 StreamObserver<Message> requestSender;
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
                     requestSender = nonBlockingStub.executeClientStreaming
-                            (responseObserver, methodDescriptors.get(methodName), callback);
+                            (responseObserver, methodDescriptors.get(methodName));
                     
                 } else if (methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
                     requestSender = nonBlockingStub.executeBidiStreaming
-                            (responseObserver, methodDescriptors.get(methodName), callback);
+                            (responseObserver, methodDescriptors.get(methodName));
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
@@ -164,8 +163,10 @@ public class StreamingExecute extends AbstractExecute {
                 BStruct clientEndpoint = (BStruct) serviceStub.getNativeData(CLIENT_END_POINT);
                 clientEndpoint.addNativeData(GRPC_CLIENT, connStruct);
                 context.setReturnValues(clientEndpoint);
+                callback.notifySuccess();
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
+                callback.notifySuccess();
             }
         }
     }

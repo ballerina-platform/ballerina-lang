@@ -402,15 +402,6 @@ public final class ServerCalls {
         }
 
         @Override
-        public void setOnReadyHandler(Runnable r) {
-
-            if (frozen) {
-                throw new RuntimeException("Cannot alter onReadyHandler after initialization");
-            }
-            this.onReadyHandler = r;
-        }
-
-        @Override
         public boolean isCancelled() {
 
             return call.isCancelled();
@@ -423,15 +414,6 @@ public final class ServerCalls {
                 throw new RuntimeException("Cannot alter onReadyHandler after initialization");
             }
             this.onCancelHandler = onCancelHandler;
-        }
-
-        @Override
-        public void disableAutoInboundFlowControl() {
-
-            if (frozen) {
-                throw new RuntimeException("Cannot disable auto flow control after initialization");
-            }
-            autoFlowControlEnabled = false;
         }
 
         @Override

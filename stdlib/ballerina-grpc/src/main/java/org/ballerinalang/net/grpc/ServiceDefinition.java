@@ -118,8 +118,6 @@ public final class ServiceDefinition {
                             .build();
             descriptorMap.put(fullMethodName, descriptor);
             MessageRegistry messageRegistry = MessageRegistry.getInstance();
-            // update method descriptor
-            messageRegistry.addMethodDescriptor(fullMethodName, methodDescriptor);
             // update request message descriptors.
             messageRegistry.addMessageDescriptor(reqMessage.getName(), reqMessage);
             setNestedMessages(reqMessage, messageRegistry);

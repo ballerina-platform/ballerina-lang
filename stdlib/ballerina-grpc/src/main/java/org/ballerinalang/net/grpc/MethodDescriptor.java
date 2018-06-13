@@ -22,8 +22,6 @@ import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.exception.GrpcServerValidationException;
 
 import java.io.InputStream;
-import java.lang.ref.Reference;
-import java.lang.ref.WeakReference;
 
 /**
  * Description of a remote method used to initiate a call.
@@ -44,10 +42,7 @@ public final class MethodDescriptor<ReqT, RespT> {
     private final String fullMethodName;
     private final Marshaller<ReqT> requestMarshaller;
     private final Marshaller<RespT> responseMarshaller;
-    private final Object schemaDescriptor;
-    private final boolean idempotent;
-    private final boolean safe;
-    private final boolean sampledToLocalTracing;
+    private final com.google.protobuf.Descriptors.MethodDescriptor schemaDescriptor;
 
     /**
      * The call type of a method.
@@ -116,7 +111,7 @@ public final class MethodDescriptor<ReqT, RespT> {
 
         /**
          * Given a message, produce an {@link InputStream} for it so that it can be written to the wire.
-         * Where possible implementations should produce streams that are {@link io.grpc.KnownLength}
+         * Where possible implementations should produce streams that are {@link KnownLength}
          * to improve transport efficiency.
          *
          * @param value to serialize.
@@ -151,7 +146,7 @@ public final class MethodDescriptor<ReqT, RespT> {
             Marshaller<ResponseT> responseMarshaller) {
 
         return new MethodDescriptor<RequestT, ResponseT>(
-                type, fullMethodName, requestMarshaller, responseMarshaller, null, false, false, false);
+                type, fullMethodName, requestMarshaller, responseMarshaller, null);
     }
 
     private MethodDescriptor(
@@ -159,19 +154,13 @@ public final class MethodDescriptor<ReqT, RespT> {
             String fullMethodName,
             Marshaller<ReqT> requestMarshaller,
             Marshaller<RespT> responseMarshaller,
-            Object schemaDescriptor,
-            boolean idempotent,
-            boolean safe,
-            boolean sampledToLocalTracing) {
+            com.google.protobuf.Descriptors.MethodDescriptor schemaDescriptor) {
 
         this.type = type;
         this.fullMethodName = fullMethodName;
         this.requestMarshaller = requestMarshaller;
         this.responseMarshaller = responseMarshaller;
         this.schemaDescriptor = schemaDescriptor;
-        this.idempotent = idempotent;
-        this.safe = safe;
-        this.sampledToLocalTracing = sampledToLocalTracing;
     }
 
     /**
@@ -272,39 +261,9 @@ public final class MethodDescriptor<ReqT, RespT> {
      *
      * @since 1.7.0
      */
-    public Object getSchemaDescriptor() {
+    public com.google.protobuf.Descriptors.MethodDescriptor getSchemaDescriptor() {
 
         return schemaDescriptor;
-    }
-
-    /**
-     * Returns whether this method is idempotent.
-     *
-     * @since 1.0.0
-     */
-    public boolean isIdempotent() {
-
-        return idempotent;
-    }
-
-    /**
-     * Returns whether this method is safe.
-     * <p>
-     * <p>A safe request does nothing except retrieval so it has no side effects on the server side.
-     *
-     * @since 1.1.0
-     */
-    public boolean isSafe() {
-
-        return safe;
-    }
-
-    /**
-     * Returns whether RPCs for this method may be sampled into the local tracing store.
-     */
-    public boolean isSampledToLocalTracing() {
-
-        return sampledToLocalTracing;
     }
 
     /**
@@ -348,49 +307,7 @@ public final class MethodDescriptor<ReqT, RespT> {
      */
     public static <ReqT, RespT> Builder<ReqT, RespT> newBuilder() {
 
-        return newBuilder(null, null);
-    }
-
-    /**
-     * Creates a new builder for a {@link MethodDescriptor}.
-     *
-     * @since 1.1.0
-     */
-    public static <ReqT, RespT> Builder<ReqT, RespT> newBuilder(
-            Marshaller<ReqT> requestMarshaller, Marshaller<RespT> responseMarshaller) {
-
-        return new Builder<ReqT, RespT>()
-                .setRequestMarshaller(requestMarshaller)
-                .setResponseMarshaller(responseMarshaller);
-    }
-
-    /**
-     * Turns this descriptor into a builder.
-     *
-     * @since 1.1.0
-     */
-    public Builder<ReqT, RespT> toBuilder() {
-
-        return toBuilder(requestMarshaller, responseMarshaller);
-    }
-
-    /**
-     * Turns this descriptor into a builder, replacing the request and response marshallers.
-     *
-     * @since 1.1.0
-     */
-    public <NewReqT, NewRespT> Builder<NewReqT, NewRespT> toBuilder(
-            Marshaller<NewReqT> requestMarshaller, Marshaller<NewRespT> responseMarshaller) {
-
-        return MethodDescriptor.<NewReqT, NewRespT>newBuilder()
-                .setRequestMarshaller(requestMarshaller)
-                .setResponseMarshaller(responseMarshaller)
-                .setType(type)
-                .setFullMethodName(fullMethodName)
-                .setIdempotent(idempotent)
-                .setSafe(safe)
-                .setSampledToLocalTracing(sampledToLocalTracing)
-                .setSchemaDescriptor(schemaDescriptor);
+        return new Builder<>();
     }
 
     /**
@@ -405,10 +322,7 @@ public final class MethodDescriptor<ReqT, RespT> {
         private Marshaller<RespT> responseMarshaller;
         private MethodType type;
         private String fullMethodName;
-        private boolean idempotent;
-        private boolean safe;
-        private Object schemaDescriptor;
-        private boolean sampledToLocalTracing;
+        private com.google.protobuf.Descriptors.MethodDescriptor schemaDescriptor;
 
         private Builder() {
 
@@ -472,47 +386,13 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @param schemaDescriptor an object that describes the service structure.  Should be immutable.
          * @since 1.7.0
          */
-        public Builder<ReqT, RespT> setSchemaDescriptor(Object schemaDescriptor) {
+        public Builder<ReqT, RespT> setSchemaDescriptor(com.google.protobuf.Descriptors.MethodDescriptor
+                                                                schemaDescriptor) {
 
             this.schemaDescriptor = schemaDescriptor;
             return this;
         }
 
-        /**
-         * Sets whether the method is idempotent.  If true, calling this method more than once doesn't
-         * have additional side effects.
-         *
-         * @since 1.1.0
-         */
-        public Builder<ReqT, RespT> setIdempotent(boolean idempotent) {
-
-            this.idempotent = idempotent;
-            return this;
-        }
-
-        /**
-         * Sets whether this method is safe.  If true, calling this method any number of times doesn't
-         * have side effects.
-         *
-         * @since 1.1.0
-         */
-        public Builder<ReqT, RespT> setSafe(boolean safe) {
-
-            this.safe = safe;
-            return this;
-        }
-
-        /**
-         * Sets whether RPCs for this method may be sampled into the local tracing store.  If true,
-         * sampled traces of this method may be kept in memory by tracing libraries.
-         *
-         * @since 1.8.0
-         */
-        public Builder<ReqT, RespT> setSampledToLocalTracing(boolean value) {
-
-            this.sampledToLocalTracing = value;
-            return this;
-        }
 
         /**
          * Builds the method descriptor.
@@ -526,21 +406,8 @@ public final class MethodDescriptor<ReqT, RespT> {
                     fullMethodName,
                     requestMarshaller,
                     responseMarshaller,
-                    schemaDescriptor,
-                    idempotent,
-                    safe,
-                    sampledToLocalTracing);
+                    schemaDescriptor);
         }
     }
-
-    private static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
-
-    private static final ThreadLocal<Reference<byte[]>> bufs = new ThreadLocal<Reference<byte[]>>() {
-
-        @Override
-        protected Reference<byte[]> initialValue() {
-            return new WeakReference<byte[]>(new byte[4096]); // Picked at random.
-        }
-    };
 
 }

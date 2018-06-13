@@ -31,7 +31,6 @@ import java.util.Map;
 public class MessageRegistry {
 
     private Map<String, Descriptors.Descriptor> messageDescriptors = new HashMap<>();
-    private Map<String, Descriptors.MethodDescriptor> methodDescriptors = new HashMap<>();
 
     private static volatile MessageRegistry messageRegistry = new MessageRegistry();
 
@@ -51,17 +50,5 @@ public class MessageRegistry {
 
     public Map<String, Descriptors.Descriptor> getMessageDescriptorMap() {
         return Collections.unmodifiableMap(messageDescriptors);
-    }
-
-    public Descriptors.MethodDescriptor getMethodDescriptor(String messageName) {
-        return methodDescriptors.get(messageName);
-    }
-
-    public Map<String, Descriptors.MethodDescriptor> getMethodDescriptorMap() {
-        return Collections.unmodifiableMap(methodDescriptors);
-    }
-
-    void addMethodDescriptor(String methodName, Descriptors.MethodDescriptor methodDescriptor) {
-        methodDescriptors.put(methodName, methodDescriptor);
     }
 }

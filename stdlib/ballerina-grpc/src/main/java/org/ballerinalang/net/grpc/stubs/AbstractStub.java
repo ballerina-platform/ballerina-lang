@@ -20,9 +20,13 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.net.grpc.CallOptions;
+import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.OutboundMessage;
+import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.net.grpc.StatusException;
+import org.ballerinalang.net.grpc.StatusRuntimeException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.Constants;
@@ -31,8 +35,11 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -48,6 +55,8 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
  */
 @ThreadSafe
 public abstract class AbstractStub<S extends AbstractStub<S>> {
+
+    private static final Logger logger = Logger.getLogger(AbstractStub.class.getName());
 
     private final HttpClientConnector connector;
     private final CallOptions callOptions;
@@ -210,5 +219,51 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
         if (!headers.contains(HttpHeaderNames.USER_AGENT)) { // If User-Agent is not already set from program
             headers.set(HttpHeaderNames.USER_AGENT, userAgent);
         }
+    }
+
+    /**
+     * Cancels a call, and throws the exception.
+     *
+     * @param t must be a RuntimeException or Error
+     */
+    public static RuntimeException cancelThrow(ClientCall<?, ?> call, Throwable t) {
+
+        try {
+            call.cancel(null, t);
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "RuntimeException encountered while closing call", e);
+        }
+        if (t instanceof RuntimeException) {
+            throw (RuntimeException) t;
+        } else if (t instanceof Error) {
+            throw (Error) t;
+        }
+        // should be impossible
+        throw new AssertionError(t);
+    }
+
+    /**
+     * Wraps the given {@link Throwable} in a {@link StatusRuntimeException}. If it contains an
+     * embedded {@link StatusException} or {@link StatusRuntimeException}, the returned exception will
+     * contain the embedded trailers and status, with the given exception as the cause. Otherwise, an
+     * exception will be generated from an {@link Status
+     * } status.
+     */
+    private static StatusRuntimeException toStatusRuntimeException(Throwable t) {
+
+        Throwable cause = checkNotNull(t, "t");
+        while (cause != null) {
+            // If we have an embedded status, use it and replace the cause
+            if (cause instanceof StatusException) {
+                StatusException se = (StatusException) cause;
+                return new StatusRuntimeException(se.getStatus(), se.getTrailers());
+            } else if (cause instanceof StatusRuntimeException) {
+                StatusRuntimeException se = (StatusRuntimeException) cause;
+                return new StatusRuntimeException(se.getStatus(), se.getTrailers());
+            }
+            cause = cause.getCause();
+        }
+        return Status.Code.UNKNOWN.toStatus().withDescription("unexpected exception").withCause(t)
+                .asRuntimeException();
     }
 }
