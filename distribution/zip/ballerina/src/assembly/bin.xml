@@ -25,6 +25,13 @@
 
     <fileSets>
         <fileSet>
+            <directory>
+                ${project.build.directory}/lib
+            </directory>
+            <outputDirectory>lib</outputDirectory>
+            <fileMode>0444</fileMode>
+        </fileSet>
+        <fileSet>
             <directory>./</directory>
             <outputDirectory>.</outputDirectory>
             <includes>
@@ -82,7 +89,7 @@
         </fileSet>
         <fileSet>
             <directory>
-                ${project.build.directory}/extracted-distributions/ballerina-queue-jar/META-INF/natives
+                ${project.build.directory}/extracted-distributions/ballerina-transactions-jar/META-INF/ballerina
             </directory>
             <outputDirectory>src</outputDirectory>
         </fileSet>
@@ -120,7 +127,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>README</source>
+            <source>README.md</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>

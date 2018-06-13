@@ -74,8 +74,8 @@ public class SignatureParams {
                     "' as param name, but found '" + entityBodyParam.getVarName() + "'");
         }
         int type = entityBodyParam.getVarType().getTag();
-        if (type == TypeTags.STRUCT_TAG || type == TypeTags.JSON_TAG || type == TypeTags.XML_TAG ||
-                type == TypeTags.STRING_TAG || type == TypeTags.BLOB_TAG) {
+        if (type == TypeTags.OBJECT_TYPE_TAG || type == TypeTags.RECORD_TYPE_TAG || type == TypeTags.JSON_TAG
+                || type == TypeTags.XML_TAG || type == TypeTags.STRING_TAG || type == TypeTags.BLOB_TAG) {
             this.entityBody = entityBodyParam;
             paramCount++;
         } else {

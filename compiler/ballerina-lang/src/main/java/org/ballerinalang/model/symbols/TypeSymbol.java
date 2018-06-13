@@ -21,4 +21,6 @@ package org.ballerinalang.model.symbols;
  * @since 0.94
  */
 public interface TypeSymbol extends Symbol {
+
+    TypeSymbol createLabelSymbol();
 }

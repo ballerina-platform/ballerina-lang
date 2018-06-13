@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -99,10 +100,30 @@ public class WhileStmtTest {
         Assert.assertEquals(sum.floatValue(), 30.0, "mismatched output value");
     }
 
+    @Test(description = "Test while statement with default values inside the while block")
+    public void testWhileWithDefaultValues() {
+        BValue[] returns = BRunUtil.invoke(positiveCompileResult, "testWhileStmtWithDefaultValues");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BInteger.class, "Class type of return param1 mismatched");
+        Assert.assertSame(returns[1].getClass(), BString.class, "Class type of return param2 mismatched");
+        Assert.assertSame(returns[2].getClass(), BFloat.class, "Class type of return param3 mismatched");
+
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1, "mismatched output value");
+        Assert.assertEquals(returns[1].stringValue(), "hello", "mismatched output value");
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 1.0, "mismatched output value");
+    }
+
     @Test(description = "Test while statement with incompatible types",
           dependsOnMethods = {"testWhileStmtConditionFalse", "testWhileStmtConditionTrue"})
-    public void testMapAccessWithIndex() {
+    public void testWhileBlockNegative() {
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 4);
         BAssertUtil.validateError(negativeCompileResult, 0, "incompatible types: expected 'boolean', found 'string'", 2,
                                  9);
+        BAssertUtil.validateError(negativeCompileResult, 1, "incompatible types: expected 'boolean', found 'string'", 6,
+                8);
+        BAssertUtil.validateError(negativeCompileResult, 2, "incompatible types: expected 'boolean', found 'int'", 10,
+                8);
+        BAssertUtil.validateError(negativeCompileResult, 3, "incompatible types: expected 'boolean', found " +
+                        "'(int,string)'", 14, 8);
     }
 }

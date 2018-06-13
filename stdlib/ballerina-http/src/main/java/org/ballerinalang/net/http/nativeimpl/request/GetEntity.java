@@ -38,10 +38,10 @@ import static org.ballerinalang.net.http.HttpConstants.TRANSPORT_MESSAGE;
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "http",
                    functionName = "getEntity",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
+                   receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = "Request",
-                                        structPackage = "ballerina.http"),
-                   returnType = { @ReturnType(type = TypeKind.STRUCT) },
+                                        structPackage = "ballerina/http"),
+                   returnType = { @ReturnType(type = TypeKind.OBJECT) },
                    isPublic = true)
 public class GetEntity extends BlockingNativeCallableUnit {
     @Override

@@ -32,23 +32,23 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina.io#createDelimitedRecordChannel.
+ * Native function ballerina/io#createDelimitedRecordChannel.
  *
  * @since 0.963.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "init",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DelimitedTextRecordChannel",
-                structPackage = "ballerina.io"),
-        args = {@Argument(name = "channel", type = TypeKind.STRUCT, structType = "CharacterChannel",
-                structPackage = "ballerina.io"),
+                structPackage = "ballerina/io"),
+        args = {@Argument(name = "channel", type = TypeKind.OBJECT, structType = "CharacterChannel",
+                structPackage = "ballerina/io"),
                 @Argument(name = "recordSeparator", type = TypeKind.STRING),
                 @Argument(name = "fieldSeparator", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
-                structPackage = "ballerina.io"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "DelimitedRecordChannel",
+                structPackage = "ballerina/io"),
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
@@ -56,7 +56,7 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(CreateDelimitedRecordChannel.class);
 
     /**
-     * The index od the text record channel in ballerina.io#createDelimitedRecordChannel().
+     * The index od the text record channel in ballerina/io#createDelimitedRecordChannel().
      */
     private static final int CHAR_CHANNEL_INDEX = 1;
     /**
@@ -64,11 +64,11 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
      */
     private static final int RECORD_CHANNEL_INDEX = 0;
     /**
-     * The index of the record channel separator in ballerina.io#createDelimitedRecordChannel().
+     * The index of the record channel separator in ballerina/io#createDelimitedRecordChannel().
      */
     private static final int RECORD_SEPARATOR_INDEX = 1;
     /**
-     * The index of the field separator in ballerina.io#createDelimitedRecordChannel().
+     * The index of the field separator in ballerina/io#createDelimitedRecordChannel().
      */
     private static final int FIELD_SEPARATOR_INDEX = 0;
     /**

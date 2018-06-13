@@ -24,7 +24,7 @@ import org.ballerinalang.siddhi.core.query.processor.Processor;
 import java.util.List;
 
 /**
- * Interface for all StreamRuntime s.(Ex: JoinStreamRuntime, SingleStreamRuntime)
+ * Interface for all StreamRuntime s.(Ex: JoinStreamRuntime, SingleStreamRuntime).
  */
 public interface StreamRuntime {
 

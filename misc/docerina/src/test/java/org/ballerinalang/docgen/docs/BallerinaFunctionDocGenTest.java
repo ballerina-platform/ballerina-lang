@@ -56,7 +56,7 @@ public class BallerinaFunctionDocGenTest {
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
 
-            BLangPackage doc = docsMap.get(".").bLangPackage;
+            BLangPackage doc = docsMap.get("helloWorld.bal").bLangPackage;
             Collection<BLangFunction> functions = doc.getFunctions();
             Assert.assertEquals(functions.size(), 1);
 
@@ -75,13 +75,12 @@ public class BallerinaFunctionDocGenTest {
     public void testABalWithMultipleFunctions() {
         try {
             Map<String, PackageDoc> docsMap =
-                    BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot,
-                                                                           "balWith2Functions.bal");
+                    BallerinaDocGenerator.generatePackageDocsFromBallerina(sourceRoot, "balWith2Functions.bal");
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
 
-            BLangPackage doc = docsMap.get(".").bLangPackage;
+            BLangPackage doc = docsMap.get("balWith2Functions.bal").bLangPackage;
             Collection<BLangFunction> functions = doc.getFunctions();
             Assert.assertEquals(functions.size(), 2);
 
@@ -109,7 +108,7 @@ public class BallerinaFunctionDocGenTest {
             Assert.assertEquals(docsMap.size(), 1);
             BallerinaDocGenTestUtils.printDocMap(docsMap);
 
-            BLangPackage doc = docsMap.get(".").bLangPackage;
+            BLangPackage doc = docsMap.get("natives.bal").bLangPackage;
             Collection<BLangFunction> functions = doc.getFunctions();
             Assert.assertEquals(functions.size(), 1);
 

@@ -75,4 +75,8 @@ public enum Flag {
      * Indicates Flagged type is a defaultable type.
      */
     DEFAULTABLE,
+    /**
+     * Temporary indicator for records.
+     */
+    RECORD,
 }

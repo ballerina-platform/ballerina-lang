@@ -33,9 +33,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListener",
-                structPackage = "ballerina.http"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "NonListener",
+                structPackage = "ballerina/http"),
+        returnType = {@ReturnType(type = TypeKind.OBJECT)},
         isPublic = true
 )
 public class NonListeningInitEndpoint extends org.ballerinalang.net.http.serviceendpoint.InitEndpoint {

@@ -38,14 +38,14 @@ import java.nio.file.Path;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "internal",
         functionName = "compressToBlob",
-        args = {@Argument(name = "dirPath", type = TypeKind.STRUCT, structType = "Path",
-                structPackage = "ballerina.file")},
+        args = {@Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
+                structPackage = "ballerina/file")},
         returnType = {@ReturnType(type = TypeKind.BLOB)},
         isPublic = true
 )
 public class CompressToBlob extends BlockingNativeCallableUnit {
     /**
-     * File path defined in ballerina.compression
+     * File path defined in ballerina.compression.
      */
     private static final int SRC_PATH_FIELD_INDEX = 0;
 

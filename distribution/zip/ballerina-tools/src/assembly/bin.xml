@@ -26,6 +26,13 @@
     <fileSets>
         <fileSet>
             <directory>
+                ${project.build.directory}/lib
+            </directory>
+            <outputDirectory>lib</outputDirectory>
+            <fileMode>0444</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>
                 ${project.build.directory}/extracted-distributions/ballerina-zip/ballerina-${project.version}
             </directory>
             <outputDirectory>.</outputDirectory>
@@ -76,7 +83,7 @@
             <fileMode>644</fileMode>
         </file>
         <file>
-            <source>README</source>
+            <source>README.md</source>
             <outputDirectory>.</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>

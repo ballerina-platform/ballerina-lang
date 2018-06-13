@@ -41,9 +41,9 @@ import javax.jms.Message;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "getRedelivered",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "Message",
-                             structPackage = "ballerina.jms"),
+                             structPackage = "ballerina/jms"),
         returnType = { @ReturnType(type = TypeKind.BOOLEAN) },
         isPublic = true
 )

@@ -41,10 +41,10 @@ import javax.jms.Message;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "getMessageID",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "Message",
-                             structPackage = "ballerina.jms"),
-        returnType = { @ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.STRUCT) },
+                             structPackage = "ballerina/jms"),
+        returnType = { @ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD) },
         isPublic = true
 )
 public class GetMessageID extends AbstractBlockinAction {

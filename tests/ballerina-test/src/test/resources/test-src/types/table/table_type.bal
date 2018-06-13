@@ -85,17 +85,17 @@ type ResultTest {
 
 type ResultSignedInt {
     int ID;
-    int TINYINTDATA;
-    int SMALLINTDATA;
-    int INTDATA;
-    int BIGINTDATA;
+    int? TINYINTDATA;
+    int? SMALLINTDATA;
+    int? INTDATA;
+    int? BIGINTDATA;
 };
 
 type ResultComplexTypes {
     int ROW_ID;
-    blob BLOB_TYPE;
-    string CLOB_TYPE;
-    blob BINARY_TYPE;
+    blob? BLOB_TYPE;
+    string? CLOB_TYPE;
+    blob? BINARY_TYPE;
 };
 
 type TestTypeData {
@@ -127,7 +127,6 @@ function testToJson() returns (json) {
     } finally {
         testDB.stop();
     }
-    return null;
 }
 
 function testToXml() returns (xml) {
@@ -145,7 +144,6 @@ function testToXml() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 function testToXmlMultipleConsume() returns (xml) {
@@ -165,7 +163,6 @@ function testToXmlMultipleConsume() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 function testToXmlWithAdd() returns (xml) {
@@ -189,7 +186,6 @@ function testToXmlWithAdd() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 function testToJsonMultipleConsume() returns (json) {
@@ -209,7 +205,6 @@ function testToJsonMultipleConsume() returns (json) {
     } finally {
         testDB.stop();
     }
-    return null;
 }
 
 
@@ -229,7 +224,6 @@ function toXmlComplex() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 function testToXmlComplexWithStructDef() returns (xml) {
@@ -248,7 +242,6 @@ function testToXmlComplexWithStructDef() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 
@@ -268,7 +261,6 @@ function testToJsonComplex() returns (json) {
     } finally {
         testDB.stop();
     }
-    return null;
 }
 
 
@@ -288,7 +280,6 @@ function testToJsonComplexWithStructDef() returns (json) {
     } finally {
         testDB.stop();
     }
-    return null;
 }
 
 function testJsonWithNull() returns (json) {
@@ -306,7 +297,6 @@ function testJsonWithNull() returns (json) {
     } finally {
         testDB.stop();
     }
-    return null;
 }
 
 function testXmlWithNull() returns (xml) {
@@ -324,7 +314,6 @@ function testXmlWithNull() returns (xml) {
     } finally {
         testDB.stop();
     }
-    return xml`<empty/>`;
 }
 
 function testToXmlWithinTransaction() returns (string, int) {
@@ -347,7 +336,6 @@ function testToXmlWithinTransaction() returns (string, int) {
     } finally {
         testDB.stop();
     }
-    return ("<fail></fail>", -1);
 }
 
 function testToJsonWithinTransaction() returns (string, int) {
@@ -370,7 +358,6 @@ function testToJsonWithinTransaction() returns (string, int) {
     } finally {
         testDB.stop();
     }
-    return ("", -2);
 }
 
 function testGetPrimitiveTypes() returns (int, int, float, float, boolean, string) {
@@ -1034,8 +1021,8 @@ function testSignedIntMaxMinValues() returns (int, int, int, string, string, str
     str = "";
     while (dt.hasNext()) {
         var result = check <ResultSignedInt>dt.getNext();
-        str = str + result.ID + "|" + result.TINYINTDATA + "|" + result.SMALLINTDATA + "|" + result.INTDATA + "|" +
-            result.BIGINTDATA + "#";
+        str = str + result.ID + "|" + (result.TINYINTDATA but { () => -1 }) + "|" + (result.SMALLINTDATA but { () =>
+            -1 }) + "|" + (result.INTDATA but { () => -1 }) + "|" + (result.BIGINTDATA but { () => -1 }) + "#";
     }
     testDB.stop();
     return (maxInsert, minInsert, nullInsert, jsonStr, xmlStr, str);
@@ -1091,7 +1078,12 @@ function testComplexTypeInsertAndRetrieval() returns (int, int, string, string, 
     str = "";
     while (dt.hasNext()) {
         var result = check <ResultComplexTypes>dt.getNext();
-        str = str + result.ROW_ID + "|" + result.BLOB_TYPE.toString("UTF-8") + "|" + result.CLOB_TYPE + "|";
+        string blobType;
+        match result.BLOB_TYPE {
+            blob b => blobType = b.toString("UTF-8");
+            () => blobType = "nil";
+        }
+        str = str + result.ROW_ID + "|" + blobType + "|" + (result.CLOB_TYPE but { () => "nil" }) + "|";
     }
     testDB.stop();
     return (retDataInsert, retNullInsert, jsonStr, xmlStr, str);

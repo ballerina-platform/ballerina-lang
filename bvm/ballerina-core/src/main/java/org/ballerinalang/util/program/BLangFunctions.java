@@ -48,11 +48,13 @@ import org.ballerinalang.persistence.CorrelationUtil;
 import org.ballerinalang.persistence.FailedStates;
 import org.ballerinalang.persistence.State;
 import org.ballerinalang.persistence.StateStore;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
+import org.ballerinalang.util.codegen.ImportPackageInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -94,7 +96,7 @@ public class BLangFunctions {
      * @param packageName the package the callable is residing
      * @param callableName the callable name
      * @param args the callable arguments
-     * @return
+     * @return return values of the function
      */
     public static BValue[] invokeEntrypointCallable(ProgramFile bLangProgram, String packageName, String callableName,
                                      BValue[] args) {
@@ -103,20 +105,102 @@ public class BLangFunctions {
         if (functionInfo == null) {
             throw new RuntimeException("Function '" + callableName + "' is not defined");
         }
-        return invokeEntrypointCallable(bLangProgram, packageInfo, functionInfo, args);
+        return invokeEntrypointCallable(bLangProgram, functionInfo, args);
     }
     
-    public static BValue[] invokeEntrypointCallable(ProgramFile programFile, PackageInfo packageInfo,
+    public static BValue[] invokeEntrypointCallable(ProgramFile programFile,
             FunctionInfo functionInfo, BValue[] args) {
         WorkerExecutionContext parentCtx = new WorkerExecutionContext(programFile);
         if (functionInfo.getParamTypes().length != args.length) {
             throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
         }
-        invokePackageInitFunction(packageInfo.getInitFunctionInfo(), parentCtx);
-        invokeVMUtilFunction(packageInfo.getStartFunctionInfo(), parentCtx);
+        invokePackageInitFunctions(programFile, parentCtx);
+        invokePackageStartFunctions(programFile, parentCtx);
         BValue[] result = invokeCallable(functionInfo, parentCtx, args);
         BLangScheduler.waitForWorkerCompletion();
         return result;
+    }
+
+    /**
+     * This will order the package imports and inovke each package init function.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageInitFunctions(ProgramFile programFile) {
+        orderInitFunctions(programFile);
+
+        for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
+            invokePackageInitFunction(info.getInitFunctionInfo());
+        }
+    }
+
+    /**
+     * This will order the package imports and inovke each package init function.
+     *
+     * @param programFile to be invoked.
+     * @param context to be used.
+     */
+    public static void invokePackageInitFunctions(ProgramFile programFile, WorkerExecutionContext context) {
+        orderInitFunctions(programFile);
+
+        for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
+            invokePackageInitFunction(info.getInitFunctionInfo(), context);
+        }
+    }
+
+    /**
+     * This will invoke package start functions, this should be invoked after
+     * invoking "invokePackageInitFunctions".
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageStartFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
+            BLangFunctions.invokeVMUtilFunction(info.getStartFunctionInfo());
+        }
+    }
+
+    /**
+     * This will invoke package start functions, this should be invoked after
+     * invoking "invokePackageInitFunctions".
+     *
+     * @param programFile to be invoked.
+     * @param context to be used.
+     */
+    public static void invokePackageStartFunctions(ProgramFile programFile, WorkerExecutionContext context) {
+        for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
+            BLangFunctions.invokeVMUtilFunction(info.getStartFunctionInfo());
+        }
+    }
+
+    /**
+     * This will invoke package start functions.
+     *
+     * @param programFile to be invoked.
+     */
+    public static void invokePackageStopFunctions(ProgramFile programFile) {
+        for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
+            BLangFunctions.invokeVMUtilFunction(info.getStopFunctionInfo());
+        }
+    }
+
+    private static void orderInitFunctions(ProgramFile programFile) {
+        PackageInfo entry = programFile.getEntryPackage();
+        programFile.addImportPackageInfo(programFile.getPackageInfo(BLangConstants.BALLERINA_RUNTIME_PKG));
+        orderPackages(programFile, entry);
+        programFile.addImportPackageInfo(entry);
+    }
+
+    private static void orderPackages(ProgramFile programFile, PackageInfo pkgInfo) {
+        for (ImportPackageInfo importPackageInfo : pkgInfo.importPkgInfoList) {
+            if (importPackageInfo.packageInfo == null) {
+                importPackageInfo.packageInfo = programFile.getPackageInfo(importPackageInfo.pkgPath);
+            }
+            orderPackages(programFile, importPackageInfo.packageInfo);
+            if (!programFile.importPackageAlreadyExist(importPackageInfo.packageInfo)) {
+                programFile.addImportPackageInfo(importPackageInfo.packageInfo);
+            }
+        }
     }
     
     public static void invokeCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx) {
@@ -155,9 +239,9 @@ public class BLangFunctions {
      * @param retRegs          parameters.
      * @param responseCallback to be executed when execution completes.
      */
-    public static void invokeServiceCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx,
-                                             ObserverContext observerContext, int[] argRegs, int[] retRegs,
-                                             CallableUnitCallback responseCallback) {
+    private static void invokeServiceCallable(CallableUnitInfo callableUnitInfo, WorkerExecutionContext parentCtx,
+                                              ObserverContext observerContext, int[] argRegs, int[] retRegs,
+                                              CallableUnitCallback responseCallback) {
         WorkerSet workerSet = callableUnitInfo.getWorkerSet();
         int generalWorkersCount = workerSet.generalWorkers.length;
         CallableWorkerResponseContext respCtx = createWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
@@ -245,8 +329,9 @@ public class BLangFunctions {
         }
     }
 
-    public static WorkerExecutionContext invokeNonNativeCallable(CallableUnitInfo callableUnitInfo,
-            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, boolean waitForResponse, int flags) {
+    private static WorkerExecutionContext invokeNonNativeCallable(CallableUnitInfo callableUnitInfo,
+                                                                  WorkerExecutionContext parentCtx, int[] argRegs,
+                                                                  int[] retRegs, boolean waitForResponse, int flags) {
         WorkerSet workerSet = callableUnitInfo.getWorkerSet();
         int generalWorkersCount = workerSet.generalWorkers.length;
         CallableWorkerResponseContext respCtx = createWorkerResponseContext(callableUnitInfo.getRetParamTypes(),
@@ -304,8 +389,9 @@ public class BLangFunctions {
         }
     }
     
-    public static void invokeNonNativeCallableAsync(CallableUnitInfo callableUnitInfo,
-            WorkerExecutionContext parentCtx, int[] argRegs, int[] retRegs, int flags) {
+    private static void invokeNonNativeCallableAsync(CallableUnitInfo callableUnitInfo,
+                                                     WorkerExecutionContext parentCtx, int[] argRegs,
+                                                     int[] retRegs, int flags) {
         WorkerSet workerSet = callableUnitInfo.getWorkerSet();
         int generalWorkersCount = workerSet.generalWorkers.length;
         AsyncInvocableWorkerResponseContext respCtx = new AsyncInvocableWorkerResponseContext(callableUnitInfo,
@@ -370,8 +456,7 @@ public class BLangFunctions {
                 return null;
             }
         } catch (BLangNullReferenceException e) {
-            return BLangVMUtils.handleNativeInvocationError(parentCtx,
-                    BLangVMErrors.createNullRefException(callableUnitInfo));
+            return BLangVMUtils.handleNativeInvocationError(parentCtx, BLangVMErrors.createNullRefException(parentCtx));
         } catch (ConnectionException e) {
             State state = new State(parentCtx);
             state.setIp(parentCtx.ip);
@@ -381,7 +466,7 @@ public class BLangFunctions {
             return null;
         } catch (Throwable e) {
             return BLangVMUtils.handleNativeInvocationError(parentCtx,
-                    BLangVMErrors.createError(callableUnitInfo, e.getMessage()));
+                    BLangVMErrors.createError(parentCtx, e.getMessage()));
         }
     }
 
@@ -457,7 +542,7 @@ public class BLangFunctions {
         }
     }
     
-    public static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
+    private static void invokePackageInitFunction(FunctionInfo initFuncInfo, WorkerExecutionContext context) {
         invokeCallable(initFuncInfo, context, new int[0], new int[0], true);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());
@@ -465,12 +550,12 @@ public class BLangFunctions {
         }
     }
 
-    public static void invokePackageInitFunction(FunctionInfo initFuncInfo) {
+    private static void invokePackageInitFunction(FunctionInfo initFuncInfo) {
         WorkerExecutionContext context = new WorkerExecutionContext(initFuncInfo.getPackageInfo().getProgramFile());
         invokePackageInitFunction(initFuncInfo, context);
     }
 
-    public static void invokeVMUtilFunction(FunctionInfo utilFuncInfo, WorkerExecutionContext context) {
+    private static void invokeVMUtilFunction(FunctionInfo utilFuncInfo, WorkerExecutionContext context) {
         invokeCallable(utilFuncInfo, context, new int[0], new int[0], true);
         if (context.getError() != null) {
             String stackTraceStr = BLangVMErrors.getPrintableStackTrace(context.getError());

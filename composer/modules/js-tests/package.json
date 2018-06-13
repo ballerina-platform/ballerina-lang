@@ -2,7 +2,8 @@
   "scripts": {
     "test": "mocha --timeout 3000 target/test/js/source-gen-test.js",
     "test:debug": "cross-env SOURCE_DEBUG=true mocha target/test/js/source-gen-test.js",
-    "compile": "babel ./src --out-dir ./target"
+    "compile": "babel ./src --out-dir ./target",
+    "test-rendering": "node src/test/js/rendering-test.js"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -13,6 +14,7 @@
     "fs-extra": "^5.0.0",
     "jsdom": "^11.4.0",
     "jsdom-global": "^3.0.2",
-    "mocha": "^4.0.1"
+    "mocha": "^4.0.1",
+    "request-promise": "^4.2.2"
   }
 }

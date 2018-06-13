@@ -1,0 +1,63 @@
+{
+  "position": {
+    "line": 5,
+    "character": 8
+  },
+  "source": "function/source/endpointAttributeSuggestion2.bal",
+  "items": [
+    {
+      "label":"host",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"host: ${1:\"\"}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"port",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"port: ${1:0}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"keepAlive",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"keepAlive: ${1:ALWAYS|AUTO|NEVER}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"secureSocket",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"secureSocket: ${1:ServiceSecureSocket?}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"httpVersion",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"httpVersion: ${1:\"\"}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"requestLimits",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"requestLimits: ${1:RequestLimits?}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"filters",
+      "detail":"Field",
+      "sortText":"120",
+      "insertText":"filters: ${1:[]}",
+      "insertTextFormat":"Snippet"
+    },
+    {
+      "label":"Add All Attributes",
+      "sortText":"110",
+      "insertText":"host: \"\",\nport: 0,\nkeepAlive: ALWAYS|AUTO|NEVER,\nsecureSocket: ServiceSecureSocket?,\nhttpVersion: \"\",\nrequestLimits: RequestLimits?,\nfilters: []"
+    }
+  ]
+}

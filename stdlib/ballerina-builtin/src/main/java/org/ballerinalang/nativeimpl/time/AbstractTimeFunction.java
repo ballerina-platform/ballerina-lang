@@ -21,7 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.Utils;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.time.DateTimeException;
@@ -42,8 +42,8 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
     public static final String KEY_ZONED_DATETIME = "ZonedDateTime";
 
-    private StructInfo timeStructInfo;
-    private StructInfo zoneStructInfo;
+    private StructureTypeInfo timeStructInfo;
+    private StructureTypeInfo zoneStructInfo;
 
     BStruct createCurrentTime(Context context) {
         long currentTime = Instant.now().toEpochMilli();
@@ -235,14 +235,14 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         timeStruct.addNativeData(KEY_ZONED_DATETIME, null);
     }
 
-    private StructInfo getTimeZoneStructInfo(Context context) {
+    private StructureTypeInfo getTimeZoneStructInfo(Context context) {
         if (zoneStructInfo == null) {
             zoneStructInfo = Utils.getTimeZoneStructInfo(context);
         }
         return zoneStructInfo;
     }
 
-    private StructInfo getTimeStructInfo(Context context) {
+    private StructureTypeInfo getTimeStructInfo(Context context) {
         if (timeStructInfo == null) {
             timeStructInfo = Utils.getTimeStructInfo(context);
         }

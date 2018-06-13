@@ -31,6 +31,9 @@ import java.nio.file.Files;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
+/**
+ * Test cases for observability tracing.
+ */
 public class TracingTestCase {
 
     private ServerInstance serverInstance;
@@ -54,7 +57,7 @@ public class TracingTestCase {
         serverInstance.startServer();
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSpanWithTwoResources() throws Exception {
         HttpClientRequest.doGet("http://localhost:9090/echoService/resourceOne");
         Thread.sleep(1000);

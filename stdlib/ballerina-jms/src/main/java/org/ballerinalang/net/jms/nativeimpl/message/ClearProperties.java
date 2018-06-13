@@ -40,8 +40,8 @@ import javax.jms.Message;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "clearProperties",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Message", structPackage = "ballerina.jms"),
-        returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "Error", structPackage = "ballerina.jms") },
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Message", structPackage = "ballerina/jms"),
+        returnType = { @ReturnType(type = TypeKind.RECORD, structType = "Error", structPackage = "ballerina/jms") },
         isPublic = true
 )
 public class ClearProperties extends AbstractBlockinAction {

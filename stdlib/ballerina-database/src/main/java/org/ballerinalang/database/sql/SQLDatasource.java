@@ -55,7 +55,8 @@ public class SQLDatasource implements BValue {
     private String connectorId;
     private boolean xaConn;
 
-    public SQLDatasource() {}
+    public SQLDatasource() {
+    }
 
     public boolean init(Struct options, String url, String dbType, String hostOrPath, int port, String username,
             String password, String dbName, String dbOptions, Map dbOptionsMap) {
@@ -103,10 +104,10 @@ public class SQLDatasource implements BValue {
 
     public Connection getSQLConnection() {
         try {
-           return  hikariDataSource.getConnection();
+            return hikariDataSource.getConnection();
         } catch (SQLException e) {
-            throw new BallerinaException(
-                    "error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(), e);
+            throw new BallerinaException("error in get connection: " + Constants.CONNECTOR_NAME + ": " + e.getMessage(),
+                    e);
         }
     }
 
@@ -143,29 +144,21 @@ public class SQLDatasource implements BValue {
             if (jdbcurl.isEmpty()) {
                 jdbcurl = constructJDBCURL(dbType, hostOrPath, port, dbName, username, password, dbOptions);
             }
-
             //Set optional properties
             if (options != null) {
                 boolean isXA = options.getBooleanField(Constants.Options.IS_XA);
                 BMap<String, BRefType> dataSourceConfigMap = populatePropertiesMap(dbOptionsMap);
 
                 String dataSourceClassName = options.getStringField(Constants.Options.DATASOURCE_CLASSNAME);
+                if (isXA && dataSourceClassName.isEmpty()) {
+                    dataSourceClassName = getXADatasourceClassName(dbType, jdbcurl, username, password);
+                }
                 if (!dataSourceClassName.isEmpty()) {
                     config.setDataSourceClassName(dataSourceClassName);
                     dataSourceConfigMap = setDataSourcePropertiesMap(dataSourceConfigMap, jdbcurl, username, password);
                 } else {
                     config.setJdbcUrl(jdbcurl);
                 }
-
-                if (isXA) {
-                    if (dataSourceClassName.isEmpty()) {
-                        String datasourceClassName = getXADatasourceClassName(dbType, jdbcurl, username, password);
-                        config.setDataSourceClassName(datasourceClassName);
-                        dataSourceConfigMap = setDataSourcePropertiesMap(dataSourceConfigMap, jdbcurl, username,
-                                password);
-                    }
-                }
-
                 String connectionInitSQL = options.getStringField(Constants.Options.CONNECTION_INIT_SQL);
                 if (!connectionInitSQL.isEmpty()) {
                     config.setConnectionInitSql(connectionInitSQL);
@@ -241,9 +234,8 @@ public class SQLDatasource implements BValue {
         return mapProperties;
     }
 
-    private BMap<String, BRefType> setDataSourcePropertiesMap(BMap<String, BRefType>  dataSourceConfigMap,
-     String jdbcurl,
-            String username, String password) {
+    private BMap<String, BRefType> setDataSourcePropertiesMap(BMap<String, BRefType> dataSourceConfigMap,
+            String jdbcurl, String username, String password) {
         if (dataSourceConfigMap != null) {
             if (!dataSourceConfigMap.hasKey(Constants.URL)) {
                 dataSourceConfigMap.put(Constants.URL, new BString(jdbcurl));
@@ -289,7 +281,7 @@ public class SQLDatasource implements BValue {
             }
             jdbcUrl.append("jdbc:sybase:Tds:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
-        case Constants.DBTypes.POSTGRES:
+        case Constants.DBTypes.POSTGRESQL:
             if (port <= 0) {
                 port = Constants.DefaultPort.POSTGRES;
             }
@@ -301,14 +293,14 @@ public class SQLDatasource implements BValue {
             }
             jdbcUrl.append("jdbc:db2:").append(hostOrPath).append(":").append(port).append("/").append(dbName);
             break;
-        case Constants.DBTypes.HSQL_SERVER:
+        case Constants.DBTypes.HSQLDB_SERVER:
             if (port <= 0) {
                 port = Constants.DefaultPort.HSQLDB_SERVER;
             }
             jdbcUrl.append("jdbc:hsqldb:hsql://").append(hostOrPath).append(":").append(port).append("/")
                     .append(dbName);
             break;
-        case Constants.DBTypes.HSQL_FILE:
+        case Constants.DBTypes.HSQLDB_FILE:
             jdbcUrl.append("jdbc:hsqldb:file:").append(hostOrPath).append(File.separator).append(dbName);
             break;
         case Constants.DBTypes.H2_SERVER:
@@ -366,15 +358,15 @@ public class SQLDatasource implements BValue {
         case Constants.DBTypes.SYBASE:
             xaDataSource = Constants.XADataSources.SYBASE_XA_DATASOURCE;
             break;
-        case Constants.DBTypes.POSTGRES:
+        case Constants.DBTypes.POSTGRESQL:
             xaDataSource = Constants.XADataSources.POSTGRES_XA_DATASOURCE;
             break;
         case Constants.DBTypes.IBMDB2:
             xaDataSource = Constants.XADataSources.IBMDB2_XA_DATASOURCE;
             break;
-        case Constants.DBTypes.HSQL:
-        case Constants.DBTypes.HSQL_SERVER:
-        case Constants.DBTypes.HSQL_FILE:
+        case Constants.DBTypes.HSQLDB:
+        case Constants.DBTypes.HSQLDB_SERVER:
+        case Constants.DBTypes.HSQLDB_FILE:
             xaDataSource = Constants.XADataSources.HSQLDB_XA_DATASOURCE;
             break;
         case Constants.DBTypes.H2:
@@ -394,7 +386,6 @@ public class SQLDatasource implements BValue {
         }
         return xaDataSource;
     }
-
 
     private void setDataSourceProperties(BMap options, HikariConfig config) {
         Set<String> keySet = options.keySet();
@@ -426,7 +417,7 @@ public class SQLDatasource implements BValue {
     public BValue copy() {
         return null;
     }
-    
+
     private boolean isXADataSource() {
         try {
             return hikariDataSource.isWrapperFor(XADataSource.class);

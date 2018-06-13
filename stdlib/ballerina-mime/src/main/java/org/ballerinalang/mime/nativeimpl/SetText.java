@@ -39,7 +39,7 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setText",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
         args = {@Argument(name = "textContent", type = TypeKind.STRING), @Argument(name = "contentType",
                 type = TypeKind.STRING)},
         isPublic = true

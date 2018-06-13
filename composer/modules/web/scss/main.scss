@@ -2,8 +2,6 @@
 @import 'modules/common.scss';
 @import 'modules/header.scss';
 @import 'modules/tool-area.scss';
-@import 'modules/footer.scss';
-@import 'modules/breadcrumb.scss';
 @import 'modules/layout.scss';
 @import 'modules/activity-bar.scss';
 @import 'modules/left-panel.scss';
@@ -12,13 +10,12 @@
 @import 'modules/source-editor.scss';
 @import 'modules/menu.scss';
 @import 'modules/file-tree.scss';
-@import 'modules/dialog.scss';
 @import 'modules/ballerina-editor.scss';
-@import 'modules/ballerina-editor-tools.scss';
 @import 'modules/explorer.scss';
 @import 'modules/welcome.scss';
 @import 'modules/help-plugin.scss';
 @import 'modules/definition-menu.scss';
+@import 'modules/contextmenu.scss';
 
 body{
   font-size: 13px !important;

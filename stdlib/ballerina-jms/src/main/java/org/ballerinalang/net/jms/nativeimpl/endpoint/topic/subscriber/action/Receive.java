@@ -35,16 +35,16 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "receive",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
+                   receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = "TopicSubscriberActions",
-                                        structPackage = "ballerina.jms"),
+                                        structPackage = "ballerina/jms"),
                    args = {
                            @Argument(name = "timeInMilliSeconds",
                                      type = TypeKind.INT)
                    },
                    returnType = {
-                           @ReturnType(type = TypeKind.STRUCT,
-                                       structPackage = "ballerina.jms",
+                           @ReturnType(type = TypeKind.OBJECT,
+                                       structPackage = "ballerina/jms",
                                        structType = "Message")
                    },
                    isPublic = true

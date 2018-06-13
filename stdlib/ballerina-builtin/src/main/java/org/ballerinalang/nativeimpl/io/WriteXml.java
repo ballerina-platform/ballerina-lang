@@ -41,9 +41,9 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "writeXml",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina/io"),
         args = {@Argument(name = "content", type = TypeKind.XML)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class WriteXml implements NativeCallableUnit {

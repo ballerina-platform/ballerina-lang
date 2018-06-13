@@ -24,6 +24,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_RUNTIME_PKG;
+
 /**
  * Native function to get authentication context.
  *
@@ -32,8 +34,8 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "runtime",
         functionName = "getInvocationContext",
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "InvocationContext",
-                structPackage = "ballerina.runtime")},
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "InvocationContext",
+                structPackage = BALLERINA_RUNTIME_PKG)},
         isPublic = true
 )
 public class GetInvocationContext extends BlockingNativeCallableUnit {

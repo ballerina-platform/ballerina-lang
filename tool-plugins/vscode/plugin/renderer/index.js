@@ -26,7 +26,6 @@ let diagramProvider;
 const DEBOUNCE_WAIT = 500;
 
 exports.activate = function(context) {
-
 	const provider = diagramProvider = new DiagramProvider();
 
 	workspace.onDidChangeTextDocument(_.debounce((e) => {

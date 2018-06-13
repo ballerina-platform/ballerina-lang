@@ -27,14 +27,15 @@ import ToolBar from './Toolbar';
 import DetailView from './DetailView';
 import './index.scss';
 
-const loggerToIcon = {
-    'tracelog.http.downstream': 'fw fw-down-arrow',
-    'tracelog.http.upstream': 'fw fw-up-arrow',
-};
-
 const directionToIcon = {
-    INBOUND: 'fw fw-right-arrow',
-    OUTBOUND: 'fw fw-left-arrow',
+    INBOUND: {
+        'http.tracelog.downstream': 'fw fw-downstream-inbound direction-icon inbound downstream',
+        'http.tracelog.upstream': 'fw fw-upstream-inbound direction-icon inbound upstream',
+    },
+    OUTBOUND: {
+        'http.tracelog.downstream': 'fw fw-downstream-outbound direction-icon outbound downstream',
+        'http.tracelog.upstream': 'fw fw-upstream-outbound direction-icon outbound upstream',
+    },
 };
 
 /**
@@ -66,12 +67,12 @@ class LogsConsole extends React.Component {
         });
 
         props.LaunchManager.on('print-trace-message', (message) => {
-            if (!message.message.meta.direction) {
+            if (!message.message.meta.direction || !message.message.meta.headers) {
                 return;
             }
             this.setState({
                 messages: [...this.state.messages, message],
-                filteredMessages: [...this.state.filteredMessages, message],
+                filteredMessages: this.mergeRelatedMessages([...this.state.filteredMessages, message]),
             });
         });
     }
@@ -82,22 +83,42 @@ class LogsConsole extends React.Component {
         });
         this.setState({
             messages,
-            filteredMessages: messages,
+            filteredMessages: this.mergeRelatedMessages(messages),
         });
     }
 
     onFilteredMessages(filteredMessages) {
         this.setState({
-            filteredMessages,
+            filteredMessages: this.mergeRelatedMessages(filteredMessages),
         });
     }
 
-    getLoggerIcon(logger) {
-        return loggerToIcon[logger];
+    getDirectionIcon(logger, direction) {
+        directionToIcon[direction] = directionToIcon[direction] || {};
+        return directionToIcon[direction][logger];
     }
 
-    getDirectionIcon(direction) {
-        return directionToIcon[direction];
+    mergeRelatedMessages(messages) {
+        const newMessages = [];
+        for (let index = 0; index < messages.length; index++) {
+            let message1 = messages[index];
+            let message2 = messages[index + 1];
+            if (message1.message.meta.headerType.startsWith('DefaultHttpRequest')
+                && message2
+                && message1.message.record.thread === message2.message.record.thread
+                && (message2.message.meta.headerType.startsWith('DefaultLastHttpContent')
+                    || message2.message.meta.headerType.startsWith('EmptyLastHttpContent'))) {
+
+                message1.message.meta.payload = message2.message.meta.payload;
+                newMessages.push(message1);
+            } else if (message1.message.meta.headerType.startsWith('DefaultLastHttpContent') ||
+            message1.message.meta.headerType.startsWith('EmptyLastHttpContent')) {
+                // do nothing
+            } else {
+                newMessages.push(message1);
+            }
+        }
+        return newMessages;
     }
 
     toggleDetails(message) {
@@ -173,11 +194,8 @@ class LogsConsole extends React.Component {
                                                             className='wrap-text summary'
                                                         >
                                                             <Icon
-                                                                name={this.getLoggerIcon(message.message.record.logger)}
-                                                                title={message.message.record.logger}
-                                                            />
-                                                            <Icon
-                                                                name={this.getDirectionIcon(message.message.meta.direction)}
+                                                                name={this.getDirectionIcon(message.message.record.logger,
+                                                                    message.message.meta.direction)}
                                                                 title={message.message.meta.direction}
                                                             />
                                                         </Grid.Column>

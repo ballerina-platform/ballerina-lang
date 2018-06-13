@@ -36,7 +36,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
         orgName = "ballerina",
         packageName = "task",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Timer", structPackage = "ballerina.task"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Timer", structPackage = "ballerina/task"),
         isPublic = true
 )
 public class Start extends BlockingNativeCallableUnit {

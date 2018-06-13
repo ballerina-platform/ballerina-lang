@@ -42,9 +42,9 @@ import javax.jms.Message;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "getFloatProperty",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "Message",
-                             structPackage = "ballerina.jms"),
+                             structPackage = "ballerina/jms"),
         args = {
                 @Argument(name = "key", type = TypeKind.STRING),
         },

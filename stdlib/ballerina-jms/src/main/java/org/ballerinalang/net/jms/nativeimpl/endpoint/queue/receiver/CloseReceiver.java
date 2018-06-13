@@ -35,9 +35,9 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
         orgName = "ballerina",
         packageName = "jms",
         functionName = "closeQueueReceiver",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "QueueReceiver", structPackage = "ballerina.jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "QueueReceiver", structPackage = "ballerina/jms"),
         args = {
-                @Argument(name = "consumerActions", type = TypeKind.STRUCT, structType = "QueueReceiverActions")
+                @Argument(name = "consumerActions", type = TypeKind.OBJECT, structType = "QueueReceiverActions")
         },
         isPublic = true
 )

@@ -20,7 +20,7 @@ package org.ballerinalang.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBooleanArray;
@@ -30,7 +30,7 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -45,16 +45,16 @@ import java.sql.SQLException;
  */
 public class TableUtils {
     private static final String TABLE_OPERATION_ERROR = "error";
-    private static final String TABLE_PACKAGE_PATH = "ballerina.builtin";
+    private static final String TABLE_PACKAGE_PATH = BLangConstants.BALLERINA_BUILTIN_PKG;
     private static final String EXCEPTION_OCCURRED = "Exception occurred";
 
     public static String generateInsertDataStatment(String tableName, BStruct constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         StringBuilder sbValues = new StringBuilder();
         sbSql.append(TableConstants.SQL_INSERT_INTO).append(tableName).append(" (");
-        BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
+        BField[] structFields = constrainedType.getType().getFields();
         String sep = "";
-        for (BStructType.StructField sf : structFields) {
+        for (BField sf : structFields) {
             String name = sf.getFieldName();
             sbSql.append(sep).append(name).append(" ");
             sbValues.append(sep).append("?");
@@ -67,9 +67,9 @@ public class TableUtils {
     public static String generateDeleteDataStatment(String tableName, BStruct constrainedType) {
         StringBuilder sbSql = new StringBuilder();
         sbSql.append(TableConstants.SQL_DELETE_FROM).append(tableName).append(TableConstants.SQL_WHERE);
-        BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
+        BField[] structFields = constrainedType.getType().getFields();
         String sep = "";
-        for (BStructType.StructField sf : structFields) {
+        for (BField sf : structFields) {
             String name = sf.getFieldName();
             sbSql.append(sep).append(name).append(" = ? ");
             sep = TableConstants.SQL_AND;
@@ -79,7 +79,7 @@ public class TableUtils {
 
     public static void prepareAndExecuteStatement(PreparedStatement stmt, BStruct constrainedType) {
         try {
-            BStructType.StructField[] structFields = constrainedType.getType().getStructFields();
+            BField[] structFields = constrainedType.getType().getFields();
             int intFieldIndex = 0;
             int floatFieldIndex = 0;
             int stringFieldIndex = 0;
@@ -87,7 +87,7 @@ public class TableUtils {
             int refFieldIndex = 0;
             int blobFieldIndex = 0;
             int index = 1;
-            for (BStructType.StructField sf : structFields) {
+            for (BField sf : structFields) {
                 int type = sf.getFieldType().getTag();
                 switch (type) {
                 case TypeTags.INT_TAG:
@@ -188,7 +188,7 @@ public class TableUtils {
      */
     public static BStruct createTableOperationError(Context context, Throwable throwable) {
         PackageInfo tableLibPackage = context.getProgramFile().getPackageInfo(TABLE_PACKAGE_PATH);
-        StructInfo errorStructInfo = tableLibPackage.getStructInfo(TABLE_OPERATION_ERROR);
+        StructureTypeInfo errorStructInfo = tableLibPackage.getStructInfo(TABLE_OPERATION_ERROR);
         BStruct tableOperationError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
             tableOperationError.setStringField(0, EXCEPTION_OCCURRED);

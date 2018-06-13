@@ -12,7 +12,6 @@ function test1 () returns (string, string){
     } catch (error e) {
         return (e.message, data);
     }
-    return ("Function end", data);
 }
 
 function test2(int a) returns (string){
@@ -28,7 +27,6 @@ function test2(int a) returns (string){
     } catch (error e) {
         return e.message;
     }
-    return "Function end";
 }
 
 function test3() returns (string){
@@ -45,7 +43,6 @@ function test3() returns (string){
     }finally {
         data = data + " outerFinally";
     }
-    return "Function end";
 }
 
 type Test4Val {
@@ -66,8 +63,6 @@ function test4() returns (Test4Val){
     } finally {
          data.value = data.value + " outerFinally";
     }
-    data.value = "end";
-    return data;
 }
 
 function test5() returns (string){
@@ -106,8 +101,6 @@ function test6 () returns (Test4Val) {
     } finally {
         data.value = data.value + " outerFinally";
     }
-    data.value = "end";
-    return data;
 }
 
 function test7 () returns (Test4Val) {
@@ -126,9 +119,7 @@ function test7 () returns (Test4Val) {
           }
     } finally {
           data.value = data.value + " outerFinally";
-      }
-    data.value = "end";
-    return data;
+    }
 }
 
 function test8 () returns (string) {
@@ -140,8 +131,7 @@ function test8 () returns (string) {
           }
     } finally {
           return "OuterOk";
-      }
-    return "OK";
+    }
 }
 
 function test9 () returns (Test4Val) {
@@ -162,9 +152,7 @@ function test9 () returns (Test4Val) {
     } finally {
           data.value = data.value + " outerFinally";
           return data;
-      }
-    data.value = "end";
-    return data;
+    }
 }
 
 function testBreak1 () returns (Test4Val) {
@@ -185,7 +173,7 @@ function testBreak1 () returns (Test4Val) {
     return data;
 }
 
-function testNext1 () returns (Test4Val) {
+function testContinue1 () returns (Test4Val) {
     int i = 0;
     Test4Val data = {value:"s"};
     while (i < 5) {
@@ -193,7 +181,7 @@ function testNext1 () returns (Test4Val) {
         try {
             data.value = data.value + " t";
             if (i == 3) {
-                next;
+                continue;
             }
             data.value = data.value + "-";
         }finally {

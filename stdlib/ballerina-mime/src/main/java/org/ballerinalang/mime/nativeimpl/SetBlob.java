@@ -38,7 +38,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setBlob",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
         args = {@Argument(name = "blobContent", type = TypeKind.BLOB), @Argument(name = "contentType",
                 type = TypeKind.STRING)},
         isPublic = true

@@ -25,6 +25,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for siddhi events.
+ */
 public class EventTestCase {
     private static final Logger log = LoggerFactory.getLogger(EventTestCase.class);
     private int count;

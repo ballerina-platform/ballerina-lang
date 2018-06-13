@@ -21,15 +21,15 @@ package org.ballerinalang.docgen;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
 import org.ballerinalang.docgen.docs.BallerinaDocDataHolder;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
-import org.ballerinalang.docgen.model.ActionDoc;
 import org.ballerinalang.docgen.model.AnnotationDoc;
-import org.ballerinalang.docgen.model.ConnectorDoc;
 import org.ballerinalang.docgen.model.Documentable;
+import org.ballerinalang.docgen.model.EndpointDoc;
 import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.Field;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
 import org.ballerinalang.docgen.model.Link;
+import org.ballerinalang.docgen.model.ObjectDoc;
 import org.ballerinalang.docgen.model.PackageName;
 import org.ballerinalang.docgen.model.Page;
 import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
@@ -42,157 +42,91 @@ import org.ballerinalang.model.tree.AnnotatableNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.DocumentationNode;
+import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.model.tree.expressions.DocumentationAttributeNode;
 import org.ballerinalang.model.tree.types.TypeNode;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.tree.BLangAction;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
-import org.wso2.ballerinalang.compiler.tree.BLangObject;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangRecord;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
-import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
-import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
  * Generates the Page objects for bal packages.
  */
 public class Generator {
-    private static final String ANONYMOUS_STRUCT = "$anonStruct$";
+
+    private static final String ANONYMOUS_STRUCT = "$anonRecord$";
+    public static final Predicate<BLangFunction> IS_CALLER_ACTIONS =
+            s -> s.name.value.equals(Names.EP_SPI_GET_CALLER_ACTIONS.value);
 
     /**
      * Generate the page when the bal package is passed.
      *
-     * @param balPackage  The current package that is being viewed.
+     * @param balPackage  The current package.
      * @param packages    List of available packages.
-     * @param description package description
-     * @param primitives  list of primitives
+     * @param description package description.
+     * @param primitives  list of primitives.
      * @return A page model for the current package.
      */
     public static Page generatePage(BLangPackage balPackage, List<Link> packages, String description, List<Link>
             primitives) {
-        ArrayList<Documentable> documentables = new ArrayList<>();
-        List<BLangObject> visitedObjects;
-        //TODO till orgName gets fixed
+        List<Documentable> documentables = new ArrayList<>();
+
+        //TODO orgName is not properly set from the ballerina core, hence this work-around
         String currentPackageName = BallerinaDocDataHolder.getInstance().getOrgName() + balPackage.packageID.getName
                 ().getValue();
 
-        // Check for records in the package
-        if (balPackage.getRecords().size() > 0) {
-            for (BLangRecord record : balPackage.getRecords()) {
-                if (record.getFlags().contains(Flag.PUBLIC)) {
-                    documentables.add(createDocForNode(record));
-                }
-            }
-        }
         // Check for functions in the package
-        if (balPackage.getFunctions().size() > 0) {
-            for (BLangFunction function : balPackage.getFunctions()) {
-                if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
-                    if (function.getReceiver() != null) {
-                        if (documentables.size() > 0) {
-                            for (Documentable parentDocumentable : documentables) {
-                                TypeNode langType = function.getReceiver().getTypeNode();
-                                String typeName = (langType instanceof BLangUserDefinedType ? ((BLangUserDefinedType)
-                                        langType).typeName.value : langType.toString());
+        for (BLangFunction function : balPackage.getFunctions()) {
+            if (function.getFlags().contains(Flag.PUBLIC) && !function.getFlags().contains(Flag.ATTACHED)) {
+                if (function.getReceiver() != null) {
+                    for (Documentable parentDocumentable : documentables) {
+                        TypeNode langType = function.getReceiver().getTypeNode();
+                        String typeName = (langType instanceof BLangUserDefinedType ? ((BLangUserDefinedType)
+                                langType).typeName.value : langType.toString());
 
-                                if (typeName.equals(parentDocumentable.name)) {
-                                    parentDocumentable.children.add(createDocForNode(function));
-                                }
-                            }
+                        if (typeName.equals(parentDocumentable.name)) {
+                            parentDocumentable.children.add(createDocForNode(function));
                         }
-                    } else {
-                        // If there's no receiver type i.e. no struct binding to the function
-                        documentables.add(createDocForNode(function));
                     }
+                } else {
+                    // If there's no receiver type i.e. no struct binding to the function
+                    documentables.add(createDocForNode(function));
                 }
             }
         }
 
-        // connectors
-        visitedObjects = balPackage.getObjects().stream().filter(bLangObject -> {
-            if (!bLangObject.getDocumentationAttachments().isEmpty()) {
-                if (!((DocumentableNode) bLangObject).getDocumentationAttachments().isEmpty()) {
-                    DocumentationNode bLangDocumentation = ((DocumentableNode) bLangObject)
-                            .getDocumentationAttachments().get(0);
-                    for (DocumentationAttributeNode attribute : bLangDocumentation.getAttributes()) {
-                        if (attribute instanceof BLangDocumentationAttribute) {
-                            BLangDocumentationAttribute docAttribute = (BLangDocumentationAttribute) attribute;
-                            if (docAttribute.docTag == DocTag.ENDPOINT) {
-                                return true;
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        }).collect(Collectors.toList());
 
-        List<ConnectorDoc> connectors = visitedObjects.stream().map(obj -> {
-            BLangIdentifier epName = obj.getName();
-            Optional<BLangFunction> getClientOptional = obj.getFunctions().stream().filter(bLangFunction ->
-                    bLangFunction.getName().getValue().equals(Names.EP_SPI_GET_CALLER_ACTIONS.value)).findFirst();
-
-            if (getClientOptional.isPresent()) {
-                BLangType returnTypeNode = getClientOptional.get().returnTypeNode;
-                if (returnTypeNode instanceof BLangUserDefinedType) {
-                    Optional<BLangObject> objectDefOptional = balPackage.getObjects().stream().filter(objDef -> {
-                        if (objDef.getName().getValue().equals(((BLangUserDefinedType) returnTypeNode).getTypeName()
-                                .getValue())) {
-                            return true;
-                        }
-                        return false;
-                    }).findFirst();
-                    if (objectDefOptional.isPresent()) {
-                        BLangObject objectDefinition = objectDefOptional.get();
-                        objectDefinition.setName(epName);
-                        String objDesc = description(obj);
-                        return createDocForNode(objectDefinition, obj.functions, objDesc, true);
-                    }
-                }
-            }
-            return null;
-        }).collect(Collectors.toList());
-
-        connectors.forEach(connectorDoc -> {
-            if (connectorDoc != null) {
-                visitedObjects.add(connectorDoc.getObject());
-            }
-        });
-        documentables.addAll(connectors);
-
-        // Check for objects in the package
-        balPackage.getObjects().removeAll(visitedObjects);
-        for (BLangObject connector : balPackage.getObjects()) {
-            if (connector.getFlags().contains(Flag.PUBLIC)) {
-                documentables.add(createDocForNode(connector, false));
-            }
-        }
-        // Check for connectors in the package
-        for (BLangTypeDefinition enumNode : balPackage.getTypeDefinitions()) {
-            if (enumNode.getFlags().contains(Flag.PUBLIC)) {
-                documentables.add(createDocForNode(enumNode));
+        // Check for type definitions in the package
+        for (BLangTypeDefinition typeDefinition : balPackage.getTypeDefinitions()) {
+            if (typeDefinition.getFlags().contains(Flag.PUBLIC)) {
+                documentables.add(createDocForNode(typeDefinition));
             }
         }
         // Check for annotations
@@ -226,7 +160,7 @@ public class Generator {
     /**
      * Generate the page for primitive types.
      *
-     * @param balPackage The ballerina.builtin package.
+     * @param balPackage The ballerina/builtin package.
      * @param packages   List of available packages.
      * @param primitives list of primitives.
      * @return A page model for the primitive types.
@@ -248,7 +182,7 @@ public class Generator {
                 if (function.getFlags().contains(Flag.PUBLIC) && function.getReceiver() != null) {
                     TypeNode langType = function.getReceiver().getTypeNode();
                     if (!(langType instanceof BLangUserDefinedType)) {
-                        // Check for primitives in ballerina.builtin
+                        // Check for primitives in ballerina/builtin
                         Optional<PrimitiveTypeDoc> existingPrimitiveType = primitiveTypes.stream().filter((doc) ->
                                 doc instanceof PrimitiveTypeDoc && (((PrimitiveTypeDoc) doc)).name.equals(langType
                                         .toString())).map(doc -> (PrimitiveTypeDoc) doc).findFirst();
@@ -284,18 +218,30 @@ public class Generator {
     }
 
     /**
-     * Create documentation for enums.
+     * Create documentation for type definitions.
      *
-     * @param enumNode ballerina enum node.
-     * @return documentation for enum.
-     * TODO
+     * @param typeDefinition ballerina type definition node.
+     * @return documentation for type definition.
      */
-    public static EnumDoc createDocForNode(BLangTypeDefinition enumNode) {
-        String enumName = enumNode.getName().getValue();
-        String values = enumNode.getValueSet().stream().map(value -> value.toString()).sorted(Collections
-                .reverseOrder()).collect(Collectors.joining(" | "));
-
-        return new EnumDoc(enumName, description(enumNode), new ArrayList<>(), values);
+    public static Documentable createDocForNode(BLangTypeDefinition typeDefinition) {
+        String typeName = typeDefinition.getName().getValue();
+        NodeKind kind = typeDefinition.typeNode.getKind();
+        if (kind == NodeKind.OBJECT_TYPE) {
+            BLangObjectTypeNode objectType = (BLangObjectTypeNode) typeDefinition.typeNode;
+            return createDocForType(objectType, typeDefinition);
+        } else if (kind == NodeKind.FINITE_TYPE_NODE) {
+            BLangFiniteTypeNode enumNode = (BLangFiniteTypeNode) typeDefinition.typeNode;
+            String values = enumNode.getValueSet()
+                                    .stream()
+                                    .map(Object::toString)
+                                    .sorted(Collections.reverseOrder())
+                                    .collect(Collectors.joining(" | "));
+            return new EnumDoc(typeName, description(typeDefinition), new ArrayList<>(), values);
+        } else if (kind == NodeKind.RECORD_TYPE) {
+            BLangRecordTypeNode typeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
+            return createDocForType(typeNode, typeName);
+        }
+        throw new UnsupportedOperationException("Type def not supported for " + kind);
     }
 
     /**
@@ -311,47 +257,48 @@ public class Generator {
             dataType = getTypeName(annotationNode.typeNode);
             href = extractLink(annotationNode.typeNode);
         }
-        String attachments = annotationNode.attachmentPoints.stream().map(attachmentPoint -> attachmentPoint
-                .attachmentPoint.getValue()).collect(Collectors.joining(", "));
+        String attachments = annotationNode.attachPoints.stream().map(attachmentPoint -> attachmentPoint
+                .getValue()).collect(Collectors.joining(", "));
 
         return new AnnotationDoc(annotationName, description(annotationNode), dataType, href, attachments);
     }
 
+    private static String extractLink(Collection<BType> types) {
+        return types.stream().map(Generator::extractLink).collect(Collectors.joining(","));
+    }
     //TODO
     private static String extractLink(BLangType typeNode) {
-        if (typeNode instanceof BLangUserDefinedType) {
-            BLangUserDefinedType type = (BLangUserDefinedType) typeNode;
-            String pkg = type.pkgAlias.getValue();
-            BTypeSymbol tsymbol = ((BLangUserDefinedType) type).type.tsymbol;
-            if (tsymbol instanceof BStructSymbol) {
-                pkg = ((BStructSymbol) tsymbol).pkgID.getName().getValue();
-            }
-            return pkg != null && !pkg.isEmpty() ? pkg + ".html#" + type.typeName.getValue() : "#" + type.typeName
-                    .getValue();
-        } else if (typeNode instanceof BLangValueType) {
-            if (((BLangValueType) typeNode).type != null && ((BLangValueType) typeNode).type.tsymbol != null) {
-                return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + typeNode.type.tsymbol.getName()
-                        .value;
-            }
-        } else if (typeNode instanceof BLangUnionTypeNode) {
-            BLangUnionTypeNode union = (BLangUnionTypeNode) typeNode;
-            return union.memberTypeNodes.stream().map(member -> extractLink(member)).collect(Collectors.joining("|"));
-        } else if (typeNode instanceof BLangTupleTypeNode) {
-            BLangTupleTypeNode tuple = (BLangTupleTypeNode) typeNode;
-            return tuple.memberTypeNodes.stream().map(member -> extractLink(member)).collect(Collectors.joining(","));
-        } else {
-            // TODO
-            return "";
-        }
-        return "";
+        BType bType = typeNode.type;
+        return extractLink(bType);
     }
 
-    private static String extractLink(BType type) {
-        if (type == null || type.tsymbol == null || type.tsymbol.pkgID == null) {
+    private static String extractLink(BType bType) {
+        switch (bType.tag) {
+            case TypeTags.UNION:
+                BUnionType union = (BUnionType) bType;
+                return extractLink(union.memberTypes);
+            case TypeTags.TUPLE:
+                BTupleType tuple = (BTupleType) bType;
+                return extractLink(tuple.tupleTypes);
+            case TypeTags.ARRAY:
+                BArrayType array = (BArrayType) bType;
+                return extractLink(array.eType);
+            case TypeTags.INT:
+            case TypeTags.FLOAT:
+            case TypeTags.BOOLEAN:
+            case TypeTags.STRING:
+            case TypeTags.NIL:
+            case TypeTags.JSON:
+                return BallerinaDocConstants.PRIMITIVE_TYPES_PAGE_HREF + ".html#" + bType.tsymbol.getName().value;
+        }
+
+        if (bType.tsymbol == null || bType.tsymbol.pkgID == null) {
             return "";
         }
-        String pkg = type.tsymbol.pkgID.getName().getValue();
-        return pkg != null && !pkg.isEmpty() ? pkg + ".html#" + type.toString() : "#" + type.toString();
+
+        String pkg = bType.tsymbol.pkgID.getName().getValue();
+        String name = bType.tsymbol.getName().getValue();
+        return pkg != null && !pkg.isEmpty() ? pkg + ".html#" + name : "#" + name;
     }
 
     /**
@@ -431,62 +378,22 @@ public class Generator {
     }
 
     /**
-     * Create documentation for actions.
+     * Create documentation for records.
      *
-     * @param actionNode ballerina action node.
-     * @return documentation for actions.
+     * @param recordType ballerina record node.
+     * @return documentation of the record.
      */
-    public static ActionDoc createDocForNode(BLangAction actionNode) {
-        String actionName = actionNode.getName().value;
-        List<Variable> parameters = new ArrayList<>();
-        List<Variable> returnParams = new ArrayList<>();
-        // Iterate through the parameters
-        if (actionNode.getParameters().size() > 0) {
-            for (BLangVariable param : actionNode.getParameters()) {
-                String dataType = type(param);
-                String desc = paramAnnotation(actionNode, param);
-                String href = extractLink(param.getTypeNode());
-                Variable variable = new Variable(param.getName().value, dataType, desc, href);
-                parameters.add(variable);
-            }
-        }
-
-//        // Iterate through the return types
-//        if (actionNode.getReturnParameters().size() > 0) {
-//            for (int i = 0; i < actionNode.getReturnParameters().size(); i++) {
-//                BLangVariable returnParam = actionNode.getReturnParameters().get(i);
-//                String dataType = type(returnParam);
-//                String desc = returnParamAnnotation(actionNode, i);
-//                Variable variable = new Variable(returnParam.getName().value, dataType, desc);
-//                returnParams.add(variable);
-//            }
-//        }
-        return new ActionDoc(actionName, description(actionNode), new ArrayList<>(), parameters, returnParams);
-    }
-
-    /**
-     * Create documentation for structs.
-     *
-     * @param structNode ballerina struct node.
-     * @return documentation for structs.
-     */
-    public static RecordDoc createDocForNode(BLangRecord structNode) {
-        String structName = structNode.getName().getValue();
+    public static RecordDoc createDocForType(BLangRecordTypeNode recordType, String structName) {
         // Check if its an anonymous struct
         if (structName.contains(ANONYMOUS_STRUCT)) {
-            structName = "Anonymous Struct";
+            structName = "Anonymous Record" + structName.substring(structName.lastIndexOf('$') + 1);
         }
-        List<Field> fields = new ArrayList<>();
-
-        // Iterate through the struct fields
-        if (structNode.getFields().size() > 0) {
-            getFields(structNode, structNode.fields, fields);
-        }
-
-        return new RecordDoc(structName, description(structNode), new ArrayList<>(), fields);
+        List<Field> fields = getFields(recordType, recordType.fields);
+        return new RecordDoc(structName, description(recordType), new ArrayList<>(), fields);
     }
 
-    private static void getFields(BLangNode node, List<BLangVariable> allFields, List<Field> fields) {
+    private static List<Field> getFields(BLangNode node, List<BLangVariable> allFields) {
+        List<Field> fields = new ArrayList<>();
         for (BLangVariable param : allFields) {
             if (param.getFlags().contains(Flag.PUBLIC)) {
                 String dataType = type(param);
@@ -500,60 +407,59 @@ public class Generator {
                 fields.add(variable);
             }
         }
+        return fields;
     }
 
-    public static ConnectorDoc createDocForNode(BLangObject connectorNode, List<BLangFunction> utilitiyFunctions,
-                                                String description, boolean isConnector) {
-        String connectorName = connectorNode.getName().value;
-        List<Field> parameters = new ArrayList<>();
-        List<Documentable> actions = new ArrayList<>();
+    public static Documentable createDocForType(BLangObjectTypeNode objectType,
+                                                BLangTypeDefinition parent) {
         List<Documentable> functions = new ArrayList<>();
+        String name = parent.getName().getValue();
+        String description = description(parent);
 
-        // Iterate through the connector parameters
-        if (connectorNode.fields.size() > 0) {
-            getFields(connectorNode, connectorNode.fields, parameters);
-        }
+        List<Field> fields = getFields(parent, objectType.fields);
+        boolean hasConstructor = false;
 
-        if (connectorNode.initFunction != null) {
-            BLangFunction constructor = connectorNode.initFunction;
+        if (objectType.initFunction != null) {
+            BLangFunction constructor = objectType.initFunction;
             if (constructor.flagSet.contains(Flag.PUBLIC)) {
                 FunctionDoc initFunction = createDocForNode(constructor);
                 // if it's the default constructor, we don't need to document
                 if (initFunction.parameters.size() > 0) {
-                    actions.add(initFunction);
+                    hasConstructor = true;
+                    functions.add(initFunction);
                 }
             }
         }
 
-        //Iterate through the actions of the connectors
-        if (connectorNode.getFunctions().size() > 0) {
-            for (BLangFunction action : connectorNode.getFunctions()) {
+        //Iterate through the functions of the connectors
+        if (objectType.getFunctions().size() > 0) {
+            for (BLangFunction action : objectType.getFunctions()) {
                 if (action.flagSet.contains(Flag.PUBLIC)) {
-                    actions.add(createDocForNode(action));
+                    functions.add(createDocForNode(action));
                 }
             }
         }
 
-        for (BLangFunction func : utilitiyFunctions) {
-            if (func.flagSet.contains(Flag.PUBLIC)) {
-                functions.add(createDocForNode(func));
-            }
+        if (objectType.functions.stream().anyMatch(IS_CALLER_ACTIONS)) {
+            return createEndpointObject(objectType, name, description, functions, fields, hasConstructor);
+        } else {
+            return createNonEndpointObject(objectType, name, description, functions, fields, hasConstructor);
         }
-        ConnectorDoc connectorDoc = new ConnectorDoc(connectorName, description == null ? description(connectorNode)
-                : description, actions, parameters, functions, isConnector, false);
-        connectorDoc.setObject(connectorNode);
-        return connectorDoc;
+
     }
 
-    /**
-     * Create documentation for connectors.
-     *
-     * @param connectorNode ballerina connector node.
-     * @return documentation for connectors.
-     */
-    public static ConnectorDoc createDocForNode(BLangObject connectorNode, boolean isConnector) {
-        return createDocForNode(connectorNode, new ArrayList<>(), null, isConnector);
+    public static ObjectDoc createNonEndpointObject(BLangObjectTypeNode objectType, String name,
+                                                    String description, List<Documentable> functions,
+                                                    List<Field> fields, boolean hasConstructor) {
+        return new ObjectDoc(name, description, functions, fields, hasConstructor);
     }
+
+    public static EndpointDoc createEndpointObject(BLangObjectTypeNode objectType, String name,
+                                                   String description, List<Documentable> functions,
+                                                   List<Field> fields, boolean hasConstructor) {
+        return new EndpointDoc(name, description, functions, fields, functions, true, false);
+    }
+
 
     /**
      * Get the type of the variable.
@@ -583,7 +489,10 @@ public class Generator {
      * @return list of annotation attachments.
      */
     private static List<? extends AnnotationAttachmentNode> getAnnotationAttachments(BLangNode node) {
-        return ((AnnotatableNode) node).getAnnotationAttachments();
+        if (node instanceof AnnotatableNode) {
+            return ((AnnotatableNode) node).getAnnotationAttachments();
+        }
+        return new ArrayList<>();
     }
 
     /**
@@ -707,44 +616,8 @@ public class Generator {
                 }
             }
         }
-//        // if the annotation values cannot be found still, return the first matching
-//        // annotation's value
-//        for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
-//            BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
-//            if (bLangRecordLiteral.getKeyValuePairs().size() != 1) {
-//                continue;
-//            }
-//            if (annotation.getAnnotationName().getValue().equals("Field")) {
-//                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
-//                return bLangLiteral.toString();
-//            }
-//        }
         return "";
     }
-
-//    /**
-//     * Get description annotation of the annotation attribute.
-//     *
-//     * @param annotationNode parent node.
-//     * @param annotAttribute annotation attribute.
-//     * @return description of the annotation attribute.
-//     */
-//    private static String annotFieldAnnotation(BLangAnnotation annotationNode, BLangAnnotAttribute annotAttribute) {
-//        List<? extends AnnotationAttachmentNode> annotationAttachments = getAnnotationAttachments(annotationNode);
-//
-//        for (AnnotationAttachmentNode annotation : annotationAttachments) {
-//            if ("Field".equals(annotation.getAnnotationName().getValue())) {
-//                BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
-//                BLangExpression bLangLiteral = bLangRecordLiteral.getKeyValuePairs().get(0).getValue();
-//                String value = bLangLiteral.toString();
-//                if (value.startsWith(annotAttribute.getName().getValue())) {
-//                    String[] valueParts = value.split(":");
-//                    return valueParts.length == 2 ? valueParts[1] : valueParts[0];
-//                }
-//            }
-//        }
-//        return "";
-//    }
 
     /**
      * Get the description annotation of the node.
@@ -761,7 +634,7 @@ public class Generator {
             }
         } else {
             if (getAnnotationAttachments(node).size() == 0) {
-                return null;
+                return "";
             }
             for (AnnotationAttachmentNode annotation : getAnnotationAttachments(node)) {
                 BLangRecordLiteral bLangRecordLiteral = (BLangRecordLiteral) annotation.getExpression();
@@ -777,28 +650,5 @@ public class Generator {
         return "";
     }
 
-//    /**
-//     * Get the anonymous struct string.
-//     *
-//     * @param type struct type.
-//     * @return anonymous struct string.
-//     */
-//    private static String getAnonStructString(BStructType type) {
-//        StringBuilder builder = new StringBuilder();
-//        builder.append("struct {");
-//
-//        BStructType.BStructField field;
-//        int nFields = type.fields.size();
-//        for (int i = 0; i < nFields; i++) {
-//            field = type.fields.get(i);
-//            builder.append(field.type.toString()).append(" ").append(field.name.value);
-//            if (i == nFields - 1) {
-//                return builder.append("}").toString();
-//            }
-//            builder.append(", ");
-//        }
-//
-//        return builder.append("}").toString();
-//    }
 }
 

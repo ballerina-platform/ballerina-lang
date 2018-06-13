@@ -28,8 +28,8 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
         functionName = "getBodyPartsAsChannel",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
-        returnType = {@ReturnType(type = TypeKind.ARRAY), @ReturnType(type = TypeKind.STRUCT)},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
+        returnType = {@ReturnType(type = TypeKind.ARRAY), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {

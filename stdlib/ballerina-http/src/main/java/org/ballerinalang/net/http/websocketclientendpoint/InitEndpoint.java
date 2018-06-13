@@ -47,10 +47,10 @@ import java.util.Map;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "WebSocketClient",
-                             structPackage = "ballerina.http"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSocketClient",
+                             structPackage = "ballerina/http"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
-                @Argument(name = "config", type = TypeKind.STRUCT, structType = "ServiceEndpointConfiguration")},
+                @Argument(name = "config", type = TypeKind.RECORD, structType = "ServiceEndpointConfiguration")},
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {

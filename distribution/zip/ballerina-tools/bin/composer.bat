@@ -46,9 +46,6 @@ rem ----- Only set BALLERINA_HOME if not already set ---------------------------
 :checkServer
 rem %~sdp0 is expanded pathname of the current script under NT with spaces in the path removed
 set BALLERINA_HOME=%~sdp0..
-SET curDrive=%cd:~0,1%
-SET wsasDrive=%BALLERINA_HOME:~0,1%
-if not "%curDrive%" == "%wsasDrive%" %wsasDrive%:
 
 rem find BALLERINA_HOME if it does not exist due to either an invalid value passed
 rem by the user or the %0 problem on Windows 9x
@@ -137,7 +134,7 @@ rem ----------------- Execute The Requested Command ----------------------------
 :runServer
 cd %BALLERINA_HOME%
 
-FOR %%C in ("%BALLERINA_HOME%\lib\resources\composer\services\*.jar") DO set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;".\lib\resources\composer\services\%%~nC%%~xC"
+set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\lib\resources\composer\services\*"
 set BALLERINA_CLASSPATH=!BALLERINA_CLASSPATH!;"%BALLERINA_HOME%\bre\lib\*"
 rem ---------- Add jars to classpath ----------------
 

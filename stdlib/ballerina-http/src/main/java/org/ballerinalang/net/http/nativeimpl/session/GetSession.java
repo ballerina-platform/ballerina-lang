@@ -44,10 +44,10 @@ import java.util.NoSuchElementException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getSession",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
-                structPackage = "ballerina.http"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Session",
-                                  structPackage = "ballerina.http")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Request",
+                structPackage = "ballerina/http"),
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "Session",
+                                  structPackage = "ballerina/http")},
         isPublic = true
 )
 public class GetSession extends BlockingNativeCallableUnit {

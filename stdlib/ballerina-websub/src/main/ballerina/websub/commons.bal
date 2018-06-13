@@ -14,10 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/crypto;
 import ballerina/http;
+import ballerina/io;
 import ballerina/log;
 import ballerina/mime;
-import ballerina/crypto;
+import ballerina/reflect;
 
 documentation {
     Intent verification request parameter `hub.challenge` representing the challenge that needs to be echoed by
@@ -95,6 +97,9 @@ documentation {
 @final string SHA256 = "SHA256";
 @final string MD5 = "MD5";
 
+@final string ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG = "SubscriberServiceConfig";
+@final string WEBSUB_PACKAGE_NAME = "ballerina/websub";
+
 //TODO: Make public once extension story is finalized.
 documentation {
     The identifier to be used to identify the topic for dispatching with custom subscriber services.
@@ -163,23 +168,15 @@ public type IntentVerificationRequest object {
 public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string? topic = ())
     returns http:Response {
 
-    SubscriberServiceConfiguration subscriberServiceConfiguration = {};
-    match (topic) {
-        string specifiedTopic => { subscriberServiceConfiguration = {topic:specifiedTopic}; }
-        () => { subscriberServiceConfiguration = retrieveAnnotations(); }
-    }
-    return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, subscriberServiceConfiguration);
+    string intendedTopic = topic but {() => retrieveIntendedTopic()};
+    return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, intendedTopic);
 }
 
 public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string? topic = ())
     returns http:Response {
 
-    SubscriberServiceConfiguration subscriberServiceConfiguration = {};
-    match (topic) {
-        string specifiedTopic => { subscriberServiceConfiguration = {topic:specifiedTopic}; }
-        () => { subscriberServiceConfiguration = retrieveAnnotations(); }
-    }
-    return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, subscriberServiceConfiguration);
+    string intendedTopic = topic but {() => retrieveIntendedTopic()};
+    return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, intendedTopic);
 }
 
 documentation {
@@ -187,28 +184,22 @@ documentation {
 
     P{{intentVerificationRequest}} The intent verification request from the hub
     P{{mode}} The mode (subscription/unsubscription) for which a request was sent
-    P{{webSubSubscriberAnnotations}} The SubscriberServiceConfiguration containing topic details
+    P{{topic}} The intended topic for which subscription change should be verified
     R{{}} `http:Response` The response to the hub verifying/denying intent to subscripe/unsubscribe
 }
 function buildIntentVerificationResponse(IntentVerificationRequest intentVerificationRequest, string mode,
-                                         SubscriberServiceConfiguration webSubSubscriberAnnotations)
+                                         string topic)
     returns http:Response {
 
     http:Response response = new;
-    string topic = webSubSubscriberAnnotations.topic;
+    string reqTopic = check http:decode(intentVerificationRequest.topic, "UTF-8");
     if (topic == "") {
         response.statusCode = http:NOT_FOUND_404;
-        log:printError("Intent Verification denied - Mode [" + mode + "], Topic [" + topic +
+        log:printError("Intent Verification denied - Mode [" + mode + "], Topic [" + reqTopic +
                 "], since topic unavailable as an annotation or unspecified as a parameter");
     } else {
         string reqMode = intentVerificationRequest.mode;
         string challenge = intentVerificationRequest.challenge;
-        string reqTopic = intentVerificationRequest.topic;
-
-        match (http:decode(reqTopic, "UTF-8")) {
-            string decodedTopic => reqTopic = decodedTopic;
-            error => {}
-        }
 
         string reqLeaseSeconds = <string>intentVerificationRequest.leaseSeconds;
 
@@ -219,7 +210,7 @@ function buildIntentVerificationResponse(IntentVerificationRequest intentVerific
                     + reqLeaseSeconds + "]");
         } else {
             response.statusCode = http:NOT_FOUND_404;
-            log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + topic + "]");
+            log:printWarn("Intent Verification denied - Mode [" + mode + "], Topic [" + reqTopic + "]");
         }
     }
     return response;
@@ -233,7 +224,12 @@ documentation {
     R{{}} `error`, if an error occurred in extraction or signature validation failed
 }
 function processWebSubNotification(http:Request request, typedesc serviceType) returns error? {
-    string secret = retrieveSecret(serviceType);
+    string secret;
+    match (retrieveSubscriberServiceAnnotations(serviceType)) {
+        SubscriberServiceConfiguration subscriberServiceAnnotation => { secret = subscriberServiceAnnotation.secret; }
+        () => { log:printDebug("WebSub notification received for subscription with no secret specified"); }
+    }
+
     string xHubSignature;
 
     if (request.hasHeader(X_HUB_SIGNATURE)) {
@@ -243,28 +239,26 @@ function processWebSubNotification(http:Request request, typedesc serviceType) r
             error webSubError = {message:X_HUB_SIGNATURE + " header not present for subscription added" +
                 " specifying " + HUB_SECRET};
             return webSubError;
-        } else {
-            return;
         }
-    }
-
-    json payload;
-    var reqJsonPayload = request.getJsonPayload(); //TODO: fix for all types
-    match (reqJsonPayload) {
-        json jsonPayload => { payload = jsonPayload; }
-        error entityError => {
-            error webSubError = {message:"Error extracting notification payload", cause:entityError};
-            return webSubError;
-        }
+        return;
     }
 
     if (secret == "" && xHubSignature != "") {
         log:printWarn("Ignoring " + X_HUB_SIGNATURE + " value since secret is not specified.");
         return;
-    } else {
-        string strPayload = payload.toString();
-        return validateSignature(xHubSignature, strPayload, secret);
     }
+
+    string stringPayload;
+    match (request.getPayloadAsString()) {
+        string payloadAsString => { stringPayload = payloadAsString; }
+        error entityError => {
+            error webSubError = {message:"Error extracting notification payload as string for signature validation: "
+                                            + entityError.message, cause: entityError};
+            return webSubError;
+        }
+    }
+
+    return validateSignature(xHubSignature, stringPayload, secret);
 }
 
 documentation {
@@ -301,14 +295,150 @@ function validateSignature(string xHubSignature, string stringPayload, string se
 }
 
 documentation {
-    Record representing the WebSub Content Delivery Request received.
+    Object representing the WebSub Content Delivery Request received.
 
-    F{{payload}} The JSON payload of the notification received
     F{{request}} The HTTP POST request received as the notification
 }
-public type Notification {
-    json payload,
-    http:Request request,
+public type Notification object {
+
+    private {
+        http:Request request;
+    }
+
+    documentation {
+        Retrieves the query parameters of the content delivery request, as a map.
+
+        R{{}} String constrained map of query params
+    }
+    public function getQueryParams() returns map<string> {
+        return request.getQueryParams();
+    }
+
+    documentation {
+        Retrieves the `Entity` associated with the content delivery request.
+
+        R{{}} The `Entity` of the request. An `error` is returned, if entity construction fails
+    }
+    public function getEntity() returns mime:Entity|error {
+        return request.getEntity();
+    }
+
+    documentation {
+        Returns whether the requested header key exists in the header map of the content delivery request.
+
+        P{{headerName}} The header name
+        R{{}} Returns true if the specified header key exists
+    }
+    public function hasHeader(string headerName) returns boolean {
+        return request.hasHeader(headerName);
+    }
+
+    documentation {
+        Returns the value of the specified header. If the specified header key maps to multiple values, the first of
+        these values is returned.
+
+        P{{headerName}} The header name
+        R{{}} The first header value for the specified header name. An exception is thrown if no header is found.
+                Ideally `hasHeader()` needs to be used to check the existence of header initially.
+    }
+    public function getHeader(string headerName) returns string {
+        return request.getHeader(headerName);
+    }
+
+    documentation {
+        Retrieves all the header values to which the specified header key maps to.
+
+        P{{headerName}} The header name
+        R{{}} The header values the specified header key maps to. An exception is thrown if no header is found.
+                Ideally `hasHeader()` needs to be used to check the existence of header initially.
+    }
+    public function getHeaders(string headerName) returns string[] {
+        return request.getHeaders(headerName);
+    }
+
+    documentation {
+        Retrieves all the names of the headers present in the content delivery request.
+
+        R{{}} An array of all the header names
+    }
+    public function getHeaderNames() returns string[] {
+        return request.getHeaderNames();
+    }
+
+    documentation {
+        Retrieves the type of the payload of the content delivery request (i.e: the `content-type` header value).
+
+        R{{}} Returns the `content-type` header value as a string
+    }
+    public function getContentType() returns string {
+        return request.getContentType();
+    }
+
+    documentation {
+        Extracts `json` payload from the content delivery request.
+
+        R{{}} The `json` payload or `error` in case of errors. If the content type is not JSON, an `error` is returned.
+    }
+    public function getJsonPayload() returns json|error {
+        return request.getJsonPayload();
+    }
+
+    documentation {
+        Extracts `xml` payload from the content delivery request.
+
+        R{{}} The `xml` payload or `error` in case of errors. If the content type is not XML, an `error` is returned.
+    }
+    public function getXmlPayload() returns xml|error {
+        return request.getXmlPayload();
+    }
+
+    documentation {
+        Extracts `text` payload from the content delivery request.
+
+        R{{}} The `text` payload or `error` in case of errors.
+                If the content type is not of type text, an `error` is returned.
+    }
+    public function getTextPayload() returns string|error {
+        return request.getTextPayload();
+    }
+
+    documentation {
+        Retrieves the content delivery request payload as a `string`. Content type is not checked during payload
+        construction which makes this different from `getTextPayload()` function.
+
+        R{{}} The string representation of the message payload or `error` in case of errors
+    }
+    public function getPayloadAsString() returns string|error {
+        return request.getPayloadAsString();
+    }
+
+    documentation {
+        Retrieves the request payload as a `ByteChannel` except in the case of multiparts.
+
+        R{{}} A byte channel from which the message payload can be read or `error` in case of errors
+    }
+    public function getByteChannel() returns io:ByteChannel|error {
+        return request.getByteChannel();
+    }
+
+    documentation {
+        Retrieves the request payload as a `blob`.
+
+        R{{}} The blob representation of the message payload or `error` in case of errors
+    }
+    public function getBinaryPayload() returns blob|error {
+        return request.getBinaryPayload();
+    }
+
+    documentation {
+        Retrieves the form parameters from the content delivery request as a `map`.
+
+        R{{}} The map of form params or `error` in case of errors
+    }
+    public function getFormParams() returns map<string>|error {
+        return request.getFormParams();
+    }
+
 };
 
 documentation {
@@ -381,9 +511,11 @@ public type WebSubHub object {
         
         P{{topic}} The topic for which the update should happen
         P{{payload}} The update payload
+        P{{contentType}} The content type header to set for the request delivering the payload
         R{{}} `error` if the hub is not initialized or does not represent the internal hub
     }
-    public function publishUpdate(string topic, json payload) returns error?;
+    public function publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+                                  string? contentType = ()) returns error?;
 
     documentation {
         Registers a topic in the Ballerina Hub.
@@ -407,36 +539,42 @@ public function WebSubHub::stop() returns (boolean) {
     return stopHubService(self.hubUrl);
 }
 
-public function WebSubHub::publishUpdate(string topic, json payload) returns error? {
+public function WebSubHub::publishUpdate(string topic, string|xml|json|blob|io:ByteChannel payload,
+                                         string? contentType = ()) returns error? {
+
     if (self.hubUrl == "") {
-        error webSubError = {message:"Internal Ballerina Hub not initialized or incorrectly referenced"};
+        error webSubError = {message: "Internal Ballerina Hub not initialized or incorrectly referenced"};
         return webSubError;
-    } else {
-        string errorMessage = validateAndPublishToInternalHub(self.hubUrl, topic, payload);
-        if (errorMessage != "") {
-            error webSubError = {message:errorMessage};
-            return webSubError;
+    }
+
+    WebSubContent content = {};
+
+    match(payload) {
+        io:ByteChannel byteChannel => content.payload = constructBlob(byteChannel);
+        string|xml|json|blob => content.payload = payload;
+    }
+
+    match(contentType) {
+        string stringContentType => content.contentType = stringContentType;
+        () => {
+            match(payload) {
+                string => content.contentType = mime:TEXT_PLAIN;
+                xml => content.contentType = mime:APPLICATION_XML;
+                json => content.contentType = mime:APPLICATION_JSON;
+                blob|io:ByteChannel => content.contentType = mime:APPLICATION_OCTET_STREAM;
+            }
         }
     }
-    return;
+
+    return validateAndPublishToInternalHub(self.hubUrl, topic, content);
 }
 
 public function WebSubHub::registerTopic(string topic) returns error? {
-    string errorMessage = registerTopicAtHub(topic, "");
-    if (errorMessage != "") {
-        error webSubError = {message:errorMessage};
-        return webSubError;
-    }
-    return;
+    return registerTopicAtHub(topic, "");
 }
 
 public function WebSubHub::unregisterTopic(string topic) returns error? {
-    string errorMessage = unregisterTopicAtHub(topic, "");
-    if (errorMessage != "") {
-        error webSubError = {message:errorMessage};
-        return webSubError;
-    }
-    return;
+    return unregisterTopicAtHub(topic, "");
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -475,3 +613,30 @@ type SubscriptionDetails {
     int leaseSeconds,
     int createdAt,
 };
+
+function retrieveSubscriberServiceAnnotations(typedesc serviceType) returns SubscriberServiceConfiguration? {
+    reflect:annotationData[] annotationDataArray = reflect:getServiceAnnotations(serviceType);
+    foreach annData in annotationDataArray {
+        if (annData.name == ANN_NAME_WEBSUB_SUBSCRIBER_SERVICE_CONFIG && annData.pkgName == WEBSUB_PACKAGE_NAME) {
+            SubscriberServiceConfiguration subscriberServiceAnnotation =
+                                                            check <SubscriberServiceConfiguration> (annData.value);
+            return subscriberServiceAnnotation;
+        }
+    }
+    return;
+}
+
+documentation {
+    Record to represent a WebSub content delivery.
+
+    F{{payload}} The payload to be sent
+    F{{contentType}} The content-type of the payload
+}
+type WebSubContent {
+    string|xml|json|blob|io:ByteChannel payload,
+    string contentType,
+};
+
+function isSuccessStatusCode(int statusCode) returns boolean {
+    return (200 <= statusCode && statusCode < 300);
+}

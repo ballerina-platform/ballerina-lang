@@ -47,7 +47,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
@@ -57,6 +56,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * {@code BlockingExecute} is the BlockingExecute action implementation of the gRPC Connector.
@@ -67,19 +67,19 @@ import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "blockingExecute",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_STUB,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "payload", type = TypeKind.ANY),
-                @Argument(name = "headers", type = TypeKind.STRUCT, structType = "Headers",
+                @Argument(name = "headers", type = TypeKind.OBJECT, structType = "Headers",
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
             
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
-                @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN),
-        },
+                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR,
+                        structPackage = BALLERINA_BUILTIN_PKG),        },
         isPublic = true
 )
 public class BlockingExecute extends AbstractExecute {
@@ -163,9 +163,11 @@ public class BlockingExecute extends AbstractExecute {
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");
+                    return;
                 }
             } catch (RuntimeException | GrpcClientException e) {
                 notifyErrorReply(context, "gRPC Client Connector Error :" + e.getMessage());
+                return;
             }
         }
         notifyErrorReply(context, "Error while processing the request message. Connection Sub " +

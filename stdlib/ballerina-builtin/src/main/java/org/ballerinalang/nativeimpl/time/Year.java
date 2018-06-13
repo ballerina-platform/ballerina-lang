@@ -35,7 +35,7 @@ import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "year",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina/time"),
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )

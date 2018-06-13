@@ -48,8 +48,8 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener",
-                structPackage = "ballerina.http"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
+                structPackage = "ballerina/http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )

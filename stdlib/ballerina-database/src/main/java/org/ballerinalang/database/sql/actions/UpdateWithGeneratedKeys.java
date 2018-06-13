@@ -30,6 +30,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+
 /**
  * {@code UpdateWithGeneratedKeys} is the updateWithGeneratedKeys action implementation of the SQL Connector.
  *
@@ -38,17 +40,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "updateWithGeneratedKeys",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.CALLER_ACTIONS),
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                          structType = "Parameter"),
-                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING)
+                @Argument(name = "keyColumns", type = TypeKind.ARRAY, elementType = TypeKind.STRING),
+                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.UNION,
+                          structType = "Param")
         },
         returnType = {
                 @ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
-                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
 public class UpdateWithGeneratedKeys extends AbstractSQLAction {

@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
@@ -28,7 +29,8 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.StructureType;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.ObjectTypeInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.program.BLangFunctions;
 
 /**
@@ -41,16 +43,16 @@ public class BLangVMStructs {
     /**
      * Create BStruct for given StructInfo and BValues.
      *
-     * @param structInfo {@link StructInfo} of the BStruct
+     * @param structInfo {@link StructureTypeInfo} of the BStruct
      * @param values     field values of the BStruct.
      * @return BStruct instance.
      */
-    public static BStruct createBStruct(StructInfo structInfo, Object... values) {
-        BStructType structType = structInfo.getType();
+    public static BStruct createBStruct(StructureTypeInfo structInfo, Object... values) {
+        BStructureType structType = structInfo.getType();
         BStruct bStruct = new BStruct(structType);
 
         int[] indexes = new int[] {-1, -1, -1, -1, -1, -1};
-        BStructType.StructField[] structFields = structType.getStructFields();
+        BField[] structFields = structType.getFields();
         for (int i = 0; i < structFields.length; i++) {
             if (values.length < i + 1) {
                 break;
@@ -62,19 +64,22 @@ public class BLangVMStructs {
     }
 
     /**
-     * Create ballerina object.
+     * This is a helper method to create a object in native code.
      *
-     * @param structInfo {@link StructInfo} of the BStruct
+     * WARNING - please be cautious when using this method, if you have non blocking calls inside the
+     * object constructor, then using this method may cause thread blocking scenarios.
+     *
+     * @param objectInfo {@link ObjectTypeInfo} of the BStruct
      * @param values     field values of the BStruct.
      * @return BStruct instance.
      */
-    public static BStruct createObject(StructInfo structInfo, BValue... values) {
-        BStructType structType = structInfo.getType();
+    public static BStruct createObject(ObjectTypeInfo objectInfo, BValue... values) {
+        BStructureType structType = objectInfo.getType();
         BStruct bStruct = new BStruct(structType);
         BValue[] vals = new BValue[values.length + 1];
         vals[0] = bStruct;
         System.arraycopy(values, 0, vals, 1, values.length);
-        BLangFunctions.invokeCallable(structInfo.initializer.functionInfo, vals);
+        BLangFunctions.invokeCallable(objectInfo.initializer.functionInfo, vals);
         return bStruct;
     }
 

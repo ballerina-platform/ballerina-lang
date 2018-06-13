@@ -41,8 +41,8 @@ import org.ballerinalang.net.http.WebSocketServicesRegistry;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "NonListener",
-                structPackage = "ballerina.http"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "NonListener",
+                structPackage = "ballerina/http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )

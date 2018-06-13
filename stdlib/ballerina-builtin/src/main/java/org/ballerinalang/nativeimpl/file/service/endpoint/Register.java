@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemConnectorFactory;
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemServerConnector;
 import org.wso2.transport.localfilesystem.server.connector.contractimpl.LocalFileSystemConnectorFactoryImpl;
@@ -57,7 +57,7 @@ import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_PACKAGE;
         orgName = "ballerina",
         packageName = "file",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = "ballerina.file"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )
@@ -73,7 +73,7 @@ public class Register extends BlockingNativeCallableUnit {
             final String events = String.join(",", resourceRegistry.keySet());
             final Map<String, String> paramMap = getParamMap(serviceEndpointConfig, events);
             LocalFileSystemConnectorFactory connectorFactory = new LocalFileSystemConnectorFactoryImpl();
-            StructInfo structInfo = getStructInfo(context);
+            StructureTypeInfo structInfo = getStructInfo(context);
             LocalFileSystemServerConnector serverConnector = connectorFactory
                     .createServerConnector(service.getName(), paramMap, new FSListener(resourceRegistry, structInfo));
             serviceEndpoint.addNativeData(DirectoryListenerConstants.FS_SERVER_CONNECTOR, serverConnector);
@@ -85,7 +85,7 @@ public class Register extends BlockingNativeCallableUnit {
         context.setReturnValues();
     }
 
-    private StructInfo getStructInfo(Context context) {
+    private StructureTypeInfo getStructInfo(Context context) {
         PackageInfo httpPackageInfo = context.getProgramFile().getPackageInfo(FILE_PACKAGE);
         return httpPackageInfo.getStructInfo(FILE_SYSTEM_EVENT);
     }

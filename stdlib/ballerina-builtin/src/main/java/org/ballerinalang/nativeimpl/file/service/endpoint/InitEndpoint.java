@@ -41,9 +41,9 @@ import java.nio.file.Paths;
         orgName = "ballerina",
         packageName = "file",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = "ballerina.file"),
-        args = {@Argument(name = "config", type = TypeKind.STRUCT, structType = "ListenerEndpointConfiguration",
-                          structPackage = "ballerina.file")
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
+        args = {@Argument(name = "config", type = TypeKind.RECORD, structType = "ListenerEndpointConfiguration",
+                          structPackage = "ballerina/file")
         },
         isPublic = true
 )

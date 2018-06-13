@@ -40,7 +40,7 @@ import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "format",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina/time"),
         args = {@Argument(name = "pattern", type = TypeKind.UNION)},
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

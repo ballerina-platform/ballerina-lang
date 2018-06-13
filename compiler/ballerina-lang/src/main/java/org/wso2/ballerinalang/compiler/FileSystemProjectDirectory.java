@@ -104,14 +104,9 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
                                                 // removing this check till it's handled properly.
                                                 //ProjectDirConstants.TEST_DIR_NAME,
                                                 ProjectDirConstants.TARGET_DIR_NAME,
-                                                ProjectDirConstants.API_DOCS_DIR_NAME,
                                                 ProjectDirConstants.RESOURCE_DIR_NAME);
         String dirNameStr = dirName.toString();
-        try {
-            return dirNameStr.startsWith(".") || Files.isHidden(dirName) || ignoreDirs.contains(dirNameStr);
-        } catch (IOException e) {
-            throw new BLangCompilerException("error reading directory: " + dirNameStr);
-        }
+        return dirNameStr.startsWith(".") || dirName.toFile().isHidden() || ignoreDirs.contains(dirNameStr);
     }
 
     @Override

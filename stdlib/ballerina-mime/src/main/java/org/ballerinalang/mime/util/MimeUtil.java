@@ -21,6 +21,7 @@ package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
+
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
@@ -30,7 +31,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,14 +44,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Enumeration;
 import java.util.Set;
+
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
-import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
@@ -60,9 +60,7 @@ import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_PARA_MAP
 import static org.ballerinalang.mime.util.Constants.DISPOSITION_INDEX;
 import static org.ballerinalang.mime.util.Constants.DOUBLE_QUOTE;
 import static org.ballerinalang.mime.util.Constants.FORM_DATA_PARAM;
-import static org.ballerinalang.mime.util.Constants.IS_BODY_BYTE_CHANNEL_ALREADY_SET;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE_INDEX;
-import static org.ballerinalang.mime.util.Constants.MESSAGE_ENTITY;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_AS_PRIMARY_TYPE;
 import static org.ballerinalang.mime.util.Constants.MULTIPART_FORM_DATA;
 import static org.ballerinalang.mime.util.Constants.PARAMETER_MAP_INDEX;
@@ -74,6 +72,7 @@ import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
 import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Mime utility functions are included in here.
@@ -125,6 +124,23 @@ public class MimeUtil {
             }
         }
         return contentType;
+    }
+
+    /**
+     * Get parameter value from the content-type header.
+     *
+     * @param contentType   Content-Type value as a string
+     * @param parameterName Name of the parameter
+     * @return Parameter value as a string
+     */
+    public static String getContentTypeParamValue(String contentType, String parameterName) {
+        try {
+            MimeType mimeType = new MimeType(contentType);
+            MimeTypeParameterList parameterList = mimeType.getParameters();
+            return parameterList.get(parameterName);
+        } catch (MimeTypeParseException e) {
+            throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
+        }
     }
 
     /**
@@ -301,14 +317,6 @@ public class MimeUtil {
         entityStruct.setIntField(SIZE_INDEX, length);
     }
 
-    public static BStruct extractEntity(BStruct httpMessageStruct) {
-        Object isEntityBodyAvailable = httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
-        if (isEntityBodyAvailable == null || !((Boolean) isEntityBodyAvailable)) {
-            return null;
-        }
-        return (BStruct) httpMessageStruct.getNativeData(MESSAGE_ENTITY);
-    }
-
     /**
      * Given an input stream, create a temporary file and write the content to it.
      *
@@ -363,7 +371,7 @@ public class MimeUtil {
      * @return A byte array
      * @throws IOException In case an error occurs while reading input stream
      */
-    static byte[] getByteArray(InputStream input) throws IOException {
+    public static byte[] getByteArray(InputStream input) throws IOException {
         try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             byte[] buffer = new byte[READABLE_BUFFER_SIZE];
             for (int len; (len = input.read(buffer)) != -1; ) {
@@ -444,8 +452,8 @@ public class MimeUtil {
      * @return Ballerina struct with entity error
      */
     public static BStruct createEntityError(Context context, String msg) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+        PackageInfo filePkg = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
+        StructureTypeInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         BStruct genericError = new BStruct(entityErrInfo.getType());
         genericError.setStringField(0, msg);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
@@ -459,8 +467,8 @@ public class MimeUtil {
      * @return Ballerina struct with parse error
      */
     public static BStruct getParserError(Context context, String errMsg) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
 
         BStruct parserError = new BStruct(errorStructInfo.getType());
         parserError.setStringField(0, errMsg);

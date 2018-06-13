@@ -1,16 +1,16 @@
-function testIfStmt(int a, int b, int c) returns (int, int) {
+function testIfStmt(int aa, int b, int c) returns (int, int) {
 
     int x;
     x = 10;
 
     int a1;
-    if ( a == b) {
+    if ( aa == b) {
         a1 = 100;
 
-    } else if (a == b + 1){
+    } else if (aa == b + 1){
         a1 = 200;
 
-    } else  if (a == b + 2){
+    } else  if (aa == b + 2){
         a1 = 300;
 
     }  else {
@@ -21,6 +21,31 @@ function testIfStmt(int a, int b, int c) returns (int, int) {
 
     return (a1 + x, b1 + 1);
 }
+
+function testIfStmtWithoutParentheses(int aa, int b, int c) returns (int, int) {
+
+    int x;
+    x = 10;
+
+    int a1;
+    if aa == b {
+        a1 = 100;
+
+    } else if aa == (b + 1) {
+        a1 = 200;
+
+    } else  if (((aa == (b + 2)))) {
+        a1 = 300;
+
+    } else {
+        a1 = 400;
+    }
+
+    int b1 = c;
+
+    return (a1 + x, b1 + 1);
+}
+
 
 function testAgeGroup(int age) returns (string) {
     string avgGroup;
@@ -94,10 +119,10 @@ function nestedIfElseScope(int number1, int number2) returns (int) {
 function testConditionScope(int b) returns (int) {
     int output = 0;
     if (a > b) {
-        int a = 1;
+        int c = 1;
         output = 10;
     } else if (a == b) {
-        int a = 2;
+        int c = 2;
         output = 20;
     }
     return output;

@@ -45,7 +45,9 @@ public enum OperatorKind {
     INCREMENT("++"),
     DECREMENT("--"),
     CHECK("check"),
-    ELVIS("?:");
+    ELVIS("?:"),
+    CLOSED_RANGE("..."),
+    HALF_OPEN_RANGE("..<");
 
     private final String opValue;
 

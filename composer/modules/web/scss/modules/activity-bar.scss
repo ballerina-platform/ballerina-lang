@@ -8,7 +8,7 @@
     outline-color: transparent !important;
 }
 .activity-bar {
-    height: calc(100% - 27px);
+    height: 100%;
     padding: 0;
     width: $activity-bar-width;
     position: fixed;
@@ -26,15 +26,15 @@
                 @extend .activity-bar-nav-common;
                 &:hover {
                     cursor: pointer !important;
-                    color: #d2d2d2 !important;
+                    color: $rc-tabs-text-color !important;
                 }
             }
             &.active > a {
                 cursor: pointer !important;
                 border-left: 3px solid $brand-primary !important;
                 padding-left: 12px;
-                background-color: #252525 !important;
-                color: #d2d2d2 !important;
+                background-color: $rc-tabs-bgcolor !important;
+                color:$rc-tabs-text-color !important;
             }
         }
     }

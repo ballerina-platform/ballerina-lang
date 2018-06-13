@@ -25,7 +25,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
@@ -38,8 +38,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -69,7 +69,7 @@ public class SymbolTable {
 
     public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_ORG,
                                                           Names.BUILTIN_PACKAGE,
-                                                          Names.DEFAULT_VERSION);
+                                                          Names.EMPTY);
 
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;
@@ -92,13 +92,14 @@ public class SymbolTable {
     public final BType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BType futureType = new BFutureType(TypeTags.FUTURE, nilType, null);
     public final BType xmlAttributesType = new BXMLAttributesType(TypeTags.XML_ATTRIBUTES);
-    public final BType endpointType = new BType(TypeTags.CONNECTOR, null);
+    public final BType endpointType = new BType(TypeTags.ENDPOINT, null);
     public final BType arrayType = new BArrayType(noType);
+    public final BType intArrayType = new BArrayType(intType);
 
     public final BTypeSymbol errSymbol;
     public final BType errType;
 
-    public BStructType errStructType;
+    public BRecordType errStructType;
 
     public BPackageSymbol builtInPackageSymbol;
     private Names names;
@@ -148,9 +149,9 @@ public class SymbolTable {
         defineType(errType, errSymbol);
 
         // Initialize Ballerina error struct type temporally.
-        BTypeSymbol errorStructSymbol = new BStructSymbol(SymTag.STRUCT, Flags.PUBLIC, Names.ERROR,
+        BTypeSymbol errorStructSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, null, rootPkgSymbol);
-        this.errStructType = new BStructType(errorStructSymbol);
+        this.errStructType = new BRecordType(errorStructSymbol);
         errorStructSymbol.type = this.errStructType;
         errorStructSymbol.scope = new Scope(errorStructSymbol);
         defineType(this.errStructType, errorStructSymbol);
@@ -296,6 +297,9 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, intType, booleanType, InstructionCodes.FGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, floatType, booleanType, InstructionCodes.FGE);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, floatType, booleanType, InstructionCodes.FGE);
+
+        defineBinaryOperator(OperatorKind.CLOSED_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
+        defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, intType, intType, intArrayType, InstructionCodes.INT_RANGE);
 
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType, -1);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType, -1);

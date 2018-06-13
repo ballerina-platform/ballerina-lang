@@ -19,13 +19,13 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 
 /**
  * Util class for compression related operations.
  */
 public class CompressionUtils {
-    public static final String PROTOCOL_PACKAGE_COMPRESSION = "ballerina.internal";
+    public static final String PROTOCOL_PACKAGE_COMPRESSION = "ballerina/internal";
 
     /**
      * Get compression error as a ballerina struct.
@@ -36,7 +36,7 @@ public class CompressionUtils {
      */
     public static BStruct createCompressionError(Context context, String msg) {
         PackageInfo filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_COMPRESSION);
-        StructInfo compressionErrorStruct = filePkg.getStructInfo("CompressionError");
+        StructureTypeInfo compressionErrorStruct = filePkg.getStructInfo("CompressionError");
         return BLangVMStructs.createBStruct(compressionErrorStruct, msg);
     }
 }

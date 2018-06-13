@@ -41,9 +41,9 @@ import javax.jms.Session;
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "unsubscribe",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
+                   receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = "Session",
-                                        structPackage = "ballerina.jms"),
+                                        structPackage = "ballerina/jms"),
                    args = {
                            @Argument(name = "subscriptionId",
                                      type = TypeKind.STRING)

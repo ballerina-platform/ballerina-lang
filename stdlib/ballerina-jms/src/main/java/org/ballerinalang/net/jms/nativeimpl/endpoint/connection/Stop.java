@@ -40,7 +40,7 @@ import javax.jms.JMSException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jms",
         functionName = "stop",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Connection", structPackage = "ballerina.jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection", structPackage = "ballerina/jms"),
         isPublic = true
 )
 public class Stop implements NativeCallableUnit {

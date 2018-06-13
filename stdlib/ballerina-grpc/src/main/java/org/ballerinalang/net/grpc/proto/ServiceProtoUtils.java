@@ -44,8 +44,9 @@ import org.ballerinalang.net.grpc.proto.definition.WrapperMessage;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BStructType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -342,7 +343,7 @@ public class ServiceProtoUtils {
                     requestType = tempType;
                     break;
                 }
-                if ("ballerina.grpc:Listener".equals(tempType.tsymbol.toString()) || "ballerina.grpc:Headers"
+                if ("ballerina/grpc:Listener".equals(tempType.tsymbol.toString()) || "ballerina/grpc:Headers"
                         .equals(tempType.tsymbol.toString())) {
                     continue;
                 }
@@ -384,10 +385,11 @@ public class ServiceProtoUtils {
                 message = WrapperMessage.newBuilder(ServiceProtoConstants.WRAPPER_BOOL_MESSAGE).build();
                 break;
             }
-            case STRUCT: {
-                if (messageType instanceof org.wso2.ballerinalang.compiler.semantics.model.types.BStructType) {
-                    org.wso2.ballerinalang.compiler.semantics.model.types.BStructType structType = (org
-                            .wso2.ballerinalang.compiler.semantics.model.types.BStructType) messageType;
+            case OBJECT:
+            case RECORD: {
+                if (messageType instanceof org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType) {
+                    org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType structType = (org
+                            .wso2.ballerinalang.compiler.semantics.model.types.BStructureType) messageType;
                     message = getStructMessage(structType);
                 }
                 break;
@@ -412,11 +414,11 @@ public class ServiceProtoUtils {
         return message;
     }
     
-    private static Message getStructMessage(BStructType messageType) throws
+    private static Message getStructMessage(BStructureType messageType) throws
             GrpcServerException {
         UserDefinedMessage.Builder messageBuilder = UserDefinedMessage.newBuilder(messageType.tsymbol.name.value);
         int fieldIndex = 0;
-        for (BStructType.BStructField structField : messageType.fields) {
+        for (BField structField : messageType.fields) {
             Field messageField;
             String fieldName = structField.getName().getValue();
             BType fieldType = structField.getType();
@@ -424,14 +426,14 @@ public class ServiceProtoUtils {
             if (fieldType instanceof BEnumType) {
                 BEnumType enumType = (BEnumType) fieldType;
                 messageBuilder.addMessageDefinition(getEnumMessage(enumType));
-            } else if (fieldType instanceof BStructType) {
-                BStructType structType = (BStructType) fieldType;
+            } else if (fieldType instanceof BStructureType) {
+                BStructureType structType = (BStructureType) fieldType;
                 messageBuilder.addMessageDefinition(getStructMessage(structType));
             } else if (fieldType instanceof BArrayType) {
                 BArrayType arrayType = (BArrayType) fieldType;
                 BType elementType = arrayType.getElementType();
-                if (elementType instanceof BStructType) {
-                    messageBuilder.addMessageDefinition(getStructMessage((BStructType) elementType));
+                if (elementType instanceof BStructureType) {
+                    messageBuilder.addMessageDefinition(getStructMessage((BStructureType) elementType));
                 }
                 fieldType = elementType;
                 fieldLabel = "repeated";
@@ -534,7 +536,7 @@ public class ServiceProtoUtils {
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(
             org.ballerinalang.connector.api.Service service) throws GrpcServerException {
         try {
-            List<Annotation> annotationList = service.getAnnotationList("ballerina.grpc", "ServiceDescriptor");
+            List<Annotation> annotationList = service.getAnnotationList("ballerina/grpc", "ServiceDescriptor");
             if (annotationList == null || annotationList.size() != 1) {
                 throw new GrpcServerException("Couldn't find the service descriptor.");
             }

@@ -33,17 +33,17 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.io#readCharacters.
+ * Native function ballerina/io#readCharacters.
  *
  * @since 0.94
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "read",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina/io"),
         args = {@Argument(name = "numberOfChars", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.STRING),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class ReadCharacters implements NativeCallableUnit {

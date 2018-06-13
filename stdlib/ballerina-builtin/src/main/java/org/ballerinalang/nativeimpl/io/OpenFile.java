@@ -44,7 +44,7 @@ import java.nio.file.Paths;
         functionName = "openFile",
         args = {@Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "accessMode", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io")},
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class OpenFile extends AbstractNativeChannel {

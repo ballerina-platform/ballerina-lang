@@ -110,7 +110,7 @@ public class Utils {
      * Check whether given port is in use or not.
      *
      * @param port - port number
-     * @throws Exception if port is already in use
+     * @throws BallerinaTestException if port is already in use
      */
     public static void checkPortAvailability(int port) throws BallerinaTestException {
 
@@ -159,7 +159,8 @@ public class Utils {
      * @param extractedDir   - destination path given file to extract
      * @throws IOException
      */
-    public static void extractFile(String sourceFilePath, String extractedDir) throws IOException {
+    public static void extractFile(String sourceFilePath, String extractedDir) throws IOException,
+            BallerinaTestException {
         FileOutputStream fileoutputstream = null;
 
         String fileDestination = extractedDir + File.separator;
@@ -179,6 +180,11 @@ public class Utils {
                 int n;
 
                 File newFile = new File(entryName);
+                if (!newFile.getCanonicalPath().startsWith(new File(extractedDir).getCanonicalPath())) {
+                    throw new BallerinaTestException("Arbitrary File Write attack attempted via an archive file. " +
+                            "File name: " + newFile.getName());
+                }
+
                 boolean fileCreated = false;
                 if (zipentry.isDirectory()) {
                     if (!newFile.exists()) {

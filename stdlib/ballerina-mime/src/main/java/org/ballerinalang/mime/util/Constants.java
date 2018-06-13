@@ -18,6 +18,8 @@
 
 package org.ballerinalang.mime.util;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+
 /**
  * Constants related to MIME.
  */
@@ -28,9 +30,9 @@ public class Constants {
     public static final String MEDIA_TYPE = "MediaType";
     public static final String CONTENT_DISPOSITION_STRUCT = "ContentDisposition";
     public static final String ENTITY_ERROR = "EntityError";
-    public static final String PROTOCOL_PACKAGE_MIME = "ballerina.mime";
-    public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
-    public static final String PROTOCOL_PACKAGE_IO = "ballerina.io";
+    public static final String PROTOCOL_PACKAGE_MIME = BALLERINA_PACKAGE_PREFIX + "mime";
+    public static final String PROTOCOL_PACKAGE_FILE = BALLERINA_PACKAGE_PREFIX + "file";
+    public static final String PROTOCOL_PACKAGE_IO = BALLERINA_PACKAGE_PREFIX + "io";
     public static final String BYTE_CHANNEL_STRUCT = "ByteChannel";
 
     /**
@@ -93,13 +95,17 @@ public class Constants {
     public static final String DEFAULT_SUB_TYPE = "octet-stream";
     public static final String SUFFIX_ATTACHMENT = "+";
 
-    public static final String MESSAGE_ENTITY = "message_entity";
     public static final String MESSAGE_DATA_SOURCE = "message_datasource";
     public static final String IS_BODY_BYTE_CHANNEL_ALREADY_SET = "is_byte_channel_set";
     public static final String ENTITY_BYTE_CHANNEL = "entity_byte_channel";
     public static final String MULTIPART_ENCODER = "MultipartEncoder";
     public static final String BODY_PARTS = "body_parts";
     public static final String ENTITY_HEADERS = "entity_headers";
+
+    public static final String CHARSET = "charset";
+
+    public static final int REQUEST_ENTITY_INDEX = 1;
+    public static final int RESPONSE_ENTITY_INDEX = 1;
 
     //Native argument indexes
     public static final int FIRST_PARAMETER_INDEX = 0;
@@ -132,8 +138,9 @@ public class Constants {
 
     public static final int FIRST_ELEMENT = 0;
 
-    public static final int BYTE_LIMIT = 2097152; //2MB
+    public static final short ONE_BYTE = 1;
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
+    public static final double MAX_THRESHOLD_PERCENTAGE = 0.1;
 
     public static final String UTF_8 = "UTF-8";
     public static final String CONTENT_TRANSFER_ENCODING_7_BIT = "7bit";
@@ -151,7 +158,6 @@ public class Constants {
     public static final String ASSIGNMENT = "=";
     public static final String DOUBLE_QUOTE = "\"";
     public static final String PARSER_ERROR = "failed to parse: ";
-    public static final String BUILTIN_PACKAGE = "ballerina.builtin";
     public static final String STRUCT_GENERIC_ERROR = "error";
     public static final String CONTENT_DISPOSITION_FILE_NAME = "filename";
     public static final String CONTENT_DISPOSITION_NAME = "name";

@@ -40,7 +40,7 @@ public class SQLConnectorInitTest {
     public void setup() {
         result = BCompileUtil.compile("test-src/connectors/sql/sql_connector_init_test.bal");
         SQLDBUtils.deleteFiles(new File(SQLDBUtils.DB_DIRECTORY), DB_NAME);
-        SQLDBUtils.initDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
+        SQLDBUtils.initHSQLDBDatabase(SQLDBUtils.DB_DIRECTORY, DB_NAME, "datafiles/sql/SQLTableCreate.sql");
     }
 
     @Test
@@ -102,6 +102,13 @@ public class SQLConnectorInitTest {
     @Test
     public void testConnectionPoolProperties3() {
         BValue[] returns = BRunUtil.invoke(result, "testConnectionPoolProperties3");
+        final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
+        Assert.assertEquals(returns[0].stringValue(), expected);
+    }
+
+    @Test
+    public void testPropertiesGetUsedOnlyIfDataSourceGiven() {
+        BValue[] returns = BRunUtil.invoke(result, "testPropertiesGetUsedOnlyIfDataSourceGiven");
         final String expected = "[{\"FIRSTNAME\":\"Peter\"}]";
         Assert.assertEquals(returns[0].stringValue(), expected);
     }

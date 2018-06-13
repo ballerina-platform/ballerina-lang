@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Tests for doc generation of bal files in the current package
+ * Tests for doc generation of bal files in the current package.
  */
 @Test(groups = "broken")
 public class BallerinaDocGenForCurrentPackageTest {
@@ -51,7 +51,7 @@ public class BallerinaDocGenForCurrentPackageTest {
             Assert.assertNotNull(docsMap);
             Assert.assertEquals(docsMap.size(), 1);
 
-            BLangPackage balPackage = docsMap.get(".").bLangPackage;
+            BLangPackage balPackage = docsMap.get("balFileInCurrentPackage.bal").bLangPackage;
             List<BLangFunction> functions = balPackage.getFunctions();
 
             Assert.assertEquals(functions.size(), 1);

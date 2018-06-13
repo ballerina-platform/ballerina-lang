@@ -31,6 +31,9 @@ import org.testng.AssertJUnit;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for time based output rate limiting.
+ */
 public class TimeOutputRateLimitTestCase {
     private static final Logger log = LoggerFactory.getLogger(TimeOutputRateLimitTestCase.class);
     private volatile int count;

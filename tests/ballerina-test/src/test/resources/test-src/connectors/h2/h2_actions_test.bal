@@ -147,7 +147,6 @@ function testBatchUpdate() returns (int[]) {
     } finally {
         testDB.stop();
     }
-    return [];
 }
 
 function testAddToMirrorTable() returns (Customer[]) {
@@ -191,7 +190,6 @@ function testAddToMirrorTable() returns (Customer[]) {
     } finally {
         testDB.stop();
     }
-    return [];
 }
 
 function testUpdateInMemory() returns (int, string) {
@@ -278,7 +276,6 @@ function selectFunction(h2:Client testDBClient) returns (int[]) {
     } finally {
         testDB.stop();
     }
-    return [];
 }
 
 function testH2MemDBUpdate() returns (int, string) {

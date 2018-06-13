@@ -22,18 +22,18 @@ import com.google.protobuf.Descriptors;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * {@code AbstractExecute} is the Execute action implementation of the gRPC Connector.
@@ -65,7 +65,6 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
         } else if (protoType.equalsIgnoreCase("BytesValue")) {
             return BTypes.typeBlob;
         } else {
-            // TODO: 2/22/18 enum
             return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
         }
     }
@@ -82,16 +81,16 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
     BStruct createStruct(Context context, String structName) {
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(PROTOCOL_STRUCT_PACKAGE_GRPC);
-        StructInfo structInfo = httpPackageInfo.getStructInfo(structName);
-        BStructType structType = structInfo.getType();
+        StructureTypeInfo structInfo = httpPackageInfo.getStructInfo(structName);
+        BStructureType structType = structInfo.getType();
         return new BStruct(structType);
     }
     
     void notifyErrorReply(Context context, String errorMessage) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         BStruct outboundError = new BStruct(errorStructInfo.getType());
         outboundError.setStringField(0, errorMessage);
-        context.setError(outboundError);
+        context.setReturnValues(outboundError);
     }
 }

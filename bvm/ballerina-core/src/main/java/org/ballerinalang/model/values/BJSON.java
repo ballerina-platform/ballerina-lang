@@ -18,9 +18,9 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BJSONType;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.BStructType.StructField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
@@ -130,6 +130,21 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
     }
 
     /**
+     * Create a {@link BJSON} from a {@link InputStream} with a given charset.
+     *
+     * @param in      InputStream of the json content
+     * @param schema  Schema of the json
+     * @param charset Charset value to be used in parsing
+     */
+    public BJSON(InputStream in, String schema, String charset) {
+        try {
+            this.value = JsonParser.parse(in, charset);
+        } catch (Throwable t) {
+            handleJsonException("failed to create json with the given charset: ", t);
+        }
+    }
+
+    /**
      * Return the string representation of this json object.
      */
     public String toString() {
@@ -192,14 +207,14 @@ public final class BJSON extends BallerinaMessageDataSource implements BRefType<
             return node.toString();
         }
 
-        BStructType constrainedType = (BStructType) ((BJSONType) this.type).getConstrainedType();
+        BStructureType constrainedType = (BStructureType) ((BJSONType) this.type).getConstrainedType();
         if (constrainedType == null) {
             return node.toString();
         }
 
         // If constrained JSON, print the only the fields in the constrained type.
         StringJoiner sj = new StringJoiner(",", "{", "}");
-        for (StructField field : constrainedType.getStructFields()) {
+        for (BField field : constrainedType.getFields()) {
             String key = field.fieldName;
             String stringValue = this.value().get(key).toString();
             sj.add("\"" + key + "\":" + stringValue);

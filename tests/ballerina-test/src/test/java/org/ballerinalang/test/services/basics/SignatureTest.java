@@ -32,68 +32,66 @@ import org.testng.annotations.Test;
  */
 public class SignatureTest {
 
-    private CompileResult compileResult;
-
     @Test()
     public void testSignatureWithSingleParam() {
-        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
-                "test-src/services/signature/no-request-param.bal").getPath());
+        CompileResult compileResult = BCompileUtil.compile(
+                getClass().getClassLoader().getResource("test-src/services/signature/no-request-param.bal").getPath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                            "resource signature parameter count should be >= 2");
+                "resource signature parameter count should be >= 2");
     }
 
     @Test()
     public void testSignatureWithoutConnectionParam() {
-        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
-                "test-src/services/signature/no-con-param.bal").getPath());
+        CompileResult compileResult = BCompileUtil.compile(
+                getClass().getClassLoader().getResource("test-src/services/signature/no-con-param.bal").getPath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                            "first parameter should be of type ballerina.http:Listener");
+                "first parameter should be of type ballerina/http:Listener");
     }
 
     @Test()
     public void testSignatureWithResponseParam() {
-        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
-                "test-src/services/signature/with-res-param.bal").getPath());
+        CompileResult compileResult = BCompileUtil.compile(
+                getClass().getClassLoader().getResource("test-src/services/signature/with-res-param.bal").getPath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                            "second parameter should be of type ballerina.http:Request");
+                "second parameter should be of type ballerina/http:Request");
     }
 
     @Test()
     public void testSignatureWithIntParamAsSecondParam() {
-        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
-                "test-src/services/signature/int-param.bal").getPath());
+        CompileResult compileResult = BCompileUtil.compile(
+                getClass().getClassLoader().getResource("test-src/services/signature/int-param.bal").getPath());
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                            "second parameter should be of type ballerina.http:Request");
+                "second parameter should be of type ballerina/http:Request");
     }
 
     @Test()
     public void testSignatureWithBooleanParamAsThirdParam() {
-        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
-                "test-src/services/signature/boolean-param.bal").getPath());
+        CompileResult compileResult = BCompileUtil.compile(
+                getClass().getClassLoader().getResource("test-src/services/signature/boolean-param.bal").getPath());
         Assert.assertEquals(compileResult.getErrorCount(), 0);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible entity-body type : int.*")
     public void testSignatureWithInvalidBodyIntParam() {
-        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
-                "test-src/services/signature/invalid-body-param.bal").getPath());
+        CompileResult compileResult = BCompileUtil.compile(getClass().getClassLoader()
+                .getResource("test-src/services/signature/invalid-body-param.bal").getPath());
         BServiceUtil.runService(compileResult);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*expected 'person' as param name, but found 'ballerina'.*")
     public void testSignatureWithMismatchedBodyParam() {
-        compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
-                "test-src/services/signature/mismatched-body-param.bal").getPath());
+        CompileResult compileResult = BCompileUtil.compile(getClass().getClassLoader()
+                .getResource("test-src/services/signature/mismatched-body-param.bal").getPath());
         BServiceUtil.runService(compileResult);
     }
 }

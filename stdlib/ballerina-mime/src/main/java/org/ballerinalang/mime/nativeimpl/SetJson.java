@@ -39,7 +39,7 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setJson",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
         args = {@Argument(name = "jsonContent", type = TypeKind.JSON), @Argument(name = "contentType",
                 type = TypeKind.STRING)},
         isPublic = true

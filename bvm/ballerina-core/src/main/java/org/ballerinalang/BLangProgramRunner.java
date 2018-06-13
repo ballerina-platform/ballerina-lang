@@ -57,10 +57,8 @@ public class BLangProgramRunner {
         Debugger debugger = new Debugger(programFile);
         initDebugger(programFile, debugger);
 
-        // Invoke package init function
-        BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
-
-        BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
+        BLangFunctions.invokePackageInitFunctions(programFile);
+        BLangFunctions.invokePackageStartFunctions(programFile);
     }
 
     public static void runSavedStates(ProgramFile programFile) {
@@ -92,7 +90,7 @@ public class BLangProgramRunner {
 
         FunctionInfo mainFuncInfo = getMainFunction(mainPkgInfo);
         try {
-            BLangFunctions.invokeEntrypointCallable(programFile, mainPkgInfo, mainFuncInfo, extractMainArgs(args));
+            BLangFunctions.invokeEntrypointCallable(programFile, mainFuncInfo, extractMainArgs(args));
         } finally {
             if (programFile.isServiceEPAvailable()) {
                 return;
@@ -100,7 +98,7 @@ public class BLangProgramRunner {
             if (debugger.isDebugEnabled()) {
                 debugger.notifyExit();
             }
-            BLangFunctions.invokeVMUtilFunction(mainPkgInfo.getStopFunctionInfo());
+            BLangFunctions.invokePackageStopFunctions(programFile);
         }
     }
 

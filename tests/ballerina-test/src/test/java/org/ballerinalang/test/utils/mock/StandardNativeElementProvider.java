@@ -23,6 +23,9 @@ import org.ballerinalang.natives.NativeElementRepository;
 import org.ballerinalang.natives.NativeElementRepository.NativeFunctionDef;
 import org.ballerinalang.spi.NativeElementProvider;
 
+/**
+ * Standard native element provider class.
+ */
 @JavaSPIService("org.ballerinalang.spi.NativeElementProvider")
 public class StandardNativeElementProvider implements NativeElementProvider {
 

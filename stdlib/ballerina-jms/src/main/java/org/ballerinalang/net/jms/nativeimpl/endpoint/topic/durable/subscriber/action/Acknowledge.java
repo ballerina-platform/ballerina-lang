@@ -34,12 +34,12 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgeme
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "acknowledge",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
+                   receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = "DurableTopicSubscriberActions",
-                                        structPackage = "ballerina.jms"),
+                                        structPackage = "ballerina/jms"),
                    args = {
                            @Argument(name = "message",
-                                     type = TypeKind.STRUCT,
+                                     type = TypeKind.OBJECT,
                                      structType = "Message")
                    },
                    isPublic = true

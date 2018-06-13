@@ -19,7 +19,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BFunctionPointer;
@@ -81,7 +81,7 @@ public class StreamingRuntimeManager {
             closureArgs.add(closure.value());
         }
 
-        BStructType structType = (BStructType) ((BArrayType) parameters[parameters.length - 1]).getElementType();
+        BStructureType structType = (BStructureType) ((BArrayType) parameters[parameters.length - 1]).getElementType();
         if (!(parameters[parameters.length - 1] instanceof BArrayType)) {
             throw new BallerinaException("incompatible function: inline function needs to be a function accepting"
                     + " an object array");
@@ -97,12 +97,12 @@ public class StreamingRuntimeManager {
                     AtomicInteger stringVarIndex = new AtomicInteger(-1);
                     BStruct output = new BStruct(structType);
                     for (Object field : event.getData()) {
-                        if (field instanceof Long) {
-                            output.setIntField(intVarIndex.incrementAndGet(), (Long) field);
-                        } else if (field instanceof Double) {
-                            output.setFloatField(floatVarIndex.incrementAndGet(), (Double) field);
+                        if (field instanceof Long || field instanceof Integer) {
+                            output.setIntField(intVarIndex.incrementAndGet(), ((Number) field).longValue());
+                        } else if (field instanceof Double || field instanceof Float) {
+                            output.setFloatField(floatVarIndex.incrementAndGet(), ((Number) field).doubleValue());
                         } else if (field instanceof Boolean) {
-                            output.setBooleanField(boolVarIndex.incrementAndGet(), (Integer) field);
+                            output.setBooleanField(boolVarIndex.incrementAndGet(), ((Boolean) field) ? 1 : 0);
                         } else if (field instanceof String) {
                             output.setStringField(stringVarIndex.incrementAndGet(), (String) field);
                         }

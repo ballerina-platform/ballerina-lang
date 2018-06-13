@@ -29,6 +29,11 @@ public class IOConstants {
     public static final String BYTE_CHANNEL_NAME = "channel";
 
     /**
+     * Represents the name of the data channel.
+     */
+    public static final String DATA_CHANNEL_NAME = "data_channel";
+
+    /**
      * The name of the character channel which will be represented through the native struct.
      */
     static final String CHARACTER_CHANNEL_NAME = "char_channel";
@@ -51,15 +56,10 @@ public class IOConstants {
     /**
      * Specifies the io package information.
      */
-    public static final String IO_PACKAGE = "ballerina.io";
+    public static final String IO_PACKAGE = "ballerina/io";
 
     /**
-     * Specifies the io package information.
+     * Represents the base number of protobuf.
      */
-    public static final String BALLERINA_BUILTIN = "ballerina.builtin";
-
-    /**
-     * Struct which represents io error.
-     */
-    public static final String IO_ERROR_STRUCT = "error";
+    public static final int PROTO_BUF_BASE = 7;
 }

@@ -33,33 +33,33 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.io#writeCharacters.
+ * Native function ballerina/io#writeCharacters.
  *
  * @since 0.94
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "write",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina/io"),
         args = {@Argument(name = "content", type = TypeKind.STRING),
                 @Argument(name = "startOffset", type = TypeKind.INT)},
         returnType = {@ReturnType(type = TypeKind.INT),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class WriteCharacters implements NativeCallableUnit {
     /**
-     * Index of the content provided in ballerina.io#writeCharacters.
+     * Index of the content provided in ballerina/io#writeCharacters.
      */
     private static final int CONTENT_INDEX = 0;
 
     /**
-     * Index of the character channel in ballerina.io#writeCharacters.
+     * Index of the character channel in ballerina/io#writeCharacters.
      */
     private static final int CHAR_CHANNEL_INDEX = 0;
 
     /**
-     * Index of the start offset in ballerina.io#writeCharacters.
+     * Index of the start offset in ballerina/io#writeCharacters.
      */
     private static final int START_OFFSET_INDEX = 0;
 

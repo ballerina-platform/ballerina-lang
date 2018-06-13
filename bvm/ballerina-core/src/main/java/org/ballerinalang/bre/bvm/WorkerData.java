@@ -18,11 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.program.WorkerDataIndex;
-
-import java.util.Arrays;
 
 /**
  * This represents the local variables that are available to a worker. 
@@ -54,7 +51,6 @@ public class WorkerData {
         }
         if (ci.maxStringRegs > 0) {
             this.stringRegs = new String[ci.maxStringRegs];
-            Arrays.fill(this.stringRegs, BLangConstants.STRING_EMPTY_VALUE);
         }
         if (ci.maxIntRegs > 0) {
             this.intRegs = new int[ci.maxIntRegs];
@@ -76,7 +72,6 @@ public class WorkerData {
         }
         if (wdi.stringRegCount > 0) {
             this.stringRegs = new String[wdi.stringRegCount];
-            Arrays.fill(this.stringRegs, BLangConstants.STRING_EMPTY_VALUE);
         }
         if (wdi.intRegCount > 0) {
             this.intRegs = new int[wdi.intRegCount];
@@ -101,7 +96,6 @@ public class WorkerData {
         count = wdi1.stringRegCount + wdi2.stringRegCount;
         if (count > 0) {
             this.stringRegs = new String[count];
-            Arrays.fill(this.stringRegs, BLangConstants.STRING_EMPTY_VALUE);
         }
         count = wdi1.intRegCount + wdi2.intRegCount;
         if (count > 0) {

@@ -1,17 +1,16 @@
-$diagram-background: #e7eaeb;
-$white:#fff;
+
 .editor-area {
   .rc-tabs-tab-active {
     .tab-title-wrapper {
       &.ballerina-design-view {
-        background-color: #e7eaeb;
-        color: #7D7D7D;
+        background-color: $white01;
+        color: $gray08;
         height: 40px;
         .close-tab {
-          color: #7D7D7D;
-          background-color: #e7eaeb;
+          color: $gray08;
+          background-color: $white01;
           &:hover {
-            color: #474747;
+            color: $gray05;
           }
         }
       }
@@ -63,8 +62,6 @@ $white:#fff;
 
 .client-line-header,
 .statement-title-rect,
-.struct-type-dropdown-wrapper,
-.struct-input-value-wrapper,
 .flowchart-background-empty-rect,
 .flowchart-separator-line,
 .panel-header {
@@ -124,7 +121,6 @@ $white:#fff;
   fill: $connector-color;
 }
 
-
 .ballerina-editor {
   .design-view-container {
     background-color: $diagram-background;
@@ -136,7 +132,7 @@ $white:#fff;
       .panel-header {
         .text-placeholder {
           shape-rendering: crispEdges;
-          stroke: #a5a5a5;
+          stroke: $white04;
           stroke-width: 1;
           stroke-dasharray: 4, 2;
         }
@@ -144,8 +140,8 @@ $white:#fff;
           fill: $white;
         }
         .editable-text-label {
-          fill: #333;
-          stroke: #2b2b2b;
+          fill: $text-color;
+          stroke: $gray04;
           font-weight: 300;
           stroke-width: 0;
         }
@@ -154,25 +150,16 @@ $white:#fff;
           fill: rgba(255, 255, 255, 0.1);
         }
         .control-icons {
-          fill: #636363;
+          fill: $gray07;
           font-size: 11px;
         }
 
         .title-icon{
-          fill: #636363;        
-        }
-
-        .parameter-text,
-        .parameter-bracket-text,
-        .return-types-opening-brack-text,
-        .parameter-bracket-text,
-        .return-types-closing-brack-text {
-          dominant-baseline: text-before-edge;
-          cursor: default;
+          fill: $gray07;        
         }
         .editor-area {
-          color: #333;
-          border: 1px solid #333;
+          color: $text-color;
+          border: 1px solid $gray05;
         }
       }
       .panel-body {
@@ -187,7 +174,7 @@ $white:#fff;
             font-weight: 300;
           }
           text, .title-text {
-            fill: #333;
+            fill: $text-color;
             font-weight: 300px;
           }
         }
@@ -195,36 +182,6 @@ $white:#fff;
           stroke: $primary-line-bgcolor;
           fill: $primary-line-bgcolor;
           stroke-dasharray: 5, 5;
-        }
-        .struct-content-operations-wrapper {
-          fill: #e4e4e4;
-          stroke: #e4e4e4;
-        }
-        .struct-type-dropdown-wrapper,
-        .struct-input-value-wrapper {
-          fill: #f9f9f9;
-          stroke: #ccc;
-          stroke-width: 1.2;
-        }
-        .struct-added-value-wrapper-light {
-          fill: #f5f5f5;
-          stroke: #ccc;
-          stroke-width: 0.5px;
-        }
-        .struct-delete-icon-wrapper-light {
-          fill: #f5f5f5;
-          stroke: #ccc;
-          stroke-dasharray: 0, 150, 50;
-        }
-        .struct-added-value-wrapper-dark {
-          fill: #dcdcdc;
-          stroke: #ccc;
-          stroke-width: 0.5px;
-        }
-        .struct-delete-icon-wrapper-dark {
-          fill: #dcdcdc;
-          stroke: #ccc;
-          stroke-dasharray: 0, 150, 50;
         }
 
         .match-expression{
@@ -241,24 +198,22 @@ $white:#fff;
           text-transform: lowercase;
         }
         .statement-title-text {
-          text-anchor: middle;
-          dominant-baseline: central;
-          fill: #777;
+          fill: $statementTextColor;
           font-style: italic;
         }
         .statement-title-text-left {
           text-anchor: start;
           dominant-baseline: central;
-          fill: #777;
+          fill: $statementTextColor;
           font-style: italic;
         }
         .compound-statement-rect {
           fill: none;
-          stroke: #777;
+          stroke: $statementTextColor;
           stroke-dasharray: 3, 3;
         }
         .flowchart-separator-line {
-          stroke: #f9f9f9;
+          stroke: $white03;
           stroke-width: 2;
         }
         .flowchart-true-text {
@@ -272,13 +227,13 @@ $white:#fff;
           font-weight: bolder;
         }
         .property-pane-action-button-wrapper {
-          fill: #e2e2e2;
+          fill: $white01;
           padding: 10px;
         }
         .property-pane-action-button-delete,
         .property-pane-action-button-jump {
           opacity: 0.6;
-          fill: #333;
+          fill: $text-color;
           &:hover {
             opacity: 1;
           }
@@ -290,20 +245,12 @@ $white:#fff;
     .panel {
       .panel-header,
       .svg-container {
-        fill: #fff;
+        fill: $white;
         stroke-width: 0;
-        .parameter-text,
-        .parameter-bracket-text,
-        .return-types-opening-brack-text,
-        .parameter-bracket-text {
-          fill: #444;
-          dominant-baseline: text-before-edge;
-          cursor: default;
-        }
       }
     }
     .title-text, .condition-text{
-      fill: #555;
+      fill: $gray06;
     }
   }
   .bottom-right-controls-container {
@@ -311,25 +258,25 @@ $white:#fff;
     bottom: 20px;
     right: 15px;
     z-index: 30;
-    color: #f9f9f9;
+    color: $white03;
     padding: 0;
     line-height: 30px;
     width: 120px;
     .bottom-label-icon-wrapper {
       height: 30px;
       width: 30px;
-      background-color: #3c3c3c;
+      background-color: $gray05;
       margin: 0 5px;
       float: left;
       padding: 2px 8px;
-      color: #fff;
+      color: $white;
       line-height: 26px; 
     }
     .bottom-label-icon-wrapper:hover {
       position: relative;
       cursor: pointer;
-      background-color: #1e1e1e;
-      color: #e7eaeb;
+      background-color: $gray02;
+      color: $white01;
       font-weight: 400;
     }
     .bottom-view-label {
@@ -343,19 +290,19 @@ $white:#fff;
     right: 25px;
   }
   .background-empty-rect {
-    fill: #FFF;
+    fill: $white;
   }
   .fork-bar {
-    fill: #a5a5a5;
+    fill: $white04;
   }
   .diagram-menu {
     position: fixed;
     background: $diagram-background;
     height: 45px;
     width: 100%;
-    -webkit-box-shadow: -6px 6px 6px -6px #a5a5a5;
-    -moz-box-shadow: -6px 6px 6px -6px #a5a5a5;
-    box-shadow: -6px 6px 6px -6px #a5a5a5;
+    -webkit-box-shadow: -6px 6px 6px -6px $white04;
+    -moz-box-shadow: -6px 6px 6px -6px $white04;
+    box-shadow: -6px 6px 6px -6px $white04;
     padding: 5px;
   }
 }
@@ -374,69 +321,13 @@ $white:#fff;
     width: 400px;
     margin: auto;
     top: 20px;
-    background-color: #988686;
+    background-color: $gray08;
     .list-heading {
       text-align: center;
       font-size: 16px;
-      color: #e7eaeb;
+      color: $white01;
     }
   }
-}
-
-.loading-overlay-enter {
-  opacity: 0.01;
-}
-
-.loading-overlay-enter.loading-overlay-enter-active {
-  opacity: 0.5;
-  transition: opacity 300ms ease-in;
-}
-
-.loading-overlay-leave {
-  opacity: 0.5;
-}
-
-.loading-overlay-leave.loading-overlay-leave-active {
-  opacity: 0.01;
-  transition: opacity 300ms ease-in;
-}
-
-.bal-file-editor-loading-container {
-  z-index: 1000;
-  text-align: center;
-  vertical-align: center;
-  position: absolute;
-  height: 100%;
-  width: 100%;
-  background-color: rgb(60, 60, 60);
-  color: white;
-  opacity: 0.5;
-}
-
-#parse-pending-loader {
-  left: calc(50% - 132px);
-  top: 50%;
-  position: absolute;
-  width: 234px;
-  height: 28px;
-  font-size: 30px;
-  margin: auto;
-  color: #fff;
-  font-weight: 500;
-}
-
-#parse-pending-loader:after {
-  overflow: hidden;
-  vertical-align: bottom;
-  -webkit-animation: ellipsis steps(4, end) 900ms infinite;
-  animation: ellipsis steps(4, end) 900ms infinite;
-  content: "\2026";
-  /* ascii code for the ellipsis character */
-  width: 0px;
-  display: block;
-  margin-top: -40px;
-  margin-left: 93px;
-  font-size: 50px;
 }
 
 @keyframes ellipsis {
@@ -452,7 +343,7 @@ $white:#fff;
 }
 
 .swagger-view-container {
-  background: #FFF;
+  background: $white;
 }
 
 swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
@@ -474,6 +365,10 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   display: none,
 }
 
+.swaggerEditor .SplitPane {
+  height: 100% !important;
+}
+
 .expand-operation {
   display: none;
 }
@@ -482,76 +377,67 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
   overflow: hidden;
 }
 
-.swaggerEditor .SplitPane {
-  height: 100% !important;
-}
-
-.swagger-service-selector-wrapper {
-  background-color: #131313;
-  height: 22px;
-  overflow: hidden;
-  line-height: 15px;
-  color: white;
-  padding-left: 20px;
-}
-
-.swagger-service-selector-span {
-  float: left;
-  margin-top: 6px;
-  padding-right: 8px;
-}
-
 .divider {
-  fill: #e7eaeb;
+  fill: $white01;
 }
 
 .hidden-code {
   font-size: 10px;
 }
 
-.title-bg {
-  
-}
-
 .panel-header-title text{
   font-weight: 500 !important;
-}
-
-.title-icon{
-  fill: #636363;
 }
 
 .top-menu {
   position: fixed;
   padding: 3px 26px 6px !important;
   height: 40px;
-}
-
-.top-bar {
-  height: 30px;
-  margin-top: 5px;
-  width: auto;
-  margin-right: 10px !important;
-  .row {
-    padding: 0 !important;
-    width: 160px;
-    margin-top: 20px;
-    height: 30px !important;
-    .column {
-      min-width: 150px;
-      width: 50%;
+  &.hidden{
+    display: none !important;
+  }
+  .top-bar {
+    height: 30px;
+    margin-top: 5px;
+    width: auto;
+    margin-right: 10px !important;
+    .row {
       padding: 0 !important;
-      background: $white;
-      box-shadow: none !important;
-      .top-bar-row {
-        background: $white !important;
-        margin-top: 0px !important;
-        border-bottom: 1px solid #ececec;
-        .ui.label {
-          background-color: $white !important;
+      height: 30px !important;
+      .column {
+        min-width: 130px;
+        width: 50%;
+        padding: 0 !important;
+        background: $white;
+        box-shadow: none !important;
+        .top-bar-row {
+          background: $white !important;
+          margin-top: 0px !important;
+          border-bottom: 1px solid #ececec;
+          width: 140px;
+          display: flex;
+          .ui.label {
+            background-color: $white !important;
+            flex-grow: 1 !important;
+          }
+          .top-bar-icon{
+            padding-right: 0px;
+          }
         }
       }
     }
+  }
+}
+
+.mobile-top-bar{
+  .column{
+    min-width: 60px !important;
+  }
+  .top-bar-row {
+    width: 30px !important;
+  }
+  .ui.label:nth-child(2){
+    display: none !important;
   }
 }
 
@@ -561,31 +447,27 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .ui.bottom.center.popup {
   transform-origin: center top;
-  background: #f8f8f8;
-  border: 1px solid #e7eaeb;
+  background: $menu-pop-content-bgcolor;
+  border: 1px solid $white01;
 }
 
 .ui.bottom.popup:before{
-  background: #f8f8f8 !important;
+  background: $menu-pop-content-bgcolor !important;
 }
 
 .ui.bottom.center.popup:before{
-  box-shadow:-1px -1px 0px 0px #e7eaeb !important;
-}
-
-.title-text {
-  fill: #333;
+  box-shadow:-1px -1px 0px 0px $white01 !important;
 }
 
 .menu-pop-content {
-  background: #f8f8f8 !important;
+  background: $menu-pop-content-bgcolor !important;
   width: 500px;
   .column {
     width: 250px !important;
     .ui.header {
       .content {
         font-weight: 400;
-        color: #3c3c3c;
+        color: $gray05;
       }
       .icon {
         font-size: 15px !important;
@@ -616,14 +498,14 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 a.item.menu-button.ui.button.primary {
   background: $brand-primary;
-  color: #fff;
+  color: $white;
   padding: 7px 10px !important;
-  margin-top: 3px;
-  margin-left: 5px;
-  font-weight: 300;
+  margin: 5px 10px 4px 4px !important;
+  font-weight: 400;
+  height: 28px;
   
   &:hover {
-    background: #27a9a3 !important;
+    background: $brand-primary-hover !important;
     font-weight: 300 !important;
   }
   

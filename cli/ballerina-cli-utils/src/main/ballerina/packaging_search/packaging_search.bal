@@ -2,27 +2,20 @@ import ballerina/io;
 import ballerina/mime;
 import ballerina/http;
 import ballerina/time;
+import ballerina/math;
 
 documentation {
     This function searches packages from ballerina central.
 
+    P{{definedEndpoint}} Endpoint defined with the proxy configurations
     P{{url}} Endpoint url to be invoked
     P{{querySearched}} Text searched for
+    P{{terminalWidth}} Width of the terminal
 }
-function search (string url, string querySearched) {
-    endpoint http:Client httpEndpoint {
-        url: url,
-        secureSocket:{
-            trustStore:{
-                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
-                password: "ballerina"
-            },
-            verifyHostname: false,
-            shareSession: true
-        }
-    };
+function search (http:Client definedEndpoint, string url, string querySearched, string terminalWidth) {
+    endpoint http:Client httpEndpoint = definedEndpoint;
     http:Request req = new;
-    var result = httpEndpoint -> get(untaint querySearched, request=req);
+    var result = httpEndpoint -> get(untaint querySearched, message=req);
     http:Response httpResponse = new;
     match result {
         http:Response response => httpResponse = response;
@@ -44,20 +37,47 @@ function search (string url, string querySearched) {
         json[] artifacts = check <json[]> jsonResponse.artifacts;
         if (artifacts == null || lengthof artifacts > 0) {
             int artifactsLength = lengthof artifacts;
-            
             printTitle("Ballerina Central");
-
-            printInCLI("|NAME", 18);
-            printInCLI("DESCRIPTION", 32);
-            printInCLI("DATE", 15);
-            printInCLI("VERSION", 8);
+            
+            int rightMargin = 3;
+            int width = (check <int> terminalWidth) - rightMargin;
+        
+            int dateColWidth = 15;
+            int versionColWidth = 8;
+            int authorsColWidth = 15;
+            float nameColFactor = 9;
+            float descColFactor = 16;
+            int additionalSpace = 7;
+            float remainingWidth = width - (dateColWidth + versionColWidth + additionalSpace);  
+            
+            int nameColWidth = math:round(remainingWidth * (nameColFactor / (nameColFactor + descColFactor)));
+            int descColWidth = math:round(remainingWidth * (descColFactor / (nameColFactor + descColFactor)));  
+            
+            printInCLI("|NAME", nameColWidth);
+            int minDescColWidth = 60;
+            if (descColWidth >= minDescColWidth) {
+                printInCLI("DESCRIPTION", descColWidth - authorsColWidth);
+                printInCLI("AUTHOR", authorsColWidth);
+            } else {
+                printInCLI("DESCRIPTION", descColWidth);
+            }
+            
+            printInCLI("DATE", dateColWidth);
+            printInCLI("VERSION", versionColWidth);
 
             io:println("");
 
-            printCharacter("|-", 18, "-");
-            printCharacter("-", 32, "-");
-            printCharacter("-", 15, "-");
-            printCharacter("-", 8, "-");
+            printCharacter("|-", nameColWidth, "-");
+            
+            if (descColWidth >= minDescColWidth) {
+                printCharacter("-", descColWidth - authorsColWidth, "-");
+                printCharacter("-", authorsColWidth, "-");
+            } else {
+                printCharacter("-", descColWidth, "-");
+            }
+
+            printCharacter("-", dateColWidth, "-");
+            printCharacter("-", versionColWidth, "-");
 
             io:println("");
 
@@ -66,16 +86,31 @@ function search (string url, string querySearched) {
                 json jsonElement = artifacts[i];
                 string orgName = jsonElement.orgName.toString();
                 string packageName = jsonElement.packageName.toString();
-                printInCLI("|"+ orgName + "/" + packageName, 18);
+                printInCLI("|"+ orgName + "/" + packageName, nameColWidth);
                 
                 string summary = jsonElement.summary.toString();
-                printInCLI(summary, 32);
+                                
+                if (descColWidth >= minDescColWidth) {
+                    printInCLI(summary, descColWidth - authorsColWidth);
+                    string authors = "";
+                    json authorsArr = jsonElement.authors;
+                    foreach authorIndex in 0 ..< lengthof authorsArr {
+                        if (authorIndex == lengthof authorsArr - 1) {
+                            authors = authors + authorsArr[authorIndex].toString();
+                        } else {
+                            authors = authors + " , " + authorsArr[authorIndex].toString();
+                        }
+                    }
+                    printInCLI(authors, authorsColWidth);
+                } else {
+                    printInCLI(summary, descColWidth);
+                }
 
                 json createTimeJson = <json> jsonElement.createdDate;
-                printInCLI(getDateCreated(createTimeJson), 15);
+                printInCLI(getDateCreated(createTimeJson), dateColWidth);
                 
                 string packageVersion = jsonElement.packageVersion.toString();
-                printInCLI(packageVersion, 8);
+                printInCLI(packageVersion, versionColWidth);
                 i = i + 1;
                 io:println("");
             }
@@ -87,6 +122,53 @@ function search (string url, string querySearched) {
 }
 
 documentation {
+    This function defines an endpoint with proxy configurations.
+
+    P{{url}} URL to be invoked
+    P{{hostname}} Host name of the proxy
+    P{{port}} Port of the proxy
+    P{{username}} Username of the proxy
+    P{{password}} Password of the proxy
+    R{{}} Endpoint defined
+}
+function defineEndpointWithProxy (string url, string hostname, string port, string username, string password) returns http:Client{
+    endpoint http:Client httpEndpoint {
+        url: url,
+        secureSocket:{
+            trustStore:{
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            },
+            verifyHostname: false,
+            shareSession: true
+        },
+        proxy : getProxyConfigurations(hostname, port, username, password)
+    };
+    return httpEndpoint;
+}
+
+documentation {
+    This function defines an endpoint without proxy configurations.
+
+    P{{url}} URL to be invoked
+    R{{}} Endpoint defined
+}
+function defineEndpointWithoutProxy (string url) returns http:Client{
+    endpoint http:Client httpEndpoint {
+        url: url,
+        secureSocket:{
+            trustStore:{
+                path: "${ballerina.home}/bre/security/ballerinaTruststore.p12",
+                password: "ballerina"
+            },
+            verifyHostname: false,
+            shareSession: true
+        }
+    };
+    return httpEndpoint;
+}
+
+documentation {
     This function prints package information.
 
     P{{element}} Text to be printed
@@ -95,7 +177,8 @@ documentation {
 function printInCLI(string element, int charactersAllowed) {
     int lengthOfElement = element.length();
     if (lengthOfElement > charactersAllowed || lengthOfElement == charactersAllowed) {
-        string trimmedElement = element.substring(0, charactersAllowed - 3) + "...";
+        int margin = 3;
+        string trimmedElement = element.substring(0, charactersAllowed - margin) + "...";
         io:print(trimmedElement + "| ");
     } else {
         printCharacter(element, charactersAllowed, " ");
@@ -150,5 +233,36 @@ documentation {
     This function invokes the method to search for packages.
 }
 function main (string... args) {
-    search(args[0], args[1]);
+    http:Client httpEndpoint;
+    string host = args[2];
+    string port = args[3];
+    if (host != "" && port != "") {
+        try {
+            httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[4], args[5]);
+        } catch (error err) {
+            io:println("failed to resolve host : " + host + " with port " + port);
+            return;
+        }
+    } else  if (host != "" || port != "") {
+        io:println("both host and port should be provided to enable proxy");     
+        return;   
+    } else {
+        httpEndpoint = defineEndpointWithoutProxy(args[0]);
+    }        
+    search(httpEndpoint, args[0], args[1], args[6]);
+}
+
+documentation {
+    This function sets the proxy configurations for the endpoint.
+
+    P{{hostName}} Host name of the proxy
+    P{{port}} Port of the proxy
+    P{{username}} Username of the proxy
+    P{{password}} Password of the proxy
+    R{{}} Proxy configurations for the endpoint
+}
+function getProxyConfigurations(string hostName, string port, string username, string password) returns http:ProxyConfig {
+    int portInt = check <int> port;
+    http:ProxyConfig proxy = { host : hostName, port : portInt , userName: username, password : password };
+    return proxy;
 }

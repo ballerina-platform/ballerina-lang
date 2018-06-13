@@ -35,7 +35,7 @@ import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "addDuration",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina/time"),
         args = {@Argument(name = "years", type = TypeKind.INT),
                 @Argument(name = "months", type = TypeKind.INT),
                 @Argument(name = "days", type = TypeKind.INT),
@@ -43,8 +43,8 @@ import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
                 @Argument(name = "minutes", type = TypeKind.INT),
                 @Argument(name = "seconds", type = TypeKind.INT),
                 @Argument(name = "milliseconds", type = TypeKind.INT)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.time")},
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "Time",
+                                  structPackage = "ballerina/time")},
         isPublic = true
 )
 public class AddDuration extends AbstractTimeFunction {

@@ -23,7 +23,8 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.ColumnDefinition;
 import org.ballerinalang.model.types.BArrayType;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -37,8 +38,9 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.transactions.BallerinaTransactionContext;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
@@ -89,20 +91,12 @@ import javax.transaction.xa.XAResource;
 public class SQLDatasourceUtils {
 
     private static final String ORACLE_DATABASE_NAME = "oracle";
+    private static final String POSTGRES_DATABASE_NAME = "postgresql";
+    public static final String POSTGRES_DOUBLE = "float8";
     private static final int ORACLE_CURSOR_TYPE = -10;
 
     public static void setIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
-        Integer val = null;
-        if (value != null) {
-            String strValue = value.stringValue();
-            if (!strValue.isEmpty()) {
-                try {
-                    val = Integer.parseInt(strValue);
-                } catch (NumberFormatException e) {
-                    throw new BallerinaException("invalid value for integer: " + strValue);
-                }
-            }
-        }
+        Integer val = obtainIntegerValue(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (val == null) {
@@ -115,6 +109,32 @@ public class SQLDatasourceUtils {
                     stmt.setNull(index + 1, sqlType);
                 } else {
                     stmt.setInt(index + 1, val);
+                }
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else if (Constants.QueryParamDirection.OUT == direction) {
+                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+            } else {
+                throw new BallerinaException("invalid direction for the parameter with index: " + index);
+            }
+        } catch (SQLException e) {
+            throw new BallerinaException("error in set integer to statement: " + e.getMessage(), e);
+        }
+    }
+
+    public static void setSmallIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
+        Integer val = obtainIntegerValue(value);
+        try {
+            if (Constants.QueryParamDirection.IN == direction) {
+                if (val == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setShort(index + 1, val.shortValue());
+                }
+            } else if (Constants.QueryParamDirection.INOUT == direction) {
+                if (val == null) {
+                    stmt.setNull(index + 1, sqlType);
+                } else {
+                    stmt.setShort(index + 1, val.shortValue());
                 }
                 ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
             } else if (Constants.QueryParamDirection.OUT == direction) {
@@ -392,8 +412,8 @@ public class SQLDatasourceUtils {
     public static void setDateValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Date val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
-                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+                    .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
                 val = new Date(((BStruct) value).getIntField(0));
             } else if (value instanceof BInteger) {
                 val = new Date(((BInteger) value).intValue());
@@ -431,8 +451,8 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Timestamp val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
-                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+                    .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
                 val = new Timestamp(((BStruct) value).getIntField(0));
             } else if (value instanceof BInteger) {
                 val = new Timestamp(((BInteger) value).intValue());
@@ -470,8 +490,8 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Time val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value
-                    .getType().getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
+            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+                    .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
                 val = new Time(((BStruct) value).getIntField(0));
             } else if (value instanceof BInteger) {
                 val = new Time(((BInteger) value).intValue());
@@ -504,14 +524,7 @@ public class SQLDatasourceUtils {
     }
 
     public static void setBinaryValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
-        byte[] val = null;
-        if (value != null) {
-            if (value instanceof BBlob) {
-                val = ((BBlob) value).blobValue();
-            } else if (value instanceof BString) {
-                val = getBytesFromBase64String(value.stringValue());
-            }
-        }
+        byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (val == null) {
@@ -537,14 +550,7 @@ public class SQLDatasourceUtils {
     }
 
     public static void setBlobValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
-        byte[] val = null;
-        if (value != null) {
-            if (value instanceof BBlob) {
-                val = ((BBlob) value).blobValue();
-            } else if (value instanceof BString) {
-                val = getBytesFromBase64String(value.stringValue());
-            }
-        }
+        byte[] val = getByteArray(value);
         try {
             if (Constants.QueryParamDirection.IN == direction) {
                 if (val == null) {
@@ -567,6 +573,30 @@ public class SQLDatasourceUtils {
         } catch (SQLException e) {
             throw new BallerinaException("error in set binary value to statement: " + e.getMessage(), e);
         }
+    }
+
+    private static Integer obtainIntegerValue(BValue value) {
+        if (value != null) {
+            String strValue = value.stringValue();
+            if (!strValue.isEmpty()) {
+                try {
+                    return Integer.parseInt(strValue);
+                } catch (NumberFormatException e) {
+                    throw new BallerinaException("invalid value for integer: " + strValue);
+                }
+            }
+        }
+        return null;
+    }
+
+    private static byte[] getByteArray(BValue value) {
+        byte[] val = null;
+        if (value instanceof BBlob) {
+            val = ((BBlob) value).blobValue();
+        } else if (value instanceof BString) {
+            val = getBytesFromBase64String(value.stringValue());
+        }
+        return val;
     }
 
     public static void setClobValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
@@ -627,8 +657,7 @@ public class SQLDatasourceUtils {
         }
     }
 
-    public static void setRefCursorValue(Connection connection, PreparedStatement stmt, int index, int direction,
-            String databaseProductName) {
+    public static void setRefCursorValue(PreparedStatement stmt, int index, int direction, String databaseProductName) {
         try {
             if (Constants.QueryParamDirection.OUT == direction) {
                 if (ORACLE_DATABASE_NAME.equals(databaseProductName)) {
@@ -649,28 +678,18 @@ public class SQLDatasourceUtils {
     }
 
     public static void setArrayValue(Connection conn, PreparedStatement stmt, BValue value, int index, int direction,
-            int sqlType) {
+            int sqlType, String databaseProductName) {
         Object[] arrayData = getArrayData(value);
         Object[] arrayValue = (Object[]) arrayData[0];
         String structuredSQLType = (String) arrayData[1];
         try {
             if (Constants.QueryParamDirection.IN == direction) {
-                if (arrayValue == null) {
-                    stmt.setNull(index + 1, sqlType);
-                } else {
-                    Array array = conn.createArrayOf(structuredSQLType, arrayValue);
-                    stmt.setArray(index + 1, array);
-                }
+                setArrayValue(arrayValue, conn, stmt, index, sqlType, databaseProductName, structuredSQLType);
             } else if (Constants.QueryParamDirection.INOUT == direction) {
-                if (arrayValue == null) {
-                    stmt.setNull(index + 1, sqlType);
-                } else {
-                    Array array = conn.createArrayOf(structuredSQLType, arrayValue);
-                    stmt.setArray(index + 1, array);
-                }
-                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
+                setArrayValue(arrayValue, conn, stmt, index, sqlType, databaseProductName, structuredSQLType);
+                registerArrayOutParameter(stmt, index, sqlType, structuredSQLType, databaseProductName);
             } else if (Constants.QueryParamDirection.OUT == direction) {
-                ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
+                registerArrayOutParameter(stmt, index, sqlType, structuredSQLType, databaseProductName);
             } else {
                 throw new BallerinaException("invalid direction for the parameter with index: " + index);
             }
@@ -767,11 +786,12 @@ public class SQLDatasourceUtils {
     }
 
     private static Object[] getStructData(BValue value, Connection conn) throws SQLException {
-        if (value == null || value.getType().getTag() != TypeTags.STRUCT_TAG) {
+        if (value == null || (value.getType().getTag() != TypeTags.OBJECT_TYPE_TAG
+                && value.getType().getTag() != TypeTags.RECORD_TYPE_TAG)) {
             return new Object[] { null, null };
         }
         String structuredSQLType = value.getType().getName().toUpperCase(Locale.getDefault());
-        BStructType.StructField[] structFields = ((BStructType) value.getType()).getStructFields();
+        BField[] structFields = ((BStructureType) value.getType()).getFields();
         int fieldCount = structFields.length;
         Object[] structData = new Object[fieldCount];
         int intFieldIndex = 0;
@@ -781,7 +801,7 @@ public class SQLDatasourceUtils {
         int blobFieldIndex = 0;
         int refFieldIndex = 0;
         for (int i = 0; i < fieldCount; ++i) {
-            BStructType.StructField field = structFields[i];
+            BField field = structFields[i];
             int typeTag = field.getFieldType().getTag();
             switch (typeTag) {
             case TypeTags.INT_TAG:
@@ -804,7 +824,8 @@ public class SQLDatasourceUtils {
                 structData[i] = ((BStruct) value).getBlobField(blobFieldIndex);
                 ++blobFieldIndex;
                 break;
-            case TypeTags.STRUCT_TAG:
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 Object structValue = ((BStruct) value).getRefField(refFieldIndex);
                 if (structValue instanceof BStruct) {
                     Object[] internalStructData = getStructData((BStruct) structValue, conn);
@@ -823,17 +844,67 @@ public class SQLDatasourceUtils {
     }
 
     /**
-     * This will close Database connection, statement and the resultset.
+     * This will close the database connection.
+     *
+     * @param conn SQL connection
+     * @param isInTransaction Whether a transaction is in progress or not
+     */
+    public static void cleanupResources(Connection conn, boolean isInTransaction) {
+        cleanupResources(null, conn, isInTransaction);
+    }
+
+    /**
+     * This will close database connection, statement and result sets.
+     *
+     * @param resultSets   SQL result sets
+     * @param stmt SQL statement
+     * @param conn SQL connection
+     * @param isInTransaction Whether a transaction is in progress or not
+     */
+    public static void cleanupResources(List<ResultSet> resultSets, Statement stmt, Connection conn,
+            boolean isInTransaction) {
+        try {
+            if (resultSets != null) {
+                for (ResultSet rs : resultSets) {
+                    if (rs != null && !rs.isClosed()) {
+                        rs.close();
+                    }
+                }
+            }
+            cleanupResources(stmt, conn, isInTransaction);
+        } catch (SQLException e) {
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * This will close database connection, statement and the resultset.
      *
      * @param rs   SQL resultset
      * @param stmt SQL statement
      * @param conn SQL connection
+     * @param isInTransaction Whether a transaction is in progress or not
      */
-    public static void cleanupConnection(ResultSet rs, Statement stmt, Connection conn, boolean isInTransaction) {
+    public static void cleanupResources(ResultSet rs, Statement stmt, Connection conn, boolean isInTransaction) {
         try {
             if (rs != null && !rs.isClosed()) {
                 rs.close();
             }
+            cleanupResources(stmt, conn, isInTransaction);
+        } catch (SQLException e) {
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * This will close database connection and statement.
+     *
+     * @param stmt SQL statement
+     * @param conn SQL connection
+     * @param isInTransaction Whether a transaction is in progress or not
+     */
+    public static void cleanupResources(Statement stmt, Connection conn, boolean isInTransaction) {
+        try {
             if (stmt != null && !stmt.isClosed()) {
                 stmt.close();
             }
@@ -841,7 +912,7 @@ public class SQLDatasourceUtils {
                 conn.close();
             }
         } catch (SQLException e) {
-            throw new BallerinaException("error cleaning sql resources: " + e.getMessage(), e);
+            throw new BallerinaException("error in cleaning sql resources: " + e.getMessage(), e);
         }
     }
 
@@ -851,7 +922,7 @@ public class SQLDatasourceUtils {
      * @param sqlType SQL type in column
      * @return TypeKind that represent respective ballerina type.
      */
-    public static TypeKind getColumnType(int sqlType) {
+    private static TypeKind getColumnType(int sqlType) {
         switch (sqlType) {
         case Types.ARRAY:
             return TypeKind.ARRAY;
@@ -890,7 +961,7 @@ public class SQLDatasourceUtils {
         case Types.LONGVARBINARY:
             return TypeKind.BLOB;
         case Types.STRUCT:
-            return TypeKind.STRUCT;
+            return TypeKind.RECORD;
         default:
             return TypeKind.NONE;
         }
@@ -900,7 +971,7 @@ public class SQLDatasourceUtils {
         int tag = value.getTag();
         switch (tag) {
         case TypeTags.INT_TAG:
-            return Constants.SQLDataTypes.INTEGER;
+            return Constants.SQLDataTypes.BIGINT;
         case TypeTags.STRING_TAG:
             return Constants.SQLDataTypes.VARCHAR;
         case TypeTags.FLOAT_TAG:
@@ -910,14 +981,15 @@ public class SQLDatasourceUtils {
         case TypeTags.BLOB_TAG:
             return Constants.SQLDataTypes.BLOB;
         default:
-            throw new BallerinaException("unsupported data type for struct parameter: " + value.getName());
+            throw new BallerinaException(
+                    "unsupported data type as direct value for sql operation, use sql:Parameter: " + value.getName());
         }
     }
 
     /**
      * This will retrieve the string value for the given clob.
      *
-     * @param data   clob data
+     * @param data clob data
      */
     public static String getString(Clob data) {
         if (data == null) {
@@ -972,43 +1044,24 @@ public class SQLDatasourceUtils {
         }
     }
 
-    /**
-     * This will retrieve the string value for the given date value.
-     */
-    public static String getString(Date value) {
+    public static String getString(java.util.Date value) {
         if (value == null) {
             return null;
         }
         Calendar calendar = Calendar.getInstance();
         calendar.clear();
-        calendar.setTime(value);
-        return getString(calendar, "date");
-    }
-
-    /**
-     * This will retrieve the string value for the given timestamp value.
-     */
-    public static String getString(Timestamp value) {
-        if (value == null) {
-            return null;
+        String type;
+        if (value instanceof Time) {
+            calendar.setTimeInMillis(value.getTime());
+            type = "time";
+        } else if (value instanceof Timestamp) {
+            calendar.setTimeInMillis(value.getTime());
+            type = "datetime";
+        } else {
+            calendar.setTime(value);
+            type = "time";
         }
-        Calendar calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.setTimeInMillis(value.getTime());
-        return getString(calendar, "datetime");
-    }
-
-    /**
-     * This will retrieve the string value for the given time data.
-     */
-    public static String getString(Time value) {
-        if (value == null) {
-            return null;
-        }
-        Calendar calendar = Calendar.getInstance();
-        calendar.clear();
-        calendar.setTimeInMillis(value.getTime());
-        return getString(calendar, "time");
+        return getString(calendar, type);
     }
 
     /**
@@ -1044,8 +1097,8 @@ public class SQLDatasourceUtils {
     }
 
     public static BStruct getSQLConnectorError(Context context, Throwable throwable) {
-        PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.BUILTIN_PACKAGE_PATH);
-        StructInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
+        PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
+        StructureTypeInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
         BStruct sqlConnectorError = new BStruct(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
             sqlConnectorError.setStringField(0, Constants.SQL_EXCEPTION_OCCURED);
@@ -1071,13 +1124,12 @@ public class SQLDatasourceUtils {
         if (localTransactionInfo.isRetryPossible(context.getParentWorkerExecutionContext(), transactionBlockId)) {
             return;
         }
-
         TransactionUtils.notifyTransactionAbort(context.getParentWorkerExecutionContext(), globalTransactionId,
                 transactionBlockId);
     }
 
-    public static BStruct createServerBasedDBClient(Context context, String database,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String dbOptions) {
+    public static BStruct createServerBasedDBClient(Context context, String dbType,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
@@ -1085,14 +1137,8 @@ public class SQLDatasourceUtils {
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-
-        SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, "", database, host, port, username, password, name, dbOptions, null);
-
-        BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
-        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
-        return sqlClient;
+        return createSQLDataSource(context, options, "", dbType, host, port, username, password, name, urlOptions,
+                null);
     }
 
     public static BStruct createSQLDBClient(Context context,
@@ -1103,44 +1149,66 @@ public class SQLDatasourceUtils {
         Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
-
-        SQLDatasource datasource = new SQLDatasource();
         String dbType = url.split(":")[1].toUpperCase(Locale.getDefault());
-        datasource.init(options, url, dbType, "", 0, username, password, "", "", dbOptions);
-
-        BStruct sqlClient = BLangConnectorSPIUtil
-                .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
-        sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
-        return sqlClient;
+        return createSQLDataSource(context, options, url, dbType, "", 0, username, password, "", "", dbOptions);
     }
 
-    public static BStruct createMultiModeDBClient(Context context, String database,
-            org.ballerinalang.connector.api.Struct clientEndpointConfig, String dbOptions) {
-        String dbType = Constants.SQL_MEMORY_DB_POSTFIX;
+    public static BStruct createMultiModeDBClient(Context context, String dbType,
+            org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
+        String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         String path = clientEndpointConfig.getStringField(Constants.EndpointConfig.PATH);
         if (!host.isEmpty()) {
-            dbType = Constants.SQL_SERVER_DB_POSTFIX;
+            dbPostfix = Constants.SQL_SERVER_DB_POSTFIX;
             hostOrPath = host;
         } else if (!path.isEmpty()) {
-            dbType = Constants.SQL_FILE_DB_POSTFIX;
+            dbPostfix = Constants.SQL_FILE_DB_POSTFIX;
             hostOrPath = path;
         }
         if (!host.isEmpty() && !path.isEmpty()) {
-            throw new BallerinaException("error in creating db connector: Provide either host or path");
+            throw new BallerinaException("error in creating db client endpoint: Provide either host or path");
         }
-        database = database + dbType;
+        dbType = dbType + dbPostfix;
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
         String name = clientEndpointConfig.getStringField(Constants.EndpointConfig.NAME);
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
         String password = clientEndpointConfig.getStringField(Constants.EndpointConfig.PASSWORD);
         org.ballerinalang.connector.api.Struct options = clientEndpointConfig
                 .getStructField(Constants.EndpointConfig.POOL_OPTIONS);
+        return createSQLDataSource(context, options, "", dbType, hostOrPath, port, username, password, name, urlOptions,
+                null);
+    }
 
+    private static void registerArrayOutParameter(PreparedStatement stmt, int index, int sqlType,
+            String structuredSQLType, String databaseProductName) throws SQLException {
+        if (databaseProductName.equals(POSTGRES_DATABASE_NAME)) {
+            ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType);
+        } else {
+            ((CallableStatement) stmt).registerOutParameter(index + 1, sqlType, structuredSQLType);
+        }
+    }
+
+    private static void setArrayValue(Object[] arrayValue, Connection conn, PreparedStatement stmt, int index,
+            int sqlType, String databaseProductName, String structuredSQLType) throws SQLException {
+        if (arrayValue == null) {
+            stmt.setNull(index + 1, sqlType);
+        } else {
+            // In POSTGRESQL, need to pass "float8" to indicate DOUBLE value.
+            if (Constants.SQLDataTypes.DOUBLE.equals(structuredSQLType) && POSTGRES_DATABASE_NAME
+                    .equals(databaseProductName)) {
+                structuredSQLType = POSTGRES_DOUBLE;
+            }
+            Array array = conn.createArrayOf(structuredSQLType, arrayValue);
+            stmt.setArray(index + 1, array);
+        }
+    }
+
+    private static BStruct createSQLDataSource(Context context, org.ballerinalang.connector.api.Struct options,
+            String url, String dbType, String hostOrPath, int port, String username, String password, String dbName,
+            String dbOptions, Map dbOptionsMap) {
         SQLDatasource datasource = new SQLDatasource();
-        datasource.init(options, "", database, hostOrPath, port, username, password, name, dbOptions, null);
-
+        datasource.init(options, url, dbType, hostOrPath, port, username, password, dbName, dbOptions, dbOptionsMap);
         BStruct sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
         sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
@@ -1428,7 +1496,7 @@ public class SQLDatasourceUtils {
         } else {
             timeZoneOffSet = getTimeZoneOffset(fractionStr);
         }
-        return new int[] {miliSecond, timeZoneOffSet};
+        return new int[] { miliSecond, timeZoneOffSet };
     }
 
     private static int getTimeZoneOffset(String timezoneStr) {
@@ -1451,8 +1519,7 @@ public class SQLDatasourceUtils {
         return timeZoneOffSet;
     }
 
-    public static List<ColumnDefinition> getColumnDefinitions(ResultSet rs)
-            throws SQLException {
+    public static List<ColumnDefinition> getColumnDefinitions(ResultSet rs) throws SQLException {
         List<ColumnDefinition> columnDefs = new ArrayList<>();
         Set<String> columnNames = new HashSet<>();
         ResultSetMetaData rsMetaData = rs.getMetaData();

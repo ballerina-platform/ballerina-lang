@@ -31,21 +31,21 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.io#closeCharacterChannel.
+ * Native function ballerina/io#closeCharacterChannel.
  *
  * @since 0.95
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "CharacterChannel", structPackage = "ballerina.io"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina/io"),
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class CloseCharacterChannel implements NativeCallableUnit {
 
     /**
-     * The index of the CharacterChannel in ballerina.io#closeCharacterChannel().
+     * The index of the CharacterChannel in ballerina/io#closeCharacterChannel().
      */
     private static final int CHARACTER_CHANNEL_INDEX = 0;
 

@@ -34,7 +34,7 @@ import org.ballerinalang.net.websub.hub.Hub;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "websub",
         functionName = "addSubscription",
-        args = {@Argument(name = "subscriptionDetails", type = TypeKind.STRUCT)},
+        args = {@Argument(name = "subscriptionDetails", type = TypeKind.RECORD)},
         isPublic = true
 )
 public class AddSubscription extends BlockingNativeCallableUnit {

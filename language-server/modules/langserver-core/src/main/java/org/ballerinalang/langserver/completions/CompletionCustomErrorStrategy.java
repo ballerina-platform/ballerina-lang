@@ -177,6 +177,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             if (cursorAfterEndpointKeyword) {
                 while (true) {
                     Token nextDefaultToken = CommonUtil.getNextDefaultToken(tokenStream, currentTokenIndex);
+                    if (nextDefaultToken == null) {
+                        return false;
+                    }
                     tokenString = nextDefaultToken.getText();
                     
                     if (tokenString.equals(UtilSymbolKeys.CLOSE_BRACE_KEY)) {

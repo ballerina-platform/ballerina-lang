@@ -34,9 +34,9 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgeme
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "acknowledge",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
-                                        structType = "TopicSubscriberActions", structPackage = "ballerina.jms"),
-                   args = { @Argument(name = "message", type = TypeKind.STRUCT, structType = "Message") },
+                   receiver = @Receiver(type = TypeKind.OBJECT,
+                                        structType = "TopicSubscriberActions", structPackage = "ballerina/jms"),
+                   args = { @Argument(name = "message", type = TypeKind.OBJECT, structType = "Message") },
                    isPublic = true
 )
 public class Acknowledge extends AbstractBlockinAction {

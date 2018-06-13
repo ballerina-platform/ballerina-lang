@@ -34,11 +34,11 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendActionHandler;
 @BallerinaFunction(orgName = "ballerina",
                    packageName = "jms",
                    functionName = "send",
-                   receiver = @Receiver(type = TypeKind.STRUCT,
+                   receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = "QueueSenderActions",
-                                        structPackage = "ballerina.jms"),
+                                        structPackage = "ballerina/jms"),
                    args = {
-                           @Argument(name = "message", type = TypeKind.STRUCT)
+                           @Argument(name = "message", type = TypeKind.OBJECT)
                    },
                    isPublic = true
 )

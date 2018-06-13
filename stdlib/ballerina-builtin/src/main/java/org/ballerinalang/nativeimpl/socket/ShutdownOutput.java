@@ -40,8 +40,8 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "shutdownOutput",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io"),
-        returnType = { @ReturnType(type = TypeKind.STRUCT, structType = "error")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
+        returnType = { @ReturnType(type = TypeKind.RECORD, structType = "error")},
         isPublic = true
 )
 public class ShutdownOutput extends BlockingNativeCallableUnit {

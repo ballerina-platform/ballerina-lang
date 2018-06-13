@@ -21,7 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasource;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
@@ -29,6 +29,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * {@code Select} is the Select action implementation of the SQL Connector.
@@ -38,15 +40,17 @@ import org.ballerinalang.natives.annotations.ReturnType;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "sql",
         functionName = "select",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.CALLER_ACTIONS),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = Constants.CALLER_ACTIONS),
         args = {
                 @Argument(name = "sqlQuery", type = TypeKind.STRING),
-                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.STRUCT,
-                        structType = "Parameter")
+                @Argument(name = "recordType", type = TypeKind.TYPEDESC),
+                @Argument(name = "loadToMemory", type = TypeKind.BOOLEAN),
+                @Argument(name = "parameters", type = TypeKind.ARRAY, elementType = TypeKind.UNION,
+                          structType = "Param")
         },
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.STRUCT, structType = "error", structPackage = "ballerina.builtin")
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
 public class Select extends AbstractSQLAction {
@@ -57,7 +61,7 @@ public class Select extends AbstractSQLAction {
             BStruct bConnector = (BStruct) context.getRefArgument(0);
 
             String query = context.getStringArgument(0);
-            BStructType structType = getStructType(context, 1);
+            BStructureType structType = getStructType(context, 1);
             boolean loadSQLTableToMemory = context.getBooleanArgument(0);
 
             BRefValueArray parameters = (BRefValueArray) context.getNullableRefArgument(2);

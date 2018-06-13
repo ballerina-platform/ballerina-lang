@@ -37,12 +37,12 @@ import org.wso2.transport.http.netty.message.ResponseHandle;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "hasPromise",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = HttpConstants.CALLER_ACTIONS,
-                structPackage = "ballerina.http"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = HttpConstants.CALLER_ACTIONS,
+                structPackage = "ballerina/http"),
         args = {
-                @Argument(name = "client", type = TypeKind.STRUCT),
-                @Argument(name = "httpFuture", type = TypeKind.STRUCT, structType = "HttpFuture",
-                        structPackage = "ballerina.http")
+                @Argument(name = "client", type = TypeKind.OBJECT),
+                @Argument(name = "httpFuture", type = TypeKind.OBJECT, structType = "HttpFuture",
+                        structPackage = "ballerina/http")
         },
         returnType = {
                 @ReturnType(type = TypeKind.BOOLEAN)

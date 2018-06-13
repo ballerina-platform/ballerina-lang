@@ -116,12 +116,6 @@
       "insertText":"TableConfig"
     },
     {
-      "label":"hello",
-      "detail":"BType",
-      "sortText":"170",
-      "insertText":"hello"
-    },
-    {
       "label":"queryTableWithoutJoinClause(string sqlQuery, table fromTable, any parameters, any retType)(table)",
       "kind":"Function",
       "detail":"Function",
@@ -176,17 +170,9 @@
     {
       "label":"res",
       "kind":"Unit",
-      "detail":"ballerina.http:Response",
+      "detail":"ballerina/http:Response",
       "sortText":"110",
       "insertText":"res"
-    },
-    {
-      "label":"sayHello(http:Listener caller, http:Request request)",
-      "kind":"Function",
-      "detail":"Function",
-      "sortText":"120",
-      "insertText":"sayHello(${1:caller}, ${2:request})",
-      "insertTextFormat":"Snippet"
     },
     {
       "label":"blob",
@@ -209,7 +195,7 @@
     {
       "label":"request",
       "kind":"Unit",
-      "detail":"ballerina.http:Request",
+      "detail":"ballerina/http:Request",
       "sortText":"110",
       "insertText":"request"
     },
@@ -252,7 +238,7 @@
     {
       "label":"caller",
       "kind":"Unit",
-      "detail":"ballerina.http:Listener",
+      "detail":"ballerina/http:Listener",
       "sortText":"110",
       "insertText":"caller"
     },

@@ -69,7 +69,7 @@ type InitiatorClient object {
         json reqPayload = check <json>regReq;
         http:Request req = new;
         req.setJsonPayload(reqPayload);
-        var result = httpClient->post("", request = req);
+        var result = httpClient->post("", req);
         http:Response res = check result;
         int statusCode = res.statusCode;
         if (statusCode != http:OK_200) {

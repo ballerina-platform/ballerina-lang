@@ -533,10 +533,9 @@ public class ObjectTest {
     @Test (description = "Negative test to test referring undefined field in constructor")
     public void testReferUndefinedFieldBal() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_access_undefined_field.bal");
-        Assert.assertEquals(result.getErrorCount(), 3);
+        Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "undefined field 'agea' in object 'Person'", 6, 10);
-        BAssertUtil.validateError(result, 1, "undefined symbol '><'", 6, 10);
-        BAssertUtil.validateError(result, 2, "undefined symbol 'abc'", 7, 9);
+        BAssertUtil.validateError(result, 1, "undefined symbol 'abc'", 7, 9);
     }
 
     @Test (description = "Negative test to test nillable initialization")
@@ -553,6 +552,16 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 23, 22);
         BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 14);
         BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
+    }
+
+    @Test
+    public void testAttachFunctionsWithIdenticalRestParams() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/object/attach_func_with_identical_rest_params.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAttachFunctionsWithIdenticalRestParams");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "hello foo");
     }
 
 }

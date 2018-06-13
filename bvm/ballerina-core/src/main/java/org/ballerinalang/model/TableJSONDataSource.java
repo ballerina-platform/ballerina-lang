@@ -17,7 +17,8 @@
  */
 package org.ballerinalang.model;
 
-import org.ballerinalang.model.types.BStructType;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -61,7 +62,7 @@ public class TableJSONDataSource implements JSONDataSource {
     public void serialize(JsonGenerator gen) throws IOException {
         gen.writeStartArray();
         while (this.df.hasNext(this.isInTransaction)) {
-            this.df.next();
+            this.df.moveToNext();
             this.objGen.transform(this.df).serialize(gen);
         }
         gen.writeEndArray();
@@ -76,10 +77,10 @@ public class TableJSONDataSource implements JSONDataSource {
         @Override
         public JsonNode transform(BTable df) throws IOException {
             JsonNode objNode = new JsonNode(Type.OBJECT);
-            BStructType structType = df.getStructType();
-            BStructType.StructField[] structFields = null;
+            BStructureType structType = df.getStructType();
+            BField[] structFields = null;
             if (structType != null) {
-                structFields = structType.getStructFields();
+                structFields = structType.getFields();
             }
             int index = 0;
             for (ColumnDefinition col : df.getColumnDefs()) {
@@ -99,7 +100,7 @@ public class TableJSONDataSource implements JSONDataSource {
     }
 
     private static void constructJsonData(BTable df, JsonNode objNode, String name, TypeKind type, int index,
-            BStructType.StructField[] structFields) {
+            BField[] structFields) {
         switch (type) {
         case STRING:
             objNode.set(name, df.getString(index));
@@ -122,7 +123,8 @@ public class TableJSONDataSource implements JSONDataSource {
         case JSON:
             objNode.set(name, JsonParser.parse(df.getString(index)));
             break;
-        case STRUCT:
+        case OBJECT:
+        case RECORD:
             objNode.set(name, getStructData(df.getStruct(index), structFields, index));
             break;
         case XML:
@@ -134,7 +136,7 @@ public class TableJSONDataSource implements JSONDataSource {
         }
     }
 
-    private static JsonNode getStructData(Object[] data, BStructType.StructField[] structFields, int index) {
+    private static JsonNode getStructData(Object[] data, BField[] structFields, int index) {
         JsonNode jsonData = null;
         try {
             if (structFields == null) {
@@ -165,9 +167,9 @@ public class TableJSONDataSource implements JSONDataSource {
                     int i = 0;
                     for (Object value : data) {
                         BType internaltType = structFields[index - 1].fieldType;
-                        if (internaltType.getTag() == TypeTags.STRUCT_TAG) {
-                            BStructType.StructField[] interanlStructFields = ((BStructType) internaltType)
-                                    .getStructFields();
+                        if (internaltType.getTag() == TypeTags.OBJECT_TYPE_TAG
+                                || internaltType.getTag() == TypeTags.RECORD_TYPE_TAG) {
+                            BField[] interanlStructFields = ((BStructureType) internaltType).getFields();
                             if (interanlStructFields != null) {
                                 if (value instanceof String) {
                                     jsonData.set(interanlStructFields[i].fieldName, (String) value);

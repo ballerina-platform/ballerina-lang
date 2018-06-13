@@ -38,8 +38,8 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getMatrixParams",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Request",
-                             structPackage = "ballerina.http"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Request",
+                             structPackage = "ballerina/http"),
         args = {@Argument(name = "path", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true

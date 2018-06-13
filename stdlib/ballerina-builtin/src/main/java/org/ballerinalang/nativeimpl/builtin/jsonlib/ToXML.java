@@ -30,6 +30,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+
 /**
  * Converts a JSON to the corresponding XML representation.
  *
@@ -39,9 +41,9 @@ import org.ballerinalang.natives.annotations.ReturnType;
         orgName = "ballerina", packageName = "builtin",
         functionName = "json.toXML",
         args = {@Argument(name = "j", type = TypeKind.JSON),
-                @Argument(name = "options", type = TypeKind.STRUCT, structType = "Options",
-                          structPackage = "ballerina.builtin")},
-        returnType = { @ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.STRUCT) },
+                @Argument(name = "options", type = TypeKind.RECORD, structType = "Options",
+                          structPackage = BALLERINA_BUILTIN_PKG)},
+        returnType = { @ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.RECORD) },
         isPublic = true
 )
 public class ToXML extends BlockingNativeCallableUnit {

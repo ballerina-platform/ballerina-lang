@@ -26,15 +26,15 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.io:base64Encode.
+ * Native function ballerina/io:base64Encode.
  *
  * @since 0.970.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "base64Encode",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io"),
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "ByteChannel", structPackage = "ballerina.io")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io"),
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class Base64Encode extends BlockingNativeCallableUnit {

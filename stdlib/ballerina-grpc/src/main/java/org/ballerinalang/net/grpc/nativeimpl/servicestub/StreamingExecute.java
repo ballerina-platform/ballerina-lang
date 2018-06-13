@@ -21,6 +21,7 @@ import io.grpc.Metadata;
 import io.grpc.MethodDescriptor;
 import io.grpc.stub.MetadataUtils;
 import io.grpc.stub.StreamObserver;
+
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
@@ -46,7 +47,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT;
@@ -60,6 +60,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * {@code StreamingExecute} is the StreamingExecute action implementation of the gRPC Connector.
@@ -70,18 +71,19 @@ import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
         orgName = ORG_NAME,
         packageName = PROTOCOL_PACKAGE_GRPC,
         functionName = "streamingExecute",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = SERVICE_STUB,
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = SERVICE_STUB,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {
                 @Argument(name = "methodID", type = TypeKind.STRING),
                 @Argument(name = "listenerService", type = TypeKind.TYPEDESC),
-                @Argument(name = "headers", type = TypeKind.STRUCT, structType = "Headers",
+                @Argument(name = "headers", type = TypeKind.OBJECT, structType = "Headers",
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = CLIENT,
+                @ReturnType(type = TypeKind.OBJECT, structType = CLIENT,
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-                @ReturnType(type = TypeKind.STRUCT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN),
+                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR,
+                        structPackage = BALLERINA_BUILTIN_PKG),
         },
         isPublic = true
 )

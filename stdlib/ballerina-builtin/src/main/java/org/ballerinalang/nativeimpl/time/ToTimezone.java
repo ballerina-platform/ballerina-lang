@@ -35,10 +35,10 @@ import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "toTimezone",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina/time"),
         args = {@Argument(name = "zoneId", type = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.STRUCT, structType = "Time",
-                                  structPackage = "ballerina.time")},
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "Time",
+                                  structPackage = "ballerina/time")},
         isPublic = true
 )
 public class ToTimezone extends  AbstractTimeFunction {

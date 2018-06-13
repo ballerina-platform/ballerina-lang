@@ -48,8 +48,8 @@ import javax.jms.Topic;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "initTopicPublisher",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "TopicPublisher", structPackage = "ballerina.jms"),
-        args = { @Argument(name = "session", type = TypeKind.STRUCT, structType = "Session") },
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicPublisher", structPackage = "ballerina/jms"),
+        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session") },
         isPublic = true
 )
 public class InitTopicPublisher extends AbstractBlockinAction {

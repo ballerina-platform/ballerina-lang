@@ -34,9 +34,9 @@ import org.ballerinalang.net.http.HttpUtil;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "setEntity",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Response",
-                             structPackage = "ballerina.http"),
-        args = {@Argument(name = "entity", type = TypeKind.STRUCT)},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Response",
+                             structPackage = "ballerina/http"),
+        args = {@Argument(name = "entity", type = TypeKind.OBJECT)},
         isPublic = false
 )
 public class SetEntity extends BlockingNativeCallableUnit {

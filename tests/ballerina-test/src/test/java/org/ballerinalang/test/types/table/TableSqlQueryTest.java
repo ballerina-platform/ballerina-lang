@@ -27,6 +27,9 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for table sql queries.
+ */
 public class TableSqlQueryTest {
 
     private CompileResult result;
@@ -73,7 +76,7 @@ public class TableSqlQueryTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 4);
     }
 
-    @Test(dependsOnGroups = "TableQueryTest")
+    @Test(dependsOnGroups = "TableQueryTest", enabled = false)
     public void testSessionCount() {
         BValue[] returns = BRunUtil.invoke(resultHelper, "getSessionCount");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -92,5 +95,16 @@ public class TableSqlQueryTest {
         BValue[] args = {};
         BValue[] returns = BRunUtil.invoke(result, "testSelectWithJoinAndWhereWithGroupByWithLimit", args);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
+    @Test(groups = "TableTest",
+          description = "Verify string conversion of a table returned from ballerina sql query with no indices/primary "
+                  + "keys")
+    public void testTableToString() throws Exception {
+        BValue[] returns = BRunUtil.invoke(result, "testTableToString");
+        Assert.assertEquals(returns[0].stringValue(), "table<Person> {index: [], primaryKey: [], data: [{id:1, "
+                + "age:25, salary:300.5, name:\"jane\", married:true}, {id:2, age:26, salary:400.5, name:\"kane\", "
+                + "married:false}, {id:3, age:27, salary:500.5, name:\"jack\", married:true}, {id:4, age:28, "
+                + "salary:600.5, name:\"alex\", married:false}]}");
     }
 }

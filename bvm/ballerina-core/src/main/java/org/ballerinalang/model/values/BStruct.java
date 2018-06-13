@@ -18,15 +18,15 @@ package org.ballerinalang.model.values;
 
 import org.ballerinalang.bre.bvm.VarLock;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.model.types.BStructType;
-import org.ballerinalang.model.types.BStructType.StructField;
+import org.ballerinalang.model.types.BField;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.util.Flags;
 import org.ballerinalang.util.BLangConstants;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-
 import java.util.HashMap;
 import java.util.StringJoiner;
 
@@ -52,14 +52,14 @@ public final class BStruct implements BRefType, LockableStructureType {
     public BRefType[] refFields;
     public VarLock[] refLocks;
 
-    private BStructType structType;
+    private BStructureType structType;
 
     /**
      * Creates a struct with a single memory block.
      *
      * @param structType type of the struct
      */
-    public BStruct(BStructType structType) {
+    public BStruct(BStructureType structType) {
         this.structType = structType;
 
         int[] fieldCount = this.structType.getFieldTypeCount();
@@ -71,6 +71,7 @@ public final class BStruct implements BRefType, LockableStructureType {
         refFields = new BRefType[fieldCount[5]];
 
         Arrays.fill(stringFields, BLangConstants.STRING_EMPTY_VALUE);
+        Arrays.fill(byteFields, BLangConstants.BLOB_EMPTY_VALUE);
     }
 
     /**
@@ -94,32 +95,34 @@ public final class BStruct implements BRefType, LockableStructureType {
                 refValIndex = 0;
 
         StringJoiner sj = new StringJoiner(", ", "{", "}");
-        for (StructField field : structType.getStructFields()) {
-            String fieldName = field.getFieldName();
-            Object fieldVal;
-            BType fieldType = field.getFieldType();
-            if (fieldType == BTypes.typeString) {
-                fieldVal = "\"" + stringFields[stringIndex++] + "\"";
-            } else if (fieldType == BTypes.typeInt) {
-                fieldVal = longFields[longIndex++];
-            } else if (fieldType == BTypes.typeFloat) {
-                fieldVal = doubleFields[doubleIndex++];
-            } else if (fieldType == BTypes.typeBoolean) {
-                fieldVal = intFields[intIndex++] == 1;
-            } else if (fieldType == BTypes.typeBlob) {
-                byte[] blob = byteFields[byteIndex++];
-                fieldVal = blob == null ? null : new String(blob, StandardCharsets.UTF_8);
-            } else {
-                BValue val = refFields[refValIndex++];
-                fieldVal = val == null ? null : val.stringValue();
+        for (BField field : structType.getFields()) {
+            if (Flags.isFlagOn(field.flags, Flags.PUBLIC)) {
+                String fieldName = field.getFieldName();
+                Object fieldVal;
+                BType fieldType = field.getFieldType();
+                if (fieldType == BTypes.typeString) {
+                    fieldVal = "\"" + stringFields[stringIndex++] + "\"";
+                } else if (fieldType == BTypes.typeInt) {
+                    fieldVal = longFields[longIndex++];
+                } else if (fieldType == BTypes.typeFloat) {
+                    fieldVal = doubleFields[doubleIndex++];
+                } else if (fieldType == BTypes.typeBoolean) {
+                    fieldVal = intFields[intIndex++] == 1;
+                } else if (fieldType == BTypes.typeBlob) {
+                    byte[] blob = byteFields[byteIndex++];
+                    fieldVal = blob == null ? null : new String(blob, StandardCharsets.UTF_8);
+                } else {
+                    BValue val = refFields[refValIndex++];
+                    fieldVal = val == null ? null : val.stringValue();
+                }
+                sj.add(fieldName + ":" + fieldVal);
             }
-            sj.add(fieldName + ":" + fieldVal);
         }
         return sj.toString();
     }
 
     @Override
-    public BStructType getType() {
+    public BStructureType getType() {
         return structType;
     }
 

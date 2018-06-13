@@ -41,7 +41,7 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
         functionName = "addHeader",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Entity", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
         args = {@Argument(name = "headerName", type = TypeKind.STRING),
                 @Argument(name = "headerValue", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.VOID)},

@@ -35,7 +35,7 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
         orgName = "ballerina",
         packageName = "task",
         functionName = "cancel",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Appointment", structPackage = "ballerina.task"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Appointment", structPackage = "ballerina/task"),
         isPublic = true
 )
 public class Cancel extends BlockingNativeCallableUnit {

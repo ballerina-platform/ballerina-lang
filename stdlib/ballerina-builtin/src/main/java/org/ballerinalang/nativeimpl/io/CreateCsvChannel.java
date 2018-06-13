@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Native function ballerina.io#createCsvChannel.
+ * Native function ballerina/io#createCsvChannel.
  *
  * @since 0.970.0-alpha1
  */
@@ -47,16 +47,16 @@ import org.slf4j.LoggerFactory;
                 @Argument(name = "charset", type = TypeKind.STRING)
         },
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "DelimitedRecordChannel",
-                        structPackage = "ballerina.io"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.OBJECT, structType = "DelimitedRecordChannel",
+                        structPackage = "ballerina/io"),
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class CreateCsvChannel extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(CreateDelimitedRecordChannel.class);
 
     /**
-     * The index od the text record channel in ballerina.io#createDelimitedRecordChannel().
+     * The index od the text record channel in ballerina/io#createDelimitedRecordChannel().
      */
     private static final int PATH_INDEX = 0;
     /**
@@ -74,7 +74,7 @@ public class CreateCsvChannel extends BlockingNativeCallableUnit {
     /**
      * The package path of the delimited record channel.
      */
-    private static final String RECORD_CHANNEL_PACKAGE = "ballerina.io";
+    private static final String RECORD_CHANNEL_PACKAGE = "ballerina/io";
     /**
      * The type of the delimited record channel.
      */

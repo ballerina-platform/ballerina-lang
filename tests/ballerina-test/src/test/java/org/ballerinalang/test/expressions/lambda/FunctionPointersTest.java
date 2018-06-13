@@ -21,6 +21,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -34,7 +35,7 @@ import org.testng.annotations.Test;
  */
 public class FunctionPointersTest {
 
-    CompileResult fpProgram, privateFPProgram, globalProgram, structProgram;
+    private CompileResult fpProgram, privateFPProgram, globalProgram, structProgram;
 
     @BeforeClass
     public void setup() {
@@ -225,4 +226,34 @@ public class FunctionPointersTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
+    @Test
+    public void testFunctionPointerAsFuncParam() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testFunctionPointerAsFuncParam");
+        Assert.assertNotNull(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 13);
+
+        Assert.assertNotNull(returns[1] instanceof BString);
+        Assert.assertEquals(returns[1].stringValue(), "Total: 6 USD");
+    }
+
+    @Test
+    public void testAnyToFuncPointerConversion_1() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_1");
+        Assert.assertNotNull(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
+    }
+
+    @Test
+    public void testFuncPointerConversion() {
+        BValue[] returns = BRunUtil.invoke(fpProgram, "testFuncPointerConversion");
+        Assert.assertNotNull(returns[0] instanceof BInteger);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 20);
+    }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*error: error, message: 'function \\(Student\\) returns \\(int\\)' " +
+                    "cannot be cast to 'function \\(Person\\) returns \\(int\\)'.*")
+    public void testAnyToFuncPointerConversion_2() {
+        BRunUtil.invoke(fpProgram, "testAnyToFuncPointerConversion_2");
+    }
 }

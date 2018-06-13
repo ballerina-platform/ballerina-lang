@@ -48,12 +48,12 @@ import javax.jms.Session;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "initQueueSender",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "QueueSender",
-                             structPackage = "ballerina.jms"),
+                             structPackage = "ballerina/jms"),
         args = {
                 @Argument(name = "session",
-                          type = TypeKind.STRUCT,
+                          type = TypeKind.OBJECT,
                           structType = "Session")
         }
 )

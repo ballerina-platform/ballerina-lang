@@ -18,6 +18,7 @@
 package org.ballerinalang.model.values;
 
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.types.TypeTags;
 
 import java.util.Arrays;
 import java.util.StringJoiner;
@@ -76,7 +77,12 @@ public class BRefValueArray extends BNewArray {
     
     @Override
     public String stringValue() {
-        StringJoiner sj = new StringJoiner(", ", "[", "]");
+        StringJoiner sj;
+        if (arrayType != null && (arrayType.getTag() == TypeTags.TUPLE_TAG)) {
+            sj = new StringJoiner(", ", "(", ")");
+        } else {
+            sj = new StringJoiner(", ", "[", "]");
+        }
         for (int i = 0; i < size; i++) {
             sj.add(values[i] == null ? "null" : values[i].stringValue());
         }

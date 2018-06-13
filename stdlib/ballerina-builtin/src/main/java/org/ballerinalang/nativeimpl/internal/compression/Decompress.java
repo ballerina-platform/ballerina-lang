@@ -32,7 +32,7 @@ import java.io.InputStream;
 import java.nio.file.Path;
 
 /**
- * Native function ballerina.compression:decompress
+ * Native function ballerina.compression:decompress.
  *
  * @since 0.970.0
  */
@@ -40,23 +40,23 @@ import java.nio.file.Path;
         orgName = "ballerina", packageName = "internal",
         functionName = "decompress",
         args = {
-                @Argument(name = "dirPath", type = TypeKind.STRUCT, structType = "Path",
-                        structPackage = "ballerina.file"),
-                @Argument(name = "destDir", type = TypeKind.STRUCT, structType = "Path",
-                        structPackage = "ballerina.file")
+                @Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
+                        structPackage = "ballerina/file"),
+                @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
+                        structPackage = "ballerina/file")
         },
-        returnType = {@ReturnType(type = TypeKind.STRUCT)},
+        returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
 public class Decompress extends BlockingNativeCallableUnit {
 
     /**
-     * File path defined in ballerina.compression
+     * File path defined in ballerina.compression.
      */
     private static final int SRC_PATH_FIELD_INDEX = 0;
 
     /**
-     * File path of the destination directory defined in ballerina.compression
+     * File path of the destination directory defined in ballerina.compression.
      */
     private static final int DEST_PATH_FIELD_INDEX = 1;
 
@@ -66,10 +66,10 @@ public class Decompress extends BlockingNativeCallableUnit {
      * @param dirPath      compressed file path
      * @param outputFolder destination folder
      */
-    private static void decompress(Path dirPath, Path outputFolder) {
+    private static void decompress(Path dirPath, Path outputFolder, Context context) {
         try {
             InputStream inputStream = new FileInputStream(dirPath.toFile());
-            DecompressFromBlob.decompress(inputStream, outputFolder);
+            DecompressFromBlob.decompress(inputStream, outputFolder, context);
         } catch (IOException e) {
             throw new BLangRuntimeException("Error occurred when decompressing");
         }
@@ -91,8 +91,10 @@ public class Decompress extends BlockingNativeCallableUnit {
                     "Path to place the decompressed file " +
                             "is not available"));
         } else {
-            decompress(srcPath, destPath);
-            context.setReturnValues();
+            decompress(srcPath, destPath, context);
+            if (context.getReturnValues() == null) {
+                context.setReturnValues();
+            }
         }
     }
 }

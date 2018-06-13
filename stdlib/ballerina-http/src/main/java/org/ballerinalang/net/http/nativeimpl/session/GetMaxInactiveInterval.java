@@ -38,8 +38,8 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
         functionName = "getMaxInactiveInterval",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Session",
-                             structPackage = "ballerina.http"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
+                             structPackage = "ballerina/http"),
         returnType = {@ReturnType(type = TypeKind.INT)},
         isPublic = true
 )

@@ -59,7 +59,7 @@ public class EmptyMessage extends Message {
     }
 
     /**
-     * MessageDefinition.Builder
+     * MessageDefinition.Builder.
      */
     public static class Builder {
 

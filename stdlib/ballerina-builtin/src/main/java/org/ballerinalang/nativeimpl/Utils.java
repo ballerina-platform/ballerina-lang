@@ -31,7 +31,7 @@ import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.util.Base64ByteChannel;
 import org.ballerinalang.nativeimpl.util.Base64Wrapper;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
@@ -53,17 +53,17 @@ import java.util.TimeZone;
  */
 public class Utils {
 
-    public static final String PACKAGE_TIME = "ballerina.time";
+    public static final String PACKAGE_TIME = "ballerina/time";
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
-    public static final String PROTOCOL_PACKAGE_UTIL = "ballerina.util";
-    public static final String PROTOCOL_PACKAGE_MIME = "ballerina.mime";
+    public static final String PROTOCOL_PACKAGE_UTIL = "ballerina/util";
+    public static final String PROTOCOL_PACKAGE_MIME = "ballerina/mime";
     public static final String BASE64_ENCODE_ERROR = "Base64EncodeError";
     public static final String BASE64_DECODE_ERROR = "Base64DecodeError";
     private static final String STRUCT_TYPE = "ByteChannel";
 
-    public static BStruct createTimeZone(StructInfo timezoneStructInfo, String zoneIdValue) {
+    public static BStruct createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
         String zoneIdName;
         try {
             ZoneId zoneId = ZoneId.of(zoneIdValue);
@@ -78,13 +78,13 @@ public class Utils {
         }
     }
 
-    public static BStruct createTimeStruct(StructInfo timezoneStructInfo, StructInfo timeStructInfo, long millis,
-                                           String zoneIdName) {
+    public static BStruct createTimeStruct(StructureTypeInfo timezoneStructInfo,
+                                           StructureTypeInfo timeStructInfo, long millis, String zoneIdName) {
         BStruct timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
         return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
     }
 
-    public static StructInfo getTimeZoneStructInfo(Context context) {
+    public static StructureTypeInfo getTimeZoneStructInfo(Context context) {
         PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
         if (timePackageInfo == null) {
             return null;
@@ -92,7 +92,7 @@ public class Utils {
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
     }
 
-    public static StructInfo getTimeStructInfo(Context context) {
+    public static StructureTypeInfo getTimeStructInfo(Context context) {
         PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
         if (timePackageInfo == null) {
             return null;
@@ -101,7 +101,7 @@ public class Utils {
     }
 
     public static BStruct createConversionError(Context context, String msg) {
-        return BLangVMErrors.createError(context, -1, msg);
+        return BLangVMErrors.createError(context, msg);
     }
 
     private static BStruct createBase64Error(Context context, String msg, boolean isMimeSpecific, boolean isEncoder) {
@@ -111,7 +111,7 @@ public class Utils {
         } else {
             filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_UTIL);
         }
-        StructInfo entityErrInfo = filePkg.getStructInfo(isEncoder ? BASE64_ENCODE_ERROR : BASE64_DECODE_ERROR);
+        StructureTypeInfo entityErrInfo = filePkg.getStructInfo(isEncoder ? BASE64_ENCODE_ERROR : BASE64_DECODE_ERROR);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
     }
 
@@ -147,7 +147,8 @@ public class Utils {
                     encodeBlob(context, (BBlob) input, isMimeSpecific);
                 }
                 break;
-            case TypeTags.STRUCT_TAG:
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 if (input instanceof BStruct) {
                     BStruct byteChannel = (BStruct) input;
                     if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
@@ -178,7 +179,8 @@ public class Utils {
                     decodeBlob(context, (BBlob) encodedInput, isMimeSpecific);
                 }
                 break;
-            case TypeTags.STRUCT_TAG:
+            case TypeTags.OBJECT_TYPE_TAG:
+            case TypeTags.RECORD_TYPE_TAG:
                 if (encodedInput instanceof BStruct) {
                     decodeByteChannel(context, (BStruct) encodedInput, isMimeSpecific);
                 }
@@ -209,7 +211,7 @@ public class Utils {
             }
             context.setReturnValues(new BString(new String(encodedValue, StandardCharsets.ISO_8859_1)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, -1, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 
@@ -256,7 +258,7 @@ public class Utils {
             }
             context.setReturnValues(new BString(new String(decodedValue, charset)));
         } catch (UnsupportedEncodingException e) {
-            context.setReturnValues(BLangVMErrors.createError(context, -1, e.getMessage()));
+            context.setReturnValues(BLangVMErrors.createError(context, e.getMessage()));
         }
     }
 

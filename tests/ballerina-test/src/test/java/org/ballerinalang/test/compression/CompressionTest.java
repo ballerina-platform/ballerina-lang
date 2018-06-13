@@ -335,6 +335,25 @@ public class CompressionTest {
                 "compressed is not available");
 
     }
+
+    @Test(description = "test unzipping/decompressing a file with Zip Slip attack pattern")
+    public void testDecompressBlobWithZipSlipAttackPattern() throws IOException, URISyntaxException {
+        String dirPath = getAbsoluteFilePath("datafiles/compression/");
+        byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
+                File.separator + "zip-slip.zip").toPath());
+        BString destDir = new BString(dirPath);
+        BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
+        BValue[] inputArg = {contentAsByteArray, destDir};
+        BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
+        Assert.assertNotNull(returns);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
+                "Invalid Return Values.");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Arbitrary File Write attack attempted via an " +
+                "archive file. File name: ../../../../../../../../../../../../../../../../../../../../../../../../.." +
+                "/../../../../../../../../../../../../../../../tmp/evil.txt");
+    }
+
     /**
      * Will identify the absolute path from the relative.
      *

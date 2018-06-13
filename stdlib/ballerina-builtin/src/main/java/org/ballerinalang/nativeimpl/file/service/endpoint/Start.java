@@ -38,7 +38,7 @@ import org.wso2.transport.localfilesystem.server.exception.LocalFileSystemServer
         orgName = "ballerina",
         packageName = "file",
         functionName = "start",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "Listener", structPackage = "ballerina.file"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
         isPublic = true
 )
 public class Start extends BlockingNativeCallableUnit {

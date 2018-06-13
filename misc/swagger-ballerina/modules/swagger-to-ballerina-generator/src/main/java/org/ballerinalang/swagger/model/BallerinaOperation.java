@@ -21,7 +21,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.callbacks.Callback;
 import io.swagger.v3.oas.models.parameters.Parameter;
-import io.swagger.v3.oas.models.parameters.RequestBody;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import org.ballerinalang.swagger.exception.BallerinaOpenApiException;
@@ -47,7 +46,7 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
     private ExternalDocumentation externalDocs;
     private String operationId;
     private List<BallerinaParameter> parameters;
-    private RequestBody requestBody;
+    private BallerinaRequestBody requestBody;
     private Set<Map.Entry<String, ApiResponse>> responses;
     private Set<Map.Entry<String, Callback>> callbacks;
     private List<SecurityRequirement> security;
@@ -67,15 +66,19 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         if (operation == null) {
             return getDefaultValue();
         }
+
+        // OperationId with spaces will cause trouble in ballerina code.
+        // Replacing it with '_' so that we can identify there was a ' ' when doing bal -> swagger
+        this.operationId = getTrimmedOperationId(operation.getOperationId());
         this.tags = operation.getTags();
         this.summary = operation.getSummary();
         this.description = operation.getDescription();
         this.externalDocs = operation.getExternalDocs();
-        this.requestBody = operation.getRequestBody();
         this.security = operation.getSecurity();
-        this.operationId = operation.getOperationId();
+
         this.parameters = new ArrayList<>();
         this.methods = null;
+        this.requestBody = new BallerinaRequestBody().buildContext(operation.getRequestBody(), openAPI);
 
         if (operation.getResponses() != null) {
             operation.getResponses()
@@ -117,7 +120,9 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         this.parameters = new ArrayList<>();
 
         if (operationId != null) {
-            this.operationId = operationId.toString();
+            // OperationId with spaces will cause trouble in ballerina code.
+            // Replacing it with '_' so that we can identify there was a ' ' when doing bal -> swagger
+            this.operationId = getTrimmedOperationId(operationId.toString());
         }
         if (tags != null && tags instanceof ArrayList) {
             this.tags = (ArrayList<String>) tags;
@@ -133,6 +138,14 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         }
 
         return this;
+    }
+
+    private String getTrimmedOperationId (String operationId) {
+        if (operationId == null) {
+            return null;
+        }
+
+        return operationId.replaceAll(" ", "_");
     }
 
     @Override
@@ -164,7 +177,7 @@ public class BallerinaOperation implements BallerinaSwaggerObject<BallerinaOpera
         return parameters;
     }
 
-    public RequestBody getRequestBody() {
+    public BallerinaRequestBody getRequestBody() {
         return requestBody;
     }
 

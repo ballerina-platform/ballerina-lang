@@ -30,7 +30,7 @@ function testSuccessScenario () returns (http:Response | error) {
     };
 
     http:Response clientResponse = new;
-    http:Failover foClient = check <http:Failover>backendClientEP.getCallerActions();
+    http:FailoverActions foClient =  backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
     http:CallerActions[] httpClients = [<http:CallerActions> mockClient1, <http:CallerActions> mockClient2];
@@ -38,7 +38,7 @@ function testSuccessScenario () returns (http:Response | error) {
 
     while (counter < 2) {
        http:Request request = new;
-       match foClient.get("/hello", request = request) {
+       match foClient.get("/hello", message = request) {
             http:Response res => {
                 clientResponse = res;
             }
@@ -60,7 +60,7 @@ function testFailureScenario () returns (http:Response | error) {
     };
 
     error err = {};
-    http:Failover foClient = check <http:Failover>backendClientEP.getCallerActions();
+    http:FailoverActions foClient = backendClientEP.getCallerActions();
     MockClient mockClient1 = new;
     MockClient mockClient2 = new;
     http:CallerActions[] httpClients = [<http:CallerActions> mockClient1, <http:CallerActions> mockClient2];
@@ -68,7 +68,7 @@ function testFailureScenario () returns (http:Response | error) {
 io:println(counter);
     while (counter < 1) {
        http:Request request = new;
-       match foClient.get("/hello", request = request) {
+       match foClient.get("/hello", message = request) {
             http:Response res => {
             }
             error httpConnectorError => {

@@ -14,71 +14,71 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"post(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
+      "label":"post(string path, ballerina/http:Request|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"post(${1:path}, request \u003d ${2:()})",
+      "insertText":"post(${1:path}, ${2:message})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"head(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
+      "label":"head(string path, ballerina/http:Request|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"head(${1:path}, request \u003d ${2:()})",
+      "insertText":"head(${1:path}, message \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"put(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
+      "label":"put(string path, ballerina/http:Request|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"put(${1:path}, request \u003d ${2:()})",
+      "insertText":"put(${1:path}, ${2:message})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"execute(string httpVerb, string path, http:Request request)(ballerina.http:Response|error)",
+      "label":"execute(string httpVerb, string path, ballerina/http:Request|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"execute(${1:httpVerb}, ${2:path}, ${3:request})",
+      "insertText":"execute(${1:httpVerb}, ${2:path}, ${3:message})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"patch(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
+      "label":"patch(string path, ballerina/http:Request|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"patch(${1:path}, request \u003d ${2:()})",
+      "insertText":"patch(${1:path}, ${2:message})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"delete(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
+      "label":"delete(string path, ballerina/http:Request|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"delete(${1:path}, request \u003d ${2:()})",
+      "insertText":"delete(${1:path}, ${2:message})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"get(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
+      "label":"get(string path, ballerina/http:Request|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"get(${1:path}, request \u003d ${2:()})",
+      "insertText":"get(${1:path}, message \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"options(string path, ballerina.http:Request? request \u003d ())(ballerina.http:Response|error)",
+      "label":"options(string path, ballerina/http:Request|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message \u003d ())(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"options(${1:path}, request \u003d ${2:()})",
+      "insertText":"options(${1:path}, message \u003d ${2:()})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"forward(string path, http:Request request)(ballerina.http:Response|error)",
+      "label":"forward(string path, http:Request request)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -86,15 +86,15 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"submit(string httpVerb, string path, http:Request request)(ballerina.http:HttpFuture|error)",
+      "label":"submit(string httpVerb, string path, ballerina/http:Request|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(ballerina/http:HttpFuture|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
-      "insertText":"submit(${1:httpVerb}, ${2:path}, ${3:request})",
+      "insertText":"submit(${1:httpVerb}, ${2:path}, ${3:message})",
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getResponse(http:HttpFuture httpFuture)(ballerina.http:Response|error)",
+      "label":"getResponse(http:HttpFuture httpFuture)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -110,7 +110,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getNextPromise(http:HttpFuture httpFuture)(ballerina.http:PushPromise|error)",
+      "label":"getNextPromise(http:HttpFuture httpFuture)(ballerina/http:PushPromise|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -118,7 +118,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"getPromisedResponse(http:PushPromise promise)(ballerina.http:Response|error)",
+      "label":"getPromisedResponse(http:PushPromise promise)(ballerina/http:Response|error)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -131,20 +131,6 @@
       "detail":"Function",
       "sortText":"120",
       "insertText":"rejectPromise(${1:promise})",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"endpoint",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"endpoint ${1:http:Listener} ${2:listener} {\n\t${3}\n};",
-      "insertTextFormat":"Snippet"
-    },
-    {
-      "label":"worker",
-      "detail":"Snippet",
-      "sortText":"190",
-      "insertText":"worker ${1:name} {\n\t${2}\n}",
       "insertTextFormat":"Snippet"
     }
   ]

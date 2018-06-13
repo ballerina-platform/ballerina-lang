@@ -32,23 +32,23 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.io#nextTextRecords.
+ * Native function ballerina/io#nextTextRecords.
  *
  * @since 0.94
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "getNext",
-        receiver = @Receiver(type = TypeKind.STRUCT,
+        receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DelimitedTextRecordChannel",
-                structPackage = "ballerina.io"),
+                structPackage = "ballerina/io"),
         returnType = {@ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.STRING),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")},
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class NextTextRecord implements NativeCallableUnit {
     /**
-     * Specifies the index which contains the byte channel in ballerina.io#nextTextRecord.
+     * Specifies the index which contains the byte channel in ballerina/io#nextTextRecord.
      */
     private static final int TXT_RECORD_CHANNEL_INDEX = 0;
 

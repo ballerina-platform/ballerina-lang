@@ -45,6 +45,7 @@ public class ConfigRegistry {
     private static final Logger log = LoggerFactory.getLogger(ConfigRegistry.class);
     private static final ConfigRegistry configRegistry = new ConfigRegistry();
     private static final Pattern encryptedFieldPattern = Pattern.compile("@encrypted:\\{(.*)\\}");
+    private static final String ENV_VAR_FORMAT = "[a-zA-Z_]+[a-zA-Z0-9_]*";
 
     private Map<String, Object> configEntries = new HashMap<>();
     private AESCipherTool cipherTool;
@@ -210,7 +211,7 @@ public class ConfigRegistry {
             }
         }
 
-        return false;
+        return Boolean.parseBoolean(lookupEnvVars(key));
     }
 
     /**
@@ -244,7 +245,7 @@ public class ConfigRegistry {
             }
         }
 
-        return 0;
+        return Long.parseLong(lookupEnvVars(key));
     }
 
     /**
@@ -280,7 +281,7 @@ public class ConfigRegistry {
             }
         }
 
-        return 0.0;
+        return Double.parseDouble(lookupEnvVars(key));
     }
 
     /**
@@ -332,12 +333,16 @@ public class ConfigRegistry {
      * @return The configuration value as a string
      */
     public String getAsString(String key) {
+        if (key == null) {
+            return null;
+        }
+
         if (contains(key)) {
             String value = String.valueOf(configEntries.get(key));
             return resolveStringValue(value);
         }
 
-        return null;
+        return lookupEnvVars(key);
     }
 
     /**
@@ -468,5 +473,14 @@ public class ConfigRegistry {
         }
 
         return value;
+    }
+
+    private String lookupEnvVars(String key) {
+        String convertedKey = getEnvVarKey(key);
+        return convertedKey.matches(ENV_VAR_FORMAT) ? System.getenv(convertedKey) : null;
+    }
+
+    private String getEnvVarKey(String configKey) {
+        return configKey.replace('.', '_');
     }
 }

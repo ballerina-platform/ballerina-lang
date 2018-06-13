@@ -48,8 +48,8 @@ import javax.jms.Topic;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "createSubscriber",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "TopicSubscriber", structPackage = "ballerina.jms"),
-        args = { @Argument(name = "session", type = TypeKind.STRUCT, structType = "Session"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicSubscriber", structPackage = "ballerina/jms"),
+        args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
                  @Argument(name = "messageSelector", type = TypeKind.STRING)
         },
         isPublic = true

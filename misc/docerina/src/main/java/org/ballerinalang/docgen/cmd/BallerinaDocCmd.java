@@ -44,28 +44,23 @@ import java.util.Map;
 public class BallerinaDocCmd implements BLauncherCmd {
     private final PrintStream out = System.out;
 
-    private JCommander parentCmdParser;
-
-    @Parameter(arity = 1, description = "either the path to the directories where Ballerina source files reside or a "
-            + "path to a Ballerina file which does not belong to a package")
+    @Parameter(arity = 1, description = "either the path to the directories where Ballerina source files reside or a " +
+            "path to a Ballerina file which does not belong to a package")
     private List<String> argList;
 
-    @Parameter(names = { "--output", "-o" },
-            description = "path to the output directory where the API documentation will be written to", hidden = false)
+    @Parameter(names = {"--output", "-o"}, description = "path to the output directory where the API documentation "
+            + "will be written to")
     private String outputDir;
 
-    @Parameter(names = { "--template", "-t" },
-            description = "path to a custom templates directory to be used for API documentation generation",
-            hidden = false)
+    @Parameter(names = {"--template", "-t"}, description = "path to a custom templates directory to be used for API "
+            + "documentation generation")
     private String templatesDir;
 
-    @Parameter(names = { "--exclude", "-e" },
-            description = "a comma separated list of package names to be filtered from the documentation",
-            hidden = false)
+    @Parameter(names = {"--exclude", "-e"}, description = "a comma separated list of package names to be filtered " +
+            "from the documentation")
     private String packageFilter;
 
-    @Parameter(names = { "--native", "-n" },
-            description = "read the source as native ballerina code", hidden = false)
+    @Parameter(names = {"--native", "-n"}, description = "read the source as native ballerina code")
     private boolean nativeSource;
 
     @DynamicParameter(names = "-e", description = "Ballerina environment parameters")
@@ -74,20 +69,19 @@ public class BallerinaDocCmd implements BLauncherCmd {
     @Parameter(names = {"--config", "-c"}, description = "path to the docerina configuration file")
     private String configFilePath;
 
-    @Parameter(names = { "--verbose", "-v" },
-            description = "enable debug level logs", hidden = false)
+    @Parameter(names = {"--verbose", "-v"}, description = "enable debug level logs")
     private boolean debugEnabled;
 
     @Parameter(names = {"--sourceroot"}, description = "path to the directory containing source files and packages")
     private String sourceRoot;
 
-    @Parameter(names = { "--help", "-h" }, hidden = true)
+    @Parameter(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
 
     @Override
     public void execute() {
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "doc");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo("doc");
             out.println(commandUsageInfo);
             return;
         }
@@ -141,7 +135,6 @@ public class BallerinaDocCmd implements BLauncherCmd {
 
     @Override
     public void setParentCmdParser(JCommander parentCmdParser) {
-        this.parentCmdParser = parentCmdParser;
     }
 
     @Override

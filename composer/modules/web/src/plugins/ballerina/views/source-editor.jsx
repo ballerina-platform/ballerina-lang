@@ -17,10 +17,6 @@
  */
 import React from 'react';
 import PropTypes from 'prop-types';
-import {
-    BaseLanguageClient, CloseAction, ErrorAction,
-    createMonacoServices, createConnection,
-} from 'monaco-languageclient';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
 import File from 'core/workspace/model/file';
 import { COMMANDS, EVENTS as WORKSPACE_EVENTS } from 'core/workspace/constants';
@@ -29,11 +25,34 @@ import { GO_TO_POSITION } from 'plugins/ballerina/constants/commands';
 import MonacoEditor from 'react-monaco-editor';
 import SourceViewCompleterFactory from './../../ballerina/utils/source-view-completer-factory';
 import { CHANGE_EVT_TYPES } from './constants';
+import { REDO_EVENT, UNDO_EVENT } from './../constants/events';
 import Grammar from './../utils/monarch-grammar';
 import { getMonacoKeyBinding } from '../utils/monaco-key-utils';
 import BAL_LANG_CONFIG from '../utils/monaco-lang-config';
 
 const BAL_LANGUAGE = 'ballerina-lang';
+
+const webpackHash = process.env.NODE_ENV === 'production'
+            || process.env.NODE_ENV === 'electron'
+            ? __webpack_hash__ : __webpack_hash__();
+
+self.MonacoEnvironment = {
+    getWorkerUrl: function (moduleId, label) {
+      if (label === 'json') {
+        return `./json.worker-${webpackHash}.js`;
+      }
+      if (label === 'css') {
+        return `./css.worker-${webpackHash}.js`;
+      }
+      if (label === 'html') {
+        return `./html.worker-${webpackHash}.js`;
+      }
+      if (label === 'typescript' || label === 'javascript') {
+        return `./ts.worker-${webpackHash}.js`;
+      }
+      return `./editor.worker-${webpackHash}.js`;
+    }
+};
 
 /**
  * Source editor component which wraps monaco editor
@@ -50,11 +69,11 @@ class SourceEditor extends React.Component {
         this.inSilentMode = false;
         this.sourceViewCompleterFactory = new SourceViewCompleterFactory();
         this.goToCursorPosition = this.goToCursorPosition.bind(this);
-        this.onFileContentChanged = this.onFileContentChanged.bind(this);
         this.lastUpdatedTimestamp = props.file.lastUpdated;
         this.editorDidMount = this.editorDidMount.bind(this);
         this.onWorkspaceFileClose = this.onWorkspaceFileClose.bind(this);
         this.handleGoToPosition = this.handleGoToPosition.bind(this);
+        this.preventChangeEvt = false;
     }
 
     /**
@@ -91,24 +110,6 @@ class SourceEditor extends React.Component {
                 this.debugHitDecorations = this.editorInstance.deltaDecorations(this.debugHitDecorations || [], []);
             }
         }
-
-        if (this.props.file.toURI() !== nextProps.file.toURI()) {
-            if (this.monaco && this.editorInstance) {
-                const uri = this.monaco.Uri.parse(nextProps.file.toURI());
-                let modelForFile = this.monaco.editor.getModel(uri);
-                const currentModel = this.editorInstance.getModel();
-                if (!modelForFile) {
-                    modelForFile = this.monaco.editor.createModel(nextProps.file.content, BAL_LANGUAGE, uri);
-                }
-                if (currentModel && modelForFile && currentModel.uri !== modelForFile.uri) {
-                    this.editorInstance.setModel(modelForFile);
-                }
-            }
-            // Removing the file content changed event of the previous file.
-            this.props.file.off(CONTENT_MODIFIED, this.onFileContentChanged);
-            // Adding the file content changed event to the new file.
-            nextProps.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
-        }
     }
 
     /**
@@ -132,21 +133,27 @@ class SourceEditor extends React.Component {
         }
     }
 
-    /**
-     * Event handler when the content of the file object is changed.
-     * @param {Object} evt The event object.
-     * @memberof SourceEditor
-     */
-    onFileContentChanged(evt) {
-        if (evt.originEvt.type !== CHANGE_EVT_TYPES.SOURCE_MODIFIED) {
-            if (this.monaco && this.editorInstance && evt.file) {
-                const uri = this.monaco.Uri.parse(evt.file.toURI());
-                const modelForFile = this.monaco.editor.getModel(uri);
-                if (modelForFile) {
-                    modelForFile.setValue(evt.file.content);
-                }
-            }
-        }
+    shouldIgnoreChangeEvt() {
+        return this.ignoreChangeEvt;
+    }
+
+    setContent(newContent, ignoreChangeEvt = false) {
+        this.preventChangeEvt = ignoreChangeEvt;
+        this.getCurrentModel()
+            .pushEditOperations([],
+                [{
+                    range: this.getCurrentModel().getFullModelRange(),
+                    text: newContent,
+                    forceMoveMarkers: true,
+                }],
+                () => []);
+        this.getCurrentModel().pushStackElement();
+        this.preventChangeEvt = false;
+    }
+
+    getCurrentModel() {
+        const uri = this.monaco.Uri.parse(this.props.file.toURI());
+        return this.monaco.editor.getModel(uri);
     }
 
     /**
@@ -156,6 +163,7 @@ class SourceEditor extends React.Component {
      * @param {Object} monaco Monaco API
      */
     editorDidMount(editorInstance, monaco) {
+        this.context.setSourceEditorRef(this);
         this.monaco = monaco;
         this.editorInstance = editorInstance;
         monaco.languages.register({ id: BAL_LANGUAGE });
@@ -166,34 +174,33 @@ class SourceEditor extends React.Component {
         if (!modelForFile) {
             modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
         }
+        modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
+            if (this.shouldIgnoreChangeEvt()) {
+                return;
+            }
+            const changeEvent = {
+                type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
+                title: 'Modify source',
+                data: {
+                    sourceEditor: this,
+                },
+            };
+            this.props.file
+                .setContent(editorInstance.getValue(), changeEvent);
+        });
+        // this.props.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
         editorInstance.setModel(modelForFile);
         this.props.commandProxy.on(WORKSPACE_EVENTS.FILE_CLOSED, this.onWorkspaceFileClose);
         this.props.commandProxy.on(GO_TO_POSITION, this.handleGoToPosition);
-        const services = createMonacoServices(editorInstance);
         const getLangServerConnection = this.props.ballerinaPlugin.getLangServerConnection();
         getLangServerConnection
             .then((connection) => {
-                // create and start the language client
-                const languageClient = new BaseLanguageClient({
-                    name: 'Ballerina Language Client',
-                    clientOptions: {
-                        // use a language id as a document selector
-                        documentSelector: [BAL_LANGUAGE],
-                        // disable the default error handler
-                        errorHandler: {
-                            error: () => ErrorAction.Continue,
-                            closed: () => CloseAction.DoNotRestart,
-                        },
-                    },
-                    services,
-                    // create a language client connection from the JSON RPC connection on demand
-                    connectionProvider: {
-                        get: (errorHandler, closeHandler) => {
-                            return Promise.resolve(createConnection(connection, errorHandler, closeHandler));
-                        },
-                    },
+                this.props.ballerinaPlugin.lsCommands.forEach((cmd) => {
+                    editorInstance._commandService.addCommand({
+                        id: cmd.command,
+                        handler: (_accessor, ...args) => cmd.callback(...args),
+                    });
                 });
-
                 editorInstance.onMouseDown((e) => {
                     if (e.event.ctrlKey) {
                         e.event.preventDefault();
@@ -220,9 +227,6 @@ class SourceEditor extends React.Component {
                         });
                     }
                 });
-
-                const disposable = languageClient.start();
-                connection.onClose(() => disposable.dispose());
             });
         this.bindCommands();
         editorInstance.onMouseDown((e) => {
@@ -306,6 +310,18 @@ class SourceEditor extends React.Component {
         });
     }
 
+    undo(title) {
+        this.preventChangeEvt = true;
+        this.editorInstance.trigger(title, 'undo');
+        this.preventChangeEvt = false;
+    }
+
+    redo(title) {
+        this.preventChangeEvt = true;
+        this.editorInstance.trigger(title, 'redo');
+        this.preventChangeEvt = false;
+    }
+
     /**
      * @inheritDoc
      */
@@ -316,16 +332,7 @@ class SourceEditor extends React.Component {
                 <MonacoEditor
                     language='ballerinalang'
                     theme='vs-dark'
-                    value={this.props.file.content}
                     editorDidMount={this.editorDidMount}
-                    onChange={(newValue) => {
-                        const changeEvent = {
-                            type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
-                            title: 'Modify source',
-                        };
-                        this.props.file
-                            .setContent(newValue, changeEvent);
-                    }}
                     options={{
                         autoIndent: true,
                         fontSize: 14,
@@ -362,6 +369,10 @@ SourceEditor.propTypes = {
     width: PropTypes.number.isRequired,
     height: PropTypes.number.isRequired,
     isUsedAsPreviewComponent: PropTypes.bool,
+};
+
+SourceEditor.contextTypes = {
+    setSourceEditorRef: PropTypes.func.isRequired,
 };
 
 SourceEditor.defaultProps = {

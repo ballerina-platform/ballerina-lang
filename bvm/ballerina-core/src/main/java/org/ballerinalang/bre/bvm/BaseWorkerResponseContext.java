@@ -162,5 +162,4 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
             }
         }
     }
-
 }

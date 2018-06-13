@@ -30,7 +30,7 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,11 +50,11 @@ import static org.ballerinalang.nativeimpl.socket.SocketConstants.LOCAL_PORT_OPT
         functionName = "openSocket",
         args = {@Argument(name = "host", type = TypeKind.STRING),
                 @Argument(name = "port", type = TypeKind.INT),
-                @Argument(name = "option", type = TypeKind.STRUCT, structType = "SocketProperties",
-                        structPackage = "ballerina.io")},
+                @Argument(name = "option", type = TypeKind.RECORD, structType = "SocketProperties",
+                        structPackage = "ballerina/io")},
         returnType = {
-                @ReturnType(type = TypeKind.STRUCT, structType = "Socket", structPackage = "ballerina.io"),
-                @ReturnType(type = TypeKind.STRUCT, structType = "IOError", structPackage = "ballerina.io")
+                @ReturnType(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")
         },
         isPublic = true
 )
@@ -62,7 +62,7 @@ public class OpenSocket extends BlockingNativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(OpenSocket.class);
 
-    private static final String SOCKET_PACKAGE = "ballerina.io";
+    private static final String SOCKET_PACKAGE = "ballerina/io";
     private static final String SOCKET_STRUCT_TYPE = "Socket";
     private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
 
@@ -98,13 +98,13 @@ public class OpenSocket extends BlockingNativeCallableUnit {
             channel = socket.getChannel();
             PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SOCKET_PACKAGE);
             // Create ByteChannel Struct
-            StructInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
+            StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
             Channel ballerinaSocketChannel = new SocketIOChannel(channel, 0);
             BStruct channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
             channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
 
             // Create Socket Struct
-            StructInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
+            StructureTypeInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
             BStruct socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
             socketStruct.setRefField(0, channelStruct);
             socketStruct.setIntField(0, socket.getPort());

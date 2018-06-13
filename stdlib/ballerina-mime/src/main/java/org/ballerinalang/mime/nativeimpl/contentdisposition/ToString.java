@@ -39,8 +39,8 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
         functionName = "toString",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = "ContentDisposition",
-                structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ContentDisposition",
+                structPackage = "ballerina/mime"),
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true
 )
