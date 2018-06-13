@@ -183,7 +183,7 @@ public class SQLDBUtils {
     }
 
     public static class ContainerizedTestDatabase extends TestDatabase {
-        JdbcDatabaseContainer databaseContainer;
+        private JdbcDatabaseContainer databaseContainer;
 
         public ContainerizedTestDatabase(DBType dbType, String databaseScript) {
             switch (dbType) {
