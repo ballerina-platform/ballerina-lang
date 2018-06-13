@@ -71,7 +71,7 @@ public class List extends BlockingNativeCallableUnit {
         final BRefValueArray filesList = new BRefValueArray(new BArrayType(pathStruct.getType()));
         try {
             Files.list(path).forEach(p -> {
-                BStruct filePaths = BLangConnectorSPIUtil.createBStruct(context, Constants.PACKAGE_PATH,
+                BStruct filePaths = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH,
                         Constants.PATH_STRUCT, new BString(p.toString()));
                 long index = filesList.size();
                 filesList.add((index), filePaths);
