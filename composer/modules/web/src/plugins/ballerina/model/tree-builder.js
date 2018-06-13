@@ -532,6 +532,12 @@ class TreeBuilder {
         }
 
         if (node.kind === 'Literal') {
+            if (node.symbolType && node.symbolType.length > 0 &&
+                (node.symbolType[0] === 'string' || node.symbolType[0] === 'float') &&
+                node.ws && node.ws.length < 2 && node.ws[0].text) {
+                node.value = node.ws[0].text;
+            }
+
             if ((node.value === 'nil' || node.value === 'null') && node.ws
                 && node.ws.length < 3 && node.ws[0].text === '(') {
                 node.emptyParantheses = true;
