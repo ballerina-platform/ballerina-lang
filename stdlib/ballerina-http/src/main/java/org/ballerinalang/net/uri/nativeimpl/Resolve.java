@@ -32,6 +32,8 @@ import java.net.URISyntaxException;
 
 /**
  * Resolve a given path against a given URI.
+ *
+ * @since 0.975.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "http",
