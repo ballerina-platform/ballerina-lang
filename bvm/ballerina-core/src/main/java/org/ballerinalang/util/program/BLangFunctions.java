@@ -180,6 +180,7 @@ public class BLangFunctions {
 
     private static void orderInitFunctions(ProgramFile programFile) {
         PackageInfo entry = programFile.getEntryPackage();
+        programFile.addImportPackageInfo(programFile.getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG));
         programFile.addImportPackageInfo(programFile.getPackageInfo(BLangConstants.BALLERINA_RUNTIME_PKG));
         orderPackages(programFile, entry);
         programFile.addImportPackageInfo(entry);
