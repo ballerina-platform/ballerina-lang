@@ -26,6 +26,7 @@ import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.ObjectType;
+import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.model.elements.PackageID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.io.IOException;
@@ -108,6 +110,7 @@ public class IndexGenerator {
                     DTOUtil.getObjectCategories(packageSymbolDTOs.get(i).getObjectTypeSymbols());
             insertBLangFunctions(generatedPkgKeys.get(i), packageSymbolDTOs.get(i).getBInvokableSymbols());
             insertBLangRecords(generatedPkgKeys.get(i), packageSymbolDTOs.get(i).getRecordTypeSymbols());
+            insertOtherTypes(generatedPkgKeys.get(i), packageSymbolDTOs.get(i).getOtherTypeSymbols());
             insertBLangObjects(generatedPkgKeys.get(i), objectCategories);
         }
     }
@@ -131,6 +134,17 @@ public class IndexGenerator {
             LSIndexImpl.getInstance().getQueryProcessor().batchInsertBLangRecords(bRecordTypeSymbolDTOs);
         } catch (SQLException | IOException e) {
             logger.error("Error Insert BLangRecords");
+        }
+    }
+
+    private void insertOtherTypes(int pkgEntryId, List<BTypeSymbol> bTypeSymbols) {
+        List<OtherTypeSymbolDTO> otherTypeSymbolDTOs = bTypeSymbols.stream()
+                .map(otherTypeSymbol -> DTOUtil.getOtherTypeSymbolDTO(pkgEntryId, otherTypeSymbol))
+                .collect(Collectors.toList());
+        try {
+            LSIndexImpl.getInstance().getQueryProcessor().batchInsertOtherTypes(otherTypeSymbolDTOs);
+        } catch (SQLException | IOException e) {
+            logger.error("Error Insert Other Type");
         }
     }
 

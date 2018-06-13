@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.index.LSIndexImpl;
 import org.ballerinalang.langserver.index.dao.ObjectDAO;
+import org.ballerinalang.langserver.index.dao.OtherTypeDAO;
 import org.ballerinalang.langserver.index.dao.PackageFunctionDAO;
 import org.ballerinalang.langserver.index.dao.RecordDAO;
 import org.ballerinalang.model.elements.PackageID;
@@ -130,6 +131,8 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                         .getFunctionsFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
                 List<RecordDAO> recordDAOs = LSIndexImpl.getInstance().getQueryProcessor()
                         .getRecordsFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
+                List<OtherTypeDAO> otherTypeDAOs = LSIndexImpl.getInstance().getQueryProcessor()
+                        .getOtherTypesFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
                 List<ObjectDAO> objectDAOs = LSIndexImpl.getInstance().getQueryProcessor()
                         .getObjectsFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
                 if (packageFunctionDAOs.isEmpty() && recordDAOs.isEmpty() && objectDAOs.isEmpty()) {
@@ -141,6 +144,11 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                 completionItems.addAll(
                         recordDAOs.stream()
                                 .map(RecordDAO::getCompletionItem)
+                                .collect(Collectors.toList())
+                );
+                completionItems.addAll(
+                        otherTypeDAOs.stream()
+                                .map(OtherTypeDAO::getCompletionItem)
                                 .collect(Collectors.toList())
                 );
                 completionItems.addAll(

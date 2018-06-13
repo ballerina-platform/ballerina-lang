@@ -40,6 +40,14 @@ CREATE TABLE bLangRecord (
   completionItem varchar(MAX) DEFAULT NULL
 );
 
+CREATE TABLE bLangType (
+  id int(11) NOT NULL,
+  packageId int(11) NOT NULL,
+  name varchar(256) NOT NULL,
+  fields varchar(MAX) NOT NULL,
+  completionItem varchar(MAX) DEFAULT NULL
+);
+
 CREATE TABLE bLangResource (
   id int(11) NOT NULL,
   serviceId int(11) NOT NULL,
@@ -77,6 +85,12 @@ ALTER TABLE bLangPackage
 -- Indexes for table bLangRecord
 --
 ALTER TABLE bLangRecord
+  ADD PRIMARY KEY (id);
+
+--
+-- Indexes for table bLangType
+--
+ALTER TABLE bLangType
   ADD PRIMARY KEY (id);
 
 --
@@ -119,6 +133,11 @@ ALTER TABLE bLangPackage
 -- AUTO_INCREMENT for table bLangRecord
 --
 ALTER TABLE bLangRecord
+  MODIFY id int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table bLangType
+--
+ALTER TABLE bLangType
   MODIFY id int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table bLangResource

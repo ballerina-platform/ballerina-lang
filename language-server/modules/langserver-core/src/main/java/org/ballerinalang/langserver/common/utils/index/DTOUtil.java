@@ -27,6 +27,7 @@ import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.ObjectType;
+import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.PackageIDDTO;
 import org.ballerinalang.langserver.index.dto.TypeDTO;
 import org.ballerinalang.model.elements.PackageID;
@@ -129,6 +130,8 @@ public class DTOUtil {
                     default:
                         break;
                 }
+            } else if (symbol instanceof BTypeSymbol) {
+                packageSymbolDTO.getOtherTypeSymbols().add((BTypeSymbol) symbol);
             }
         });
 
@@ -193,6 +196,18 @@ public class DTOUtil {
         CompletionItem completionItem = BPackageSymbolUtil
                 .getBTypeCompletionItem(recordTypeSymbol.getName().getValue());
         return new BRecordTypeSymbolDTO(pkgEntryId, recordTypeSymbol.getName().getValue(), null, completionItem);
+    }
+
+    /**
+     * Get the OtherTypeSymbolDTO for the Object Type symbol.
+     * @param pkgEntryId                        Package Entry ID
+     * @param otherTypeSymbol                   BTypeSymbol to generate DAO
+     * @return {@link BRecordTypeSymbolDTO}     Generated DTO
+     */
+    public static OtherTypeSymbolDTO getOtherTypeSymbolDTO(int pkgEntryId, BTypeSymbol otherTypeSymbol) {
+        CompletionItem completionItem = BPackageSymbolUtil
+                .getBTypeCompletionItem(otherTypeSymbol.getName().getValue());
+        return new OtherTypeSymbolDTO(pkgEntryId, otherTypeSymbol.getName().getValue(), null, completionItem);
     }
 
     /**

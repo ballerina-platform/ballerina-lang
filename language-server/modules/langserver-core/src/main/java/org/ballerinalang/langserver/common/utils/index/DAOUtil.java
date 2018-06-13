@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.common.utils.index;
 import com.google.gson.Gson;
 import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.index.dao.ObjectDAO;
+import org.ballerinalang.langserver.index.dao.OtherTypeDAO;
 import org.ballerinalang.langserver.index.dao.PackageFunctionDAO;
 import org.ballerinalang.langserver.index.dao.RecordDAO;
 import org.eclipse.lsp4j.CompletionItem;
@@ -88,6 +89,30 @@ public class DAOUtil {
             logger.error("Error Processing Records Result Set");
         }
         return recordDAOs;
+    }
+
+    /**
+     * Generate the OtherTypeDAO list from the result set.
+     * @param resultSet         Result set for manipulation
+     * @return {@link List}     List of DAOs
+     */
+    public static List<OtherTypeDAO> getOtherTypeDAO(ResultSet resultSet) {
+        List<OtherTypeDAO> otherTypeDAOs = new ArrayList<>();
+
+        try {
+            while (resultSet.next()) {
+                String pkgName = resultSet.getString(1);
+                String pkgOrgName = resultSet.getString(2);
+                String recordName = resultSet.getString(4);
+                String completionItem = resultSet.getString(3);
+                OtherTypeDAO otherTypeDAO =
+                        new OtherTypeDAO(pkgName, pkgOrgName, recordName, jsonToCompletionItem(completionItem));
+                otherTypeDAOs.add(otherTypeDAO);
+            }
+        } catch (SQLException e) {
+            logger.error("Error Processing Other Types Result Set");
+        }
+        return otherTypeDAOs;
     }
 
     /**

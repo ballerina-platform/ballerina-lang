@@ -43,6 +43,9 @@ public class Constants {
     static final String INSERT_BLANG_RECORD =
             "INSERT INTO bLangRecord (packageId, name, fields, completionItem) values (?, ?, ?, ?)";
 
+    static final String INSERT_OTHER_TYPE =
+            "INSERT INTO bLangType (packageId, name, fields, completionItem) values (?, ?, ?, ?)";
+
     static final String INSERT_BLANG_OBJECT = 
             "INSERT INTO bLangObject (packageId, name, fields, type, completionItem) values (?, ?, ?, ?, ?)";
     
@@ -59,6 +62,10 @@ public class Constants {
     static final String GET_RECORDS_FROM_PACKAGE = "SELECT p.name, p.orgName, r.completionItem, r.name " +
             "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
             "INNER JOIN bLangRecord AS r WHERE p.id = r.packageId";
+    
+    static final String GET_OTHER_TYPES_FROM_PACKAGE = "SELECT p.name, p.orgName, t.completionItem, t.name " +
+            "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
+            "INNER JOIN bLangType AS t WHERE p.id = t.packageId";
     
     static final String GET_OBJECT_FROM_PACKAGE = "SELECT p.name, p.orgName, o.completionItem, o.name " +
             "FROM (select id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +

@@ -21,6 +21,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +34,8 @@ public class BPackageSymbolDTO {
     private PackageIDDTO packageID;
     
     private List<BRecordTypeSymbol> recordTypeSymbols = new ArrayList<>();
+    
+    private List<BTypeSymbol> otherTypeSymbols = new ArrayList<>();
     
     private List<BObjectTypeSymbol> objectTypeSymbols = new ArrayList<>();
     
@@ -62,5 +65,9 @@ public class BPackageSymbolDTO {
 
     public List<BServiceSymbol> getbServiceSymbols() {
         return bServiceSymbols;
+    }
+
+    public List<BTypeSymbol> getOtherTypeSymbols() {
+        return otherTypeSymbols;
     }
 }

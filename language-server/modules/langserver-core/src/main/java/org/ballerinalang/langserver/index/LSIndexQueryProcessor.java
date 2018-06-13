@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.index;
 import org.ballerinalang.langserver.common.utils.index.DAOUtil;
 import org.ballerinalang.langserver.common.utils.index.DTOUtil;
 import org.ballerinalang.langserver.index.dao.ObjectDAO;
+import org.ballerinalang.langserver.index.dao.OtherTypeDAO;
 import org.ballerinalang.langserver.index.dao.PackageFunctionDAO;
 import org.ballerinalang.langserver.index.dao.RecordDAO;
 import org.ballerinalang.langserver.index.dto.BFunctionDTO;
@@ -28,6 +29,7 @@ import org.ballerinalang.langserver.index.dto.BLangServiceDTO;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
+import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +59,8 @@ public class LSIndexQueryProcessor {
  
     private PreparedStatement insertBLangRecord;
  
+    private PreparedStatement insertOtherType;
+ 
     private PreparedStatement insertBLangObject;
  
     private PreparedStatement updateActionHolderId;
@@ -64,6 +68,8 @@ public class LSIndexQueryProcessor {
     private PreparedStatement getFunctionsFromPackage;
     
     private PreparedStatement getRecordsFromPackage;
+    
+    private PreparedStatement getOtherTypesFromPackage;
     
     private PreparedStatement getObjectsFromPackage;
 
@@ -81,6 +87,8 @@ public class LSIndexQueryProcessor {
                     Statement.RETURN_GENERATED_KEYS);
             insertBLangRecord = connection.prepareStatement(Constants.INSERT_BLANG_RECORD, 
                     Statement.RETURN_GENERATED_KEYS);
+            insertOtherType = connection.prepareStatement(Constants.INSERT_OTHER_TYPE, 
+                    Statement.RETURN_GENERATED_KEYS);
             insertBLangObject = connection.prepareStatement(Constants.INSERT_BLANG_OBJECT, 
                     Statement.RETURN_GENERATED_KEYS);
 
@@ -91,6 +99,7 @@ public class LSIndexQueryProcessor {
             // Select Statements
             getFunctionsFromPackage = connection.prepareStatement(Constants.GET_FUNCTIONS_FROM_PACKAGE);
             getRecordsFromPackage = connection.prepareStatement(Constants.GET_RECORDS_FROM_PACKAGE);
+            getOtherTypesFromPackage = connection.prepareStatement(Constants.GET_OTHER_TYPES_FROM_PACKAGE);
             getObjectsFromPackage = connection.prepareStatement(Constants.GET_OBJECT_FROM_PACKAGE);
         } catch (SQLException e) {
             logger.error("Error in Creating Prepared Statement.");
@@ -198,6 +207,29 @@ public class LSIndexQueryProcessor {
     }
 
     /**
+     * Batch Insert List of Other Type Symbols.
+     * @param otherTypeSymbolDTOs   list of BRecordTypeSymbolDTOs
+     * @return {@link List}         List of Generated Keys
+     * @throws SQLException         Exception While Insert
+     */
+    public List<Integer> batchInsertOtherTypes(List<OtherTypeSymbolDTO> otherTypeSymbolDTOs) throws SQLException,
+            IOException {
+        clearBatch(insertOtherType);
+        for (OtherTypeSymbolDTO otherTypeDTO : otherTypeSymbolDTOs) {
+            insertOtherType.setInt(1, otherTypeDTO.getPackageId());
+            insertOtherType.setString(2, otherTypeDTO.getName());
+            // TODO: Currently null
+            insertOtherType.setString(3, "");
+            insertOtherType.setString(4, DTOUtil.completionItemToJSON(otherTypeDTO.getCompletionItem()));
+            insertOtherType.addBatch();
+        }
+
+        insertOtherType.executeBatch();
+
+        return this.getGeneratedKeys(insertOtherType.getGeneratedKeys());
+    }
+
+    /**
      * Batch Insert List of ObjectTypeSymbols.
      * @param objectDTOs        List of BFunctionDTOs
      * @return {@link List}     List of Generated Keys
@@ -263,7 +295,7 @@ public class LSIndexQueryProcessor {
      * Get a List of RecordDAOs.
      * @param name                  Package Name
      * @param orgName               Org Name
-     * @return {@link RecordDAO}    List of FunctionDAOs
+     * @return {@link RecordDAO}    List of RecordDAOs
      * @throws SQLException         Exception While Insert
      */
     public List<RecordDAO> getRecordsFromPackage(String name, String orgName) throws SQLException {
@@ -272,6 +304,21 @@ public class LSIndexQueryProcessor {
         getRecordsFromPackage.setString(2, orgName);
         
         return DAOUtil.getRecordDAO(getRecordsFromPackage.executeQuery());
+    }
+
+    /**
+     * Get a List of RecordDAOs.
+     * @param name                      Package Name
+     * @param orgName                   Org Name
+     * @return {@link OtherTypeDAO}     List of OtherTypeDAOs
+     * @throws SQLException             Exception While Insert
+     */
+    public List<OtherTypeDAO> getOtherTypesFromPackage(String name, String orgName) throws SQLException {
+        getOtherTypesFromPackage.clearParameters();
+        getOtherTypesFromPackage.setString(1, name);
+        getOtherTypesFromPackage.setString(2, orgName);
+
+        return DAOUtil.getOtherTypeDAO(getOtherTypesFromPackage.executeQuery());
     }
 
     /**
