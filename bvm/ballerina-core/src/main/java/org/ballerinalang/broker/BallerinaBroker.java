@@ -33,11 +33,9 @@ import io.ballerina.messaging.broker.core.Metadata;
 import io.ballerina.messaging.broker.core.configuration.BrokerCoreConfiguration;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,18 +44,28 @@ import java.util.Map;
  *
  * @since 0.965.0
  */
-public class BrokerUtils {
+public class BallerinaBroker {
 
-    private static final Logger logger = LoggerFactory.getLogger(BrokerUtils.class);
+    private static final Logger logger = LoggerFactory.getLogger(BallerinaBroker.class);
 
-    private static BrokerImpl broker;
+    private static BallerinaBroker instance = null;
+    private BrokerImpl broker = null;
 
-    static {
-        try {
-            broker = startupBroker();
-        } catch (Exception e) {
-            throw new BallerinaException("Error starting up in-memory broker: ", e);
+    private BallerinaBroker(BrokerImpl broker) {
+        this.broker = broker;
+    }
+
+    public static BallerinaBroker getBrokerInstance() throws Exception {
+        if (instance != null) {
+            return instance;
         }
+
+        synchronized (BallerinaBroker.class) {
+            if (instance == null) {
+                startInternalBroker();
+            }
+        }
+        return instance;
     }
 
     /**
@@ -66,7 +74,7 @@ public class BrokerUtils {
      * @param topic     the topic for which the subscription is registered
      * @param consumer  the consumer to register for the subscription
      */
-    public static void addSubscription(String topic, Consumer consumer) {
+    public void addSubscription(String topic, Consumer consumer) {
         String queueName = consumer.getQueueName(); //need to rely on implementers of consumers to specify unique names
         try {
             broker.createQueue(queueName, false, false, true);
@@ -82,7 +90,7 @@ public class BrokerUtils {
      *
      * @param consumer  the consumer representing the subscription to remove
      */
-    public static void removeSubscription(Consumer consumer) {
+    public void removeSubscription(Consumer consumer) {
         broker.removeConsumer(consumer);
     }
 
@@ -92,7 +100,7 @@ public class BrokerUtils {
      * @param topic     the topic for which the subscription is registered
      * @param payload   the payload to publish (message content)
      */
-    public static void publish(String topic, byte[] payload) {
+    public void publish(String topic, byte[] payload) {
         Message message = new Message(Broker.getNextMessageId(),
                                       new Metadata(topic, "amq.topic", payload.length));
         ByteBuf content = Unpooled.copiedBuffer(payload);
@@ -110,7 +118,7 @@ public class BrokerUtils {
      * @param topic     the topic for which the subscription is registered
      * @param payload   the ByteBuf representing the payload to publish (message content)
      */
-    public static void publish(String topic, ByteBuf payload) {
+    public void publish(String topic, ByteBuf payload) {
         Message message = new Message(Broker.getNextMessageId(),
                                       new Metadata(topic, "amq.topic", payload.array().length));
         message.addChunk(new ContentChunk(0, payload));
@@ -119,23 +127,6 @@ public class BrokerUtils {
         } catch (BrokerException e) {
             logger.error("Error publishing to topic: ", e);
         }
-    }
-
-    /**
-     * Method to start up the Ballerina Broker. TODO: change
-     */
-    private static BrokerImpl startupBroker() throws Exception {
-        BallerinaBrokerConfigProvider configProvider = new BallerinaBrokerConfigProvider();
-        BrokerCommonConfiguration brokerCommonConfiguration = new BrokerCommonConfiguration();
-        brokerCommonConfiguration.setEnableInMemoryMode(true);
-        configProvider.registerConfigurationObject(BrokerCommonConfiguration.NAMESPACE, brokerCommonConfiguration);
-        BrokerCoreConfiguration brokerCoreConfiguration = new BrokerCoreConfiguration();
-        configProvider.registerConfigurationObject(BrokerCoreConfiguration.NAMESPACE, brokerCoreConfiguration);
-        StartupContext startupContext = new StartupContext();
-        startupContext.registerService(BrokerConfigProvider.class, configProvider);
-        BrokerImpl brokerInstance = new BrokerImpl(startupContext);
-        brokerInstance.startMessageDelivery();
-        return brokerInstance;
     }
 
     /**
@@ -155,19 +146,18 @@ public class BrokerUtils {
         }
     }
 
-    /**
-     * Retrieve byte array for a message received.
-     *
-     * @param message   The message received
-     * @return          Retrieved byte array
-     */
-    public static byte[] retrieveBytes(Message message) {
-        ByteBuffer messageByteBuffer = ByteBuffer.allocate((int) message.getMetadata().getContentLength());
-        for (ContentChunk messageContentChunk : message.getContentChunks()) {
-            byte[] contentChunkByteArray = messageContentChunk.getBytes();
-            messageByteBuffer = messageByteBuffer.put(contentChunkByteArray, (int) messageContentChunk.getOffset(),
-                                                      contentChunkByteArray.length);
-        }
-        return messageByteBuffer.array();
+    private static void startInternalBroker() throws Exception {
+        BallerinaBrokerConfigProvider configProvider = new BallerinaBrokerConfigProvider();
+        BrokerCommonConfiguration brokerCommonConfiguration = new BrokerCommonConfiguration();
+        brokerCommonConfiguration.setEnableInMemoryMode(true);
+        configProvider.registerConfigurationObject(BrokerCommonConfiguration.NAMESPACE, brokerCommonConfiguration);
+        BrokerCoreConfiguration brokerCoreConfiguration = new BrokerCoreConfiguration();
+        configProvider.registerConfigurationObject(BrokerCoreConfiguration.NAMESPACE, brokerCoreConfiguration);
+        StartupContext startupContext = new StartupContext();
+        startupContext.registerService(BrokerConfigProvider.class, configProvider);
+        BrokerImpl broker = new BrokerImpl(startupContext);
+        broker.startMessageDelivery();
+        instance = new BallerinaBroker(broker);
     }
+
 }
