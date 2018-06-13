@@ -67,7 +67,7 @@ public class LSIndexImpl implements LSIndex {
     @Override
     public boolean initFromIndexDump(String indexDumpPath) {
         String connectionURL
-                = "jdbc:h2:mem:test\\;INIT=RUNSCRIPT FROM '" + indexDumpPath + "'";
+                = "jdbc:h2:mem:test\\;INIT=RUNSCRIPT FROM '" + indexDumpPath.replace("\\", "\\\\") + "'";
         try {
             this.connection = getNewConnection(connectionURL);
             this.setQueryProcessor(this.connection);
