@@ -4,7 +4,7 @@
 
 # Note the port specified as a configuration, the hub service will be started up
 # on the default port if not specified as a parameter or a configuration.
-$ ballerina run publisher.bal -e b7a.websub.hub.port=9191
+$ ballerina run publisher.bal
 Starting up the Ballerina Hub Service
 ballerina: Default Ballerina WebSub Hub started up at https://localhost:9191/websub/hub
 ballerina: started HTTPS/WSS endpoint 0.0.0.0:9191
