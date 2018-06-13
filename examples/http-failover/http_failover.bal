@@ -32,7 +32,7 @@ service<http:Service> failoverDemoService bind { port: 9090 } {
     }
     // Parameters include a reference to the caller endpoint and a object with the request data.
     invokeEndpoint(endpoint caller, http:Request request) {
-        var backendRes = foBackendEP->get("/", request = request);
+        var backendRes = foBackendEP->get("/", message = request);
         // `match` is used to handle union-type returns.
         // If a response is returned, the normal process runs.
         // If the service does not get the expected response,

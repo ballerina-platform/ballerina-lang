@@ -33,11 +33,11 @@ service<http:Service> contentBasedRouting bind { port: 9090 } {
                     //Here, `post` represents the POST action of the HTTP client connector.
                     //This routes the payload to the relevant service when the server accepts the enclosed entity.
                     clientResponse =
-                            locationEP->post("/v2/594e018c1100002811d6d39a");
+                            locationEP->post("/v2/594e018c1100002811d6d39a", ());
 
                 } else {
                     clientResponse =
-                            locationEP->post("/v2/594e026c1100004011d6d39c");
+                            locationEP->post("/v2/594e026c1100004011d6d39c", ());
                 }
                 //Use the native function 'respond' to send the client response back to the caller.
                 match clientResponse {

@@ -38,7 +38,7 @@ function forwardToBakend(string textContent) {
     // using the HTTP client endpoint.
     http:Request req = new;
     req.setPayload(textContent);
-    var result = clientEP->post("/backend/jms", request=req);
+    var result = clientEP->post("/backend/jms", req);
     match (result) {
         http:Response response => {
             match (response.getTextPayload()) {

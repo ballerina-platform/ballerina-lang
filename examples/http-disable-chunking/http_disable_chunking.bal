@@ -19,7 +19,7 @@ service<http:Service> chunkingSample bind { port: 9092 } {
         //Create a new outbound request and set the payload.
         http:Request newReq = new;
         newReq.setPayload({ "name": "Ballerina" });
-        var result = clientEndpoint->post("/echo/", request = newReq);
+        var result = clientEndpoint->post("/echo/", newReq);
         match result {
             http:Response clientResponse => {
                 //send the response back to the caller.

@@ -34,7 +34,7 @@ service<http:Service> loadBalancerDemoService bind { port: 9090 } {
         http:Request outRequest = new;
         json requestPayload = { "name": "Ballerina" };
         outRequest.setPayload(requestPayload);
-        var response = lbBackendEP->post("/", request = outRequest);
+        var response = lbBackendEP->post("/", outRequest);
         // `match` is used to handle union-type returns.
         // If a response is returned, the normal process runs.
         // If the service does not get the expected response,

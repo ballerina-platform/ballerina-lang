@@ -29,7 +29,7 @@ function main(string... args) {
     // Set a string payload to the message to be sent to the endpoint.
     req.setPayload("POST: Hello World");
 
-    response = clientEndpoint->post("/post", request = req);
+    response = clientEndpoint->post("/post", req);
     match response {
         http:Response resp => {
             log:printInfo("\nPOST request:");
@@ -51,7 +51,7 @@ function main(string... args) {
     json jsonMsg = { method: "PUT", payload: "Hello World" };
     req.setJsonPayload(jsonMsg);
 
-    response = clientEndpoint->put("/put", request = req);
+    response = clientEndpoint->put("/put", req);
     match response {
         http:Response resp => {
             log:printInfo("\nPUT request:");
@@ -75,7 +75,7 @@ function main(string... args) {
                       </request>`;
     req.setXmlPayload(xmlMsg);
 
-    response = clientEndpoint->patch("/patch", request = req);
+    response = clientEndpoint->patch("/patch", req);
     match response {
         http:Response resp => {
             log:printInfo("\nPATCH request:");
@@ -93,7 +93,7 @@ function main(string... args) {
     }
 
     req.setPayload("DELETE: Hello World");
-    response = clientEndpoint->delete("/delete", request = req);
+    response = clientEndpoint->delete("/delete", req);
     match response {
         http:Response resp => {
             log:printInfo("\nDELETE request:");
@@ -116,7 +116,7 @@ function main(string... args) {
 
     req = new;
     req.addHeader("Sample-Name", "http-client-connector");
-    response = clientEndpoint->get("/get", request = req);
+    response = clientEndpoint->get("/get", message = req);
     match response {
         http:Response resp => {
             string contentType = resp.getHeader("Content-Type");

@@ -23,8 +23,7 @@ service<http:Service> HTTPStreamingService bind { port: 9090 } {
             contentType = mime:APPLICATION_PDF);
 
         //Send the request to the client with file content.
-        var response = clientEndpoint->post("/stream/receiver",
-            request = request);
+        var response = clientEndpoint->post("/stream/receiver", request);
 
         http:Response res = new;
         match response {
