@@ -132,12 +132,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BSymbol memSym = lookupMemberSymbol(pos, env.scope, env, symbol.name, expSymTag);
         if (symbol.getKind() == SymbolKind.XMLNS) {
-//            if (foundSym == symTable.notFoundSymbol) {
-//                if (foundSym.getKind() == SymbolKind.XMLNS) {
-//                    return true;
-//                }
-//                return false;
-//            }
             if (memSym.getKind() == SymbolKind.XMLNS) {
                 dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
                 return false;
