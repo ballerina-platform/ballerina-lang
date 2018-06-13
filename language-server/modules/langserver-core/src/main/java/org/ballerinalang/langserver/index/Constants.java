@@ -46,23 +46,15 @@ public class Constants {
     static final String INSERT_BLANG_OBJECT = 
             "INSERT INTO bLangObject (packageId, name, fields, type, completionItem) values (?, ?, ?, ?, ?)";
     
-    // Update Statements
+    // UPDATE Statements
     static final String UPDATE_ENDPOINT_ACTION_HOLDER_ID = 
             "UPDATE bLangObject SET actionHolderId = ? WHERE id = ?";
     
-    // GET Statements
-    static final String GET_PACKAGE_BY_ORG =
-            "SELECT * FROM bLangPackage WHERE orgName = ?";
-
-    static final String SELECT_ALL_FUNCTIONS =
-            "SELECT * FROM bLangFunction";
-
-    static final String SELECT_ALL_OBJECTS_BY_TYPE =
-            "SELECT * FROM bLangObject";
-    
+    // GET Statements    
     static final String GET_FUNCTIONS_FROM_PACKAGE = "SELECT p.name, p.orgName, f.completionItem, f.name " +
             "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
-            "INNER JOIN bLangFunction AS f WHERE p.id=f.packageId";
+            "INNER JOIN bLangFunction AS f WHERE p.id=f.packageId AND f.name NOT LIKE '%<init>%' AND " +
+            "f.name NOT LIKE '%<start>%' AND f.name NOT LIKE '%<stop>%'";
     
     static final String GET_RECORDS_FROM_PACKAGE = "SELECT p.name, p.orgName, r.completionItem, r.name " +
             "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +

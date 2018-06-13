@@ -113,7 +113,9 @@ public class DAOUtil {
         }
         return objectDAOs;
     }
-    
+
+    // Private Methods
+
     private static CompletionItem jsonToCompletionItem(String completionItemJson) {
         return gson.fromJson(parser.parse(completionItemJson).getAsJsonObject(), CompletionItem.class);
     }

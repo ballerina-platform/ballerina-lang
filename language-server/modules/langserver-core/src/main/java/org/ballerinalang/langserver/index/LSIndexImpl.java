@@ -80,31 +80,6 @@ public class LSIndexImpl implements LSIndex {
     }
 
     /**
-     * Create the connection to the index database.
-     */
-    private void initDefaultConnection() {
-        try {
-            this.connection = getNewConnection(Constants.DEFAULT_CONNECTION_URL);
-            this.setQueryProcessor(this.connection);
-        } catch (ClassNotFoundException | SQLException e) {
-            logger.error("Error in Creating new Index DB Connection.");
-        }
-    }
-
-    private static Connection getNewConnection(String connectionURL) throws ClassNotFoundException, SQLException {
-        Class.forName(Constants.DRIVER);
-        return DriverManager.getConnection(connectionURL);
-    }
-
-    public LSIndexQueryProcessor getQueryProcessor() {
-        return queryProcessor;
-    }
-
-    private void setQueryProcessor(Connection connection) {
-        this.queryProcessor = new LSIndexQueryProcessor(connection);
-    }
-
-    /**
      * Load the index database schema from the disk.
      *
      * @return {@link Boolean}  Whether the index schema loading is successful or not
@@ -148,5 +123,34 @@ public class LSIndexImpl implements LSIndex {
             logger.error("Error in Creating Index DB Dump.");
         }
         return false;
+    }
+
+    /**
+     * Get the Query Processor Instance.
+     * @return {@link LSIndexQueryProcessor}    Index Query Processor Instance
+     */
+    public LSIndexQueryProcessor getQueryProcessor() {
+        return queryProcessor;
+    }
+
+    /**
+     * Create the connection to the index database.
+     */
+    private void initDefaultConnection() {
+        try {
+            this.connection = getNewConnection(Constants.DEFAULT_CONNECTION_URL);
+            this.setQueryProcessor(this.connection);
+        } catch (ClassNotFoundException | SQLException e) {
+            logger.error("Error in Creating new Index DB Connection.");
+        }
+    }
+
+    private static Connection getNewConnection(String connectionURL) throws ClassNotFoundException, SQLException {
+        Class.forName(Constants.DRIVER);
+        return DriverManager.getConnection(connectionURL);
+    }
+
+    private void setQueryProcessor(Connection connection) {
+        this.queryProcessor = new LSIndexQueryProcessor(connection);
     }
 }

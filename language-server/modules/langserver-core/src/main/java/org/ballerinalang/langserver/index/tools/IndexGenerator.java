@@ -35,7 +35,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
@@ -88,9 +87,10 @@ public class IndexGenerator {
                     return null;
                 }).collect(Collectors.toList());
         indexGenerator.insertBLangPackages(bPackageSymbolDTOs);
-        String saveDumpPath = Paths.get("modules/langserver-core/target/").toAbsolutePath().toString();
+        String location = IndexGenerator.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String saveDumpPath = location.replace("classes/", "");
         LSIndexImpl.getInstance()
-                .saveIndexDump(Paths.get(new File(saveDumpPath + File.separator + "lang-server-index.sql").toURI()));
+                .saveIndexDump(Paths.get(saveDumpPath + "lang-server-index.sql"));
     }
 
     private void insertBLangPackages(List<BPackageSymbolDTO> packageSymbolDTOs) {
@@ -111,23 +111,6 @@ public class IndexGenerator {
             insertBLangObjects(generatedPkgKeys.get(i), objectCategories);
         }
     }
-
-//    private void insertBLangServices(int pkgEntryId, List<BLangService> bLangServices) {
-//        List<Integer> generatedKeys;
-//        List<List<BLangResource>> bLangResources = new ArrayList<>();
-//        List<BLangServiceDTO> bLangServiceDTOs = bLangServices.stream().map(bLangService -> {
-//            bLangResources.add(bLangService.getResources());
-//            return this.getServiceDTO(pkgEntryId, bLangService);
-//        }).collect(Collectors.toList());
-//        try {
-//            generatedKeys = LSIndexImpl.getInstance().getQueryProcessor().batchInsertBLangServices(bLangServiceDTOs);
-//            for (int i = 0; i < generatedKeys.size(); i++) {
-//                this.insertBLangResources(generatedKeys.get(i), bLangResources.get(i));
-//            }
-//        } catch (SQLException e) {
-//            // TODO: Handle Properly
-//        }
-//    }
 
     private static void insertBLangFunctions(int pkgEntryId, List<BInvokableSymbol> bInvokableSymbols) {
         List<BFunctionDTO> bFunctionDTOs = bInvokableSymbols.stream()
@@ -175,15 +158,4 @@ public class IndexGenerator {
         }
         return new ArrayList<>();
     }
-
-//    private void insertBLangResources(int serviceEntryId, List<BLangResource> bLangResources) {
-//        List<BLangResourceDTO> bLangResourceDTOs = bLangResources.stream()
-//                .map(resource -> this.getResourceDTO(serviceEntryId, resource))
-//                .collect(Collectors.toList());
-//        try {
-//            LSIndexImpl.getInstance().getQueryProcessor().batchInsertBLangResources(bLangResourceDTOs);
-//        } catch (SQLException e) {
-//            // TODO: Handle Properly
-//        }
-//    }
 }

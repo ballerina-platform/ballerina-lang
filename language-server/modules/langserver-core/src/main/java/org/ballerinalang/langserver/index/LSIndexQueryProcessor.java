@@ -178,7 +178,7 @@ public class LSIndexQueryProcessor {
      * Batch Insert List of RecordTypeSymbols.
      * @param recordDTOs        List of BRecordTypeSymbolDTOs
      * @return {@link List}     List of Generated Keys
-     * @throws SQLException}    Exception While Insert
+     * @throws SQLException     Exception While Insert
      */
     public List<Integer> batchInsertBLangRecords(List<BRecordTypeSymbolDTO> recordDTOs) throws SQLException,
             IOException {
@@ -288,6 +288,8 @@ public class LSIndexQueryProcessor {
         
         return DAOUtil.getObjectDAO(getObjectsFromPackage.executeQuery());
     }
+
+    // Private Methods
 
     private static void clearBatch(PreparedStatement preparedStatement) throws SQLException {
         preparedStatement.clearBatch();

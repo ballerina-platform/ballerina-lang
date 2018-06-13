@@ -129,7 +129,8 @@
                 <version>${maven.exec.plugin.version}</version>
                 <executions>
                     <execution>
-                        <phase>package</phase>
+                        <id>gen-index</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>java</goal>
                         </goals>

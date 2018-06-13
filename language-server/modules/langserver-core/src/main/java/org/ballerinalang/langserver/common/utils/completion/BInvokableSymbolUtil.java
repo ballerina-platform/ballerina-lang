@@ -50,7 +50,13 @@ public class BInvokableSymbolUtil {
         FunctionSignature functionSignature = getFunctionSignature(bInvokableSymbol);
         return getFunctionCompletionItem(functionSignature.insertText, functionSignature.getLabel());
     }
-    
+
+    /**
+     * Get Function Completion Item from insert text and label.
+     * @param insertText                Insert Text
+     * @param label                     Label
+     * @return {@link CompletionItem}   Generated Completion Item
+     */
     public static CompletionItem getFunctionCompletionItem(String insertText, String label) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
@@ -61,6 +67,8 @@ public class BInvokableSymbolUtil {
 
         return completionItem;
     }
+    
+    // Private Methods
 
     /**
      * Get the function signature.
