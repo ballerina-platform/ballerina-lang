@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.programfile.ProgramFileWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ServiceLoader;
@@ -57,6 +58,7 @@ public class BinaryFileWriter {
 
     private final CodeGenerator codeGenerator;
     private final SourceDirectory sourceDirectory;
+    private static PrintStream outStream = System.out;
 
     public static BinaryFileWriter getInstance(CompilerContext context) {
         BinaryFileWriter binaryFileWriter = context.get(BINARY_FILE_WRITER_KEY);
@@ -118,6 +120,7 @@ public class BinaryFileWriter {
         processorServiceLoader.forEach(plugin -> {
             plugin.codeGenerated(packageNode.packageID, execFilePath);
         });
+        outStream.println("\ttarget/" + execFileName);
     }
 
     public void writeLibraryPackage(BLangPackage packageNode) {

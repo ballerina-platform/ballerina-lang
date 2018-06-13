@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,7 +40,7 @@ public class Compiler {
 
     private static final CompilerContext.Key<Compiler> COMPILER_KEY =
             new CompilerContext.Key<>();
-
+    private static PrintStream outStream = System.out;
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
@@ -48,14 +49,6 @@ public class Compiler {
     private final BLangDiagnosticLog dlog;
     private final PackageLoader pkgLoader;
     private final Manifest manifest;
-
-    public static Compiler getInstance(CompilerContext context) {
-        Compiler compiler = context.get(COMPILER_KEY);
-        if (compiler == null) {
-            compiler = new Compiler(context);
-        }
-        return compiler;
-    }
 
     private Compiler(CompilerContext context) {
         context.put(COMPILER_KEY, this);
@@ -70,6 +63,14 @@ public class Compiler {
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
     }
 
+    public static Compiler getInstance(CompilerContext context) {
+        Compiler compiler = context.get(COMPILER_KEY);
+        if (compiler == null) {
+            compiler = new Compiler(context);
+        }
+        return compiler;
+    }
+
     public BLangPackage compile(String sourcePackage) {
         PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
         if (packageID == null) {
@@ -80,19 +81,25 @@ public class Compiler {
     }
 
     public void build() {
+        outStream.println("Compiling sources");
         List<BLangPackage> packageList = compilePackages();
-        packageList.forEach(this.binaryFileWriter::write);
-        packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
-        this.lockFileWriter.writeLockFile(this.manifest);
+        if (packageList.size() > 0) {
+            outStream.println("Generating executables");
+            packageList.forEach(this.binaryFileWriter::write);
+            packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
+            this.lockFileWriter.writeLockFile(this.manifest);
+        }
     }
 
     public void build(String sourcePackage, String targetFileName) {
+        outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage);
         if (bLangPackage.diagCollector.hasErrors()) {
             return;
         }
 
         // Code gen and save...
+        outStream.println("Generating executables");
         this.binaryFileWriter.write(bLangPackage, targetFileName);
         this.lockFileWriter.addEntryPkg(bLangPackage.symbol);
         this.lockFileWriter.writeLockFile(this.manifest);
@@ -136,8 +143,15 @@ public class Compiler {
         packages.stream()
 //                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
                 .filter(pkgNode -> pkgNode.symbol != null)
-                .forEach(this.compilerDriver::compilePackage);
-
+                .forEach(pkgNode -> {
+                             this.compilerDriver.compilePackage(pkgNode);
+                             if (pkgNode.packageID.isUnnamed) {
+                                 outStream.println("\t" + pkgNode.packageID.sourceFileName.value);
+                             } else {
+                                 outStream.println("\t" + pkgNode.packageID.toString());
+                             }
+                         }
+                );
         return packages;
     }
 
@@ -152,6 +166,7 @@ public class Compiler {
     }
 
     private BLangPackage compilePackage(PackageID packageID) {
+        outStream.println("Compiling sources");
         return compilePackages(Stream.of(packageID)).get(0);
     }
 }
