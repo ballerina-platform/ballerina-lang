@@ -26,6 +26,16 @@ endpoint http:Listener serviceEndpoint2 {
     port: 9093
 };
 
+endpoint http:Listener httpsEP {
+    port:9092,
+    secureSocket: {
+        keyStore: {
+            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
+            password:"ballerina"
+        }
+    }
+};
+
 endpoint http:Client endPoint1 {
     url: "http://localhost:9090",
     followRedirects: { enabled: true, maxCount: 3 }
@@ -43,6 +53,11 @@ endpoint http:Client endPoint3 {
 
 endpoint http:Client endPoint4 {
     url: "http://localhost:9090"
+};
+
+endpoint http:Client endPoint5 {
+    url: "https://localhost:9092",
+    followRedirects: { enabled: true }
 };
 
 @http:ServiceConfig {
@@ -226,6 +241,25 @@ service<http:Service> testRedirect bind serviceEndpoint {
             }
         }
     }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/httpsRedirect"
+    }
+    redirectWithHTTPs(endpoint client, http:Request req) {
+        http:Request clientRequest = new;
+        var response = endPoint5->get("/redirect3");
+        match response {
+            error connectorErr => {
+                io:println("Connector error!");
+            }
+            http:Response httpResponse => {
+                string value = check httpResponse.getTextPayload();
+                value = value + ":" + httpResponse.resolvedRequestedURI;
+                _ = client->respond(value);
+            }
+        }
+    }
 }
 
 @http:ServiceConfig {
@@ -340,5 +374,29 @@ service<http:Service> redirect2 bind serviceEndpoint2 {
     test303(endpoint client, http:Request req) {
         http:Response res = new;
         _ = client->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect2"]);
+    }
+}
+
+@http:ServiceConfig {
+    basePath:"/redirect3"
+}
+
+service<http:Service> redirect3 bind httpsEP {
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/"
+    }
+    firstRedirect (endpoint caller, http:Request req) {
+        http:Response res = new;
+        _ = caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect3/result"]);
+    }
+
+    @http:ResourceConfig {
+        methods:["GET"],
+        path:"/result"
+    }
+    finalResult (endpoint caller, http:Request req) {
+        _ = caller -> respond("HTTPs Result");
     }
 }

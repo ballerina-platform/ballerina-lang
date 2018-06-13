@@ -76,6 +76,14 @@ public class RedirectTestCase extends IntegrationTestCase {
                 "Incorrect resolvedRequestedURI");
     }
 
+    @Test(description = "Redirect is off, but the first response received for a redirect.")
+    public void testRedirectOff() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                "service1/redirectOff"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "/redirect1/round2:",
+                "Incorrect resolvedRequestedURI");
+    }
 
     @Test(description = "Include query params in relative path of a redirect location")
     public void testQPWithRelativePath() throws IOException {
@@ -114,12 +122,12 @@ public class RedirectTestCase extends IntegrationTestCase {
                 "Incorrect resolvedRequestedURI");
     }
 
-    @Test
-    public void testRedirectOff() throws IOException {
+    @Test(description = "Test redirect to an HTTPS location.")
+    public void testRedirectWithHTTPs() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
-                "service1/redirectOff"));
+                "service1/httpsRedirect"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
-        Assert.assertEquals(response.getData(), "/redirect1/round2:",
+        Assert.assertEquals(response.getData(), "HTTPs Result:https://localhost:9092/redirect3/result",
                 "Incorrect resolvedRequestedURI");
     }
 
