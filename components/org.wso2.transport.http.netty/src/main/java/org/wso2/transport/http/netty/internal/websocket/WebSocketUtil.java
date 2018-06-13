@@ -30,7 +30,7 @@ import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFram
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketTextMessage;
-import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
+import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
@@ -46,7 +46,7 @@ public class WebSocketUtil {
 
     public static DefaultWebSocketConnection getWebSocketConnection(ChannelHandlerContext ctx,
                                                                     WebSocketInboundFrameHandler frameHandler,
-                                                                    WebSocketFramesBlockingHandler blockingHandler,
+                                                                    MessageQueueHandler blockingHandler,
                                                                     boolean isSecured,
                                                                     String uri) throws URISyntaxException {
         DefaultWebSocketSession session = new DefaultWebSocketSession(ctx, isSecured, uri, getSessionID(ctx));

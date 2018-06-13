@@ -45,7 +45,7 @@ public class OCSPStaplingHandler extends OcspClientHandler {
 
     private static final Logger log = LoggerFactory.getLogger(OCSPStaplingHandler.class);
 
-    protected OCSPStaplingHandler(ReferenceCountedOpenSslEngine engine) {
+    public OCSPStaplingHandler(ReferenceCountedOpenSslEngine engine) {
         super(engine);
     }
 

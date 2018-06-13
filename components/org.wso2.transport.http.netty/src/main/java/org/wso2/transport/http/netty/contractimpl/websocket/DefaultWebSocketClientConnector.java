@@ -20,7 +20,6 @@
 package org.wso2.transport.http.netty.contractimpl.websocket;
 
 import io.netty.channel.EventLoopGroup;
-import io.netty.handler.codec.http.HttpHeaders;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
@@ -31,27 +30,15 @@ import org.wso2.transport.http.netty.sender.websocket.WebSocketClient;
  */
 public class DefaultWebSocketClientConnector implements WebSocketClientConnector {
 
-    private final String remoteUrl;
-    private final String subProtocols;
-    private final int idleTimeout;
-    private final HttpHeaders customHeaders;
-    private final EventLoopGroup wsClientEventLoopGroup;
-    private final boolean autoRead;
+    private final WebSocketClient webSocketClient;
 
     public DefaultWebSocketClientConnector(WebSocketClientConnectorConfig clientConnectorConfig,
             EventLoopGroup wsClientEventLoopGroup) {
-        this.remoteUrl = clientConnectorConfig.getRemoteAddress();
-        this.subProtocols = clientConnectorConfig.getSubProtocolsAsCSV();
-        this.customHeaders = clientConnectorConfig.getHeaders();
-        this.idleTimeout = clientConnectorConfig.getIdleTimeoutInMillis();
-        this.wsClientEventLoopGroup = wsClientEventLoopGroup;
-        this.autoRead = clientConnectorConfig.isAutoRead();
+        this.webSocketClient = new WebSocketClient(wsClientEventLoopGroup, clientConnectorConfig);
     }
 
     @Override
     public ClientHandshakeFuture connect() {
-        WebSocketClient webSocketClient = new WebSocketClient(remoteUrl, subProtocols, idleTimeout,
-                wsClientEventLoopGroup, customHeaders, autoRead);
         return webSocketClient.handshake();
     }
 }

@@ -42,7 +42,7 @@ import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConn
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
-import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
+import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 
 import java.nio.charset.StandardCharsets;
@@ -165,10 +165,10 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         channelFuture.addListener(future -> {
             if (future.isSuccess() && future.cause() == null) {
                 String selectedSubProtocol = handshaker.selectedSubprotocol();
-                WebSocketFramesBlockingHandler blockingHandler = new WebSocketFramesBlockingHandler();
+                MessageQueueHandler messageQueueHandler = new MessageQueueHandler();
                 WebSocketInboundFrameHandler frameHandler = new WebSocketInboundFrameHandler(connectorFuture,
-                        blockingHandler, true, secureConnection, target, listenerInterface);
-                configureFrameHandlingPipeline(idleTimeout, blockingHandler, frameHandler);
+                        messageQueueHandler, true, secureConnection, target, listenerInterface);
+                configureFrameHandlingPipeline(idleTimeout, messageQueueHandler, frameHandler);
                 DefaultWebSocketConnection webSocketConnection = frameHandler.getWebSocketConnection();
                 webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(selectedSubProtocol);
                 handshakeFuture.notifySuccess(frameHandler.getWebSocketConnection());
@@ -180,7 +180,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         return handshakeFuture;
     }
 
-    private void configureFrameHandlingPipeline(int idleTimeout, WebSocketFramesBlockingHandler blockingHandler,
+    private void configureFrameHandlingPipeline(int idleTimeout, MessageQueueHandler messageQueueHandler,
                                                 WebSocketInboundFrameHandler frameHandler) {
         ChannelPipeline pipeline = ctx.pipeline();
         if (idleTimeout > 0) {
@@ -190,7 +190,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         } else {
             pipeline.remove(Constants.IDLE_STATE_HANDLER);
         }
-        pipeline.addLast(Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER, blockingHandler);
+        pipeline.addLast(Constants.MESSAGE_QUEUE_HANDLER, messageQueueHandler);
         pipeline.addLast(Constants.WEBSOCKET_FRAME_HANDLER, frameHandler);
         pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
         pipeline.fireChannelActive();
@@ -198,9 +198,9 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
 
     /* Get the URL of the given connection */
     private String getWebSocketURL(HttpRequest req) {
-        String protocol = Constants.WEBSOCKET_PROTOCOL;
+        String protocol = Constants.WS_SCHEME;
         if (secureConnection) {
-            protocol = Constants.WEBSOCKET_PROTOCOL_SECURED;
+            protocol = Constants.WSS_SCHEME;
         }
         return protocol + "://" + req.headers().get("Host") + req.uri();
     }

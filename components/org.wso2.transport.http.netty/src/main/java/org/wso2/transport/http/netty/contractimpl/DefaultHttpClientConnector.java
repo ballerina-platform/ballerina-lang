@@ -292,7 +292,7 @@ public class DefaultHttpClientConnector implements HttpClientConnector {
         this.httpVersion = senderConfiguration.getHttpVersion();
         this.chunkConfig = senderConfiguration.getChunkingConfig();
         this.socketIdleTimeout = senderConfiguration.getSocketIdleTimeout(Constants.ENDPOINT_TIMEOUT);
-        this.sslConfig = senderConfiguration.getSSLConfig();
+        this.sslConfig = senderConfiguration.generateSSLConfig();
         this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
         this.forwardedExtensionConfig = senderConfiguration.getForwardedExtensionConfig();
     }

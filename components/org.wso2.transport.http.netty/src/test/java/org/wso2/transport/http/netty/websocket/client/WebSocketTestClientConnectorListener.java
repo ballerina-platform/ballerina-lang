@@ -42,7 +42,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
     private static final Logger log = LoggerFactory.getLogger(WebSocketTestClientConnectorListener.class);
 
     private final Queue<String> textQueue = new LinkedList<>();
-    private final Queue<ByteBuffer> bufferQueue = new LinkedList<>();
+    private final Queue<WebSocketBinaryMessage> binaryMessageQueue = new LinkedList<>();
     private final Queue<Throwable> errorsQueue = new LinkedList<>();
     private static final String PING = "ping";
     private WebSocketCloseMessage closeMessage = null;
@@ -88,7 +88,7 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
 
     @Override
     public void onMessage(WebSocketBinaryMessage binaryMessage) {
-        bufferQueue.add(binaryMessage.getByteBuffer());
+        binaryMessageQueue.add(binaryMessage);
         countDownLatch();
     }
 
@@ -144,9 +144,9 @@ public class WebSocketTestClientConnectorListener implements WebSocketConnectorL
      *
      * @return the latest {@link ByteBuffer} received to client.
      */
-    public ByteBuffer getReceivedByteBufferToClient() throws Throwable {
+    public WebSocketBinaryMessage getReceivedBinaryMessageToClient() throws Throwable {
         if (errorsQueue.isEmpty()) {
-            return bufferQueue.remove();
+            return binaryMessageQueue.remove();
         }
         throw errorsQueue.remove();
     }

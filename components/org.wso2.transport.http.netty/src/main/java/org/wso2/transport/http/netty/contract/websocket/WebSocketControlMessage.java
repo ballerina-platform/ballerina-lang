@@ -20,7 +20,7 @@
 package org.wso2.transport.http.netty.contract.websocket;
 
 /**
- * This message contains the details of WebSocket bong message.
+ * This message contains the details of WebSocket control message.
  */
 public interface WebSocketControlMessage extends WebSocketBinaryMessage {
 

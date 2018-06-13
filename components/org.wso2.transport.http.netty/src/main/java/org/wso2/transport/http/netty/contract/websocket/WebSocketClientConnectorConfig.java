@@ -21,7 +21,10 @@ package org.wso2.transport.http.netty.contract.websocket;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.config.SslConfiguration;
 
+import java.net.URI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -29,7 +32,7 @@ import java.util.Map;
 /**
  * Configuration for WebSocket client connector.
  */
-public class WebSocketClientConnectorConfig {
+public class WebSocketClientConnectorConfig extends SslConfiguration {
 
     private final String remoteAddress;
     private List<String> subProtocols;
@@ -38,16 +41,10 @@ public class WebSocketClientConnectorConfig {
     private final HttpHeaders headers;
 
     public WebSocketClientConnectorConfig(String remoteAddress) {
-        this(remoteAddress, null, -1, true);
-    }
-
-    public WebSocketClientConnectorConfig(String remoteAddress, List<String> subProtocols,
-                                          int idleTimeoutInSeconds, boolean autoRead) {
         this.remoteAddress = remoteAddress;
-        this.subProtocols = subProtocols;
-        this.idleTimeoutInSeconds = idleTimeoutInSeconds;
-        this.autoRead = autoRead;
         this.headers = new DefaultHttpHeaders();
+        this.setScheme(Constants.WSS_SCHEME.equals(URI.create(remoteAddress).getScheme())
+                ? Constants.HTTPS_SCHEME : Constants.HTTP_SCHEME);
     }
 
     /**
