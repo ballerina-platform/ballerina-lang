@@ -264,7 +264,7 @@ class BallerinaPlugin extends Plugin {
                                         }
                                     })
                                     .catch((error) => {
-                                        log.error(error);
+                                        log.error(error.message);
                                     });
                                 };
 

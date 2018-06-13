@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * made in the deframing thread.
  */
 @NotThreadSafe
-public class MessageDeframer implements Closeable, Deframer {
+public class MessageDeframer implements Closeable {
     private static final int HEADER_LENGTH = 5;
     private static final int COMPRESSED_FLAG_MASK = 1;
     private static final int RESERVED_MASK = 0xFE;
@@ -79,8 +79,6 @@ public class MessageDeframer implements Closeable, Deframer {
     private CompositeReadableBuffer unprocessed = new CompositeReadableBuffer();
     private long pendingDeliveries = 1;
     private boolean inDelivery = false;
-    private int currentMessageSeqNo = -1;
-    private int inboundBodyWireSize;
 
     private boolean closeWhenComplete = false;
     private volatile boolean stopDelivery = false;
@@ -106,17 +104,14 @@ public class MessageDeframer implements Closeable, Deframer {
         this.listener = listener;
     }
 
-    @Override
     public void setMaxInboundMessageSize(int messageSize) {
         maxInboundMessageSize = messageSize;
     }
 
-    @Override
     public void setDecompressor(Decompressor decompressor) {
         this.decompressor = decompressor;
     }
 
-    @Override
     public void request(int numMessages) {
         checkArgument(numMessages > 0, "numMessages must be > 0");
         if (isClosed()) {
@@ -126,7 +121,6 @@ public class MessageDeframer implements Closeable, Deframer {
         //deliver();
     }
 
-    @Override
     public void deframe(ReadableBuffer data) {
 
         checkNotNull(data, "data");
@@ -145,7 +139,6 @@ public class MessageDeframer implements Closeable, Deframer {
         }
     }
 
-    @Override
     public void closeWhenComplete() {
         if (isClosed()) {
             return;
@@ -300,8 +293,6 @@ public class MessageDeframer implements Closeable, Deframer {
                             requiredLength, maxInboundMessageSize))
                     .asRuntimeException();
         }
-
-        currentMessageSeqNo++;
         // Continue reading the frame body.
         state = MessageDeframer.State.BODY;
     }

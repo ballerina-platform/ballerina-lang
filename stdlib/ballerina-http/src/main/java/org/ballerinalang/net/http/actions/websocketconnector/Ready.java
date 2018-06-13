@@ -38,7 +38,7 @@ import org.ballerinalang.net.http.WebSocketUtil;
         orgName = "ballerina", packageName = "http",
         functionName = "ready",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.OBJECT),
         }

@@ -45,28 +45,28 @@ public type DataChannel object {
     documentation {
         Reads a 16 bit integer.
 
-        R{{}} Value of the integer which is read or an error
+        R{{}} value of the integer which is read or an error
     }
     public native function readInt16() returns int|error;
 
     documentation {
         Reads a 32 bit integer.
 
-        R{{}} Value of the integer which is read or an error
+        R{{}} value of the integer which is read or an error
     }
     public native function readInt32() returns int|error;
 
     documentation {
         Reads a 64 bit integer.
 
-        R{{}} Value of the integer which is read or an error
+        R{{}} value of the integer which is read or an error
     }
     public native function readInt64() returns int|error;
 
     documentation {
         Writes 16 bit integer.
 
-        P{{value}}   Integer which will be written
+        P{{value}}   integer which will be written
         R{{}} nill if the content is written successfully or an error
     }
     public native function writeInt16(int value) returns error?;
@@ -74,7 +74,7 @@ public type DataChannel object {
     documentation {
         Writes 32 bit integer.
 
-        P{{value}}   Integer which will be written
+        P{{value}}   integer which will be written
         R{{}} nill if the content is written successfully or an error
     }
     public native function writeInt32(int value) returns error?;
@@ -82,7 +82,7 @@ public type DataChannel object {
     documentation {
         Writes 64 bit integer.
 
-        P{{value}}   Integer which will be written
+        P{{value}}   integer which will be written
         R{{}} nill if the content is written successfully or an error
     }
     public native function writeInt64(int value) returns error?;
@@ -90,30 +90,30 @@ public type DataChannel object {
     documentation {
         Reads 32 bit float.
 
-        R{{}} Value of the float which is read or an error
+        R{{}} value of the float which is read or an error
     }
     public native function readFloat32() returns float|error;
 
     documentation {
         Reads 64 bit float.
 
-        R{{}} Value of the float which is read or an error
+        R{{}} value of the float which is read or an error
     }
     public native function readFloat64() returns float|error;
 
     documentation {
         Writes 32 bit float.
 
-        P{{value}}   Float which will be written
-        R{{}} Value of the float which is read or an error
+        P{{value}}   float which will be written
+        R{{}} nill if the float is written successfully or an error
     }
     public native function writeFloat32(float value) returns error?;
 
     documentation {
         Writes 64 bit float.
 
-        P{{value}}   Float which will be written
-        R{{}} Value of the float which is read or an error
+        P{{value}}   float which will be written
+        R{{}} nill if the float is written successfully or an error
     }
     public native function writeFloat64(float value) returns error?;
 
@@ -131,4 +131,29 @@ public type DataChannel object {
         R{{}} nill if the content is written successfully or an error
     }
     public native function writeBool(boolean value) returns error?;
+
+    documentation {
+        Reads string value represented through the provided number of bytes.
+
+        P{{nBytes}} specifies the number of bytes which represents the string
+        P{{encoding}} specifies the char-set encoding of the string
+        R{{}} value of the string or an error
+    }
+    public native function readString(int nBytes, string encoding) returns string|error;
+
+    documentation {
+        Writes a given string value to the respective channel.
+
+        P{{value}} the value which should be written
+        P{{encoding}} the encoding which will represent the value string
+        R{{}} nill if the content is written successfully or an error
+    }
+    public native function writeString(string value, string encoding) returns error?;
+
+    documentation {
+        Closes the data channel.
+
+        R{{}} nill if the channel is closed successfully or an i/o error
+    }
+    public native function close() returns error?;
 };

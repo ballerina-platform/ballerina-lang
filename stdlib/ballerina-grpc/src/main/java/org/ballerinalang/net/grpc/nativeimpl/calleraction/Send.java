@@ -34,7 +34,6 @@ import org.ballerinalang.net.grpc.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTION;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
@@ -42,6 +41,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.RESPONSE_MESSAGE_REF_INDEX;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Native function to respond the caller.
@@ -60,8 +60,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.RESPONSE_MESSAGE_REF_INDE
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
         },
         returnType = {
-                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
-        },
+                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR,
+                        structPackage = BALLERINA_BUILTIN_PKG)        },
         isPublic = true
 )
 public class Send extends BlockingNativeCallableUnit {

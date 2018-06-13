@@ -39,7 +39,7 @@ import java.nio.ByteBuffer;
         orgName = "ballerina", packageName = "http",
         functionName = "pushBinary",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.OBJECT),
                 @Argument(name = "data", type = TypeKind.BLOB),

@@ -66,7 +66,7 @@ public class Constants {
     // Used to keep the session wrapper
     public static final String SESSION_CONNECTOR_OBJECT = "jms_session_connector_object";
 
-    public static final String BALLERINA_PACKAGE_JMS = "ballerina.jms";
+    public static final String BALLERINA_PACKAGE_JMS = "ballerina/jms";
     public static final String CONFIG_FILE_PATH = "configFilePath";
 
     public static final String PROPERTIES_MAP = "properties";

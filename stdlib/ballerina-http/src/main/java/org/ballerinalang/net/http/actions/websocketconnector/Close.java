@@ -40,7 +40,7 @@ import java.util.concurrent.TimeUnit;
         orgName = "ballerina", packageName = "http",
         functionName = "close",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = WebSocketConstants.WEBSOCKET_CONNECTOR,
-                structPackage = "ballerina.http"),
+                structPackage = "ballerina/http"),
         args = {
                 @Argument(name = "wsConnector", type = TypeKind.OBJECT),
                 @Argument(name = "statusCode", type = TypeKind.INT),

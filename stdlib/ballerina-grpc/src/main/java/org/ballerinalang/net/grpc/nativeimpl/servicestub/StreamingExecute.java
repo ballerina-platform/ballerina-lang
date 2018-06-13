@@ -42,7 +42,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT;
@@ -55,6 +54,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_MESSAGE_DEFINITIO
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * {@code StreamingExecute} is the StreamingExecute action implementation of the gRPC Connector.
@@ -76,7 +76,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
         returnType = {
                 @ReturnType(type = TypeKind.OBJECT, structType = CLIENT,
                         structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN),
+                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR,
+                        structPackage = BALLERINA_BUILTIN_PKG),
         },
         isPublic = true
 )

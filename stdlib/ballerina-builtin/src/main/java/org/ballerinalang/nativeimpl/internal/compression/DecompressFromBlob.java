@@ -43,7 +43,7 @@ import java.util.zip.ZipInputStream;
         functionName = "decompressFromBlob",
         args = {@Argument(name = "content", type = TypeKind.BLOB),
                 @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
-                        structPackage = "ballerina.file")},
+                        structPackage = "ballerina/file")},
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )

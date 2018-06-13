@@ -78,13 +78,13 @@ service<http:WebSocketService> PingPongTestService bind { port: 9090 } {
         }
     }
 
-    onPing(endpoint wsEp, blob data) {
-        wsEp->pong(data) but {
+    onPing(endpoint wsEp, blob localData) {
+        wsEp->pong(localData) but {
             error e => io:println("Error sending server pong")
         };
     }
 
-    onPong(endpoint wsEp, blob data) {
+    onPong(endpoint wsEp, blob localData) {
         wsEp->pushText("pong-from-you") but {
             error e => io:println("server text error")
         };
@@ -101,14 +101,14 @@ service<http:WebSocketClientService> clientCallbackService {
         };
     }
 
-    onPing(endpoint wsEp, blob data) {
+    onPing(endpoint wsEp, blob localData) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener(wsEp);
         serverEp->pushText("ping-from-remote-server-received") but {
             error e => io:println("error sending client text")
         };
     }
 
-    onPong(endpoint wsEp, blob data) {
+    onPong(endpoint wsEp, blob localData) {
         endpoint http:WebSocketListener serverEp = getAssociatedListener(wsEp);
         serverEp->pushText("pong-from-remote-server-received") but {
             error e => io:println("error sending client text")

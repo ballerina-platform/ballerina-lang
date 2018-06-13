@@ -56,7 +56,7 @@ import java.util.stream.Collectors;
  * completion of processing a ballerina package.
  */
 @SupportedAnnotationPackages(
-        value = "ballerina.test"
+        value = "ballerina/test"
 )
 public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String TEST_ANNOTATION_NAME = "Config";

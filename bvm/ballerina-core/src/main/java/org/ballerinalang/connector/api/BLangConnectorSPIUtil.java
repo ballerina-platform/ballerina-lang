@@ -32,6 +32,7 @@ import org.ballerinalang.util.codegen.ServiceInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 /**
  * Utils for accessing runtime information for Ballerina Connector SPI.
@@ -136,8 +137,10 @@ public final class BLangConnectorSPIUtil {
         return getService(programFile, (BServiceType) vmValue.value());
     }
 
-    public static BStruct getPackageEndpoint(ProgramFile programFile, String pkgName, String endpointName) {
-        final PackageInfo packageInfo = programFile.getPackageInfo(pkgName);
+    public static BStruct getPackageEndpoint(ProgramFile programFile, String pkgName, String version,
+                                             String endpointName) {
+        String pkgID = getPackageID(pkgName, version);
+        final PackageInfo packageInfo = programFile.getPackageInfo(pkgID);
         if (packageInfo == null) {
             throw new BallerinaConnectorException("Incorrect package name");
         }
@@ -153,5 +156,12 @@ public final class BLangConnectorSPIUtil {
         final ServiceInfo serviceInfo = programFile.getPackageInfo(serviceType.getPackagePath())
                 .getServiceInfo(serviceType.getName());
         return ConnectorSPIModelHelper.createService(programFile, serviceInfo);
+    }
+
+    private static String getPackageID(String pkgName, String version) {
+        if (version == null || Names.EMPTY.value.equals(version)) {
+            return pkgName;
+        }
+        return String.join(Names.VERSION_SEPARATOR.value, pkgName, version);
     }
 }

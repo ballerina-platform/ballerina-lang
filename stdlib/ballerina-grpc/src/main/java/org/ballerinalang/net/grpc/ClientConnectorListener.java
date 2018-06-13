@@ -63,10 +63,10 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
 
         InboundMessage inboundMessage = new InboundMessage(httpMessage);
 
-        stateListener.setDecompressor(inboundMessage.getMessageDecompressor());
         if (isValid(inboundMessage)) {
             stateListener.inboundHeadersReceived(inboundMessage.getHeaders());
         }
+        //stateListener.setDecompressor(inboundMessage.getMessageDecompressor());
 
         final Executor wrappedExecutor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         wrappedExecutor.execute(() -> {
@@ -128,8 +128,11 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
     protected boolean isValid(InboundMessage inboundMessage) {
 
         HttpHeaders headers = inboundMessage.getHeaders();
+        if (headers == null) {
+            transportError = Status.Code.INTERNAL.toStatus().withDescription("Message headers is null");
+            return false;
+        }
 
-        Preconditions.checkNotNull(headers, "headers");
         if (transportError != null) {
             // Already received a transport error so just augment it. Something is really, really strange.
             transportError = transportError.augmentDescription("headers: " + headers);
@@ -143,6 +146,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
             Integer httpStatus = inboundMessage.getStatus();
             if (httpStatus >= 100 && httpStatus < 200) {
                 // Ignore the headers. See RFC 7540 §8.1
+                // 1xx (Informational): The request was received, continuing process
                 return false;
             }
             headersReceived = true;
@@ -249,18 +253,14 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
          */
         protected void inboundHeadersReceived(HttpHeaders headers) {
 
-            boolean compressedStream = false;
             String streamEncoding = headers.get("content-encoding");
             if (streamEncoding != null) {
-                if (streamEncoding.equalsIgnoreCase("gzip")) {
-                    compressedStream = true;
-                } else if (!streamEncoding.equalsIgnoreCase("identity")) {
-                    deframeFailed(Status.Code.INTERNAL.toStatus()
-                            .withDescription(
-                                    String.format("Can't find full stream decompressor for %s", streamEncoding))
-                            .asRuntimeException());
-                    return;
-                }
+                deframeFailed(
+                        Status.Code.INTERNAL.toStatus()
+                                .withDescription(
+                                        String.format("Full stream decompressor for %s is not supported",
+                                                streamEncoding)).asRuntimeException());
+                return;
             }
 
             String messageEncoding = headers.get("grpc-encoding");
@@ -273,13 +273,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                                     .asRuntimeException());
                     return;
                 } else if (decompressor != Codec.Identity.NONE) {
-                    if (compressedStream) {
-                        deframeFailed(
-                                Status.Code.INTERNAL.toStatus()
-                                        .withDescription(String.format("Full stream and gRPC message encoding cannot " +
-                                                "both be set")).asRuntimeException());
-                        return;
-                    }
                     setDecompressor(decompressor);
                 }
             }
@@ -333,14 +326,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                 deframerClosedTask = null;
                 closeListener(status, trailers);
             } else {
-                deframerClosedTask =
-                        new Runnable() {
-                            @Override
-                            public void run() {
-
-                                closeListener(status, trailers);
-                            }
-                        };
+                deframerClosedTask = () -> closeListener(status, trailers);
                 closeDeframer(stopDelivery);
             }
         }
@@ -356,6 +342,11 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                 listenerClosed = true;
                 listener().closed(status, trailers);
             }
+        }
+
+        @Override
+        public void deframeFailed(Throwable cause) {
+            transportReportStatus(Status.fromThrowable(cause), true, new DefaultHttpHeaders());;
         }
     }
 

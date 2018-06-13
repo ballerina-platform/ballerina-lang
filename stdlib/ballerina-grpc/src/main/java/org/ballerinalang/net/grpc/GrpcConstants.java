@@ -21,6 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+
 /**
  * Proto Message Constants Class.
  *
@@ -35,11 +37,8 @@ public class GrpcConstants {
     
     //gRPC package name.
     public static final String PROTOCOL_PACKAGE_GRPC = "grpc";
-    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina.grpc";
+    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina" + ORG_NAME_SEPARATOR + "grpc";
     public static final String ORG_NAME = "ballerina";
-
-    public static final String PACKAGE_BUILTIN = "ballerina.builtin";
-    public static final String STRUCT_GENERIC_ERROR = "error";
 
     //server side endpoint constants.
     public static final String SERVICE_REGISTRY_BUILDER = "SERVICE_REGISTRY_BUILDER";
@@ -229,5 +228,5 @@ public class GrpcConstants {
      * The default maximum uncompressed size (in bytes) for inbound messages. Defaults to 4 MiB.
      */
     public static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
-    
+
 }

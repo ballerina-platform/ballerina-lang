@@ -156,7 +156,7 @@ public class InboundMessage {
      */
     public abstract static class InboundStateListener implements MessageDeframer.Listener {
 
-        private Deframer deframer;
+        private MessageDeframer deframer;
 
         protected InboundStateListener(int maxMessageSize) {
 

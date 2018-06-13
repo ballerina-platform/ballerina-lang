@@ -37,7 +37,7 @@ import static java.lang.Math.min;
 /**
  * Encodes gRPC messages to be delivered via the transport layer which implements.
  */
-public class MessageFramer implements Framer {
+public class MessageFramer {
 
     private static final int NO_MAX_OUTBOUND_MESSAGE_SIZE = -1;
 
@@ -57,11 +57,6 @@ public class MessageFramer implements Framer {
     // transportTracer is nullable until it is integrated with client transports
     private boolean closed;
 
-    // Tracing and stats-related states
-    private int messagesBuffered;
-    private int currentMessageSeqNo = -1;
-    private long currentMessageWireSize;
-
     /**
      * Creates a {@code MessageFramer}.
      *
@@ -72,21 +67,18 @@ public class MessageFramer implements Framer {
         this.carbonMessage = carbonMessage;
     }
 
-    @Override
     public MessageFramer setCompressor(Compressor compressor) {
 
         this.compressor = compressor;
         return this;
     }
 
-    @Override
     public MessageFramer setMessageCompression(boolean enable) {
 
         messageCompression = enable;
         return this;
     }
 
-    @Override
     public void setMaxOutboundMessageSize(int maxSize) {
 
         if (maxSize > 0) {
@@ -99,13 +91,9 @@ public class MessageFramer implements Framer {
      *
      * @param message contains the message to be written out. It will be completely consumed.
      */
-    @Override
     public void writePayload(InputStream message) {
 
         verifyNotClosed();
-        messagesBuffered++;
-        currentMessageSeqNo++;
-        currentMessageWireSize = 0;
         boolean compressed = messageCompression && compressor != Codec.Identity.NONE;
         int written = -1;
         int messageLength = -2;
@@ -133,7 +121,6 @@ public class MessageFramer implements Framer {
     private int writeUncompressed(InputStream message, int messageLength) throws IOException, ServerConnectorException {
 
         if (messageLength != -1) {
-            currentMessageWireSize = messageLength;
             return writeKnownLengthUncompressed(message, messageLength);
         }
         BufferChainOutputStream bufferChain = new BufferChainOutputStream();
@@ -221,7 +208,6 @@ public class MessageFramer implements Framer {
         // The final message may not be completely written because we do not flush the last buffer.
         // Do not report the last message as sent.
         carbonMessage.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(writeableHeader)));
-        messagesBuffered = 1;
         // Commit all except the last buffer to the sink
         List<ByteBuffer> bufferList = bufferChain.bufferList;
         for (int i = 0; i < bufferList.size(); i++) {
@@ -230,7 +216,6 @@ public class MessageFramer implements Framer {
         // Assign the current buffer to the last in the chain so it can be used
         // for future writes or written with end-of-stream=true on close.
         buffer = bufferList.get(bufferList.size() - 1);
-        currentMessageWireSize = messageLength;
     }
 
     private static int writeToOutputStream(InputStream message, OutputStream outputStream)
@@ -267,7 +252,6 @@ public class MessageFramer implements Framer {
     /**
      * Flushes any buffered data in the framer to the sink.
      */
-    @Override
     public void flush() {
 
         if (buffer != null && buffer.limit() > 0) {
@@ -279,7 +263,6 @@ public class MessageFramer implements Framer {
      * Indicates whether or not this framer has been closed via a call to either
      * {@link #close()} or {@link #dispose()}.
      */
-    @Override
     public boolean isClosed() {
 
         return closed;
@@ -289,7 +272,6 @@ public class MessageFramer implements Framer {
      * Flushes and closes the framer and releases any buffers. After the framer is closed or
      * disposed, additional calls to this method will have no affect.
      */
-    @Override
     public void close() {
 
         if (!isClosed()) {
@@ -307,7 +289,6 @@ public class MessageFramer implements Framer {
      * Closes the framer and releases any buffers, but does not flush. After the framer is
      * closed or disposed, additional calls to this method will have no affect.
      */
-    @Override
     public void dispose() {
 
         closed = true;
@@ -333,7 +314,6 @@ public class MessageFramer implements Framer {
             carbonMessage.addHttpContent(new DefaultHttpContent(content));
         }
         buffer = null;
-        messagesBuffered = 0;
     }
 
     private void verifyNotClosed() {

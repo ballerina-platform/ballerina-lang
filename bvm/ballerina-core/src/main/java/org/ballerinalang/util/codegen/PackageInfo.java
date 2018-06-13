@@ -39,6 +39,7 @@ import java.util.Map;
  */
 public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
+    public int orgNameCPIndex;
     public int nameCPIndex;
     public String pkgPath;
     public int versionCPIndex;

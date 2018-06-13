@@ -54,18 +54,6 @@ public class BallerinaWhileStatementImpl extends BallerinaCompositeElementImpl i
   }
 
   @Override
-  @Nullable
-  public PsiElement getLeftParenthesis() {
-    return findChildByType(LEFT_PARENTHESIS);
-  }
-
-  @Override
-  @Nullable
-  public PsiElement getRightParenthesis() {
-    return findChildByType(RIGHT_PARENTHESIS);
-  }
-
-  @Override
   @NotNull
   public PsiElement getWhile() {
     return notNullChild(findChildByType(WHILE));

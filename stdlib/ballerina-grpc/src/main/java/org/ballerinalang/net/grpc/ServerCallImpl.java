@@ -39,8 +39,8 @@ final class ServerCallImpl<ReqT, RespT> extends ServerCall<ReqT, RespT> {
      */
     private static final String MESSAGE_ACCEPT_ENCODING = "grpc-accept-encoding";
 
-    static final String TOO_MANY_RESPONSES = "Too many responses";
-    static final String MISSING_RESPONSE = "Completed without a response";
+    private static final String TOO_MANY_RESPONSES = "Too many responses";
+    private static final String MISSING_RESPONSE = "Completed without a response";
 
     private final InboundMessage inboundMessage;
     private final OutboundMessage outboundMessage;

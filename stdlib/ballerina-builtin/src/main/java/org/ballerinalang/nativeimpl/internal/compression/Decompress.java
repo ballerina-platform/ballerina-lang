@@ -41,9 +41,9 @@ import java.nio.file.Path;
         functionName = "decompress",
         args = {
                 @Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
-                        structPackage = "ballerina.file"),
+                        structPackage = "ballerina/file"),
                 @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
-                        structPackage = "ballerina.file")
+                        structPackage = "ballerina/file")
         },
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
