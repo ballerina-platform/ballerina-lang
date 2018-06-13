@@ -114,8 +114,8 @@ public type Cache object {
     documentation { Evicts the cache when cache is full. }
     function evict() {
         int maxCapacity = self.capacity;
-        float evictionFactor = self.evictionFactor;
-        int numberOfKeysToEvict = <int>(maxCapacity * evictionFactor);
+        float ef = self.evictionFactor;
+        int numberOfKeysToEvict = <int>(maxCapacity * ef);
         // Get the above number of least recently used cache entry keys from the cache
         string[] cacheKeys = self.getLRUCacheKeys(numberOfKeysToEvict);
         // Iterate through the map and remove entries.

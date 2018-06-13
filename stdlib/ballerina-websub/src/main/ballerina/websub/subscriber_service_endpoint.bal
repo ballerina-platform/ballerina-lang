@@ -45,9 +45,9 @@ public type Listener object {
     documentation {
          Gets called when the endpoint is being initialized during package initialization.
          
-         P{{config}} The Subscriber Service Endpoint Configuration of the endpoint
+         P{{c}} The Subscriber Service Endpoint Configuration of the endpoint
     }
-    public function init(SubscriberServiceEndpointConfiguration config);
+    public function init(SubscriberServiceEndpointConfiguration c);
 
     documentation {
         Gets called whenever a service attaches itself to this endpoint and during package initialization.
@@ -105,12 +105,12 @@ public type Listener object {
 
 };
 
-public function Listener::init(SubscriberServiceEndpointConfiguration config) {
-    self.config = config;
+public function Listener::init(SubscriberServiceEndpointConfiguration c) {
+    self.config = c;
     SignatureValidationFilter sigValFilter;
     http:Filter[] filters = [<http:Filter>sigValFilter];
     http:ServiceEndpointConfiguration serviceConfig = {
-        host:config.host, port:config.port, secureSocket:config.httpServiceSecureSocket, filters:filters
+        host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket, filters:filters
     };
 
     self.serviceEndpoint.init(serviceConfig);

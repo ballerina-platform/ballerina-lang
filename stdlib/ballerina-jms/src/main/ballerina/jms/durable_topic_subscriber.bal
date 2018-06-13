@@ -29,14 +29,14 @@ public type DurableTopicSubscriber object {
     }
 
     documentation { Initialize durable topic subscriber endpoint
-        P{{config}} Configurations for a durable topic subscriber
+        P{{c}} Configurations for a durable topic subscriber
     }
-    public function init(DurableTopicSubscriberEndpointConfiguration config) {
-        self.config = config;
-        match (config.session) {
+    public function init(DurableTopicSubscriberEndpointConfiguration c) {
+        self.config = c;
+        match (c.session) {
             Session s => {
-                self.createSubscriber(s, config.messageSelector);
-                log:printInfo("Durable subscriber created for topic " + config.topicPattern);
+                self.createSubscriber(s, c.messageSelector);
+                log:printInfo("Durable subscriber created for topic " + c.topicPattern);
             }
             () => {}
         }
@@ -49,7 +49,7 @@ public type DurableTopicSubscriber object {
         self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, DurableTopicSubscriberActions consumerActions);
+    native function registerListener(typedesc serviceType, DurableTopicSubscriberActions actions);
 
     native function createSubscriber(Session session, string messageSelector);
 
@@ -71,7 +71,7 @@ public type DurableTopicSubscriber object {
         self.closeSubscriber(consumerActions);
     }
 
-    native function closeSubscriber(DurableTopicSubscriberActions consumerActions);
+    native function closeSubscriber(DurableTopicSubscriberActions actions);
 };
 
 documentation { Configurations related to the durable topic subscriber endpoint

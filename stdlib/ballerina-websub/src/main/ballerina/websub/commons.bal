@@ -148,34 +148,34 @@ public type IntentVerificationRequest object {
     documentation {
         Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
 
-        P{{topic}} The topic for which subscription should be accepted, if not specified the annotated topic will be
+        P{{t}} The topic for which subscription should be accepted, if not specified the annotated topic will be
                     used
         R{{}} `http:Response` The response to the hub verifying/denying intent to subscribe
     }
-    public function buildSubscriptionVerificationResponse(string? topic = ()) returns http:Response;
+    public function buildSubscriptionVerificationResponse(string? t = ()) returns http:Response;
 
     documentation {
         Builds the response for the request, verifying intention to unsubscribe, if the topic matches that expected.
 
-        P{{topic}} The topic for which unsubscription should be accepted, if not specified the annotated topic will be
+        P{{t}} The topic for which unsubscription should be accepted, if not specified the annotated topic will be
                     used
         R{{}} `http:Response` The response to the hub verifying/denying intent to unsubscribe
     }
-    public function buildUnsubscriptionVerificationResponse(string? topic = ()) returns http:Response;
+    public function buildUnsubscriptionVerificationResponse(string? t = ()) returns http:Response;
 
 };
 
-public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string? topic = ())
+public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string? t = ())
     returns http:Response {
 
-    string intendedTopic = topic but {() => retrieveIntendedTopic()};
+    string intendedTopic = t but {() => retrieveIntendedTopic()};
     return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, intendedTopic);
 }
 
-public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string? topic = ())
+public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string? t = ())
     returns http:Response {
 
-    string intendedTopic = topic but {() => retrieveIntendedTopic()};
+    string intendedTopic = t but {() => retrieveIntendedTopic()};
     return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, intendedTopic);
 }
 

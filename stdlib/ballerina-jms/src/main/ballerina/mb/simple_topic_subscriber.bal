@@ -32,18 +32,18 @@ public type SimpleTopicSubscriber object {
     }
 
     documentation { Initialize simple topic subscriber
-        P{{config}} Simple topic subscrirber enpoint configuration
+        P{{c}} Simple topic subscrirber enpoint configuration
     }
-    public function init(SimpleTopicSubscriberEndpointConfiguration config) {
-        self.config = config;
+    public function init(SimpleTopicSubscriberEndpointConfiguration c) {
+        self.config = c;
         self.subscriber.init({
                 initialContextFactory:"bmbInitialContextFactory",
-                providerUrl:getConnectionUrl(config),
-                connectionFactoryName:config.connectionFactoryName,
-                acknowledgementMode:config.acknowledgementMode,
-                messageSelector:config.messageSelector,
-                properties:config.properties,
-                topicPattern:config.topicPattern
+                providerUrl:getConnectionUrl(c),
+                connectionFactoryName: c.connectionFactoryName,
+                acknowledgementMode: c.acknowledgementMode,
+                messageSelector: c.messageSelector,
+                properties: c.properties,
+                topicPattern: c.topicPattern
             }
         );
         self.consumerActions = new TopicSubscriberActions(self.subscriber.getCallerActions());

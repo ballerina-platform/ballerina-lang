@@ -55,10 +55,10 @@ public type Client object {
     documentation {
         Gets called when the endpoint is being initialized during the package initialization.
 
-        P{{config}} The ClientEndpointConfiguration of the endpoint
+        P{{c}} The ClientEndpointConfiguration of the endpoint
     }
-    function init(ClientEndpointConfiguration config) {
-        self.h2Client = createClient(config);
+    function init(ClientEndpointConfiguration c) {
+        self.h2Client = createClient(c);
     }
 
     documentation {
