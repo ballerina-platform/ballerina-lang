@@ -438,7 +438,9 @@ public class CompiledPackageSymbolEnter {
         }
 
         // Read and ignore attributes
-        readAttributes(dataInStream);
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+
+        setDocumentation(typeDefSymbol, attrDataMap);
 
         this.env.pkgSymbol.scope.define(typeDefSymbol.name, typeDefSymbol);
     }
@@ -479,9 +481,7 @@ public class CompiledPackageSymbolEnter {
                 defineObjectAttachedFunction(dataInStream)));
 
         // Read and ignore attributes
-        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
-
-        setDocumentation(symbol, attrDataMap);
+        readAttributes(dataInStream);
 
         return symbol;
     }
@@ -504,9 +504,7 @@ public class CompiledPackageSymbolEnter {
                 defineObjectAttachedFunction(dataInStream)));
 
         // Read and ignore attributes
-        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
-
-        setDocumentation(symbol, attrDataMap);
+        readAttributes(dataInStream);
 
         return symbol;
     }

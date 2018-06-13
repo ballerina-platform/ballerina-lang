@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * @since 0.967.3
+ * @since 0.975.0
  */
 public class DocAttachment {
 
