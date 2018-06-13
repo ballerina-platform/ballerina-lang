@@ -35,8 +35,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Deletes a given file or a directory.
@@ -51,7 +51,8 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
                              structPackage = Constants.PACKAGE_PATH)
         ,
         returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
+                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR,
+                            structPackage = BALLERINA_BUILTIN_PKG)
         },
         isPublic = true
 )

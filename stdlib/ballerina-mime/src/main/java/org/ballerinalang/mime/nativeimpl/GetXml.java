@@ -47,7 +47,7 @@ import static org.ballerinalang.mime.util.Constants.XML_TYPE_IDENTIFIER;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
         functionName = "getXml",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
         returnType = {@ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )

@@ -81,6 +81,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EQUAL_GT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVENTS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EVERY;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.EXPRESSION_LIST;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FAIL;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.FIELD;
@@ -103,10 +104,12 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.FUTURE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.GROUP;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.GT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.GT_EQUAL;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.HALF_OPEN_RANGE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.HAVING;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.HOUR;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IDENTIFIER;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IF;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.IF_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IMPORT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IMPORT_DECLARATION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.IN;
@@ -189,6 +192,7 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SERVICE_ENDPOINT_ATTACHMENTS;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SET;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_LITERAL_EXPRESSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_TYPE_NAME;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SIMPLE_VARIABLE_REFERENCE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.SNAPSHOT;
@@ -216,6 +220,8 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHILE;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHILE_STATEMENT;
+import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHILE_STATEMENT_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WINDOW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WINDOW_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WITH;
@@ -442,6 +448,11 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(DECIMAL_INTEGER_LITERAL).spaceIf(false)
 
                 .between(ELLIPSIS, VARIABLE_REFERENCE_EXPRESSION).spaceIf(false)
+                .between(EXPRESSION, ELLIPSIS).spaceIf(false)
+                .between(ELLIPSIS, EXPRESSION).spaceIf(false)
+                .between(SIMPLE_LITERAL_EXPRESSION, ELLIPSIS).spaceIf(false)
+                .between(ELLIPSIS, SIMPLE_LITERAL_EXPRESSION).spaceIf(false)
+
 
                 .before(INDEX).spaceIf(false)
 
@@ -489,6 +500,8 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .around(POW).spaceIf(true)
                 .around(MOD).spaceIf(true)
 
+                .around(HALF_OPEN_RANGE).spaceIf(false)
+
                 .around(DOUBLE_COLON).spaceIf(false)
 
                 .around(EQUAL).spaceIf(true)
@@ -516,6 +529,17 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .between(MATCH_EXPRESSION_PATTERN_CLAUSE, COMMA).lineBreakOrForceSpace(false, false)
                 .around(MATCH_EXPRESSION_PATTERN_CLAUSE).lineBreakOrForceSpace(true, true)
                 .aroundInside(BLOCK, NAMED_PATTERN).lineBreakOrForceSpace(true, true)
+
+                .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
+                .betweenInside(RIGHT_PARENTHESIS, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
+
+                .betweenInside(EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
+                .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, IF_CLAUSE).spaceIf(true)
+                .betweenInside(EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
+                .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
+
+                .between(EXPRESSION, WHILE_STATEMENT_BODY).spaceIf(true)
+                .between(SIMPLE_LITERAL_EXPRESSION, WHILE_STATEMENT_BODY).spaceIf(true)
 
                 // Docs
                 .aroundInside(IDENTIFIER, DOCUMENTATION_TEMPLATE_ATTRIBUTE_DESCRIPTION).spaceIf(false)

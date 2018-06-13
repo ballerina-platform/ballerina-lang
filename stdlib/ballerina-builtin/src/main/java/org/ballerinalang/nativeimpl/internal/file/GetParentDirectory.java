@@ -33,8 +33,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Get the parent director of a file or directory.
@@ -51,7 +51,8 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
         returnType = {
                 @ReturnType(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
                             structPackage = Constants.PACKAGE_PATH),
-                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
+                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR,
+                            structPackage = BALLERINA_BUILTIN_PKG)
         },
         isPublic = true
 )

@@ -469,7 +469,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a null as any type to json",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
     public void testAnyNullToJson() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToJson");
         Assert.assertEquals(returns[0], null);
@@ -528,7 +528,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a null stored as any to map",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
     public void testAnyNullToMap() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToMap");
         Assert.assertNull(returns[0]);
@@ -536,7 +536,7 @@ public class TypeCastExprTest {
 
     @Test(description = "Test casting a null stored as any to xml",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
     public void testAnyNullToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToXml");
         Assert.assertNull(returns[0]);

@@ -24,7 +24,6 @@ import org.ballerinalang.nativeimpl.io.channels.base.Representation;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +51,7 @@ public class WriteFloatEvent implements Event {
      */
     private Representation representation;
 
-    private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(WriteFloatEvent.class);
 
     public WriteFloatEvent(DataChannel dataChannel, double value, Representation representation, EventContext context) {
         this.channel = dataChannel;

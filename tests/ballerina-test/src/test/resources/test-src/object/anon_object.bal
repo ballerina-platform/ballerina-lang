@@ -62,8 +62,8 @@ function testAnonObjectWithFunctionAsGlobalVar () returns string {
 }
 
 function testAnonObjectWithFunctionAsLocalVar () returns string {
-    object { public {int age, string name;} new (age, string lname) {name = "a " + lname;} function getName() returns string {return name;}} p = new (5, "hello");
-    return p.getName();
+    object { public {int age, string name;} new (age, string lname) {name = "a " + lname;} function getName() returns string {return name;}} p1 = new (5, "hello");
+    return p1.getName();
 }
 
 
@@ -101,9 +101,9 @@ function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string,
 
     public function getKind() returns string{ return name + kind; } } value = new (5, "passed Name", "sample value");
 
-    Person person  = value;
+    Person person1 = value;
 
-    return (person.age, person.name, person.getKind());
+    return (person1.age, person1.name, person1.getKind());
 }
 
 function testAnonObjectWithRecordLiteral() returns (int, string) {

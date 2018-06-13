@@ -25,7 +25,7 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
  * Util class for compression related operations.
  */
 public class CompressionUtils {
-    public static final String PROTOCOL_PACKAGE_COMPRESSION = "ballerina.internal";
+    public static final String PROTOCOL_PACKAGE_COMPRESSION = "ballerina/internal";
 
     /**
      * Get compression error as a ballerina struct.

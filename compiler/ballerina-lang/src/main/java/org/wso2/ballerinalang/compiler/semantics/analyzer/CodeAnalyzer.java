@@ -798,6 +798,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTryCatchFinally tryNode) {
         this.checkStatementExecutionValidity(tryNode);
         analyzeNode(tryNode.tryBody, env);
+        boolean tryCatchReturns = this.statementReturns;
         this.resetStatementReturns();
         List<BType> caughtTypes = new ArrayList<>();
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
@@ -807,11 +808,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             caughtTypes.add(bLangCatch.getParameter().type);
             analyzeNode(bLangCatch.body, env);
+            tryCatchReturns = tryCatchReturns && this.statementReturns;
             this.resetStatementReturns();
         }
         if (tryNode.finallyBody != null) {
             analyzeNode(tryNode.finallyBody, env);
-            this.resetStatementReturns();
+            this.statementReturns = tryCatchReturns || this.statementReturns;
+        } else {
+            this.statementReturns = tryCatchReturns;
         }
     }
 

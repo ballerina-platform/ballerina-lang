@@ -38,7 +38,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 
 /**
- * Test Native functions in ballerina.io.
+ * Test Native functions in ballerina/io.
  */
 public class IOTest {
 

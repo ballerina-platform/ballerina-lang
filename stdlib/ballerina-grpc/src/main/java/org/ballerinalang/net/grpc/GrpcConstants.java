@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.grpc.Metadata.ASCII_STRING_MARSHALLER;
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
 
 /**
  * Proto Message Constants Class.
@@ -38,11 +39,8 @@ public class GrpcConstants {
     
     //gRPC package name.
     public static final String PROTOCOL_PACKAGE_GRPC = "grpc";
-    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina.grpc";
+    public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina" + ORG_NAME_SEPARATOR + "grpc";
     public static final String ORG_NAME = "ballerina";
-
-    public static final String PACKAGE_BUILTIN = "ballerina.builtin";
-    public static final String STRUCT_GENERIC_ERROR = "error";
 
     //server side endpoint constants.
     public static final String SERVICE_BUILDER = "SERVICE_BUILDER";

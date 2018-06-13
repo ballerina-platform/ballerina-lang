@@ -72,7 +72,7 @@ class ImportSwaggerPlugin extends Plugin {
                     resolve(balFile);
                 })
                 .catch((err) => {
-                    console.log(err);
+                    console.log(err.message);
                     reject('Error occurred while importing Swagger definition. Make sure the swagger definition is ' +
                             'valid.');
                 });
