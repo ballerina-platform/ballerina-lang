@@ -52,7 +52,7 @@ function isFloat(val) {
 function processJSONStruct(parent, literalExpr, topLevelNodes, removeDefaults) {
     let currentValue;
     let success = true;
-    parent.setFields([], true);
+    parent.typeNode.fields = [];
     literalExpr.keyValuePairs.every((keyValPair) => {
         let currentName;
         let key = keyValPair.key;
@@ -96,7 +96,7 @@ function processJSONStruct(parent, literalExpr, topLevelNodes, removeDefaults) {
             if (!refExpr.error) {
                 // Add ; white space for the field in to record.
                 parent.ws.splice(parent.ws.length - 2, 0, {ws: "", text: ";"})
-                parent.addFields(refExpr);
+                parent.typeNode.fields.push(refExpr);
             } else {
                 success = false;
             }
@@ -127,8 +127,7 @@ export function getHandlerDefinitions(plugin) {
                     let success = true;
 
                     if (structName && structName !== '') {
-                        structNode.getName().setValue(structName, true);
-                        structNode.setName(structNode.getName(), false);
+                        structNode.name.setValue(structName);
                     }
                     if (json === '') {
                         topLevelNodes.addTopLevelNodes(structNode);
