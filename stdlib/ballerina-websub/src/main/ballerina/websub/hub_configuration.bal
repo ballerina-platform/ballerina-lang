@@ -46,7 +46,7 @@ import ballerina/log;
 
 @readonly boolean hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = true);
 @readonly http:ServiceSecureSocket? serviceSecureSocket = getServiceSecureSocketConfig();
-@readonly http:SecureSocket? secureSocket = getSecureSocketConfig();
+@readonly http:SecureSocket? httpSecureSocket = getSecureSocketConfig();
 
 documentation {
     Function to bind and start the Ballerina WebSub Hub service.
@@ -100,12 +100,12 @@ function getServiceSecureSocketConfig() returns http:ServiceSecureSocket? {
     string keyStoreFilePath = config:getAsString("b7a.websub.hub.ssl.key_store.file_path",
         default = "${ballerina.home}/bre/security/ballerinaKeystore.p12");
     string keyStorePassword = config:getAsString("b7a.websub.hub.ssl.key_store.password", default = "ballerina");
-    http:ServiceSecureSocket serviceSecureSocket = {
+    http:ServiceSecureSocket newServiceSecureSocket = {
         keyStore:{
             path:keyStoreFilePath, password:keyStorePassword
         }
     };
-    return serviceSecureSocket;
+    return newServiceSecureSocket;
 }
 
 function getSecureSocketConfig() returns http:SecureSocket? {
@@ -122,23 +122,23 @@ function getSecureSocketConfig() returns http:SecureSocket? {
             log:printWarn("Ignoring trust store file since password is not specified.");
             return;
         }
-        http:SecureSocket secureSocket = {
+        http:SecureSocket newSecureSocket = {
             trustStore:{
                 path:trustStoreFilePath, password:trustStorePassword
             },
             verifyHostname:false
         };
-        return secureSocket;
+        return newSecureSocket;
     }
 
     trustStoreFilePath = config:getAsString("b7a.websub.hub.ssl.trust_store.file_path",
         default = "${ballerina.home}/bre/security/ballerinaTruststore.p12");
     trustStorePassword = config:getAsString("b7a.websub.hub.ssl.trust_store.password", default = "ballerina");
-    http:SecureSocket secureSocket = {
+    http:SecureSocket newSecureSocket = {
         trustStore:{
             path:trustStoreFilePath, password:trustStorePassword
         },
         verifyHostname:false
     };
-    return secureSocket;
+    return newSecureSocket;
 }

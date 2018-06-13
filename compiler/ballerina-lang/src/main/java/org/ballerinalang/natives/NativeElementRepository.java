@@ -32,7 +32,9 @@ public class NativeElementRepository {
     private Map<String, NativeFunctionDef> nativeFuncEntries = new HashMap<>();
     
     private Map<String, NativeActionDef> nativeActionEntries = new HashMap<>();
-    
+
+    private static final String ORG_NAME_SEPARATOR = "/";
+
     public void registerNativeFunction(NativeFunctionDef nativeFuncDef) {
         this.nativeFuncEntries.put(functionToKey(nativeFuncDef.toBvmAlias(),
                                                  nativeFuncDef.getCallableName()), nativeFuncDef);
@@ -93,7 +95,7 @@ public class NativeElementRepository {
                 return pkgName;
             }
             // assume anon org can't expose natives
-            return orgName + '.' + pkgName;
+            return orgName + ORG_NAME_SEPARATOR + pkgName;
         }
 
         public String getCallableName() {

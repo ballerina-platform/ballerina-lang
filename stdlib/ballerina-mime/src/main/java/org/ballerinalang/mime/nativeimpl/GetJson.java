@@ -46,7 +46,7 @@ import static org.ballerinalang.mime.util.Constants.JSON_TYPE_IDENTIFIER;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
         functionName = "getJson",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )

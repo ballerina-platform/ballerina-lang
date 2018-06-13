@@ -66,9 +66,16 @@ public class SourceDirectoryManager {
         List<String> packageNames = this.sourceDirectory.getSourcePackageNames();
         Manifest manifest = getManifest();
         return Stream.concat(sourceFileNames.stream().map(PackageID::new),
-                             packageNames.stream().map(name -> new PackageID(getOrgName(manifest),
-                                                                             names.fromString(name),
-                                                                             new Name(manifest.getVersion()))));
+                             packageNames.stream().map(name -> getPackageID(manifest, name)));
+    }
+
+    private PackageID getPackageID(Manifest manifest, String pkgName) {
+        Name orName = getOrgName(manifest);
+        if (orName.equals(Names.BUILTIN_ORG)) {
+            return new PackageID(orName, names.fromString(pkgName), Names.EMPTY);
+        }
+
+        return new PackageID(orName, names.fromString(pkgName), names.fromString(manifest.getVersion()));
     }
 
     private Manifest getManifest() {

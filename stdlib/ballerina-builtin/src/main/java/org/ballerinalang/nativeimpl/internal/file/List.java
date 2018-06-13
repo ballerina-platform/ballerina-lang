@@ -37,8 +37,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * List out the content in directory.
@@ -55,7 +55,7 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
         returnType = {
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.OBJECT),
                 @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR, structPackage =
-                        PACKAGE_BUILTIN)
+                        BALLERINA_BUILTIN_PKG)
         },
         isPublic = true
 )

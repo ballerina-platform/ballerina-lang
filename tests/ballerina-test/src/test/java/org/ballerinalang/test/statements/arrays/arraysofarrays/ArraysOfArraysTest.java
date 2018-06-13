@@ -21,7 +21,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -113,4 +116,49 @@ public class ArraysOfArraysTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 12);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 6);
     }
+
+    @Test(description = "Test nested string array iteration")
+    public void testStringArrayIterator() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "testStringArrayIterator", args);
+        Assert.assertEquals((returns[0]).stringValue(), "BBBBBB");
+    }
+
+    @Test(description = "Test nested string array iteration")
+    public void testIntArrayIterator() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "testIntArrayIterator", args);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 45);
+    }
+
+    @Test(description = "Test nested string array iteration")
+    public void testFloatArrayIterator() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "testFloatArrayIterator", args);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 27.1);
+    }
+
+    @Test(description = "Test nested string array iteration")
+    public void testBlobArrayIterator() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "testBlobArrayIterator", args);
+        Assert.assertEquals(((BBlob) returns[0]).blobValue(), hexStringToByteArray("aa"));
+    }
+
+    @Test(description = "Test nested string array iteration")
+    public void testRefArrayIterator() {
+        BValue[] args = new BValue[0];
+        BValue[] returns = BRunUtil.invoke(result, "testRefArrayIterator", args);
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "ballerina");
+    }
+
+    private static byte[] hexStringToByteArray(String str) {
+        int len = str.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4) + Character.digit(str.charAt(i + 1), 16));
+        }
+        return data;
+    }
+
 }

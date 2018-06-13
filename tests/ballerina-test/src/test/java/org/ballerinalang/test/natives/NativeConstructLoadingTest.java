@@ -37,7 +37,7 @@ public class NativeConstructLoadingTest {
 
     @Test
     public void testLoadingExistingFunction() {
-        NativeCallableUnit function = this.nativeLoader.loadNativeFunction("ballerina.math", "pow");
+        NativeCallableUnit function = this.nativeLoader.loadNativeFunction("ballerina/math", "pow");
         Assert.assertNotNull(function);
     }
 

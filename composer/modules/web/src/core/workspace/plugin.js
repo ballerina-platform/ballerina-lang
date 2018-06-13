@@ -147,7 +147,7 @@ class WorkspacePlugin extends Plugin {
                         resolve(file);
                     })
                     .catch((err) => {
-                        reject(JSON.stringify(err));
+                        reject(err.message);
                     });
             } else {
                 dispatch(EDITOR_COMMANDS.ACTIVATE_EDITOR_FOR_FILE, {
@@ -373,7 +373,7 @@ class WorkspacePlugin extends Plugin {
                     region: REGIONS.LEFT_PANEL,
                     // region specific options for left-panel views
                     regionOptions: {
-                        activityBarIcon: 'file-browse',
+                        activityBarIcon: 'folder-open',
                         panelTitle: 'Explorer',
                         panelActions: [
                             {

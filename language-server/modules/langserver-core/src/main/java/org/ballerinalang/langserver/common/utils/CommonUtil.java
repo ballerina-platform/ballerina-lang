@@ -528,7 +528,7 @@ public class CommonUtil {
             }).findFirst().orElse(null);
 
             if (packageID.equals(builtinPkgName)) {
-                // If the packageID is ballerina.builtin, we extract entries of builtin package
+                // If the packageID is ballerina/builtin, we extract entries of builtin package
                 entries = symbolTable.builtInPackageSymbol.scope.entries;
             } else if (packageSymbolInfo == null && packageID.equals(currentPkgName)) {
                 entries = getScopeEntries(bType, context);

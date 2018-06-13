@@ -45,10 +45,10 @@ import javax.jms.Session;
 @BallerinaFunction(orgName = "ballerina", packageName = "jms",
                    functionName = "createTextMessage",
                    receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
-                                        structPackage = "ballerina.jms"),
+                                        structPackage = "ballerina/jms"),
                    args = { @Argument(name = "content", type = TypeKind.STRING) },
                    returnType = {
-                           @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina.jms", structType = "Message")
+                           @ReturnType(type = TypeKind.OBJECT, structPackage = "ballerina/jms", structType = "Message")
                    },
                    isPublic = true)
 public class CreateTextMessage extends AbstractBlockinAction {

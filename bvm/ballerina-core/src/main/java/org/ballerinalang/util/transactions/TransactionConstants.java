@@ -17,6 +17,8 @@
 */
 package org.ballerinalang.util.transactions;
 
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+
 /**
  * {@code TransactionConstants} Define transaction related constants.
  *
@@ -29,7 +31,7 @@ public class TransactionConstants {
     public static final String COORDINATOR_ABORT_TRANSACTION = "abortTransaction";
     public static final String COORDINATOR_IS_INITIATOR = "isInitiator";
 
-    public static final String COORDINATOR_PACKAGE = "ballerina.transactions";
+    public static final String COORDINATOR_PACKAGE = "ballerina" + ORG_NAME_SEPARATOR + "transactions";
 
     public static final int DEFAULT_RETRY_COUNT = 3;
 

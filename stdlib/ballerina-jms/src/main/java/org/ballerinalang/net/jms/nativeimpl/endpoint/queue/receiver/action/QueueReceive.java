@@ -37,14 +37,14 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.ReceiveActionHandler
                    functionName = "receive",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = "QueueReceiverActions",
-                                        structPackage = "ballerina.jms"),
+                                        structPackage = "ballerina/jms"),
                    args = {
                            @Argument(name = "timeInMilliSeconds",
                                      type = TypeKind.INT)
                    },
                    returnType = {
                            @ReturnType(type = TypeKind.OBJECT,
-                                       structPackage = "ballerina.jms",
+                                       structPackage = "ballerina/jms",
                                        structType = "Message")
                    },
                    isPublic = true

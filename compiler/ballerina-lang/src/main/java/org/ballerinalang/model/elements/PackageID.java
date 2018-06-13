@@ -131,27 +131,18 @@ public class PackageID {
     @Override
     public String toString() {
         String orgName = "";
-        if (this.orgName != null && this.orgName != Names.ANON_ORG) {
-            orgName = this.orgName + "/";
+        if (this.orgName != null && !this.orgName.equals(Names.ANON_ORG)) {
+            orgName = this.orgName + Names.ORG_NAME_SEPARATOR.value;
         }
 
-        if (version == Names.DEFAULT_VERSION || version.equals(Names.EMPTY)) {
+        if (version.equals(Names.DEFAULT_VERSION) || version.equals(Names.EMPTY)) {
             return orgName + this.name.value;
         }
 
-        return orgName + this.name + ":" + this.version;
+        return orgName + this.name + Names.VERSION_SEPARATOR.value + this.version;
     }
 
     public Name getOrgName() {
         return orgName;
-    }
-
-    public String bvmAlias() {
-        // TODO: remove null check, it should never be null
-        if (this.orgName != null && this.orgName == Names.ANON_ORG) {
-            return this.name.toString();
-        } else {
-            return this.orgName + "." + this.getName();
-        }
     }
 }

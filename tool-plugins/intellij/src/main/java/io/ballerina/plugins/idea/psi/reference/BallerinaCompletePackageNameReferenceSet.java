@@ -89,8 +89,14 @@ public class BallerinaCompletePackageNameReferenceSet extends FileReferenceSet {
                     // Add source roots in SDK.
                     sourceRoots.addAll(BallerinaSdkUtil.getSourcesPathsToLookup(project, module));
                 } else {
-                    ContainerUtil.addIfNotNull(sourceRoots,
-                            BallerinaPathModificationTracker.getOrganizationInUserRepo(organizationName));
+                    VirtualFile organizationInUserRepo =
+                            BallerinaPathModificationTracker.getOrganizationInUserRepo(organizationName);
+                    // We need to check whether the returned value is valid or not. If it is not valid, that means
+                    // that directory was deleted. So if we add the element to the list, it will cause an runtime
+                    // exception.
+                    if (organizationInUserRepo != null && organizationInUserRepo.isValid()) {
+                        ContainerUtil.addIfNotNull(sourceRoots, organizationInUserRepo);
+                    }
                 }
             }
         }

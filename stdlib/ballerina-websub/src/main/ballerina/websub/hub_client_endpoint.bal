@@ -44,7 +44,7 @@ public type Client object {
     public function init(HubClientEndpointConfig config) {
         endpoint http:Client httpClientEndpoint {
             url:config.url,
-            secureSocket:config.secureSocket,
+            secureSocket:config.clientSecureSocket,
             auth:config.auth,
             followRedirects:config.followRedirects
         };
@@ -70,13 +70,13 @@ documentation {
     Record representing the configuration parameters for the WebSub Hub Client Endpoint.
 
     F{{url}} The URL of the target Hub
-    F{{secureSocket}} SSL/TLS related options for the underlying HTTP Client
+    F{{clientSecureSocket}} SSL/TLS related options for the underlying HTTP Client
     F{{auth}} Authentication mechanism for the underlying HTTP Client
     F{{followRedirects}} HTTP redirect related configuration
 }
 public type HubClientEndpointConfig {
     string url,
-    http:SecureSocket? secureSocket,
+    http:SecureSocket? clientSecureSocket,
     http:AuthConfig? auth,
     http:FollowRedirects? followRedirects,
 };

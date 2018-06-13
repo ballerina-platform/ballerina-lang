@@ -2,14 +2,14 @@ import ballerina/mb;
 import ballerina/io;
 import ballerina/http;
 
-endpoint mb:SimpleQueueReceiver consumer {
+endpoint mb:SimpleQueueReceiver queueConsumer {
     host: "localhost",
     port: 5772,
     queueName: "testMbSimpleQueueReceiverProducer"
 };
 
 // Bind the created consumer to the listener service.
-service<mb:Consumer> jmsListener bind consumer {
+service<mb:Consumer> jmsListener bind queueConsumer {
 
     // OnMessage resource get invoked when a message is received.
     onMessage(endpoint consumer, mb:Message message) {

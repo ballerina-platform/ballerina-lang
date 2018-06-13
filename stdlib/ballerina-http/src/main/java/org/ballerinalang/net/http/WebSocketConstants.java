@@ -23,8 +23,8 @@ package org.ballerinalang.net.http;
  */
 public class WebSocketConstants {
 
-    public static final String WEBSOCKET_ENDPOINT_NAME = "ballerina.http:WebSocketListener";
-    public static final String WEBSOCKET_CLIENT_ENDPOINT_NAME = "ballerina.http:WebSocketClient";
+    public static final String WEBSOCKET_ENDPOINT_NAME = "ballerina/http:WebSocketListener";
+    public static final String WEBSOCKET_CLIENT_ENDPOINT_NAME = "ballerina/http:WebSocketClient";
     public static final String WEBSOCKET_CONNECTOR = "WebSocketConnector";
     public static final String WEBSOCKET_ENDPOINT = "WebSocketListener";
     public static final String WEBSOCKET_CLIENT_ENDPOINT = "WebSocketClient";
@@ -46,6 +46,7 @@ public class WebSocketConstants {
     public static final String RESOURCE_NAME_ON_PONG = "onPong";
     public static final String RESOURCE_NAME_ON_CLOSE = "onClose";
     public static final String RESOURCE_NAME_ON_IDLE_TIMEOUT = "onIdleTimeout";
+    public static final String RESOURCE_NAME_ON_ERROR = "onError";
 
     public static final String WEBSOCKET_MESSAGE = "WEBSOCKET_MESSAGE";
 
