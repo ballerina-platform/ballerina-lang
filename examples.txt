@@ -160,3 +160,4 @@ Union Type
 Optional Type
 Tuple Type
 Documentation
+Integer Ranges

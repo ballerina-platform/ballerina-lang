@@ -1,0 +1,22 @@
+#At the command line, navigate to the directory that contains the
+#`.bal` file and run the `ballerina run` command.
+$ ballerina run integer_ranges.bal
+Iterating over an array created by a closed integer range
+25
+26
+27
+28
+29
+30
+
+Iterating over an array created by a half open integer range
+25
+26
+27
+28
+29
+
+Using an integer range in a foreach statement
+Index: 0, Value: fruit
+Index: 1, Value: tree
+Index: 2, Value: basket
