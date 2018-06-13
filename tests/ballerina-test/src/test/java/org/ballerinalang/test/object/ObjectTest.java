@@ -554,4 +554,14 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
     }
 
+    @Test
+    public void testAttachFunctionsWithIdenticalRestParams() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/object/attach_func_with_identical_rest_params.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAttachFunctionsWithIdenticalRestParams");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "hello foo");
+    }
+
 }
