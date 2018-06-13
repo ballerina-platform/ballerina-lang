@@ -233,7 +233,7 @@ public class Hub {
     }
 
     /**
-     * Method to compile and start up the default Ballerina WebSub Hub.
+     * Method to start up the default Ballerina WebSub Hub.
      */
     public void startUpHubService(Context context, BBoolean topicRegistrationRequired, BString publicUrl) {
         synchronized (this) {
@@ -257,11 +257,39 @@ public class Hub {
                     started = true;
                     BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);
                     setHubUrl(hubUrl);
-                    setHubObject(BLangConnectorSPIUtil.createBStruct(context, WEBSUB_PACKAGE,
-                                                                     STRUCT_WEBSUB_BALLERINA_HUB, hubUrl));
+                    setHubObject(BLangConnectorSPIUtil.createObject(context, WEBSUB_PACKAGE,
+                                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl)));
                 }
             } else {
                 throw new BallerinaWebSubException("Hub Service already started up");
+            }
+        }
+    }
+
+    /**
+     * Method to clean up after stopping the default Ballerina WebSub Hub.
+     */
+    public void stopHubService(Context context) {
+        synchronized (this) {
+            if (isStarted()) {
+                started = false;
+                setHubObject(null);
+                setHubUrl(null);
+                setHubProgramFile(null);
+                hubTopicRegistrationRequired = false;
+                if (hubPersistenceEnabled) {
+                    BLangFunctions.invokeCallable(context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE)
+                                                    .getFunctionInfo("clearSubscriptionDataInDb"),
+                                                  new BValue[]{});
+                }
+                hubPersistenceEnabled = false;
+                topics = new HashMap<>();
+                for (HubSubscriber subscriber : subscribers) {
+                    BrokerUtils.removeSubscription(subscriber);
+                }
+                subscribers = new ArrayList<>();
+            } else {
+                throw new BallerinaWebSubException("Hub Service already stopped");
             }
         }
     }
