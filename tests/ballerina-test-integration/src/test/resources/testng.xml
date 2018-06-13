@@ -24,7 +24,7 @@
     </listeners>
 
     <!-- Below tests should run sequentially since it will use same port in each test -->
-    <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
+   <!-- <test name="ballerina-sample-tests" preserve-order="true" parallel="false">
         <groups>
             <run>
                 <exclude name="broken"/>
@@ -85,6 +85,16 @@
             <class name="org.ballerinalang.test.packaging.PackagingPullTestCase"/>
             <class name="org.ballerinalang.test.packaging.PackagingPushTestCase"/>
         </classes>
+    </test>-->
+
+    <test name="ballerina-packaging-sample-tests" preserve-order="true" parallel="false">
+        <classes>
+            <!--<class name="org.ballerinalang.test.service.http.sample.RedirectTestCase"/>-->
+            <class name="org.ballerinalang.test.service.http2.RedirectTestCase"/>
+
+            <!--<class name="org.ballerinalang.test.service.websub.WebSubRedirectionTestCase"/>-->
+        </classes>
     </test>
+
 
 </suite>
