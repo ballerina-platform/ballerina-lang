@@ -19,35 +19,35 @@
 
 package org.wso2.transport.http.netty.contract.websocket;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaders;
+
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 /**
- * Sender configuration for WebSocket client connector.
+ * Configuration for WebSocket client connector.
  */
-public class WsClientConnectorConfig {
+public class WebSocketClientConnectorConfig {
 
     private final String remoteAddress;
     private List<String> subProtocols;
     private int idleTimeoutInSeconds;
     private boolean autoRead;
-    private final Map<String, String> headers = new HashMap<>();
+    private final HttpHeaders headers;
 
-    public WsClientConnectorConfig(String remoteAddress) {
-        this.remoteAddress = remoteAddress;
-        this.idleTimeoutInSeconds = -1;
-        this.autoRead = true;
-
+    public WebSocketClientConnectorConfig(String remoteAddress) {
+        this(remoteAddress, null, -1, true);
     }
 
-    public WsClientConnectorConfig(String remoteAddress, List<String> subProtocols,
-                                   int idleTimeoutInSeconds, boolean autoRead) {
+    public WebSocketClientConnectorConfig(String remoteAddress, List<String> subProtocols,
+                                          int idleTimeoutInSeconds, boolean autoRead) {
         this.remoteAddress = remoteAddress;
         this.subProtocols = subProtocols;
         this.idleTimeoutInSeconds = idleTimeoutInSeconds;
         this.autoRead = autoRead;
+        this.headers = new DefaultHttpHeaders();
     }
 
     /**
@@ -126,7 +126,7 @@ public class WsClientConnectorConfig {
      * @param headers Headers map.
      */
     public void addHeaders(Map<String, String> headers) {
-        this.headers.putAll(headers);
+        headers.forEach(this.headers::add);
     }
 
     /**
@@ -136,7 +136,7 @@ public class WsClientConnectorConfig {
      * @param value Value of the header.
      */
     public void addHeader(String key, String value) {
-        this.headers.put(key, value);
+        this.headers.add(key, value);
     }
 
     /**
@@ -144,7 +144,7 @@ public class WsClientConnectorConfig {
      *
      * @return all the headers as a map.
      */
-    public Map<String, String> getHeaders() {
+    public HttpHeaders getHeaders() {
         return headers;
     }
 
@@ -155,7 +155,7 @@ public class WsClientConnectorConfig {
      * @return true of the header is present.
      */
     public boolean containsHeader(String key) {
-        return headers.containsKey(key);
+        return headers.contains(key);
     }
 
     /**

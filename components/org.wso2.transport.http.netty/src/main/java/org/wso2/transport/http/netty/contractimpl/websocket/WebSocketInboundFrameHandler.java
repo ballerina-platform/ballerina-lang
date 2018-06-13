@@ -267,9 +267,9 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private void setupCommonProperties(DefaultWebSocketMessage webSocketMessage) {
         webSocketMessage.setTarget(target);
         webSocketMessage.setListenerInterface(interfaceId);
-        webSocketMessage.setIsConnectionSecured(securedConnection);
+        webSocketMessage.setIsSecureConnection(securedConnection);
         webSocketMessage.setWebSocketConnection(webSocketConnection);
-        webSocketMessage.setSessionlID(webSocketConnection.getId());
+        webSocketMessage.setSessionID(webSocketConnection.getId());
         webSocketMessage.setIsServerMessage(isServer);
         webSocketMessage.setProperty(Constants.LISTENER_PORT,
                                      ((InetSocketAddress) ctx.channel().localAddress()).getPort());

@@ -94,6 +94,7 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
         FullHttpResponse fullHttpResponse = (FullHttpResponse) msg;
         httpCarbonResponse = setUpCarbonMessage(ctx, fullHttpResponse);
         log.debug("WebSocket Client connected!");
+        ctx.channel().config().setAutoRead(autoRead);
         if (!autoRead) {
             ctx.channel().pipeline().addLast(Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER, blockingHandler);
         }

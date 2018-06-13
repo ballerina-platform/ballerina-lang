@@ -28,13 +28,13 @@ import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.TestUtil;
@@ -52,7 +52,7 @@ public class WebSocketPassThroughServerConnectorListener implements WebSocketCon
     public void onMessage(WebSocketInitMessage initMessage) {
         String remoteUrl = String.format("ws://%s:%d/%s", "localhost",
                                          TestUtil.WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
-        WsClientConnectorConfig configuration = new WsClientConnectorConfig(remoteUrl);
+        WebSocketClientConnectorConfig configuration = new WebSocketClientConnectorConfig(remoteUrl);
         configuration.setAutoRead(false);
         WebSocketClientConnector clientConnector = connectorFactory.createWsClientConnector(configuration);
         WebSocketConnectorListener clientConnectorListener = new WebSocketPassThroughClientConnectorListener();

@@ -20,12 +20,11 @@
 package org.wso2.transport.http.netty.contractimpl.websocket;
 
 import io.netty.channel.EventLoopGroup;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.sender.websocket.WebSocketClient;
-
-import java.util.Map;
 
 /**
  * Implementation of WebSocket client connector.
@@ -35,11 +34,11 @@ public class DefaultWebSocketClientConnector implements WebSocketClientConnector
     private final String remoteUrl;
     private final String subProtocols;
     private final int idleTimeout;
-    private final Map<String, String> customHeaders;
+    private final HttpHeaders customHeaders;
     private final EventLoopGroup wsClientEventLoopGroup;
     private final boolean autoRead;
 
-    public DefaultWebSocketClientConnector(WsClientConnectorConfig clientConnectorConfig,
+    public DefaultWebSocketClientConnector(WebSocketClientConnectorConfig clientConnectorConfig,
             EventLoopGroup wsClientEventLoopGroup) {
         this.remoteUrl = clientConnectorConfig.getRemoteAddress();
         this.subProtocols = clientConnectorConfig.getSubProtocolsAsCSV();
