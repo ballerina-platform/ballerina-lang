@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -14,20 +14,24 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
 package org.wso2.transport.http.netty.contract.websocket;
 
 /**
- * Client Connector for WebSocket.
+ * Connector Exception for WebSocket.
  */
-public interface WebSocketClientConnector {
+public class WebSocketConnectorException extends Exception {
 
-    /**
-     * Connect to the remote server.
-     *
-     * @return ClientHandshakeFuture for the newly created connection.
-     */
-    ClientHandshakeFuture connect();
+    public WebSocketConnectorException(String message) {
+        super(message);
+    }
+
+    public WebSocketConnectorException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public WebSocketConnectorException(Throwable cause) {
+        super(cause);
+    }
 }
