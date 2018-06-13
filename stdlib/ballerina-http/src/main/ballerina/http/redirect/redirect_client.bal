@@ -293,53 +293,6 @@ function isRedirectResponse(int statusCode) returns boolean {
         statusCode == 307 || statusCode == 308);
 }
 
-////If max redirect count is not reached, perform redirection.
-//function redirect(Response response, HttpOperation httpVerb, Request request, RedirectClient redirectClient,
-//                  CallerActions callerAction, string resolvedRequestedURI) returns @untainted Response|error {
-//    int currentCount = redirectClient.currentRedirectCount;
-//    int maxCount = redirectClient.redirectConfig.maxCount;
-//    if (currentCount >= maxCount) {
-//        log:printDebug("Maximum redirect count reached!");
-//        setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
-//        return response;
-//    } else {
-//        currentCount++;
-//        log:printDebug("Redirect count : " + currentCount);
-//        redirectClient.currentRedirectCount = currentCount;
-//        match getRedirectMethod(httpVerb, response) {
-//            () => {
-//                setCountAndResolvedURL(redirectClient, response, resolvedRequestedURI);
-//                return response;
-//            }
-//            HttpOperation redirectMethod => {
-//                if (response.hasHeader(LOCATION)) {
-//                    string location = response.getHeader(LOCATION);
-//                    log:printDebug("Location header value: " + location);
-//                    if (isCrossDomain(redirectClient.config.url, location)) {
-//                        return performCrossDomainRedirection(location, redirectClient, redirectMethod, request,
-//                            response);
-//                    } else {
-//                        match resolve(redirectClient.config.url, location) {
-//                            string resolvedURI => {
-//                                return redirectUsingExistingClient(resolvedURI, redirectClient, redirectMethod, request,
-//                                    response, callerAction);
-//                            }
-//                            error err => {
-//                                redirectClient.currentRedirectCount = 0;
-//                                return err;
-//                            }
-//                        }
-//                    }
-//                } else {
-//                    error err = { message: "Location header not available!" };
-//                    redirectClient.currentRedirectCount = 0;
-//                    return err;
-//                }
-//            }
-//        }
-//    }
-//}
-
 //If max redirect count is not reached, perform redirection.
 function redirect(Response response, HttpOperation httpVerb, Request request, RedirectClient redirectClient,
                   string resolvedRequestedURI) returns @untainted Response|error {
@@ -386,18 +339,6 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
     }
 }
 
-////In cross domain situations, redirection should be performed with a new client endpoint.
-//function performCrossDomainRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
-//                                       Request request, Response response) returns @untainted Response|error {
-//    log:printDebug("Redirect using new clientEP : " + location);
-//    CallerActions newCallerAction = createRetryClient(location,
-//        createNewEndpoint(location, redirectClient.config));
-//    Response|error result = invokeEndpoint("", createRedirectRequest(response.statusCode, request),
-//        redirectMethod, newCallerAction);
-//    return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient,
-//        newCallerAction);
-//}
-
 function performRedirection(string location, RedirectClient redirectClient, HttpOperation redirectMethod,
                                        Request request, Response response) returns @untainted Response|error {
     log:printDebug("Redirect using new clientEP : " + location);
@@ -407,24 +348,6 @@ function performRedirection(string location, RedirectClient redirectClient, Http
         redirectMethod, newCallerAction);
     return checkRedirectEligibility(result, location, redirectMethod, request, redirectClient);
 }
-
-////If the redirect goes to the same domain, use the existing client endpoint.
-//function redirectUsingExistingClient(string resolvedURI, RedirectClient redirectClient, HttpOperation redirectMethod,
-//                                     Request request, Response response, CallerActions callerAction)
-//             returns @untainted Response|error {
-//    log:printDebug("Redirect using existing clientEP : " + resolvedURI);
-//    Response|error result = invokeEndpoint(resolvePath(redirectClient.config.url, resolvedURI),
-//        createRedirectRequest(response.statusCode, request), redirectMethod, redirectClient.httpClient);
-//    return checkRedirectEligibility(result, resolvedURI, redirectMethod, request, redirectClient,
-//        callerAction);
-//}
-
-////Given a resolved URI and a client endpoint url, get the path.
-//function resolvePath(string endpointURL, string resolvedURI) returns string {
-//    string path = resolvedURI.substring(endpointURL.length(), resolvedURI.length());
-//    log:printDebug("ResolvedURI: " + resolvedURI + " EndpointURL: " + endpointURL +" Path : " + path);
-//    return resolvedURI.substring(endpointURL.length(), resolvedURI.length());
-//}
 
 //Create a new HTTP client endpoint configuration with a given location as the url.
 function createNewEndpoint(string location, ClientEndpointConfig config) returns ClientEndpointConfig {
@@ -478,20 +401,6 @@ function createRedirectRequest(int statusCode, Request request) returns Request 
     }
     return redirectRequest;
 }
-
-//function isCrossDomain(string endPointURL, string locationUrl) returns boolean {
-//    if (locationUrl.hasPrefix("http://") || locationUrl.hasPrefix("https://")) {
-//        URI location = new URI(locationUrl);
-//        URI endPoint = new URI(endPointURL);
-//        if (location.scheme == endPoint.scheme && location.host == endPoint.host && location.port == endPoint.port) {
-//            return false;
-//        } else {
-//            return true;
-//        }
-//    } else {
-//        return false;
-//    }
-//}
 
 function isAbsolute(string locationUrl) returns boolean {
     return (locationUrl.hasPrefix("http://") || locationUrl.hasPrefix("https://"));
