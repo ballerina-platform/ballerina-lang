@@ -60,7 +60,7 @@ public class WebSocketPassThroughTestCase {
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
-        connectorFuture.setWSConnectorListener(new WebSocketPassThroughServerConnectorListener());
+        connectorFuture.setWebSocketConnectorListener(new WebSocketPassThroughServerConnectorListener());
         connectorFuture.sync();
     }
 

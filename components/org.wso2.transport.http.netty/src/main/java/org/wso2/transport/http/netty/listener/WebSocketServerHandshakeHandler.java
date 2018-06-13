@@ -145,7 +145,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         initMessage.setHttpCarbonRequest(setupHttpCarbonRequest(fullHttpRequest, ctx));
 
         ctx.channel().config().setAutoRead(false);
-        serverConnectorFuture.notifyWSListener(initMessage);
+        serverConnectorFuture.notifyWebSocketListener(initMessage);
     }
 
     private HttpCarbonRequest setupHttpCarbonRequest(HttpRequest httpRequest, ChannelHandlerContext ctx) {
