@@ -1,7 +1,7 @@
 import ballerina/test;
 import ballerina/io;
 
-// Test function, which belongd to `g1`
+// Test function, which belongs to `g1`
 @test:Config {
     groups: ["g1"]
 }
@@ -10,7 +10,7 @@ function testFunction1() {
     test:assertTrue(true, msg = "Failed!");
 }
 
-// Test function, which belongd to `g1`, and `g2`
+// Test function, which belongs to `g1`, and `g2`
 @test:Config {
     groups: ["g1", "g2"]
 }
