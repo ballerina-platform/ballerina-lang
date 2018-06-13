@@ -19,20 +19,17 @@ package org.ballerinalang.bre.bvm.persistency.reftypes;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
 import org.ballerinalang.bre.bvm.persistency.SerializableState;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.persistence.StateStore;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
-import org.ballerinalang.util.codegen.StructInfo;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class SerializableBStruct implements SerializableRefType {
 
@@ -90,7 +87,7 @@ public class SerializableBStruct implements SerializableRefType {
                     programFile.getProgramFilePath().toString());
         }
 
-        StructInfo structInfo = packageInfo.getStructInfo(structName);
+        StructureTypeInfo structInfo = packageInfo.getStructInfo(structName);
         if (structInfo == null) {
             throw new BallerinaException(structName + " not found in package " + pkgPath);
         }

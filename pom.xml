@@ -171,17 +171,10 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-queue</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-mime</artifactId>
                 <version>${ballerina.version}</version>
                 <type>zip</type>
                 <classifier>ballerina-binary-repo</classifier>
-
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -1176,7 +1169,6 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
-                <module>stdlib/ballerina-queue</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
@@ -1233,7 +1225,6 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
-                <module>stdlib/ballerina-queue</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
@@ -1286,7 +1277,6 @@
                 <module>stdlib/transactions</module>
                 <module>stdlib/ballerina-grpc</module>
                 <module>stdlib/ballerina-mime</module>
-                <module>stdlib/ballerina-queue</module>
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
