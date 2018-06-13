@@ -51,6 +51,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import static org.ballerinalang.test.utils.SQLDBUtils.DBType.H2;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.MYSQL;
 import static org.ballerinalang.test.utils.SQLDBUtils.DBType.POSTGRES;
 import static org.ballerinalang.test.utils.SQLDBUtils.DB_DIRECTORY;
@@ -64,6 +65,8 @@ public class TableTest {
     private CompileResult nillableMappingNegativeResult;
     private CompileResult nillableMappingResult;
     private static final String DB_NAME = "TEST_DATA_TABLE_DB";
+    private static final String DB_NAME_H2 = "TEST_DATA_TABLE_H2";
+    private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
     private SQLDBUtils.DBType dbType;
     private TestDatabase testDatabase;
     private BValue[] connectionArgs = new BValue[3];
@@ -77,7 +80,7 @@ public class TableTest {
     private static final double DELTA = 0.01;
 
     @Parameters({ "dataClientTestDBType" })
-    public TableTest(@Optional("HSQLDB") SQLDBUtils.DBType dataClientTestDBType) {
+    public TableTest(@Optional("H2") SQLDBUtils.DBType dataClientTestDBType) {
         this.dbType = dataClientTestDBType;
     }
 
@@ -93,6 +96,10 @@ public class TableTest {
         case HSQLDB:
             testDatabase = new FileBasedTestDatabase(dbType, "datafiles/sql/DataTableDataFile.sql",
                     DB_DIRECTORY, DB_NAME);
+            break;
+        case H2:
+            testDatabase = new FileBasedTestDatabase(dbType, "datafiles/sql/DataTableH2DataFile.sql",
+                    DB_DIRECTORY_H2, DB_NAME_H2);
             break;
         default:
             throw new UnsupportedOperationException("Unsupported database type: " + dbType);
@@ -582,7 +589,19 @@ public class TableTest {
 
     @Test(dependsOnGroups = "TableTest", description = "Check whether all sql connectors are closed properly.")
     public void testCloseConnectionPool() {
-        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", connectionArgs);
+        BValue connectionCountQuery;
+        if (dbType == MYSQL) {
+            connectionCountQuery = new BString("SELECT COUNT(*) FROM information_schema.PROCESSLIST");
+        } else if (dbType == H2) {
+            connectionCountQuery = new BString("SELECT COUNT(*) FROM INFORMATION_SCHEMA.SESSIONS");
+        } else {
+            connectionCountQuery = new BString("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA"
+                    + ".SYSTEM_SESSIONS");
+        }
+        BValue[] args = new BValue[4];
+        System.arraycopy(connectionArgs, 0, args, 0, 3);
+        args[3] = connectionCountQuery;
+        BValue[] returns = BRunUtil.invoke(result, "testCloseConnectionPool", args);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
@@ -706,6 +725,18 @@ public class TableTest {
                     + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/><binary_type xmlns:xsi=\"http://www"
                     + ".w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/></result></results>";
 
+        } else if (dbType == H2) {
+            expectedJson = "[{\"ROW_ID\":100,\"BLOB_TYPE\":\"U2FtcGxlIFRleHQ=\",\"CLOB_TYPE\":\"Sample Text\","
+                    + "\"BINARY_TYPE\":\"U2FtcGxlIFRleHQ=\"},{\"ROW_ID\":200,\"BLOB_TYPE\":null,"
+                    + "\"CLOB_TYPE\":null,\"BINARY_TYPE\":null}]";
+            expectedXML = "<results><result><ROW_ID>100</ROW_ID>"
+                    + "<BLOB_TYPE>U2FtcGxlIFRleHQ=</BLOB_TYPE><CLOB_TYPE>Sample Text</CLOB_TYPE>"
+                    + "<BINARY_TYPE>U2FtcGxlIFRleHQ=</BINARY_TYPE></result>"
+                    + "<result><ROW_ID>200</ROW_ID>"
+                    + "<BLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                    + "<CLOB_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                    + "<BINARY_TYPE xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>"
+                    + "</result></results>";
         } else {
             expectedJson = "[{\"ROW_ID\":100,\"BLOB_TYPE\":\"U2FtcGxlIFRleHQ=\",\"CLOB_TYPE\":\"Sample Text\","
                     + "\"BINARY_TYPE\":\"U2FtcGxlIFRleHQAAAAAAAAAAAAAAAAAAAAA\"},{\"ROW_ID\":200,\"BLOB_TYPE\":null,"
@@ -802,7 +833,7 @@ public class TableTest {
         Assert.assertEquals(returns[5].stringValue(), "Hello");
         Assert.assertEquals(((BFloat) returns[6]).floatValue(), 1234.567);
         Assert.assertEquals(((BFloat) returns[7]).floatValue(), 1234.567);
-        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567);
+        Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567, DELTA);
         Assert.assertEquals(((BInteger) returns[9]).intValue(), 1);
         Assert.assertEquals(((BInteger) returns[10]).intValue(), 5555);
         Assert.assertEquals(returns[11].stringValue(), "very long text");

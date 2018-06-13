@@ -33,8 +33,6 @@ import org.ballerinalang.test.utils.SQLDBUtils.ContainerizedTestDatabase;
 import org.ballerinalang.test.utils.SQLDBUtils.DBType;
 import org.ballerinalang.test.utils.SQLDBUtils.FileBasedTestDatabase;
 import org.ballerinalang.test.utils.SQLDBUtils.TestDatabase;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testng.Assert;
 import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeClass;
@@ -64,12 +62,10 @@ public class SQLActionsTest {
     private static final String DB_NAME_H2 = "TEST_SQL_CONNECTOR_H2";
     private static final String DB_DIRECTORY_H2 = "./target/H2Client/";
     private DBType dbType;
-    private MySQLContainer mysql;
-    private PostgreSQLContainer postgres;
     private TestDatabase testDatabase;
     private BValue[] connectionArgs = new BValue[3];
 
-    @Parameters({"dataClientTestDBType"})
+    @Parameters({ "dataClientTestDBType" })
     public SQLActionsTest(@Optional("HSQLDB") DBType dataClientTestDBType) {
         this.dbType = dataClientTestDBType;
     }

@@ -799,7 +799,7 @@ function testTableManualClose(string jdbcUrl, string userName, string password) 
     return data;
 }
 
-function testCloseConnectionPool(string jdbcUrl, string userName, string password) returns (int) {
+function testCloseConnectionPool(string jdbcUrl, string userName, string password, string connectionCountQuery) returns (int) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -807,8 +807,7 @@ function testCloseConnectionPool(string jdbcUrl, string userName, string passwor
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt = check testDB->select ("SELECT COUNT(*) as countVal FROM INFORMATION_SCHEMA.SYSTEM_SESSIONS", ResultCount)
-    ;
+    table dt = check testDB->select (connectionCountQuery, ResultCount);
 
     int count;
     while (dt.hasNext()) {
