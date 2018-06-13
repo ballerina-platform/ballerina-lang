@@ -485,7 +485,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     }
 
     private void validateAttachedFunction(BLangFunction funcNode, Name objName) {
-        SymbolEnv invokableEnv = SymbolEnv.createDummyEnv(funcNode, env.scope, env);
+        SymbolEnv invokableEnv = SymbolEnv.createDummyEnv(funcNode, funcNode.symbol.scope, env);
         List<BType> paramTypes = funcNode.requiredParams.stream()
                         .peek(varNode -> varNode.type = symResolver.resolveTypeNode(varNode.typeNode, invokableEnv))
                         .map(varNode -> varNode.type)
@@ -503,8 +503,8 @@ public class SymbolEnter extends BLangNodeVisitor {
                 dlog.error(funcNode.pos, DiagnosticCode.CANNOT_FIND_MATCHING_INTERFACE, funcNode.name, objName);
                 return;
             }
-            defineNode(funcNode.restParam, invokableEnv);
-            paramTypes.add(funcNode.restParam.symbol.type);
+            BType restParamType = symResolver.resolveTypeNode(funcNode.restParam.typeNode, invokableEnv);
+            paramTypes.add(restParamType);
         }
 
         BInvokableType sourceType = (BInvokableType) funcNode.symbol.type;

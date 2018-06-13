@@ -246,17 +246,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeFunctions(List<BLangFunction> functions, SymbolEnv pkgEnv) {
-        //reversing the order here to process lambdas first - needed for analysing closures
+        //reversing the order here to process lambdas last - needed for analysing closures
         Collections.reverse(functions);
-        functions.forEach(func -> {
-            SymbolEnv symbolEnv;
-            if (func.enclBlockStmt != null) {
-                symbolEnv = blockStmtEnvMap.get(func.enclBlockStmt);
-            } else {
-                symbolEnv = pkgEnv;
-            }
-            analyzeDef(func, symbolEnv);
-        });
+        //if the isTypeChecked flag is set, then this is a lambda expression which is already analysed and type checked.
+        functions.stream()
+                .filter(func -> !func.isTypeChecked)
+                .forEach(func -> analyzeDef(func, pkgEnv));
         Collections.reverse(functions);
     }
 
@@ -509,7 +504,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangBlockStmt blockNode) {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(blockNode, env);
-        blockStmtEnvMap.put(blockNode, blockEnv);
         blockNode.stmts.forEach(stmt -> analyzeStmt(stmt, blockEnv));
     }
 
