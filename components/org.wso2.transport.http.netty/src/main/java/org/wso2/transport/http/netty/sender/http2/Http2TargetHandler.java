@@ -215,6 +215,8 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                     markWriteCompletion();
                     outboundMsgHolder.setRequestWritten(true);
                 }
+            } catch (Exception ex) {
+                log.error("Error while writing request", ex);
             } finally {
                 if (release) {
                     ReferenceCountUtil.release(msg);
