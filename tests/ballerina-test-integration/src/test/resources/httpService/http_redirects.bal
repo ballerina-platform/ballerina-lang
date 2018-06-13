@@ -25,6 +25,10 @@ endpoint http:Client endPoint3 {
     followRedirects: { enabled: true }
 };
 
+endpoint http:Client endPoint4 {
+    url: "http://localhost:9090"
+};
+
 @http:ServiceConfig {
     basePath: "/service1"
 }
@@ -179,6 +183,28 @@ service<http:Service> testRedirect bind serviceEndpoint {
             }
             http:Response httpResponse => {
                 string value = check httpResponse.getTextPayload();
+                value = value + ":" + httpResponse.resolvedRequestedURI;
+                _ = client->respond(value);
+            }
+        }
+    }
+
+    @http:ResourceConfig {
+        methods: ["GET"],
+        path: "/redirectOff"
+    }
+    redirectOff(endpoint client, http:Request req) {
+        http:Request clientRequest = new;
+        var response = endPoint4->get("/redirect1/round1");
+        match response {
+            error connectorErr => {
+                io:println("Connector error!");
+            }
+            http:Response httpResponse => {
+                string value;
+                if (httpResponse.hasHeader(http:LOCATION)) {
+                    value = httpResponse.getHeader(http:LOCATION);
+                }
                 value = value + ":" + httpResponse.resolvedRequestedURI;
                 _ = client->respond(value);
             }

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+@final string HTTP_SCHEME = "http://";
+@final string HTTPS_SCHEME = "https://";
 
 documentation {Represents multipart primary type}
 @final public string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
@@ -175,21 +177,5 @@ function createFailoverRequest(Request request, mime:Entity requestEntity) retur
     }
 }
 
-type URI object {
-
-    private {
-        string scheme;
-        string host;
-        int port;
-    }
-
-    public new(string uri) {
-        match self.parse(uri) {
-            () => {}
-            error err => throw err;
-        }
-    }
-    native function parse(string url) returns ()|error;
-};
-
+//Resolve a given path against a given URI.
 native function resolve(string baseUrl, string path) returns string|error;

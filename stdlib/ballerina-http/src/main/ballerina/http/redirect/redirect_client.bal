@@ -330,8 +330,8 @@ function redirect(Response response, HttpOperation httpVerb, Request request, Re
                         return performRedirection(location, redirectClient, redirectMethod, request, response);
                     }
                 } else {
-                    error err = { message: "Location header not available!" };
                     redirectClient.currentRedirectCount = 0;
+                    error err = { message: "Location header not available!" };
                     return err;
                 }
             }
@@ -403,7 +403,7 @@ function createRedirectRequest(int statusCode, Request request) returns Request 
 }
 
 function isAbsolute(string locationUrl) returns boolean {
-    return (locationUrl.hasPrefix("http://") || locationUrl.hasPrefix("https://"));
+    return (locationUrl.hasPrefix(HTTP_SCHEME) || locationUrl.hasPrefix(HTTPS_SCHEME));
 }
 
 //Reset the current redirect count to 0 and set the resolved requested URI.

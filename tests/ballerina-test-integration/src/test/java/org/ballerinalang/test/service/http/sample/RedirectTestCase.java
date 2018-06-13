@@ -114,6 +114,15 @@ public class RedirectTestCase extends IntegrationTestCase {
                 "Incorrect resolvedRequestedURI");
     }
 
+    @Test
+    public void testRedirectOff() throws IOException {
+        HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp(
+                "service1/redirectOff"));
+        Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");
+        Assert.assertEquals(response.getData(), "/redirect1/round2:",
+                "Incorrect resolvedRequestedURI");
+    }
+
     @AfterClass
     private void cleanup() throws Exception {
         ballerinaServer.stopServer();
