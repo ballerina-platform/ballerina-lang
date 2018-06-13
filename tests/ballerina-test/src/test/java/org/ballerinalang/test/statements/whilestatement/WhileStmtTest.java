@@ -108,9 +108,9 @@ public class WhileStmtTest {
         Assert.assertSame(returns[1].getClass(), BString.class, "Class type of return param2 mismatched");
         Assert.assertSame(returns[2].getClass(), BFloat.class, "Class type of return param3 mismatched");
 
-        Assert.assertEquals(((BInteger)returns[0]).intValue(), 1, "mismatched output value");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 1, "mismatched output value");
         Assert.assertEquals(returns[1].stringValue(), "hello", "mismatched output value");
-        Assert.assertEquals(((BFloat)returns[2]).floatValue(), 1.0, "mismatched output value");
+        Assert.assertEquals(((BFloat) returns[2]).floatValue(), 1.0, "mismatched output value");
     }
 
     @Test(description = "Test while statement with incompatible types",
