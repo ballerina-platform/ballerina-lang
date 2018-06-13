@@ -115,11 +115,6 @@ public class PackageInfoReader {
         this.typeSigReader = new TypeSignatureReader<>();
     }
 
-    // This is used to assign a number to a package.
-    // This number is used as an offset when dealing with package level variables.
-    // A temporary solution until we implement dynamic package loading.
-    private int currentPkgIndex = 0;
-
     public void readConstantPool(ConstantPool constantPool) throws IOException {
         int constantPoolSize = dataInStream.readInt();
         for (int i = 0; i < constantPoolSize; i++) {
@@ -283,7 +278,7 @@ public class PackageInfoReader {
 
     public void readPackageInfo() throws IOException {
         PackageInfo packageInfo = new PackageInfo();
-        packageInfo.pkgIndex = currentPkgIndex++;
+        packageInfo.pkgIndex = programFile.currentPkgIndex++;
 
         // Read constant pool in the package.
         readConstantPool(packageInfo);

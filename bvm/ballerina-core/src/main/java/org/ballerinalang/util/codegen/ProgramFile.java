@@ -65,6 +65,10 @@ public class ProgramFile implements ConstantPool, AttributeInfoPool {
     private boolean mainFucAvailable = false;
     private boolean servicesAvailable = false;
 
+    //This is the current package's global memory area index value which gets incremented when reading package info
+    //entries of this program file.
+    public int currentPkgIndex = 0;
+
     private Debugger debugger;
     private boolean distributedTransactionEnabled = false;
 
