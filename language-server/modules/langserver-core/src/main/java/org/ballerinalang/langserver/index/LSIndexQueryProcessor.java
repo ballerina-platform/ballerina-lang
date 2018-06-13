@@ -1,3 +1,20 @@
+/*
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*
+*  WSO2 Inc. licenses this file to you under the Apache License,
+*  Version 2.0 (the "License"); you may not use this file except
+*  in compliance with the License.
+*  You may obtain a copy of the License at
+*
+*    http://www.apache.org/licenses/LICENSE-2.0
+*
+*  Unless required by applicable law or agreed to in writing,
+*  software distributed under the License is distributed on an
+*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+*  KIND, either express or implied.  See the License for the
+*  specific language governing permissions and limitations
+*  under the License.
+*/
 package org.ballerinalang.langserver.index;
 
 import org.ballerinalang.langserver.common.utils.index.DAOUtil;
@@ -6,11 +23,13 @@ import org.ballerinalang.langserver.index.dao.ObjectDAO;
 import org.ballerinalang.langserver.index.dao.PackageFunctionDAO;
 import org.ballerinalang.langserver.index.dao.RecordDAO;
 import org.ballerinalang.langserver.index.dto.BFunctionDTO;
+import org.ballerinalang.langserver.index.dto.BLangResourceDTO;
+import org.ballerinalang.langserver.index.dto.BLangServiceDTO;
 import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
-import org.ballerinalang.langserver.index.dto.BLangResourceDTO;
-import org.ballerinalang.langserver.index.dto.BLangServiceDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -22,10 +41,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by nadeeshaan on 6/9/18.
+ * Query Processors for Language Server Index DB.
  */
 public class LSIndexQueryProcessor {
-    private Connection connection;
+
+    private static final Logger logger = LoggerFactory.getLogger(LSIndexQueryProcessor.class);
  
     private PreparedStatement insertBLangPackage;
  
@@ -40,23 +60,17 @@ public class LSIndexQueryProcessor {
     private PreparedStatement insertBLangObject;
  
     private PreparedStatement updateActionHolderId;
- 
-    private PreparedStatement getBLangPackageByOrg;
 
     private PreparedStatement getFunctionsFromPackage;
     
     private PreparedStatement getRecordsFromPackage;
     
     private PreparedStatement getObjectsFromPackage;
- 
-    private PreparedStatement selectAllFunctions;
-
-    private PreparedStatement selectAllObjectsByType;
-
 
     LSIndexQueryProcessor(Connection connection) {
         // Generate the prepared statements
         try {
+            // Insert Statements
             insertBLangPackage = connection.prepareStatement(Constants.INSERT_BLANG_PACKAGE, 
                     Statement.RETURN_GENERATED_KEYS);
             insertBLangService = connection.prepareStatement(Constants.INSERT_BLANG_SERVICE, 
@@ -69,19 +83,27 @@ public class LSIndexQueryProcessor {
                     Statement.RETURN_GENERATED_KEYS);
             insertBLangObject = connection.prepareStatement(Constants.INSERT_BLANG_OBJECT, 
                     Statement.RETURN_GENERATED_KEYS);
+
+            // Update Statements
             updateActionHolderId = connection.prepareStatement(Constants.UPDATE_ENDPOINT_ACTION_HOLDER_ID, 
                     Statement.RETURN_GENERATED_KEYS);
+
+            // Select Statements
             getFunctionsFromPackage = connection.prepareStatement(Constants.GET_FUNCTIONS_FROM_PACKAGE);
             getRecordsFromPackage = connection.prepareStatement(Constants.GET_RECORDS_FROM_PACKAGE);
             getObjectsFromPackage = connection.prepareStatement(Constants.GET_OBJECT_FROM_PACKAGE);
-//             selectAllFunctions = connection.prepareStatement(Constants.SELECT_ALL_FUNCTIONS);
-//             selectAllObjectsByType = connection.prepareStatement(Constants.SELECT_ALL_OBJECTS_BY_TYPE);
         } catch (SQLException e) {
-            // TODO: Handle Properly
+            logger.error("Error in Creating Prepared Statement.");
         }
     }
 
-    public List<Integer> batchInsertBLangPackages(List<BPackageSymbolDTO> packageDTOs) throws SQLException {
+    /**
+     * Batch Insert List of PackageSymbolDTOs.
+     * @param packageDTOs       List of Package DTOs
+     * @return {@link List}     List of Generated Keys
+     * @throws SQLException     Exception While Insert
+     */
+    public List<Integer> batchInsertBPackageSymbols(List<BPackageSymbolDTO> packageDTOs) throws SQLException {
         clearBatch(insertBLangPackage);
         for (BPackageSymbolDTO packageDTO : packageDTOs) {
             insertBLangPackage.setString(1, packageDTO.getPackageID().getName());
@@ -94,7 +116,13 @@ public class LSIndexQueryProcessor {
         return this.getGeneratedKeys(insertBLangPackage.getGeneratedKeys());
     }
 
-    public List<Integer> batchInsertBLangServices(List<BLangServiceDTO> bLangServiceDTOs) throws SQLException {
+    /**
+     * Batch Insert List of Service Symbols.
+     * @param bLangServiceDTOs  List of ServiceSymbolDTOs
+     * @return {@link List}     List of Generated Keys
+     * @throws SQLException     Exception While Insert
+     */
+    public List<Integer> batchInsertServiceSymbols(List<BLangServiceDTO> bLangServiceDTOs) throws SQLException {
         clearBatch(insertBLangService);
         for (BLangServiceDTO bLangServiceDTO : bLangServiceDTOs) {
             insertBLangService.setInt(1, bLangServiceDTO.getPackageId());
@@ -106,6 +134,12 @@ public class LSIndexQueryProcessor {
         return this.getGeneratedKeys(insertBLangService.getGeneratedKeys());
     }
 
+    /**
+     * Batch Insert List of Resource Symbols.
+     * @param bLangResourceDTOs  List of BLangResourceDTOs
+     * @return {@link List}     List of Generated Keys
+     * @throws SQLException     Exception While Insert
+     */
     public List<Integer> batchInsertBLangResources(List<BLangResourceDTO> bLangResourceDTOs) throws SQLException {
         clearBatch(insertBLangResource);
         for (BLangResourceDTO bLangResourceDTO : bLangResourceDTOs) {
@@ -118,6 +152,12 @@ public class LSIndexQueryProcessor {
         return this.getGeneratedKeys(insertBLangResource.getGeneratedKeys());
     }
 
+    /**
+     * Batch Insert List of BInvokable Symbols.
+     * @param bFunctionDTOs     List of BFunctionDTOs
+     * @return {@link List}     List of Generated Keys
+     * @throws SQLException     Exception While Insert
+     */
     public List<Integer> batchInsertBLangFunctions(List<BFunctionDTO> bFunctionDTOs)
          throws SQLException, IOException {
         clearBatch(insertBLangFunction);
@@ -134,7 +174,14 @@ public class LSIndexQueryProcessor {
         return this.getGeneratedKeys(insertBLangFunction.getGeneratedKeys());
     }
 
-    public List<Integer> batchInsertBLangRecords(List<BRecordTypeSymbolDTO> recordDTOs) throws SQLException, IOException {
+    /**
+     * Batch Insert List of RecordTypeSymbols.
+     * @param recordDTOs        List of BRecordTypeSymbolDTOs
+     * @return {@link List}     List of Generated Keys
+     * @throws SQLException}    Exception While Insert
+     */
+    public List<Integer> batchInsertBLangRecords(List<BRecordTypeSymbolDTO> recordDTOs) throws SQLException,
+            IOException {
         clearBatch(insertBLangRecord);
         for (BRecordTypeSymbolDTO recordDTO : recordDTOs) {
             insertBLangRecord.setInt(1, recordDTO.getPackageId());
@@ -150,7 +197,14 @@ public class LSIndexQueryProcessor {
         return this.getGeneratedKeys(insertBLangRecord.getGeneratedKeys());
     }
 
-    public List<Integer> batchInsertBLangObjects(List<BObjectTypeSymbolDTO> objectDTOs) throws SQLException, IOException {
+    /**
+     * Batch Insert List of ObjectTypeSymbols.
+     * @param objectDTOs        List of BFunctionDTOs
+     * @return {@link List}     List of Generated Keys
+     * @throws SQLException     Exception While Insert
+     */
+    public List<Integer> batchInsertBLangObjects(List<BObjectTypeSymbolDTO> objectDTOs) throws SQLException,
+            IOException {
         clearBatch(insertBLangObject);
         for (BObjectTypeSymbolDTO objectDTO : objectDTOs) {
             insertBLangObject.setInt(1, objectDTO.getPackageId());
@@ -168,11 +222,11 @@ public class LSIndexQueryProcessor {
 
     /**
      * Update Action holderId entry of endpoint nodes
-     * 
+     *
      * Note: endpoint IDs order and te actionHolder IDs holder order are equal.
-     * @param endpoints
-     * @param actionHolders
-     * @return
+     * @param endpoints         list of Endpoint IDs
+     * @param actionHolders     list of Action holder IDs
+     * @return {@link List}     List of Generated Keys
      */
     public List<Integer> batchUpdateActionHolderId(List<Integer> endpoints, List<Integer> actionHolders)
             throws SQLException {
@@ -189,13 +243,13 @@ public class LSIndexQueryProcessor {
     }
 
     // Get Statements
-
-    public ResultSet getPackageByOrgName(String orgName) throws SQLException {
-        getBLangPackageByOrg.clearParameters();
-        getBLangPackageByOrg.setString(1, orgName);
-        return getBLangPackageByOrg.executeQuery();
-    }
-    
+    /**
+     * Get a List of PackageFunctionDAOs.
+     * @param name                          Package Name
+     * @param orgName                       Org Name
+     * @return {@link PackageFunctionDAO}   List of FunctionDAOs
+     * @throws SQLException                 Exception While Insert
+     */
     public List<PackageFunctionDAO> getFunctionsFromPackage(String name, String orgName)
             throws SQLException {
         getFunctionsFromPackage.clearParameters();
@@ -204,7 +258,14 @@ public class LSIndexQueryProcessor {
         
         return DAOUtil.getPackageFunctionDAO(getFunctionsFromPackage.executeQuery());
     }
-    
+
+    /**
+     * Get a List of RecordDAOs.
+     * @param name                  Package Name
+     * @param orgName               Org Name
+     * @return {@link RecordDAO}    List of FunctionDAOs
+     * @throws SQLException         Exception While Insert
+     */
     public List<RecordDAO> getRecordsFromPackage(String name, String orgName) throws SQLException {
         getRecordsFromPackage.clearParameters();
         getRecordsFromPackage.setString(1, name);
@@ -212,28 +273,20 @@ public class LSIndexQueryProcessor {
         
         return DAOUtil.getRecordDAO(getRecordsFromPackage.executeQuery());
     }
-    
+
+    /**
+     * Get a List of ObjectDAOs.
+     * @param name                  Package Name
+     * @param orgName               Org Name
+     * @return {@link ObjectDAO}    List of FunctionDAOs
+     * @throws SQLException         Exception While Insert
+     */
     public List<ObjectDAO> getObjectsFromPackage(String name, String orgName) throws SQLException {
         getObjectsFromPackage.clearParameters();
         getObjectsFromPackage.setString(1, name);
         getObjectsFromPackage.setString(2, orgName);
         
         return DAOUtil.getObjectDAO(getObjectsFromPackage.executeQuery());
-    }
-
-    public ResultSet selectAllFunctions() throws SQLException {
-        selectAllFunctions.clearParameters();
-        return selectAllFunctions.executeQuery();
-    }
-
-    public ResultSet selectObjectsByType() throws SQLException {
-        selectAllObjectsByType.clearParameters();
-        //        selectAllObjectsByType.setInt(1, 3);
-        return selectAllObjectsByType.executeQuery();
-    }
-
-    public Connection getConnection() {
-        return connection;
     }
 
     private static void clearBatch(PreparedStatement preparedStatement) throws SQLException {
@@ -247,7 +300,7 @@ public class LSIndexQueryProcessor {
                 generatedKeys.add(resultSet.getInt(1));
             }
         } catch (SQLException e) {
-            // TODO: Handled Properly
+            logger.error("Error getting the Generated Keys: [" + e.getMessage() + "]");
         }
         return generatedKeys;
     }

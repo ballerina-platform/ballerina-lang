@@ -21,8 +21,8 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.common.utils.completion.BLangFunctionUtil;
-import org.ballerinalang.langserver.common.utils.completion.BLangPackageUtil;
+import org.ballerinalang.langserver.common.utils.completion.BInvokableSymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -81,7 +81,7 @@ public abstract class AbstractItemResolver {
                         && !(bSymbol instanceof BAnnotationSymbol)
                         && !(bSymbol.getName().getValue().equals("runtime"))
                         && !(bSymbol instanceof BServiceSymbol)) {
-                    completionItem = BLangPackageUtil.getBTypeCompletionItem(symbolInfo.getSymbolName());
+                    completionItem = BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName());
                 }
             }
 
@@ -112,7 +112,7 @@ public abstract class AbstractItemResolver {
      */
     private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
         if (symbolInfo.isIterableOperation()) {
-            return BLangFunctionUtil.getFunctionCompletionItem(
+            return BInvokableSymbolUtil.getFunctionCompletionItem(
                     symbolInfo.getIterableOperationSignature().getInsertText(),
                     symbolInfo.getIterableOperationSignature().getLabel());
         } else {
@@ -126,7 +126,7 @@ public abstract class AbstractItemResolver {
                     bInvokableSymbol.getName().getValue().equals("main")) {
                 return null;
             }
-            return BLangFunctionUtil.getFunctionCompletionItem(bInvokableSymbol);
+            return BInvokableSymbolUtil.getFunctionCompletionItem(bInvokableSymbol);
         }
     }
 
@@ -248,7 +248,7 @@ public abstract class AbstractItemResolver {
                     && !((bSymbol instanceof BPackageSymbol) && bSymbol.pkgID.getName().getValue().equals("runtime"))
                     && !(bSymbol instanceof BAnnotationSymbol)
                     && !(bSymbol instanceof BServiceSymbol)) {
-                completionItems.add(BLangPackageUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()));
+                completionItems.add(BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()));
             }
         });
     }
@@ -296,7 +296,7 @@ public abstract class AbstractItemResolver {
                 BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolInfo.getScopeEntry().symbol;
                 BInvokableSymbol initializerFunction = objectTypeSymbol.initializerFunc.symbol;
                 initializerFunction.name = new Name(objectTypeSymbol.getName().getValue());
-                completionItems.add(BLangFunctionUtil.getFunctionCompletionItem(initializerFunction));
+                completionItems.add(BInvokableSymbolUtil.getFunctionCompletionItem(initializerFunction));
             });
             this.populateCompletionItemList(filteredList, completionItems);
         } else {

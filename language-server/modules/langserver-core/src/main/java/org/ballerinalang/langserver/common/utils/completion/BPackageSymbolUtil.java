@@ -21,9 +21,14 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CompletionItem;
 
 /**
- * Utilities for BLangFunction items.
+ * Utilities for BPackageSymbol items.
  */
-public class BLangPackageUtil {
+public class BPackageSymbolUtil {
+    /**
+     * Get the Completion Item for a BType.
+     * @param name                      Name of the BType
+     * @return {@link CompletionItem}   Generated Completion Item
+     */
     public static CompletionItem getBTypeCompletionItem(String name) {
         CompletionItem completionItem = new CompletionItem();
         completionItem.setLabel(name);

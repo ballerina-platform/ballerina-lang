@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.index.dto;
 import org.eclipse.lsp4j.CompletionItem;
 
 /**
- * DTO for BInvokeableSymbol.
+ * DTO for BInvokableSymbol.
  */
 public class BFunctionDTO {
 

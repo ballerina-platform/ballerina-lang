@@ -23,6 +23,8 @@ import org.ballerinalang.langserver.index.dao.ObjectDAO;
 import org.ballerinalang.langserver.index.dao.PackageFunctionDAO;
 import org.ballerinalang.langserver.index.dao.RecordDAO;
 import org.eclipse.lsp4j.CompletionItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,6 +40,13 @@ public class DAOUtil {
     
     private static final JsonParser parser = new JsonParser();
     
+    private static final Logger logger = LoggerFactory.getLogger(DAOUtil.class);
+
+    /**
+     * Generate the PackageFunctionDAO list from the result set.
+     * @param resultSet         Result set for manipulation
+     * @return {@link List}     List of DAOs
+     */
     public static List<PackageFunctionDAO> getPackageFunctionDAO(ResultSet resultSet) {
         List<PackageFunctionDAO> packageFunctionDAOs = new ArrayList<>();
 
@@ -52,11 +61,16 @@ public class DAOUtil {
                 packageFunctionDAOs.add(packageFunctionDAO);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error Processing Package Functions Result Set");
         }
         return packageFunctionDAOs;
     }
-    
+
+    /**
+     * Generate the RecordDAO list from the result set.
+     * @param resultSet         Result set for manipulation
+     * @return {@link List}     List of DAOs
+     */
     public static List<RecordDAO> getRecordDAO(ResultSet resultSet) {
         List<RecordDAO> recordDAOs = new ArrayList<>();
 
@@ -71,11 +85,16 @@ public class DAOUtil {
                 recordDAOs.add(recordDAO);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error Processing Records Result Set");
         }
         return recordDAOs;
     }
-    
+
+    /**
+     * Generate the ObjectDAO list from the result set.
+     * @param resultSet         Result set for manipulation
+     * @return {@link List}     List of DAOs
+     */
     public static List<ObjectDAO> getObjectDAO(ResultSet resultSet) {
         List<ObjectDAO> objectDAOs = new ArrayList<>();
 
@@ -90,7 +109,7 @@ public class DAOUtil {
                 objectDAOs.add(recordDAO);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error Objects Result Set");
         }
         return objectDAOs;
     }

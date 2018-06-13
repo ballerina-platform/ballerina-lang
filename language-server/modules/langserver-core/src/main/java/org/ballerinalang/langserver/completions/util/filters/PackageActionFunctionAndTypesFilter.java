@@ -33,6 +33,8 @@ import org.ballerinalang.langserver.index.dao.RecordDAO;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -52,6 +54,8 @@ import java.util.stream.Collectors;
  * Filter the actions and the functions in a package.
  */
 public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
+
+    private static final Logger logger = LoggerFactory.getLogger(PackageActionFunctionAndTypesFilter.class);
 
     @Override
     public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext completionContext) {
@@ -94,7 +98,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param delimiterIndex        delimiter index (index of either . or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
-    private Either<List<CompletionItem>, List<SymbolInfo>>getActionsFunctionsAndTypes(
+    private Either<List<CompletionItem>, List<SymbolInfo>> getActionsFunctionsAndTypes(
             LSServiceOperationContext completionContext,
             int delimiterIndex) {
 
@@ -146,8 +150,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                 );
                 return Either.forLeft(completionItems);
             } catch (SQLException e) {
-                e.printStackTrace();
-                // TODO: Added temporarily
+                logger.warn("Error retrieving Completion Items from Index DB.");
                 return Either.forRight(this.loadActionsFunctionsAndTypesFromScope(scopeEntryMap));
             }
         }

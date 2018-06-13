@@ -40,7 +40,6 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
     @SuppressWarnings("unchecked")
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        PackageActionFunctionAndTypesFilter actionFunctionTypeFilter = new PackageActionFunctionAndTypesFilter();
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation

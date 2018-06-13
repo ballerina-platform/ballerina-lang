@@ -18,8 +18,8 @@
 package org.ballerinalang.langserver.common.utils.index;
 
 import com.google.gson.Gson;
-import org.ballerinalang.langserver.common.utils.completion.BLangFunctionUtil;
-import org.ballerinalang.langserver.common.utils.completion.BLangPackageUtil;
+import org.ballerinalang.langserver.common.utils.completion.BInvokableSymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
 import org.ballerinalang.langserver.index.dto.BFunctionDTO;
 import org.ballerinalang.langserver.index.dto.BLangResourceDTO;
 import org.ballerinalang.langserver.index.dto.BLangServiceDTO;
@@ -31,6 +31,8 @@ import org.ballerinalang.langserver.index.dto.PackageIDDTO;
 import org.ballerinalang.langserver.index.dto.TypeDTO;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.CompletionItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -56,10 +58,17 @@ public class DTOUtil {
     private static final String GET_CALLER_ACTIONS = "getCallerActions";
 
     private static final Gson gson = new Gson();
+    
+    private static final Logger logger = LoggerFactory.getLogger(DTOUtil.class); 
 
+    /**
+     * Get the TypeDTO for the BType.
+     * @param bType                 bType to generate the DAO
+     * @return {@link TypeDTO}      Generated DTO
+     */
     public static TypeDTO getTypeDTO(BType bType) {
         BTypeSymbol typeSymbol;
-        String name = "";
+        String name;
         PackageID packageID = null;
         List<TypeDTO> memberTypes = new ArrayList<>();
         if (bType instanceof BArrayType) {
@@ -87,7 +96,12 @@ public class DTOUtil {
 
         return new TypeDTO(packageIDDTO, name, memberTypes);
     }
-    
+
+    /**
+     * Get the BPackageSymbolDTO for the package symbol.
+     * @param packageSymbol                 packageSymbol to generate the DAO
+     * @return {@link BPackageSymbolDTO}    Generated DTO
+     */
     public static BPackageSymbolDTO getBLangPackageDTO(BPackageSymbol packageSymbol) {
         PackageID packageID = packageSymbol.pkgID;
         PackageIDDTO packageIDDTO = new PackageIDDTO(
@@ -111,6 +125,7 @@ public class DTOUtil {
                         break;
                     case SERVICE:
                         packageSymbolDTO.getbServiceSymbols().add((BServiceSymbol) symbol);
+                        break;
                     default:
                         break;
                 }
@@ -120,37 +135,80 @@ public class DTOUtil {
         return packageSymbolDTO;
     }
 
+    /**
+     * Get the BLangServiceDTO for the service symbol.
+     * @param pkgEntryId                    Package Entry ID
+     * @param bServiceSymbol                BServiceSymbol to generate DAO
+     * @return {@link BLangServiceDTO}      Generated DTO
+     */
     public static BLangServiceDTO getServiceDTO(int pkgEntryId, BServiceSymbol bServiceSymbol) {
         return new BLangServiceDTO(pkgEntryId, bServiceSymbol.getName().getValue());
     }
 
+    /**
+     * Get the BLangResourceDTO for the BLangResourceDTO.
+     * @param serviceEntryId                Service Entry ID
+     * @param bLangResource                 BServiceSymbol to generate DAO
+     * @return {@link BLangResourceDTO}     Generated DTO
+     */
+    public static BLangResourceDTO getResourceDTO(int serviceEntryId, BLangResource bLangResource) {
+        return new BLangResourceDTO(serviceEntryId, bLangResource.getName().getValue());
+    }
+
+    /**
+     * Get the BFunctionDTO for the invokable symbol.
+     * @param pkgEntryId                Package Entry ID
+     * @param bInvokableSymbol          BInvokableSymbol to generate DAO
+     * @return {@link BFunctionDTO}     Generated DTO
+     */
     public static BFunctionDTO getFunctionDTO(int pkgEntryId, BInvokableSymbol bInvokableSymbol) {
-        CompletionItem completionItem = BLangFunctionUtil.getFunctionCompletionItem(bInvokableSymbol);
+        CompletionItem completionItem = BInvokableSymbolUtil.getFunctionCompletionItem(bInvokableSymbol);
         return new BFunctionDTO(pkgEntryId, -1, bInvokableSymbol.getName().getValue(), completionItem);
     }
 
+    /**
+     * Get the BObjectTypeSymbolDTO for the Object Type symbol.
+     * @param pkgEntryId                        Package Entry ID
+     * @param bObjectTypeSymbol                 BObjectTypeSymbol to generate DAO
+     * @param type                              ObjectType
+     * @return {@link BObjectTypeSymbolDTO}     Generated DTO
+     */
     public static BObjectTypeSymbolDTO getObjectTypeSymbolDTO(int pkgEntryId, BObjectTypeSymbol bObjectTypeSymbol,
                                                      ObjectType type) {
         CompletionItem completionItem = null;
-        if(type == ObjectType.OBJECT) {
-            completionItem = BLangPackageUtil.getBTypeCompletionItem(bObjectTypeSymbol.getName().getValue());
+        if (type == ObjectType.OBJECT) {
+            completionItem = BPackageSymbolUtil.getBTypeCompletionItem(bObjectTypeSymbol.getName().getValue());
         }
+
         return new BObjectTypeSymbolDTO(pkgEntryId, bObjectTypeSymbol.getName().getValue(), null, type, completionItem);
     }
 
+    /**
+     * Get the BRecordTypeSymbolDTO for the Object Type symbol.
+     * @param pkgEntryId                        Package Entry ID
+     * @param recordTypeSymbol                  BRecordTypeSymbol to generate DAO
+     * @return {@link BRecordTypeSymbolDTO}     Generated DTO
+     */
     public static BRecordTypeSymbolDTO getRecordTypeSymbolDTO(int pkgEntryId, BRecordTypeSymbol recordTypeSymbol) {
-        CompletionItem completionItem = BLangPackageUtil.getBTypeCompletionItem(recordTypeSymbol.getName().getValue());
+        CompletionItem completionItem = BPackageSymbolUtil
+                .getBTypeCompletionItem(recordTypeSymbol.getName().getValue());
         return new BRecordTypeSymbolDTO(pkgEntryId, recordTypeSymbol.getName().getValue(), null, completionItem);
-    } 
-
-    private static BLangResourceDTO getResourceDTO(int serviceEntryId, BLangResource bLangResource) {
-        return new BLangResourceDTO(serviceEntryId, bLangResource.getName().getValue());
     }
-    
+
+    /**
+     * Convert CompletionItem to JSON format.
+     * @param completionItem    CompletionItem to convert to String
+     * @return {@link String}   JSON String of CompletionItem
+     */
     public static String completionItemToJSON(CompletionItem completionItem) {
         return gson.toJson(completionItem);
     }
 
+    /**
+     * Get the Categorized objects from the provided BObjectTypeSymbol list.
+     * @param objectTypeSymbols             List of ObjectTypeSymbols
+     * @return {@link ObjectCategories}     Categorised ObjectSymbols
+     */
     public static ObjectCategories getObjectCategories(List<BObjectTypeSymbol> objectTypeSymbols) {
         ObjectCategories objectCategories = new ObjectCategories();
 
@@ -162,12 +220,12 @@ public class DTOUtil {
             if (callerActionsFunction != null) {
                 BType endpointActionsHolderType = callerActionsFunction.type.retType;
                 BObjectTypeSymbol endpointActionHolderSymbol =
-                        filterObjectTypeSymbolByBType(endpointActionsHolderType, objectTypeSymbols);
+                        filterObjectTypeSymbolByBType(endpointActionsHolderType);
                 objectCategories.endpointActionHolders.add(endpointActionHolderSymbol);
                 objectCategories.endpoints.add(objectTypeSymbol);
             }
         }
-        
+
         objectTypeSymbols.removeAll(objectCategories.endpointActionHolders);
         objectTypeSymbols.removeAll(objectCategories.endpoints);
         // Add the remaining objects to the objects list since those are neither Caller or Endpoint objects
@@ -175,17 +233,15 @@ public class DTOUtil {
 
         return objectCategories;
     }
-    
+
+    // Private Methods
     // TODO: Optimize Further
-    private static BObjectTypeSymbol filterObjectTypeSymbolByBType(BType bType,
-                                                                   List<BObjectTypeSymbol> objectTypeSymbols) {
-        if (!(bType instanceof BObjectType)) {
+    private static BObjectTypeSymbol filterObjectTypeSymbolByBType(BType bType) {
+        if (!(bType instanceof BObjectType) || !(((BObjectType) bType).tsymbol instanceof BObjectTypeSymbol)) {
             return null;
         }
-        return objectTypeSymbols.stream()
-                .filter(bObjectTypeSymbol -> bObjectTypeSymbol == ((BObjectType) bType).tsymbol)
-                .findFirst()
-                .orElse(null);
+
+        return (BObjectTypeSymbol) ((BObjectType) bType).tsymbol;
     }
 
     /**

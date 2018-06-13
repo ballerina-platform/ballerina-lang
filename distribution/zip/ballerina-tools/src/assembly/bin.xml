@@ -105,6 +105,14 @@
         </file>
         <file>
             <source>
+                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/lang-server-index.sql
+            </source>
+            <outputDirectory>lib/resources/composer</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>
                 ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/deployment.yaml
             </source>
             <outputDirectory>lib/resources/composer/services</outputDirectory>

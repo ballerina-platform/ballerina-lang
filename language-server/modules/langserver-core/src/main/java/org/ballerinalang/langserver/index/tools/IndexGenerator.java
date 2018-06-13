@@ -18,12 +18,12 @@
 package org.ballerinalang.langserver.index.tools;
 
 import org.ballerinalang.langserver.common.utils.index.DTOUtil;
-import org.ballerinalang.langserver.index.dto.BFunctionDTO;
-import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
-import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.index.LSIndexImpl;
+import org.ballerinalang.langserver.index.dto.BFunctionDTO;
+import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
+import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.ObjectType;
 import org.ballerinalang.model.elements.PackageID;
@@ -40,6 +40,7 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,30 +53,44 @@ public class IndexGenerator {
 
     private List<BPackageSymbol> getBLangPackages() {
         List<BPackageSymbol> bPackageSymbols = new ArrayList<>();
+        List<String> packages = Arrays.asList("auth", "builtin", "cache", "config", "crypto", "file", "grpc", "h2",
+                "http", "io", "jdbc", "jms", "log", "math", "mb", "mime", "mysql", "reflect", "runtime", "sql",
+                "swagger", "system", "task", "time", "transactions", "websub");
         CompilerContext tempCompilerContext = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-        PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
-                new org.wso2.ballerinalang.compiler.util.Name("http"),
-                new org.wso2.ballerinalang.compiler.util.Name(""));
-        try {
-            // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
-            bPackageSymbols.add(LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID));
-        } catch (Exception e) {
-            // TODO: Handle Properly
-        }
+        packages.forEach(pkg -> {
+            try {
+                PackageID packageID = new PackageID(new org.wso2.ballerinalang.compiler.util.Name("ballerina"),
+                        new org.wso2.ballerinalang.compiler.util.Name(pkg),
+                        new org.wso2.ballerinalang.compiler.util.Name(""));
+                BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
+                bPackageSymbols.add(bPackageSymbol);
+            } catch (RuntimeException e) {
+                throw e;
+            } catch (Exception e) {
+                logger.error("Cannot Load Package: ballerina/" + pkg);
+            }
+        });
+
         return bPackageSymbols;
     }
 
     public static void main(String[] args) {
-        System.setProperty("ballerina.home", "/media/nadeeshaan/f6e45128-5272-4b10-99c9-b5dc9990d202/nadeeshaan/Development/NextGen_ESB/Bal_Workspace/ballerina-tools-0.973.1-SNAPSHOT");
         IndexGenerator indexGenerator = new IndexGenerator();
         LSIndexImpl.getInstance().init(null);
         List<BPackageSymbol> bPackageSymbols = indexGenerator.getBLangPackages();
         List<BPackageSymbolDTO> bPackageSymbolDTOs = bPackageSymbols.stream()
-                .map(DTOUtil::getBLangPackageDTO).collect(Collectors.toList());
+                .map(packageSymbol -> {
+                    try {
+                        return DTOUtil.getBLangPackageDTO(packageSymbol);
+                    } catch (Exception e) {
+                        logger.error("Error Generating BLangPackageDTO");
+                    }
+                    return null;
+                }).collect(Collectors.toList());
         indexGenerator.insertBLangPackages(bPackageSymbolDTOs);
-        String saveDumpPath = Paths.get("language-server/modules/langserver-core/target/").toAbsolutePath().toString();
+        String saveDumpPath = Paths.get("modules/langserver-core/target/").toAbsolutePath().toString();
         LSIndexImpl.getInstance()
-                .saveIndexDump(Paths.get(new File(saveDumpPath + File.separator + "indexDump.sql").toURI()));
+                .saveIndexDump(Paths.get(new File(saveDumpPath + File.separator + "lang-server-index.sql").toURI()));
     }
 
     private void insertBLangPackages(List<BPackageSymbolDTO> packageSymbolDTOs) {
@@ -83,20 +98,17 @@ public class IndexGenerator {
         List<Integer> generatedPkgKeys;
         try {
             generatedPkgKeys = LSIndexImpl.getInstance().getQueryProcessor()
-                    .batchInsertBLangPackages(packageSymbolDTOs);
-            for (int i = 0; i < packageSymbolDTOs.size(); i++) {
-                DTOUtil.ObjectCategories objectCategories =
-                        DTOUtil.getObjectCategories(packageSymbolDTOs.get(i).getObjectTypeSymbols());
-                insertBLangFunctions(generatedPkgKeys.get(i), packageSymbolDTOs.get(i).getBInvokableSymbols());
-                insertBLangRecords(generatedPkgKeys.get(i), packageSymbolDTOs.get(i).getRecordTypeSymbols());
-                insertBLangObjects(generatedPkgKeys.get(i), objectCategories);
-//                LSIndexImpl.getInstance().getQueryProcessor().getFunctionsFromPackage("http", "ballerina");
-                LSIndexImpl.getInstance().getQueryProcessor().getRecordsFromPackage("http", "ballerina");
-//                LSIndexImpl.getInstance().getQueryProcessor().getObjectsFromPackage("http", "ballerina");
-                System.out.println(objectCategories);
-            }
+                    .batchInsertBPackageSymbols(packageSymbolDTOs);
         } catch (SQLException e) {
-            e.printStackTrace();
+            logger.error("Error Insert BLangPackages");
+            return;
+        }
+        for (int i = 0; i < packageSymbolDTOs.size(); i++) {
+            DTOUtil.ObjectCategories objectCategories =
+                    DTOUtil.getObjectCategories(packageSymbolDTOs.get(i).getObjectTypeSymbols());
+            insertBLangFunctions(generatedPkgKeys.get(i), packageSymbolDTOs.get(i).getBInvokableSymbols());
+            insertBLangRecords(generatedPkgKeys.get(i), packageSymbolDTOs.get(i).getRecordTypeSymbols());
+            insertBLangObjects(generatedPkgKeys.get(i), objectCategories);
         }
     }
 
@@ -124,7 +136,7 @@ public class IndexGenerator {
         try {
             LSIndexImpl.getInstance().getQueryProcessor().batchInsertBLangFunctions(bFunctionDTOs);
         } catch (SQLException | IOException e) {
-            // TODO: Handle Properly
+            logger.error("Error Insert BLangFunctions");
         }
     }
 
@@ -135,8 +147,7 @@ public class IndexGenerator {
         try {
             LSIndexImpl.getInstance().getQueryProcessor().batchInsertBLangRecords(bRecordTypeSymbolDTOs);
         } catch (SQLException | IOException e) {
-            e.printStackTrace();
-            // TODO: Handle Properly
+            logger.error("Error Insert BLangRecords");
         }
     }
 
@@ -148,20 +159,19 @@ public class IndexGenerator {
         try {
             LSIndexImpl.getInstance().getQueryProcessor().batchUpdateActionHolderId(epIds, actionHolderIds);
         } catch (SQLException e) {
-            e.printStackTrace();
-            // TODO: Handle Properly
+            logger.error("Error Updating Endpoint Action Holders");
         }
     }
 
-    private static List<Integer> insertBLangObjects(int pkgEntryId, List<BObjectTypeSymbol> bLangObjects, ObjectType type) {
+    private static List<Integer> insertBLangObjects(int pkgEntryId, List<BObjectTypeSymbol> bLangObjects,
+                                                    ObjectType type) {
         List<BObjectTypeSymbolDTO> bLangObjectDTOs = bLangObjects.stream()
                 .map(object -> DTOUtil.getObjectTypeSymbolDTO(pkgEntryId, object, type))
                 .collect(Collectors.toList());
         try {
             return LSIndexImpl.getInstance().getQueryProcessor().batchInsertBLangObjects(bLangObjectDTOs);
         } catch (SQLException | IOException e) {
-            e.printStackTrace();
-            // TODO: Handle Properly
+            logger.error("Error Insert BLangObjects");
         }
         return new ArrayList<>();
     }

@@ -33,7 +33,7 @@ import org.eclipse.lsp4j.services.LanguageServer;
 import org.eclipse.lsp4j.services.TextDocumentService;
 import org.eclipse.lsp4j.services.WorkspaceService;
 
-import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -119,7 +119,8 @@ public class BallerinaLanguageServer implements LanguageServer, LanguageClientAw
     // Private Methods
 
     private void initLSIndex() {
-        String indexDumpPath = CommonUtil.BALLERINA_HOME + File.separator + "indexDump.sql";
+        String indexDumpPath = Paths.get(CommonUtil.BALLERINA_HOME + "/lib/resources/composer/lang-server-index.sql")
+                .toString();
         LSIndexImpl.getInstance().initFromIndexDump(indexDumpPath);
     }
 }
