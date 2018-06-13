@@ -1,7 +1,5 @@
 package org.ballerinalang.net.grpc;
 
-import com.google.common.base.Preconditions;
-
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
