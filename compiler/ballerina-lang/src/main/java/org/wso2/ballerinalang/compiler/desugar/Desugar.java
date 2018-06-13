@@ -202,6 +202,7 @@ public class Desugar extends BLangNodeVisitor {
     private Types types;
     private Names names;
     private SiddhiQueryBuilder siddhiQueryBuilder;
+    private HttpFiltersDesugar httpFiltersDesugar;
 
     private BLangNode result;
 
@@ -239,6 +240,7 @@ public class Desugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
         this.names = Names.getInstance(context);
+        httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -469,6 +471,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangResource resourceNode) {
         addReturnIfNotPresent(resourceNode);
+        httpFiltersDesugar.invokeFilters(resourceNode, env);
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, env);
         Collections.reverse(resourceNode.endpoints); // To preserve endpoint code gen order at resource
         resourceNode.endpoints = rewrite(resourceNode.endpoints, resourceEnv);

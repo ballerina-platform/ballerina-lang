@@ -43,7 +43,7 @@ public type Filter2 object {
     }
 
     public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
-        return true;
+        return false;
     }
 };
 

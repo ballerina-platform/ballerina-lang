@@ -17,14 +17,15 @@
 import ballerina/http;
 import ballerina/log;
 
-// Filter1
-
 public type Filter1 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns
-                                                                                                                boolean
-    {
+    public function filterRequest (http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
+        endpoint http:Listener caller = listener;
         log:printInfo("Intercepting request for filter 1");
-        return true;
+        http:Response response;
+        response.statusCode = 401;
+        response.setTextPayload("Authentication failure");
+        caller->respond(response) but {error e=> log:printError("Error", err=e)};
+        return false;
     }
 
     public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
@@ -34,36 +35,21 @@ public type Filter1 object {
 
 Filter1 filter1;
 
-// Filter2
-
-public type Filter2 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
-        log:printInfo("Intercepting request for filter 2");
-        return true;
-    }
-
-    public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
-        return true;
-    }
-};
-
-Filter2 filter2;
-
 endpoint http:Listener echoEP {
-    port: 9090,
-    filters: [filter1, filter2]
+    port:9090,
+    filters:[filter1]
 };
 
 @http:ServiceConfig {
-    basePath: "/echo"
+    basePath:"/echo"
 }
-service<http:Service> echo bind echoEP {
+service<http:Service> echoService bind echoEP {
     @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/test"
+        methods:["GET"],
+        path:"/test"
     }
-    echo(endpoint caller, http:Request req) {
+    echoresource (endpoint caller, http:Request req) {
         http:Response res = new;
-        _ = caller->respond(res);
+        _ = caller -> respond(res);
     }
 }

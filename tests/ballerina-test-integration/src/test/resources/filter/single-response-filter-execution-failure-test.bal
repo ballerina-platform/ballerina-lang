@@ -17,41 +17,23 @@
 import ballerina/http;
 import ballerina/log;
 
-// Filter1
-
 public type Filter1 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns
-                                                                                                                boolean
-    {
+    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Intercepting request for filter 1");
         return true;
     }
 
     public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
-        return true;
+        return false;
     }
 };
 
 Filter1 filter1;
 
-// Filter2
-
-public type Filter2 object {
-    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context) returns boolean {
-        log:printInfo("Intercepting request for filter 2");
-        return true;
-    }
-
-    public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
-        return true;
-    }
-};
-
-Filter2 filter2;
-
 endpoint http:Listener echoEP {
     port: 9090,
-    filters: [filter1, filter2]
+    filters: [filter1]
 };
 
 @http:ServiceConfig {
