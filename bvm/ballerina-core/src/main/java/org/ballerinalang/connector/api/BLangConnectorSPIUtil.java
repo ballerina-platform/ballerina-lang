@@ -98,7 +98,18 @@ public final class BLangConnectorSPIUtil {
         return BLangVMStructs.createBStruct(structureInfo, values);
     }
 
-
+    /**
+     * This is a helper method to create a object in native code.
+     *
+     * WARNING - please be cautious when using this method, if you have non blocking calls inside the
+     * object constructor, then using this method may cause thread blocking scenarios.
+     *
+     * @param context to be used
+     * @param pkgPath of the object
+     * @param structName of the object
+     * @param values to be passed into constructor
+     * @return created object
+     */
     public static BStruct createObject(Context context, String pkgPath, String structName, BValue... values) {
         return createObject(context.getProgramFile(), pkgPath, structName, values);
     }

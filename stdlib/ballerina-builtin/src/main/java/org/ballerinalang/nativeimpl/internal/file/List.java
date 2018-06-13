@@ -25,6 +25,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -71,8 +72,7 @@ public class List extends BlockingNativeCallableUnit {
         try {
             Files.list(path).forEach(p -> {
                 BStruct filePaths = BLangConnectorSPIUtil.createBStruct(context, Constants.PACKAGE_PATH,
-                        Constants.PATH_STRUCT);
-                filePaths.addNativeData(Constants.PATH_DEFINITION_NAME, p);
+                        Constants.PATH_STRUCT, new BString(p.toString()));
                 long index = filesList.size();
                 filesList.add((index), filePaths);
             });
