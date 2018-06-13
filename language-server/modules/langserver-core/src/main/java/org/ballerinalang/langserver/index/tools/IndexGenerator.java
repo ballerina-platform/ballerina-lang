@@ -37,12 +37,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -89,8 +91,9 @@ public class IndexGenerator {
                     return null;
                 }).collect(Collectors.toList());
         indexGenerator.insertBLangPackages(bPackageSymbolDTOs);
-        String location = IndexGenerator.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        String saveDumpPath = location.replace("classes/", "");
+        ClassLoader classLoader = indexGenerator.getClass().getClassLoader();
+        File file = new File(Objects.requireNonNull(classLoader.getResource("")).getFile());
+        String saveDumpPath = file.getAbsolutePath().replace("classes", "");
         LSIndexImpl.getInstance()
                 .saveIndexDump(Paths.get(saveDumpPath + "lang-server-index.sql"));
     }
