@@ -1,5 +1,6 @@
 # At the command line, navigate to the directory that contains the
 # `.bal` file and run the `ballerina run` command.
+ballerina: started HTTP/WS endpoint 172.17.0.1:38479
 $ ballerina run local_transactions.bal
 Create CUSTOMER table status: 0
 Create SALARY table status: 0
