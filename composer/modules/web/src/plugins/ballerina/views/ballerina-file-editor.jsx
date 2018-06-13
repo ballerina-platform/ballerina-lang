@@ -227,18 +227,6 @@ class BallerinaFileEditor extends React.Component {
     }
 
     /**
-     * Get the top most parent of the node
-     * @param node - node that is to be added
-     */
-    getParent(node) {
-        let parentNode = node.parent;
-        if (!TreeUtils.isService(parentNode) && !TreeUtils.isConnector(parentNode) && !TreeUtils.isFunction(parentNode)
-            && !TreeUtils.isResource(parentNode) && !TreeUtils.isAction(parentNode)) {
-            parentNode = this.getParent(parentNode);
-        }
-        return parentNode;
-    }
-    /**
      * set active view
      * @param {string} newView ID of the new View
      */
