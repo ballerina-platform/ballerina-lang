@@ -88,7 +88,7 @@ public class FileSystemProgramDirectory implements SourceDirectory {
 
     @Override
     public InputStream getLockFileContent() {
-        throw new UnsupportedOperationException("lock file is not available in a program directory");
+        return new ByteArrayInputStream(new byte[0]);
     }
 
     @Override

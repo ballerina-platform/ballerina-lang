@@ -297,7 +297,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
-        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, env.enclPkg.packageRepository);
+        BPackageSymbol pkgSymbol = pkgLoader.loadPackageSymbol(pkgId, env.enclPkg.packageID,
+                                                               env.enclPkg.packageRepository);
         if (pkgSymbol == null) {
             dlog.error(importPkgNode.pos, DiagnosticCode.PACKAGE_NOT_FOUND,
                     importPkgNode.getQualifiedPackageName());

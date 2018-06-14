@@ -30,7 +30,9 @@ import org.ballerinalang.repository.PackageRepository;
 import org.ballerinalang.repository.PackageSource;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
 import org.ballerinalang.toml.model.Dependency;
+import org.ballerinalang.toml.model.LockFile;
 import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.LockFileProcessor;
 import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.packaging.GenericPackageSource;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
@@ -76,6 +78,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 import static org.ballerinalang.compiler.CompilerOptionName.TEST_ENABLED;
@@ -96,7 +99,9 @@ public class PackageLoader {
     private final RepoHierarchy repos;
     private final boolean offline;
     private final boolean testEnabled;
+    private final boolean lockEnabled;
     private final Manifest manifest;
+    private final LockFile lockFile;
 
     private final CompilerOptions options;
     private final Parser parser;
@@ -134,8 +139,10 @@ public class PackageLoader {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.offline = Boolean.parseBoolean(options.get(OFFLINE));
         this.testEnabled = Boolean.parseBoolean(options.get(TEST_ENABLED));
+        this.lockEnabled = Boolean.parseBoolean(options.get(LOCK_ENABLED));
         this.repos = genRepoHierarchy(Paths.get(options.get(PROJECT_DIR)));
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
+        this.lockFile = LockFileProcessor.getInstance(context).getLockFile();
     }
 
     private RepoHierarchy genRepoHierarchy(Path sourceRoot) {
@@ -187,8 +194,8 @@ public class PackageLoader {
         return systemList.toArray(new RepoNode[systemList.size()]);
     }
 
-    private PackageEntity loadPackageEntity(PackageID pkgId) {
-        updateVersionFromToml(pkgId);
+    private PackageEntity loadPackageEntity(PackageID pkgId, PackageID enclPackageId) {
+        updateVersionFromToml(pkgId, enclPackageId);
         Resolution resolution = repos.resolve(pkgId);
         if (resolution == Resolution.NOT_FOUND) {
             return null;
@@ -202,33 +209,60 @@ public class PackageLoader {
         }
     }
 
-    private void updateVersionFromToml(PackageID pkgId) {
+    private void updateVersionFromToml(PackageID pkgId, PackageID enclPackageId) {
         String orgName = pkgId.orgName.value;
         String pkgName = pkgId.name.value;
         String pkgAlias = orgName + "/" + pkgName;
+        if (!lockEnabled) {
+            // TODO: make getDependencies return a map
+            Optional<Dependency> dependency = manifest.getDependencies()
+                                                      .stream()
+                                                      .filter(d -> d.getPackageName().equals(pkgAlias))
+                                                      .findFirst();
+            if (dependency.isPresent()) {
+                if (pkgId.version.value.isEmpty()) {
+                    pkgId.version = new Name(dependency.get().getVersion());
+                } else {
+                    throw new BLangCompilerException("dependency version in Ballerina.toml mismatches" +
+                                                             " with the version in the source for package " + pkgAlias);
+                }
+            }
+        } else {
+            // Read from lock file
+            if (enclPackageId != null) { // Not a top level package or bal
+                String enclPkgAlias = enclPackageId.orgName.value + "/" + enclPackageId.name.value;
 
-        // TODO: make getDependencies return a map
-        Optional<Dependency> dependency = manifest.getDependencies()
-                                                  .stream()
-                                                  .filter(d -> d.getPackageName().equals(pkgAlias))
-                                                  .findFirst();
-        if (dependency.isPresent()) {
-            if (pkgId.version.value.isEmpty()) {
-                pkgId.version = new Name(dependency.get().getVersion());
-            } else {
-                throw new BLangCompilerException("dependency version in Ballerina.toml mismatches" +
-                                                 " with the version in the source for package " + pkgAlias);
+                lockFile.getPackageList()
+                        .stream()
+                        .filter(pkg -> {
+                            String org = pkg.getOrg();
+                            if (org.isEmpty()) {
+                                org = manifest.getName();
+                            }
+                            String alias = org + "/" + pkg.getName();
+                            return alias.equals(enclPkgAlias);
+                        })
+                        .findFirst()
+                        .ifPresent(aPackage -> aPackage.getDependencies()
+                                                       .stream()
+                                                       .filter(pkg -> {
+                                                           String alias = pkg.getOrg() + "/" + pkg.getName();
+                                                           return alias.equals(pkgAlias);
+                                                       })
+                                                       .findFirst()
+                                                       .ifPresent(lockFilePackage -> pkgId.version = new Name(
+                                                               lockFilePackage.getVersion())));
             }
         }
     }
 
-    public BLangPackage loadEntryPackage(PackageID pkgId) {
+    public BLangPackage loadEntryPackage(PackageID pkgId, PackageID enclPackageId) {
         //even entry package may be already loaded through an import statement.
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
-        PackageEntity pkgEntity = loadPackageEntity(pkgId);
+        PackageEntity pkgEntity = loadPackageEntity(pkgId, enclPackageId);
         if (pkgEntity == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -243,14 +277,14 @@ public class PackageLoader {
         return packageNode;
     }
 
-    public BLangPackage loadPackage(PackageID pkgId, PackageRepository packageRepo) {
+    public BLangPackage loadPackage(PackageID pkgId, PackageID enclPackageId, PackageRepository packageRepo) {
         // TODO Remove this method()
         BLangPackage bLangPackage = packageCache.get(pkgId);
         if (bLangPackage != null) {
             return bLangPackage;
         }
 
-        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId));
+        BLangPackage packageNode = loadPackageFromEntity(pkgId, loadPackageEntity(pkgId, enclPackageId));
         if (packageNode == null) {
             throw ProjectDirs.getPackageNotFoundError(pkgId);
         }
@@ -265,7 +299,7 @@ public class PackageLoader {
 
     public BLangPackage loadAndDefinePackage(PackageID pkgId) {
         // TODO this used only by the language server component and the above method.
-        BLangPackage bLangPackage = loadPackage(pkgId, null);
+        BLangPackage bLangPackage = loadPackage(pkgId, null, null);
         if (bLangPackage == null) {
             return null;
         }
@@ -275,13 +309,14 @@ public class PackageLoader {
         return bLangPackage;
     }
 
-    public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageRepository packageRepo) {
+    public BPackageSymbol loadPackageSymbol(PackageID packageId, PackageID enclPackageId,
+                                            PackageRepository packageRepo) {
         BPackageSymbol packageSymbol = this.packageCache.getSymbol(packageId);
         if (packageSymbol != null) {
             return packageSymbol;
         }
 
-        PackageEntity pkgEntity = loadPackageEntity(packageId);
+        PackageEntity pkgEntity = loadPackageEntity(packageId, enclPackageId);
         if (pkgEntity == null) {
             return null;
         }
