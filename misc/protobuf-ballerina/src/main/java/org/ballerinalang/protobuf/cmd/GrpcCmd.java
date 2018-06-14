@@ -150,8 +150,7 @@ public class GrpcCmd implements BLauncherCmd {
                 }
             }
             msg.append("Successfully generated initial files.").append(NEW_LINE_CHARACTER);
-            root = BalFileGenerationUtils.getProtoByteArray(this.exePath, this.protoPath, descFile
-                    .getAbsolutePath());
+            root = BalFileGenerationUtils.getProtoByteArray(this.exePath, this.protoPath, descFile.getAbsolutePath());
             if (root.length == 0) {
                 throw new BalGenerationException("Error occurred at generating proto descriptor.");
             }
