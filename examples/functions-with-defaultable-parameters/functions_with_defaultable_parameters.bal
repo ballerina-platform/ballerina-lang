@@ -1,10 +1,10 @@
 import ballerina/io;
 
 // This function takes salary, annual increment, and bonus rate as input 
-// parameters and prints. The first parameter `baseSalary` is a required 
+// parameters and prints them. The first parameter `baseSalary` is a required
 // parameter. The next two parameters `annualIncrement` and `bonusRate` are 
 // two defaultable parameters. They are optional parameters with a default 
-// value of 20 and 0.02 respectively. Defaultable parameters must be always 
+// value of 20 and 0.02 respectively. Defaultable parameters must always be
 // defined after the required parameters.
 function printSalaryDetails(int baseSalary, 
                             int annualIncrement = 20, 
@@ -21,7 +21,7 @@ function main(string... args) {
     printSalaryDetails(2500);
 
     // Call the function by passing only the `salary` and `annualIncrement`. 
-    // Pass the defalutable parameter as a key-value pair, when 
+    // Pass the defaultable parameter as a key-value pair, when
     // invoking the function. The `bonusRate` defaults to 0.02.
     printSalaryDetails(2500, annualIncrement = 100);
 
