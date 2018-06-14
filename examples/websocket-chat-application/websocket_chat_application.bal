@@ -28,7 +28,7 @@ service<http:Service> chatAppUpgrader bind { port: 9090 } {
 }
 
 // Stores the connection IDs of users who join the chat.
-map<http:WebSocketListener> consMap;
+map<http:WebSocketListener> connectionsMap;
 
 service<http:WebSocketService> chatApp {
 
@@ -37,22 +37,22 @@ service<http:WebSocketService> chatApp {
     onOpen(endpoint caller) {
         string msg = string `{{getAttributeStr(caller, NAME)}} with age {{getAttributeStr(caller, AGE)}}
          connected to chat`;
-        broadcast(consMap, msg);
-        consMap[caller.id] = caller;
+        broadcast(connectionsMap, msg);
+        connectionsMap[caller.id] = caller;
     }
 
     // Broadcast the messages sent by a user.
     onText(endpoint caller, string text) {
         string msg = string `{{getAttributeStr(caller, NAME)}}: {{text}}`;
         log:printInfo(msg);
-        broadcast(consMap, msg);
+        broadcast(connectionsMap, msg);
     }
 
     // Broadcast that a user has left the chat once a user leaves the chat.
     onClose(endpoint caller, int statusCode, string reason) {
-        _ = consMap.remove(caller.id);
+        _ = connectionsMap.remove(caller.id);
         string msg = string `{{getAttributeStr(caller, NAME)}} left the chat`;
-        broadcast(consMap, msg);
+        broadcast(connectionsMap, msg);
     }
 }
 

@@ -49,6 +49,19 @@ service<http:WebSocketService> SimpleProxyService bind { port: 9090 } {
                      "Error occurred when sending binary message", err = e) };
     }
 
+    //This resource is triggered when an error occurs in the connection.
+    onError(endpoint caller, error err) {
+
+        endpoint http:WebSocketClient clientEp =
+        getAssociatedClientEndpoint(caller);
+        clientEp->close(1011, "Unexpected condition")
+        but { error e => log:printError(
+                     "Error occurred when closing the connection", err = e) };
+        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
+        log:printError("Unexpected error hense closing the connection",
+                        err = err);
+    }
+
     //This resource is triggered when a client connection is closed from the client side.
     onClose(endpoint caller, int statusCode, string reason) {
 
@@ -82,6 +95,19 @@ service<http:WebSocketClientService> ClientService {
         serverEp->pushBinary(data, final = finalFrame)
             but { error e => log:printError(
                      "Error occurred when sending binary message", err = e) };
+    }
+
+    //This resource is triggered when an error occurs in the connection.
+    onError(endpoint caller, error err) {
+
+        endpoint http:WebSocketListener serverEp =
+                        getAssociatedServerEndpoint(caller);
+        serverEp->close(1011, "Unexpected condition")
+        but { error e => log:printError(
+                     "Error occurred when closing the connection", err = e) };
+        _ = caller.attributes.remove(ASSOCIATED_CONNECTION);
+        log:printError("Unexpected error hense closing the connection",
+                        err = err);
     }
 
     //This resource is triggered when a client connection is closed by the remote backend.
