@@ -15,13 +15,13 @@ jms:Session jmsSession = new(conn, {
 });
 
 // This initializes a topic subscriber using the created session.
-endpoint jms:TopicSubscriber subscriber {
+endpoint jms:TopicSubscriber subscriberEndpoint {
     session:jmsSession,
     topicPattern:"BallerinaTopic"
 };
 
 // This binds the created subscriber to the listener service.
-service<jms:Consumer> jmsListener bind subscriber {
+service<jms:Consumer> jmsListener bind subscriberEndpoint {
 
     // This resource is invoked when a message is received.
     onMessage(endpoint subscriber, jms:Message message) {
