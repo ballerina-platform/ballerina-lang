@@ -45,6 +45,7 @@
     .panel-actions {
         float: right;
         margin: 5.5px 10px 0 0;
+        height: 29px;
         & i.fw {
             opacity: 0.3;
             padding:10px;
@@ -55,7 +56,9 @@
                 &:hover {
                     opacity: 1;
                     cursor: pointer;
-                    background-color:$gray04;
+                    background-color:$gray03;
+                    padding-top: 6px;
+                    padding-bottom: 4px;
                 }
             }
         }
