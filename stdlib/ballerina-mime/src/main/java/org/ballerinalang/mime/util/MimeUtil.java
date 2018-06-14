@@ -23,21 +23,14 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.util.codegen.PackageInfo;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -47,10 +40,8 @@ import javax.activation.MimeType;
 import javax.activation.MimeTypeParameterList;
 import javax.activation.MimeTypeParseException;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.mime.util.Constants.ASSIGNMENT;
 import static org.ballerinalang.mime.util.Constants.BODY_PARTS;
-import static org.ballerinalang.mime.util.Constants.BUILTIN_PACKAGE;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILENAME_INDEX;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_FILE_NAME;
 import static org.ballerinalang.mime.util.Constants.CONTENT_DISPOSITION_INDEX;
@@ -68,10 +59,8 @@ import static org.ballerinalang.mime.util.Constants.PRIMARY_TYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.READABLE_BUFFER_SIZE;
 import static org.ballerinalang.mime.util.Constants.SEMICOLON;
 import static org.ballerinalang.mime.util.Constants.SIZE_INDEX;
-import static org.ballerinalang.mime.util.Constants.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.mime.util.Constants.SUBTYPE_INDEX;
 import static org.ballerinalang.mime.util.Constants.SUFFIX_INDEX;
-import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
 
 /**
  * Mime utility functions are included in here.
@@ -79,7 +68,6 @@ import static org.ballerinalang.mime.util.Constants.TEMP_FILE_EXTENSION;
  * @since 0.96
  */
 public class MimeUtil {
-    private static final Logger log = LoggerFactory.getLogger(MimeUtil.class);
 
     /**
      * Given a ballerina entity, get the content-type as a base type.
@@ -317,37 +305,6 @@ public class MimeUtil {
     }
 
     /**
-     * Given an input stream, create a temporary file and write the content to it.
-     *
-     * @param inputStream Input stream coming from the request/response.
-     * @param fileName    Temporary file name
-     * @return Absolute path of the created temporary file.
-     */
-    static String writeToTemporaryFile(InputStream inputStream, String fileName) {
-        OutputStream outputStream = null;
-        try {
-            File tempFile = File.createTempFile(fileName, TEMP_FILE_EXTENSION);
-            outputStream = new FileOutputStream(tempFile.getAbsolutePath());
-            writeInputToOutputStream(inputStream, outputStream);
-            inputStream.close();
-            //flush OutputStream to write any buffered data to file
-            outputStream.flush();
-            outputStream.close();
-            return tempFile.getAbsolutePath();
-        } catch (IOException e) {
-            throw new BallerinaException("Error while writing the payload info into a temp file: " + e.getMessage());
-        } finally {
-            try {
-                if (outputStream != null) {
-                    outputStream.close();
-                }
-            } catch (IOException e) {
-                log.error("Error occured while closing outputstream in writeToTemporaryFile", e.getMessage());
-            }
-        }
-    }
-
-    /**
      * Write a given inputstream to a given outputstream.
      *
      * @param outputStream Represent the outputstream that the inputstream should be written to
@@ -444,33 +401,13 @@ public class MimeUtil {
     }
 
     /**
-     * Get entity error as a ballerina struct.
-     *
-     * @param context Represent ballerina context
-     * @param msg     Error message in string form
-     * @return Ballerina struct with entity error
-     */
-    public static BStruct createEntityError(Context context, String msg) {
-        PackageInfo filePkg = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
-        StructureTypeInfo entityErrInfo = filePkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
-        BStruct genericError = new BStruct(entityErrInfo.getType());
-        genericError.setStringField(0, msg);
-        return BLangVMStructs.createBStruct(entityErrInfo, msg);
-    }
-
-    /**
-     * Get parser error as a ballerina struct.
+     * Create ballerina error struct.
      *
      * @param context Represent ballerina context
      * @param errMsg  Error message in string form
-     * @return Ballerina struct with parse error
+     * @return Ballerina error struct
      */
-    public static BStruct getParserError(Context context, String errMsg) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BUILTIN_PACKAGE);
-        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-
-        BStruct parserError = new BStruct(errorStructInfo.getType());
-        parserError.setStringField(0, errMsg);
-        return parserError;
+    public static BStruct createError(Context context, String errMsg) {
+        return BLangVMErrors.createError(context, errMsg);
     }
 }

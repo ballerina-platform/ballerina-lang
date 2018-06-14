@@ -36,12 +36,12 @@ public type AuthzFilter object {
     documentation {
         Filter function implementation which tries to authorize the request
 
+        P{{listener}} `Listener` instance that is the http endpoint
         P{{request}} `Request` instance
         P{{context}} `FilterContext` instance
-        R{{}} `FilterResult` instance populated with a flag to indicate if the request flow should be continued or
-        aborted, a code and a message
+        R{{}} A flag to indicate if the request flow should be continued(true) or aborted(false), a code and a message
     }
-    public function filterRequest (Request request, FilterContext context) returns FilterResult {
+    public function filterRequest (Listener listener, Request request, FilterContext context) returns boolean {
 		// first check if the resource is marked to be authenticated. If not, no need to authorize.
         ListenerAuthConfig? resourceLevelAuthAnn = getAuthAnnotation(ANN_PACKAGE, RESOURCE_ANN_NAME,
             reflect:getResourceAnnotations(context.serviceType, context.resourceName));
@@ -49,7 +49,7 @@ public type AuthzFilter object {
             reflect:getServiceAnnotations(context.serviceType));
         if (!isResourceSecured(resourceLevelAuthAnn, serviceLevelAuthAnn)) {
             // not secured, no need to authorize
-            return createAuthzResult(true);
+            return isAuthzSuccessfull(listener, true);
         }
 
         string[]? scopes = getScopesForResource(resourceLevelAuthAnn, serviceLevelAuthAnn);
@@ -68,25 +68,35 @@ public type AuthzFilter object {
                 authorized = true;
             }
         }
-        return createAuthzResult(authorized);
+        return isAuthzSuccessfull(listener, authorized);
+    }
+
+    public function filterResponse(Response response, FilterContext context) returns boolean {
+        return true;
     }
 };
 
 documentation {
-        Creates an instance of `FilterResult`
+        Verifies if the authorization is successful. If not responds to the user.
 
         P{{authorized}} flag to indicate if authorization is successful or not
-        R{{}} `FilterResult` instance populated with a flag to indicate if the request flow should be continued or
-        aborted, a code and a message
+        R{{}} A boolean flag to indicate if the request flow should be continued(true) or
+        aborted(false)
 }
-function createAuthzResult (boolean authorized) returns (FilterResult) {
-    FilterResult requestFilterResult = {};
-    if (authorized) {
-        requestFilterResult = {canProceed:true, statusCode:200, message:"Successfully authorized"};
-    } else {
-        requestFilterResult = {canProceed:false, statusCode:403, message:"Authorization failure"};
+function isAuthzSuccessfull(Listener listener, boolean authorized) returns boolean {
+    endpoint Listener caller = listener;
+    Response response;
+    if (!authorized) {
+        response.statusCode = 403;
+        response.setTextPayload("Authorization failure");
+        var value = caller->respond(response);
+        match value {
+            error err => throw err;
+            () => {}
+        }
+        return false;
     }
-    return requestFilterResult;
+    return true;
 }
 
 documentation {

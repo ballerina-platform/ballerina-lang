@@ -34,9 +34,10 @@ import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Pa
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.RecordModel;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.Struct;
 import org.ballerinalang.composer.service.ballerina.parser.service.model.lang.StructField;
-import org.ballerinalang.langserver.compiler.LSContextManager;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
-import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
+import org.ballerinalang.langserver.index.LSIndexImpl;
+import org.ballerinalang.langserver.index.LSIndexQueryProcessor;
+import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
+import org.ballerinalang.langserver.index.dto.PackageIDDTO;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.EnumNode;
@@ -77,7 +78,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 /**
  * Parser Utils.
@@ -145,30 +146,22 @@ public class ParserUtils {
     public static Map<String, ModelPackage> getAllPackages() {
         final Map<String, ModelPackage> modelPackage = new HashMap<>();
         try {
-            CompilerContext context = LSContextManager.getInstance().getBuiltInPackagesCompilerContext();
-            List<BLangPackage> builtInPackages = LSPackageLoader.getBuiltinPackages(context);
-            for (BLangPackage bLangPackage : builtInPackages) {
-                loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
-            }
-            List<BallerinaPackage> ballerinaPackages = new ArrayList<>();
-            ballerinaPackages.addAll(LSPackageLoader.getSdkPackages());
-            if (LSPackageLoader.getSdkPackages().isEmpty()) {
-                for (String packageName : LSPackageLoader.getStaticPkgNames()) {
-                    PackageID packageID = new PackageID(new Name("ballerina"),
-                            new Name(packageName), new Name("0.0.0"));
-                    BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
-                    loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
-                }
-            } else {
-                Stream.of(LSPackageLoader.getSdkPackages(), LSPackageLoader.getHomeRepoPackages())
-                        .forEach(ballerinaPackages::addAll);
-                for (BallerinaPackage ballerinaPackage : ballerinaPackages) {
-                    PackageID packageID = new PackageID(new Name(ballerinaPackage.getOrgName()),
-                            new Name(ballerinaPackage.getPackageName()), new Name(ballerinaPackage.getVersion()));
-                    BLangPackage bLangPackage = LSPackageLoader.getPackageById(context, packageID);
-                    loadPackageMap(bLangPackage.packageID.getName().getValue(), bLangPackage, modelPackage);
-                }
-            }
+            LSIndexImpl lsIndex = LSIndexImpl.getInstance();
+            LSIndexQueryProcessor lsIndexQueryProcessor = lsIndex.getQueryProcessor();
+            List<PackageIDDTO> allPackages = lsIndexQueryProcessor.getAllPackages();
+            List<BObjectTypeSymbolDTO> allEndpoints = lsIndexQueryProcessor.getAllEndpoints();
+            allPackages.forEach(packageIDDTO -> {
+                String pkgName = packageIDDTO.getName();
+                ModelPackage pkgModel = new ModelPackage(pkgName);
+                List<Endpoint> endpoints = allEndpoints
+                        .stream()
+                        .filter(bObjectTypeSymbolDTO -> bObjectTypeSymbolDTO.getPackageId()
+                                == packageIDDTO.getId())
+                        .map(bObjectTypeSymbolDTO -> new Endpoint(bObjectTypeSymbolDTO.getName(), pkgName))
+                        .collect(Collectors.toList());
+                pkgModel.setEndpoints(endpoints);
+                modelPackage.put(pkgName, pkgModel);
+            });
         } catch (Exception e) {
             // Above catch is to fail safe composer front end due to core errors.
             logger.warn("Error while loading package: " + e.getMessage());
@@ -257,7 +250,7 @@ public class ParserUtils {
             //pkg.getEnums().forEach((enumerator) -> extractEnums(packages, packageName, enumerator));
             //pkg.objects.forEach((object) -> extractObjects(packages, packageName, object));
             //pkg.records.forEach((record) -> extractRecords(packages, packageName, record));
-            //extractEndpoints(packages, packageName, pkg.objects, pkg.functions);
+            //extractEndpoints(packages, packageName, pkg.objects, pkg.functions);~
         }
     }
 
@@ -730,8 +723,9 @@ public class ParserUtils {
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         Desugar desugar = Desugar.getInstance(context);
-        BLangPackage builtInPkg = desugar.perform(codeAnalyzer.analyze(semAnalyzer.analyze(
-                pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(), Names.BUILTIN_PACKAGE.getValue()))));
+        BLangPackage builtInPkg = desugar.perform(
+                codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
+                        Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue()))));
         symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         return builtInPkg;
     }

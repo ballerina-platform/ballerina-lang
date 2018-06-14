@@ -47,7 +47,7 @@ import java.security.PrivateKey;
                 @Argument(name = "data", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING),
                 @Argument(name = "keyStore", type = TypeKind.RECORD, structType = "KeyStore",
-                        structPackage = "ballerina.internal")
+                        structPackage = "ballerina/internal")
         },
         returnType = {@ReturnType(type = TypeKind.STRING)},
         isPublic = true

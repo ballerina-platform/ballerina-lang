@@ -112,7 +112,7 @@ public class CompilerDriver {
             BLangPackage builtInPkg = getBuiltInPackage();
             symbolTable.builtInPackageSymbol = builtInPkg.symbol;
         } else {
-            symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null);
+            symbolTable.builtInPackageSymbol = pkgLoader.loadPackageSymbol(BUILTIN, null, null);
         }
 
         // Update the error symbol

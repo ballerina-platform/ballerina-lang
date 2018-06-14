@@ -43,7 +43,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
         orgName = "ballerina", packageName = "http",
         functionName = "getQueryParams",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Request",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         returnType = {@ReturnType(type = TypeKind.MAP, elementType = TypeKind.STRING)},
         isPublic = true
 )

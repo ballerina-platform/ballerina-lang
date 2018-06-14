@@ -106,7 +106,7 @@ public class BallerinaIdentifier extends LeafPsiElement implements PsiNameIdenti
             BallerinaImportDeclaration importDeclaration = PsiTreeUtil.getParentOfType(parent,
                     BallerinaImportDeclaration.class);
             if (importDeclaration != null) {
-                if (importDeclaration.getOrgName() == null) {
+                if (importDeclaration.getOrgName() == null && importDeclaration.getCompletePackageName() == null) {
                     return new BallerinaOrgReference(this);
                 }
             }

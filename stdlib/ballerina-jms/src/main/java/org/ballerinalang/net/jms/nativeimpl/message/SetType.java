@@ -42,7 +42,7 @@ import javax.jms.Message;
         functionName = "setType",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "Message",
-                             structPackage = "ballerina.jms"),
+                             structPackage = "ballerina/jms"),
         args = {@Argument(name = "messageType", type = TypeKind.STRING)},
         isPublic = true
 )

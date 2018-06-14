@@ -29,6 +29,7 @@
                 ${project.build.directory}/lib
             </directory>
             <outputDirectory>lib</outputDirectory>
+            <fileMode>0444</fileMode>
         </fileSet>
         <fileSet>
             <directory>
@@ -100,6 +101,14 @@
                 ${project.build.directory}/extracted-distributions/composer-server-distribution-jar/netty-transports.yml
             </source>
             <outputDirectory>lib/resources/composer/services</outputDirectory>
+            <filtered>true</filtered>
+            <fileMode>644</fileMode>
+        </file>
+        <file>
+            <source>
+                ${project.build.directory}/extracted-distributions/language-server-core-zip/target/lang-server-index.sql
+            </source>
+            <outputDirectory>lib/resources/composer</outputDirectory>
             <filtered>true</filtered>
             <fileMode>644</fileMode>
         </file>

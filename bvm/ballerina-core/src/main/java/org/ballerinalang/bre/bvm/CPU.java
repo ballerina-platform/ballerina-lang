@@ -859,7 +859,7 @@ public class CPU {
             double[] newDoubleRegs = new double[sf.doubleRegs.length +
                     fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
             System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
-            doubleIndex = sf.intRegs.length;
+            doubleIndex = sf.doubleRegs.length;
             sf.doubleRegs = newDoubleRegs;
         }
         return doubleIndex;

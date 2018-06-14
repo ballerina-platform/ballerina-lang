@@ -18,19 +18,18 @@
 
 package org.ballerinalang.mime.util;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_PACKAGE_PREFIX;
+
 /**
  * Constants related to MIME.
  */
 public class Constants {
 
     public static final String ENTITY = "Entity";
-    public static final String FILE = "File";
     public static final String MEDIA_TYPE = "MediaType";
     public static final String CONTENT_DISPOSITION_STRUCT = "ContentDisposition";
-    public static final String ENTITY_ERROR = "EntityError";
-    public static final String PROTOCOL_PACKAGE_MIME = "ballerina.mime";
-    public static final String PROTOCOL_PACKAGE_FILE = "ballerina.file";
-    public static final String PROTOCOL_PACKAGE_IO = "ballerina.io";
+    public static final String PROTOCOL_PACKAGE_MIME = BALLERINA_PACKAGE_PREFIX + "mime";
+    public static final String PROTOCOL_PACKAGE_IO = BALLERINA_PACKAGE_PREFIX + "io";
     public static final String BYTE_CHANNEL_STRUCT = "ByteChannel";
 
     /**
@@ -130,9 +129,7 @@ public class Constants {
     public static final int CONTENT_DISPOSITION_PARA_MAP_INDEX = 0;
 
     //Native function indexes
-    public static final int BLOB_INDEX = 0;
     public static final int STRING_INDEX = 0;
-    public static final int CHARSET_INDEX = 1;
 
     public static final int FIRST_ELEMENT = 0;
 
@@ -147,8 +144,6 @@ public class Constants {
     public static final String TEMP_FILE_EXTENSION = ".tmp";
     public static final String TEMP_FILE_NAME = "tempFile";
 
-    public static final String BALLERINA_TEMP_FILE = "BallerinaTempFile";
-
     public static final int NO_CONTENT_LENGTH_FOUND = -1;
 
     public static final String SEMICOLON = ";";
@@ -156,8 +151,6 @@ public class Constants {
     public static final String ASSIGNMENT = "=";
     public static final String DOUBLE_QUOTE = "\"";
     public static final String PARSER_ERROR = "failed to parse: ";
-    public static final String BUILTIN_PACKAGE = "ballerina.builtin";
-    public static final String STRUCT_GENERIC_ERROR = "error";
     public static final String CONTENT_DISPOSITION_FILE_NAME = "filename";
     public static final String CONTENT_DISPOSITION_NAME = "name";
 

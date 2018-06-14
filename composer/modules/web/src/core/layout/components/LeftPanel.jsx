@@ -149,7 +149,7 @@ class LeftPanelTab extends React.Component {
         };
         return (
             <div>
-                <div>
+                <div className='panel-title-wrapper'>
                     <div className='panel-title'>
                         {panelTitle}
                     </div>

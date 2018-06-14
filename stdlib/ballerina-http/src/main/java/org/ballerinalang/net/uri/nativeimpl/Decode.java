@@ -32,7 +32,7 @@ import java.net.URLDecoder;
 
 /**
  * Native function to decode URLs.
- * ballerina.http:decode
+ * ballerina/http:decode
  */
 
 @BallerinaFunction(

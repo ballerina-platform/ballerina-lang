@@ -20,17 +20,28 @@ documentation {
 }
 public type Filter object {
     documentation {
-        Request filter function.
+        Request filter function. If a false is returned the response should have been sent from this function as it will
+        not be dispatched to the next filter or the resource.
 
+        P{{listener}} The http endpoint
         P{{request}} An inboud HTTP request message
         P{{context}} A filter context
-        R{{}} The resulting object after filtering the request
+        R{{}} True if the filter succeeds
     }
-    public function filterRequest(Request request, FilterContext context) returns FilterResult;
+    public function filterRequest(Listener listener, Request request, FilterContext context) returns boolean;
+
+    documentation {
+        Response filter function. If a false is returned a 500 Internal Server Error would be sent to the client.
+
+        P{{response}} An outbound HTTP response message
+        P{{context}} A filter context
+        R{{}} True if the filter succeeds
+    }
+    public function filterResponse(Response response, FilterContext context) returns boolean;
 };
 
 documentation {
-    Representation of filter Context.
+    Representation of request filter Context.
 
     F{{serviceType}} Type of the service
     F{{serviceName}} Name of the service
@@ -39,23 +50,10 @@ documentation {
 }
 public type FilterContext object {
     public {
-        typedesc serviceType;
-        string serviceName;
-        string resourceName;
-        map attributes;
+        @readonly typedesc serviceType;
+        @readonly string serviceName;
+        @readonly string resourceName;
+        @readonly map attributes;
     }
-    new(serviceType, serviceName, resourceName, attributes) {}
-};
-
-documentation {
-    Represents a filter result. This should be populated and returned by each request and response filter function.
-
-    F{{canProceed}} Flag to check if the execution of the request should proceed or stop
-    F{{statusCode}} Status code which will be returned to the request sender if the canProceed is set to `false`
-    F{{message}} Message which will be returned to the request sender if the `canProceed` is set to `false`
-}
-public type FilterResult {
-    boolean canProceed,
-    int statusCode,
-    string message,
+    public new(serviceType, serviceName, resourceName) {}
 };

@@ -5,8 +5,8 @@ function testGetDefaultValuesInObjectGlobalVar() returns (int, string, int, stri
 }
 
 function testGetDefaultValuesInObject() returns (int, string, int, string) {
-    Person p;
-    return (p.age, p.emp.name, p.foo.key, p.bar.address);
+    Person p1;
+    return (p1.age, p1.emp.name, p1.foo.key, p1.bar.address);
 }
 
 type Person object {

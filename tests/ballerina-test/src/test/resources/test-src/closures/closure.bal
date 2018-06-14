@@ -105,8 +105,6 @@ function out2ndFunc(int out2ndParam) returns (function (int) returns int) {
     int out2ndFuncLocal = 8;
     int f = 45;
     var out1stFunc = (int out1stParam) => (int) {
-        int e = 45;
-        int f = 45;
         var inner1Func = (int inner1Param) => (int) {
                 int g = out2ndFuncLocal + out2ndParam;
                 int h = out1stParam + inner1Param;
@@ -385,13 +383,11 @@ function testVariableShadowingInClosure1(int a) returns function (float) returns
     float f = 5.6;
 
     if (a < 10) {
-        int a = 4;
         b = a + b + <int>f;
     }
 
     var foo = (float f) => (string) {
         if (a > 8) {
-            int a = 6;
             b = a + <int>f + b;
         }
         return "Ballerina" + b;
@@ -412,20 +408,17 @@ function testVariableShadowingInClosure2(int a) returns function (float) returns
     boolean boo = true;
 
     if (a < 10) {
-        int a = 4;
         b = a + b + <int>f;
     }
 
     var fooOut = (float f) => (function (float, boolean) returns (string)) {
         if (a > 8) {
-            int a = 6;
             b = a + <int>f + b;
         }
         string s = "Out" + b;
 
         var fooIn = (float f, boolean boo) => (string) {
             if (a > 8 && !boo) {
-                int a = 6;
                 b = a + <int>f + b;
             }
             return s + "In" + b + "Ballerina!!!";
@@ -450,27 +443,23 @@ function testVariableShadowingInClosure3(int a) returns (function (float) return
     boolean boo = true;
 
     if (a < 10) {
-        int a = 4;
         b = a + b + <int>f;
     }
 
     var fooOutMost = (float f) => (function (float) returns (function (float, boolean) returns (string))) {
         if (a > 8) {
-            int a = 6;
             b = a + <int>f + b;
         }
         string sOut = "OutMost" + b;
 
         var fooOut = (float f) => (function (float, boolean) returns (string)) {
             if (a == 9) {
-                int a = 10;
                 b = a + <int>f + b;
             }
             string s = sOut + "Out" + b;
 
             var fooIn = (float f, boolean boo) => (string) {
                 if (a > 8 && !boo) {
-                    int a = 12;
                     b = a + <int>f + b;
                 }
                 return s + "In" + b + "Ballerina!!!";
@@ -499,15 +488,12 @@ function testVariableShadowingInClosure4() returns (function (float) returns (fu
     boolean boo = true;
 
     var fooOutMost = (float f) => (function (float) returns (function (float, boolean) returns (string))) {
-        int a = 8;
         string sOut = "OutMost" + b + a;
 
         var fooOut = (float f) => (function (float, boolean) returns (string)) {
-            int a = 9;
             string s = sOut + "Out" + b + a;
 
             var fooIn = (float f, boolean boo) => (string) {
-                int a = 10;
                 b = a + <int>f + b;
                 return s + "In" + b + "Ballerina!!!";
             };
@@ -532,6 +518,55 @@ function testLocalVarModifyWithinClosureScope() returns (float){
     fa.foreach((float i) => { fadd = fadd + i;});
     float fsum = fadd;
     return (fsum);
+}
+
+function testMultiLevelBlockStatements1() returns (function () returns (function(int) returns int)) {
+    int sum1 = 23;
+    var bar = () => (function (int) returns int) {
+        float f = 23.7;
+        var foo = (int i) => (int) {
+            int sum2 = 7;
+            if (i < 7) {
+                if (i < 6) {
+                    if (i < 5) {
+                        if (i == 4) {
+                            sum1 = sum1 + sum2 + i + <int>f;
+                        }
+                    }
+                }
+            }
+            return sum1;
+        };
+        return foo;
+    };
+    return bar;
+}
+
+function testMultiLevelBlockStatements2() returns (function(int[], int[], int[]) returns int) {
+    int sum = 23;
+    var foo = (int[] i, int[] j, int[] k) => int {
+        foreach x in i {
+            foreach y in j {
+                foreach z in k {
+                    sum = sum + x + y + z;
+                }
+            }
+        }
+        return sum;
+    };
+
+    return foo;
+}
+
+
+function test27() returns (int, int) {
+    var foo = testMultiLevelBlockStatements1();
+    var baz = foo();
+    var bar = testMultiLevelBlockStatements2();
+    int[] i = [1,2];
+    int[] j = [1,2,3];
+    int[] k = [1,2,3,4];
+    return (baz(4), bar(i,j,k));
 }
 
 

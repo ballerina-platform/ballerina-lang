@@ -8,13 +8,13 @@
     {
       "label":"cbrEP",
       "kind":"Unit",
-      "detail":"ballerina.http:Listener",
+      "detail":"ballerina/http:Listener",
       "insertText":"cbrEP"
     },
     {
       "label":"locationEp",
       "kind":"Unit",
-      "detail":"ballerina.http:Client",
+      "detail":"ballerina/http:Client",
       "insertText":"locationEp"
     }
   ]

@@ -129,7 +129,7 @@ public class Compiler {
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         List<BLangPackage> packages = pkgIdStream
                 .filter(p -> !SymbolTable.BUILTIN.equals(p))
-                .map(this.pkgLoader::loadEntryPackage)
+                .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null))
                 .collect(Collectors.toList());
 
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.

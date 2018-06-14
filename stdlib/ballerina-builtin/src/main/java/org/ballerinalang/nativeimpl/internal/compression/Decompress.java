@@ -41,9 +41,9 @@ import java.nio.file.Path;
         functionName = "decompress",
         args = {
                 @Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
-                        structPackage = "ballerina.file"),
+                        structPackage = "ballerina/file"),
                 @Argument(name = "destDir", type = TypeKind.RECORD, structType = "Path",
-                        structPackage = "ballerina.file")
+                        structPackage = "ballerina/file")
         },
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
@@ -66,10 +66,10 @@ public class Decompress extends BlockingNativeCallableUnit {
      * @param dirPath      compressed file path
      * @param outputFolder destination folder
      */
-    private static void decompress(Path dirPath, Path outputFolder) {
+    private static void decompress(Path dirPath, Path outputFolder, Context context) {
         try {
             InputStream inputStream = new FileInputStream(dirPath.toFile());
-            DecompressFromBlob.decompress(inputStream, outputFolder);
+            DecompressFromBlob.decompress(inputStream, outputFolder, context);
         } catch (IOException e) {
             throw new BLangRuntimeException("Error occurred when decompressing");
         }
@@ -91,8 +91,10 @@ public class Decompress extends BlockingNativeCallableUnit {
                     "Path to place the decompressed file " +
                             "is not available"));
         } else {
-            decompress(srcPath, destPath);
-            context.setReturnValues();
+            decompress(srcPath, destPath, context);
+            if (context.getReturnValues() == null) {
+                context.setReturnValues();
+            }
         }
     }
 }

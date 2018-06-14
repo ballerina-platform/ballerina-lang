@@ -454,7 +454,7 @@ public class BallerinaDocGenerator {
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
         return codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
-                Names.BUILTIN_PACKAGE.getValue())));
+                Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue())));
     }
 
     private static List<Link> primitives() {

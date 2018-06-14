@@ -55,9 +55,9 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
         functionName = "nativeRespond",
         args = { @Argument(name = "connection", type = TypeKind.OBJECT),
                 @Argument(name = "res", type = TypeKind.OBJECT, structType = "Response",
-                structPackage = "ballerina.http")},
+                structPackage = "ballerina/http")},
         returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-                structPackage = "ballerina.http"),
+                structPackage = "ballerina/http"),
         isPublic = true
 )
 public class Respond extends ConnectionAction {

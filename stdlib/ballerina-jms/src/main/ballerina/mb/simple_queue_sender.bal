@@ -34,20 +34,20 @@ public type SimpleQueueSender object {
     }
 
     documentation { Initialize the SimpleQueueSender endpoint
-        P{{config}} Configurations related to the SimpleQueueSender endpoint
+        P{{c}} Configurations related to the SimpleQueueSender endpoint
     }
-    public function init(SimpleQueueSenderEndpointConfiguration config) {
+    public function init(SimpleQueueSenderEndpointConfiguration c) {
         endpoint jms:SimpleQueueSender queueSender {
             initialContextFactory:"bmbInitialContextFactory",
-            providerUrl:getConnectionUrl(config),
+            providerUrl:getConnectionUrl(c),
             connectionFactoryName:"ConnectionFactory",
-            acknowledgementMode:config.acknowledgementMode,
-            properties:config.properties,
-            queueName:config.queueName
+            acknowledgementMode: c.acknowledgementMode,
+            properties: c.properties,
+            queueName: c.queueName
         };
         self.sender = queueSender;
         self.producerActions = new QueueSenderActions(queueSender);
-        self.config = config;
+        self.config = c;
     }
 
     documentation { Registers the endpoint in the service.

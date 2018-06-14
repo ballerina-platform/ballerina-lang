@@ -28,8 +28,8 @@ public type Listener object {
         ListenerEndpointConfiguration config;
     }
 
-    public function init(ListenerEndpointConfiguration config) {
-        self.config = config;
+    public function init(ListenerEndpointConfiguration listenerConfig) {
+        self.config = listenerConfig;
         check self.initEndpoint();
     }
 

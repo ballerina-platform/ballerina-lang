@@ -22,7 +22,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,7 +48,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
         orgName = "ballerina", packageName = "http",
         functionName = "register",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
-                structPackage = "ballerina.http"),
+                structPackage = "ballerina/http"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )
@@ -83,11 +82,11 @@ public class Register extends AbstractHttpNativeFunction {
                                       WebSocketServicesRegistry webSocketServicesRegistry) {
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        Value[] filterHolder = getFilters(serviceEndpoint);
-        serverConnectorFuture.setHttpConnectorListener(new BallerinaHTTPConnectorListener(httpServicesRegistry,
-                filterHolder));
-        serverConnectorFuture
-                .setWSConnectorListener(new WebSocketServerConnectorListener(webSocketServicesRegistry));
+        serverConnectorFuture.setHttpConnectorListener(
+                new BallerinaHTTPConnectorListener(httpServicesRegistry, serviceEndpoint
+                        .getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
+        serverConnectorFuture.setWebSocketConnectorListener(new WebSocketServerConnectorListener(
+                webSocketServicesRegistry, serviceEndpoint.getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG)));
 
         serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
         try {

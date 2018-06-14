@@ -35,11 +35,11 @@ function testTransactionHandlers2() {
     i = 2;
 }
 
-function commitFunction2(string transactionid, string x) {
+function commitFunction2(string transactionid, string x1) {
     int k = 0;
 }
 
-function abortFunction2(string transactionid, string x) {
+function abortFunction2(string transactionid, string x12) {
     int j = 0;
 }
 

@@ -57,7 +57,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
         orgName = "ballerina", packageName = "http",
         functionName = "start",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSocketClient",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         isPublic = true
 )
 public class Start extends BlockingNativeCallableUnit {
@@ -81,11 +81,11 @@ public class Start extends BlockingNativeCallableUnit {
         }
         WebSocketService wsService = (WebSocketService) serviceConfig;
         boolean readyOnConnect = clientEndpointConfig.getBooleanField(WebSocketConstants.CLIENT_READY_ON_CONNECT);
-        ClientHandshakeFuture handshakeFuture = clientConnector.connect(clientConnectorListener);
+        ClientHandshakeFuture handshakeFuture = clientConnector.connect();
+        handshakeFuture.setWebSocketConnectorListener(clientConnectorListener);
         CountDownLatch countDownLatch = new CountDownLatch(1);
-        handshakeFuture.setClientHandshakeListener(
-                new WebSocketClientHandshakeListener(context, wsService, clientConnectorListener, readyOnConnect,
-                                                     countDownLatch));
+        handshakeFuture.setClientHandshakeListener(new WebSocketClientHandshakeListener(context, wsService,
+                clientConnectorListener, readyOnConnect, countDownLatch));
         try {
             if (!countDownLatch.await(60, TimeUnit.SECONDS)) {
                 throw new BallerinaConnectorException("Waiting for WebSocket handshake in not successful");

@@ -35,14 +35,14 @@ public class BallerinaPackageNameDocGenTest {
     @Test(enabled = false)
     public void oneCommonPackagePrefixTest() {
         List<String> packageNames = new ArrayList<>();
-        packageNames.add("ballerina.builtin");
-        packageNames.add("ballerina.cache");
-        packageNames.add("ballerina.config");
-        packageNames.add("ballerina.data.sql");
-        packageNames.add("ballerina.file");
-        packageNames.add("ballerina.io");
-        packageNames.add("ballerina.log");
-        packageNames.add("ballerina.math");
+        packageNames.add("ballerina/builtin");
+        packageNames.add("ballerina/cache");
+        packageNames.add("ballerina/config");
+        packageNames.add("ballerina/data.sql");
+        packageNames.add("ballerina/file");
+        packageNames.add("ballerina/io");
+        packageNames.add("ballerina/log");
+        packageNames.add("ballerina/math");
         
         List<Link> packageNameList = PackageName.convertList(packageNames);
         for (Link pkgLink : packageNameList) {

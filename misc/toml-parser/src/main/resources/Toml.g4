@@ -213,7 +213,7 @@ inlineTableKeyvalsNonEmpty : key keyValSep val ;
 
 // Table
 
-table : stdTable;
+table : stdTable | arrayTable;
 
 // Standard Table
 
@@ -221,3 +221,10 @@ stdTable : stdTableOpen key stdTableClose;
 
 stdTableOpen  : '[';
 stdTableClose : ']';
+
+// Array table
+
+arrayTable : arrayTableOpen key arrayTableClose;
+
+arrayTableOpen  : '[[';
+arrayTableClose : ']]';

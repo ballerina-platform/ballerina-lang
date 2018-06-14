@@ -85,7 +85,7 @@ public class ExtendedWorkspaceDocumentManagerImpl extends WorkspaceDocumentManag
 
     private boolean isTempFile(Path filePath) {
         try {
-            return Files.isSameFile(tempDocument.getPath(), filePath);
+            return tempDocument != null && Files.isSameFile(tempDocument.getPath(), filePath);
         } catch (IOException e) {
             return false;
         }

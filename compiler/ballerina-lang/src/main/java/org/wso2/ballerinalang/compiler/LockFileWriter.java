@@ -21,6 +21,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Manifest;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -82,7 +83,11 @@ public class LockFileWriter {
      * @param packageSymbol package symbol
      */
     void addEntryPkg(BPackageSymbol packageSymbol) {
-        entryPackages.add(packageSymbol.pkgID.name.value);
+        String entryPkg = packageSymbol.pkgID.name.value;
+        if (packageSymbol.pkgID.isUnnamed) {
+            entryPkg = packageSymbol.pkgID.sourceFileName.value;
+        }
+        entryPackages.add(entryPkg);
         getPkgDependencies(packageSymbol);
     }
 
@@ -95,7 +100,11 @@ public class LockFileWriter {
         LockFilePackage lockFilePackage = new LockFilePackage(packageSymbol.pkgID.orgName.value,
                                                               packageSymbol.pkgID.name.value,
                                                               packageSymbol.pkgID.version.value);
-
+        if (packageSymbol.pkgID.isUnnamed) {
+            lockFilePackage = new LockFilePackage(packageSymbol.pkgID.orgName.value,
+                                                  packageSymbol.pkgID.sourceFileName.value,
+                                                  packageSymbol.pkgID.version.value);
+        }
         List<BPackageSymbol> importPackages = getImportPackages(packageSymbol);
         lockFilePackage.setDependencyPackages(getImports(importPackages));
 
@@ -167,7 +176,9 @@ public class LockFileWriter {
             StringBuilder builder = new StringBuilder().append("[[").append(LockFileConstants.LOCK_FILE_PACKAGE)
                                                        .append("]] \n");
 
-            if (!entryPackages.contains(lockFilePackage.getName())) {
+            if (!lockFilePackage.getOrg().isEmpty() && !lockFilePackage.getOrg()
+                                                                       .equals(Names.DEFAULT_PACKAGE.getValue())
+                    && !lockFilePackage.getOrg().equals(Names.ANON_ORG.getValue())) {
                 builder.append(LockFileConstants.LOCK_FILE_ORG_NAME)
                        .append(" = ")
                        .append(String.format("\"%s\"", lockFilePackage.getOrg()))
@@ -176,11 +187,14 @@ public class LockFileWriter {
             builder.append(LockFileConstants.LOCK_FILE_PACKAGE_NAME)
                    .append(" = ")
                    .append(String.format("\"%s\"", lockFilePackage.getName()))
-                   .append("\n")
-                   .append(LockFileConstants.LOCK_FILE_PACKAGE_VERSION)
-                   .append(" = ")
-                   .append(String.format("\"%s\"", lockFilePackage.getVersion()))
                    .append("\n");
+            if (!lockFilePackage.getVersion().isEmpty() && !lockFilePackage.getVersion()
+                                                                           .equals(Names.DEFAULT_VERSION.getValue())) {
+                builder.append(LockFileConstants.LOCK_FILE_PACKAGE_VERSION)
+                       .append(" = ")
+                       .append(String.format("\"%s\"", lockFilePackage.getVersion()))
+                       .append("\n");
+            }
             if (!lockFilePackage.getDependencies().isEmpty()) {
                 builder.append(LockFileConstants.LOCK_FILE_IMPORTS)
                        .append(" = [")

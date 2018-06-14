@@ -73,6 +73,7 @@ public class ModelGenerator {
         generateSourceFiles(nodes, "positioning-util.hbs" , "positioning-util.js");
         generateSourceFiles(nodes, "sizing-util.hbs" , "sizing-util.js");
         generateSourceFiles(nodes, "error-rendering-util.hbs" , "error-rendering-util.js");
+        generateSourceFiles(nodes, "formatting-util.hbs" , "formatting-util.js");
     }
 
     public static JsonObject getContext() {

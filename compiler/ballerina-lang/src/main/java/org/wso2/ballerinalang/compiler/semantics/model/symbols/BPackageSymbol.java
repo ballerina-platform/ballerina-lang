@@ -82,4 +82,9 @@ public class BPackageSymbol extends BTypeSymbol {
         copy.isLabel = true;
         return copy;
     }
+
+    @Override
+    public String toString() {
+        return pkgID.toString();
+    }
 }

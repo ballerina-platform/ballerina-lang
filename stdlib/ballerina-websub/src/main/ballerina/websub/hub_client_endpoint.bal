@@ -39,18 +39,18 @@ public type Client object {
     documentation {
         Called when the endpoint is being initialized during package initialization.
 
-        P{{config}} The configuration for the endpoint
+        P{{c}} The configuration for the endpoint
     }
-    public function init(HubClientEndpointConfig config) {
-        endpoint http:Client httpClientEndpoint {
-            url:config.url,
-            secureSocket:config.secureSocket,
-            auth:config.auth,
-            followRedirects:config.followRedirects
+    public function init(HubClientEndpointConfig c) {
+        endpoint http:Client ep {
+            url: c.url,
+            secureSocket: c.clientSecureSocket,
+            auth: c.auth,
+            followRedirects: c.followRedirects
         };
 
-        self.httpClientEndpoint = httpClientEndpoint;
-        self.config = config;
+        self.httpClientEndpoint = ep;
+        self.config = c;
     }
 
     documentation {
@@ -70,13 +70,13 @@ documentation {
     Record representing the configuration parameters for the WebSub Hub Client Endpoint.
 
     F{{url}} The URL of the target Hub
-    F{{secureSocket}} SSL/TLS related options for the underlying HTTP Client
+    F{{clientSecureSocket}} SSL/TLS related options for the underlying HTTP Client
     F{{auth}} Authentication mechanism for the underlying HTTP Client
     F{{followRedirects}} HTTP redirect related configuration
 }
 public type HubClientEndpointConfig {
     string url,
-    http:SecureSocket? secureSocket,
+    http:SecureSocket? clientSecureSocket,
     http:AuthConfig? auth,
     http:FollowRedirects? followRedirects,
 };

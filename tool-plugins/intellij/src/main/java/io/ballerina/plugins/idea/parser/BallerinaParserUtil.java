@@ -121,12 +121,15 @@ public class BallerinaParserUtil extends GeneratedParserUtilBase {
                             LighterASTNode latestDoneMarker = builder.getLatestDoneMarker();
                             if (rawLookup == BallerinaTypes.COMMA && rawLookup2 == BallerinaTypes.COLON) {
                                 if (latestDoneMarker != null) {
-                                    if (latestDoneMarker.getTokenType() == BallerinaTypes.SIMPLE_TYPE_NAME) {
+                                    IElementType tokenType = latestDoneMarker.getTokenType();
+                                    if (tokenType == BallerinaTypes.SIMPLE_TYPE_NAME) {
                                         // sql:ConnectionProperties properties3 = {dataSourceClassName:"org.hsqldb.jdbc
                                         // .JDBCDataSource", datasourceProperties:propertiesMap};
                                         return true;
-                                    } else if (latestDoneMarker.getTokenType() ==
-                                            BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION) {
+                                    } else if (tokenType == BallerinaTypes.VARIABLE_REFERENCE_EXPRESSION) {
+                                        // return (variable:a, variable:b, variable:c, variable:d);
+                                        return true;
+                                    } else if (tokenType == BallerinaTypes.INVOCATION_ARG) {
                                         // return (variable:a, variable:b, variable:c, variable:d);
                                         return true;
                                     }

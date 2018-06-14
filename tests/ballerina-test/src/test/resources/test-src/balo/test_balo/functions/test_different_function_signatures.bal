@@ -104,16 +104,16 @@ function testFuncWithNilDefaultParamExpr() returns (any, any) {
 
 function testAttachedFunction() returns (int, int) {
     foo:Employee emp = new;
-    return (emp.getSalary("Alex"), emp.getSalary("Alex", bonus = 10));
+    return (emp.getSalary("Alex"), emp.getSalary("Alex", b = 10));
 }
 
 
 function testDefaultableParamInnerFunc() returns (int, string) {
     foo:Person p = new;
-    return p.test1(age = 50);
+    return p.test1(a = 50);
 }
 
 function testDefaultableParamOuterFunc() returns (int, string) {
     foo:Person p = new;
-    return p.test2(age = 40);
+    return p.test2(a = 40);
 }

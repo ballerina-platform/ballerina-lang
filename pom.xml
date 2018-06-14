@@ -22,7 +22,7 @@
     <groupId>org.ballerinalang</groupId>
     <artifactId>ballerina-parent</artifactId>
     <packaging>pom</packaging>
-    <version>0.973.1-SNAPSHOT</version>
+    <version>0.974.1-SNAPSHOT</version>
     <name>Ballerina - Parent</name>
 
     <description>
@@ -325,6 +325,12 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>language-server-core</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>language-server-core</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
@@ -863,6 +869,19 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-grpc</artifactId>
                 <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>observability-test-utils</artifactId>
+                <version>${ballerina.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>observability-test-utils</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-binary-repo</classifier>
                 <type>zip</type>
             </dependency>
 
@@ -1624,7 +1643,7 @@
     </build>
 
     <properties>
-        <ballerina.version>0.973.1-SNAPSHOT</ballerina.version>
+        <ballerina.version>0.974.1-SNAPSHOT</ballerina.version>
         <ballerina.package.export.version>0.8.0</ballerina.package.export.version>
 
         <commons-net.version>3.6</commons-net.version>
