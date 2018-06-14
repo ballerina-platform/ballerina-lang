@@ -35,8 +35,8 @@ public class BallerinaStreamsV2Test {
 
     @BeforeClass
     public void setup() {
-//        result = BCompileUtil.compile("test-src/streaming/ballerina-streaming-v2-test.bal");
-        result = BCompileUtil.compile("test-src/streaming/ballerina-streaming-siddhi-v2-test.bal");
+        result = BCompileUtil.compile("test-src/streaming/ballerina-streaming-v2-test.bal");
+//        result = BCompileUtil.compile("test-src/streaming/ballerina-streaming-siddhi-v2-test.bal");
     }
 
     @Test(description = "Test filter streaming query")

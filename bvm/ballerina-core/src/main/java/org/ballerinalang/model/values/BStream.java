@@ -23,14 +23,12 @@ import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
-import org.ballerinalang.model.types.BAnyType;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BIndexedType;
 import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.types.BUnionType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.siddhi.core.stream.input.InputHandler;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -110,12 +108,12 @@ public class BStream implements BRefType<Object> {
     public void publish(BValue data) {
         //TODO: refactor and move checks to compile time
         BType dataType = data.getType();
-        if (!dataType.equals(this.constraintType) && !(constraintType instanceof BUnionType
-                                        && ((BUnionType) constraintType).getMemberTypes().contains(dataType))
-                                        && !(constraintType instanceof BAnyType)) {
-            throw new BallerinaException("incompatible types: value of type:" + dataType.getName()
-                    + " cannot be added to a stream of type:" + this.constraintType.getName());
-        }
+//        if (!dataType.equals(this.constraintType) && !(constraintType instanceof BUnionType
+//                                        && ((BUnionType) constraintType).getMemberTypes().contains(dataType))
+//                                        && !(constraintType instanceof BAnyType)) {
+//            throw new BallerinaException("incompatible types: value of type:" + dataType.getName()
+//                    + " cannot be added to a stream of type:" + this.constraintType.getName());
+//        }
         BrokerUtils.publish(topicName, new BallerinaBrokerByteBuf(data));
     }
 
@@ -127,12 +125,12 @@ public class BStream implements BRefType<Object> {
      */
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
-        if (parameters[0].getTag() != constraintType.getTag()
-                || (constraintType instanceof BStructureType && ((BStructureType) parameters[0])
-                .getTypeInfo().getType() != constraintType)) {
-            throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
-                                                 + ":" + this.constraintType.getName());
-        }
+//        if (parameters[0].getTag() != constraintType.getTag()
+//                || (constraintType instanceof BStructureType && ((BStructureType) parameters[0])
+//                .getTypeInfo().getType() != constraintType)) {
+//         throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
+//                                                 + ":" + this.constraintType.getName());
+//        }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
     }

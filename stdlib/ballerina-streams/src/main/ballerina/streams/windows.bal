@@ -17,9 +17,8 @@ public type LengthWindow object {
         EventType eventType = "ALL";
     }
 
-    new(int s, stream str, EventType evType) {
+    new(int s, EventType evType) {
         size = s;
-        outputStream = str;
         eventType = evType;
     }
 
@@ -38,8 +37,8 @@ public type LengthWindow object {
     }
 };
 
-public function lengthWindow(int length, stream str, EventType  eventType) returns LengthWindow {
-    LengthWindow lengthWindow = new(length, str, eventType);
+public function lengthWindow(int length, EventType  eventType) returns LengthWindow {
+    LengthWindow lengthWindow = new(length, eventType);
     return lengthWindow;
 }
 
