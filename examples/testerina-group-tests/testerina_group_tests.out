@@ -2,7 +2,7 @@
 #`.bal` file and run the `ballerina test` command.
 #Note that you need to have the ballerina-tools distribution 
 #installed in order to run this command. 
-$ ballerina test testerina_groups.bal --groups g1,g2
+$ ballerina test testerina_group_tests.bal --groups g1,g2
 ---------------------------------------------------------------------------
     T E S T S
 ---------------------------------------------------------------------------
@@ -25,7 +25,7 @@ Summary:
 ---------------------------------------------------------------------------
 
 
-$ ballerina test testerina_groups.bal --groups g1
+$ ballerina test testerina_group_tests.bal --groups g1
 ---------------------------------------------------------------------------
     T E S T S
 ---------------------------------------------------------------------------
@@ -48,28 +48,7 @@ Summary:
 ................................................................... SUCCESS
 ---------------------------------------------------------------------------
 
-$ ballerina test testerina_groups.bal --groups default
----------------------------------------------------------------------------
-    T E S T S
----------------------------------------------------------------------------
----------------------------------------------------------------------------
-Running Tests of Package: .
----------------------------------------------------------------------------
-I'm the ungrouped test.
-
-Tests run: 1, Passed: 1, Failures: 0, Skipped: 0 - in TestSuite
-
-
----------------------------------------------------------------------------
-Results:
-
-Tests run: 1, Passed: 1, Failures: 0, Skipped: 0
----------------------------------------------------------------------------
-Summary:
-................................................................... SUCCESS
----------------------------------------------------------------------------
-
-$ ballerina test testerina_groups.bal --exclude-groups g2
+$ ballerina test testerina_group_tests.bal --disable-groups g2
 
 ---------------------------------------------------------------------------
     T E S T S
