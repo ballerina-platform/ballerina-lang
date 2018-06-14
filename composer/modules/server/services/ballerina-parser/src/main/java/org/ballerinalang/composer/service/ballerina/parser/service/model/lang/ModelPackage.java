@@ -24,6 +24,7 @@ import java.util.Objects;
  * ModelPackage.
  */
 public class ModelPackage   {
+  private String org = null;
   private String name = null;
   private String description = null;
   private String version = null;
@@ -39,8 +40,9 @@ public class ModelPackage   {
   public ModelPackage() {
   }
 
-  public ModelPackage(String name) {
+  public ModelPackage(String name, String org) {
     this.name = name;
+    this.org = org;
   }
 
   public ModelPackage name(String name) {
@@ -48,7 +50,15 @@ public class ModelPackage   {
     return this;
   }
 
-   /**
+  public String getOrg() {
+    return org;
+  }
+
+  public void setOrg(String org) {
+    this.org = org;
+  }
+
+  /**
    * Get name.
    * @return name
   **/
