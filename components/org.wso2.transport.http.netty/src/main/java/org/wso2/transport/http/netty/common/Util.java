@@ -58,9 +58,9 @@ import java.util.regex.Pattern;
 import static org.wso2.transport.http.netty.common.Constants.COLON;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_HOST;
 import static org.wso2.transport.http.netty.common.Constants.HTTP_PORT;
-import static org.wso2.transport.http.netty.common.Constants.HTTP_SCHEME;
 import static org.wso2.transport.http.netty.common.Constants.IS_PROXY_ENABLED;
 import static org.wso2.transport.http.netty.common.Constants.PROTOCOL;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.TO;
 import static org.wso2.transport.http.netty.common.Constants.URL_AUTHORITY;
 
@@ -166,8 +166,8 @@ public class Util {
             outboundRequestMsg.setProperty(TO, "");
         }
         // Return absolute url if proxy is enabled
-        if (outboundRequestMsg.getProperty(IS_PROXY_ENABLED) != null && (boolean) outboundRequestMsg
-                .getProperty(IS_PROXY_ENABLED) && outboundRequestMsg.getProperty(PROTOCOL).equals(HTTP_SCHEME)) {
+        if (outboundRequestMsg.getProperty(IS_PROXY_ENABLED) != null &&
+                (boolean) outboundRequestMsg.getProperty(IS_PROXY_ENABLED)) {
             return outboundRequestMsg.getProperty(PROTOCOL) + URL_AUTHORITY
                     + outboundRequestMsg.getProperty(HTTP_HOST) + COLON
                     + outboundRequestMsg.getProperty(HTTP_PORT)
@@ -613,9 +613,8 @@ public class Util {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                    throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE);
                 }
-                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             } else {
                 outboundRespStatusFuture.notifyHttpListener(inboundRequestMsg);
@@ -635,9 +634,8 @@ public class Util {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                    throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE);
                 }
-                log.error(Constants.REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION, throwable);
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             }
         });

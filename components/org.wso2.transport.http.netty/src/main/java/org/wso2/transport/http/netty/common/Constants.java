@@ -224,7 +224,6 @@ public final class Constants {
     public static final String HTTP2_TIMEOUT_HANDLER = "Http2TimeoutHandler";
     public static final String HTTP2_UPGRADE_HANDLER = "Http2UpgradeHandler";
     public static final String HTTP2_TO_HTTP_FALLBACK_HANDLER = "Http2ToHttpFallbackHandler";
-    public static final String REDIRECT_HANDLER = "redirectHandler";
     public static final String DECOMPRESSOR_HANDLER = "deCompressor";
     public static final String IDLE_STATE_HANDLER = "idleStateHandler";
     public static final String HTTP_TRACE_LOG_HANDLER = "http-trace-logger";
@@ -273,32 +272,43 @@ public final class Constants {
     public static final String REQUEST_LINE_TOO_LONG = "An HTTP line is larger than";
     public static final String REQUEST_HEADER_TOO_LARGE = "HTTP header is larger than";
 
-    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_REQUEST
-            = "Idle timeout triggered before reading inbound request";
+    // Idle timeout error scenarios
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST
+            = "Idle timeout triggered before initiating inbound request";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST
             = "Idle timeout triggered while reading inbound request";
-    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE
-            = "Idle timeout triggered while writing outbound response";
-    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE
-            = "Idle timeout triggered while reading inbound response";
+
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE
             = "Idle timeout triggered before reading inbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE
+            = "Idle timeout triggered while reading inbound response";
+
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE
+            = "Idle timeout triggered before initiating outbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE
+                = "Idle timeout triggered while writing outbound response";
 
     public static final String EXCEPTION_CAUGHT_WHILE_READING_REQUEST
             = "Exception caught while reading inbound request";
     public static final String EXCEPTION_CAUGHT_WHILE_READING_RESPONSE
             = "Exception caught while reading inbound response";
 
-    public static final String REMOTE_CLIENT_ABRUPTLY_CLOSE_CONNECTION
-            = "Remote client closed the connection without completing inbound request";
+    // Client connection closure error scenarios
+    public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST
+            = "Remote client closed connection before initiating inbound request";
+    public static final String REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST
+            = "Remote client closed connection while reading inbound request";
+
+    public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE
+            = "Remote client closed connection before initiating outbound response";
+    public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE
+                = "Remote client closed connection while writing outbound response";
+
+    // Server connection closure error scenarios
     public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
             = "Remote host closed the connection without completing inbound response";
-
     public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION
             = "Remote host closed the connection before completing outbound request";
-    public static final String REMOTE_CLIENT_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
-            = "Remote client closed the connection before completing outbound response";
-
     public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
             = "Remote host closed the connection without sending inbound response";
 

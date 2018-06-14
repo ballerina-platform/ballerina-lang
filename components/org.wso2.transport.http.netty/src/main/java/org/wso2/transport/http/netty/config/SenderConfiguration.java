@@ -84,12 +84,6 @@ public class SenderConfiguration {
     @XmlElement(name = "parameter")
     private List<Parameter> parameters = new ArrayList<>();
 
-    @XmlAttribute
-    private boolean followRedirect;
-
-    @XmlAttribute
-    private int maxRedirectCount;
-
     private KeepAliveConfig keepAliveConfig = KeepAliveConfig.AUTO;
 
     @XmlAttribute
@@ -228,25 +222,6 @@ public class SenderConfiguration {
 
     public void setChunkingConfig(ChunkConfig chunkingConfig) {
         this.chunkingConfig = chunkingConfig;
-    }
-
-    public boolean isFollowRedirect() {
-        return followRedirect;
-    }
-
-    public void setFollowRedirect(boolean followRedirect) {
-        this.followRedirect = followRedirect;
-    }
-
-    public int getMaxRedirectCount(int defaultValue) {
-        if (maxRedirectCount == 0) {
-            return defaultValue;
-        }
-        return maxRedirectCount;
-    }
-
-    public void setMaxRedirectCount(int maxRedirectCount) {
-        this.maxRedirectCount = maxRedirectCount;
     }
 
     public KeepAliveConfig getKeepAliveConfig() {

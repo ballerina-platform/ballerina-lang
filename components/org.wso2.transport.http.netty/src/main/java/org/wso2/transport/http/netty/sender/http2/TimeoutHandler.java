@@ -137,7 +137,11 @@ public class TimeoutHandler  implements Http2DataEventListener {
 
     private void updateLastWriteTime(int streamId) {
         OutboundMsgHolder msgHolder = http2ClientChannel.getInFlightMessage(streamId);
-        msgHolder.setLastReadWriteTime(ticksInNanos());
+        if (msgHolder != null) {
+            msgHolder.setLastReadWriteTime(ticksInNanos());
+        } else {
+            log.debug("OutboundMsgHolder may have already removed for streamId: " + streamId);
+        }
     }
 
     private class IdleTimeoutTask implements Runnable {
@@ -167,7 +171,7 @@ public class TimeoutHandler  implements Http2DataEventListener {
                 } else {
                     msgHolder.getResponseFuture().notifyHttpListener(
                             new EndpointTimeOutException(
-                                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_WRITING_OUTBOUND_RESPONSE,
+                                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE,
                                     HttpResponseStatus.GATEWAY_TIMEOUT.code()));
                 }
                 http2ClientChannel.removeInFlightMessage(streamId);

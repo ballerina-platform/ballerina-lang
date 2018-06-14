@@ -39,8 +39,6 @@
             <class name="org.wso2.transport.http.netty.proxyserver.HttpsProxyServerTestCase" />
             <class name="org.wso2.transport.http.netty.proxyserver.HttpProxyServerTestCase" />
 
-            <class name="org.wso2.transport.http.netty.redirect.HttpClientRedirectTestCase" />
-
             <class name="org.wso2.transport.http.netty.ClientConnectorTimeoutTestCase" />
             <class name="org.wso2.transport.http.netty.ClientConnectorConnectionRefusedTestCase" />
             <class name="org.wso2.transport.http.netty.ClientConnectorClosureAfterRequestReadTestCase" />
@@ -107,7 +105,8 @@
             <class name="org.wso2.transport.http.netty.https.CipherSuitesTest"/>
             <class name="org.wso2.transport.http.netty.hostnameverfication.HostnameVerificationTest"/>
             <class name="org.wso2.transport.http.netty.pkcs.PKCSTest"/>
-            <class name="org.wso2.transport.http.netty.ocspstapling.OCSPStaplingTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPStaplingTest"/>
+            <class name="org.wso2.transport.http.netty.certificatevalidation.OCSPValidationTest"/>
         </classes>
     </test>
 </suite>
