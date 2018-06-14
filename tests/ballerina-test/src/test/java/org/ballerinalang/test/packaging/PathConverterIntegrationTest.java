@@ -19,6 +19,9 @@ import java.util.stream.Stream;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.LATEST_VERSION_DIR;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
+/**
+ * Integration testcase for path conversion.
+ */
 public class PathConverterIntegrationTest {
 
     private Path tempDirectory;
@@ -45,7 +48,7 @@ public class PathConverterIntegrationTest {
         Patten patten = new Patten(LATEST_VERSION_DIR, path("path#to the", "dir.bal", "tempFile.bal"));
         PathConverter subject = new PathConverter(tempDirectory);
 
-        Stream<Path> pathStream = patten.convert(subject);
+        Stream<Path> pathStream = patten.convert(subject, null);
 
         List<Path> paths = pathStream.collect(Collectors.toList());
         Assert.assertEquals(paths.size(), 1);
@@ -58,7 +61,7 @@ public class PathConverterIntegrationTest {
                                                                                               "tempFile.bal"));
         PathConverter subject = new PathConverter(tempDirectory);
 
-        Stream<Path> pathStream = patten.convert(subject);
+        Stream<Path> pathStream = patten.convert(subject, null);
 
         List<Path> paths = pathStream.collect(Collectors.toList());
         Assert.assertEquals(paths.size(), 0);
@@ -69,7 +72,7 @@ public class PathConverterIntegrationTest {
         Patten patten = new Patten(path("very"), Patten.WILDCARD_SOURCE);
         PathConverter subject = new PathConverter(tempDirectory);
 
-        Stream<Path> pathStream = patten.convert(subject);
+        Stream<Path> pathStream = patten.convert(subject, null);
 
         List<Path> paths = pathStream.collect(Collectors.toList());
         Assert.assertEquals(paths.size(), 1);

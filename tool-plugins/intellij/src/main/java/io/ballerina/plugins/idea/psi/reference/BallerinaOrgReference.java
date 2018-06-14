@@ -52,6 +52,6 @@ public class BallerinaOrgReference extends BallerinaCachedReference<BallerinaIde
         for (VirtualFile organization : organizations) {
             organizationList.add(BallerinaCompletionUtils.createOrganizationLookup(organization.getName()));
         }
-        return organizationList.toArray(new LookupElement[organizationList.size()]);
+        return organizationList.toArray(new LookupElement[0]);
     }
 }

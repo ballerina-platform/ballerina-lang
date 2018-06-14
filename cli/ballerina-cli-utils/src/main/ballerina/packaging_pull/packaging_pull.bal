@@ -11,13 +11,15 @@ documentation {
     This function pulls a package from ballerina central.
 
     P{{definedEndpoint}} Endpoint defined with the proxy configurations
-    P{{url}} url to be invoked
+    P{{url}} Url to be invoked
     P{{dirPath}} Path of the directory to save the pulled package
     P{{pkgPath}} Package path
     P{{fileSeparator}} File separator based on the operating system
     P{{terminalWidth}} Width of the terminal
+    P{{versionRange}} Supported version range
 }
-function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator, string terminalWidth) {
+function pullPackage (http:Client definedEndpoint, string url, string dirPath, string pkgPath, string fileSeparator, 
+                        string terminalWidth, string versionRange) {
     endpoint http:Client httpEndpoint = definedEndpoint;
     string fullPkgPath = pkgPath;
     string destDirPath = dirPath;
@@ -25,7 +27,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     req.addHeader("Accept-Encoding", "identity");
 
     http:Response httpResponse = new;
-    var result = httpEndpoint -> get("", message=req);
+    var result = httpEndpoint -> get(untaint versionRange, message=req);
 
     match result {
         http:Response response => httpResponse = response;
@@ -82,7 +84,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
 
             if (!createDirectories(destDirPath)) {
                 internal:Path pkgArchivePath = new(destArchivePath);
-                if (internal:pathExists(pkgArchivePath)){
+                if (pkgArchivePath.exists()){
                     io:println("package already exists in the home repository");
                     return;                              
                 }        
@@ -122,7 +124,7 @@ function main(string... args){
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
     }
-    pullPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[8]);
+    pullPackage(httpEndpoint, args[0], args[1], args[2], args[3], args[8], args[9]);
 }
 
 documentation {
@@ -310,9 +312,15 @@ documentation {
 }
 function createDirectories(string directoryPath) returns (boolean) {
     internal:Path dirPath = new(directoryPath);
-    if (!internal:pathExists(dirPath)){
-        boolean directoryCreationStatus = check (internal:createDirectory(dirPath));
-        return directoryCreationStatus;
+    if (!dirPath.exists()){
+        match dirPath.createDirectory() {
+            () => {
+                return true;
+            }
+            error => {
+                return false;
+            }
+        }
     } else {
         return false;
     }

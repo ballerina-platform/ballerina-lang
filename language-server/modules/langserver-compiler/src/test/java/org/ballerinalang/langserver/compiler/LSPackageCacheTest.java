@@ -18,6 +18,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Set;
 
+/**
+ * Test Case for Lang Server Package Caching.
+ */
 public class LSPackageCacheTest {
 
     private static final Path RES_DIR = Paths.get("src/test/resources/").toAbsolutePath();
@@ -52,7 +55,7 @@ public class LSPackageCacheTest {
         Set<String> packageMayKeySet = LSPackageCache.getInstance(context).getPackageMap().keySet();
         PackageID nPackageIDDemo = new PackageID(new Name("demo"), new Name(pkgName), new Name("0.0.1"));
         PackageID nPackageIDAnon = new PackageID(Names.ANON_ORG, new Name(pkgName), Names.DEFAULT_VERSION);
-        Assert.assertFalse(packageMayKeySet.contains(nPackageIDDemo.bvmAlias()));
-        Assert.assertFalse(packageMayKeySet.contains(nPackageIDAnon.bvmAlias()));
+        Assert.assertFalse(packageMayKeySet.contains(nPackageIDDemo.toString()));
+        Assert.assertFalse(packageMayKeySet.contains(nPackageIDAnon.toString()));
     }
 }

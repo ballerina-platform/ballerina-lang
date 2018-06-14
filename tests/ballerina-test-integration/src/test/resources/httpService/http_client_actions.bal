@@ -76,9 +76,9 @@ service<http:Service> testService bind { port: 9090 } {
         //No Payload
         response = check clientEP->get("/test1/greeting", message = ());
         value = value + check response.getTextPayload();
-        http:Request req = new;
+        http:Request httpReq = new;
         //Request as message
-        response = check clientEP->get("/test1/greeting", message = req);
+        response = check clientEP->get("/test1/greeting", message = httpReq);
         value = value + check response.getTextPayload();
         _ = client->respond(value);
     }

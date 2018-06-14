@@ -22,7 +22,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -34,7 +33,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 import org.wso2.ballerinalang.compiler.tree.BLangService;
-import org.wso2.ballerinalang.compiler.tree.BLangTransformer;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
@@ -180,48 +178,8 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangConnector connectorNode) {
-        // No implementation
-    }
-
-    @Override
     public void visit(BLangAction actionNode) {
         // No implementation
-    }
-
-    @Override
-    public void visit(BLangOrderByVariable orderByVariable) {
-        super.visit(orderByVariable);
-    }
-
-    @Override
-    public void visit(BLangLimit limit) {
-        super.visit(limit);
-    }
-
-    @Override
-    public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        super.visit(finiteTypeNode);
-    }
-
-    @Override
-    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
-        super.visit(typeLoad);
-    }
-
-    @Override
-    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
-        super.visit(functionVarRef);
-    }
-
-    @Override
-    public void visit(BLangObjectTypeNode objectTypeNode) {
-        super.visit(objectTypeNode);
-    }
-
-    @Override
-    public void visit(BLangRecordTypeNode recordTypeNode) {
-        super.visit(recordTypeNode);
     }
 
     @Override
@@ -282,11 +240,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotAttachmentAttribute annotAttachmentAttribute) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangTransformer transformerNode) {
         // No implementation
     }
 
@@ -442,6 +395,15 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangOrderByVariable orderByVariable) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangLimit limit) {
+        // No implementation
+    }
+
     public void visit(BLangGroupBy groupBy) {
         // No implementation
     }
@@ -770,6 +732,20 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangObjectTypeNode objectTypeNode) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangRecordTypeNode recordTypeNode) {
+        // No implementation
+    }
+
+    @Override
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+        // No implementation
+    }
+
     public void visit(BLangTupleTypeNode tupleTypeNode) {
         // No implementation
     }
@@ -797,11 +773,19 @@ public class LSNodeVisitor extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
+        // No implementation
+    }
+
     public void visit(BLangFieldBasedAccess.BLangStructFieldAccessExpr fieldAccessExpr) {
         // No implementation
     }
 
     @Override
+    public void visit(BLangFieldBasedAccess.BLangStructFunctionVarRef functionVarRef) {
+        // No implementation
+    }
+
     public void visit(BLangIndexBasedAccess.BLangMapAccessExpr mapKeyAccessExpr) {
         // No implementation
     }
@@ -843,11 +827,6 @@ public class LSNodeVisitor extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangInvocation.BLangAttachedFunctionInvocation iExpr) {
-        // No implementation
-    }
-
-    @Override
-    public void visit(BLangInvocation.BLangTransformerInvocation iExpr) {
         // No implementation
     }
 

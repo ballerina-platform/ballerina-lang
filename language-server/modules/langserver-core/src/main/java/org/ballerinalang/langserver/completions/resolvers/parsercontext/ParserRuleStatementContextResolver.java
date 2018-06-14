@@ -23,7 +23,6 @@ import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
-import org.ballerinalang.langserver.completions.util.filters.ConnectorInitExpressionItemFilter;
 import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
 import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
@@ -31,8 +30,10 @@ import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAcces
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parser rule based statement context resolver.
@@ -42,21 +43,20 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
     @SuppressWarnings("unchecked")
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        ArrayList<SymbolInfo> filteredSymbols = new ArrayList<>();
+        Either<List<CompletionItem>, List<SymbolInfo>> itemList;
 
         Class itemSorterClass;
         if (isInvocationOrFieldAccess(completionContext)) {
             itemSorterClass = ActionAndFieldAccessContextItemSorter.class;
-            filteredSymbols.addAll(SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
-                    .filterItems(completionContext));
+            itemList = SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
+                    .filterItems(completionContext);
         } else {
             itemSorterClass = completionContext.get(CompletionKeys.BLOCK_OWNER_KEY).getClass();
-            filteredSymbols.addAll(SymbolFilters.getFilterByClass(ConnectorInitExpressionItemFilter.class)
-                    .filterItems(completionContext));
-            filteredSymbols.addAll(this.removeInvalidStatementScopeSymbols(completionContext
-                    .get(CompletionKeys.VISIBLE_SYMBOLS_KEY)));
-            completionItems.addAll(SymbolFilters.getFilterByClass(StatementTemplateFilter.class)
-                    .filterItems(completionContext));
+            List<SymbolInfo> filteredSymbols = this.removeInvalidStatementScopeSymbols(completionContext
+                    .get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
+            this.populateCompletionItemList(filteredSymbols, completionItems);
+            itemList = SymbolFilters.getFilterByClass(StatementTemplateFilter.class)
+                    .filterItems(completionContext);
 
             CompletionItem xmlns = new CompletionItem();
             xmlns.setLabel(ItemResolverConstants.XMLNS);
@@ -72,7 +72,11 @@ public class ParserRuleStatementContextResolver extends AbstractItemResolver {
             completionItems.add(varKeyword);
         }
 
-        this.populateCompletionItemList(filteredSymbols, completionItems);
+        if (itemList.isLeft()) {
+            completionItems.addAll(itemList.getLeft());
+        } else {
+            this.populateCompletionItemList(itemList.getRight(), completionItems);
+        }
         
         // Now we need to sort the completion items and populate the completion items specific to the scope owner
         // as an example, resource, action, function scopes are different from the if-else, while, and etc

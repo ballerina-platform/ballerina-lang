@@ -438,32 +438,22 @@ class PositioningUtil {
     positionServiceNode(node) {
         const viewState = node.viewState;
 
-        // Position the transport nodes
-        const transportLine = !_.isNil(viewState.components.transportLine) ?
-            viewState.components.transportLine : { x: 0, y: 0 };
-        transportLine.x = viewState.bBox.x - 5;
-        transportLine.y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
+        // Position the connector nodes
+        node.viewState.components.serverConnector.x = viewState.bBox.x + viewState.titleWidth;
+        node.viewState.components.serverConnector.y = viewState.bBox.y + viewState.components.annotation.h
+            + viewState.components.heading.h;
 
         let children = [];
         let endpoints = [];
         let variables = [];
-        if (TreeUtil.isService(node)) {
-            children = node.getResources();
-            endpoints = node.filterVariables((statement) => {
-                return TreeUtil.isEndpointTypeVariableDef(statement);
-            });
-            variables = node.filterVariables((statement) => {
-                return !TreeUtil.isEndpointTypeVariableDef(statement);
-            });
-        } else if (TreeUtil.isConnector(node)) {
-            children = node.getActions();
-            endpoints = node.filterVariableDefs((statement) => {
-                return TreeUtil.isEndpointTypeVariableDef(statement);
-            });
-            variables = node.filterVariableDefs((statement) => {
-                return !TreeUtil.isEndpointTypeVariableDef(statement);
-            });
-        }
+        children = node.getResources();
+        endpoints = node.filterVariables((statement) => {
+            return TreeUtil.isEndpointTypeVariableDef(statement);
+        });
+        variables = node.filterVariables((statement) => {
+            return !TreeUtil.isEndpointTypeVariableDef(statement);
+        });
+
 
         let y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
         // position the initFunction.
@@ -528,36 +518,6 @@ class PositioningUtil {
         if (viewState.shouldShowConnectorPropertyWindow) {
             viewState.showOverlayContainer = true;
             OverlayComponentsRenderingUtil.showServerConnectorPropertyWindow(node);
-        }
-        if (TreeUtil.isConnector(node)) {
-            let publicPrivateFlagoffset = 0;
-            if (node.public) {
-                publicPrivateFlagoffset = 40;
-            }
-            // Positioning argument parameters
-            if (node.getParameters()) {
-                viewState.components.argParameterHolder.openingParameter.x = viewState.bBox.x + viewState.titleWidth +
-                    this.config.panel.heading.title.margin.right + this.config.panelHeading.iconSize.width
-                    + this.config.panelHeading.iconSize.padding + publicPrivateFlagoffset;
-                viewState.components.argParameterHolder.openingParameter.y = viewState.bBox.y +
-                    viewState.components.annotation.h;
-
-                // Positioning the connector parameters
-                let nextXPositionOfParameter = viewState.components.argParameterHolder.openingParameter.x
-                    + viewState.components.argParameterHolder.openingParameter.w;
-                if (node.getParameters().length > 0) {
-                    for (let i = 0; i < node.getParameters().length; i++) {
-                        const argument = node.getParameters()[i];
-                        nextXPositionOfParameter = this.createPositionForTitleNode(argument, nextXPositionOfParameter,
-                            (viewState.bBox.y + viewState.components.annotation.h));
-                    }
-                }
-
-                // Positioning the closing bracket component of the parameters.
-                viewState.components.argParameterHolder.closingParameter.x = nextXPositionOfParameter + 130;
-                viewState.components.argParameterHolder.closingParameter.y = viewState.bBox.y +
-                    viewState.components.annotation.h;
-            }
         }
     }
 

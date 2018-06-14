@@ -7,6 +7,7 @@ import ballerina/http;
 //=====================================
 public type {{cut info.title " "}}ClientConfig {
     string serviceUrl,
+    http:ClientEndpointConfig clientConfig,
 };
 
 //=======================================
@@ -20,7 +21,9 @@ public type {{cut info.title " "}}ClientEp object {
 
     public function init({{cut info.title " "}}ClientConfig config) {
         endpoint http:Client httpEp {
-            url: config.serviceUrl
+            url: config.serviceUrl,
+            auth: config.clientConfig.auth,
+            cache: config.clientConfig.cache
         };
 
         self.client = httpEp;
@@ -46,7 +49,7 @@ public type {{cut info.title " "}}Client object {
         endpoint http:Client ep = self.clientEp.client;
         http:Request request = new;
 
-        //Create the required request as needed
+        // TODO: Update the request as needed
         return check ep->{{lower .}}("{{../../../key}}", request = request);
     }
     {{/methods}}{{else}}{{#allMethods}}
@@ -54,16 +57,19 @@ public type {{cut info.title " "}}Client object {
         endpoint http:Client ep = self.clientEp.client;
         http:Request request = new;
 
-        //Create the required request as needed
+        // TODO: Update the request as needed
         return check ep->{{lower .}}("{{../../../key}}", request = request);
     }
     {{/allMethods}}{{/if}}{{else}}
-    public function {{operationId}}({{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
-        endpoint http:Client ep = self.clientEp.client;
-        http:Request request = new;
+    public function {{operationId}}({{#requestBody}}{{>reqBody}}{{/requestBody}}{{#parameters}}{{>pathParams}}{{/parameters}}) returns http:Response | error {
+        endpoint http:Client _{{operationId}}Ep = self.clientEp.client;
+        http:Request request = new;{{#requestBody}}{{#equals requestBody.selectedMedia.mediaType "application/json"}}
+        json _{{operationId}}JsonBody = check <json> _{{operationId}}Body;
+        request.setPayload(_{{operationId}}JsonBody);{{else}}
+        request.setPayload(_{{operationId}}Body);{{/equals}}{{/requestBody}}
 
-        //Create the required request as needed
-        return check ep->{{key}}("{{../../key}}", request = request);
+        // TODO: Update the request as needed
+        return check _{{operationId}}Ep->{{key}}("{{../../key}}", request = request);
     }
     {{/equals}}{{/value}}{{/operations}}{{/value}}{{/paths}}
 };

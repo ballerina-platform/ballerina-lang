@@ -28,7 +28,7 @@ documentation { Map which stores all of the caches. }
 map<Cache> cacheMap;
 
 documentation { Cleanup task which cleans the cache periodically. }
-task:Timer timer = createCacheCleanupTask();
+task:Timer cacheCleanupTimer = createCacheCleanupTask();
 
 documentation {
     Represents a cache entry.
@@ -114,8 +114,8 @@ public type Cache object {
     documentation { Evicts the cache when cache is full. }
     function evict() {
         int maxCapacity = self.capacity;
-        float evictionFactor = self.evictionFactor;
-        int numberOfKeysToEvict = <int>(maxCapacity * evictionFactor);
+        float ef = self.evictionFactor;
+        int numberOfKeysToEvict = <int>(maxCapacity * ef);
         // Get the above number of least recently used cache entry keys from the cache
         string[] cacheKeys = self.getLRUCacheKeys(numberOfKeysToEvict);
         // Iterate through the map and remove entries.
@@ -229,7 +229,7 @@ function runCacheExpiry() returns error? {
         }
 
         // Iterate through the key list which needs to be removed.
-        foreach currentKeyIndex in [0..cachesToBeRemovedIndex) {
+        foreach currentKeyIndex in 0 ..< cachesToBeRemovedIndex {
             string key = cachesToBeRemoved[currentKeyIndex];
             // Remove the cache entry.
             _ = currentCache.entries.remove(key);
@@ -245,7 +245,7 @@ function checkAndAdd(int numberOfKeysToEvict, string[] cacheKeys, int[] timestam
 
     // Iterate while we count all values from 0 to numberOfKeysToEvict exclusive of numberOfKeysToEvict since the
     // array size should be numberOfKeysToEvict.
-    foreach index in [0..numberOfKeysToEvict) {
+    foreach index in 0 ..< numberOfKeysToEvict {
         // If we have encountered the end of the array, that means we can add the new values to the end of the
         // array since we haven’t reached the numberOfKeysToEvict limit.
         if (lengthof cacheKeys == index) {

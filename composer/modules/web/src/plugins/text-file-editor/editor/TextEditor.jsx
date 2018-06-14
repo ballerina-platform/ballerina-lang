@@ -21,23 +21,25 @@ const MONACO_OPTIONS = {
     lineNumbersMinChars: 2,
 };
 
-const webpackHash = process.env.NODE_ENV === 'production' ? __webpack_hash__ : __webpack_hash__();
+const webpackHash = process.env.NODE_ENV === 'production'
+            || process.env.NODE_ENV === 'electron'
+            ? __webpack_hash__ : __webpack_hash__();
 
 self.MonacoEnvironment = {
     getWorkerUrl: function (moduleId, label) {
-      if (label === 'json') {
-        return `./json.worker-${webpackHash}.js`;
-      }
-      if (label === 'css') {
-        return `./css.worker-${webpackHash}.js`;
-      }
-      if (label === 'html') {
-        return `./html.worker-${webpackHash}.js`;
-      }
-      if (label === 'typescript' || label === 'javascript') {
-        return `./ts.worker-${webpackHash}.js`;
-      }
-      return `./editor.worker-${webpackHash}.js`;
+        if (label === 'json') {
+            return `./workers/json.worker.bundle.js`;
+        }
+        if (label === 'css') {
+            return `./workers/css.worker.bundle.js`;
+        }
+        if (label === 'html') {
+            return `./workers/html.worker.bundle.js`;
+        }
+        if (label === 'typescript' || label === 'javascript') {
+            return `./workers/ts.worker.bundle.js`;
+        }
+        return `./workers/editor.worker.bundle.js`;
     }
 };
 

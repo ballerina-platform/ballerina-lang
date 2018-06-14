@@ -35,7 +35,7 @@ import org.ballerinalang.natives.annotations.Receiver;
         orgName = "ballerina", packageName = "http",
         functionName = "stop",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         isPublic = true
 )
 public class Stop extends AbstractHttpNativeFunction {

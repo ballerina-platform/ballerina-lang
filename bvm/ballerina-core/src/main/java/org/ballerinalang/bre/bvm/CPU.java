@@ -79,7 +79,6 @@ import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
-import org.ballerinalang.util.codegen.Instruction.InstructionTCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.InstructionCodes;
@@ -119,6 +118,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.UUID;
+import java.util.stream.LongStream;
 
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
@@ -392,7 +392,9 @@ public class CPU {
                     case InstructionCodes.SNE_NULL:
                         execCmpAndBranchOpcodes(ctx, sf, opcode, operands);
                         break;
-    
+                    case InstructionCodes.INT_RANGE:
+                        execIntegerRangeOpcodes(sf, operands);
+                        break;
                     case InstructionCodes.TR_RETRY:
                         i = operands[0];
                         j = operands[1];
@@ -411,14 +413,6 @@ public class CPU {
                         InstructionVCALL vcallIns = (InstructionVCALL) instruction;
                         ctx = invokeVirtualFunction(ctx, vcallIns.receiverRegIndex, vcallIns.functionInfo,
                                 vcallIns.argRegs, vcallIns.retRegs, vcallIns.flags);
-                        if (ctx == null) {
-                            return;
-                        }
-                        break;
-                    case InstructionCodes.TCALL:
-                        InstructionTCALL tcallIns = (InstructionTCALL) instruction;
-                        ctx = BLangFunctions.invokeCallable(tcallIns.transformerInfo, ctx, tcallIns.argRegs,
-                                tcallIns.retRegs, false, tcallIns.flags);
                         if (ctx == null) {
                             return;
                         }
@@ -865,7 +859,7 @@ public class CPU {
             double[] newDoubleRegs = new double[sf.doubleRegs.length +
                     fp.getAdditionalIndexCount(BTypes.typeFloat.getTag())];
             System.arraycopy(sf.doubleRegs, 0, newDoubleRegs, 0, sf.doubleRegs.length);
-            doubleIndex = sf.intRegs.length;
+            doubleIndex = sf.doubleRegs.length;
             sf.doubleRegs = newDoubleRegs;
         }
         return doubleIndex;
@@ -1071,6 +1065,13 @@ public class CPU {
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    private static void execIntegerRangeOpcodes(WorkerData sf, int[] operands) {
+        int i = operands[0];
+        int j = operands[1];
+        int k = operands[2];
+        sf.refRegs[k] = new BIntArray(LongStream.rangeClosed(sf.longRegs[i], sf.longRegs[j]).toArray());
     }
 
     @SuppressWarnings({"rawtypes", "unchecked"})

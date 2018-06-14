@@ -160,7 +160,7 @@ public class Generator {
     /**
      * Generate the page for primitive types.
      *
-     * @param balPackage The ballerina.builtin package.
+     * @param balPackage The ballerina/builtin package.
      * @param packages   List of available packages.
      * @param primitives list of primitives.
      * @return A page model for the primitive types.
@@ -182,7 +182,7 @@ public class Generator {
                 if (function.getFlags().contains(Flag.PUBLIC) && function.getReceiver() != null) {
                     TypeNode langType = function.getReceiver().getTypeNode();
                     if (!(langType instanceof BLangUserDefinedType)) {
-                        // Check for primitives in ballerina.builtin
+                        // Check for primitives in ballerina/builtin
                         Optional<PrimitiveTypeDoc> existingPrimitiveType = primitiveTypes.stream().filter((doc) ->
                                 doc instanceof PrimitiveTypeDoc && (((PrimitiveTypeDoc) doc)).name.equals(langType
                                         .toString())).map(doc -> (PrimitiveTypeDoc) doc).findFirst();
@@ -257,8 +257,8 @@ public class Generator {
             dataType = getTypeName(annotationNode.typeNode);
             href = extractLink(annotationNode.typeNode);
         }
-        String attachments = annotationNode.attachmentPoints.stream().map(attachmentPoint -> attachmentPoint
-                .attachmentPoint.getValue()).collect(Collectors.joining(", "));
+        String attachments = annotationNode.attachPoints.stream().map(attachmentPoint -> attachmentPoint
+                .getValue()).collect(Collectors.joining(", "));
 
         return new AnnotationDoc(annotationName, description(annotationNode), dataType, href, attachments);
     }

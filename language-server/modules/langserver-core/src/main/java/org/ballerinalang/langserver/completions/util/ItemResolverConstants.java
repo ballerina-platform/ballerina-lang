@@ -42,10 +42,10 @@ public class ItemResolverConstants {
     public static final String WORKER_REPLY = "wrply   Worker Reply Statement";
     public static final String ATTACH = "attach";
     public static final String FOREACH = "foreach";
-    public static final String PUBLIC = "public";
     public static final String PRIVATE = "private";
     public static final String MATCH = "match";
     public static final String THROW = "throw";
+    public static final String NEW = "new";
 
     public static final String FUNCTION = "function";
     public static final String MAIN_FUNCTION = "main function";
@@ -86,6 +86,7 @@ public class ItemResolverConstants {
     public static final String CHECK_KEYWORD = "check";
     public static final String TRUE_KEYWORD = "true";
     public static final String FALSE_KEYWORD = "false";
+    public static final String PUBLIC_KEYWORD = "public";
     
     // Iterable operators completion item labels
     public static final String ITR_FOREACH_LABEL = "foreach(<@lambda:function>)";

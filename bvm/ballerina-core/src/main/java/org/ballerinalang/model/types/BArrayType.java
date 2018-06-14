@@ -17,7 +17,13 @@
 */
 package org.ballerinalang.model.types;
 
-import org.ballerinalang.model.values.BArray;
+import org.ballerinalang.model.values.BBlobArray;
+import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BNewArray;
+import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 
 /**
@@ -35,7 +41,7 @@ public class BArrayType extends BType implements BIndexedType {
     private int dimensions = 1;
 
     public BArrayType(BType elementType) {
-        super(null, null, BArray.class);
+        super(null, null, BNewArray.class);
         this.elementType = elementType;
         if (elementType instanceof BArrayType) {
             dimensions = ((BArrayType) elementType).getDimensions() + 1;
@@ -53,9 +59,21 @@ public class BArrayType extends BType implements BIndexedType {
 
     @Override
     public <V extends BValue> V getEmptyValue() {
-        BArray emptyVal = new BArray<V>(elementType.getValueClass());
-        emptyVal.setType(this);
-        return (V) emptyVal;
+        int tag = elementType.getTag();
+        switch (tag) {
+            case TypeTags.INT_TAG:
+                return (V) new BIntArray();
+            case TypeTags.FLOAT_TAG:
+                return (V) new BFloatArray();
+            case TypeTags.BOOLEAN_TAG:
+                return (V) new BBooleanArray();
+            case TypeTags.STRING_TAG:
+                return (V) new BStringArray();
+            case TypeTags.BLOB_TAG:
+                return (V) new BBlobArray();
+            default:
+                return (V) new BRefValueArray();
+        }
     }
 
     @Override

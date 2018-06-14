@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
+/**
+ * Testcase for URI converter.
+ */
 public class URIConverterTest {
 
     @Test
@@ -20,7 +23,7 @@ public class URIConverterTest {
         Patten patten = new Patten(path("natasha", "foo.bar", "1.0.5"));
         URIConverter subject = new URIConverter(baseURI);
 
-        List<URI> urls = patten.convert(subject)
+        List<URI> urls = patten.convert(subject, null)
                                .collect(Collectors.toList());
 
         URI expected = URI.create("http://staging.central.ballerina.io:9090/natasha/foo.bar/1.0.5/");

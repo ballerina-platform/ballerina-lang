@@ -29,6 +29,9 @@ import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.assertTrue;
 
+/**
+ * Testcase to verify defining window declaration.
+ */
 public class WindowDefinitionTestCase {
     private static final Logger log = LoggerFactory.getLogger(WindowDefinitionTestCase.class);
 

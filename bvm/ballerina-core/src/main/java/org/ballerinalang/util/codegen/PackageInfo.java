@@ -39,6 +39,7 @@ import java.util.Map;
  */
 public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
+    public int orgNameCPIndex;
     public int nameCPIndex;
     public String pkgPath;
     public int versionCPIndex;
@@ -55,8 +56,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Instruction[] instructions;
     private List<Instruction> instructionList = new ArrayList<>();
 
-    public List<ImportPackageInfo> importPkgInfoList = new ArrayList<>();
-
     private Map<String, PackageVarInfo> constantInfoMap = new LinkedHashMap<>();
 
     private Map<String, PackageVarInfo> globalVarInfoMap = new LinkedHashMap<>();
@@ -68,8 +67,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Map<String, CustomTypeInfo> structureTypeInfoMap = new HashMap<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
-
-    private Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
     public Map<String, TypeDefInfo> typeDefInfoMap = new HashMap<>();
 
@@ -191,18 +188,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public CustomTypeInfo getStructureTypeInfo(String structureTypeName) {
         return structureTypeInfoMap.get(structureTypeName);
-    }
-
-    public void addTransformerInfo(String transformerName, TransformerInfo transformerInfo) {
-        transformerInfoMap.put(transformerName, transformerInfo);
-    }
-
-    public TransformerInfo[] getTransformerInfoEntries() {
-        return transformerInfoMap.values().toArray(new TransformerInfo[0]);
-    }
-
-    public TransformerInfo getTransformerInfo(String transformerName) {
-        return transformerInfoMap.get(transformerName);
     }
 
     public int addInstruction(Instruction instruction) {

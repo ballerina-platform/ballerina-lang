@@ -84,6 +84,7 @@
             background-color: inherit;
             border: none;
             font-size: 0.9em;
+            font-family: "Droid Sans Mono", monospace, monospace, "Droid Sans Fallback";
             pre {
                 padding: 0 10px;
                 margin: 0;
@@ -92,6 +93,9 @@
                 white-space: -pre-wrap;
                 white-space: -o-pre-wrap;
                 word-wrap: break-word;
+                b {
+                    font-weight: 600;
+                }
             }
         }
     }

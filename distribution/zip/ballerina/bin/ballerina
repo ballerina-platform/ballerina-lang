@@ -90,10 +90,14 @@ if $os400; then
   export QIBM_MULTI_THREADED
 fi
 
-if ! type "tput" > /dev/null; then
+if ! type "tput" > /dev/null 2>&1; then
   BALLERINA_CLI_WIDTH="80"
 else
-  BALLERINA_CLI_WIDTH=`tput cols`
+	if ! tput cols >/dev/null 2>&1; then
+	    BALLERINA_CLI_WIDTH="80"
+	else
+	    BALLERINA_CLI_WIDTH=`tput cols`
+	fi
 fi
 export BALLERINA_CLI_WIDTH
 

@@ -33,10 +33,10 @@ public type SimpleTopicPublisher object {
     }
 
     documentation { Initialize simple topic publisher endpoint
-        P{{config}} Simple topic publisher enpoint configuration
+        P{{c}} Simple topic publisher enpoint configuration
     }
-    public function init(SimpleTopicPublisherEndpointConfiguration config) {
-        self.config = config;
+    public function init(SimpleTopicPublisherEndpointConfiguration c) {
+        self.config = c;
         Connection conn = new({
                 initialContextFactory:config.initialContextFactory,
                 providerUrl:config.providerUrl,
@@ -53,7 +53,7 @@ public type SimpleTopicPublisher object {
         TopicPublisher topicPublisher = new;
         TopicPublisherEndpointConfiguration publisherConfig = {
             session:newSession,
-            topicPattern:config.topicPattern
+            topicPattern: c.topicPattern
         };
         topicPublisher.init(publisherConfig);
         self.publisher = topicPublisher;

@@ -111,7 +111,7 @@ public class LSContextManager {
     }
 
     /**
-     * Set compiler context for a given project directory
+     * Set compiler context for a given project directory.
      *
      * @param projectDir        project directory
      * @param compilerContext   compiler context.
@@ -210,7 +210,7 @@ public class LSContextManager {
 
         @Override
         public InputStream getLockFileContent() {
-            return null;
+            return new ByteArrayInputStream("".getBytes(Charset.defaultCharset()));
         }
 
         @Override

@@ -61,7 +61,7 @@ public class ReadBytesEvent implements Event {
 
     /**
      * <p>
-     * Return an array which contains read data
+     * Return an array which contains read data.
      * </p>
      * <p>
      * If the buffer is not filled will shrink the array to fit for what's filled

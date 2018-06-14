@@ -418,7 +418,7 @@ class SizingUtil {
         }
 
         if (TreeUtil.isFunction(node) && !TreeUtil.isMainFunction(node)) {
-            if (node.getReceiver()) {
+            if (node.getReceiver() && node.getReceiver().getTypeNode()) {
                 cmp.receiver.w = this.getTextWidth(node.getReceiver().getTypeNode().getTypeName().value, 0).w + 50;
             }
         }
@@ -581,7 +581,7 @@ class SizingUtil {
         cmp.heading = new SimpleBBox();
         cmp.body = new SimpleBBox();
         cmp.initFunction = new SimpleBBox();
-        cmp.transportLine = new SimpleBBox();
+        cmp.serverConnector = new SimpleBBox();
         cmp.connectors = new SimpleBBox();
         cmp.annotation = new SimpleBBox();
         cmp.title = new SimpleBBox();
@@ -593,24 +593,15 @@ class SizingUtil {
         // Set the service/connector definition height according to the resources/connector definitions
         // This is due to the logic re-use by the connector nodes as well
         let children = [];
-        if (TreeUtil.isService(node)) {
-            children = node.getResources();
-        } else if (TreeUtil.isConnector(node)) {
-            children = node.getActions();
-        }
+        children = node.getResources();
+
         let variables = [];
         let endpoints = [];
-        if (TreeUtil.isService(node)) {
-            variables = node.getVariables();
-            endpoints = node.filterVariables((statement) => {
-                return TreeUtil.isEndpointTypeVariableDef(statement);
-            });
-        } else if (TreeUtil.isConnector(node)) {
-            variables = node.getVariableDefs();
-            endpoints = node.filterVariableDefs((statement) => {
-                return TreeUtil.isEndpointTypeVariableDef(statement);
-            });
-        }
+        variables = node.getVariables();
+        endpoints = node.filterVariables((statement) => {
+            return TreeUtil.isEndpointTypeVariableDef(statement);
+        });
+
         // calculate the annotation height.
         cmp.annotation.h = (!viewState.showAnnotationContainer) ? 0 : this._getAnnotationHeight(node, 35);
 
@@ -655,9 +646,11 @@ class SizingUtil {
         width += connectorWidth;
         cmp.connectors.w = connectorWidth;
         // calculate header related components.
-        const textWidth = this.getTextWidth(node.getName().value);
+        const textWidth = this.getTextWidth(node.getName().value, 0);
         viewState.titleWidth = textWidth.w;
         viewState.trimmedTitle = textWidth.text;
+
+        cmp.serverConnector.typeName = this.getTextWidth(node.getType(), 0);
         // set the heading height
         cmp.heading.h = this.config.panel.heading.height;
 
@@ -665,23 +658,6 @@ class SizingUtil {
 
         viewState.bBox.h = cmp.annotation.h + cmp.body.h + cmp.heading.h + connectorHeight;
 
-        if (TreeUtil.isConnector(node)) {
-            cmp.argParameterHolder = {};
-            // Creating components for argument parameters
-            if (node.getParameters()) {
-                // Creating component for opening bracket of the parameters view.
-                cmp.argParameterHolder.openingParameter = {};
-                cmp.argParameterHolder.openingParameter.w = this.getTextWidth('(', 0).w;
-
-                // Creating component for closing bracket of the parameters view.
-                cmp.argParameterHolder.closingParameter = {};
-                cmp.argParameterHolder.closingParameter.w = this.getTextWidth(')', 0).w;
-
-                cmp.heading.w += cmp.argParameterHolder.openingParameter.w
-                    + cmp.argParameterHolder.closingParameter.w
-                    + this.getParameterTypeWidth(node.getParameters()) + (this.config.panel.buttonWidth * 3);
-            }
-        }
         // set the components.
         viewState.components = cmp;
 

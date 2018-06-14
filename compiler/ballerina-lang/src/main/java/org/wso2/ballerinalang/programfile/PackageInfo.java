@@ -53,7 +53,7 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     public Map<String, FunctionInfo> functionInfoMap = new LinkedHashMap<>();
 
-    public Map<String, TypeDefInfo> typeDefInfoMap = new HashMap<>();
+    public Map<String, TypeDefInfo> typeDefInfoMap = new LinkedHashMap<>();
 
     public Map<String, AnnotationInfo> annotationInfoMap = new HashMap<>();
 
@@ -62,8 +62,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
     private Map<String, StructureTypeInfo> structureTypeInfoMap = new HashMap<>();
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
-
-    public Map<String, TransformerInfo> transformerInfoMap = new LinkedHashMap<>();
 
     public int addCPEntry(ConstantPoolEntry cpEntry) {
         if (constantPoolEntries.contains(cpEntry)) {

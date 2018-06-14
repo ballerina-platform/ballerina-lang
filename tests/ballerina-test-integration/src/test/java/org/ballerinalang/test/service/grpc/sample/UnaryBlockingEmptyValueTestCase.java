@@ -29,6 +29,7 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
+import org.ballerinalang.test.util.TestUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.testng.Assert;
@@ -52,6 +53,7 @@ public class UnaryBlockingEmptyValueTestCase extends IntegrationTestCase {
         ballerinaServer = ServerInstance.initBallerinaServer(9090);
         Path serviceBalPath = Paths.get("src", "test", "resources", "grpc", "advanced_type_service.bal");
         ballerinaServer.startBallerinaServer(serviceBalPath.toAbsolutePath().toString());
+        TestUtils.prepareBalo(this);
     }
 
     @Test
@@ -77,12 +79,12 @@ public class UnaryBlockingEmptyValueTestCase extends IntegrationTestCase {
         CompileResult result = BCompileUtil.compile(balFilePath.toAbsolutePath().toString());
         PackageInfo packageInfo = result.getProgFile().getPackageInfo(".");
         // Stock Quote struct
-        // StockQuote quote2 = {symbol: "Ballerina", name:"ballerina.io", last:1.0, low:0.5, high:2.0};
+        // StockQuote quote2 = {symbol: "Ballerina", name:"ballerina/io", last:1.0, low:0.5, high:2.0};
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("StockQuote");
         BStructureType requestType = requestInfo.getType();
         BStruct requestStruct = new BStruct(requestType);
         requestStruct.setStringField(0, "Ballerina");
-        requestStruct.setStringField(1, "ballerina.io");
+        requestStruct.setStringField(1, "ballerina/io");
         requestStruct.setFloatField(0, 1.0);
         requestStruct.setFloatField(1, 0.5);
         requestStruct.setFloatField(2, 2.0);

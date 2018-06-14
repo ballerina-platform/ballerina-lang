@@ -7,10 +7,11 @@ type Employee {
     string address,
 };
 
-function testIterateMirrorTable() returns (Employee[], Employee[]) {
+function testIterateMirrorTable(string jdbcUrl, string userName, string password) returns (Employee[], Employee[]) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -38,10 +39,11 @@ function testIterateMirrorTable() returns (Employee[], Employee[]) {
     return (employeeArray1, employeeArray2);
 }
 
-function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], error) {
+function testIterateMirrorTableAfterClose(string jdbcUrl, string userName, string password) returns (Employee[], Employee[], error) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -73,8 +75,8 @@ function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], err
     try {
         while (dt.hasNext()) {
             Employee rs = check <Employee>dt.getNext();
-            Employee e = { id: rs.id, name: rs.name, address: rs.address };
-            employeeArray3[i] = e;
+            Employee emp = { id: rs.id, name: rs.name, address: rs.address };
+            employeeArray3[i] = emp;
             i++;
         }
     } catch (error err) {
@@ -84,10 +86,11 @@ function testIterateMirrorTableAfterClose() returns (Employee[], Employee[], err
     return (employeeArray1, employeeArray2, e);
 }
 
-function testAddToMirrorTable() returns (Employee[]) {
+function testAddToMirrorTable(string jdbcUrl, string userName, string password) returns (Employee[]) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -115,10 +118,11 @@ function testAddToMirrorTable() returns (Employee[]) {
     return employeeArray;
 }
 
-function testAddToMirrorTableNegative() returns (any) {
+function testAddToMirrorTableNegative(string jdbcUrl, string userName, string password) returns (any) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 1 }
     };
 
@@ -134,10 +138,11 @@ function testAddToMirrorTableNegative() returns (any) {
 }
 
 
-function testDeleteFromMirrorTable() returns (boolean, int) {
+function testDeleteFromMirrorTable(string jdbcUrl, string userName, string password) returns (boolean, int) {
     endpoint jdbc:Client testDB {
-        url: "jdbc:hsqldb:file:./target/tempdb/TEST_SQL_CONNECTOR",
-        username: "SA",
+        url: jdbcUrl,
+        username: userName,
+        password: password,
         poolOptions: { maximumPoolSize: 2 }
     };
 

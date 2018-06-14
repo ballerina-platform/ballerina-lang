@@ -21,10 +21,6 @@ under the License.
 
 <suite name="ballerina-docgen-test-suite">
 
-    <listeners>
-        <listener class-name="org.ballerinalang.launcher.util.BallerinaTestListener"/>
-    </listeners>
-
     <!-- Ballerina Docgen Test Cases. -->
     <test name="ballerina-docgen-test-suite" preserve-order="true" parallel="false">
         <groups>

@@ -71,7 +71,7 @@ public class BPackageSymbol extends BTypeSymbol {
     }
 
     @Override
-    public BPackageSymbol copy() {
+    public BPackageSymbol createLabelSymbol() {
         BPackageSymbol copy = new BPackageSymbol(pkgID, owner);
         copy.initFunctionSymbol = initFunctionSymbol;
         copy.startFunctionSymbol = startFunctionSymbol;
@@ -79,6 +79,12 @@ public class BPackageSymbol extends BTypeSymbol {
         copy.packageFile = packageFile;
         copy.compiledPackage = compiledPackage;
         copy.entryPointExists = entryPointExists;
+        copy.isLabel = true;
         return copy;
+    }
+
+    @Override
+    public String toString() {
+        return pkgID.toString();
     }
 }

@@ -53,7 +53,7 @@ public class Utils {
 
         // Invoke package init function
         if (isPackageInitialized(programFile.getEntryPkgName())) {
-            BLangFunctions.invokePackageInitFunction(servicesPackage.getInitFunctionInfo());
+            BLangFunctions.invokePackageInitFunctions(programFile);
             registry.addInitializedPackage(programFile.getEntryPkgName());
         }
         BLangFunctions.invokeVMUtilFunction(servicesPackage.getStartFunctionInfo());
@@ -98,13 +98,19 @@ public class Utils {
      */
     public static String getFullPackageName(String packageName) {
         String orgName = registry.getOrgName();
+        String version = registry.getVersion();
         // If the orgName is null there is no package, .bal execution
         if (orgName == null) {
             return ".";
         }
-        if (orgName.isEmpty() || orgName.equals(Names.ANON_ORG.toString())) {
+        if (orgName.isEmpty() || orgName.equals(Names.ANON_ORG.value)) {
             return packageName;
         }
-       return orgName + "." + packageName;
+
+        if (version == null || version.isEmpty() || version.equals(Names.DEFAULT_VERSION.value)) {
+            return orgName + Names.ORG_NAME_SEPARATOR + packageName;
+        }
+
+        return orgName + Names.ORG_NAME_SEPARATOR + packageName + Names.VERSION_SEPARATOR + version;
     }
 }

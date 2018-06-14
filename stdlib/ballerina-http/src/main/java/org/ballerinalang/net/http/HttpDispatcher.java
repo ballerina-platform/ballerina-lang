@@ -17,8 +17,10 @@
 */
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
@@ -39,17 +41,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY;
 import static org.ballerinalang.mime.util.Constants.MEDIA_TYPE;
 import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
 import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
@@ -66,7 +69,16 @@ public class HttpDispatcher {
 
     protected static HttpService findService(HTTPServicesRegistry servicesRegistry, HTTPCarbonMessage inboundReqMsg) {
         try {
-            Map<String, HttpService> servicesOnInterface = servicesRegistry.getServicesInfoByInterface();
+            Map<String, HttpService> servicesOnInterface;
+            List<String> sortedServiceURIs;
+            String hostName = inboundReqMsg.getHeader(HttpHeaderNames.HOST.toString());
+            if (hostName != null && servicesRegistry.getServicesMapHolder(hostName) != null) {
+                servicesOnInterface = servicesRegistry.getServicesByHost(hostName);
+                sortedServiceURIs = servicesRegistry.getSortedServiceURIsByHost(hostName);
+            } else {
+                servicesOnInterface = servicesRegistry.getServicesByHost(DEFAULT_HOST);
+                sortedServiceURIs = servicesRegistry.getSortedServiceURIsByHost(DEFAULT_HOST);
+            }
 
             String rawUri = (String) inboundReqMsg.getProperty(HttpConstants.TO);
             inboundReqMsg.setProperty(HttpConstants.RAW_URI, rawUri);
@@ -78,8 +90,8 @@ public class HttpDispatcher {
 
             URI validatedUri = getValidatedURI(uriWithoutMatrixParams);
 
-            // Most of the time we will find service from here
-            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(), servicesOnInterface);
+            String basePath = servicesRegistry.findTheMostSpecificBasePath(validatedUri.getPath(),
+                    servicesOnInterface, sortedServiceURIs);
 
             if (basePath == null) {
                 inboundReqMsg.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
@@ -153,7 +165,8 @@ public class HttpDispatcher {
         }
     }
 
-    public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
+    public static BValue[] getSignatureParameters(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage,
+                                                  Struct endpointConfig) {
         //TODO Think of keeping struct type globally rather than creating for each request
         ProgramFile programFile =
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
@@ -165,11 +178,11 @@ public class HttpDispatcher {
         BStruct inRequestEntity = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
         BStruct mediaType = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
-        HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource);
-        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
+        HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
+        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
         serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, connection);
 
-        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage);
+        HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
 
         SignatureParams signatureParams = httpResource.getSignatureParams();
@@ -201,19 +214,16 @@ public class HttpDispatcher {
             return bValues;
         }
         try {
-            bValues[bValues.length - 1] = populateAndGetEntityBody(httpResource, inRequest, inRequestEntity,
-                    signatureParams.getEntityBody().getVarType());
+            bValues[bValues.length - 1] = populateAndGetEntityBody(inRequest, inRequestEntity,
+                                                                   signatureParams.getEntityBody().getVarType());
         } catch (BallerinaException ex) {
             httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, HttpConstants.HTTP_BAD_REQUEST);
             throw new BallerinaConnectorException("data binding failed: " + ex.getMessage());
-        } catch (IOException ex) {
-            throw new BallerinaException(ex.getMessage());
         }
         return bValues;
     }
 
-    private static BValue populateAndGetEntityBody(HttpResource httpResource, BStruct inRequest,
-                                                   BStruct inRequestEntity, BType entityBodyType) throws IOException {
+    private static BValue populateAndGetEntityBody(BStruct inRequest, BStruct inRequestEntity, BType entityBodyType) {
         HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true);
         try {
             switch (entityBodyType.getTag()) {
@@ -250,8 +260,8 @@ public class HttpDispatcher {
         return null;
     }
 
-    public static boolean shouldDiffer(HttpResource httpResource, boolean hasFilters) {
-        return ((httpResource != null && httpResource.getSignatureParams().getEntityBody() != null) || hasFilters);
+    public static boolean shouldDiffer(HttpResource httpResource) {
+        return ((httpResource != null && httpResource.getSignatureParams().getEntityBody() != null));
     }
 
 }

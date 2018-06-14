@@ -20,11 +20,9 @@ package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.mime.util.Constants;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -39,17 +37,9 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListen
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
-import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketInitMessage;
-import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.net.http.HttpConstants.CONNECTION;
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
@@ -63,59 +53,38 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     private static final Logger log = LoggerFactory.getLogger(WebSocketServerConnectorListener.class);
     private final WebSocketServicesRegistry servicesRegistry;
     private final WebSocketConnectionManager connectionManager;
+    private final Struct httpEndpointConfig;
 
-    public WebSocketServerConnectorListener(WebSocketServicesRegistry servicesRegistry) {
+    public WebSocketServerConnectorListener(WebSocketServicesRegistry servicesRegistry, Struct httpEndpointConfig) {
         this.servicesRegistry = servicesRegistry;
         this.connectionManager = new WebSocketConnectionManager();
+        this.httpEndpointConfig = httpEndpointConfig;
     }
 
     @Override
     public void onMessage(WebSocketInitMessage webSocketInitMessage) {
-        HTTPCarbonMessage msg = ((DefaultWebSocketInitMessage) webSocketInitMessage).getHttpCarbonRequest();
-        Map<String, String> pathParams = new HashMap<>();
-        WebSocketService wsService =
-                WebSocketDispatcher.findService(servicesRegistry, pathParams, webSocketInitMessage, msg);
+        WebSocketService wsService = WebSocketDispatcher.findService(servicesRegistry, webSocketInitMessage);
 
-        Resource onUpgradeResource = wsService.getUpgradeResource();
+        HttpResource onUpgradeResource = wsService.getUpgradeResource();
         if (onUpgradeResource != null) {
-            BStruct httpServiceEndpoint = BLangConnectorSPIUtil.createBStruct(
-                    wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                    PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
-            BStruct httpConnection = BLangConnectorSPIUtil.createBStruct(
-                    wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                    PROTOCOL_PACKAGE_HTTP, CONNECTION);
+            webSocketInitMessage.getHttpCarbonRequest().setProperty(HttpConstants.RESOURCES_CORS,
+                                                                    onUpgradeResource.getCorsHeaders());
+            Resource balResource = onUpgradeResource.getBalResource();
+            BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketInitMessage
+                    .getHttpCarbonRequest(), httpEndpointConfig);
+
+            BStruct httpServiceEndpoint = (BStruct) signatureParams[0];
+            BStruct httpConnection = (BStruct) httpServiceEndpoint.getRefField(SERVICE_ENDPOINT_CONNECTION_INDEX);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
-            // TODO: Need to set remote, local and the protocol after the changes in transport is completed.
-            httpServiceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, httpConnection);
-
-            BStruct inRequest = BLangConnectorSPIUtil.createBStruct(
-                    WebSocketUtil.getProgramFile(wsService.getResources()[0]), PROTOCOL_PACKAGE_HTTP,
-                    HttpConstants.REQUEST);
-            BStruct inRequestEntity = BLangConnectorSPIUtil.createBStruct(
-                    WebSocketUtil.getProgramFile(wsService.getResources()[0]),
-                    org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
-
-            BStruct mediaType = BLangConnectorSPIUtil.createBStruct(
-                    WebSocketUtil.getProgramFile(wsService.getResources()[0]),
-                    org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
-
-            HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, msg,
-                                            WebSocketUtil.getProgramFile(wsService.getResources()[0]));
-
-            List<ParamDetail> paramDetails = onUpgradeResource.getParamDetails();
-            BValue[] bValues = new BValue[paramDetails.size()];
-            bValues[0] = httpServiceEndpoint;
-            bValues[1] = inRequest;
-            WebSocketDispatcher.setPathParams(bValues, paramDetails, pathParams, 2);
 
             // TODO: Need to revisit this code of observation.
             Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(
-                    SERVER_CONNECTOR_WEBSOCKET, onUpgradeResource.getServiceName(), onUpgradeResource.getName(),
+                    SERVER_CONNECTOR_WEBSOCKET, balResource.getServiceName(), balResource.getName(),
                     null);
 
-            Executor.submit(onUpgradeResource, new CallableUnitCallback() {
+            Executor.submit(balResource, new CallableUnitCallback() {
                 @Override
                 public void notifySuccess() {
                     if (!webSocketInitMessage.isCancelled() && !webSocketInitMessage.isHandshakeStarted()) {
@@ -147,7 +116,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 public void notifyFailure(BStruct error) {
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                 }
-            }, null, observerContext.orElse(null), bValues);
+            }, null, observerContext.orElse(null), signatureParams);
 
         } else {
             WebSocketUtil.handleHandshake(wsService, connectionManager, null, webSocketInitMessage, null, null);
@@ -179,8 +148,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
     }
 
     @Override
-    public void onError(Throwable throwable) {
-        log.error("Unexpected error occurred in WebSocket transport", throwable);
+    public void onError(WebSocketConnection webSocketConnection, Throwable throwable) {
+        WebSocketDispatcher.dispatchError(
+                connectionManager.removeConnectionInfo(webSocketConnection.getId()), throwable);
     }
 
     @Override

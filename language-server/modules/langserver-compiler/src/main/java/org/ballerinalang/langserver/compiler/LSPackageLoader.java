@@ -20,6 +20,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.PackageLoader;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.CodeAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SemanticAnalyzer;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -57,9 +58,9 @@ public class LSPackageLoader {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        BLangPackage builtInPkg = codeAnalyzer
-                .analyze(semAnalyzer.analyze(pkgLoader
-                        .loadAndDefinePackage(Names.BUILTIN_ORG.value, Names.BUILTIN_PACKAGE.getValue())));
+        BLangPackage builtInPkg =
+                codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
+                        Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue())));
         builtins.add(builtInPkg);
 
         return builtins;
@@ -72,6 +73,7 @@ public class LSPackageLoader {
      * @param packageID Package ID to resolve
      * @return {@link BLangPackage} Resolved BLang Package
      */
+    @Deprecated
     public static BLangPackage getPackageById(CompilerContext context, PackageID packageID) {
         BLangPackage bLangPackage = LSPackageCache.getInstance(context).get(packageID);
         if (bLangPackage == null) {
@@ -84,6 +86,22 @@ public class LSPackageLoader {
             }
         }
         return bLangPackage;
+    }
+
+    /**
+     * Get the package by ID via Package loader.
+     *
+     * @param context   Compiler context
+     * @param packageID Package ID to resolve
+     * @return {@link BLangPackage} Resolved BLang Package
+     */
+    public static BPackageSymbol getPackageSymbolById(CompilerContext context, PackageID packageID) {
+        BPackageSymbol packageSymbol;
+        synchronized (LSPackageLoader.class) {
+            PackageLoader pkgLoader = PackageLoader.getInstance(context);
+            packageSymbol = pkgLoader.loadPackageSymbol(packageID, null, null);
+        }
+        return packageSymbol;
     }
 
     /**

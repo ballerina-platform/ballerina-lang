@@ -34,15 +34,15 @@ public class AnnotationInfo implements AttributeInfoPool {
     public int nameCPIndex;
     public int signatureCPIndex;
     public int flags;
-    public int[] attachPointsCPIndexes;
+    public int attachPoints;
 
     private Map<AttributeInfo.Kind, AttributeInfo> attributeInfoMap = new HashMap<>();
 
-    public AnnotationInfo(int nameCPIndex, int signatureCPIndex, int flags, int[] attachPointsCPIndexes) {
+    public AnnotationInfo(int nameCPIndex, int signatureCPIndex, int flags, int attachPoints) {
         this.nameCPIndex = nameCPIndex;
         this.signatureCPIndex = signatureCPIndex;
         this.flags = flags;
-        this.attachPointsCPIndexes = attachPointsCPIndexes;
+        this.attachPoints = attachPoints;
     }
 
     public AttributeInfo getAttributeInfo(AttributeInfo.Kind attributeKind) {
