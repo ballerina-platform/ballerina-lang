@@ -149,19 +149,6 @@ public class SQLDBUtils {
         return fileAsString;
     }
 
-    private static void releaseResources(Connection connection, Statement st) {
-        try {
-            if (st != null) {
-                st.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        } catch (SQLException e) {
-            //Do nothing
-        }
-    }
-
     /**
      * This class represents a database used for testing data clients.
      */
@@ -247,6 +234,9 @@ public class SQLDBUtils {
         }
     }
 
+    /**
+     * Database types used for testing data clients.
+     */
     public enum DBType {
         MYSQL, ORACLE, POSTGRES, HSQLDB, H2
     }
