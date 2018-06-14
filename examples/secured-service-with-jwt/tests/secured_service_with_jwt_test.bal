@@ -30,7 +30,7 @@ function testAuthSuccess() {
     // create client
     endpoint http:Client httpEndpoint {
         url: "https://localhost:9090",
-        auth: { scheme: "jwt" }
+        auth: { scheme: http:JWT_AUTH }
     };
     // Send a GET request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
@@ -47,7 +47,7 @@ function testAuthnFailure() {
     // Create a client.
     endpoint http:Client httpEndpoint {
         url: "https://localhost:9090",
-        auth: { scheme: "jwt" }
+        auth: { scheme: http:JWT_AUTH }
     };
     // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
@@ -63,7 +63,7 @@ function testAuthnFailure() {
 function testAuthzFailure() {
     // Create a client.
     endpoint http:Client httpEndpoint { url: "https://localhost:9090",
-        auth: { scheme: "jwt" } };
+        auth: { scheme: http:JWT_AUTH } };
     // Send a `GET` request to the specified endpoint
     var response = httpEndpoint->get("/hello/sayHello");
     match response {
