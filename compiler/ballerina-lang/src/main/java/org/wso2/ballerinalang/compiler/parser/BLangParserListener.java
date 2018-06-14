@@ -58,10 +58,10 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private String pkgVersion;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
-                        BDiagnosticSource diagnosticSource, BLangDiagnosticLog dlog) {
+                        BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
-        this.dlog = dlog;
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     @Override

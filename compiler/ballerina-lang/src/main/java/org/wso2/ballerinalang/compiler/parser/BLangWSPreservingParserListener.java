@@ -27,7 +27,6 @@ import org.ballerinalang.model.tree.CompilationUnitNode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaLexer;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 
 import java.util.Iterator;
 import java.util.Set;
@@ -57,9 +56,8 @@ public class BLangWSPreservingParserListener extends BLangParserListener {
     public BLangWSPreservingParserListener(CompilerContext context,
                                            CommonTokenStream tokenStream,
                                            CompilationUnitNode compUnit,
-                                           BDiagnosticSource diagnosticSrc,
-                                           BLangDiagnosticLog dlog) {
-        super(context, compUnit, diagnosticSrc, dlog);
+                                           BDiagnosticSource diagnosticSrc) {
+        super(context, compUnit, diagnosticSrc);
         this.tokenStream = tokenStream;
         this.compUnit = compUnit;
         createNewRange(-1); // a fake range, repressions stuff before CompilationUnit.
