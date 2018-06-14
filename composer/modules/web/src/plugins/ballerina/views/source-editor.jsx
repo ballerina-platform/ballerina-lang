@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
@@ -174,10 +175,7 @@ class SourceEditor extends React.Component {
         if (!modelForFile) {
             modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
         }
-        modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
-            if (this.shouldIgnoreChangeEvt()) {
-                return;
-            }
+        const debouncedSetContent = _.debounce(() => {
             const changeEvent = {
                 type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
                 title: 'Modify source',
@@ -187,6 +185,13 @@ class SourceEditor extends React.Component {
             };
             this.props.file
                 .setContent(editorInstance.getValue(), changeEvent);
+        },
+        400);
+        modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
+            if (this.shouldIgnoreChangeEvt()) {
+                return;
+            }
+            debouncedSetContent();
         });
         // this.props.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
         editorInstance.setModel(modelForFile);
