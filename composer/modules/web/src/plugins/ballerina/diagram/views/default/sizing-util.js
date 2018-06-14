@@ -649,6 +649,8 @@ class SizingUtil {
         const textWidth = this.getTextWidth(node.getName().value, 0);
         viewState.titleWidth = textWidth.w;
         viewState.trimmedTitle = textWidth.text;
+
+        cmp.serverConnector.typeName = this.getTextWidth(node.getType(), 0);
         // set the heading height
         cmp.heading.h = this.config.panel.heading.height;
 

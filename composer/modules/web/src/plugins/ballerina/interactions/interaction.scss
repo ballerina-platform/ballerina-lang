@@ -129,10 +129,16 @@
     position: relative;
     float:left;
     background: #f1f1f1;
-    overflow-y: scroll;
+    overflow: visible;
     margin-left: 1px;
     color: #333;
     padding-bottom: 0;
+    
+}
+
+.suggest-list{
+    overflow-y: scroll;
+    overflow-x: hidden;
     max-height: 400px;
 }
 
