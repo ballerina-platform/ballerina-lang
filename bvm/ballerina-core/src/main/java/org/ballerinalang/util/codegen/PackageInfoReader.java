@@ -1655,13 +1655,16 @@ public class PackageInfoReader {
     }
 
     private String getPackagePath(String orgName, String pkgName, String version) {
+        if (Names.DOT.value.equals(pkgName)) {
+            return pkgName;
+        }
         if (orgName.equals(Names.ANON_ORG.value)) {
             orgName = "";
         } else {
             orgName = orgName + Names.ORG_NAME_SEPARATOR.value;
         }
 
-        if (Names.DEFAULT_VERSION.value.equals(version) || Names.EMPTY.value.equals(version)) {
+        if (Names.EMPTY.value.equals(version)) {
             return orgName + pkgName;
         }
 
