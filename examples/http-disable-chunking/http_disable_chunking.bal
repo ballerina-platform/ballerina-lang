@@ -44,7 +44,7 @@ service<http:Service> echo bind { port: 9090 } {
         string value;
         //Set the response according to the request headers.
         if (req.hasHeader("content-length")) {
-            value = "Lenght-" + req.getHeader("content-length");
+            value = "Length-" + req.getHeader("content-length");
         } else if (req.hasHeader("Transfer-Encoding")) {
             value = req.getHeader("Transfer-Encoding");
         } else {
