@@ -69,7 +69,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
 
     private TargetHandler targetHandler;
     private boolean httpTraceLogEnabled;
-    private boolean followRedirect;
     private boolean validateCertEnabled;
     private int maxRedirectCount;
     private int cacheSize;
@@ -91,8 +90,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
     public HttpClientChannelInitializer(SenderConfiguration senderConfiguration, HttpRoute httpRoute,
             ConnectionManager connectionManager, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
         this.httpTraceLogEnabled = senderConfiguration.isHttpTraceLogEnabled();
-        this.followRedirect = senderConfiguration.isFollowRedirect();
-        this.maxRedirectCount = senderConfiguration.getMaxRedirectCount(Constants.MAX_REDIRECT_COUNT);
         this.keepAliveConfig = senderConfiguration.getKeepAliveConfig();
         this.proxyServerConfiguration = senderConfiguration.getProxyServerConfiguration();
         this.connectionManager = connectionManager;
@@ -278,14 +275,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                     new HTTPTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
         }
-        if (followRedirect) {
-            if (log.isDebugEnabled()) {
-                log.debug("Follow Redirect is enabled, so adding the redirect handler to the pipeline.");
-            }
-            RedirectHandler redirectHandler = new RedirectHandler(instantiateAndConfigSSL(sslConfig),
-                    httpTraceLogEnabled, maxRedirectCount, connectionManager);
-            pipeline.addLast(Constants.REDIRECT_HANDLER, redirectHandler);
-        }
     }
 
     /**
@@ -316,15 +305,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
      */
     public Http2Connection getConnection() {
         return connection;
-    }
-
-    /**
-     * Checks whether redirection is enabled.
-     *
-     * @return whether redirection is enabled
-     */
-    public boolean isFollowRedirect() {
-        return followRedirect;
     }
 
     /**
