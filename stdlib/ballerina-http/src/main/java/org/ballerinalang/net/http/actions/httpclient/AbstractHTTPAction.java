@@ -19,6 +19,7 @@
 package org.ballerinalang.net.http.actions.httpclient;
 
 import io.netty.handler.codec.EncoderException;
+import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
@@ -236,6 +237,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
     protected void executeNonBlockingAction(DataContext dataContext, boolean async) {
         HTTPCarbonMessage outboundRequestMsg = dataContext.getOutboundRequest();
+
+        //Make the request associate with this response consumable again so that it can be reused.
+        checkDirtiness(dataContext, outboundRequestMsg);
+
         Object sourceHandler = outboundRequestMsg.getProperty(HttpConstants.SRC_HANDLER);
         if (sourceHandler == null) {
             outboundRequestMsg.setProperty(HttpConstants.SRC_HANDLER,
@@ -254,6 +259,39 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         outboundRequestMsg.setProperty(HttpConstants.ORIGIN_HOST,
                                        dataContext.context.getProperty(HttpConstants.ORIGIN_HOST));
         sendOutboundRequest(dataContext, outboundRequestMsg, async);
+    }
+
+    private void checkDirtiness(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg) {
+        BStruct requestStruct = ((BStruct) dataContext.context.
+                getNullableRefArgument(HttpConstants.REQUEST_STRUCT_INDEX));
+        String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
+        outboundRequestMsg.setIoException(null);
+        if (requestStruct != null) {
+            if (dirty(requestStruct)) {
+                cleanOutboundReq(outboundRequestMsg, requestStruct, contentType);
+            } else {
+                requestStruct.setBooleanField(HttpConstants.REQUEST_REUSE_STATUS_INDEX, HttpConstants.DIRTY_REQUEST);
+            }
+        }
+    }
+
+    private void cleanOutboundReq(HTTPCarbonMessage outboundRequestMsg, BStruct requestStruct, String contentType) {
+        BStruct entityStruct = extractEntity(requestStruct);
+        if (entityStruct != null) {
+            MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
+            if (messageDataSource == null && EntityBodyHandler.getByteChannel(entityStruct) == null
+                    && !HeaderUtil.isMultipart(contentType)) {
+                outboundRequestMsg.addHttpContent(new DefaultLastHttpContent());
+            } else {
+                outboundRequestMsg.waitAndReleaseAllEntities();
+            }
+        } else {
+            outboundRequestMsg.addHttpContent(new DefaultLastHttpContent());
+        }
+    }
+
+    private boolean dirty(BStruct requestStruct) {
+        return requestStruct.getBooleanField(HttpConstants.REQUEST_REUSE_STATUS_INDEX) == HttpConstants.DIRTY_REQUEST;
     }
 
     private void sendOutboundRequest(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg, boolean async) {
@@ -314,6 +352,13 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             // We don't have to do anything here as the client connector will notify
             // the error though the listener
             logger.warn("couldn't serialize the message", serializerException);
+        } catch (RuntimeException exception) {
+            if (exception.getMessage() != null &&
+                    exception.getMessage().contains(Constants.INBOUND_RESPONSE_ALREADY_RECEIVED)) {
+                logger.warn("Response already received before completing the outbound request", exception);
+            } else {
+                throw exception;
+            }
         }
     }
 
@@ -380,18 +425,12 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         if (entityStruct != null) {
             MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
-                try {
-                    messageDataSource.serializeData(messageOutputStream);
-                } finally {
-                    HttpUtil.closeMessageOutputStream(messageOutputStream);
-                }
+                messageDataSource.serializeData(messageOutputStream);
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else { //When the entity body is a byte channel and when it is not null
                 if (EntityBodyHandler.getByteChannel(entityStruct) != null) {
-                    try {
-                        EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
-                    } finally {
-                        HttpUtil.closeMessageOutputStream(messageOutputStream);
-                    }
+                    EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+                    HttpUtil.closeMessageOutputStream(messageOutputStream);
                 }
             }
         }
@@ -415,7 +454,6 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         @Override
         public void onMessage(HTTPCarbonMessage inboundResponseMessage) {
-            this.outboundMsgDataStreamer.setIoException(new IOException("Response message already received"));
             this.dataContext.notifyInboundResponseStatus
                     (HttpUtil.createResponseStruct(this.dataContext.context, inboundResponseMessage), null);
         }
