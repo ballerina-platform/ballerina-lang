@@ -123,7 +123,7 @@ export function getContextMenuItems(node, parentNode, command,
                         onNodeRefresh(parentNode);
                     })
                     .catch((err) => {
-                        log.error(err);
+                        log.error(err.message);
                     });
             };
             if (editor.isFileOpenedInEditor(node.id)) {

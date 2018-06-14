@@ -19,6 +19,7 @@
 package org.ballerinalang.nativeimpl.io.utils;
 
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
@@ -58,8 +59,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.Function;
 
-import static org.ballerinalang.nativeimpl.io.IOConstants.BALLERINA_BUILTIN;
-import static org.ballerinalang.nativeimpl.io.IOConstants.IO_ERROR_STRUCT;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Represents the util functions of IO operations.
@@ -73,8 +73,8 @@ public class IOUtils {
      * @return error message struct.
      */
     public static BStruct createError(Context context, String message) {
-        PackageInfo ioPkg = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN);
-        StructureTypeInfo error = ioPkg.getStructInfo(IO_ERROR_STRUCT);
+        PackageInfo ioPkg = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
+        StructureTypeInfo error = ioPkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         return BLangVMStructs.createBStruct(error, message);
     }
 

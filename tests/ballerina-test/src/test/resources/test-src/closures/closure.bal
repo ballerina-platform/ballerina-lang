@@ -105,8 +105,6 @@ function out2ndFunc(int out2ndParam) returns (function (int) returns int) {
     int out2ndFuncLocal = 8;
     int f = 45;
     var out1stFunc = (int out1stParam) => (int) {
-        int e = 45;
-        int f = 45;
         var inner1Func = (int inner1Param) => (int) {
                 int g = out2ndFuncLocal + out2ndParam;
                 int h = out1stParam + inner1Param;
@@ -385,13 +383,11 @@ function testVariableShadowingInClosure1(int a) returns function (float) returns
     float f = 5.6;
 
     if (a < 10) {
-        int a = 4;
         b = a + b + <int>f;
     }
 
     var foo = (float f) => (string) {
         if (a > 8) {
-            int a = 6;
             b = a + <int>f + b;
         }
         return "Ballerina" + b;
@@ -412,20 +408,17 @@ function testVariableShadowingInClosure2(int a) returns function (float) returns
     boolean boo = true;
 
     if (a < 10) {
-        int a = 4;
         b = a + b + <int>f;
     }
 
     var fooOut = (float f) => (function (float, boolean) returns (string)) {
         if (a > 8) {
-            int a = 6;
             b = a + <int>f + b;
         }
         string s = "Out" + b;
 
         var fooIn = (float f, boolean boo) => (string) {
             if (a > 8 && !boo) {
-                int a = 6;
                 b = a + <int>f + b;
             }
             return s + "In" + b + "Ballerina!!!";
@@ -450,27 +443,23 @@ function testVariableShadowingInClosure3(int a) returns (function (float) return
     boolean boo = true;
 
     if (a < 10) {
-        int a = 4;
         b = a + b + <int>f;
     }
 
     var fooOutMost = (float f) => (function (float) returns (function (float, boolean) returns (string))) {
         if (a > 8) {
-            int a = 6;
             b = a + <int>f + b;
         }
         string sOut = "OutMost" + b;
 
         var fooOut = (float f) => (function (float, boolean) returns (string)) {
             if (a == 9) {
-                int a = 10;
                 b = a + <int>f + b;
             }
             string s = sOut + "Out" + b;
 
             var fooIn = (float f, boolean boo) => (string) {
                 if (a > 8 && !boo) {
-                    int a = 12;
                     b = a + <int>f + b;
                 }
                 return s + "In" + b + "Ballerina!!!";
@@ -499,15 +488,12 @@ function testVariableShadowingInClosure4() returns (function (float) returns (fu
     boolean boo = true;
 
     var fooOutMost = (float f) => (function (float) returns (function (float, boolean) returns (string))) {
-        int a = 8;
         string sOut = "OutMost" + b + a;
 
         var fooOut = (float f) => (function (float, boolean) returns (string)) {
-            int a = 9;
             string s = sOut + "Out" + b + a;
 
             var fooIn = (float f, boolean boo) => (string) {
-                int a = 10;
                 b = a + <int>f + b;
                 return s + "In" + b + "Ballerina!!!";
             };

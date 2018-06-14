@@ -477,10 +477,10 @@ VariableReferenceList ::= VariableReference (COMMA VariableReference)* {pin(".*"
 
 IfElseStatement ::= IfClause ElseIfClause* ElseClause? /*{pin=1}*/
 
-IfClause ::= if (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
+IfClause ::= if Expression (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
 
 ElseIfClause ::= else pinnedElseClause
-private pinnedElseClause ::= if (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS (LEFT_BRACE Block RIGHT_BRACE)) {pin(".*")=1}
+private pinnedElseClause ::= if Expression (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
 
 ElseClause ::= else (LEFT_BRACE Block RIGHT_BRACE) {pin(".*")=1}
 
@@ -499,7 +499,7 @@ private openRange ::= Expression RANGE Expression {pin=2}
 private closedRange ::= (LEFT_BRACKET|LEFT_PARENTHESIS) Expression RANGE Expression (RIGHT_BRACKET|RIGHT_PARENTHESIS) {pin=3}
 
 // Todo - pin 1?
-WhileStatement ::= while (LEFT_PARENTHESIS Expression RIGHT_PARENTHESIS WhileStatementBody) {pin(".*")=1}
+WhileStatement ::= while Expression WhileStatementBody {pin(".*")=1}
 
 WhileStatementBody ::= LEFT_BRACE Block RIGHT_BRACE {pin=1}
 

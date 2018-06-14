@@ -55,7 +55,7 @@ public class TesterinaSamplesTest {
         TesterinaRegistry.getInstance().setOrgName("$anon");
         BTestRunner runner = new BTestRunner();
         runner.runTest(testerinaRoot, new Path[] { Paths.get("functionTest") }, new ArrayList<>());
-        Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionTest", "passed"), 6);
+        Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionTest:0.0.0", "passed"), 6);
         // Reset the org name
     }
 

@@ -48,7 +48,7 @@ import java.security.interfaces.RSAPublicKey;
                 @Argument(name = "signature", type = TypeKind.STRING),
                 @Argument(name = "algorithm", type = TypeKind.STRING),
                 @Argument(name = "trustStore", type = TypeKind.RECORD, structType = "TrustStoreHolder",
-                        structPackage = "ballerina.internal")
+                        structPackage = "ballerina/internal")
         },
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true

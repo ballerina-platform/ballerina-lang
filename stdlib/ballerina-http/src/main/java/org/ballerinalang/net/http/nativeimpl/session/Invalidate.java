@@ -37,7 +37,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         orgName = "ballerina", packageName = "http",
         functionName = "invalidate",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         isPublic = true
 )
 public class Invalidate extends BlockingNativeCallableUnit {

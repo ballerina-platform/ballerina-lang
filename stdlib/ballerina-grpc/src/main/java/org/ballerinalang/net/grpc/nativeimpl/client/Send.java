@@ -34,10 +34,10 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Native function to respond the server.
@@ -52,7 +52,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.REQUEST_SENDER;
                 structPackage = GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC),
         args = {@Argument(name = "res", type = TypeKind.ANY)},
         returnType = @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage =
-                PACKAGE_BUILTIN),
+                BALLERINA_BUILTIN_PKG),
         isPublic = true
 )
 public class Send extends BlockingNativeCallableUnit {

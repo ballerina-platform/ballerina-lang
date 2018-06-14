@@ -45,7 +45,7 @@ import java.sql.SQLException;
  */
 public class TableUtils {
     private static final String TABLE_OPERATION_ERROR = "error";
-    private static final String TABLE_PACKAGE_PATH = "ballerina.builtin";
+    private static final String TABLE_PACKAGE_PATH = BLangConstants.BALLERINA_BUILTIN_PKG;
     private static final String EXCEPTION_OCCURRED = "Exception occurred";
 
     public static String generateInsertDataStatment(String tableName, BStruct constrainedType) {

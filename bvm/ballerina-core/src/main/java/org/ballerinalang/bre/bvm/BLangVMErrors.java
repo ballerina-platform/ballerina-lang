@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_RUNTIME_PKG;
+
 /**
  * Util Class for handling Error in Ballerina VM.
  *
@@ -43,8 +46,6 @@ public class BLangVMErrors {
     private static final String DEFAULT_PKG_PATH = ".";
     private static final String MSG_CALL_FAILED = "call failed";
     private static final String MSG_CALL_CANCELLED = "call cancelled";
-    public static final String PACKAGE_BUILTIN = "ballerina.builtin";
-    public static final String PACKAGE_RUNTIME = "ballerina.runtime";
     public static final String STRUCT_GENERIC_ERROR = "error";
     private static final String STRUCT_NULL_REF_EXCEPTION = "NullReferenceException";
     private static final String STRUCT_ILLEGAL_STATE_EXCEPTION = "IllegalStateException";
@@ -122,7 +123,7 @@ public class BLangVMErrors {
     /* Type Specific Errors */
 
     public static BStruct createNullRefException(Context context) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_RUNTIME);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_RUNTIME_PKG);
         StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
         if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaConnectorException("record - " + STRUCT_NULL_REF_EXCEPTION + " does not exist");
@@ -131,7 +132,7 @@ public class BLangVMErrors {
     }
 
     public static BStruct createNullRefException(WorkerExecutionContext context) {
-        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(BALLERINA_RUNTIME_PKG);
         StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_NULL_REF_EXCEPTION);
         if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaConnectorException("record - " + STRUCT_NULL_REF_EXCEPTION + " does not exist");
@@ -140,7 +141,7 @@ public class BLangVMErrors {
     }
 
     public static BStruct createCallFailedException(WorkerExecutionContext context, Map<String, BStruct> errors) {
-        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(BALLERINA_RUNTIME_PKG);
         StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
         if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaConnectorException("record - " + STRUCT_CALL_FAILED_EXCEPTION + " does not exist");
@@ -150,7 +151,7 @@ public class BLangVMErrors {
     }
 
     public static BStruct createCallCancelledException(WorkerExecutionContext context) {
-        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_RUNTIME);
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(BALLERINA_RUNTIME_PKG);
         StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_CALL_FAILED_EXCEPTION);
         if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaConnectorException("record - " + STRUCT_CALL_FAILED_EXCEPTION + " does not exist");
@@ -159,7 +160,7 @@ public class BLangVMErrors {
     }
 
     public static BStruct createIllegalStateException(Context context, String msg) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_RUNTIME);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_RUNTIME_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_ILLEGAL_STATE_EXCEPTION);
         return createError(context, true, errorStructInfo, msg);
     }
@@ -177,7 +178,7 @@ public class BLangVMErrors {
     }
 
     private static BStruct generateError(WorkerExecutionContext context, boolean attachCallStack, Object... values) {
-        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(PACKAGE_BUILTIN);
+        PackageInfo errorPackageInfo = context.programFile.getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaConnectorException("record - " + STRUCT_GENERIC_ERROR + " does not exist");
@@ -188,7 +189,7 @@ public class BLangVMErrors {
     private static BStruct generateError(ProgramFile programFile, CallableUnitInfo callableUnitInfo,
                                          boolean attachCallStack, Object... values) {
         ProgramFile progFile = callableUnitInfo.getPackageInfo().getProgramFile();
-        PackageInfo errorPackageInfo = progFile.getPackageInfo(PACKAGE_BUILTIN);
+        PackageInfo errorPackageInfo = progFile.getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo typeInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaConnectorException("record - " + STRUCT_GENERIC_ERROR + " does not exist");
@@ -242,7 +243,7 @@ public class BLangVMErrors {
             return null;
         }
         
-        PackageInfo runtimePackage = programFile.getPackageInfo(PACKAGE_RUNTIME);
+        PackageInfo runtimePackage = programFile.getPackageInfo(BALLERINA_RUNTIME_PKG);
         StructureTypeInfo typeInfo = runtimePackage.getStructInfo(STRUCT_CALL_STACK_ELEMENT);
         if (typeInfo == null || typeInfo.getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
             throw new BallerinaConnectorException("record - " + STRUCT_CALL_STACK_ELEMENT + " does not exist");
@@ -323,7 +324,7 @@ public class BLangVMErrors {
         BStruct stackFrame = (BStruct) error.getNativeData(STRUCT_CALL_STACK_ELEMENT);
         // Append function/action/resource name with package path (if any)
         if (stackFrame.getStringField(1).isEmpty() || DEFAULT_PKG_PATH.equals(stackFrame.getStringField(1)) 
-                || stackFrame.getStringField(1).equals(PACKAGE_BUILTIN)) {
+                || stackFrame.getStringField(1).equals(BALLERINA_BUILTIN_PKG)) {
             sb.append(stackFrame.getStringField(0));
         } else {
             sb.append(stackFrame.getStringField(1)).append(":").append(stackFrame.getStringField(0));
@@ -356,7 +357,7 @@ public class BLangVMErrors {
     private static String getErrorMessage(BStruct error) {
         String errorMsg = error.getType().getName();
         if (error.getType().getPackagePath() != null && !error.getType().getPackagePath().equals(DEFAULT_PKG_PATH) &&
-                !error.getType().getPackagePath().equals(PACKAGE_BUILTIN)) {
+                !error.getType().getPackagePath().equals(BALLERINA_BUILTIN_PKG)) {
             errorMsg = error.getType().getPackagePath() + ":" + errorMsg;
         }
 

@@ -37,7 +37,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgeme
                    functionName = "acknowledge",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = "QueueReceiverActions",
-                                        structPackage = "ballerina.jms"),
+                                        structPackage = "ballerina/jms"),
                    args = {
                            @Argument(name = "message",
                                      type = TypeKind.OBJECT,
@@ -45,7 +45,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.MessageAcknowledgeme
                    },
                    returnType = {
                            @ReturnType(type = TypeKind.OBJECT,
-                                       structPackage = "ballerina.jms",
+                                       structPackage = "ballerina/jms",
                                        structType = "Message")
                    },
                    isPublic = true

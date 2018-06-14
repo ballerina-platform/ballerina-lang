@@ -59,7 +59,7 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
         orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         isPublic = true
 )
 public class InitEndpoint extends BlockingNativeCallableUnit {
@@ -83,8 +83,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             HTTPServicesRegistry httpServicesRegistry = new HTTPServicesRegistry(webSocketServicesRegistry);
             serviceEndpoint.addNativeData(HttpConstants.HTTP_SERVICE_REGISTRY, httpServicesRegistry);
             serviceEndpoint.addNativeData(HttpConstants.WS_SERVICE_REGISTRY, webSocketServicesRegistry);
-            // set filters
-            setFilters(serviceEndpointConfig, serviceEndpoint);
 
             context.setReturnValues((BValue) null);
         } catch (Throwable throwable) {
@@ -92,20 +90,6 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             context.setReturnValues(errorStruct);
         }
 
-    }
-
-    /**
-     * Extract and attach the ordered set of filters to the service endpoint.
-     * @param endpointConfig endpoint configuration
-     * @param serviceEndpoint service endpoint object
-     */
-    private void setFilters (Struct endpointConfig, Struct serviceEndpoint) {
-        Value[] filterValues = endpointConfig.getArrayField(HttpConstants.ENDPOINT_CONFIG_FILTERS);
-        if (filterValues == null) {
-            // no filters
-            return;
-        }
-        serviceEndpoint.addNativeData(HttpConstants.FILTERS, filterValues);
     }
 
     private ListenerConfiguration getListenerConfig(Struct endpointConfig) {

@@ -343,7 +343,7 @@ public class ServiceProtoUtils {
                     requestType = tempType;
                     break;
                 }
-                if ("ballerina.grpc:Listener".equals(tempType.tsymbol.toString()) || "ballerina.grpc:Headers"
+                if ("ballerina/grpc:Listener".equals(tempType.tsymbol.toString()) || "ballerina/grpc:Headers"
                         .equals(tempType.tsymbol.toString())) {
                     continue;
                 }
@@ -536,7 +536,7 @@ public class ServiceProtoUtils {
     public static com.google.protobuf.Descriptors.FileDescriptor getDescriptor(
             org.ballerinalang.connector.api.Service service) throws GrpcServerException {
         try {
-            List<Annotation> annotationList = service.getAnnotationList("ballerina.grpc", "ServiceDescriptor");
+            List<Annotation> annotationList = service.getAnnotationList("ballerina/grpc", "ServiceDescriptor");
             if (annotationList == null || annotationList.size() != 1) {
                 throw new GrpcServerException("Couldn't find the service descriptor.");
             }

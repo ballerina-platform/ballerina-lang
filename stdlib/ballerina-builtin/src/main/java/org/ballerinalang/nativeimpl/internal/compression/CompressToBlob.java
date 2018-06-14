@@ -39,7 +39,7 @@ import java.nio.file.Path;
         orgName = "ballerina", packageName = "internal",
         functionName = "compressToBlob",
         args = {@Argument(name = "dirPath", type = TypeKind.RECORD, structType = "Path",
-                structPackage = "ballerina.file")},
+                structPackage = "ballerina/file")},
         returnType = {@ReturnType(type = TypeKind.BLOB)},
         isPublic = true
 )

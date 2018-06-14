@@ -39,6 +39,7 @@
             <package name="org.ballerinalang.test.auth"/>
             <package name="org.ballerinalang.test.securelistener"/>
             <package name="org.ballerinalang.test.service.websocket"/>
+            <package name="org.ballerinalang.test.invocationcontext"/>
         </packages>
     </test>
 
@@ -64,6 +65,8 @@
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingNestedStructTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingEmptyValueTestCase"/>
             <class name="org.ballerinalang.test.service.grpc.sample.UnaryBlockingArrayValueTestCase"/>
+            <class name="org.ballerinalang.test.service.grpc.tool.ClientStubGeneratorTestCase" />
+            <class name="org.ballerinalang.test.service.grpc.tool.InvalidServiceContractTestCase" />
         </classes>
     </test>
 

@@ -92,31 +92,31 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
 
     Company c1 = { id: 100, name: "ABC" };
 
-    table<Person> dt1 = table{};
-    table<Person> dt2 = table{};
+    table<Person> dt3 = table{};
+    table<Person> dt4 = table{};
     table<Company> ct1 = table{};
 
-    _ = dt1.add(p1);
-    _ = dt1.add(p2);
+    _ = dt3.add(p1);
+    _ = dt3.add(p2);
 
-    _ = dt2.add(p3);
+    _ = dt4.add(p3);
 
     _ = ct1.add(c1);
 
-    int count1 = dt1.count();
+    int count1 = dt3.count();
     int[] dt1data;
     int i = 0;
-    while (dt1.hasNext()) {
-        Person p = check <Person>dt1.getNext();
+    while (dt3.hasNext()) {
+        Person p = check <Person>dt3.getNext();
         dt1data[i] = p.id;
         i = i + 1;
     }
 
-    int count2 = dt2.count();
+    int count2 = dt4.count();
     int[] dt2data;
     i = 0;
-    while (dt2.hasNext()) {
-        Person p = check <Person>dt2.getNext();
+    while (dt4.hasNext()) {
+        Person p = check <Person>dt4.getNext();
         dt2data[i] = p.id;
         i = i + 1;
     }
@@ -135,8 +135,8 @@ function testAddData() returns (int, int, int, int[], int[], int[]) {
 function testTableAddInvalid() returns string {
     Company c1 = { id: 100, name: "ABC" };
 
-    table<Person> dt1 = table{};
-    var ret = dt1.add(c1);
+    table<Person> dt3 = table{};
+    var ret = dt3.add(c1);
     string s;
     match (ret) {
         error e => s = e.message;
@@ -150,25 +150,25 @@ function testMultipleAccess() returns (int, int, int[], int[]) {
     Person p2 = { id: 2, age: 20, salary: 200.50, name: "martin", married: true };
     Person p3 = { id: 3, age: 32, salary: 100.50, name: "john", married: false };
 
-    table<Person> dt1 = table{};
-    _ = dt1.add(p1);
-    _ = dt1.add(p2);
-    _ = dt1.add(p3);
+    table<Person> dt3 = table{};
+    _ = dt3.add(p1);
+    _ = dt3.add(p2);
+    _ = dt3.add(p3);
 
-    int count1 = dt1.count();
+    int count1 = dt3.count();
     int[] dtdata1;
     int i = 0;
-    while (dt1.hasNext()) {
-        Person p = check <Person>dt1.getNext();
+    while (dt3.hasNext()) {
+        Person p = check <Person>dt3.getNext();
         dtdata1[i] = p.id;
         i = i + 1;
     }
 
-    int count2 = dt1.count();
+    int count2 = dt3.count();
     int[] dtdata2;
     i = 0;
-    while (dt1.hasNext()) {
-        Person p = check <Person>dt1.getNext();
+    while (dt3.hasNext()) {
+        Person p = check <Person>dt3.getNext();
         dtdata2[i] = p.id;
         i = i + 1;
     }
@@ -253,11 +253,11 @@ function testTableWithAllDataToJson() returns (json) {
     TypeTest t1 = { id: 1, jsonData: j1, xmlData: x1 };
     TypeTest t2 = { id: 2, jsonData: j1, xmlData: x1 };
 
-    table<TypeTest> dt1 = table{};
-    _ = dt1.add(t1);
-    _ = dt1.add(t2);
+    table<TypeTest> dt3 = table{};
+    _ = dt3.add(t1);
+    _ = dt3.add(t2);
 
-    json j = check <json>dt1;
+    json j = check <json>dt3;
     return j;
 }
 
@@ -267,11 +267,11 @@ function testTableWithAllDataToXml() returns (xml) {
     TypeTest t1 = { id: 1, jsonData: j1, xmlData: x1 };
     TypeTest t2 = { id: 2, jsonData: j1, xmlData: x1 };
 
-    table<TypeTest> dt1 = table{};
-    _ = dt1.add(t1);
-    _ = dt1.add(t2);
+    table<TypeTest> dt3 = table{};
+    _ = dt3.add(t1);
+    _ = dt3.add(t2);
 
-    xml x = check <xml>dt1;
+    xml x = check <xml>dt3;
     return x;
 }
 
@@ -281,13 +281,13 @@ function testTableWithAllDataToStruct() returns (json, xml) {
     xml x1 = xml `<book>The Lost World</book>`;
     TypeTest t1 = { id: 1, jsonData: j1, xmlData: x1 };
 
-    table<TypeTest> dt1 = table{};
-    _ = dt1.add(t1);
+    table<TypeTest> dt3 = table{};
+    _ = dt3.add(t1);
 
     json jData;
     xml xData;
-    while (dt1.hasNext()) {
-        TypeTest x = check <TypeTest>dt1.getNext();
+    while (dt3.hasNext()) {
+        TypeTest x = check <TypeTest>dt3.getNext();
         jData = x.jsonData;
         xData = x.xmlData;
     }
@@ -299,10 +299,10 @@ function testTableWithBlobDataToJson() returns (json) {
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
-    table<BlobTypeTest> dt1 = table{};
-    _ = dt1.add(t1);
+    table<BlobTypeTest> dt3 = table{};
+    _ = dt3.add(t1);
 
-    json j = check <json>dt1;
+    json j = check <json>dt3;
     return j;
 }
 
@@ -311,10 +311,10 @@ function testTableWithBlobDataToXml() returns (xml) {
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
-    table<BlobTypeTest> dt1 = table{};
-    _ = dt1.add(t1);
+    table<BlobTypeTest> dt3 = table{};
+    _ = dt3.add(t1);
 
-    xml x = check <xml>dt1;
+    xml x = check <xml>dt3;
     return x;
 }
 
@@ -323,12 +323,12 @@ function testTableWithBlobDataToStruct() returns (blob) {
     blob content = text.toBlob("UTF-8");
     BlobTypeTest t1 = { id: 1, blobData: content };
 
-    table<BlobTypeTest> dt1 = table{};
-    _ = dt1.add(t1);
+    table<BlobTypeTest> dt3 = table{};
+    _ = dt3.add(t1);
 
     blob bData;
-    while (dt1.hasNext()) {
-        BlobTypeTest x = check <BlobTypeTest>dt1.getNext();
+    while (dt3.hasNext()) {
+        BlobTypeTest x = check <BlobTypeTest>dt3.getNext();
         bData = x.blobData;
     }
     return bData;
@@ -337,30 +337,30 @@ function testTableWithBlobDataToStruct() returns (blob) {
 function testTableWithAnyDataToJson() returns (json) {
     AnyTypeTest t1 = { id: 1, anyData: "Sample Text" };
 
-    table<AnyTypeTest> dt1 = table{};
-    _ = dt1.add(t1);
+    table<AnyTypeTest> dt3 = table{};
+    _ = dt3.add(t1);
 
-    json j = check <json>dt1;
+    json j = check <json>dt3;
     return j;
 }
 
 function testStructWithDefaultDataToJson() returns (json) {
     Person p1 = { id: 1 };
 
-    table<Person> dt1 = table{};
-    _ = dt1.add(p1);
+    table<Person> dt3 = table{};
+    _ = dt3.add(p1);
 
-    json j = check <json>dt1;
+    json j = check <json>dt3;
     return j;
 }
 
 function testStructWithDefaultDataToXml() returns (xml) {
     Person p1 = { id: 1 };
 
-    table<Person> dt1 = table{};
-    _ = dt1.add(p1);
+    table<Person> dt3 = table{};
+    _ = dt3.add(p1);
 
-    xml x = check <xml>dt1;
+    xml x = check <xml>dt3;
     return x;
 }
 
@@ -368,16 +368,16 @@ function testStructWithDefaultDataToXml() returns (xml) {
 function testStructWithDefaultDataToStruct() returns (int, float, string, boolean) {
     Person p1 = { id: 1 };
 
-    table<Person> dt1 = table{};
-    _ = dt1.add(p1);
+    table<Person> dt3 = table{};
+    _ = dt3.add(p1);
 
     int iData;
     float fData;
     string sData;
     boolean bData;
 
-    while (dt1.hasNext()) {
-        Person x = check <Person>dt1.getNext();
+    while (dt3.hasNext()) {
+        Person x = check <Person>dt3.getNext();
         iData = x.age;
         fData = x.salary;
         sData = x.name;
@@ -401,11 +401,11 @@ function testTableWithArrayDataToJson() returns (json) {
     ArraTypeTest t2 = { id: 2, intArrData: intArray2, floatArrData: floatArray2, stringArrData: stringArray2,
         booleanArrData: boolArray2 };
 
-    table<ArraTypeTest> dt1 = table{};
-    _ = dt1.add(t1);
-    _ = dt1.add(t2);
+    table<ArraTypeTest> dt3 = table{};
+    _ = dt3.add(t1);
+    _ = dt3.add(t2);
 
-    json j = check <json>dt1;
+    json j = check <json>dt3;
     return j;
 }
 
@@ -424,11 +424,11 @@ function testTableWithArrayDataToXml() returns (xml) {
     ArraTypeTest t2 = { id: 2, intArrData: intArray2, floatArrData: floatArray2, stringArrData: stringArray2,
         booleanArrData: boolArray2 };
 
-    table<ArraTypeTest> dt1 = table{};
-    _ = dt1.add(t1);
-    _ = dt1.add(t2);
+    table<ArraTypeTest> dt3 = table{};
+    _ = dt3.add(t1);
+    _ = dt3.add(t2);
 
-    xml x = check <xml>dt1;
+    xml x = check <xml>dt3;
     return x;
 }
 
@@ -440,16 +440,16 @@ function testTableWithArrayDataToStruct() returns (int[], float[], string[], boo
     ArraTypeTest t1 = { id: 1, intArrData: intArray, floatArrData: floatArray, stringArrData: stringArray,
         booleanArrData: boolArray };
 
-    table<ArraTypeTest> dt1 = table{};
-    _ = dt1.add(t1);
+    table<ArraTypeTest> dt3 = table{};
+    _ = dt3.add(t1);
 
     int[] intArr;
     float[] floatArr;
     string[] stringArr;
     boolean[] boolArr;
 
-    while (dt1.hasNext()) {
-        ArraTypeTest x = check <ArraTypeTest>dt1.getNext();
+    while (dt3.hasNext()) {
+        ArraTypeTest x = check <ArraTypeTest>dt3.getNext();
         intArr = x.intArrData;
         floatArr = x.floatArrData;
         stringArr = x.stringArrData;

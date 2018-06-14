@@ -36,10 +36,10 @@ public type CharacterChannel object {
     documentation {
         Initializes a character channel.
 
-        P{{channel}} ByteChannel which should be used to initalize the character channel
-        P{{charset}} Character-set (i.e UTF-8) which should be used to encode/decode
+        P{{byteChannel}} ByteChannel which should be used to initalize the character channel
+        P{{cs}} Character-set (i.e UTF-8) which should be used to encode/decode
     }
-    native function init(ByteChannel channel, string charset);
+    native function init(ByteChannel byteChannel, string cs);
 
     documentation {
         Reads a given number of characters.
