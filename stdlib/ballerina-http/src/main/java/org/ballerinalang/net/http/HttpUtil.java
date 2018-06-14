@@ -233,7 +233,7 @@ public class HttpUtil {
             }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
-            return new BValue[]{MimeUtil.createEntityError(context,
+            return new BValue[]{MimeUtil.createError(context,
                     "Error occurred during entity construction: " + throwable.getMessage())};
         }
     }
