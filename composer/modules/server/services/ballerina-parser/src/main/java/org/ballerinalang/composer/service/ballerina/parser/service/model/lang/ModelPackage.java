@@ -36,6 +36,13 @@ public class ModelPackage   {
   private List<Endpoint> endpoints = new ArrayList<>();
   private List<RecordModel> records = new ArrayList<>();
 
+  public ModelPackage() {
+  }
+
+  public ModelPackage(String name) {
+    this.name = name;
+  }
+
   public ModelPackage name(String name) {
     this.name = name;
     return this;
