@@ -46,27 +46,6 @@ function functionPointers(int a) returns
 }
 
 
-// Example function where inner scope variables can shadow the outer scope
-// variables along with closure support.
-function variableShadow(int a) returns (function (float) returns string) {
-    int b = 4;
-    float f = 5.6;
-
-    if (a < 10) {
-        int a = 4;
-        b = a + b + <int> f;
-    }
-
-    var foo = (float f) => string {
-        if (a > 8) {
-            int a = 6;
-            b = a + <int> f + b;
-        }
-        return "Ballerina" + b;
-    };
-    return foo;
-}
-
 function main(string... args) {
     // Invoke the function that shows basic closure support.
     var foo = basicClosure();
@@ -86,9 +65,4 @@ function main(string... args) {
     int result3 = baz2(3);
     io:println("Answer: " + result3);
 
-    // This function invocation shows how variable shadows along with
-    // closures are supported.
-    var qux = variableShadow(9);
-    string result4 = qux(3.4);
-    io:println("Answer: " + result4);
 }

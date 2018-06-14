@@ -3,7 +3,7 @@ import ballerina/http;
 import ballerina/log;
 
 // Create a simple queue receiver.
-endpoint jms:SimpleQueueReceiver consumer {
+endpoint jms:SimpleQueueReceiver consumerEndpoint {
     initialContextFactory:"bmbInitialContextFactory",
     providerUrl:"amqp://admin:admin@carbon/carbon"
                 + "?brokerlist='tcp://localhost:5672'",
@@ -12,7 +12,7 @@ endpoint jms:SimpleQueueReceiver consumer {
 };
 
 // Bind the created JMS consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumer {
+service<jms:Consumer> jmsListener bind consumerEndpoint {
 
     onMessage(endpoint consumer, jms:Message message) {
 
