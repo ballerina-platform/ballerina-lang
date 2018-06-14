@@ -152,15 +152,40 @@ public class IndexGenerator {
     }
 
     private void insertBLangObjects(int pkgEntryId, DTOUtil.ObjectCategories categories) {
+        List<BFunctionDTO> objectAttachedFunctions = new ArrayList<>();
         List<Integer> epIds = insertBLangObjects(pkgEntryId, categories.getEndpoints(), ObjectType.ENDPOINT);
         List<Integer> actionHolderIds = insertBLangObjects(pkgEntryId, categories.getEndpointActionHolders(),
                 ObjectType.ACTION_HOLDER);
-        insertBLangObjects(pkgEntryId, categories.getObjects(), ObjectType.OBJECT);
+        List<Integer> objectIds = insertBLangObjects(pkgEntryId, categories.getObjects(), ObjectType.OBJECT);
+
+        for (int i = 0; i < categories.getEndpointActionHolders().size(); i++) {
+            objectAttachedFunctions.addAll(getObjectAttachedFunctionDTOs(pkgEntryId, actionHolderIds.get(i),
+                    categories.getEndpointActionHolders().get(i)));
+        }
+
+        for (int i = 0; i < categories.getObjects().size(); i++) {
+            objectAttachedFunctions.addAll(getObjectAttachedFunctionDTOs(pkgEntryId, objectIds.get(i),
+                    categories.getObjects().get(i)));
+        }
+
         try {
             LSIndexImpl.getInstance().getQueryProcessor().batchUpdateActionHolderId(epIds, actionHolderIds);
         } catch (SQLException e) {
             logger.error("Error Updating Endpoint Action Holders");
         }
+
+        try {
+            LSIndexImpl.getInstance().getQueryProcessor().batchInsertBLangFunctions(objectAttachedFunctions);
+        } catch (SQLException | IOException e) {
+            logger.error("Error Inserting object attached functions");
+        }
+    }
+    
+    private List<BFunctionDTO> getObjectAttachedFunctionDTOs(int packageId, int objectId,
+                                                             BObjectTypeSymbol objectTypeSymbol) {
+        return objectTypeSymbol.attachedFuncs.stream()
+                .map(bAttachedFunction -> DTOUtil.getFunctionDTO(packageId, objectId, bAttachedFunction.symbol))
+                .collect(Collectors.toList());
     }
 
     private static List<Integer> insertBLangObjects(int pkgEntryId, List<BObjectTypeSymbol> bLangObjects,

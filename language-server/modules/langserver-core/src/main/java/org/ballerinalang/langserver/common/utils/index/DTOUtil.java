@@ -165,8 +165,19 @@ public class DTOUtil {
      * @return {@link BFunctionDTO}     Generated DTO
      */
     public static BFunctionDTO getFunctionDTO(int pkgEntryId, BInvokableSymbol bInvokableSymbol) {
+        return getFunctionDTO(pkgEntryId, -1, bInvokableSymbol);
+    }
+
+    /**
+     * Get the BFunctionDTO for the invokable symbol.
+     * @param pkgEntryId                Package Entry ID
+     * @param bInvokableSymbol          BInvokableSymbol to generate DAO
+     * @param objectId                  ObjectId which the function is attached
+     * @return {@link BFunctionDTO}     Generated DTO
+     */
+    public static BFunctionDTO getFunctionDTO(int pkgEntryId, int objectId, BInvokableSymbol bInvokableSymbol) {
         CompletionItem completionItem = BInvokableSymbolUtil.getFunctionCompletionItem(bInvokableSymbol);
-        return new BFunctionDTO(pkgEntryId, -1, bInvokableSymbol.getName().getValue(), completionItem);
+        return new BFunctionDTO(pkgEntryId, objectId, bInvokableSymbol.getName().getValue(), completionItem);
     }
 
     /**
