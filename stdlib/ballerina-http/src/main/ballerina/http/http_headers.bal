@@ -89,3 +89,6 @@ documentation {
 
 documentation { HTTP header key `warning`. Specifies warnings generated when serving stale responses from HTTP caches. }
 @final public string WARNING = "warning";
+
+documentation { HTTP header key `transfer-encoding`. Specifies what type of transformation has been applied to entity body. }
+@final public string TRANSFER_ENCODING = "transfer-encoding";

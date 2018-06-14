@@ -18,52 +18,45 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-endpoint http:Listener serviceEndpoint {
+//TODO: HTTP2 scanarios doesn't work when the first request goes to a HTTP2 enabled server regardless of redirect feature.
+//TODO: Enable HTTP2 for this service endpoint once the above mentioned issue is fixed.
+//See {https://github.com/ballerina-platform/ballerina-lang/issues/9044}
+endpoint http:Listener serviceEndpoint1 {
     port: 9090
 };
 
 endpoint http:Listener serviceEndpoint2 {
-    port: 9093
+    port: 9091,
+    httpVersion: "2.0"
 };
 
-endpoint http:Listener httpsEP {
-    port:9092,
-    secureSocket: {
-        keyStore: {
-            path:"${ballerina.home}/bre/security/ballerinaKeystore.p12",
-            password:"ballerina"
-        }
-    }
+endpoint http:Listener serviceEndpoint3 {
+    port: 9093,
+    httpVersion: "2.0"
 };
 
 endpoint http:Client endPoint1 {
-    url: "http://localhost:9090",
+    url: "http://localhost:9091",
+    httpVersion: "2.0",
     followRedirects: { enabled: true, maxCount: 3 }
 };
 
 endpoint http:Client endPoint2 {
-    url: "http://localhost:9090",
+    url: "http://localhost:9091",
+    httpVersion: "2.0",
     followRedirects: { enabled: true, maxCount: 5 }
 };
 
 endpoint http:Client endPoint3 {
     url: "http://localhost:9093",
-    followRedirects: { enabled: true }
-};
-
-endpoint http:Client endPoint4 {
-    url: "http://localhost:9090"
-};
-
-endpoint http:Client endPoint5 {
-    url: "https://localhost:9092",
+    httpVersion: "2.0",
     followRedirects: { enabled: true }
 };
 
 @http:ServiceConfig {
     basePath: "/service1"
 }
-service<http:Service> testRedirect bind serviceEndpoint {
+service<http:Service> testRedirect bind serviceEndpoint1 {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -219,53 +212,12 @@ service<http:Service> testRedirect bind serviceEndpoint {
             }
         }
     }
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/redirectOff"
-    }
-    redirectOff(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
-        var response = endPoint4->get("/redirect1/round1");
-        match response {
-            error connectorErr => {
-                io:println("Connector error!");
-            }
-            http:Response httpResponse => {
-                string value;
-                if (httpResponse.hasHeader(http:LOCATION)) {
-                    value = httpResponse.getHeader(http:LOCATION);
-                }
-                value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
-            }
-        }
-    }
-
-    @http:ResourceConfig {
-        methods: ["GET"],
-        path: "/httpsRedirect"
-    }
-    redirectWithHTTPs(endpoint client, http:Request req) {
-        http:Request clientRequest = new;
-        var response = endPoint5->get("/redirect3");
-        match response {
-            error connectorErr => {
-                io:println("Connector error!");
-            }
-            http:Response httpResponse => {
-                string value = check httpResponse.getTextPayload();
-                value = value + ":" + httpResponse.resolvedRequestedURI;
-                _ = client->respond(value);
-            }
-        }
-    }
 }
 
 @http:ServiceConfig {
     basePath: "/redirect1"
 }
-service<http:Service> redirect1 bind serviceEndpoint {
+service<http:Service> redirect1 bind serviceEndpoint2 {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -338,7 +290,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
     qpWithAbsolutePath(endpoint client, http:Request req) {
         http:Response res = new;
         _ = client->redirect(res, http:REDIRECT_TEMPORARY_REDIRECT_307, [
-                "http://localhost:9090/redirect1/processQP?key=value&lang=ballerina"]);
+                "http://localhost:9091/redirect1/processQP?key=value&lang=ballerina"]);
     }
 
     @http:ResourceConfig {
@@ -355,7 +307,7 @@ service<http:Service> redirect1 bind serviceEndpoint {
 @http:ServiceConfig {
     basePath: "/redirect2"
 }
-service<http:Service> redirect2 bind serviceEndpoint2 {
+service<http:Service> redirect2 bind serviceEndpoint3 {
 
     @http:ResourceConfig {
         methods: ["GET"],
@@ -374,29 +326,5 @@ service<http:Service> redirect2 bind serviceEndpoint2 {
     test303(endpoint client, http:Request req) {
         http:Response res = new;
         _ = client->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect2"]);
-    }
-}
-
-@http:ServiceConfig {
-    basePath:"/redirect3"
-}
-
-service<http:Service> redirect3 bind httpsEP {
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/"
-    }
-    firstRedirect (endpoint caller, http:Request req) {
-        http:Response res = new;
-        _ = caller->redirect(res, http:REDIRECT_SEE_OTHER_303, ["/redirect3/result"]);
-    }
-
-    @http:ResourceConfig {
-        methods:["GET"],
-        path:"/result"
-    }
-    finalResult (endpoint caller, http:Request req) {
-        _ = caller -> respond("HTTPs Result");
     }
 }
