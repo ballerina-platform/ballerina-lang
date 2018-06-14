@@ -58,9 +58,9 @@ public class LSPackageLoader {
         PackageLoader pkgLoader = PackageLoader.getInstance(context);
         SemanticAnalyzer semAnalyzer = SemanticAnalyzer.getInstance(context);
         CodeAnalyzer codeAnalyzer = CodeAnalyzer.getInstance(context);
-        BLangPackage builtInPkg = codeAnalyzer
-                .analyze(semAnalyzer.analyze(pkgLoader
-                        .loadAndDefinePackage(Names.BUILTIN_ORG.value, Names.BUILTIN_PACKAGE.getValue())));
+        BLangPackage builtInPkg =
+                codeAnalyzer.analyze(semAnalyzer.analyze(pkgLoader.loadAndDefinePackage(Names.BUILTIN_ORG.getValue(),
+                        Names.BUILTIN_PACKAGE.getValue(), Names.EMPTY.getValue())));
         builtins.add(builtInPkg);
 
         return builtins;
