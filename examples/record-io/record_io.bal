@@ -21,43 +21,17 @@ function getFileRecordChannel(string filePath, io:Mode permission,
     return delimitedRecordChannel;
 }
 
-// This function reads the next record from the channel.
-function readNext(io:DelimitedTextRecordChannel channel) returns (string[]) {
-    match channel.getNext() {
-        string[] records => {
-            return records;
-        }
-        error err => {
-            throw err.cause but { () => err };
-        }
-
-    }
-}
-
-// This function writes the next record to the channel.
-function write(io:DelimitedTextRecordChannel channel, string[] records) {
-    error? err = channel.write(records);
-    match err {
-        error e => throw e.cause but { () => e };
-        () => {}
-    }
-}
-
 // This function processes the `.CSV` file and
 // writes content back as text with the `|` delimiter.
 function process(io:DelimitedTextRecordChannel srcRecordChannel,
                  io:DelimitedTextRecordChannel dstRecordChannel) {
-    try {
-        // Read all the records from the provided file until there are
-        // no more records.
-        while (srcRecordChannel.hasNext()) {
-            // Read the records.
-            string[] records = readNext(srcRecordChannel);
-            // Write the records.
-            write(dstRecordChannel, records);
-        }
-    } catch (error err) {
-        throw err;
+    // Read all the records from the provided file until there are
+    // no more records.
+    while (srcRecordChannel.hasNext()) {
+        // Read the records.
+        string[] records = check srcRecordChannel.getNext();
+        // Write the records.
+        var result =check dstRecordChannel.write(records);
     }
 }
 
