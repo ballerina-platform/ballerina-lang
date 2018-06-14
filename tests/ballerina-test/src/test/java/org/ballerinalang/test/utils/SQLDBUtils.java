@@ -162,6 +162,9 @@ public class SQLDBUtils {
         }
     }
 
+    /**
+     * This class represents a database used for testing data clients.
+     */
     public abstract static class TestDatabase {
         String jdbcUrl;
         String username;
@@ -182,6 +185,9 @@ public class SQLDBUtils {
         public abstract void stop();
     }
 
+    /**
+     * This class represents a container based database used for testing data clients.
+     */
     public static class ContainerizedTestDatabase extends TestDatabase {
         private JdbcDatabaseContainer databaseContainer;
 
@@ -209,6 +215,9 @@ public class SQLDBUtils {
         }
     }
 
+    /**
+     * This class represents a file based database used for testing data clients.
+     */
     public static class FileBasedTestDatabase extends TestDatabase {
         private String dbDirectory;
 

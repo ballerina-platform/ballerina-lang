@@ -80,7 +80,7 @@ public class TableTest {
     private static final double DELTA = 0.01;
 
     @Parameters({ "dataClientTestDBType" })
-    public TableTest(@Optional("H2") SQLDBUtils.DBType dataClientTestDBType) {
+    public TableTest(@Optional("HSQLDB") SQLDBUtils.DBType dataClientTestDBType) {
         this.dbType = dataClientTestDBType;
     }
 
@@ -1271,7 +1271,7 @@ public class TableTest {
     @AfterSuite
     public void cleanup() {
         if (testDatabase != null) {
-            testDatabase.stop();;
+            testDatabase.stop();
         }
     }
 
