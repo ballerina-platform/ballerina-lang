@@ -3,24 +3,17 @@ import ballerina/io;
 function main(string... args) {
     // A closed integer range `x ... y` generates an array of integers containing values `x` to `y`, `x` and `y`
     // inclusive
-    io:println("Iterating over an array created by a closed integer range");
-    int[] closedRangeArray = 25 ... 30;
-    foreach value in closedRangeArray {
-        io:println(value);
-    }
+    int[] closedRangeArray = 25 ... 28;
+    io:println("Length of the array created by the closed integer range 25 ... 28: ",
+                lengthof closedRangeArray);
+    io:println("First element: ", closedRangeArray[0]);
+    io:println("Last element: ", closedRangeArray[lengthof closedRangeArray - 1]);
 
     // A half open integer range `x ..< y` generates an array of integers containing values `x` to `y`, including `x`
     // but excluding `y`
-    io:println("\nIterating over an array created by a half open integer range");
-    int[] halfOpenRangeArray = 25 ..< 30;
-    foreach value in halfOpenRangeArray {
-        io:println(value);
-    }
-
-    // Integer ranges could also be used directly in `foreach` statements.
-    io:println("\nUsing an integer range in a foreach statement");
-    string[] stringArray = ["fruit", "tree", "basket"];
-    foreach index in 0 ..< lengthof stringArray {
-        io:println("Index: ", index, ", Value: ", stringArray[index]);
-    }
+    int[] halfOpenRangeArray = 25 ..< 28;
+    io:println("\nLength of the array created by the half open integer range 25 ..< 28: ",
+                lengthof halfOpenRangeArray);
+    io:println("First element: ", halfOpenRangeArray[0]);
+    io:println("Last element: ", halfOpenRangeArray[lengthof halfOpenRangeArray - 1]);
 }
