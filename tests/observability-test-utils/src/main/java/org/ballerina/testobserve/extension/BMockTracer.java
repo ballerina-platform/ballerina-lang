@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerina.testing.extension;
+package org.ballerina.testobserve.extension;
 
 import io.opentracing.Tracer;
 import io.opentracing.mock.MockTracer;

@@ -118,7 +118,7 @@ public class HTTPServicesRegistry {
             if (servicesByBasePath.containsKey(basePath)) {
                 String errorMessage = hostName.equals(DEFAULT_HOST) ? "'" : "' under host name : '" + hostName + "'";
                 throw new BallerinaException("Service registration failed: two services have the same basePath : '" +
-                        basePath + errorMessage);
+                                                     basePath + errorMessage);
             }
             servicesByBasePath.put(basePath, httpService);
             String errLog = String.format("Service deployed : %s with context %s", service.getName(), basePath);
@@ -133,9 +133,10 @@ public class HTTPServicesRegistry {
 
     private void registerUpgradableWebSocketService(HttpService httpService) {
         httpService.getUpgradeToWebSocketResources().forEach(upgradeToWebSocketResource -> {
-            ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource);
+            ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource.getBalResource());
             Annotation resourceConfigAnnotation =
-                    HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource, HttpConstants.HTTP_PACKAGE_PATH);
+                    HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource(),
+                                                         HttpConstants.HTTP_PACKAGE_PATH);
             if (resourceConfigAnnotation == null) {
                 throw new BallerinaException("Cannot register WebSocket service without resource config " +
                                                      "annotation in resource " + upgradeToWebSocketResource.getName());

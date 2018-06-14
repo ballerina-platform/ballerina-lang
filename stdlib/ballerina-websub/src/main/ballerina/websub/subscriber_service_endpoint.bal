@@ -107,10 +107,8 @@ public type Listener object {
 
 public function Listener::init(SubscriberServiceEndpointConfiguration c) {
     self.config = c;
-    SignatureValidationFilter sigValFilter;
-    http:Filter[] filters = [<http:Filter>sigValFilter];
     http:ServiceEndpointConfiguration serviceConfig = {
-        host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket, filters:filters
+        host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket
     };
 
     self.serviceEndpoint.init(serviceConfig);
@@ -287,53 +285,6 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
         }
     }
     return websubError;
-}
-
-documentation {
-    Signature validation filter for WebSub services.
-}
-public type SignatureValidationFilter object {
-
-    documentation {
-        Represents the filtering function that will be invoked on WebSub notification requests.
-
-        P{{request}} The request being intercepted
-        P{{context}} The filter context
-        R{{}} `http:FilterResult` The result of the filter indicating whether or not proceeding can be allowed
-    }
-    public function filterRequest(http:Request request, http:FilterContext context) returns http:FilterResult {
-        return interceptWebSubRequest(request, context);
-    }
-};
-
-//TODO: check if this can be not public
-documentation {
-    The function called to validate signature for content received by WebSub services.
-
-    P{{request}} The request being intercepted
-    P{{context}} The filter context
-    R{{}} `http:FilterResult` The result of the filter indicating whether or not proceeding can be allowed
-}
-public function interceptWebSubRequest(http:Request request, http:FilterContext context) returns http:FilterResult {
-    if (request.method == "POST") {
-        var processedNotification = processWebSubNotification(request, context.serviceType);
-        match (processedNotification) {
-            error webSubError => {
-                log:printDebug("Signature Validation failed for Notification: " + webSubError.message);
-                http:FilterResult filterResult =
-                {canProceed:false, statusCode:404, message:"validation failed for notification"};
-                return filterResult;
-            }
-            () => {
-                http:FilterResult filterResult =
-                {canProceed:true, statusCode:200, message:"validation successful for notification"};
-                return filterResult;
-            }
-        }
-    } else {
-        http:FilterResult filterResult = {canProceed:true, statusCode:200, message:"allow intent verification"};
-        return filterResult;
-    }
 }
 
 documentation {

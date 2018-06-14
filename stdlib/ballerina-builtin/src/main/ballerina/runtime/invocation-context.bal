@@ -21,6 +21,7 @@ public type InvocationContext {
     string id;
     UserPrincipal userPrincipal;
     AuthContext authContext;
+    map attributes;
 };
 
 documentation {
