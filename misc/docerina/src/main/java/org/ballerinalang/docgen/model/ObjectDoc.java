@@ -28,6 +28,7 @@ public class ObjectDoc extends Documentable {
 
     public final boolean hasConstructor;
     public final List<Field> fields;
+    public final boolean isObject;
 
     /**
      * Constructor.
@@ -43,6 +44,7 @@ public class ObjectDoc extends Documentable {
         super(name, "fw-struct", description, children);
         this.hasConstructor = hasConstructor;
         this.fields = fields;
+        this.isObject = true;
     }
 }
 
