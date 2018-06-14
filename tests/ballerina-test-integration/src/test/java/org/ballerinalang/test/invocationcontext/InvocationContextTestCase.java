@@ -32,6 +32,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Test cases for writing/reading to/from the InvocationContext.
+ */
 public class InvocationContextTestCase extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;

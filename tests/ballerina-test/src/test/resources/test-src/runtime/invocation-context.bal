@@ -44,7 +44,7 @@ function testAuthToken () returns (boolean) {
     return authToken == runtime:getInvocationContext().authContext.authToken;
 }
 
-function testAttributes () returns (boolean) {
+function testAttributes () returns boolean {
     string attributeName = "attributeName";
     string attributeValue = "attributeValue";
     string jsonAttributeName = "jsonAttribute";
