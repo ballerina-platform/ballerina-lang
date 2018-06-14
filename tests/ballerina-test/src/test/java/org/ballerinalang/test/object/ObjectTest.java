@@ -499,7 +499,7 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 13, "cannot find matching interface " +
                 "function 'test3' in the object 'Person'", 54, 1);
         BAssertUtil.validateError(result, 14, "incompatible types: expected " +
-                "'string', found 'int'", 54, 44);
+                "'string', found 'int'", 54, 45);
         BAssertUtil.validateError(result, 15, "cannot find matching interface " +
                 "function 'test5' in the object 'Person'", 62, 1);
         BAssertUtil.validateError(result, 16, "cannot find matching interface " +

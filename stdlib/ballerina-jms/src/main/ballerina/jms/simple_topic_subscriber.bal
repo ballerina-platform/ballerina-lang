@@ -33,10 +33,10 @@ public type SimpleTopicSubscriber object {
     }
 
     documentation { Initialize simple topic subscirber endpoint
-        P{{config}} Simple topic subscrirber enpoint configuration
+        P{{c}} Simple topic subscrirber enpoint configuration
     }
-    public function init(SimpleTopicSubscriberEndpointConfiguration config) {
-        self.config = config;
+    public function init(SimpleTopicSubscriberEndpointConfiguration c) {
+        self.config = c;
         Connection conn = new({
                 initialContextFactory:config.initialContextFactory,
                 providerUrl:config.providerUrl,
@@ -53,8 +53,8 @@ public type SimpleTopicSubscriber object {
         TopicSubscriber topicSubscriber = new;
         TopicSubscriberEndpointConfiguration consumerConfig = {
             session:newSession,
-            topicPattern:config.topicPattern,
-            messageSelector:config.messageSelector
+            topicPattern: c.topicPattern,
+            messageSelector: c.messageSelector
         };
         topicSubscriber.init(consumerConfig);
         self.subscriber = topicSubscriber;

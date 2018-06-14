@@ -24,6 +24,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.net.websub.hub.Hub;
 import org.ballerinalang.util.program.BLangFunctions;
 
@@ -46,6 +47,12 @@ public class StopHubService extends BlockingNativeCallableUnit {
         if (hubInstance.isStarted()) {
             BLangFunctions.invokeVMUtilFunction(
                     hubInstance.getHubProgramFile().getEntryPackage().getStopFunctionInfo());
+            try {
+                hubInstance.stopHubService(context);
+            } catch (BallerinaWebSubException e) {
+                context.setReturnValues(new BBoolean(false));
+                return;
+            }
             context.setReturnValues(new BBoolean(true));
         } else {
             context.setReturnValues(new BBoolean(false));

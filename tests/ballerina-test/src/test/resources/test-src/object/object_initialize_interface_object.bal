@@ -9,7 +9,7 @@ type Person object {
         int age,
     }
 
-    function test(int age, string name) returns string;
+    function test(int a, string n) returns string;
 };
 
 

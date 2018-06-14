@@ -307,7 +307,7 @@ public class PackageInfoReader {
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read import package entries
-        readImportPackageInfoEntries(packageInfo);
+        readImportPackageInfoEntries();
 
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
@@ -345,25 +345,12 @@ public class PackageInfoReader {
         packageInfo.complete();
     }
 
-    private void readImportPackageInfoEntries(PackageInfo packageInfo) throws IOException {
+    private void readImportPackageInfoEntries() throws IOException {
         int impPkgCount = dataInStream.readShort();
         for (int i = 0; i < impPkgCount; i++) {
-
-            int orgNameCPIndex = dataInStream.readInt();
-            UTF8CPEntry orgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(orgNameCPIndex);
-
-            int pkgNameCPIndex = dataInStream.readInt();
-            UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
-
-            int pkgVersionCPIndex = dataInStream.readInt();
-            UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
-
-            String pkgPath =
-                    getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue());
-            
-            ImportPackageInfo importPackageInfo = new ImportPackageInfo(orgNameCPIndex, pkgNameCPIndex, pkgPath,
-                    pkgVersionCPIndex, pkgVersionCPEntry.getValue());
-            packageInfo.importPkgInfoList.add(importPackageInfo);
+            dataInStream.readInt();
+            dataInStream.readInt();
+            dataInStream.readInt();
         }
     }
 

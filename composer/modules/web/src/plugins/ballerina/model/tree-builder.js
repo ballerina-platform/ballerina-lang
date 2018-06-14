@@ -128,8 +128,9 @@ class TreeBuilder {
             node.startLiteral = node.ws[0].text;
         }
 
-        if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
-            parentKind === 'StringTemplateLiteral' || parentKind === 'XmlTextLiteral' ||
+        if (parentKind === 'XmlElementLiteral' ||
+            parentKind === 'XmlCommentLiteral' ||
+            parentKind === 'XmlTextLiteral' ||
             parentKind === 'XmlPiLiteral') {
             node.inTemplateLiteral = true;
         }
@@ -197,8 +198,10 @@ class TreeBuilder {
                     node.userDefinedAlias = true;
                 }
             }
-            if (node.packageName.length === 2
-                && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator') {
+
+            if ((node.packageName.length === 2 && node.packageName[0].value === 'transactions' &&
+                    node.packageName[1].value === 'coordinator') || (node.alias && node.alias.value &&
+                    node.alias.value.startsWith('.'))) {
                 node.isInternal = true;
             }
         }
@@ -531,7 +534,13 @@ class TreeBuilder {
             }
         }
 
-        if (node.kind === 'Literal') {
+        if (node.kind === 'Literal' && parentKind !== 'StringTemplateLiteral') {
+            if (node.symbolType && node.symbolType.length > 0 &&
+                (node.symbolType[0] === 'string' || node.symbolType[0] === 'float') &&
+                node.ws && node.ws.length < 2 && node.ws[0].text) {
+                node.value = node.ws[0].text;
+            }
+
             if ((node.value === 'nil' || node.value === 'null') && node.ws
                 && node.ws.length < 3 && node.ws[0].text === '(') {
                 node.emptyParantheses = true;
@@ -577,6 +586,70 @@ class TreeBuilder {
 
         if (node.kind === 'FieldBasedAccessExpr' && node.ws && node.ws[0].text === '!') {
             node.errorLifting = true;
+        }
+
+        if (node.kind === 'StringTemplateLiteral' &&
+            node.expressions && node.expressions.length > 2) {
+            if (node.ws && node.ws[0].text === 'string `') {
+                if (node.expressions.length === (node.ws.length - 2)) {
+                    for (let i = 0; i < node.expressions.length; i++) {
+                        if (node.expressions[i].kind === 'Literal') {
+                            if (!node.expressions[i].ws) {
+                                node.expressions[i].ws = [];
+                            }
+
+                            if (node.ws[1].text.includes('{{')) {
+                                node.expressions[i].ws.push(node.ws[1]);
+                                node.expressions[i].value = node.ws[1].text;
+                                node.ws.splice(1, 1);
+                                node.expressions[i].startTemplateLiteral = true;
+                            } else if (node.ws[1].text.includes('}}')) {
+                                node.expressions[i].ws.push(node.ws[1]);
+                                if (node.ws[2].text.includes('{{')) {
+                                    node.expressions[i].ws.push(node.ws[2]);
+                                    node.expressions[i].value = node.ws[2].text;
+                                    node.expressions[i].startTemplateLiteral = true;
+                                    node.ws.splice(2, 1);
+                                }
+                                node.ws.splice(1, 1);
+                                node.expressions[i].endTemplateLiteral = true;
+                            }
+
+                            if (i === (node.expressions.length - 1)) {
+                                node.expressions[i].ws.push(node.ws[1]);
+                                node.expressions[i].value = node.ws[1].text;
+                                node.expressions[i].lastNodeValue = true;
+                                node.ws.splice(1, 1);
+                            }
+                        }
+                    }
+                } else if ((node.expressions.length - 1) === (node.ws.length - 2)) {
+                    for (let i = 0; i < node.expressions.length; i++) {
+                        if (node.expressions[i].kind === 'Literal') {
+                            if (!node.expressions[i].ws) {
+                                node.expressions[i].ws = [];
+                            }
+
+                            if (node.ws[1].text.includes('{{')) {
+                                node.expressions[i].ws.push(node.ws[1]);
+                                node.expressions[i].value = node.ws[1].text;
+                                node.ws.splice(1, 1);
+                                node.expressions[i].startTemplateLiteral = true;
+                            } else if (node.ws[1].text.includes('}}')) {
+                                node.expressions[i].ws.push(node.ws[1]);
+                                if (node.ws[2].text.includes('{{')) {
+                                    node.expressions[i].ws.push(node.ws[2]);
+                                    node.expressions[i].value = node.ws[2].text;
+                                    node.expressions[i].startTemplateLiteral = true;
+                                    node.ws.splice(2, 1);
+                                }
+                                node.ws.splice(1, 1);
+                                node.expressions[i].endTemplateLiteral = true;
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 

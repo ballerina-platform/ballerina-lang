@@ -328,6 +328,12 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>language-server-core</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>language-server-compiler</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -863,6 +869,19 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-grpc</artifactId>
                 <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>observability-test-utils</artifactId>
+                <version>${ballerina.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>observability-test-utils</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-binary-repo</classifier>
                 <type>zip</type>
             </dependency>
 

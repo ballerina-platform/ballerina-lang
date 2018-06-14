@@ -34,11 +34,12 @@ public type AuthnFilter object {
     documentation {
         Request filter method which attempts to authenticated the request.
 
+        P{{listener}} The http endpoint
         P{{request}} An inboud HTTP request message
         P{{context}} A filter context
-        R{{}} The resulting object after filtering the request
+        R{{}} True if the filter succeeds
     }
-    public function filterRequest(Request request, FilterContext context) returns FilterResult {
+    public function filterRequest(Listener listener, Request request, FilterContext context) returns boolean {
         // get auth config for this resource
         boolean authenticated;
         var (isSecured, authProviders) = getResourceAuthConfig(context);
@@ -52,26 +53,37 @@ public type AuthnFilter object {
             }
         } else {
             // not secured, no need to authenticate
-            return createAuthnResult(true);
+            return isAuthnSuccesfull(listener, true);
         }
-        return createAuthnResult(authenticated);
+        return isAuthnSuccesfull(listener, authenticated);
+    }
+
+    public function filterResponse(Response response, FilterContext context) returns boolean {
+        return true;
     }
 };
 
 documentation {
-    Creates an instance of FilterResult.
+    Verifies if the authentication is successful. If not responds to the user.
 
+    P{{listener}} The http endpoint
     P{{authenticated}} Authorization status for the request
-    R{{}} Authorization result to indicate if the request can proceed or not
+    R{{}} Authorization result to indicate if the filter can proceed(true) or not(false)
 }
-function createAuthnResult(boolean authenticated) returns (FilterResult) {
-    FilterResult requestFilterResult = {};
-    if (authenticated) {
-        requestFilterResult = {canProceed: true, statusCode: 200, message: "Successfully authenticated"};
-    } else {
-        requestFilterResult = {canProceed: false, statusCode: 401, message: "Authentication failure"};
+function isAuthnSuccesfull(Listener listener, boolean authenticated) returns boolean {
+    endpoint Listener caller = listener;
+    Response response;
+    if (!authenticated) {
+        response.statusCode = 401;
+        response.setTextPayload("Authentication failure");
+        var value = caller->respond(response);
+        match value {
+            error err => throw err;
+            () => {}
+        }
+        return false;
     }
-    return requestFilterResult;
+    return true;
 }
 
 documentation {
@@ -115,7 +127,7 @@ function getResourceAuthConfig(FilterContext context) returns (boolean, string[]
 }
 
 function isResourceSecured(ListenerAuthConfig? resourceLevelAuthAnn, ListenerAuthConfig? serviceLevelAuthAnn)
-    returns boolean {
+             returns boolean {
     boolean isSecured;
     match resourceLevelAuthAnn.authentication {
         Authentication authn => {
@@ -147,7 +159,7 @@ documentation {
     R{{}} ListenerAuthConfig instance if its defined, else nil
 }
 function getAuthAnnotation(string annotationPackage, string annotationName, reflect:annotationData[] annData) returns (
-        ListenerAuthConfig?) {
+            ListenerAuthConfig?) {
     if (lengthof annData == 0) {
         return ();
     }

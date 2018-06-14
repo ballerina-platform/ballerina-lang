@@ -8,9 +8,9 @@ public type person object {
         string address;
     }
 
-    new (int age = 10, string name = "Charles") {
-        self.name = name;
-        self.age = age;
+    new (int a = 10, string n = "Charles") {
+        self.name = n;
+        self.age = a;
     }
 
     function getAge();
@@ -21,7 +21,7 @@ function person::getAge() {
 }
 
 function testObjectInitializerInSamePackage1() returns (int, string){
-    person p = new(name = "Peter");
+    person p = new(n = "Peter");
     return (p.age, p.name);
 }
 
@@ -38,13 +38,13 @@ type employee object {
 
     //TODO: define construvtor as new (int age = 30, string name) once
     // https://github.com/ballerina-platform/ballerina-lang/issues/6849 is fixed.
-    new (int age = 30, name) {
+    new (int a = 30, name) {
         self.name = self.name + name;
-        self.age = age;
+        self.age = a;
     }
 };
 
 function testObjectInitializerOrder() returns (int, string){
-    employee p = new (age = 40, "B");
+    employee p = new (a = 40, "B");
     return (p.age, p.name);
 }

@@ -33,18 +33,18 @@ public type SimpleDurableTopicSubscriber object {
     }
 
     documentation { Initializes the simple durable topic subscriber endpoint
-        P{{config}} Configurations related to the endpoint
+        P{{c}} Configurations related to the endpoint
     }
-    public function init(SimpleDurableTopicSubscriberEndpointConfiguration config) {
-        self.config = config;
+    public function init(SimpleDurableTopicSubscriberEndpointConfiguration c) {
+        self.config = c;
         self.subscriber.init({
                 initialContextFactory:"wso2mbInitialContextFactory",
-                providerUrl:getConnectionUrl(config),
-                acknowledgementMode:config.acknowledgementMode,
-                identifier:config.identifier,
-                properties:config.properties,
-                messageSelector:config.messageSelector,
-                topicPattern:config.topicPattern
+                providerUrl:getConnectionUrl(c),
+                acknowledgementMode: c.acknowledgementMode,
+                identifier: c.identifier,
+                properties: c.properties,
+                messageSelector: c.messageSelector,
+                topicPattern: c.topicPattern
             });
         self.consumerActions = new DurableTopicSubscriberActions(self.subscriber.getCallerActions());
     }
