@@ -56,6 +56,7 @@ import java.net.URISyntaxException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIVING_ENTITY_BODY;
 
@@ -138,6 +139,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof HttpRequest) {
+            sourceErrorHandler.setState(CONNECTED);
             HttpRequest httpRequest = (HttpRequest) msg;
             inboundRequestMsg = setupCarbonMessage(httpRequest, ctx);
             notifyRequestListener(inboundRequestMsg, ctx);

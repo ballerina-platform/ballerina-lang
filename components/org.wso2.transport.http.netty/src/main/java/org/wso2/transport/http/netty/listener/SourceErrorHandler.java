@@ -63,6 +63,8 @@ public class SourceErrorHandler {
                 case CONNECTED:
                     serverConnectorFuture.notifyErrorListener(
                             new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST));
+                    // Error is notified to server connector. Debug log is to make transport layer aware
+                    log.debug(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST);
                     break;
                 case RECEIVING_ENTITY_BODY:
                     handleIncompleteInboundRequest(REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST);
@@ -70,10 +72,9 @@ public class SourceErrorHandler {
                 case ENTITY_BODY_RECEIVED:
                     serverConnectorFuture.notifyErrorListener(
                             new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
-                    httpOutRespStatusFuture.notifyHttpListener(
-                            new ServerConnectorException(REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
                     break;
                 case SENDING_ENTITY_BODY:
+                    // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
                     log.error(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE);
                     break;
                 case ENTITY_BODY_SENT:
@@ -93,6 +94,8 @@ public class SourceErrorHandler {
                 case CONNECTED:
                     serverConnectorFuture.notifyErrorListener(
                             new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST));
+                    // Error is notified to server connector. Debug log is to make transport layer aware
+                    log.debug(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
                     break;
                 case RECEIVING_ENTITY_BODY:
                     handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
@@ -102,13 +105,9 @@ public class SourceErrorHandler {
                     // after that.
                     serverConnectorFuture.notifyErrorListener(
                             new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
-
-                    // This is to stop application layer writing response after
-                    // idle timeout is triggered.
-                    httpOutRespStatusFuture.notifyHttpListener(
-                            new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
                     break;
                 case SENDING_ENTITY_BODY:
+                    // OutboundResponseStatusFuture will be notified asynchronously via OutboundResponseListener.
                     log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE);
                     break;
                 case ENTITY_BODY_SENT:
@@ -129,7 +128,7 @@ public class SourceErrorHandler {
     }
 
     public void exceptionCaught(Throwable cause) {
-        log.warn("Exception occurred :" + cause);
+        log.warn("Exception occurred :" + cause.getMessage());
     }
 
     public void setState(SourceInteractiveState state) {

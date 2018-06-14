@@ -19,7 +19,13 @@
 package org.wso2.transport.http.netty.common;
 
 /**
- * Inbound request state.
+ * Inbound request and outbound response state.
+ *
+ * CONNECTED - State between connection creation and start of payload read
+ * RECEIVING_ENTITY_BODY - State between start and end of payload read
+ * ENTITY_BODY_RECEIVED - State between end of payload read and start of response write
+ * SENDING_ENTITY_BODY - State between start and end of response write
+ * ENTITY_BODY_SENT - State of successfully written response
  */
 public enum SourceInteractiveState {
     CONNECTED,
