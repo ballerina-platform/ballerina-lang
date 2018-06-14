@@ -535,9 +535,7 @@ class TreeBuilder {
         }
 
         if (node.kind === 'Literal' && parentKind !== 'StringTemplateLiteral') {
-            if (node.symbolType && node.symbolType.length > 0 &&
-                (node.symbolType[0] === 'string' || node.symbolType[0] === 'float') &&
-                node.ws && node.ws.length < 2 && node.ws[0].text) {
+            if (node.ws && node.ws.length < 2 && node.ws[0].text) {
                 node.value = node.ws[0].text;
             }
 
