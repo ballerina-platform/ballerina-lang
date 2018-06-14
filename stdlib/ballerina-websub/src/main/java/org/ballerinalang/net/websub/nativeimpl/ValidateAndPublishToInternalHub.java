@@ -51,7 +51,7 @@ public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit 
         String topic = context.getStringArgument(1);
         BStruct content = (BStruct) context.getRefArgument(0);
         Hub hubInstance = Hub.getInstance();
-        if (hubInstance.isStarted() && hubInstance.retrieveHubUrl().equals(hubUrl)) {
+        if (hubInstance.isStarted() && hubInstance.getHubUrl().equals(hubUrl)) {
             try {
                 Hub.getInstance().publish(topic, content);
                 context.setReturnValues();

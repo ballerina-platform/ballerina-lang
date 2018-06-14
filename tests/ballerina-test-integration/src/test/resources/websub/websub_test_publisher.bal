@@ -9,7 +9,8 @@ endpoint websub:Client websubHubClientEP {
 
 function main(string... args) {
     io:println("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = websub:startUpBallerinaHub();
+    websub:WebSubHub webSubHub = websub:startUpBallerinaHub()
+                                    but { websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub };
     //Register a topic at the hub
     _ = webSubHub.registerTopic("http://www.websubpubtopic.com");
     //Register topic to test remote registration and rejection of intent verification for invalid topic
