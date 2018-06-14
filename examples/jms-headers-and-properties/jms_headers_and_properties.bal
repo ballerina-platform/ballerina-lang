@@ -16,13 +16,13 @@ jms:Session jmsSession = new(conn, {
 });
 
 // Initialize a queue receiver using the created session.
-endpoint jms:QueueReceiver consumer {
+endpoint jms:QueueReceiver consumerEndpoint {
     session:jmsSession,
     queueName:"MyQueue"
 };
 
 // Bind the created consumer to the listener service.
-service<jms:Consumer> jmsListener bind consumer {
+service<jms:Consumer> jmsListener bind consumerEndpoint {
 
     // The `OnMessage` resource gets invoked when a message is received.
     onMessage(endpoint consumer, jms:Message message) {
