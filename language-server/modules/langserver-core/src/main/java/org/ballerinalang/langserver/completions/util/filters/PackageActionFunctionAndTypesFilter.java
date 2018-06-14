@@ -26,24 +26,40 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
+import org.ballerinalang.langserver.index.LSIndexImpl;
+import org.ballerinalang.langserver.index.dao.ObjectDAO;
+import org.ballerinalang.langserver.index.dao.OtherTypeDAO;
+import org.ballerinalang.langserver.index.dao.PackageFunctionDAO;
+import org.ballerinalang.langserver.index.dao.RecordDAO;
+import org.ballerinalang.model.elements.PackageID;
+import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Filter the actions and the functions in a package.
  */
 public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(PackageActionFunctionAndTypesFilter.class);
+
     @Override
-    public List<SymbolInfo> filterItems(LSServiceOperationContext completionContext) {
+    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext completionContext) {
 
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         int delimiterIndex;
@@ -66,11 +82,15 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
                     .addAll(CommonUtil.invocationsAndFieldsOnIdentifier(completionContext, delimiterIndex));
         } else if (UtilSymbolKeys.PKG_DELIMITER_KEYWORD.equals(delimiter)) {
             // We are filtering the package functions, actions and the types
-            ArrayList<SymbolInfo> filteredList = this.getActionsFunctionsAndTypes(completionContext, delimiterIndex);
-            returnSymbolsInfoList.addAll(filteredList);
+            Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
+                    this.getActionsFunctionsAndTypes(completionContext, delimiterIndex);
+            if (filteredList.isLeft()) {
+                return Either.forLeft(filteredList.getLeft());
+            }
+            returnSymbolsInfoList.addAll(filteredList.getRight());
         }
 
-        return returnSymbolsInfoList;
+        return Either.forRight(returnSymbolsInfoList);
     }
 
     /**
@@ -79,11 +99,12 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
      * @param delimiterIndex        delimiter index (index of either . or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
-    private ArrayList<SymbolInfo> getActionsFunctionsAndTypes(LSServiceOperationContext completionContext,
-                                                              int delimiterIndex) {
+    private Either<List<CompletionItem>, List<SymbolInfo>> getActionsFunctionsAndTypes(
+            LSServiceOperationContext completionContext,
+            int delimiterIndex) {
+
         String packageName;
         String lineSegment = completionContext.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
-        ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         List<SymbolInfo> symbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         
@@ -101,20 +122,48 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
 
         if (packageSymbolInfo != null) {
             Scope.ScopeEntry packageEntry = packageSymbolInfo.getScopeEntry();
+            PackageID packageID = packageEntry.symbol.pkgID;
             SymbolInfo symbolInfo = new SymbolInfo(packageSymbolInfo.getSymbolName(), packageEntry);
+            Map<Name, Scope.ScopeEntry> scopeEntryMap = symbolInfo.getScopeEntry().symbol.scope.entries;
 
-            symbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, value) -> {
-                BSymbol symbol = value.symbol;
-                if ((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
-                        || (symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol))
-                        || symbol instanceof BVarSymbol) {
-                    SymbolInfo entry = new SymbolInfo(name.toString(), value);
-                    actionFunctionList.add(entry);
+            try {
+                List<PackageFunctionDAO> packageFunctionDAOs = LSIndexImpl.getInstance().getQueryProcessor()
+                        .getFunctionsFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
+                List<RecordDAO> recordDAOs = LSIndexImpl.getInstance().getQueryProcessor()
+                        .getRecordsFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
+                List<OtherTypeDAO> otherTypeDAOs = LSIndexImpl.getInstance().getQueryProcessor()
+                        .getOtherTypesFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
+                List<ObjectDAO> objectDAOs = LSIndexImpl.getInstance().getQueryProcessor()
+                        .getObjectsFromPackage(packageID.getName().getValue(), packageID.getOrgName().getValue());
+                if (packageFunctionDAOs.isEmpty() && recordDAOs.isEmpty() && objectDAOs.isEmpty()) {
+                    return Either.forRight(this.loadActionsFunctionsAndTypesFromScope(scopeEntryMap));
                 }
-            });
+                List<CompletionItem> completionItems = packageFunctionDAOs.stream()
+                        .map(PackageFunctionDAO::getCompletionItem)
+                        .collect(Collectors.toList());
+                completionItems.addAll(
+                        recordDAOs.stream()
+                                .map(RecordDAO::getCompletionItem)
+                                .collect(Collectors.toList())
+                );
+                completionItems.addAll(
+                        otherTypeDAOs.stream()
+                                .map(OtherTypeDAO::getCompletionItem)
+                                .collect(Collectors.toList())
+                );
+                completionItems.addAll(
+                        objectDAOs.stream()
+                                .map(ObjectDAO::getCompletionItem)
+                                .collect(Collectors.toList())
+                );
+                return Either.forLeft(completionItems);
+            } catch (SQLException e) {
+                logger.warn("Error retrieving Completion Items from Index DB.");
+                return Either.forRight(this.loadActionsFunctionsAndTypesFromScope(scopeEntryMap));
+            }
         }
 
-        return actionFunctionList;
+        return Either.forRight(new ArrayList<>());
     }
 
     /**
@@ -154,5 +203,20 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
         }
 
         return delimiterIndex;
+    }
+    
+    private List<SymbolInfo> loadActionsFunctionsAndTypesFromScope(Map<Name, Scope.ScopeEntry> entryMap) {
+        List<SymbolInfo> actionFunctionList = new ArrayList<>();
+        entryMap.forEach((name, value) -> {
+            BSymbol symbol = value.symbol;
+            if ((symbol instanceof BInvokableSymbol && ((BInvokableSymbol) symbol).receiverSymbol == null)
+                    || (symbol instanceof BTypeSymbol && !(symbol instanceof BPackageSymbol))
+                    || symbol instanceof BVarSymbol) {
+                SymbolInfo entry = new SymbolInfo(name.toString(), value);
+                actionFunctionList.add(entry);
+            }
+        });
+        
+        return actionFunctionList;
     }
 }

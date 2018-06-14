@@ -570,6 +570,36 @@ function addSubscriptionsOnStartup() {
 }
 
 documentation {
+    Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
+}
+function clearSubscriptionDataInDb() {
+    endpoint jdbc:Client subscriptionDbEp {
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
+    };
+
+    var dbResult = subscriptionDbEp->update("DELETE FROM subscriptions");
+    match(dbResult) {
+        int => {}
+        error sqlErr => {
+            log:printError("Error deleting subscription data from the database: " + sqlErr.message);
+        }
+    }
+
+    dbResult = subscriptionDbEp->update("DELETE FROM topics");
+    match(dbResult) {
+        int => {}
+        error sqlErr => {
+            log:printError("Error deleting topic data from the database: " + sqlErr.message);
+        }
+    }
+
+    subscriptionDbEp.stop();
+}
+
+documentation {
     Function to fetch updates for a particular topic.
 
     P{{topic}} The topic URL to be fetched to retrieve updates
