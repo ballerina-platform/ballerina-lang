@@ -152,6 +152,7 @@
         .control-icons {
           fill: $gray07;
           font-size: 11px;
+          cursor: pointer;
         }
 
         .title-icon{
@@ -232,6 +233,7 @@
         }
         .property-pane-action-button-delete,
         .property-pane-action-button-jump {
+          cursor: pointer;
           opacity: 0.6;
           fill: $text-color;
           &:hover {
@@ -528,4 +530,8 @@ a.item.menu-button.ui.button.primary {
   font-weight: 300;
   line-height: 1.3em;
   color: #ccc;
+}
+
+.endpoint-item {
+  cursor: pointer;
 }
