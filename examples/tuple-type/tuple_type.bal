@@ -6,7 +6,7 @@ function main(string... args) {
     (int, string) a = (10, "John");
     io:println(a);
 
-    // This has a tuple of variable names to the left, and a variable referent of which the type is `tuple`.
+    // This has a tuple of variable names to the left, and a variable referent of which the type is a tuple.
     // This assignment statement assigns values of the tuple in the right to the variables in the left.
     // In Ballerina, this is referred to as tuple destructuring.
     int aint;
