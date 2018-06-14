@@ -286,9 +286,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return getSourceOf(node.type, pretty, l, replaceLambda) + w() + '<'
                  + getSourceOf(node.constraint, pretty, l, replaceLambda) + w() + '>';
         case 'Documentation':
-            return dent() + w() + 'documentation' + a(' ') + w() + '{' + indent()
-                 + w() + node.documentationText
-                 + join(node.attributes, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
+            return w() + node.startDoc + w() + node.documentationText
+                 + join(node.attributes, pretty, replaceLambda, l, w, '') + outdent() + w()
+                 + '}';
         case 'DocumentationAttribute':
             return w() + node.paramType + w() + '{{' + w()
                  + node.documentationField.valueWithBar + w() + '}}' + a(' ') + w()
@@ -1342,7 +1342,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.selectClause, pretty, l, replaceLambda);
             }
         case 'StringTemplateLiteral':
-            return w() + 'string\u0020`'
+            return w() + node.startTemplate
                  + join(node.expressions, pretty, replaceLambda, l, w, '') + w() + '`';
         case 'Table':
             return w() + 'table'

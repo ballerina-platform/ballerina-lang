@@ -109,7 +109,7 @@ ConstrainedType
    ;
 
 Documentation
-   : documentation { <documentationText> <attributes>* }
+   : <startDoc> <documentationText> <attributes>* }
    ;
 
 DocumentationAttribute
@@ -399,7 +399,7 @@ StreamingQuery
    ;
 
 StringTemplateLiteral
-   : string\u0020` <expressions>* `
+   : <startTemplate> <expressions>* `
    ;
 
 Table
