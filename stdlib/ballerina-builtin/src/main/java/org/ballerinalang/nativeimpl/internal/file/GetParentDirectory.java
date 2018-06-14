@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -66,10 +67,10 @@ public class GetParentDirectory extends BlockingNativeCallableUnit {
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
     
         try {
-            if (path.getParent() != null) {
-                BStruct parentPath = BLangConnectorSPIUtil.createBStruct(context, Constants.PACKAGE_PATH, Constants
-                        .PATH_STRUCT);
-                parentPath.addNativeData(Constants.PATH_DEFINITION_NAME, path.getParent());
+            Path parent = path.getParent();
+            if (parent != null) {
+                BStruct parentPath = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH, Constants
+                        .PATH_STRUCT, new BString(parent.toString()));
                 context.setReturnValues(parentPath);
             } else {
                 String msg = "Parent folder cannot be found for: " + path;
