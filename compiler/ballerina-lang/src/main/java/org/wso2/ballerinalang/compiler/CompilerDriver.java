@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
@@ -230,13 +231,15 @@ public class CompilerDriver {
         symbolTable.errStructType.fields = ((BStructureType) errorStructSymbol.type).fields;
 
         // change type of the 'cause' field
-        BUnionType causeType = (BUnionType) symbolTable.errStructType.fields.get(1).type;
+        BField cause = symbolTable.errStructType.fields.get(1);
+        BUnionType causeType = (BUnionType) cause.type;
         Set<BType> memberTypes = new HashSet<BType>() {{
                 add(symbolTable.errStructType);
                 add(symbolTable.nilType);
         }};
         BType newCauseType = new BUnionType(causeType.tsymbol, memberTypes, true);
-        symbolTable.errStructType.fields.get(1).type = newCauseType;
+        cause.type = newCauseType;
+        cause.symbol.type = newCauseType;
 
         // change the type of the error symbol
         errorStructSymbol.type = symbolTable.errStructType;

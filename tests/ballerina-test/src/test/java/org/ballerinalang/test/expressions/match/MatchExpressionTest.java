@@ -27,6 +27,7 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -198,4 +199,12 @@ public class MatchExpressionTest {
                 "incompatible types: expected 'string', found 'string|float|error'", 37, 18);
         BAssertUtil.validateError(negativeResult, 6, "operator '+' not defined for 'json' and 'string'", 47, 31);
     }
+
+    @Test(expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = "error: error, message: root cause.*")
+    public void testMatchErrorWithCauses() {
+        BRunUtil.invoke(compileResult, "testMatchErrorWithCauses");
+
+    }
+    
 }
