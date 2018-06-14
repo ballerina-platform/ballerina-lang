@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import log from 'log';
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -23,6 +24,8 @@ import Button from './button';
 import Menu from './menu';
 import Item from './item';
 import Search from './search';
+import FragmentUtils from '../utils/fragment-utils';
+import TreeBuilder from '../model/tree-builder';
 import DefaultNodeFactory from '../model/default-node-factory';
 import Endpoint from "../env/endpoint";
 
@@ -115,6 +118,25 @@ class LifelineButton extends React.Component {
         if (item.suggestion.addNewValue) {
             this.createEndpoint(item.suggestionValue);
         } else {
+            const existingImports = this.context.astRoot.getImports();
+            if (_.isArray(existingImports)) {
+                try {
+                    const orgName = item.suggestion.pkg.getOrg();
+                    const pkgName = item.suggestion.pkg.getName();
+                    const importFound = existingImports.find((importNode) => {
+                        return importNode.orgName.value === orgName
+                            && importNode.packageName[0].value === pkgName; // TODO: improve to support multipart pkgNames
+                    });
+                    if (!importFound) {
+                        const importNodeCode = `\nimport ${orgName}/${pkgName};`;
+                        const fragment = FragmentUtils.createTopLevelNodeFragment(importNodeCode);
+                        const newImportNode = FragmentUtils.parseFragment(fragment);
+                        this.context.astRoot.addImport(TreeBuilder.build(newImportNode));
+                    }
+                } catch (err) {
+                    log.error('Error while adding import', err);
+                }
+            }
             const node = DefaultNodeFactory.createEndpoint(item.suggestion);
             this.props.model.acceptDrop(node);
         }
@@ -247,6 +269,7 @@ LifelineButton.defaultProps = {};
 
 LifelineButton.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    astRoot: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default LifelineButton;
