@@ -64,6 +64,10 @@ public class SQLActionsTest {
     private DBType dbType;
     private TestDatabase testDatabase;
     private BValue[] connectionArgs = new BValue[3];
+    private static final String CONNECTOR_TEST = "ConnectorTest";
+    private static final String H2_NOT_SUPPORTED = "H2NotSupported";
+    private static final String MYSQL_NOT_SUPPORTED = "MySQLNotSupported";
+    private static final String POSTGRES_NOT_SUPPORTED = "PostgresNotSupported";
 
     @Parameters({ "dataClientTestDBType" })
     public SQLActionsTest(@Optional("HSQLDB") DBType dataClientTestDBType) {
@@ -100,42 +104,42 @@ public class SQLActionsTest {
         resultMirror = BCompileUtil.compile("test-src/connectors/sql/sql_mirror_table_test.bal");
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testInsertTableData() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableData", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testCreateTable() {
         BValue[] returns = BRunUtil.invoke(result, "testCreateTable", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 0);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testUpdateTableData() {
         BValue[] returns = BRunUtil.invoke(result, "testUpdateTableData", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyOnInsert", connectionArgs);
         BString retValue = (BString) returns[0];
         Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testGeneratedKeyWithColumn() {
         BValue[] returns = BRunUtil.invoke(result, "testGeneratedKeyWithColumn", connectionArgs);
         BString retValue = (BString) returns[0];
         Assert.assertTrue(Integer.parseInt(retValue.stringValue()) > 0);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testSelectData() {
         BValue[] returns = BRunUtil.invoke(result, "testSelectData", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -165,7 +169,7 @@ public class SQLActionsTest {
         Assert.assertEquals(doubleVal.floatValue(), doubleExpected);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testCallProcedure() {
         BValue[] returns = BRunUtil.invoke(result, "testCallProcedure", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -174,7 +178,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[1].stringValue(), "nil");
     }
 
-    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "PostgresNotSupported", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, POSTGRES_NOT_SUPPORTED, H2_NOT_SUPPORTED})
     public void testCallProcedureWithResultSet() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testCallProcedureWithResultSet", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -182,7 +186,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "HSQLDBNotSupported", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, "HSQLDBNotSupported", H2_NOT_SUPPORTED})
     public void testCallFunctionWithRefCursor() {
         BValue[] returns = BRunUtil.invokeFunction(result, "testCallFunctionWithReturningRefcursor", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -190,7 +194,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "PostgresNotSupported", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, POSTGRES_NOT_SUPPORTED, H2_NOT_SUPPORTED})
     public void testCallProcedureWithMultipleResultSets() {
         BValue[] returns = BRunUtil.invoke(result, "testCallProcedureWithMultipleResultSets", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -204,7 +208,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue3.stringValue(), expected3);
     }
 
-    @Test(groups = {"ConnectorTest", "PostgresNotSupported", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, POSTGRES_NOT_SUPPORTED, H2_NOT_SUPPORTED})
     public void testCallProcedureWithMultipleResultSetsAndLowerConstraintCount() {
         BValue[] returns = BRunUtil
                 .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndLowerConstraintCount",
@@ -213,14 +217,14 @@ public class SQLActionsTest {
                 + "record type count: 1 and returned result set count: 2 from the stored procedure\""));
     }
 
-    @Test(groups = {"ConnectorTest", "PostgresNotSupported", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, POSTGRES_NOT_SUPPORTED, H2_NOT_SUPPORTED})
     public void testCallProcedureWithMultipleResultSetsAndNilConstraintCount() {
         BValue[] returns = BRunUtil
                 .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndNilConstraintCount", connectionArgs);
         Assert.assertEquals(returns[0].stringValue(), "nil");
     }
 
-    @Test(groups = {"ConnectorTest", "PostgresNotSupported", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, POSTGRES_NOT_SUPPORTED, H2_NOT_SUPPORTED})
     public void testCallProcedureWithMultipleResultSetsAndHigherConstraintCount() {
         BValue[] returns = BRunUtil
                 .invoke(resultNegative, "testCallProcedureWithMultipleResultSetsAndHigherConstraintCount",
@@ -229,7 +233,7 @@ public class SQLActionsTest {
                 + "record type count: 3 and returned result set count: 2 from the stored procedure\""));
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testQueryParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testQueryParameters", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -237,7 +241,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testQueryParameters2() {
         BValue[] returns = BRunUtil.invoke(result, "testQueryParameters2", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -245,28 +249,28 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testInsertTableDataWithParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testInsertTableDataWithParameters2() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters2", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testInsertTableDataWithParameters3() {
         BValue[] returns = BRunUtil.invoke(result, "testInsertTableDataWithParameters3", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testArrayofQueryParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayofQueryParameters", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -274,14 +278,14 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testBoolArrayofQueryParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testBoolArrayofQueryParameters", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 10);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testOutParameters", connectionArgs);
         Assert.assertEquals(returns.length, 13);
@@ -300,7 +304,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[12].stringValue(), "wso2 ballerina binary test.");
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testBlobOutInOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testBlobOutInOutParameters", connectionArgs);
         Assert.assertEquals(returns.length, 2);
@@ -308,7 +312,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[1].stringValue(), "YmxvYiBkYXRh");
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testNullOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testNullOutParameters", connectionArgs);
         Assert.assertEquals(returns.length, 13);
@@ -327,21 +331,21 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[12].stringValue(), null);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testINParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testINParameters", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testBlobInParameter() {
         BValue[] returns = BRunUtil.invoke(result, "testBlobInParameter", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testINParametersWithDirectValues() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectValues", connectionArgs);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -354,13 +358,13 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testINParametersWithDirectBlobValues() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectBlobValues", connectionArgs);
         Assert.assertTrue(returns[0].stringValue().equals(returns[1].stringValue()));
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testINParametersWithDirectVariables() {
         BValue[] returns = BRunUtil.invoke(result, "testINParametersWithDirectVariables", connectionArgs);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
@@ -373,21 +377,21 @@ public class SQLActionsTest {
         Assert.assertEquals(((BFloat) returns[8]).floatValue(), 1234.567D, DELTA);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testNullINParameterValues() {
         BValue[] returns = BRunUtil.invoke(result, "testNullINParameterValues", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testNullINParameterBlobValue() {
         BValue[] returns = BRunUtil.invoke(result, "testNullINParameterBlobValue", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testINOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testINOutParameters", connectionArgs);
         Assert.assertEquals(returns.length, 13);
@@ -406,7 +410,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[12].stringValue(), "wso2 ballerina binary test.");
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testNullINOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testNullINOutParameters", connectionArgs);
         Assert.assertEquals(returns.length, 13);
@@ -425,21 +429,21 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[12].stringValue(), null);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testNullOutInOutBlobParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testNullOutInOutBlobParameters", connectionArgs);
         Assert.assertEquals(returns[0].stringValue(), null);
         Assert.assertEquals(returns[1].stringValue(), null);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testEmptySQLType() {
         BValue[] returns = BRunUtil.invoke(result, "testEmptySQLType", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, H2_NOT_SUPPORTED})
     public void testArrayInParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayInParameters", connectionArgs);
         BInteger retValue = (BInteger) returns[0];
@@ -479,7 +483,7 @@ public class SQLActionsTest {
         Assert.assertEquals(floatArray.get(2), 8796.123);
     }
 
-    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, H2_NOT_SUPPORTED})
     public void testArrayOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayOutParameters", connectionArgs);
         Assert.assertEquals(returns[0].stringValue(), "[1,2,3]");
@@ -490,7 +494,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[5].stringValue(), "[Hello,Ballerina]");
     }
 
-    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, H2_NOT_SUPPORTED})
     public void testArrayInOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testArrayInOutParameters", connectionArgs);
         Assert.assertEquals(returns[0].stringValue(), "1");
@@ -502,7 +506,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[6].stringValue(), "[Hello,Ballerina]");
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdate", connectionArgs);
         BIntArray retValue = (BIntArray) returns[0];
@@ -510,7 +514,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.get(1), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testBatchUpdateWithValues() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithValues", connectionArgs);
         BIntArray retValue = (BIntArray) returns[0];
@@ -518,7 +522,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.get(1), 1);
     }
 
-    @Test(groups = "ConnectorTest", description = "Test batch update operation with variable parameters")
+    @Test(groups = CONNECTOR_TEST, description = "Test batch update operation with variable parameters")
     public void testBatchUpdateWithVariables() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithVariables", connectionArgs);
         BIntArray retValue = (BIntArray) returns[0];
@@ -526,7 +530,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.get(1), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testBatchUpdateWithFailure() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithFailure", connectionArgs);
         // This is the one after the failing batch. Depending on the driver this may or may not be executed hence the
@@ -546,14 +550,14 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 0);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testBatchUpdateWithNullParam() {
         BValue[] returns = BRunUtil.invoke(result, "testBatchUpdateWithNullParam", connectionArgs);
         BIntArray retValue = (BIntArray) returns[0];
         Assert.assertEquals(retValue.get(0), 1);
     }
 
-    @Test(groups = "ConnectorTest")
+    @Test(groups = CONNECTOR_TEST)
     public void testInsertTimeData() {
         BValue[] returns = BRunUtil.invoke(result, "testDateTimeInParameters", connectionArgs);
         BIntArray retValue = (BIntArray) returns[0];
@@ -562,7 +566,7 @@ public class SQLActionsTest {
         Assert.assertEquals((int) retValue.get(2), 1);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED})
     public void testDateTimeOutParams() {
         BValue[] args = new BValue[6];
         Calendar cal = Calendar.getInstance();
@@ -599,7 +603,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest", description = "Check date time null in values")
+    @Test(groups = CONNECTOR_TEST, description = "Check date time null in values")
     public void testDateTimeNullInValues() {
         BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullInValues", connectionArgs);
         Assert.assertEquals(returns.length, 1);
@@ -607,14 +611,14 @@ public class SQLActionsTest {
                 + "\"TIMESTAMP_TYPE\":null,\"DATETIME_TYPE\":null}]");
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"}, description = "Check date time null out values")
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED}, description = "Check date time null out values")
     public void testDateTimeNullOutValues() {
         BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullOutValues", connectionArgs);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 1);
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"}, description = "Check date time null inout values")
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED}, description = "Check date time null inout values")
     public void testDateTimeNullInOutValues() {
         BValue[] returns = BRunUtil.invoke(result, "testDateTimeNullInOutValues", connectionArgs);
         Assert.assertEquals(returns.length, 4);
@@ -624,7 +628,7 @@ public class SQLActionsTest {
         Assert.assertNull(returns[3].stringValue());
     }
 
-    @Test(groups = {"ConnectorTest", "MySQLNotSupported", "H2NotSupported"})
+    @Test(groups = {CONNECTOR_TEST, MYSQL_NOT_SUPPORTED, H2_NOT_SUPPORTED})
     public void testStructOutParameters() {
         BValue[] returns = BRunUtil.invoke(result, "testStructOutParameters", connectionArgs);
         BString retValue = (BString) returns[0];
@@ -632,7 +636,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.stringValue(), expected);
     }
 
-    @Test(dependsOnGroups = "ConnectorTest")
+    @Test(dependsOnGroups = CONNECTOR_TEST)
     public void testCloseConnectionPool() {
         BValue connectionCountQuery;
         if (dbType == MYSQL) {
@@ -651,7 +655,7 @@ public class SQLActionsTest {
         Assert.assertEquals(retValue.intValue(), 1);
     }
 
-    @Test(groups = "ConnectorTest", description = "Check blob binary and clob types types.")
+    @Test(groups = CONNECTOR_TEST, description = "Check blob binary and clob types types.")
     public void testComplexTypeRetrieval() {
         BValue[] returns = BRunUtil.invoke(result, "testComplexTypeRetrieval", connectionArgs);
         String expected0, expected1, expected2, expected3;
@@ -694,25 +698,25 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[3].stringValue(), expected3);
     }
 
-    @Test(groups = "ConnectorTest", description = "Test failed select query")
+    @Test(groups = CONNECTOR_TEST, description = "Test failed select query")
     public void testFailedSelect() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testSelectData", connectionArgs);
         Assert.assertTrue(returns[0].stringValue().contains("execute query failed:"));
     }
 
-    @Test(groups = "ConnectorTest", description = "Test failed update with generated id action")
+    @Test(groups = CONNECTOR_TEST, description = "Test failed update with generated id action")
     public void testFailedGeneratedKeyOnInsert() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testGeneratedKeyOnInsert", connectionArgs);
         Assert.assertTrue(returns[0].stringValue().contains("execute update with generated keys failed:"));
     }
 
-    @Test(groups = {"ConnectorTest", "H2NotSupported"}, description = "Test failed call procedure")
+    @Test(groups = {CONNECTOR_TEST, H2_NOT_SUPPORTED}, description = "Test failed call procedure")
     public void testFailedCallProcedure() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testCallProcedure", connectionArgs);
         Assert.assertTrue(returns[0].stringValue().contains("execute stored procedure failed:"));
     }
 
-    @Test(groups = "ConnectorTest", description = "Test failed batch update")
+    @Test(groups = CONNECTOR_TEST, description = "Test failed batch update")
     public void testFailedBatchUpdate() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testBatchUpdate", connectionArgs);
         if (dbType == HSQLDB || dbType == H2) {
@@ -722,14 +726,14 @@ public class SQLActionsTest {
         }
     }
 
-    @Test(groups = "ConnectorTest", description = "Test failed parameter array update")
+    @Test(groups = CONNECTOR_TEST, description = "Test failed parameter array update")
     public void testInvalidArrayofQueryParameters() {
         BValue[] returns = BRunUtil.invoke(resultNegative, "testInvalidArrayofQueryParameters", connectionArgs);
         Assert.assertTrue(returns[0].stringValue()
                 .contains("execute query failed: unsupported array type for parameter index 0"));
     }
 
-    @Test(groups = "ConnectorTest", description = "Test failure scenario in adding data to mirrored table")
+    @Test(groups = CONNECTOR_TEST, description = "Test failure scenario in adding data to mirrored table")
     public void testAddToMirrorTableNegative() throws Exception {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTableNegative", connectionArgs);
         String errorMessage;
@@ -750,7 +754,7 @@ public class SQLActionsTest {
         Assert.assertTrue(returns[0].stringValue().contains(errorMessage));
     }
 
-    @Test(groups = "ConnectorTest", description = "Test adding data to mirrored table")
+    @Test(groups = CONNECTOR_TEST, description = "Test adding data to mirrored table")
     public void testAddToMirrorTable() throws Exception {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testAddToMirrorTable", connectionArgs);
         Assert.assertNotNull(returns);
@@ -758,7 +762,7 @@ public class SQLActionsTest {
         Assert.assertEquals(returns[1].stringValue(), "{id:2, name:\"Devni\", address:\"Sri Lanka\"}");
     }
 
-    @Test(groups = "ConnectorTest", description = "Test deleting data from mirrored table")
+    @Test(groups = CONNECTOR_TEST, description = "Test deleting data from mirrored table")
     public void testDeleteFromMirrorTable() throws Exception {
         BValue[] returns = BRunUtil.invoke(resultMirror, "testDeleteFromMirrorTable", connectionArgs);
         Assert.assertNotNull(returns);
@@ -766,7 +770,7 @@ public class SQLActionsTest {
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 
-    @Test(groups = "ConnectorTest", description = "Test iterating data of a mirrored table multiple times")
+    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a mirrored table multiple times")
     public void testIterateMirrorTable() throws Exception {
         BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTable", connectionArgs);
         Assert.assertNotNull(returns);
@@ -776,7 +780,7 @@ public class SQLActionsTest {
                 + "name:\"Thurani\", address:\"Sri Lanka\"}])");
     }
 
-    @Test(groups = "ConnectorTest", description = "Test iterating data of a mirrored table after closing")
+    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a mirrored table after closing")
     public void testIterateMirrorTableAfterClose() throws Exception {
         BValue[] returns = BRunUtil.invokeFunction(resultMirror, "testIterateMirrorTableAfterClose", connectionArgs);
         Assert.assertNotNull(returns);
@@ -787,7 +791,7 @@ public class SQLActionsTest {
                 + "closed table\", cause:null})");
     }
 
-    @Test(groups = "ConnectorTest", description = "Test iterating data of a table loaded to memory multiple times")
+    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a table loaded to memory multiple times")
     public void testSelectLoadToMemory() throws Exception {
         BValue[] returns = BRunUtil.invokeFunction(result, "testSelectLoadToMemory", connectionArgs);
         Assert.assertNotNull(returns);
@@ -798,7 +802,7 @@ public class SQLActionsTest {
                 + " name:\"Devni\", address:\"Sri Lanka\"}, {id:3, name:\"Thurani\", address:\"Sri Lanka\"}])");
     }
 
-    @Test(groups = "ConnectorTest", description = "Test iterating data of a table loaded to memory after closing")
+    @Test(groups = CONNECTOR_TEST, description = "Test iterating data of a table loaded to memory after closing")
     public void testLoadToMemorySelectAfterTableClose() throws Exception {
         BValue[] returns = BRunUtil.invokeFunction(result, "testLoadToMemorySelectAfterTableClose", connectionArgs);
         Assert.assertNotNull(returns);
