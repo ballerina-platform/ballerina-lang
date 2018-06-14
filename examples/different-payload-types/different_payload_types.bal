@@ -18,8 +18,8 @@ service<http:Service> actionService bind { port: 9090 } {
         handleResponse(response);
 
         //GET action with request as message.
-        http:Request req = new;
-        response = clientEP->get("/greeting", message = req);
+        http:Request request = new;
+        response = clientEP->get("/greeting", message = request);
         handleResponse(response);
 
         //POST action without any payload.
