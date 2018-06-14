@@ -72,8 +72,8 @@ function main(string... args) {
     io:println("Reading  " + srcFileName + " as a table");
     match csvChannel.getTable(Employee) {
         table<Employee> employeeTable => {
-            foreach record in employeeTable {
-                io:println(record);
+            foreach rec in employeeTable {
+                io:println(rec);
             }
         }
         error err => {
@@ -89,9 +89,9 @@ function main(string... args) {
     io:println("Creating a table and adding data");
     table<Employee> employeeTable = createTableAndAddData();
     io:println("Writing the table to " + targetFileName);
-    foreach (entry in employeeTable) {
-        string[] record = [entry.id, entry.name, <string>entry.salary];
-        writeDataToCSVChannel(csvChannel, record);
+    foreach entry in employeeTable {
+        string[] rec = [entry.id, entry.name, <string>entry.salary];
+        writeDataToCSVChannel(csvChannel, rec);
     }
     closeCSVChannel(csvChannel);
 }
@@ -116,8 +116,8 @@ function createTableAndAddData() returns table<Employee> {
 
 // Write data to a given CSV Channel.
 function writeDataToCSVChannel(io:CSVChannel csvChannel, string[]... data) {
-    foreach record in data {
-        var returnedVal = csvChannel.write(record);
+    foreach rec in data {
+        var returnedVal = csvChannel.write(rec);
         match returnedVal {
             error e => io:println(e.message);
             () => io:println("Record was successfully written to target file");
