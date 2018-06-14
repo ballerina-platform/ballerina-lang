@@ -56,17 +56,8 @@ class FunctionNode extends AbstractFunctionNode {
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             TreeUtil.generateWorkerName(this, node);
             this.addWorkers(node, index);
-        } else if (TreeUtil.isEndpointTypeVariableDef(node)) {
-            // If there are no statements we'll add it to 0
-            let index = 0;
-            const lastIndexOfConnectors = _.findLastIndex(this.getEndpointNodes(),
-                variable => TreeUtil.isEndpointTypeVariableDef(variable));
-            if (lastIndexOfConnectors !== -1) {
-                index = lastIndexOfConnectors + 1;
-            }
-
-            TreeUtil.generateEndpointName(this, node);
-            this.addEndpointNodes(node, index);
+        } else if (TreeUtil.isEndpoint(node)) {
+            this.addEndpointNodes(node);
         }
     }
 

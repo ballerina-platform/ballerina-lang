@@ -271,15 +271,8 @@ class ResourceNode extends AbstractResourceNode {
             const index = !_.isNil(dropBefore) ? this.getIndexOfWorkers(dropBefore) : -1;
             TreeUtil.generateWorkerName(this, node);
             this.addWorkers(node, index);
-        } else if (TreeUtil.isEndpointTypeVariableDef(node)) {
-            // If there are no statements we'll add it to 0
-            let index = 0;
-            const lastIndexOfConnectors = _.findLastIndex(this.getBody().getStatements(),
-                variable => TreeUtil.isEndpointTypeVariableDef(variable));
-            if (lastIndexOfConnectors !== -1) {
-                index = lastIndexOfConnectors + 1;
-            }
-            this.getBody().addStatements(node, index);
+        } else if (TreeUtil.isEndpoint(node)) {
+            this.addEndpointNodes(node);
         }
     }
 

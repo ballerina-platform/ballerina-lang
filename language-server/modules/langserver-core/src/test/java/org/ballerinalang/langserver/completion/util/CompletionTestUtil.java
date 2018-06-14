@@ -67,12 +67,13 @@ public class CompletionTestUtil {
     private static String getCompletionItemPropertyString(CompletionItem completionItem) {
 
         // TODO: Need to add kind and sort text as well
-        return "{" +
+        // Here we replace the Windows specific \r\n to \n for evaluation only
+        return ("{" +
                 completionItem.getInsertText() + "," +
                 completionItem.getDetail() + "," +
                 completionItem.getDocumentation() + "," +
                 completionItem.getLabel() +
-                "}";
+                "}").replace("\r\n", "\n");
     }
 
     private static List<String> getStringListForEvaluation(List<CompletionItem> completionItems) {

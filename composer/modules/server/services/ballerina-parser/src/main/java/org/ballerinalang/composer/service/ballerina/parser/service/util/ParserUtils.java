@@ -152,7 +152,8 @@ public class ParserUtils {
             List<BObjectTypeSymbolDTO> allEndpoints = lsIndexQueryProcessor.getAllEndpoints();
             allPackages.forEach(packageIDDTO -> {
                 String pkgName = packageIDDTO.getName();
-                ModelPackage pkgModel = new ModelPackage(pkgName);
+                String orgName = packageIDDTO.getOrgName();
+                ModelPackage pkgModel = new ModelPackage(pkgName, orgName);
                 List<Endpoint> endpoints = allEndpoints
                         .stream()
                         .filter(bObjectTypeSymbolDTO -> bObjectTypeSymbolDTO.getPackageId()
