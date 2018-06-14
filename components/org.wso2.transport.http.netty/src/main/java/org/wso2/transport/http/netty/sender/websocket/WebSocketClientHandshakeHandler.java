@@ -102,7 +102,7 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
         ctx.channel().pipeline().addLast(Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);
         handshaker.finishHandshake(ctx.channel(), fullHttpResponse);
         ctx.channel().pipeline().remove(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER);
-        ctx.channel().pipeline().fireChannelActive();
+        ctx.fireChannelActive();
         handshakeFuture.setSuccess();
         fullHttpResponse.release();
     }
