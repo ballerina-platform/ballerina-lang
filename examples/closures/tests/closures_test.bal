@@ -21,5 +21,4 @@ function testFunc() {
     test:assertEquals("Answer: 48", outputs[0]);
     test:assertEquals("Answer: 63", outputs[1]);
     test:assertEquals("Answer: 15", outputs[2]);
-    test:assertEquals("Answer: Ballerina22", outputs[3]);
 }
