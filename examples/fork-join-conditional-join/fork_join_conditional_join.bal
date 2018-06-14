@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/runtime;
 
 function main(string... args) {
-    // Declare the `fork-join` statement.
+    // Declare the fork-join statement.
     fork {
         worker w1 {
             int i = 23;
