@@ -22,12 +22,6 @@ function testGlobalByte(byte b) returns byte {
     return globalByte;
 }
 
-function testByteAddition() returns byte {
-    byte a = 14;
-    byte b = 23;
-    return <byte>(a + b);
-}
-
 function testIntToByteCast(int b) returns byte {
     byte a = <byte> b;
     return a;
@@ -115,28 +109,31 @@ function testWorkerWithByteVariable() {
   }
 }
 
-function testBitwiseAndOperator(byte a, byte b, int i, int j) returns (int, int, int, int){
+function testBitwiseAndOperator(byte a, byte b, int i, int j) returns (byte, int, int, int, int){
+    byte b1 = a & b;
     int r1 = a & b;
     int r2 = a & i;
     int r3 = i & j;
     int r4 = a & i & b & j;
-    return (r1, r2, r3, r4);
+    return (b1, r1, r2, r3, r4);
 }
 
-function testBitwiseOrOperator(byte a, byte b, int i, int j) returns (int, int, int, int){
+function testBitwiseOrOperator(byte a, byte b, int i, int j) returns (byte, int, int, int, int){
+    byte b1 = a | b;
     int r1 = a | b;
     int r2 = a | i;
     int r3 = i | j;
     int r4 = a | i | b | j;
-    return (r1, r2, r3, r4);
+    return (b1, r1, r2, r3, r4);
 }
 
-function testBitwiseXorOperator(byte a, byte b, int i, int j) returns (int, int, int, int){
+function testBitwiseXorOperator(byte a, byte b, int i, int j) returns (byte, int, int, int, int){
+    byte b1 = a ^ b;
     int r1 = a ^ b;
     int r2 = a ^ i;
     int r3 = i ^ j;
     int r4 = a ^ i ^ b ^ j;
-    return (r1, r2, r3, r4);
+    return (b1, r1, r2, r3, r4);
 }
 
 function testBitwiseRightShiftOperator(byte a, byte b, int i, int j) returns (int, int){
