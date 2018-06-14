@@ -48,7 +48,6 @@ public class InvalidServiceContractTestCase {
     @Test
     public void testInvalidProtoFileInput() throws ClassNotFoundException, IllegalAccessException,
             InstantiationException {
-
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -67,7 +66,6 @@ public class InvalidServiceContractTestCase {
 
     @Test
     public void testInvalidProtoSyntax() throws ClassNotFoundException, IllegalAccessException, InstantiationException {
-
         Class<?> grpcCmd = Class.forName("org.ballerinalang.protobuf.cmd.GrpcCmd");
         GrpcCmd grpcCmd1 = (GrpcCmd) grpcCmd.newInstance();
         Path sourcePath = Paths.get("grpc", "tool");
@@ -86,7 +84,6 @@ public class InvalidServiceContractTestCase {
 
     @AfterClass
     public void clean() {
-
         BalFileGenerationUtils.delete(new File(protoExeName));
     }
 }
