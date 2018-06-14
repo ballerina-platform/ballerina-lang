@@ -203,7 +203,7 @@ public class HttpFiltersDesugar {
     }
 
     /**
-     * Adds code
+     * Adds the following code.
      * <blockquote><pre>
      *  caller.conn.filterContext = _$$_filterContext;
      *  foreach _$$_filter in caller.config.filters {

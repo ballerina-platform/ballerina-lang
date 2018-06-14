@@ -331,7 +331,8 @@ public class CompiledPackageSymbolEnter {
         String pkgName = getUTF8CPEntryValue(dataInStream);
         String pkgVersion = getUTF8CPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
-        BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.loadedRepository);
+        BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
+                                                                             this.env.loadedRepository);
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -934,7 +935,7 @@ public class CompiledPackageSymbolEnter {
 
         BSymbol symbol = lookupMemberSymbol(this.env.pkgSymbol.scope, pkgID.name, SymTag.PACKAGE);
         if (symbol == this.symTable.notFoundSymbol && pkgID.orgName.equals(Names.BUILTIN_ORG)) {
-            symbol = this.packageLoader.loadPackageSymbol(pkgID, env.loadedRepository);
+            symbol = this.packageLoader.loadPackageSymbol(pkgID, this.env.pkgSymbol.pkgID, env.loadedRepository);
             if (symbol == null) {
                 throw new BLangCompilerException("Unknown imported package: " + pkgID.name);
             }
