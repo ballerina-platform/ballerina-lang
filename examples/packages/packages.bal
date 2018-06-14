@@ -12,6 +12,6 @@ function main(string... args) {
     // Here `math:PI` is a qualified identifier. Note the usage of the package alias.
     float piValue = math:PI;
 
-    // Use the explicit alias `console` to invoke a function defined in the `balleirna/io` package.
+    // Use the explicit alias `console` to invoke a function defined in the `ballerina/io` package.
     console:println(math:PI);
 }
