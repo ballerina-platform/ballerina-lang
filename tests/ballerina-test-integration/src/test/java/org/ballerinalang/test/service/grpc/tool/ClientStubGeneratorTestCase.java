@@ -40,12 +40,13 @@ public class ClientStubGeneratorTestCase {
 
     private static final String PACKAGE_NAME = ".";
     private static String protoExeName = "protoc-" + OSDetector.getDetectedClassifier() + ".exe";
-    private static Path resourceDir = Paths.get(
-            ClientStubGeneratorTestCase.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+    private Path resourceDir;
 
     @BeforeClass
     private void setup() throws Exception {
         TestUtils.prepareBalo(this);
+        resourceDir = Paths.get(ClientStubGeneratorTestCase.class.getProtectionDomain().getCodeSource().getLocation()
+                .toURI().getPath());
     }
 
     @Test
