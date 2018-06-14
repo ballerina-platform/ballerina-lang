@@ -97,7 +97,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Error in HTTP server connector: " + throwable.getMessage(), throwable);
+        log.error("Error in HTTP server connector: " + throwable.getMessage());
     }
 
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage inboundMessage,
