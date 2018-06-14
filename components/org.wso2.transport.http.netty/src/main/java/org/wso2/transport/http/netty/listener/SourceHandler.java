@@ -151,19 +151,23 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
             if (inboundRequestMsg != null) {
                 if (msg instanceof HttpContent) {
                     sourceErrorHandler.setState(RECEIVING_ENTITY_BODY);
-
                     HttpContent httpContent = (HttpContent) msg;
-                    inboundRequestMsg.addHttpContent(httpContent);
-                    if (Util.isLastHttpContent(httpContent)) {
-                        if (handlerExecutor != null) {
-                            handlerExecutor.executeAtSourceRequestSending(inboundRequestMsg);
+                    try {
+                        inboundRequestMsg.addHttpContent(httpContent);
+                        if (Util.isLastHttpContent(httpContent)) {
+                            if (handlerExecutor != null) {
+                                handlerExecutor.executeAtSourceRequestSending(inboundRequestMsg);
+                            }
+                            if (isDiffered(inboundRequestMsg)) {
+                                this.serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
+                            }
+                            outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
+                            inboundRequestMsg = null;
+                            sourceErrorHandler.setState(ENTITY_BODY_RECEIVED);
                         }
-                        if (isDiffered(inboundRequestMsg)) {
-                            this.serverConnectorFuture.notifyHttpListener(inboundRequestMsg);
-                        }
-                        outboundRespStatusFuture = inboundRequestMsg.getHttpOutboundRespStatusFuture();
-                        inboundRequestMsg = null;
-                        sourceErrorHandler.setState(ENTITY_BODY_RECEIVED);
+                    } catch (RuntimeException ex) {
+                        httpContent.release();
+                        log.warn("Response already received before completing the inbound request" + ex.getMessage());
                     }
                 }
             } else {

@@ -52,6 +52,8 @@ import org.wso2.transport.http.netty.sender.http2.Http2TargetHandler;
 import org.wso2.transport.http.netty.sender.http2.OutboundMsgHolder;
 import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
+import java.io.IOException;
+
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
 /**
@@ -83,6 +85,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     @SuppressWarnings("unchecked")
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (outboundRequestMsg != null) {
+            outboundRequestMsg.setIoException(new IOException(Constants.INBOUND_RESPONSE_ALREADY_RECEIVED));
+        }
         if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
                 HttpResponse httpInboundResponse = (HttpResponse) msg;
