@@ -167,7 +167,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
                         }
                     } catch (RuntimeException ex) {
                         httpContent.release();
-                        log.warn("Response already received before completing the request" + ex.getMessage());
+                        log.warn("Response already received before completing the inbound request" + ex.getMessage());
                     }
                 }
             } else {
