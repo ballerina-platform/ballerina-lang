@@ -9,14 +9,14 @@ endpoint http:Client clientEndpoint {
     url: "https://postman-echo.com" };
 
 function main(string... args) {
-    // Asynchronously call the function named `sum`.
+    // Asynchronously call the function named `sum()`.
     future<int> f1 = start sum(40, 50);
-    // You can pass around the value of the `future` variable.
+    // You can pass around the value of the `future` variable
     // and call its results later.
     int result = square_plus_cube(f1);
     io:println("SQ + CB = ", result);
 
-    // Call the `countInfinity` function, which runs forever in asynchronous mode.
+    // Call the `countInfinity()` function, which runs forever in asynchronous mode.
     future f2 = start countInfinity();
     runtime:sleep(1000);
     // Check whether the function call is done.
@@ -78,5 +78,3 @@ function countInfinity() {
         count++;
     }
 }
-
-
