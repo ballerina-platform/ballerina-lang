@@ -7,11 +7,15 @@ import ballerina/io;
 @final string attributeValue = "value";
 
 public type Filter1 object {
-    public function filterRequest (http:Request request, http:FilterContext context) returns http:FilterResult {
+    public function filterRequest(http:Listener listener, http:Request request, http:FilterContext context)
+                        returns boolean {
         log:printInfo("Add attribute to invocation context from filter");
         runtime:getInvocationContext().attributes[attributeName] = attributeValue;
-        http:FilterResult filterResponse = {canProceed:true, statusCode:200, message:"successful"};
-        return filterResponse;
+        return true;
+    }
+
+    public function filterResponse(http:Response response, http:FilterContext context) returns boolean {
+        return true;
     }
 };
 
