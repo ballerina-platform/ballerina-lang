@@ -129,10 +129,11 @@
     position: relative;
     float:left;
     background: #f1f1f1;
-    overflow: visible;
+    overflow-y: scroll;
     margin-left: 1px;
     color: #333;
     padding-bottom: 0;
+    max-height: 400px;
 }
 
 .interaction-menu-area:hover .interaction-menu-item, .interaction-menu-area-clicked .interaction-menu-item {
