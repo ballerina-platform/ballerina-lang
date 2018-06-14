@@ -59,7 +59,7 @@ public class Services {
 
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
                                               HTTPTestRequest request) {
-        return invokeNew(compileResult, pkgName, Names.EMPTY.value, endpointName, request);
+        return invokeNew(compileResult, pkgName, Names.DEFAULT_VERSION.value, endpointName, request);
     }
 
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,

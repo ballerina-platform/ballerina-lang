@@ -3,6 +3,7 @@ package org.wso2.ballerinalang.compiler.packaging.converters;
 import com.sun.nio.zipfs.ZipFileSystem;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.CompilerInput;
+import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
@@ -52,7 +53,7 @@ public class PathConverter implements Converter<Path> {
                 if (packageID != null) {
                     if (packageID.version.value.isEmpty() && !packageID.orgName.equals(Names.BUILTIN_ORG)
                             && !packageID.orgName.equals(Names.ANON_ORG) && pathList.size() > 0) {
-                        packageID.version.value = pathList.get(0).toFile().getName();
+                        packageID.version = new Name(pathList.get(0).toFile().getName());
                     }
                 }
                 return pathList.stream();

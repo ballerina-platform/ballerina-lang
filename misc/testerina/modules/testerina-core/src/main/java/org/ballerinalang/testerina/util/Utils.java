@@ -65,6 +65,7 @@ public class Utils {
 
     /**
      * Cleans up any remaining testerina metadata.
+     *
      * @param path The path of the Directory/File to be deleted
      */
     public static void cleanUpDir(Path path) {
@@ -74,14 +75,15 @@ public class Utils {
             }
         } catch (IOException e) {
             errStream.println("Error occurred while deleting the dir : " + path.toString() + " with error : "
-                              + e.getMessage());
+                    + e.getMessage());
         }
     }
 
     /**
      * Initialize the debugger.
+     *
      * @param programFile ballerina executable programFile
-     * @param debugger Debugger instance
+     * @param debugger    Debugger instance
      */
     public static void initDebugger(ProgramFile programFile, Debugger debugger) {
         programFile.setDebugger(debugger);
@@ -93,6 +95,7 @@ public class Utils {
 
     /**
      * Returns the full package name with org name for a given package.
+     *
      * @param packageName package name
      * @return full package name with organization name if org name exists
      */
@@ -104,13 +107,15 @@ public class Utils {
             return ".";
         }
         if (orgName.isEmpty() || orgName.equals(Names.ANON_ORG.value)) {
-            return packageName;
+            orgName = "";
+        } else {
+            orgName = orgName + Names.ORG_NAME_SEPARATOR;
         }
 
         if (version == null || version.isEmpty() || version.equals(Names.DEFAULT_VERSION.value)) {
-            return orgName + Names.ORG_NAME_SEPARATOR + packageName;
+            return orgName + packageName + Names.VERSION_SEPARATOR + Names.DEFAULT_VERSION.value;
         }
 
-        return orgName + Names.ORG_NAME_SEPARATOR + packageName + Names.VERSION_SEPARATOR + version;
+        return orgName + packageName + Names.VERSION_SEPARATOR + version;
     }
 }
