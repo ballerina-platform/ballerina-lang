@@ -65,6 +65,13 @@ service<http:WebSocketService> basic bind { port: 9090 } {
         };
     }
 
+    // This resource is triggered when an error occurred in the connection or the transport.
+    // This resource is always followed by a connection closure with an appropriate WebSocket close frame
+    // and this is used only to indicate the error to the user and take post decisions if needed.
+    onError(endpoint caller, error err) {
+        io:println("Error occurred: " + err.message);
+    }
+
     // This resource is triggered when a client connection is closed from the client side.
     onClose(endpoint caller, int statusCode, string reason) {
         io:println("\nClient left with status code " + statusCode + " because " + reason);
