@@ -48,7 +48,7 @@ import javax.jms.Topic;
         orgName = "ballerina",
         packageName = "jms",
         functionName = "createSubscriber",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicSubscriber", structPackage = "ballerina.jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "TopicSubscriber", structPackage = "ballerina/jms"),
         args = { @Argument(name = "session", type = TypeKind.OBJECT, structType = "Session"),
                  @Argument(name = "messageSelector", type = TypeKind.STRING)
         },

@@ -30,8 +30,8 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Utility methods used in transaction handling.
@@ -75,7 +75,7 @@ public class TransactionUtils {
     private static void checkTransactionCoordinatorError(BValue value, WorkerExecutionContext ctx, String errMsg) {
         if (value.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
                 || value.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
-            PackageInfo errorPackageInfo = ctx.programFile.getPackageInfo(PACKAGE_BUILTIN);
+            PackageInfo errorPackageInfo = ctx.programFile.getPackageInfo(BALLERINA_BUILTIN_PKG);
             StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
             if (((BStruct) value).getType().getTypeInfo().equals(errorStructInfo)) {
                 throw new BallerinaException(errMsg + ((BStruct) value).getStringField(0));

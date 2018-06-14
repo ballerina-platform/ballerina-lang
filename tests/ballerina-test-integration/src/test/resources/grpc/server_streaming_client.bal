@@ -82,9 +82,9 @@ public type HelloWorldStub object {
         grpc:Client clientEndpoint;
         grpc:Stub stub;
     }
-    function initStub(grpc:Client clientEndpoint) {
+    function initStub(grpc:Client ep) {
         grpc:Stub navStub = new;
-        navStub.initStub(clientEndpoint, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
+        navStub.initStub(ep, "non-blocking", DESCRIPTOR_KEY, descriptorMap);
         self.stub = navStub;
     }
 
@@ -103,13 +103,13 @@ public type HelloWorldClient object {
 
     public function init(grpc:ClientEndpointConfig config) {
         // initialize client endpoint.
-        grpc:Client client = new;
-        client.init(config);
-        self.client = client;
+        grpc:Client c = new;
+        c.init(config);
+        self.client = c;
         // initialize service stub.
-        HelloWorldStub stub = new;
-        stub.initStub(client);
-        self.stub = stub;
+        HelloWorldStub s = new;
+        s.initStub(c);
+        self.stub = s;
     }
 
     public function getCallerActions() returns (HelloWorldStub) {

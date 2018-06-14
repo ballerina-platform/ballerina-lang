@@ -33,7 +33,7 @@ public class PackageImportTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/statements/package/imports/duplicate-import-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length > 0);
-        BAssertUtil.validateWarning(result, 0, "redeclared import package 'ballerina.math'", 4, 1);
+        BAssertUtil.validateWarning(result, 0, "redeclared import package 'ballerina/math'", 4, 1);
     }
 
     @Test

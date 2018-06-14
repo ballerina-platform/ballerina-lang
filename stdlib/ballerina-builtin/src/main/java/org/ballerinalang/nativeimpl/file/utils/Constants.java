@@ -27,7 +27,7 @@ public class Constants {
     /**
      * package path of the file.
      */
-    public static final String FILE_PACKAGE = "ballerina.file";
+    public static final String FILE_PACKAGE = "ballerina/file";
     /**
      * Specifies the struct definition of th path.
      */

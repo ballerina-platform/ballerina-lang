@@ -32,7 +32,7 @@ public interface TypeCreater<T> {
 
     public T getBuiltinRefType(String typeName);
 
-    public T getRefType(char typeChar, String pkgId, String typeName);
+    public T getRefType(char typeChar, String pkgPath, String typeName);
 
     public T getConstrainedType(char typeChar, T constraint);
 

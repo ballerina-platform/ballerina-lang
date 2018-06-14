@@ -18,10 +18,11 @@
 
 package org.ballerinalang.net.websub.hub;
 
+import org.ballerinalang.bre.Context;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
@@ -51,6 +53,7 @@ public class Hub {
     private static final Logger logger = LoggerFactory.getLogger(Hub.class);
 
     private static Hub instance = new Hub();
+    private BStruct hubObject = null;
     private String hubUrl;
     private boolean hubTopicRegistrationRequired;
     private boolean hubPersistenceEnabled;
@@ -69,8 +72,20 @@ public class Hub {
     private Hub() {
     }
 
-    public String retrieveHubUrl() {
+    private void setHubUrl(String hubUrl) {
+        this.hubUrl = hubUrl;
+    }
+
+    public String getHubUrl() {
         return hubUrl;
+    }
+
+    private void setHubObject(BStruct hubObject) {
+        this.hubObject = hubObject;
+    }
+
+    public BStruct getHubObject() {
+        return hubObject;
     }
 
     public void registerTopic(String topic, String secret, boolean loadingOnStartUp) throws BallerinaWebSubException {
@@ -218,34 +233,65 @@ public class Hub {
     }
 
     /**
-     * Method to compile and start up the default Ballerina WebSub Hub.
+     * Method to start up the default Ballerina WebSub Hub.
      */
-    public String startUpHubService(ProgramFile hubProgramFile, BInteger port) {
+    public void startUpHubService(Context context, BBoolean topicRegistrationRequired, BString publicUrl) {
         synchronized (this) {
             if (!isStarted()) {
+                ProgramFile hubProgramFile = context.getProgramFile();
                 PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
                 if (hubPackageInfo != null) {
-                    BValue[] args = {port};
-                    BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"), args);
-                    args = new BValue[0];
-                    String webSubHubUrl = (BLangFunctions.invokeCallable(
-                            hubPackageInfo.getFunctionInfo("getHubUrl"), args)[0]).stringValue();
+                    BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"),
+                                                  new BValue[] {});
+                    hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
+
+                    String hubUrl = publicUrl.stringValue();
+                    BValue[] args = new BValue[0];
+                    //TODO: change once made public and available as a param
                     hubPersistenceEnabled = Boolean.parseBoolean((BLangFunctions.invokeCallable(
                         hubPackageInfo.getFunctionInfo("isHubPersistenceEnabled"), args)[0]).stringValue());
-                    hubTopicRegistrationRequired = Boolean.parseBoolean((BLangFunctions.invokeCallable(
-                        hubPackageInfo.getFunctionInfo("isHubTopicRegistrationRequired"), args)[0])
-                                                                                .stringValue());
-                    logger.info("Default Ballerina WebSub Hub started up at " + webSubHubUrl);
-                    PrintStream console = System.out;
-                    console.println("ballerina: Default Ballerina WebSub Hub started up at " + webSubHubUrl);
-                    hubUrl = webSubHubUrl;
+
+                    PrintStream console = System.err;
+                    console.println("ballerina: Default Ballerina WebSub Hub started up at " + hubUrl);
                     setHubProgramFile(hubProgramFile);
                     started = true;
                     BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);
+                    setHubUrl(hubUrl);
+                    setHubObject(BLangConnectorSPIUtil.createObject(context, WEBSUB_PACKAGE,
+                                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl)));
                 }
+            } else {
+                throw new BallerinaWebSubException("Hub Service already started up");
             }
         }
-        return hubUrl;
+    }
+
+    /**
+     * Method to clean up after stopping the default Ballerina WebSub Hub.
+     */
+    public void stopHubService(Context context) {
+        synchronized (this) {
+            if (isStarted()) {
+                started = false;
+                setHubObject(null);
+                setHubUrl(null);
+                setHubProgramFile(null);
+                hubTopicRegistrationRequired = false;
+                if (hubPersistenceEnabled) {
+                    BLangFunctions.invokeCallable(context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE)
+                                                    .getFunctionInfo("clearSubscriptionDataInDb"),
+                                                  new BValue[]{});
+                }
+                hubPersistenceEnabled = false;
+                topics = new HashMap<>();
+                for (HubSubscriber subscriber : subscribers) {
+                    BrokerUtils.removeSubscription(subscriber);
+                }
+                subscribers = new ArrayList<>();
+            } else {
+                throw new BallerinaWebSubException("Hub Service already stopped");
+            }
+        }
     }
 
     /**

@@ -59,7 +59,7 @@ public class PackageFileReader {
         if (!packageId.startsWith(BALLERINA_PACKAGE_PREFIX)) {
             throw new UnsupportedOperationException("unsupport package read from balo: " + packageId);
         }
-        String pkgName = packageId.replaceFirst("^ballerina\\.", "");
+        String pkgName = packageId.replaceFirst("^ballerina\\/", "");
 
         try {
             readPackage(getCompiledPackageBinary(pkgName));

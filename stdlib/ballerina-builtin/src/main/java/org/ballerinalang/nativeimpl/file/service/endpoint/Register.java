@@ -57,7 +57,7 @@ import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_PACKAGE;
         orgName = "ballerina",
         packageName = "file",
         functionName = "register",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina.file"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener", structPackage = "ballerina/file"),
         args = {@Argument(name = "serviceType", type = TypeKind.TYPEDESC)},
         isPublic = true
 )

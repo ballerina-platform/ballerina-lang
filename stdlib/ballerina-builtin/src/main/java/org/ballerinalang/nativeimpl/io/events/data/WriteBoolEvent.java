@@ -23,7 +23,6 @@ import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
 import org.ballerinalang.nativeimpl.io.events.Event;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.nativeimpl.io.events.result.NumericResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public class WriteBoolEvent implements Event {
      */
     private boolean value;
 
-    private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(WriteBoolEvent.class);
 
     public WriteBoolEvent(DataChannel dataChannel, boolean value, EventContext context) {
         this.channel = dataChannel;

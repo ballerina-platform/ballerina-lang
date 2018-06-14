@@ -1,20 +1,20 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.types.xml;
 
 import org.ballerinalang.launcher.util.BAssertUtil;
@@ -47,9 +47,9 @@ import java.io.IOException;
  */
 public class XMLLiteralTest {
 
-    CompileResult result;
-    CompileResult literalWithNamespacesResult;
-    CompileResult negativeResult;
+    private CompileResult result;
+    private CompileResult literalWithNamespacesResult;
+    private CompileResult negativeResult;
 
     @BeforeClass
     public void setup() {
@@ -60,47 +60,48 @@ public class XMLLiteralTest {
 
     @Test
     public void testXMLNegativeSemantics() {
-        BAssertUtil.validateError(negativeResult, 0, "invalid namespace prefix 'xmlns'", 5, 19);
-        BAssertUtil.validateError(negativeResult, 1, "invalid namespace prefix 'xmlns'", 5, 36);
+        int index = 0;
+        BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 5, 19);
+        BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 5, 36);
 
         // undeclared element prefix
-        BAssertUtil.validateError(negativeResult, 2, "undefined symbol 'ns1'", 10, 19);
-        BAssertUtil.validateError(negativeResult, 3, "undefined symbol 'ns1'", 10, 34);
+        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 10, 19);
+        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 10, 34);
 
         // text with multi type expressions
-        BAssertUtil.validateError(negativeResult, 4, "incompatible types: expected 'xml', found 'map'", 16, 59);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 16, 59);
 
         // combined expressions as element name
         // TODO:
 
         // text with invalid multi type expressions
-        BAssertUtil.validateError(negativeResult, 5, "incompatible types: expected 'string', found 'xml'", 33, 53);
-
-        // redeclare namespaces
-        BAssertUtil.validateError(negativeResult, 6, "redeclared symbol 'ns0'", 42, 9);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'string', found 'xml'", 33,
+                53);
 
         // assigning attributes-map to a map
-        BAssertUtil.validateError(negativeResult, 7, "incompatible types: expected 'map', found 'xml-attributes'", 48,
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'map', found " +
+                        "'xml-attributes'", 48,
                 14);
 
         // namespace conflict with package import
-        BAssertUtil.validateError(negativeResult, 8, "redeclared symbol 'x'", 52, 5);
+        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 52, 5);
 
         // get attributes from non-xml
-        BAssertUtil.validateError(negativeResult, 9, "incompatible types: expected 'xml', found 'map'", 57, 16);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected 'xml', found 'map'", 57, 16);
 
         // update attributes map
-        BAssertUtil.validateError(negativeResult, 10,
+        BAssertUtil.validateError(negativeResult, index++,
                 "xml attributes cannot be updated as a collection. update attributes one at a time", 62, 5);
 
         // update qname
-        BAssertUtil.validateError(negativeResult, 11, "cannot assign values to an xml qualified name", 67, 5);
+        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 67, 5);
 
         // use of undefined namespace for qname
-        BAssertUtil.validateError(negativeResult, 12, "undefined package 'ns0'", 75, 19);
-        
+        BAssertUtil.validateError(negativeResult, index++, "undefined package 'ns0'", 75, 19);
+
         // define namespace with empty URI
-        BAssertUtil.validateError(negativeResult, 13, "cannot bind prefix 'ns0' to the empty namespace name", 79, 5);
+        BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",
+                79, 5);
     }
 
     @Test
@@ -109,7 +110,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);
         BAssertUtil.validateError(negativeResult, 0, "invalid token '{{'", 3, 24);
     }
-     
+
     @Test
     public void testXMLTextLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLTextLiteral");
@@ -192,7 +193,7 @@ public class XMLLiteralTest {
         Assert.assertTrue(returns[1] instanceof BXML);
         Assert.assertEquals(returns[1].stringValue(), "<foo bar5=\"attribute value\">hello</foo>");
     }
-    
+
     @Test
     public void testExpressionAsAttributeValue() {
         BValue[] returns = BRunUtil.invoke(result, "testExpressionAsAttributeValue");
@@ -302,7 +303,7 @@ public class XMLLiteralTest {
                         + "xmlns:ns1=\"http://ballerina.com/b\">hello</foo>");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: error, message: start and end tag names mismatch: 'foo' and " +
                     "'bar'.*")
     public void testMismatchTagNameVar() {
@@ -367,10 +368,10 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(literalWithNamespacesResult, "testNamespaceDclr");
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "{http://sample.com/wso2/a2}foo");
-        
+
         Assert.assertTrue(returns[1] instanceof BString);
         Assert.assertEquals(returns[1].stringValue(), "{http://sample.com/wso2/b2}foo");
-        
+
         Assert.assertTrue(returns[2] instanceof BString);
         Assert.assertEquals(returns[2].stringValue(), "{http://sample.com/wso2/d2}foo");
     }
@@ -395,21 +396,21 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[0].stringValue(), "<root></root>");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: error, message: invalid xml qualified name: unsupported " +
                     "characters in '11'.*")
     public void testInvalidElementName_1() {
         BRunUtil.invoke(result, "testInvalidElementName_1");
     }
 
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = "error: error, message: invalid xml qualified name: unsupported " +
                     "characters in 'foo&gt;bar'.*")
     public void testInvalidElementName_2() {
         BRunUtil.invoke(result, "testInvalidElementName_2");
     }
-    
-    @Test(expectedExceptions = { BLangRuntimeException.class },
+
+    @Test(expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*invalid xml qualified name: unsupported characters in 'foo&gt;bar'.*")
     public void testIvalidAttributeName() {
         BRunUtil.invoke(result, "testIvalidAttributeName");

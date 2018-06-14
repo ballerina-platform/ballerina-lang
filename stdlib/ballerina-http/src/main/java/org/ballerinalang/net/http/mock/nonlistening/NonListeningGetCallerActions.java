@@ -35,7 +35,7 @@ import org.ballerinalang.net.http.serviceendpoint.GetCallerActions;
         orgName = "ballerina", packageName = "http",
         functionName = "getCallerActions",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "NonListener",
-                structPackage = "ballerina.http"),
+                structPackage = "ballerina/http"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )

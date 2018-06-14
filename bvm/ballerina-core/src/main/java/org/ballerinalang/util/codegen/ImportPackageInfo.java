@@ -26,13 +26,17 @@ import java.util.Objects;
  * @since 0.973.0
  */
 public class ImportPackageInfo {
+
+    public int orgNameCPIndex;
     public int nameCPIndex;
     public String pkgPath;
     public int versionCPIndex;
     public String pkgVersion;
     public PackageInfo packageInfo;
 
-    public ImportPackageInfo(int nameCPIndex, String pkgPath, int versionCPIndex, String pkgVersion) {
+    public ImportPackageInfo(int orgNameCPIndex, int nameCPIndex, String pkgPath, int versionCPIndex,
+            String pkgVersion) {
+        this.orgNameCPIndex = orgNameCPIndex;
         this.nameCPIndex = nameCPIndex;
         this.pkgPath = pkgPath;
         this.versionCPIndex = versionCPIndex;

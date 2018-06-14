@@ -11,14 +11,14 @@
       }
     }
     & .panel-title-wrapper {
-        background-color: #383838;
-        height: 35px;
-        border-bottom: 1px solid #565656;
+        background-color: #2d2d2d;
+        height: 29px;
+        border-bottom: 1px solid #383737;
     }
     & .panel-title {
         @extend .unseletable-content;
         float: left;
-        padding: 8.5px 0 8.5px 5px;
+        padding: 5.5px 0 8.5px 5px;
         text-transform: capitalize;
         color: $white01;
         font-size: 14px;
@@ -44,7 +44,7 @@
     }
     .panel-actions {
         float: right;
-        margin: 8.5px 10px 0 0;
+        margin: 5.5px 10px 0 0;
         & i.fw {
             opacity: 0.3;
             padding:10px;

@@ -57,7 +57,7 @@ import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
         orgName = "ballerina", packageName = "http",
         functionName = "start",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSocketClient",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         isPublic = true
 )
 public class Start extends BlockingNativeCallableUnit {

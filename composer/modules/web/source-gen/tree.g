@@ -253,10 +253,14 @@ Limit
    ;
 
 Literal
-   : <inTemplateLiteral?>   <unescapedValue>
+   | <startTemplateLiteral?> <endTemplateLiteral?> }}            <value>
+   | <lastNodeValue?>        <endTemplateLiteral?> }}            <value>
+   |                         <endTemplateLiteral?> }}
+   | <startTemplateLiteral?>                                     <value>
+   : <inTemplateLiteral?>                               <unescapedValue>
    | <inTemplateLiteral?>
-   | <emptyParantheses?>  (                  )
-   |                        <value>
+   | <emptyParantheses?>                              (                  )
+   |                                                             <value>
    ;
 
 Lock

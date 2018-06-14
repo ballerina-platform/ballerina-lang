@@ -110,9 +110,8 @@ function testMethodCallInFinally () returns (string) {
         error e = {message:"test"};
         throw e;
     } finally {
-        s = s + mockFunction();
+        return s + mockFunction();
     }
-    return s;
 }
 
 function scopeIssueTest () returns (int) {

@@ -101,6 +101,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 14, RESUME,  1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 8, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 41, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", FILE, 25, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 26, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 27, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 28, STEP_IN, 1));
@@ -112,7 +113,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", FILE, 43, STEP_IN,  1));
         debugPoints.add(Util.createDebugPoint(".", FILE, 9, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 20);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 21);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-debug.bal", breakPoints, expRes);
     }
@@ -237,6 +238,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 9, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 10, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 12, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 13, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 18, STEP_OVER, 1));
@@ -244,7 +246,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 48, RESUME, 5));
         debugPoints.add(Util.createDebugPoint(".", file, 23, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 14);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 15);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-worker.bal", breakPoints, expRes);
     }
@@ -259,6 +261,7 @@ public class VMDebuggerTest {
         List<DebugPoint> debugPoints = new ArrayList<>();
         debugPoints.add(Util.createDebugPoint(".", file, 3, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 5, STEP_IN, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 13, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 14, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 15, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 16, STEP_OVER, 1));
@@ -272,7 +275,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 23, RESUME, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 9, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 14);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 15);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test-package-init.bal", breakPoints, expRes);
     }
@@ -288,6 +291,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 3, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 7, STEP_IN, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 29, STEP_OVER, 1));
+        debugPoints.add(Util.createDebugPoint(".", file, 23, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 26, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 30, STEP_OVER, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 31, STEP_OVER, 1));
@@ -322,7 +326,7 @@ public class VMDebuggerTest {
         debugPoints.add(Util.createDebugPoint(".", file, 67, STEP_OUT, 1));
         debugPoints.add(Util.createDebugPoint(".", file, 4, RESUME, 1));
 
-        ExpectedResults expRes = new ExpectedResults(debugPoints, 36);
+        ExpectedResults expRes = new ExpectedResults(debugPoints, 37);
 
         VMDebuggerUtil.startDebug("test-src/debugger/test_object_and_match.bal", breakPoints, expRes);
     }

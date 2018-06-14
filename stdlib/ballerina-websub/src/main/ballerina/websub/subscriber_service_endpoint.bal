@@ -45,9 +45,9 @@ public type Listener object {
     documentation {
          Gets called when the endpoint is being initialized during package initialization.
          
-         P{{config}} The Subscriber Service Endpoint Configuration of the endpoint
+         P{{c}} The Subscriber Service Endpoint Configuration of the endpoint
     }
-    public function init(SubscriberServiceEndpointConfiguration config);
+    public function init(SubscriberServiceEndpointConfiguration c);
 
     documentation {
         Gets called whenever a service attaches itself to this endpoint and during package initialization.
@@ -105,12 +105,12 @@ public type Listener object {
 
 };
 
-public function Listener::init(SubscriberServiceEndpointConfiguration config) {
-    self.config = config;
+public function Listener::init(SubscriberServiceEndpointConfiguration c) {
+    self.config = c;
     SignatureValidationFilter sigValFilter;
     http:Filter[] filters = [<http:Filter>sigValFilter];
     http:ServiceEndpointConfiguration serviceConfig = {
-        host:config.host, port:config.port, secureSocket:config.secureSocket, filters:filters
+        host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket, filters:filters
     };
 
     self.serviceEndpoint.init(serviceConfig);
@@ -150,10 +150,10 @@ function Listener::sendSubscriptionRequests() {
             string hub = <string>subscriptionDetails["hub"];
             string topic = <string>subscriptionDetails["topic"];
 
-            http:SecureSocket? secureSocket;
+            http:SecureSocket? newSecureSocket;
             match (<http:SecureSocket>subscriptionDetails["secureSocket"]) {
-                http:SecureSocket httpSecureSocket => { secureSocket = httpSecureSocket; }
-                error => { secureSocket = (); }
+                http:SecureSocket s => { newSecureSocket = s; }
+                error => { newSecureSocket = (); }
             }
 
             http:AuthConfig? auth;
@@ -174,7 +174,7 @@ function Listener::sendSubscriptionRequests() {
                         "Subscription Request not sent since hub and/or topic and resource URL are unavailable");
                     return;
                 }
-                match (retrieveHubAndTopicUrl(resourceUrl, auth, secureSocket, followRedirects)) {
+                match (retrieveHubAndTopicUrl(resourceUrl, auth, newSecureSocket, followRedirects)) {
                     (string, string) discoveredDetails => {
                         var (retHub, retTopic) = discoveredDetails;
                         retHub = check http:decode(retHub, "UTF-8");
@@ -191,7 +191,7 @@ function Listener::sendSubscriptionRequests() {
                     }
                 }
             }
-            invokeClientConnectorForSubscription(hub, auth, secureSocket, followRedirects, subscriptionDetails);
+            invokeClientConnectorForSubscription(hub, auth, newSecureSocket, followRedirects, subscriptionDetails);
         }
     }
 }
@@ -201,7 +201,7 @@ documentation {
 
     F{{host}} The configuration for the endpoint
     F{{port}} The underlying HTTP service endpoint
-    F{{secureSocket}} The SSL configurations for the service endpoint
+    F{{httpServiceSecureSocket}} The SSL configurations for the service endpoint
     F{{topicIdentifier}} The identifier based on which dispatching should happen for custom subscriber services
     F{{topicHeader}} The header to consider if required with dispatching for custom services
     F{{topicPayloadKeys}} The payload keys to consider if required with dispatching for custom services
@@ -210,7 +210,7 @@ documentation {
 public type SubscriberServiceEndpointConfiguration {
     string host;
     int port;
-    http:ServiceSecureSocket? secureSocket;
+    http:ServiceSecureSocket? httpServiceSecureSocket;
     TopicIdentifier? topicIdentifier;
     string? topicHeader;
     string[]? topicPayloadKeys;
@@ -223,13 +223,13 @@ documentation {
     P{{resourceUrl}} The resource URL advertising hub and topic URLs
     R{{}} `(string, string)` (hub, topic) URLs if successful, `error` if not
 }
-function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? secureSocket,
+function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
 
     endpoint http:Client resourceEP {
         url:resourceUrl,
         auth:auth,
-        secureSocket:secureSocket,
+        secureSocket: localSecureSocket,
         followRedirects:followRedirects
     };
 
@@ -342,11 +342,11 @@ documentation {
     P{{hub}} The hub to which the subscription request is to be sent
     P{{subscriptionDetails}} Map containing subscription details
 }
-function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? secureSocket,
+function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
     endpoint Client websubHubClientEP {
         url:hub,
-        secureSocket:secureSocket,
+        clientSecureSocket: localSecureSocket,
         auth:auth,
         followRedirects:followRedirects
     };
