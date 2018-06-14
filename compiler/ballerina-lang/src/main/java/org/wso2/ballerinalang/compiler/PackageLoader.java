@@ -257,9 +257,9 @@ public class PackageLoader {
         return packageNode;
     }
 
-    public BLangPackage loadAndDefinePackage(String orgName, String pkgName) {
+    public BLangPackage loadAndDefinePackage(String orgName, String pkgName, String version) {
         // TODO This is used only to load the builtin package.
-        PackageID pkgId = getPackageID(orgName, pkgName);
+        PackageID pkgId = getPackageID(orgName, pkgName, version);
         return loadAndDefinePackage(pkgId);
     }
 
@@ -322,11 +322,11 @@ public class PackageLoader {
         bLangPackage.imports.add(importDcl);
     }
 
-    private PackageID getPackageID(String org, String sourcePkg) {
+    private PackageID getPackageID(String org, String sourcePkg, String version) {
         // split from '.', '\' and '/'
         List<Name> pkgNameComps = getPackageNameComps(sourcePkg);
         Name orgName = new Name(org);
-        return new PackageID(orgName, pkgNameComps, Names.DEFAULT_VERSION);
+        return new PackageID(orgName, pkgNameComps, new Name(version));
     }
 
     private List<Name> getPackageNameComps(String sourcePkg) {
