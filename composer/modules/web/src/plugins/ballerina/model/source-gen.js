@@ -986,7 +986,16 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Limit':
             return w(' ') + 'limit' + w(' ') + node.limitValue;
         case 'Literal':
-            if (node.inTemplateLiteral && node.unescapedValue) {
+            if (node.startTemplateLiteral && node.endTemplateLiteral
+                         && node.value) {
+                return w() + '}}' + w() + node.value;
+            } else if (node.lastNodeValue && node.endTemplateLiteral && node.value) {
+                return w() + '}}' + w() + node.value;
+            } else if (node.endTemplateLiteral) {
+                return w() + '}}';
+            } else if (node.startTemplateLiteral && node.value) {
+                return w() + node.value;
+            } else if (node.inTemplateLiteral && node.unescapedValue) {
                 return w() + node.unescapedValue;
             } else if (node.inTemplateLiteral) {
                 return '';
