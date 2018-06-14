@@ -59,12 +59,12 @@ class ServerConnectorProperties extends React.Component {
         return (
             <g id='serviceDefProps' onClick={this.handleShowModal}>
                 <text
-                    x={bBox.x + 75}
+                    x={bBox.x + 50 + (bBox.typeName.w / 2)}
                     y={bBox.y - 15}
                     alignmentBaseline='middle'
                     textAnchor='middle'
                     className='protocol-label'
-                >&lt;{this.props.model.getType()}&gt;</text>
+                >&lt;{bBox.typeName.text}&gt;</text>
             </g>
         );
     }
