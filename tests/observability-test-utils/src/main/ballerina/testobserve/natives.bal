@@ -14,7 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+documentation {
+    Get the number of finished spans.
 
-@Description {value:"Get the number of finished spans"}
-@Return {value:"Total number of spans finished"}
-public native function getFinishedSpansCount () returns (string);
+    R{{}} Total number of spans finished
+}
+public native function getFinishedSpansCount () returns string;
