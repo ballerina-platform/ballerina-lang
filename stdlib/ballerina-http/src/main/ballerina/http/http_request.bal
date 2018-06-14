@@ -42,9 +42,11 @@ public type Request object {
 
     private {
         mime:Entity entity;
+        boolean dirtyRequest;
     }
 
     public new() {
+        self.dirtyRequest = false;
         self.entity = createNewEntity();
     }
 

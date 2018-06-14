@@ -86,14 +86,14 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         if (bodyParts != null && bodyParts.size() > 0) {
             MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
             serializeMsgDataSource(multipartDataSource, entityStruct, messageOutputStream);
+            HttpUtil.closeMessageOutputStream(messageOutputStream);
         } else {
             try {
                 EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
             } catch (IOException e) {
                 throw new BallerinaException("Error occurred while serializing byte channel content : " +
                         e.getMessage());
-            } finally {
-                HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         }
     }
@@ -109,13 +109,13 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         try {
             if (outboundMessageSource != null) {
                 outboundMessageSource.serializeData(messageOutputStream);
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
             } else { //When the entity body is a byte channel
                 EntityBodyHandler.writeByteChannelToOutputStream(entityStruct, messageOutputStream);
+                HttpUtil.closeMessageOutputStream(messageOutputStream);
             }
         } catch (IOException e) {
             throw new BallerinaException("Error occurred while serializing message data source : " + e.getMessage());
-        } finally {
-            HttpUtil.closeMessageOutputStream(messageOutputStream);
         }
     }
 
