@@ -26,7 +26,12 @@ public class BalGenerationConstants {
     public static final String OS_NAME_SYSTEM_PROPERTY = "os.name";
     public static final String OS_ARCH_SYSTEM_PROPERTY = "os.arch";
     public static final String FILE_SEPARATOR = File.separator;
-    public static final String META_LOCATION = "desc_gen" + FILE_SEPARATOR;
+    public static final String BUILD_COMMAND_NAME = "build";
+    public static final String META_LOCATION = "desc_gen";
+    public static final String TEMP_GOOGLE_DIRECTORY = "google";
+    public static final String TEMP_PROTOBUF_DIRECTORY = "protobuf";
+    public static final String TEMP_COMPILER_DIRECTORY = "compiler";
+
     public static final String META_DEPENDENCY_LOCATION = "desc_gen" + FILE_SEPARATOR
             + "dependencies";
     public static final String NEW_LINE_CHARACTER = System.getProperty("line.separator");
@@ -37,9 +42,6 @@ public class BalGenerationConstants {
     public static final String PROTO_PATH_PLACEHOLDER = "{{PROTO_PATH}}";
     public static final String PROTO_FOLDER_PLACEHOLDER = "{{PROTO_FOLDER}}";
     public static final String DESC_PATH_PLACEHOLDER = "{{DESC_PATH}}";
-    public static final String PLUGIN_PROTO_FILEPATH = "google" + FILE_SEPARATOR + "protobuf" +
-            FILE_SEPARATOR + "compiler" + FILE_SEPARATOR +
-            "plugin.proto";
     public static final String COMPONENT_IDENTIFIER = "grpc";
     public static final String PROTOC_PLUGIN_EXE_PREFIX = ".exe";
     public static final String PROTO_SUFFIX = ".proto";
