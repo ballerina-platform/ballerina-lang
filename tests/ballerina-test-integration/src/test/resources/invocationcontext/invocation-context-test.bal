@@ -1,7 +1,6 @@
 import ballerina/http;
 import ballerina/log;
 import ballerina/runtime;
-import ballerina/io;
 
 @final string attributeName = "attribute";
 @final string attributeValue = "value";
