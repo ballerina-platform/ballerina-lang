@@ -7,7 +7,9 @@ function main(string... args) {
 
     // Specify the port that the internal Ballerina hub needs to start on and start the hub.
     io:println("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191);
+    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191) but {
+        websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
+    };
 
     // Register a topic at the hub.
     var registrationResponse = webSubHub.registerTopic(
