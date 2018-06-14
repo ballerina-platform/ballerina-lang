@@ -35,18 +35,18 @@ public type SimpleQueueReceiver object {
     }
 
     documentation { Initialize the SimpleQueueReceiver endpoint
-        P{{config}} Configurations related to the SimpleQueueReceiver endpoint
+        P{{c}} Configurations related to the SimpleQueueReceiver endpoint
     }
-    public function init(SimpleQueueListenerEndpointConfiguration config) {
-        self.config = config;
+    public function init(SimpleQueueListenerEndpointConfiguration c) {
+        self.config = c;
         self.receiver.init({
                 initialContextFactory:"bmbInitialContextFactory",
-                providerUrl:getConnectionUrl(config),
-                connectionFactoryName:config.connectionFactoryName,
-                acknowledgementMode:config.acknowledgementMode,
-                messageSelector:config.messageSelector,
-                properties:config.properties,
-                queueName:config.queueName
+                providerUrl:getConnectionUrl(c),
+                connectionFactoryName: c.connectionFactoryName,
+                acknowledgementMode: c.acknowledgementMode,
+                messageSelector: c.messageSelector,
+                properties: c.properties,
+                queueName: c.queueName
             });
 
         self.consumerActions = new QueueReceiverActions(self.receiver.getCallerActions());

@@ -130,6 +130,17 @@ public class SymbolResolver extends BLangNodeVisitor {
             return true;
         }
 
+        BSymbol memSym = lookupMemberSymbol(pos, env.scope, env, symbol.name, expSymTag);
+        if (symbol.getKind() == SymbolKind.XMLNS) {
+            if (memSym.getKind() == SymbolKind.XMLNS) {
+                dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
+                return false;
+            }
+            if (memSym == symTable.notFoundSymbol) {
+                return true;
+            }
+        }
+
         //if a symbol is found, then check whether it is unique
         return isUniqueSymbol(pos, symbol, foundSym);
     }
@@ -192,8 +203,12 @@ public class SymbolResolver extends BLangNodeVisitor {
             return false;
         }
         // We allow variable shadowing for xml namespaces. For all other types, we do not allow variable shadowing.
-        if ((foundSym.owner.tag == SymTag.PACKAGE) && (foundSym.getKind() != SymbolKind.XMLNS)
-                || (foundSym.owner.tag == SymTag.VARIABLE)) {
+        if ((foundSym.getKind() == SymbolKind.XMLNS && symbol.getKind() != SymbolKind.XMLNS)
+                || foundSym.getKind() != SymbolKind.XMLNS
+                // Check for redeclared variables in function, object-function, resource parameters.
+                || foundSym.owner.tag == SymTag.FUNCTION
+                || (foundSym.owner.tag == SymTag.SERVICE && foundSym.getKind() != SymbolKind.XMLNS)
+                || foundSym.owner.tag == SymTag.OBJECT) {
             // Found symbol is a global definition but not a xmlns, or it is a variable symbol, it is an redeclared
             // symbol.
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);

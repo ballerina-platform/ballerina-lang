@@ -42,9 +42,9 @@ public type Client object {
         record is used to determine which type of additional behaviours are added to the endpoint (e.g: caching,
         security, circuit breaking).
 
-        P{{config}} The configurations to be used when initializing the endpoint
+        P{{c}} The configurations to be used when initializing the endpoint
     }
-    public function init(ClientEndpointConfig config);
+    public function init(ClientEndpointConfig c);
 
     documentation {
         Returns the HTTP actions associated with the endpoint.
@@ -216,15 +216,15 @@ public type AuthConfig {
     string clientSecret,
 };
 
-public function Client::init(ClientEndpointConfig config) {
+public function Client::init(ClientEndpointConfig c) {
     boolean httpClientRequired = false;
-    string url = config.url;
+    string url = c.url;
     if (url.hasSuffix("/")) {
         int lastIndex = url.length() - 1;
         url = url.substring(0, lastIndex);
     }
-    self.config = config;
-    var cbConfig = config.circuitBreaker;
+    self.config = c;
+    var cbConfig = c.circuitBreaker;
     match cbConfig {
         CircuitBreakerConfig cb => {
             if (url.hasSuffix("/")) {
@@ -238,21 +238,21 @@ public function Client::init(ClientEndpointConfig config) {
         }
     }
     if (httpClientRequired) {
-        var retryConfigVal = config.retryConfig;
+        var retryConfigVal = c.retryConfig;
         match retryConfigVal {
             RetryConfig retryConfig => {
-                self.httpClient = createRetryClient(url, config);
+                self.httpClient = createRetryClient(url, c);
             }
             () => {
-                if (config.cache.enabled) {
-                    self.httpClient = createHttpCachingClient(url, config, config.cache);
+                if (c.cache.enabled) {
+                    self.httpClient = createHttpCachingClient(url, c, c.cache);
                 } else {
-                    self.httpClient = createHttpSecureClient(url, config);
+                    self.httpClient = createHttpSecureClient(url, c);
                 }
             }
         }
     } else {
-        self.httpClient = createCircuitBreakerClient(url, config);
+        self.httpClient = createCircuitBreakerClient(url, c);
     }
 }
 

@@ -31,7 +31,7 @@ public type Path object {
     documentation {
         Constructs the path.
     }
-    native function init(string root);
+    native function init(string r);
 
     documentation {
         Retrieves the absolute path from the provided location.

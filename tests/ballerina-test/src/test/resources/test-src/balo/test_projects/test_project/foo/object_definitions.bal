@@ -158,9 +158,9 @@ public type Car object {
         string name,
     }
 
-    public new (int age = 10, string name = "sample result") {
-        self.age = age;
-        self.name = name;
+    public new (int a = 10, string n = "sample result") {
+        self.age = a;
+        self.name = n;
     }
 };
 

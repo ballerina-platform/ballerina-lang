@@ -22,7 +22,7 @@ public type NonListener object{
         ServiceEndpointConfiguration config;
     }
 
-    public function init (ServiceEndpointConfiguration config);
+    public function init (ServiceEndpointConfiguration c);
     public native function initEndpoint () returns (error);
     public native function register (typedesc serviceType);
     public native function start ();
@@ -30,8 +30,8 @@ public type NonListener object{
     public native function stop ();
 };
 
-public function NonListener::init (ServiceEndpointConfiguration config) {
-    self.config = config;
+public function NonListener::init (ServiceEndpointConfiguration c) {
+    self.config = c;
     var err = self.initEndpoint();
     if (err != null) {
         throw err;

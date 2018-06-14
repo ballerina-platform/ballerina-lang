@@ -41,10 +41,10 @@ public type WebSocketClient object {
     documentation {
         Gets called when the endpoint is being initialize during package init time.
 
-        P{{config}} The `WebSocketClientEndpointConfig` of the endpoint
+        P{{c}} The `WebSocketClientEndpointConfig` of the endpoint
     }
-    public function init(WebSocketClientEndpointConfig config) {
-        self.config = config;
+    public function init(WebSocketClientEndpointConfig c) {
+        self.config = c;
         initEndpoint();
     }
 

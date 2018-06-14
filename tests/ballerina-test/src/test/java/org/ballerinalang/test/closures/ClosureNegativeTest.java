@@ -31,19 +31,21 @@ public class ClosureNegativeTest {
     @Test(description = "Test private field access")
     public void testPrivateFieldAccess() {
         CompileResult compileResult = BCompileUtil.compile("test-src/closures/closure-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 13);
-        BAssertUtil.validateError(compileResult, 0, "undefined symbol 'functionR'", 6, 56);
-        BAssertUtil.validateError(compileResult, 1, "undefined symbol 'methodInt3'", 17, 44);
-        BAssertUtil.validateError(compileResult, 2, "cannot assign a value to function argument 'a'", 29, 9);
-        BAssertUtil.validateError(compileResult, 3, "cannot assign a value to function argument 'fOut'", 34, 17);
-        BAssertUtil.validateError(compileResult, 4, "redeclared symbol 'a'", 50, 9);
-        BAssertUtil.validateError(compileResult, 5, "cannot assign a value to function argument 'a'", 56, 13);
-        BAssertUtil.validateError(compileResult, 6, "undefined symbol 'l'", 81, 58);
-        BAssertUtil.validateError(compileResult, 7, "undefined symbol 'm'", 81, 62);
-        BAssertUtil.validateError(compileResult, 8, "undefined symbol 'n'", 81, 66);
-        BAssertUtil.validateError(compileResult, 9, "undefined symbol 'm'", 84, 40);
-        BAssertUtil.validateError(compileResult, 10, "undefined symbol 'n'", 84, 44);
-        BAssertUtil.validateError(compileResult, 11, "undefined symbol 'n'", 87, 36);
-        BAssertUtil.validateError(compileResult, 12, "undefined symbol 'm'", 96, 24);
+        Assert.assertEquals(compileResult.getErrorCount(), 14);
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'functionR'", 6, 56);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'methodInt3'", 17, 44);
+        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to function argument 'a'", 29, 9);
+        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to function argument 'fOut'", 34, 17);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'a'", 50, 9);
+        BAssertUtil.validateError(compileResult, index++, "cannot assign a value to function argument 'a'", 56, 13);
+        BAssertUtil.validateError(compileResult, index++, "redeclared symbol 'a'", 64, 17);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'l'", 81, 58);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 81, 62);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 81, 66);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 84, 40);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 84, 44);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'n'", 87, 36);
+        BAssertUtil.validateError(compileResult, index++, "undefined symbol 'm'", 96, 24);
     }
 }

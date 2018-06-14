@@ -29,16 +29,16 @@ public type QueueReceiver object {
     }
 
     documentation { Initializes the QueueReceiver endpoint
-        P{{config}} Configurations related to the QueueReceiver endpoint
+        P{{c}} Configurations related to the QueueReceiver endpoint
     }
-    public function init(QueueReceiverEndpointConfiguration config) {
-        self.config = config;
-        match (config.session) {
+    public function init(QueueReceiverEndpointConfiguration c) {
+        self.config = c;
+        match (c.session) {
             Session s => {
-                self.createQueueReceiver(s, config.messageSelector);
-                log:printInfo("Message receiver created for queue " + config.queueName);
+                self.createQueueReceiver(s, c.messageSelector);
+                log:printInfo("Message receiver created for queue " + c.queueName);
             }
-            () => { log:printInfo("Message receiver not properly initialised for queue " + config.queueName); }
+            () => { log:printInfo("Message receiver not properly initialised for queue " + c.queueName); }
         }
 
     }
@@ -50,7 +50,7 @@ public type QueueReceiver object {
         self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, QueueReceiverActions consumerActions);
+    native function registerListener(typedesc serviceType, QueueReceiverActions actions);
 
     native function createQueueReceiver(Session session, string messageSelector);
 
@@ -71,7 +71,7 @@ public type QueueReceiver object {
         self.closeQueueReceiver(consumerActions);
     }
 
-    native function closeQueueReceiver(QueueReceiverActions consumerActions);
+    native function closeQueueReceiver(QueueReceiverActions actions);
 };
 
 documentation { Configurations related to the QueueReceiver endpoint

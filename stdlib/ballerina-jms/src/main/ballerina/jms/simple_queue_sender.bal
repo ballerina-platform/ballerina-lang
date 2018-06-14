@@ -36,10 +36,10 @@ public type SimpleQueueSender object {
     }
 
     documentation { Initialize the SimpleQueueSender endpoint
-        P{{config}} Configurations related to the SimpleQueueSender endpoint
+        P{{c}} Configurations related to the SimpleQueueSender endpoint
     }
-    public function init(SimpleQueueSenderEndpointConfiguration config) {
-        self.config = config;
+    public function init(SimpleQueueSenderEndpointConfiguration c) {
+        self.config = c;
         Connection conn = new({
                 initialContextFactory:config.initialContextFactory,
                 providerUrl:config.providerUrl,
@@ -56,7 +56,7 @@ public type SimpleQueueSender object {
         QueueSender queueSender = new;
         QueueSenderEndpointConfiguration senderConfig = {
             session:newSession,
-            queueName:config.queueName
+            queueName: c.queueName
         };
         queueSender.init(senderConfig);
         self.sender = queueSender;
