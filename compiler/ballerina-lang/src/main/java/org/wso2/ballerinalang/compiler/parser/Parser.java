@@ -43,7 +43,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 
 /**
- * This class is reponsible for parsing Ballerina source files.
+ * This class is responsible for parsing Ballerina source files.
  *
  * @since 0.94
  */
@@ -117,9 +117,9 @@ public class Parser {
                                             CompilationUnitNode compUnit,
                                             BDiagnosticSource diagnosticSrc) {
         if (this.preserveWhitespace) {
-            return new BLangWSPreservingParserListener(this.context, tokenStream, compUnit, diagnosticSrc);
+            return new BLangWSPreservingParserListener(this.context, tokenStream, compUnit, diagnosticSrc, dlog);
         } else {
-            return new BLangParserListener(this.context, compUnit, diagnosticSrc);
+            return new BLangParserListener(this.context, compUnit, diagnosticSrc, dlog);
         }
     }
 

@@ -24,6 +24,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.tree.CompilationUnitNode;
+import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.FieldContext;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser.StringTemplateContentContext;
@@ -33,6 +34,7 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -50,14 +52,16 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
+    private BLangDiagnosticLog dlog;
 
     private List<String> pkgNameComps;
     private String pkgVersion;
 
     BLangParserListener(CompilerContext context, CompilationUnitNode compUnit,
-                        BDiagnosticSource diagnosticSource) {
+                        BDiagnosticSource diagnosticSource, BLangDiagnosticLog dlog) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
+        this.dlog = dlog;
     }
 
     @Override
@@ -3049,16 +3053,45 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     private Long getIntegerLiteral(ParserRuleContext simpleLiteralContext,
                                    BallerinaParser.IntegerLiteralContext integerLiteralContext) {
         if (integerLiteralContext.DecimalIntegerLiteral() != null) {
-            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.DecimalIntegerLiteral()));
+            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.DecimalIntegerLiteral());
+            try {
+                return Long.parseLong(nodeValue);
+            } catch (Exception e) {
+                DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
+                Set<Whitespace> ws = getWS(simpleLiteralContext);
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
+                dlog.error(pos, DiagnosticCode.INTEGER_TOO_LARGE, nodeValue);
+            }
         } else if (integerLiteralContext.HexIntegerLiteral() != null) {
-            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.HexIntegerLiteral())
-                    .toLowerCase().replace("0x", ""), 16);
+            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.HexIntegerLiteral());
+            try {
+                return Long.parseLong(nodeValue.toLowerCase().replace("0x", ""), 16);
+            } catch (Exception e) {
+                DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
+                Set<Whitespace> ws = getWS(simpleLiteralContext);
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
+                dlog.error(pos, DiagnosticCode.HEXADECIMAL_TOO_LARGE, nodeValue);
+            }
         } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
-            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral())
-                    .replace("0_", ""), 8);
+            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral());
+            try {
+                return Long.parseLong(nodeValue.replace("0_", ""), 8);
+            } catch (Exception e) {
+                DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
+                Set<Whitespace> ws = getWS(simpleLiteralContext);
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
+                dlog.error(pos, DiagnosticCode.OCTAL_TOO_LARGE, nodeValue);
+            }
         } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
-            return Long.parseLong(getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral())
-                    .toLowerCase().replace("0b", ""), 2);
+            String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral());
+            try {
+                return Long.parseLong(nodeValue.toLowerCase().replace("0b", ""), 2);
+            } catch (Exception e) {
+                DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
+                Set<Whitespace> ws = getWS(simpleLiteralContext);
+                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
+                dlog.error(pos, DiagnosticCode.BINARY_TOO_LARGE, nodeValue);
+            }
         }
         return null;
     }

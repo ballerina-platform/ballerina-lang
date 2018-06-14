@@ -76,6 +76,11 @@ public enum DiagnosticCode {
     CONTINUE_CANNOT_BE_OUTSIDE_LOOP("continue.cannot.be.outside.loop"),
     BREAK_CANNOT_BE_OUTSIDE_LOOP("break.cannot.be.outside.loop"),
 
+    INTEGER_TOO_LARGE("integer.too.large"),
+    HEXADECIMAL_TOO_LARGE("hexadecimal.too.large"),
+    OCTAL_TOO_LARGE("octal.too.large"),
+    BINARY_TOO_LARGE("binary.too.large"),
+
     //Transaction related error codes
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
     FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("fail.cannot.be.outside.transaction.block"),
