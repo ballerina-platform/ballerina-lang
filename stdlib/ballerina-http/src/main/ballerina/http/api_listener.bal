@@ -35,9 +35,9 @@ public type APIListener object {
     documentation {
         Gets called when the endpoint is being initialize during package init time.
 
-        P{{config}} The `SecureEndpointConfiguration` of the endpoint
+        P{{c}} The `SecureEndpointConfiguration` of the endpoint
     }
-    public function init(SecureEndpointConfiguration config);
+    public function init(SecureEndpointConfiguration c);
 
     documentation {
         Gets called every time a service attaches itself to this endpoint. Also happens at package initialization.
@@ -64,8 +64,8 @@ public type APIListener object {
     public function stop();
 };
 
-public function APIListener::init(SecureEndpointConfiguration config) {
-    self.secureListener.init(config);
+public function APIListener::init(SecureEndpointConfiguration c) {
+    self.secureListener.init(c);
 }
 
 public function APIListener::register(typedesc serviceType) {

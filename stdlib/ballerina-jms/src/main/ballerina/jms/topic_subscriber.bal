@@ -29,14 +29,14 @@ public type TopicSubscriber object {
     }
 
     documentation { Initialize topic subscriber endpoint
-        P{{config}} Topic subscriber configuration
+        P{{c}} Topic subscriber configuration
     }
-    public function init(TopicSubscriberEndpointConfiguration config) {
-        self.config = config;
-        match (config.session) {
+    public function init(TopicSubscriberEndpointConfiguration c) {
+        self.config = c;
+        match (c.session) {
             Session s => {
-                self.createSubscriber(s, config.messageSelector);
-                log:printInfo("Subscriber created for topic " + config.topicPattern);
+                self.createSubscriber(s, c.messageSelector);
+                log:printInfo("Subscriber created for topic " + c.topicPattern);
             }
             () => {}
         }
@@ -49,7 +49,7 @@ public type TopicSubscriber object {
         self.registerListener(serviceType, consumerActions);
     }
 
-    native function registerListener(typedesc serviceType, TopicSubscriberActions consumerActions);
+    native function registerListener(typedesc serviceType, TopicSubscriberActions actions);
 
     native function createSubscriber(Session session, string messageSelector);
 
@@ -68,7 +68,7 @@ public type TopicSubscriber object {
         self.closeSubscriber(consumerActions);
     }
 
-    native function closeSubscriber(TopicSubscriberActions consumerActions);
+    native function closeSubscriber(TopicSubscriberActions actions);
 };
 
 documentation { Configuration related to topic subscriber endpoint

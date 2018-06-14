@@ -36,9 +36,9 @@ public type SecureListener object {
     documentation {
         Gets called when the endpoint is being initialize during package init time.
 
-        P{{config}} The `SecureEndpointConfiguration` of the endpoint
+        P{{c}} The `SecureEndpointConfiguration` of the endpoint
     }
-    public function init(SecureEndpointConfiguration config);
+    public function init(SecureEndpointConfiguration c);
 
     documentation {
         Initializes the endpoint.
@@ -128,9 +128,9 @@ public type AuthProvider {
     boolean propagateToken,
 };
 
-public function SecureListener::init(SecureEndpointConfiguration config) {
-    addAuthFiltersForSecureListener(config);
-    self.httpListener.init(config);
+public function SecureListener::init(SecureEndpointConfiguration c) {
+    addAuthFiltersForSecureListener(c);
+    self.httpListener.init(c);
 }
 
 documentation {

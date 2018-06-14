@@ -30,7 +30,7 @@ public type ConsumerTemplate object {
         ConsumerEndpointConfiguration config;
     }
 
-    public function init(ConsumerEndpointConfiguration config) {
+    public function init(ConsumerEndpointConfiguration c) {
 
     }
 

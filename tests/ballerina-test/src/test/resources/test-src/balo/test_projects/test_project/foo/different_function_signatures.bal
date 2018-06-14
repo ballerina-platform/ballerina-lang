@@ -73,8 +73,8 @@ public type Employee object {
     public new (name = "supun", salary = 100) {
     }
 
-    public function getSalary (string name, int bonus = 0) returns int {
-        return salary + bonus;
+    public function getSalary (string n, int b = 0) returns int {
+        return salary + b;
     }
 };
 
@@ -84,17 +84,17 @@ public type Person object {
         int age,
     }
 
-    public function test1(int age = 77, string name = "inner default") returns (int, string);
+    public function test1(int a = 77, string n = "inner default") returns (int, string);
 
-    public function test2(int age = 89, string name = "hello") returns (int, string) {
-        string val = name + " world";
-        int intVal = age + 10;
+    public function test2(int a = 89, string n = "hello") returns (int, string) {
+        string val = n + " world";
+        int intVal = a + 10;
         return (intVal, val);
     }
 };
 
-public function Person::test1(int age = 77, string name = "hello") returns (int, string) {
-    string val = name + " world";
-    int intVal = age + 10;
+public function Person::test1(int a = 77, string n = "hello") returns (int, string) {
+    string val = n + " world";
+    int intVal = a + 10;
     return (intVal, val);
 }
