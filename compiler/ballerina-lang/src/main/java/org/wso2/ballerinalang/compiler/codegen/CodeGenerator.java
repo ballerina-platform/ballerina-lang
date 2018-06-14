@@ -47,6 +47,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
@@ -773,11 +774,23 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
-        genNode(tableLiteral.configurationExpr, this.env);
-        Operand varRefRegIndex = tableLiteral.configurationExpr.regIndex;
         tableLiteral.regIndex = calcAndGetExprRegIndex(tableLiteral);
         Operand typeCPIndex = getTypeCPIndex(tableLiteral.type);
-        emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex, varRefRegIndex);
+        ArrayList<BLangExpression> dataRows = new ArrayList<>();
+        for (int i = 0; i < tableLiteral.tableDataRows.size(); i++) {
+            BLangExpression dataRowExpr = tableLiteral.tableDataRows.get(i);
+            genNode(dataRowExpr, this.env);
+            dataRows.add(dataRowExpr);
+        }
+        BLangArrayLiteral arrayLiteral = (BLangArrayLiteral) TreeBuilder.createArrayLiteralNode();
+        arrayLiteral.exprs = dataRows;
+        arrayLiteral.type = symTable.anyType;
+        genNode(arrayLiteral, this.env);
+        genNode(tableLiteral.allColumnsArrayLiteral, this.env);
+        genNode(tableLiteral.keyColumnsArrayLiteral, this.env);
+        emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex,
+                tableLiteral.allColumnsArrayLiteral.regIndex, tableLiteral.keyColumnsArrayLiteral.regIndex,
+                arrayLiteral.regIndex);
     }
 
     @Override

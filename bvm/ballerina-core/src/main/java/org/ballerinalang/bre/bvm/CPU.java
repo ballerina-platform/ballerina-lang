@@ -638,9 +638,13 @@ public class CPU {
                         i = operands[0];
                         cpIndex = operands[1];
                         j = operands[2];
-                        BStruct configStruct = (BStruct) sf.refRegs[j];
+                        k = operands[3];
+                        int m = operands[4];
                         typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), configStruct);
+                        BStringArray allColumns = (BStringArray) sf.refRegs[j];
+                        BStringArray keyColumns = (BStringArray) sf.refRegs[k];
+                        BRefValueArray dataRows = (BRefValueArray) sf.refRegs[m];
+                        sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), allColumns, keyColumns, dataRows);
                         break;
                     case InstructionCodes.NEWSTREAM:
                         i = operands[0];

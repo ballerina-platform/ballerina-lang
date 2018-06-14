@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.desugar;
 
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.TableColumnFlag;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.ballerinalang.model.tree.clauses.JoinStreamingInput;
@@ -997,6 +998,24 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
         tableLiteral.tableDataRows = rewriteExprs(tableLiteral.tableDataRows);
+        BLangArrayLiteral columnArrayLiteral = createArrayLiteralExprNode();
+        columnArrayLiteral.exprs = tableLiteral.columns.stream()
+                .map(expr -> ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.stringType, expr.columnName))
+                .collect(Collectors.toList());
+        columnArrayLiteral.type = new BArrayType(symTable.stringType);
+        tableLiteral.allColumnsArrayLiteral = columnArrayLiteral;
+        List<String> keyColumns = new ArrayList<>();
+        for(BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
+            if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
+                keyColumns.add(column.columnName);
+            }
+        }
+        BLangArrayLiteral keyColumnsArrayLiteral = createArrayLiteralExprNode();
+        keyColumnsArrayLiteral.exprs = keyColumns.stream()
+                .map(expr -> ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.stringType, expr))
+                .collect(Collectors.toList());
+        keyColumnsArrayLiteral.type = new BArrayType(symTable.stringType);
+        tableLiteral.keyColumnsArrayLiteral = keyColumnsArrayLiteral;
         result = tableLiteral;
     }
 
