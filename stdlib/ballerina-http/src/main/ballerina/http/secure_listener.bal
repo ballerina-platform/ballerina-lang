@@ -190,8 +190,8 @@ function createAuthFiltersForSecureListener(SecureEndpointConfiguration config) 
     auth:AuthStoreProvider authStoreProvider = <auth:AuthStoreProvider>configAuthStoreProvider;
     HttpAuthzHandler authzHandler = new(authStoreProvider, authzCache);
     AuthzFilter authzFilter = new(authzHandler);
-    authFilters[0] = <Filter>authnFilter;
-    authFilters[1] = <Filter>authzFilter;
+    authFilters[0] = authnFilter;
+    authFilters[1] = authzFilter;
     return authFilters;
 }
 
