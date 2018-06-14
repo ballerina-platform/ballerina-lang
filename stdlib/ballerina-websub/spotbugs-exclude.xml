@@ -16,5 +16,12 @@
   ~ under the License.
   -->
 <FindBugsFilter>
-
+    <Match>
+        <OR>
+            <Package name="org.ballerinalang.net.websub.hub*"/>
+        </OR>
+        <OR>
+            <Bug pattern="IS2_INCONSISTENT_SYNC"/>
+        </OR>
+    </Match>
 </FindBugsFilter>

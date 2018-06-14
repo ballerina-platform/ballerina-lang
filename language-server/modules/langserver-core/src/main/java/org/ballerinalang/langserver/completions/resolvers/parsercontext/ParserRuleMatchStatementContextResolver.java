@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -113,7 +114,8 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                 } else if (bSymbol instanceof BPackageSymbol
                         && !bSymbol.pkgID.name.getValue().equals("builtin")
                         && !bSymbol.pkgID.name.getValue().contains("runtime")) {
-                    completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
+//                    completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
+                    completionItems.add(BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()));
                 }
             });
         }
