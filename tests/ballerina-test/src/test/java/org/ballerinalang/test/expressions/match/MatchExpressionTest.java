@@ -204,7 +204,5 @@ public class MatchExpressionTest {
             expectedExceptionsMessageRegExp = "error: error, message: root cause.*")
     public void testMatchErrorWithCauses() {
         BRunUtil.invoke(compileResult, "testMatchErrorWithCauses");
-
     }
-    
 }

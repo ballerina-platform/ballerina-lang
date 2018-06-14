@@ -53,11 +53,11 @@ public class Constants {
     static final String UPDATE_ENDPOINT_ACTION_HOLDER_ID = 
             "UPDATE bLangObject SET actionHolderId = ? WHERE id = ?";
     
-    // GET Statements    
+    // GET Statements
     static final String GET_FUNCTIONS_FROM_PACKAGE = "SELECT p.name, p.orgName, f.completionItem, f.name " +
             "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
-            "INNER JOIN bLangFunction AS f WHERE p.id=f.packageId AND f.name NOT LIKE '%<init>%' AND " +
-            "f.name NOT LIKE '%<start>%' AND f.name NOT LIKE '%<stop>%'";
+            "INNER JOIN bLangFunction AS f WHERE p.id=f.packageId AND f.objectId=-1 AND f.name NOT LIKE '%<init>%' " +
+            "AND " + "f.name NOT LIKE '%<start>%' AND f.name NOT LIKE '%<stop>%'";
     
     static final String GET_RECORDS_FROM_PACKAGE = "SELECT p.name, p.orgName, r.completionItem, r.name " +
             "FROM (SELECT id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
@@ -70,4 +70,8 @@ public class Constants {
     static final String GET_OBJECT_FROM_PACKAGE = "SELECT p.name, p.orgName, o.completionItem, o.name " +
             "FROM (select id, name, orgName FROM bLangPackage WHERE name = ? AND orgName = ?) AS p " +
             "INNER JOIN bLangObject AS o WHERE p.id = o.packageId AND o.type = 3";
+
+    static final String GET_ALL_PACKAGES = "SELECT * FROM bLangPackage";
+
+    static final String GET_ALL_ENDPOINTS = "SELECT * FROM bLangObject WHERE type = 1";
 }

@@ -104,7 +104,7 @@ class TreeBuilder {
                 node.ladderParent = true;
             }
 
-            if (node.ws && node.ws[0].text === 'else' && node.ws[1].text === 'if') {
+            if (node.ws && node.ws.length > 1 && node.ws[0].text === 'else' && node.ws[1].text === 'if') {
                 node.isElseIfBlock = true;
             }
         }
@@ -123,7 +123,8 @@ class TreeBuilder {
         if ((kind === 'XmlCommentLiteral' ||
                 kind === 'XmlElementLiteral' ||
                 kind === 'XmlTextLiteral' ||
-                kind === 'XmlPiLiteral') && node.ws && node.ws[0].text.includes('xml `')) {
+                kind === 'XmlPiLiteral') && node.ws && node.ws[0] &&
+            node.ws[0].text.includes('xml') && node.ws[0].text.includes('`')) {
             node.root = true;
             node.startLiteral = node.ws[0].text;
         }
@@ -471,6 +472,10 @@ class TreeBuilder {
         }
 
         if (node.kind === "Documentation") {
+            if (node.ws && node.ws.length > 1) {
+                node.startDoc = node.ws[0].text;
+            }
+
             for (let j = 0; j < node.attributes.length; j++) {
                 let attribute = node.attributes[j];
                 if (attribute.ws) {
@@ -535,14 +540,12 @@ class TreeBuilder {
         }
 
         if (node.kind === 'Literal' && parentKind !== 'StringTemplateLiteral') {
-            if (node.symbolType && node.symbolType.length > 0 &&
-                (node.symbolType[0] === 'string' || node.symbolType[0] === 'float') &&
-                node.ws && node.ws.length < 2 && node.ws[0].text) {
+            if (node.ws && node.ws.length === 1 && node.ws[0] && node.ws[0].text) {
                 node.value = node.ws[0].text;
             }
 
             if ((node.value === 'nil' || node.value === 'null') && node.ws
-                && node.ws.length < 3 && node.ws[0].text === '(') {
+                && node.ws.length < 3 && node.ws[0] && node.ws[0].text === '(') {
                 node.emptyParantheses = true;
             }
         }
@@ -580,17 +583,18 @@ class TreeBuilder {
             }
         }
 
-        if (node.kind === 'Block' && node.ws && node.ws[0].text === 'else') {
+        if (node.kind === 'Block' && node.ws && node.ws[0] && node.ws[0].text === 'else') {
             node.isElseBlock = true;
         }
 
-        if (node.kind === 'FieldBasedAccessExpr' && node.ws && node.ws[0].text === '!') {
+        if (node.kind === 'FieldBasedAccessExpr' && node.ws && node.ws[0] && node.ws[0].text === '!') {
             node.errorLifting = true;
         }
 
-        if (node.kind === 'StringTemplateLiteral' &&
-            node.expressions && node.expressions.length > 2) {
-            if (node.ws && node.ws[0].text === 'string `') {
+        if (node.kind === 'StringTemplateLiteral') {
+            if (node.ws && node.ws[0] &&
+                node.ws[0].text.includes('string') && node.ws[0].text.includes('`')) {
+                node.startTemplate = node.ws[0].text;
                 if (node.expressions.length === (node.ws.length - 2)) {
                     for (let i = 0; i < node.expressions.length; i++) {
                         if (node.expressions[i].kind === 'Literal') {
