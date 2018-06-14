@@ -31,7 +31,7 @@ function main(string... args) {
     var isRemoved = addrMap.remove("postalCode");
     io:println(addrMap);
 
-    // Constrained maps can only contain values of the specified constrained type.
+    // Constrained maps can only contain values of the type specified by the type descriptor.
     map<string> stringMap;
 
     // There is no difference in how a value is added or updated in a constrained map
