@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.protobuf.BalGenerationConstants.BUILD_COMMAND_NAME;
 import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
 import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
 import static org.ballerinalang.protobuf.BalGenerationConstants.FILE_SEPARATOR;
@@ -117,7 +118,7 @@ public class GrpcCmd implements BLauncherCmd {
         }
 
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo("build");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND_NAME);
             outStream.println(commandUsageInfo);
             return;
         }
@@ -129,7 +130,7 @@ public class GrpcCmd implements BLauncherCmd {
             throw new BalGenToolException("Error while generating protoc executable. ", e);
         }
 
-        File descFile = generateTempDirectory();
+        File descFile = createTempDirectory();
         StringBuilder msg = new StringBuilder();
         LOG.debug("Initializing the ballerina code generation.");
 
@@ -186,35 +187,34 @@ public class GrpcCmd implements BLauncherCmd {
     }
     
     /**
-     * Generate the meta folder which needed for intermediate processing.
+     * Create meta temp directory which needed for intermediate processing.
      *
      * @return Temporary Created meta file.
      */
-    private File generateTempDirectory() {
-
+    private File createTempDirectory() {
         File metadataHome = new File(META_LOCATION);
         if (!metadataHome.exists() && !metadataHome.mkdir()) {
             throw new IllegalStateException("Couldn't create dir: " + metadataHome);
         }
 
         File googleHome = new File(TEMP_GOOGLE_DIRECTORY);
-        if (!googleHome.exists() && !googleHome.mkdir()) {
-            throw new IllegalStateException("Couldn't create dir: " + googleHome);
-        }
+        createTempDirectory(googleHome);
 
         File protobufHome = new File(googleHome, TEMP_PROTOBUF_DIRECTORY);
-        if (!protobufHome.exists() && !protobufHome.mkdir()) {
-            throw new IllegalStateException("Couldn't create dir: " + protobufHome);
-        }
+        createTempDirectory(protobufHome);
 
         File compilerHome = new File(protobufHome, TEMP_COMPILER_DIRECTORY);
-        if (!compilerHome.exists() && !compilerHome.mkdir()) {
-            throw new IllegalStateException("Couldn't create dir: " + compilerHome);
-        }
+        createTempDirectory(compilerHome);
 
         return new File(metadataHome, getProtoFileName() + "-descriptor.desc");
     }
-    
+
+    private void createTempDirectory(File dirName) {
+        if (!dirName.exists() && !dirName.mkdir()) {
+            throw new IllegalStateException("Couldn't create dir: " + dirName);
+        }
+    }
+
     /**
      * Export a resource embedded into a Jar file to the local file path.
      *

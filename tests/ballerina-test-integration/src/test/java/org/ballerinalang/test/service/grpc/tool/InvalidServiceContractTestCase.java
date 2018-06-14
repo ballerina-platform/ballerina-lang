@@ -41,8 +41,7 @@ public class InvalidServiceContractTestCase {
             ClientStubGeneratorTestCase.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 
     @BeforeClass
-    private void setup() {
-
+    private void setup() throws Exception {
         TestUtils.prepareBalo(this);
     }
 
