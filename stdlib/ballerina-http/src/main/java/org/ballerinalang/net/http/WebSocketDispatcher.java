@@ -199,7 +199,7 @@ public class WebSocketDispatcher {
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = new BInteger(closeCode);
-        bValues[2] = new BString(closeReason);
+        bValues[2] = new BString(closeReason == null ? "" : closeReason);
         CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
