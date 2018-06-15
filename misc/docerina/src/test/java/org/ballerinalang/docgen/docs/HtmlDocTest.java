@@ -187,12 +187,12 @@ public class HtmlDocTest {
         Assert.assertEquals(recode.name, "GitHubClientConfig");
         Assert.assertEquals(recode.icon, "fw-record");
 
-        Assert.assertEquals(page.constructs.get(1).name, "Client");
-        Assert.assertEquals(page.constructs.get(1).icon, "fw-endpoint");
-        Assert.assertEquals(page.constructs.get(1).description, "<p>GitHub client</p>\n");
-        Assert.assertTrue(page.constructs.get(1) instanceof EndpointDoc, "Invalid documentable type");
+        Assert.assertEquals(page.constructs.get(2).name, "Client");
+        Assert.assertEquals(page.constructs.get(2).icon, "fw-endpoint");
+        Assert.assertEquals(page.constructs.get(2).description, "<p>GitHub client</p>\n");
+        Assert.assertTrue(page.constructs.get(2) instanceof EndpointDoc, "Invalid documentable type");
 
-        ObjectDoc endpointDoc = (ObjectDoc) page.constructs.get(2);
+        ObjectDoc endpointDoc = (ObjectDoc) page.constructs.get(1);
         Assert.assertEquals(endpointDoc.fields.size(), 2);
         Assert.assertEquals(endpointDoc.fields.get(0).toString(), "string url");
         Assert.assertEquals(endpointDoc.children.size(), 2);
@@ -373,7 +373,7 @@ public class HtmlDocTest {
     }
 
     @Test(description = "One function with a struct bindings in a package should be grouped together shown in the " +
-            "constructs", enabled = false)
+                        "constructs", enabled = false)
     public void testFunctionsWithStructBindings() throws Exception {
         BLangPackage bLangPackage = createPackage("public function <Message m>hello(){} " +
                                                   "public struct Message { string message; int id;}");
@@ -384,7 +384,7 @@ public class HtmlDocTest {
     }
 
     @Test(description = "One function without a struct bindings in a package should not be grouped together with the" +
-            "structs shown in the constructs", enabled = false)
+                        "structs shown in the constructs", enabled = false)
     public void testFunctionsWithoutStructBindings() throws Exception {
         BLangPackage bLangPackage = createPackage("public function hello(){} " +
                                                   "public struct Message { string message; int id;}");
@@ -395,7 +395,7 @@ public class HtmlDocTest {
     }
 
     @Test(description = "Functions with struct bindings in a package should be grouped together and functions" +
-            "without struct bindings should be isolated as shown in the constructs", enabled = false)
+                        "without struct bindings should be isolated as shown in the constructs", enabled = false)
     public void testFunctionsWithWithoutStructBindings() throws Exception {
         BLangPackage bLangPackage = createPackage("public function <Message m>hello(){} " +
                                                   "public struct Message { string message; int id;} " +
@@ -520,7 +520,10 @@ public class HtmlDocTest {
                 "" + "" + "\"POST\";";
         BLangPackage bLangPackage = createPackage(source);
 
-        Documentable doc = Generator.createDocForNode(bLangPackage.getTypeDefinitions().get(0));
+        ArrayList<Documentable> union = new ArrayList<>();
+        Generator.addDocForNode(bLangPackage.getTypeDefinitions().get(0), null, null, null, union);
+        Assert.assertEquals(union.size(), 1);
+        Documentable doc = union.get(0);
         Assert.assertEquals(doc.getClass(), EnumDoc.class);
         EnumDoc enumDoc = (EnumDoc) doc;
         Assert.assertEquals(enumDoc.name, "HttpOperation", "Type name should be extracted");

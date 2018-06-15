@@ -40,3 +40,39 @@ function testInvalid4() returns (string){
     }
     return "done";
 }
+
+function testInvalid5() returns string {
+    try {
+        string a = "abc";
+    } catch (TestError e) {
+        return "catch1";
+    } catch (error ex) {
+        //ignore
+    } finally {
+        //do nothing
+    }
+}
+
+function testInvalid6() returns string {
+    try {
+        return "abc";
+    } catch (TestError e) {
+        return "catch1";
+    } catch (error ex) {
+        return "catch2";
+    }
+    return "after try-catch";
+}
+
+function testInvalid7() returns string {
+    try {
+        return "abc";
+    } catch (TestError e) {
+        return "catch1";
+    } catch (error ex) {
+        return "catch2";
+    } finally {
+        return "finally";
+    }
+    return "after try-catch-finally";
+}

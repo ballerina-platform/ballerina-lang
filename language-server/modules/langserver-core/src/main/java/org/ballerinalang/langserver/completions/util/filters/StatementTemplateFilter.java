@@ -19,10 +19,12 @@ package org.ballerinalang.langserver.completions.util.filters;
 
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -33,7 +35,7 @@ import java.util.List;
  */
 public class StatementTemplateFilter extends AbstractSymbolFilter {
     @Override
-    public List filterItems(LSServiceOperationContext completionContext) {
+    public Either<List<CompletionItem>, List<SymbolInfo>> filterItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
         // Populate the statement templates
@@ -159,6 +161,6 @@ public class StatementTemplateFilter extends AbstractSymbolFilter {
         // Set the insert text format to be snippet supported format
         completionItems.forEach(completionItem -> completionItem.setInsertTextFormat(InsertTextFormat.Snippet));
 
-        return completionItems;
+        return Either.forLeft(completionItems);
     }
 }

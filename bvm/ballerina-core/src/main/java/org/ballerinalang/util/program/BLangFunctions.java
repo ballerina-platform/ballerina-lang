@@ -40,13 +40,11 @@ import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.CallableUnitInfo.WorkerSet;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
-import org.ballerinalang.util.codegen.ImportPackageInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.WorkerInfo;
@@ -103,8 +101,11 @@ public class BLangFunctions {
     public static BValue[] invokeEntrypointCallable(ProgramFile programFile,
             FunctionInfo functionInfo, BValue[] args) {
         WorkerExecutionContext parentCtx = new WorkerExecutionContext(programFile);
-        if (functionInfo.getParamTypes().length != args.length) {
-            throw new RuntimeException("Size of input argument arrays is not equal to size of function parameters");
+        int requiredArgNo = functionInfo.getParamTypes().length;
+        int providedArgNo = args.length;
+        if (requiredArgNo != providedArgNo) {
+            throw new RuntimeException("Wrong number of arguments. Required: " + requiredArgNo + " , found: " +
+                    providedArgNo + ".");
         }
         invokePackageInitFunctions(programFile, parentCtx);
         invokePackageStartFunctions(programFile, parentCtx);
@@ -121,9 +122,7 @@ public class BLangFunctions {
      * @param programFile to be invoked.
      */
     public static void invokePackageInitFunctions(ProgramFile programFile) {
-        orderInitFunctions(programFile);
-
-        for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
             invokePackageInitFunction(info.getInitFunctionInfo());
         }
     }
@@ -135,9 +134,7 @@ public class BLangFunctions {
      * @param context to be used.
      */
     public static void invokePackageInitFunctions(ProgramFile programFile, WorkerExecutionContext context) {
-        orderInitFunctions(programFile);
-
-        for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
             invokePackageInitFunction(info.getInitFunctionInfo(), context);
         }
     }
@@ -149,7 +146,7 @@ public class BLangFunctions {
      * @param programFile to be invoked.
      */
     public static void invokePackageStartFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
             BLangFunctions.invokeVMUtilFunction(info.getStartFunctionInfo());
         }
     }
@@ -162,7 +159,7 @@ public class BLangFunctions {
      * @param context to be used.
      */
     public static void invokePackageStartFunctions(ProgramFile programFile, WorkerExecutionContext context) {
-        for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
             BLangFunctions.invokeVMUtilFunction(info.getStartFunctionInfo());
         }
     }
@@ -173,27 +170,8 @@ public class BLangFunctions {
      * @param programFile to be invoked.
      */
     public static void invokePackageStopFunctions(ProgramFile programFile) {
-        for (PackageInfo info : programFile.getImportPackageInfoEntries()) {
+        for (PackageInfo info : programFile.getPackageInfoEntries()) {
             BLangFunctions.invokeVMUtilFunction(info.getStopFunctionInfo());
-        }
-    }
-
-    private static void orderInitFunctions(ProgramFile programFile) {
-        PackageInfo entry = programFile.getEntryPackage();
-        programFile.addImportPackageInfo(programFile.getPackageInfo(BLangConstants.BALLERINA_RUNTIME_PKG));
-        orderPackages(programFile, entry);
-        programFile.addImportPackageInfo(entry);
-    }
-
-    private static void orderPackages(ProgramFile programFile, PackageInfo pkgInfo) {
-        for (ImportPackageInfo importPackageInfo : pkgInfo.importPkgInfoList) {
-            if (importPackageInfo.packageInfo == null) {
-                importPackageInfo.packageInfo = programFile.getPackageInfo(importPackageInfo.pkgPath);
-            }
-            orderPackages(programFile, importPackageInfo.packageInfo);
-            if (!programFile.importPackageAlreadyExist(importPackageInfo.packageInfo)) {
-                programFile.addImportPackageInfo(importPackageInfo.packageInfo);
-            }
         }
     }
     

@@ -90,9 +90,12 @@ public class CommonUtil {
 
     public static final boolean LS_DEBUG_ENABLED;
 
+    public static final String BALLERINA_HOME;
+
     static {
         String debugLogStr = System.getProperty("ballerina.debugLog");
         LS_DEBUG_ENABLED =  debugLogStr != null && Boolean.parseBoolean(debugLogStr);
+        BALLERINA_HOME = System.getProperty("ballerina.home");
     }
 
     /**

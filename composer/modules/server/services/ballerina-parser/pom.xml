@@ -51,5 +51,9 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>language-server-compiler</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>language-server-core</artifactId>
+        </dependency>
     </dependencies>
 </project>

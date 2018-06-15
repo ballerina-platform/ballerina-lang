@@ -44,7 +44,7 @@ public class VersioningDispatchingTest {
     private static final String PATH = "test-src/services/dispatching/versioning/";
 
     private static final String VERSION1 = "1.5.2";
-    private static final String VERSION2 = "";
+    private static final String VERSION2 = "0.0.0";
     private static final String VERSION3 = "xxx";
 
     @BeforeClass

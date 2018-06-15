@@ -19,6 +19,8 @@ package org.wso2.ballerinalang.compiler;
 
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.DocAttachment;
+import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.repository.PackageRepository;
@@ -329,7 +331,8 @@ public class CompiledPackageSymbolEnter {
         String pkgName = getUTF8CPEntryValue(dataInStream);
         String pkgVersion = getUTF8CPEntryValue(dataInStream);
         PackageID importPkgID = createPackageID(orgName, pkgName, pkgVersion);
-        BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.loadedRepository);
+        BPackageSymbol importPackageSymbol = packageLoader.loadPackageSymbol(importPkgID, this.env.pkgSymbol.pkgID,
+                                                                             this.env.loadedRepository);
         //TODO: after balo_change try to not to add to scope, it's duplicated with 'imports'
         // Define the import package with the alias being the package name
         this.env.pkgSymbol.scope.define(importPkgID.name, importPackageSymbol);
@@ -401,6 +404,8 @@ public class CompiledPackageSymbolEnter {
         // set taint table to the function symbol
         setTaintTable(invokableSymbol, attrDataMap);
 
+        setDocumentation(invokableSymbol, attrDataMap);
+
         scopeToDefine.define(invokableSymbol.name, invokableSymbol);
     }
 
@@ -436,7 +441,9 @@ public class CompiledPackageSymbolEnter {
         }
 
         // Read and ignore attributes
-        readAttributes(dataInStream);
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
+
+        setDocumentation(typeDefSymbol, attrDataMap);
 
         this.env.pkgSymbol.scope.define(typeDefSymbol.name, typeDefSymbol);
     }
@@ -655,7 +662,7 @@ public class CompiledPackageSymbolEnter {
         int flags = dataInStream.readInt();
         int memIndex = dataInStream.readInt();
 
-        readAttributes(dataInStream);
+        Map<Kind, byte[]> attrDataMap = readAttributes(dataInStream);
 
         // Create variable symbol
         BType varType = getBTypeFromDescriptor(typeSig);
@@ -673,6 +680,8 @@ public class CompiledPackageSymbolEnter {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
                     enclScope.owner);
         }
+
+        setDocumentation(varSymbol, attrDataMap);
 
         varSymbol.varIndex = new RegIndex(memIndex, varType.tag);
         enclScope.define(varSymbol.name, varSymbol);
@@ -827,6 +836,37 @@ public class CompiledPackageSymbolEnter {
         }
     }
 
+    private void setDocumentation(BSymbol symbol, Map<AttributeInfo.Kind, byte[]> attrDataMap) throws IOException {
+        if (!attrDataMap.containsKey(Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE)) {
+            return;
+        }
+
+        byte[] documentationBytes = attrDataMap.get(AttributeInfo.Kind.DOCUMENT_ATTACHMENT_ATTRIBUTE);
+        DataInputStream documentDataStream = new DataInputStream(new ByteArrayInputStream(documentationBytes));
+
+        String docDesc = getUTF8CPEntryValue(documentDataStream);
+
+        DocAttachment docAttachment = new DocAttachment();
+        docAttachment.description = docDesc;
+
+        int noOfParams = documentDataStream.readShort();
+        for (int i = 0; i < noOfParams; i++) {
+            String name = getUTF8CPEntryValue(documentDataStream);
+            documentDataStream.readInt();
+            String paramKind = getUTF8CPEntryValue(documentDataStream);
+            String paramDesc = getUTF8CPEntryValue(documentDataStream);
+
+            DocAttachment.DocAttribute attribute = new DocAttachment
+                    .DocAttribute(name,
+                    paramDesc,
+                    DocTag.fromString(paramKind));
+
+            docAttachment.attributes.add(attribute);
+        }
+
+        symbol.documentation = docAttachment;
+    }
+
     private String getVarName(DataInputStream dataInStream) throws IOException {
         String varName = getUTF8CPEntryValue(dataInStream);
         // read variable index
@@ -895,7 +935,7 @@ public class CompiledPackageSymbolEnter {
 
         BSymbol symbol = lookupMemberSymbol(this.env.pkgSymbol.scope, pkgID.name, SymTag.PACKAGE);
         if (symbol == this.symTable.notFoundSymbol && pkgID.orgName.equals(Names.BUILTIN_ORG)) {
-            symbol = this.packageLoader.loadPackageSymbol(pkgID, env.loadedRepository);
+            symbol = this.packageLoader.loadPackageSymbol(pkgID, this.env.pkgSymbol.pkgID, env.loadedRepository);
             if (symbol == null) {
                 throw new BLangCompilerException("Unknown imported package: " + pkgID.name);
             }

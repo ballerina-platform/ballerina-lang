@@ -72,7 +72,11 @@ endpoint websub:Listener websubEP {
 service websubSubscriber bind websubEP {
 
     onNotification(websub:Notification notification) {
-        log:printInfo("WebSub Notification Received: " + notification.payload.toString());
+        match (notification.getPayloadAsString()) {
+            string payloadAsString => log:printInfo("WebSub Notification Received: "
+                                                        + payloadAsString);
+            error e => log:printError("Error retrieving payload as string", err = e);
+        }
     }
  
 }
@@ -107,7 +111,11 @@ service websubSubscriber bind websubEP {
     }
 
     onNotification(websub:Notification notification) {
-        log:printInfo("WebSub Notification Received: " + notification.payload.toString());
+        match (notification.getPayloadAsString()) {
+            string payloadAsString => log:printInfo("WebSub Notification Received: "
+                                                        + payloadAsString);
+            error e => log:printError("Error retrieving payload as string", err = e);
+        }
     }
     
 }
@@ -116,10 +124,10 @@ service websubSubscriber bind websubEP {
 Functions are made available on the `websub:IntentVerificationRequest` to build a subscription or unsubscription 
 verification response, specifying the topic to verify intent against:
 ```ballerina
-http:Response response = request.buildSubscriptionVerificationResponse(topic = "<TOPIC_TO_VERIFY_FOR>");
+http:Response response = request.buildSubscriptionVerificationResponse("<TOPIC_TO_VERIFY_FOR>");
 ```
 ```ballerina
-http:Response response = request.buildUnsubscriptionVerificationResponse(topic = "<TOPIC_TO_VERIFY_FOR>");
+http:Response response = request.buildUnsubscriptionVerificationResponse("<TOPIC_TO_VERIFY_FOR>");
 ```
  
 Ballerina publishers can start up and publish directly to the Ballerina WebSub hub.
@@ -131,7 +139,9 @@ import ballerina/websub;
 function main(string... args) {
 
     log:printInfo("Starting up the Ballerina Hub Service");
-    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191);
+    websub:WebSubHub webSubHub = websub:startUpBallerinaHub(port = 9191) but {
+        websub:HubStartedUpError hubStartedUpErr => hubStartedUpErr.startedUpHub
+    };
 
     var registrationResponse = webSubHub.registerTopic("<TOPIC_URL>");
     match (registrationResponse) {
@@ -232,7 +242,8 @@ function main(string... args) {
 ```
 
 ## Configuration Parameters
-The Ballerina WebSub implementation allows specifying the following properties/parameters via the Ballerina Config API.
+The Ballerina WebSub implementation allows specifying the following properties/parameters via the Ballerina Config API,
+where the values specified via the Config API would be used if the values are not specified as params on hub start up.
 
 
 | Configuration Key              | Default Value | Description                                                        |

@@ -109,7 +109,7 @@ ConstrainedType
    ;
 
 Documentation
-   : documentation { <documentationText> <attributes>* }
+   : <startDoc> <documentationText> <attributes>* }
    ;
 
 DocumentationAttribute
@@ -253,10 +253,14 @@ Limit
    ;
 
 Literal
-   : <inTemplateLiteral?>   <unescapedValue>
+   | <startTemplateLiteral?> <endTemplateLiteral?> }}            <value>
+   | <lastNodeValue?>        <endTemplateLiteral?> }}            <value>
+   |                         <endTemplateLiteral?> }}
+   | <startTemplateLiteral?>                                     <value>
+   : <inTemplateLiteral?>                               <unescapedValue>
    | <inTemplateLiteral?>
-   | <emptyParantheses?>  (                  )
-   |                        <value>
+   | <emptyParantheses?>                              (                  )
+   |                                                             <value>
    ;
 
 Lock
@@ -395,7 +399,7 @@ StreamingQuery
    ;
 
 StringTemplateLiteral
-   : string\u0020` <expressions>* `
+   : <startTemplate> <expressions>* `
    ;
 
 Table

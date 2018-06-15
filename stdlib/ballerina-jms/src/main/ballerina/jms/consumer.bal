@@ -41,9 +41,9 @@ public type ConsumerTemplate object {
     }
 
     documentation { Initialize the consumer endpoint
-        P{{config}} Configurations related to the endpoint
+        P{{c}} Configurations related to the endpoint
     }
-    public function init(ConsumerEndpointConfiguration config) {
+    public function init(ConsumerEndpointConfiguration c) {
 
     }
 

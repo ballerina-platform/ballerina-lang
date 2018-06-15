@@ -35,9 +35,9 @@ public type APIListener object {
     documentation {
         Gets called when the endpoint is being initialize during package init time.
 
-        P{{config}} The `SecureEndpointConfiguration` of the endpoint
+        P{{c}} The `SecureEndpointConfiguration` of the endpoint
     }
-    public function init(SecureEndpointConfiguration config);
+    public function init(SecureEndpointConfiguration c);
 
     documentation {
         Gets called every time a service attaches itself to this endpoint. Also happens at package initialization.
@@ -64,8 +64,8 @@ public type APIListener object {
     public function stop();
 };
 
-public function APIListener::init(SecureEndpointConfiguration config) {
-    self.secureListener.init(config);
+public function APIListener::init(SecureEndpointConfiguration c) {
+    self.secureListener.init(c);
 }
 
 public function APIListener::register(typedesc serviceType) {
@@ -76,10 +76,102 @@ public function APIListener::start() {
     self.secureListener.start();
 }
 
-public function APIListener::getCallerActions() returns (Connection) {
-    return self.secureListener.getCallerActions();
+public function APIListener::getCallerActions() returns (APIListenerActions) {
+    APIListenerActions apiListenerActions = new (self.secureListener.getCallerActions());
+    return apiListenerActions;
 }
 
 public function APIListener::stop() {
     self.secureListener.stop();
 }
+
+documentation {
+    The caller actions for responding to client requests to api listener.
+}
+public type APIListenerActions object {
+
+    public {
+        Connection httpCallerActions;
+    }
+
+    documentation {
+        The api listener caller actions initializer.
+
+        P{{httpCallerActions}} HTTP caller actions reference
+    }
+    new (httpCallerActions) {}
+
+    documentation {
+        Sends the outbound response to the caller.
+
+        P{{message}} The outbound response or any payload of type `string`, `xml`, `json`, `blob`, `io:ByteChannel`
+                     or `mime:Entity[]`
+        R{{}} Returns an `error` if failed to respond
+    }
+    public function respond(Response|string|xml|json|blob|io:ByteChannel|mime:Entity[]|() message) returns error? {
+        return httpCallerActions.respond(message);
+    }
+
+    documentation {
+        Pushes a promise to the caller.
+
+        P{{promise}} Push promise message
+        R{{}} An `error` in case of failures
+    }
+    public function promise(PushPromise promise) returns error? {
+        return httpCallerActions.promise(promise);
+    }
+
+    documentation {
+        Sends a promised push response to the caller.
+
+        P{{promise}} Push promise message
+        P{{response}} The outbound response
+        R{{}} An `error` in case of failures while responding with the promised response
+    }
+    public function pushPromisedResponse(PushPromise promise, Response response) returns error? {
+        return httpCallerActions.pushPromisedResponse(promise, response);
+    }
+
+    documentation {
+        Sends an upgrade request with custom headers.
+
+        P{{headers}} A `map` of custom headers for handshake
+    }
+    public function acceptWebSocketUpgrade(map headers) returns WebSocketListener {
+        return httpCallerActions.acceptWebSocketUpgrade(headers);
+    }
+
+    documentation {
+        Cancels the handshake.
+
+        P{{status}} Error Status code for cancelling the upgrade and closing the connection.
+        This error status code need to be 4xx or 5xx else the default status code would be 400.
+        P{{reason}} Reason for cancelling the upgrade
+        R{{}} An `error` if an error occurs during cancelling the upgrade or nil
+    }
+    public function cancelWebSocketUpgrade(int status, string reason) returns error|() {
+        return httpCallerActions.cancelWebSocketUpgrade(status, reason);
+    }
+
+    documentation {
+        Sends a `100-continue` response to the caller.
+
+        R{{}} Returns an `error` if failed to send the `100-continue` response
+    }
+    public function continue() returns error? {
+        return httpCallerActions.continue();
+    }
+
+    documentation {
+        Sends a redirect response to the user with the specified redirection status code.
+
+        P{{response}} Response to be sent to the caller
+        P{{code}} The redirect status code to be sent
+        P{{locations}} An array of URLs to which the caller can redirect to
+        R{{}} Returns an `error` if failed to send the redirect response
+    }
+    public function redirect(Response response, RedirectCode code, string[] locations) returns error? {
+        return httpCallerActions.redirect(response, code, locations);
+    }
+};
