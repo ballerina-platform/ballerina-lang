@@ -67,7 +67,7 @@ public final class ServiceDescriptor {
 
         this.name = b.name;
         validateMethodNames(name, b.methods);
-        this.methods = Collections.unmodifiableList(new ArrayList<MethodDescriptor<?, ?>>(b.methods));
+        this.methods = Collections.unmodifiableList(new ArrayList<>(b.methods));
     }
 
     /**
@@ -94,7 +94,7 @@ public final class ServiceDescriptor {
     private static void validateMethodNames(String serviceName, Collection<MethodDescriptor<?, ?>> methods) throws
             GrpcServerException {
 
-        Set<String> allNames = new HashSet<String>(methods.size());
+        Set<String> allNames = new HashSet<>(methods.size());
         for (MethodDescriptor<?, ?> method : methods) {
             if (method == null) {
                 throw new GrpcServerException("method cannot be null");
@@ -133,7 +133,7 @@ public final class ServiceDescriptor {
         }
 
         private String name;
-        private List<MethodDescriptor<?, ?>> methods = new ArrayList<MethodDescriptor<?, ?>>();
+        private List<MethodDescriptor<?, ?>> methods = new ArrayList<>();
         private Object schemaDescriptor;
 
         /**

@@ -29,7 +29,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
@@ -42,7 +41,6 @@ import static com.google.common.base.Preconditions.checkState;
 public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
 
     private static final Logger log = Logger.getLogger(ClientCallImpl.class.getName());
-    private static final String FULL_STREAM_DECOMPRESSION_ENCODINGS = "gzip";
 
     private final MethodDescriptor<ReqT, RespT> method;
     private final CallOptions callOptions;
@@ -120,14 +118,6 @@ public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
         connectorListener.setDecompressorRegistry(decompressorRegistry);
         HttpResponseFuture responseFuture = connector.send(outboundMessage.getResponseMessage());
         responseFuture.setHttpConnectorListener(connectorListener);
-    }
-
-    @Override
-    public void request(int numMessages) {
-
-        checkState(connectorListener != null, "Not started");
-        checkArgument(numMessages >= 0, "Number requested must be non-negative");
-        connectorListener.request(numMessages);
     }
 
     @Override
@@ -231,26 +221,18 @@ public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
         }
 
         @Override
-        public void messagesAvailable(final MessageProducer producer) {
+        public void messagesAvailable(final InputStream message) {
 
             if (closed) {
-                MessageUtils.closeQuietly(producer);
+                MessageUtils.closeQuietly(message);
                 return;
             }
 
-            InputStream message;
             try {
-                while ((message = producer.next()) != null) {
-                    try {
-                        observer.onMessage(method.parseResponse(message));
-                    } catch (Throwable t) {
-                        MessageUtils.closeQuietly(message);
-                        throw t;
-                    }
-                    message.close();
-                }
+                observer.onMessage(method.parseResponse(message));
+                message.close();
             } catch (Throwable t) {
-                MessageUtils.closeQuietly(producer);
+                MessageUtils.closeQuietly(message);
                 Status status =
                         Status.Code.CANCELLED.toStatus().withCause(t).withDescription("Failed to read message.");
                 close(status, new DefaultHttpHeaders());

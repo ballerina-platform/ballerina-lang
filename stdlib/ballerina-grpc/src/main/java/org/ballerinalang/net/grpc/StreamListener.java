@@ -33,9 +33,9 @@ public interface StreamListener {
    *
    * <p>This method should return quickly, as the same thread may be used to process other streams.
    *
-   * @param producer supplier of deframed messages.
+   * @param inputStream deframed message stream.
    */
-  void messagesAvailable(MessageProducer producer);
+  void messagesAvailable(InputStream inputStream);
 
   /**
    * This indicates that the transport is now capable of sending additional messages

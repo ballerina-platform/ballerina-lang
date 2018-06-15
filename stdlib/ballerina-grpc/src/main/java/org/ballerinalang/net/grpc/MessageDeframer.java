@@ -16,14 +16,13 @@
 
 package org.ballerinalang.net.grpc;
 
+import com.google.common.base.Preconditions;
+
 import java.io.Closeable;
-import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -46,9 +45,9 @@ public class MessageDeframer implements Closeable {
         /**
          * Called to deliver the next complete message.
          *
-         * @param producer single message producer wrapping the message.
+         * @param inputStream single message producer wrapping the message.
          */
-        void messagesAvailable(StreamListener.MessageProducer producer);
+        void messagesAvailable(InputStream inputStream);
 
         /**
          * Called when the deframer closes.
@@ -77,7 +76,6 @@ public class MessageDeframer implements Closeable {
     private boolean compressedFlag;
     private CompositeReadableBuffer nextFrame;
     private CompositeReadableBuffer unprocessed = new CompositeReadableBuffer();
-    private long pendingDeliveries = 1;
     private boolean inDelivery = false;
 
     private boolean closeWhenComplete = false;
@@ -112,18 +110,12 @@ public class MessageDeframer implements Closeable {
         this.decompressor = decompressor;
     }
 
-    public void request(int numMessages) {
-        checkArgument(numMessages > 0, "numMessages must be > 0");
-        if (isClosed()) {
-            return;
-        }
-        pendingDeliveries += numMessages;
-        //deliver();
-    }
-
     public void deframe(ReadableBuffer data) {
 
-        checkNotNull(data, "data");
+        if (data == null) {
+            throw new RuntimeException("Data buffer is null");
+        }
+
         boolean needToCloseData = true;
         try {
             if (!isClosedOrScheduledToClose()) {
@@ -304,7 +296,7 @@ public class MessageDeframer implements Closeable {
 
         InputStream stream = compressedFlag ? getCompressedBody() : getUncompressedBody();
         nextFrame = null;
-        listener.messagesAvailable(new MessageDeframer.SingleMessageProducer(stream));
+        listener.messagesAvailable(stream);
 
         // Done with this frame, begin processing the next header.
         state = MessageDeframer.State.HEADER;
@@ -312,7 +304,7 @@ public class MessageDeframer implements Closeable {
     }
 
     private InputStream getUncompressedBody() {
-        return ReadableBuffers.openStream(nextFrame);
+        return new BufferInputStream(nextFrame);
     }
 
     private InputStream getCompressedBody() {
@@ -323,108 +315,46 @@ public class MessageDeframer implements Closeable {
         }
 
         try {
-            // Enforce the maxMessageSize limit on the returned stream.
-            InputStream unlimitedStream =
-                    decompressor.decompress(ReadableBuffers.openStream(nextFrame));
-            return new MessageDeframer.SizeEnforcingInputStream(unlimitedStream, maxInboundMessageSize);
+            return decompressor.decompress(new BufferInputStream(nextFrame));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * An {@link InputStream} that enforces the {@link #maxMessageSize} limit for compressed frames.
+     * An {@link InputStream} that is backed by a {@link ReadableBuffer}.
      */
-    static final class SizeEnforcingInputStream extends FilterInputStream {
-        private final int maxMessageSize;
-        private long maxCount;
-        private long count;
-        private long mark = -1;
+    private static final class BufferInputStream extends InputStream implements KnownLength {
+        final ReadableBuffer buffer;
 
-        SizeEnforcingInputStream(InputStream in, int maxMessageSize) {
-            super(in);
-            this.maxMessageSize = maxMessageSize;
+        public BufferInputStream(ReadableBuffer buffer) {
+            this.buffer = Preconditions.checkNotNull(buffer, "buffer");
         }
 
         @Override
-        public int read() throws IOException {
-            int result = in.read();
-            if (result != -1) {
-                count++;
-            }
-            verifySize();
-            reportCount();
-            return result;
+        public int available() {
+            return buffer.readableBytes();
         }
 
         @Override
-        public int read(byte[] b, int off, int len) throws IOException {
-            int result = in.read(b, off, len);
-            if (result != -1) {
-                count += result;
+        public int read() {
+            if (buffer.readableBytes() == 0) {
+                // EOF.
+                return -1;
             }
-            verifySize();
-            reportCount();
-            return result;
+            return buffer.readUnsignedByte();
         }
 
         @Override
-        public long skip(long n) throws IOException {
-            long result = in.skip(n);
-            count += result;
-            verifySize();
-            reportCount();
-            return result;
-        }
-
-        @Override
-        public synchronized void mark(int readlimit) {
-            in.mark(readlimit);
-            mark = count;
-            // it's okay to mark even if mark isn't supported, as reset won't work
-        }
-
-        @Override
-        public synchronized void reset() throws IOException {
-            if (!in.markSupported()) {
-                throw new IOException("Mark not supported");
-            }
-            if (mark == -1) {
-                throw new IOException("Mark not set");
+        public int read(byte[] dest, int destOffset, int length) throws IOException {
+            if (buffer.readableBytes() == 0) {
+                // EOF.
+                return -1;
             }
 
-            in.reset();
-            count = mark;
-        }
-
-        private void reportCount() {
-            if (count > maxCount) {
-                maxCount = count;
-            }
-        }
-
-        private void verifySize() {
-            if (count > maxMessageSize) {
-                throw Status.Code.RESOURCE_EXHAUSTED.toStatus().withDescription(String.format(
-                        "Compressed frame exceeds maximum frame size: %d. Bytes read: %d. ", maxMessageSize,
-                        count)).asRuntimeException();
-            }
-        }
-    }
-
-    private static class SingleMessageProducer implements StreamListener.MessageProducer {
-        private InputStream message;
-
-        private SingleMessageProducer(InputStream message) {
-            this.message = message;
-        }
-
-        @Nullable
-        @Override
-        public InputStream next() {
-            InputStream messageToReturn = message;
-            message = null;
-            return messageToReturn;
+            length = Math.min(buffer.readableBytes(), length);
+            buffer.readBytes(dest, destOffset, length);
+            return length;
         }
     }
 }

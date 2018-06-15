@@ -166,28 +166,6 @@ public abstract class ClientCall<ReqT, RespT> {
     public abstract void start(Listener<RespT> responseListener);
 
     /**
-     * Requests up to the given number of messages from the call to be delivered to
-     * {@link Listener#onMessage(Object)}. No additional messages will be delivered.
-     * <p>
-     * <p>Message delivery is guaranteed to be sequential in the order received. In addition, the
-     * listener methods will not be accessed concurrently. While it is not guaranteed that the same
-     * thread will always be used, it is guaranteed that only a single thread will access the listener
-     * at a time.
-     * <p>
-     * <p>If it is desired to bypass inbound flow control, a very large number of messages can be
-     * specified (e.g. {@link Integer#MAX_VALUE}).
-     * <p>
-     * <p>If called multiple times, the number of messages able to delivered will be the sum of the
-     * calls.
-     * <p>
-     * <p>This method is safe to call from multiple threads without external synchronization.
-     *
-     * @param numMessages the requested number of messages to be delivered to the listener. Must be
-     *                    non-negative.
-     */
-    public abstract void request(int numMessages);
-
-    /**
      * Prevent any further processing for this {@code ClientCall}. No further messages may be sent or
      * will be received. The server is informed of cancellations, but may not stop processing the
      * call. Cancellation is permitted if previously {@link #halfClose}d. Cancelling an already {@code

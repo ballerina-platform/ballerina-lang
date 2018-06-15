@@ -10,12 +10,12 @@ import java.util.Map;
 /**
  * gRPC Services Registry.
  */
-public class GrpcServicesRegistry {
+public class ServicesRegistry {
 
     private final List<ServerServiceDefinition> services;
     private final Map<String, ServerMethodDefinition<?, ?>> methods;
 
-    private GrpcServicesRegistry(
+    private ServicesRegistry(
             List<ServerServiceDefinition> services, Map<String, ServerMethodDefinition<?, ?>> methods) {
         this.services = services;
         this.methods = methods;
@@ -41,19 +41,19 @@ public class GrpcServicesRegistry {
         // Store per-service first, to make sure services are added/replaced atomically.
         private final HashMap<String, ServerServiceDefinition> services = new LinkedHashMap<>();
 
-        public GrpcServicesRegistry.Builder addService(ServerServiceDefinition service) {
+        public ServicesRegistry.Builder addService(ServerServiceDefinition service) {
             services.put(service.getServiceDescriptor().getName(), service);
             return this;
         }
 
-        public GrpcServicesRegistry build() {
+        public ServicesRegistry build() {
             Map<String, ServerMethodDefinition<?, ?>> map = new HashMap<>();
             for (ServerServiceDefinition service : services.values()) {
                 for (ServerMethodDefinition<?, ?> method : service.getMethods()) {
                     map.put(method.getMethodDescriptor().getFullMethodName(), method);
                 }
             }
-            return new GrpcServicesRegistry(
+            return new ServicesRegistry(
                     Collections.unmodifiableList(new ArrayList<>(services.values())),
                     Collections.unmodifiableMap(map));
         }

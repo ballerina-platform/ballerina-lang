@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.net.grpc;
 
+import com.google.common.base.Preconditions;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -60,6 +61,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Map;
 
@@ -190,7 +192,7 @@ public class MessageUtils {
      * @param streamObserver observer used the send the error back
      * @param error          error message struct
      */
-    static void handleFailure(StreamObserver<Message> streamObserver, BStruct error) {
+    static <ResponseT> void handleFailure(StreamObserver<ResponseT> streamObserver, BStruct error) {
         String errorMsg = error.getStringField(0);
         LOG.error(errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
@@ -689,5 +691,26 @@ public class MessageUtils {
             default:
                 return Status.Code.UNKNOWN;
         }
+    }
+
+    /**
+     * Reads an entire {@link ReadableBuffer} to a new array. After calling this method, the buffer
+     * will contain no readable bytes.
+     */
+    public static byte[] readArray(ReadableBuffer buffer) {
+        Preconditions.checkNotNull(buffer, "buffer");
+        int length = buffer.readableBytes();
+        byte[] bytes = new byte[length];
+        buffer.readBytes(bytes, 0, length);
+        return bytes;
+    }
+
+    /**
+     * Reads the entire {@link ReadableBuffer} to a new {@link String} with the given charset.
+     */
+    public static String readAsString(ReadableBuffer buffer, Charset charset) {
+        Preconditions.checkNotNull(charset, "charset");
+        byte[] bytes = readArray(buffer);
+        return new String(bytes, charset);
     }
 }

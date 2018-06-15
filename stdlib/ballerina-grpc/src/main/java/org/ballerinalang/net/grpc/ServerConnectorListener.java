@@ -17,12 +17,12 @@
  */
 package org.ballerinalang.net.grpc;
 
-import com.google.common.base.Preconditions;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Value;
+import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -45,14 +45,14 @@ public class ServerConnectorListener implements HttpConnectorListener {
     protected static final String HTTP_RESOURCE = "httpResource";
     private static final PrintStream console = System.out;
 
-    private final GrpcServicesRegistry grpcServicesRegistry;
+    private final ServicesRegistry servicesRegistry;
 
     private final Value[] filterHolders;
 
-    public ServerConnectorListener(GrpcServicesRegistry grpcServicesRegistry,
+    public ServerConnectorListener(ServicesRegistry servicesRegistry,
                                    Value[] filterHolders) {
 
-        this.grpcServicesRegistry = grpcServicesRegistry;
+        this.servicesRegistry = servicesRegistry;
         this.filterHolders = filterHolders;
     }
 
@@ -88,7 +88,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
     private void deliver(String method, InboundMessage inboundMessage, OutboundMessage outboundMessage) {
 
-        ServerMethodDefinition methodDefinition = grpcServicesRegistry.lookupMethod(method);
+        ServerMethodDefinition methodDefinition = servicesRegistry.lookupMethod(method);
 
         if (methodDefinition == null) {
             handleFailure(inboundMessage.getHttpCarbonMessage(), 404, Status.Code.UNIMPLEMENTED, String.format
@@ -134,7 +134,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
             outboundMessage, String fullMethodName) {
         // Get method definition of the inboundMessage.
         ServerMethodDefinition<ReqT, RespT> methodDefinition = (ServerMethodDefinition<ReqT, RespT>)
-                grpcServicesRegistry.lookupMethod(fullMethodName);
+                servicesRegistry.lookupMethod(fullMethodName);
         // Create service call instance for the inboundMessage.
         ServerCallImpl<ReqT, RespT> call = new ServerCallImpl<>(inboundMessage, outboundMessage, methodDefinition
                 .getMethodDescriptor(), DecompressorRegistry.getDefaultInstance(), CompressorRegistry
@@ -149,7 +149,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
         return call.newServerStreamListener(listener);
     }
 
-    protected boolean isValid(InboundMessage inboundMessage) {
+    private boolean isValid(InboundMessage inboundMessage) {
 
         HttpHeaders headers = inboundMessage.getHeaders();
 
@@ -204,17 +204,6 @@ public class ServerConnectorListener implements HttpConnectorListener {
     private static class InboundStateListener extends InboundMessage.InboundStateListener {
 
         final ServerStreamListener listener;
-        private boolean deframerClosed = false;
-        private boolean endOfStream = false;
-        private boolean immediateCloseRequested = false;
-        private Runnable deframerClosedTask;
-
-        private boolean listenerClosed;
-
-        /**
-         * The status that the application used to close this stream.
-         */
-        private Status closedStatus;
 
         protected InboundStateListener(int maxMessageSize, ServerStreamListener listener) {
 
@@ -230,24 +219,15 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
         @Override
         public void deframerClosed(boolean hasPartialMessage) {
-            deframerClosed = true;
-            if (endOfStream) {
-                if (!immediateCloseRequested && hasPartialMessage) {
-                    // We've received the entire stream and have data available but we don't have
-                    // enough to read the next frame ... this is bad.
-                    deframeFailed(
-                            Status.Code.INTERNAL.toStatus()
-                                    .withDescription("Encountered end-of-stream mid-frame")
-                                    .asRuntimeException());
-                    deframerClosedTask = null;
-                    return;
-                }
-                listener.halfClosed();
+
+            if (hasPartialMessage) {
+                deframeFailed(
+                        Status.Code.INTERNAL.toStatus()
+                                .withDescription("Encountered end-of-stream mid-frame")
+                                .asRuntimeException());
+                return;
             }
-            if (deframerClosedTask != null) {
-                deframerClosedTask.run();
-                deframerClosedTask = null;
-            }
+            listener.halfClosed();
         }
 
         /**
@@ -260,63 +240,11 @@ public class ServerConnectorListener implements HttpConnectorListener {
          */
         public void inboundDataReceived(ReadableBuffer frame, boolean endOfStream) {
 
-            if (this.endOfStream) {
-                throw new IllegalStateException(String.valueOf("Past end of stream"));
-            }
             // Deframe the message. If a failure occurs, deframeFailed will be called.
             deframe(frame);
             if (endOfStream) {
-                this.endOfStream = true;
                 closeDeframer(false);
             }
-        }
-
-        /**
-         * Indicates the stream is considered completely closed and there is no further opportunity for
-         * error. It calls the listener's {@code closed()}.
-         */
-        public void complete() {
-
-            if (deframerClosed) {
-                deframerClosedTask = null;
-                closeListener(Status.Code.OK.toStatus());
-            } else {
-                deframerClosedTask =
-                        new Runnable() {
-                            @Override
-                            public void run() {
-
-                                closeListener(Status.Code.OK.toStatus());
-                            }
-                        };
-                immediateCloseRequested = true;
-                closeDeframer(true);
-            }
-        }
-
-        /**
-         * Closes the listener if not previously closed and frees resources. {@code newStatus} is a
-         * status generated by gRPC. It is <b>not</b> the status the stream closed with.
-         */
-        private void closeListener(Status newStatus) {
-            // If newStatus is OK, the application must have already called AbstractServerStream.close()
-            // and the status passed in there was the actual status of the RPC.
-            // If newStatus non-OK, then the RPC ended some other way and the server application did
-            // not initiate the termination.
-            Preconditions.checkState(!newStatus.isOk() || closedStatus != null);
-            if (!listenerClosed) {
-                listenerClosed = true;
-                listener().closed(newStatus);
-            }
-        }
-
-        /**
-         * Stores the {@code Status} that the application used to close this stream.
-         */
-        private void setClosedStatus(Status closeStatus) {
-
-            Preconditions.checkState(closedStatus == null, "closedStatus can only be set once");
-            closedStatus = closeStatus;
         }
     }
 

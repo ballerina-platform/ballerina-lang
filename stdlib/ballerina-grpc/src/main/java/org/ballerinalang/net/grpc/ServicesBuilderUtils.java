@@ -21,10 +21,9 @@ import com.google.protobuf.Descriptors;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
-import org.ballerinalang.net.grpc.listener.BidirectionalStreamingListener;
-import org.ballerinalang.net.grpc.listener.ClientStreamingListener;
-import org.ballerinalang.net.grpc.listener.ServerStreamingListener;
-import org.ballerinalang.net.grpc.listener.UnaryMethodListener;
+import org.ballerinalang.net.grpc.listener.ServerCallHandler;
+import org.ballerinalang.net.grpc.listener.StreamingServerCallHandler;
+import org.ballerinalang.net.grpc.listener.UnaryServerCallHandler;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.net.grpc.proto.ServiceProtoUtils;
 
@@ -38,7 +37,7 @@ import static org.ballerinalang.net.grpc.MessageUtils.setNestedMessages;
  *
  * @since 1.0.0
  */
-public class GrpcServicesBuilderUtils {
+public class ServicesBuilderUtils {
     
     public static ServerServiceDefinition getServiceDefinition(Service service) throws GrpcServerException {
         Descriptors.FileDescriptor fileDescriptor = ServiceProtoUtils.getDescriptor(service);
@@ -91,20 +90,16 @@ public class GrpcServicesBuilderUtils {
 
             if (methodDescriptor.toProto().getServerStreaming() && methodDescriptor.toProto().getClientStreaming()) {
                 methodType = MethodDescriptor.MethodType.BIDI_STREAMING;
-                serverCallHandler = ServerCalls.asyncBidiStreamingCall(new BidirectionalStreamingListener
-                        (methodDescriptor, resourceMap));
+                serverCallHandler = new StreamingServerCallHandler(methodDescriptor, resourceMap);
             } else if (methodDescriptor.toProto().getClientStreaming()) {
                 methodType = MethodDescriptor.MethodType.CLIENT_STREAMING;
-                serverCallHandler = ServerCalls.asyncClientStreamingCall(new ClientStreamingListener
-                        (methodDescriptor, resourceMap));
+                serverCallHandler = new StreamingServerCallHandler(methodDescriptor, resourceMap);
             } else if (methodDescriptor.toProto().getServerStreaming()) {
                 methodType = MethodDescriptor.MethodType.SERVER_STREAMING;
-                serverCallHandler = ServerCalls.asyncServerStreamingCall(new ServerStreamingListener
-                        (methodDescriptor, mappedResource));
+                serverCallHandler = new UnaryServerCallHandler(methodDescriptor, mappedResource);
             } else {
                 methodType = MethodDescriptor.MethodType.UNARY;
-                serverCallHandler = ServerCalls.asyncUnaryCall(new UnaryMethodListener(methodDescriptor,
-                        mappedResource));
+                serverCallHandler = new UnaryServerCallHandler(methodDescriptor, mappedResource);
             }
 
             MethodDescriptor.Builder<Message, Message> methodBuilder = MethodDescriptor.newBuilder();

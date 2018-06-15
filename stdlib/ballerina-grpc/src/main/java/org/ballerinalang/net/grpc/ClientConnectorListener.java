@@ -4,7 +4,6 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.apache.commons.codec.Charsets;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -13,10 +12,14 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.nio.charset.Charset;
 import java.util.concurrent.Executor;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_MAX_MESSAGE_SIZE;
+import static org.ballerinalang.net.grpc.MessageUtils.readAsString;
 
 /**
  * Client Connector Listener.
@@ -25,30 +28,17 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(ClientConnectorListener.class);
     ClientCall call;
-    ClientStreamListener streamListener;
+    private ClientStreamListener streamListener;
     private Status transportError;
     private HttpHeaders transportErrorMetadata;
     private boolean headersReceived;
-    InboundStateListener stateListener;
+    private InboundStateListener stateListener;
 
     ClientConnectorListener(ClientCall call, ClientStreamListener streamListener) {
 
         this.call = call;
         this.streamListener = streamListener;
         this.stateListener = new InboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, streamListener);
-    }
-
-    /**
-     * Requests up to the given number of messages from the call to be delivered via
-     * {@link StreamListener#messagesAvailable(StreamListener.MessageProducer)}. No additional
-     * messages will be delivered.  If the stream has a {@code start()} method, it must be called
-     * before requesting messages.
-     *
-     * @param numMessages the requested number of messages to be delivered to the listener.
-     */
-    public void request(int numMessages) {
-
-        this.stateListener.requestMessagesFromDeframer(numMessages);
     }
 
     public final void setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {
@@ -80,11 +70,12 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                         // We've already detected a transport error and now we're just accumulating more detail
                         // for it.
                         transportError = transportError.augmentDescription("DATA-----------------------------\n"
-                                + ReadableBuffers.readAsString(buffer, Charsets.UTF_8));
+                                + readAsString(buffer, Charset.forName("UTF-8")));
                         buffer.close();
                         if (transportError.getDescription().length() > 1000 ||
                                 (httpContent instanceof LastHttpContent)) {
                             stateListener.transportReportStatus(transportError, false, transportErrorMetadata);
+                            break;
                         }
                     } else {
                         stateListener.inboundDataReceived(buffer);
@@ -132,7 +123,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         }
 
         if (transportError != null) {
-            // Already received a transport error so just augment it. Something is really, really strange.
+            // Already received a transport error so just augment it.
             transportError = transportError.augmentDescription("headers: " + headers);
             return false;
         }
@@ -156,7 +147,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
             if (transportError != null) {
                 // Note we don't immediately report the transport error, instead we wait for more data on
                 // the stream so we can accumulate more detail into the error before reporting it.
-                transportError = transportError.augmentDescription("headers: " + headers);
                 transportErrorMetadata = headers;
             }
         }
@@ -192,12 +182,17 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
      * Extract the response status from trailers.
      */
     private Status statusFromTrailers(HttpHeaders trailers) {
+
         String statusString = trailers.get("grpc-status");
         Status status = null;
         if (statusString != null) {
-            String[] statusValues = statusString.split(" ");
-            Status.Code code = Status.Code.valueOf(statusValues[1]);
-            status = Status.fromCode(code);
+            Pattern statusCodePattern = Pattern.compile("Status\\{ code (.*?),");
+            Matcher m = statusCodePattern.matcher(statusString);
+            while (m.find()) {
+                String sCode = m.group(1);
+                Status.Code code = Status.Code.valueOf(sCode);
+                status = Status.fromCode(code);
+            }
         }
         if (status != null) {
             return status.withDescription(trailers.get("grpc-message"));
@@ -290,23 +285,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
             } finally {
                 frame.close();
             }
-        }
-
-        /**
-         * Processes the trailers and status from the server.
-         *
-         * @param trailers the received trailers
-         * @param status   the status extracted from the trailers
-         */
-        protected void inboundTrailersReceived(HttpHeaders trailers, Status status) {
-
-            checkNotNull(status, "status");
-            checkNotNull(trailers, "trailers");
-            if (statusReported) {
-                log.info("Received trailers on closed stream:\n {1}\n {2}", new Object[]{status, trailers});
-                return;
-            }
-            transportReportStatus(status, false, trailers);
         }
 
         public final void transportReportStatus(final Status status, boolean stopDelivery,

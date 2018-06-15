@@ -98,6 +98,7 @@ final class ServerCallImpl<ReqT, RespT> extends ServerCall<ReqT, RespT> {
 
         // Always put compressor, even if it's identity.
         outboundMessage.setHeader(MESSAGE_ENCODING, compressor.getMessageEncoding());
+        outboundMessage.framer().setCompressor(compressor);
 
         outboundMessage.removeHeader(MESSAGE_ACCEPT_ENCODING);
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
@@ -179,8 +180,8 @@ final class ServerCallImpl<ReqT, RespT> extends ServerCall<ReqT, RespT> {
             return;
         }
 //        try {
-            //inboundMessage.respond(outboundMessage.getResponseMessage());
-            outboundMessage.complete(status, trailers);
+        //inboundMessage.respond(outboundMessage.getResponseMessage());
+        outboundMessage.complete(status, trailers);
 //        } catch (ServerConnectorException e) {
 //            throw new RuntimeException("Error while sending the response.", e);
 //        }
@@ -194,7 +195,7 @@ final class ServerCallImpl<ReqT, RespT> extends ServerCall<ReqT, RespT> {
 
     ServerStreamListener newServerStreamListener(ServerCall.Listener<ReqT> listener) {
 
-        return new ServerStreamListenerImpl<ReqT>(this, listener);
+        return new ServerStreamListenerImpl<>(this, listener);
     }
 
     @Override
@@ -236,16 +237,15 @@ final class ServerCallImpl<ReqT, RespT> extends ServerCall<ReqT, RespT> {
         }
 
         @Override
-        public void messagesAvailable(final MessageProducer producer) {
+        public void messagesAvailable(final InputStream message) {
 
             if (call.cancelled) {
-                MessageUtils.closeQuietly(producer);
+                MessageUtils.closeQuietly(message);
                 return;
             }
 
-            InputStream message;
             try {
-                while ((message = producer.next()) != null) {
+                while (message != null && message.available() > 0) {
                     try {
                         listener.onMessage(call.method.parseRequest(message));
                     } catch (Throwable t) {
@@ -255,7 +255,7 @@ final class ServerCallImpl<ReqT, RespT> extends ServerCall<ReqT, RespT> {
                     message.close();
                 }
             } catch (Throwable t) {
-                MessageUtils.closeQuietly(producer);
+                MessageUtils.closeQuietly(message);
                 throw new RuntimeException(t);
             }
         }

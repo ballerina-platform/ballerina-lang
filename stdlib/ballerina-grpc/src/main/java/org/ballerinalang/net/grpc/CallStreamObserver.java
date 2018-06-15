@@ -48,16 +48,6 @@ public abstract class CallStreamObserver<V> implements StreamObserver<V> {
   public abstract boolean isReady();
 
   /**
-   * Requests the peer to produce {@code count} more messages to be delivered to the 'inbound'
-   * {@link StreamObserver}.
-   *
-   * <p>This method is safe to call from multiple threads without external synchronization.
-   *
-   * @param count more messages
-   */
-  public abstract void request(int count);
-
-  /**
    * Sets message compression for subsequent calls to {@link #onNext}.
    *
    * @param enable whether to enable compression.

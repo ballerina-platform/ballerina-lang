@@ -19,6 +19,7 @@
 package org.ballerinalang.net.grpc;
 
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
+import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -87,7 +88,7 @@ public final class ServerServiceDefinition {
         private final String serviceName;
         private final ServiceDescriptor serviceDescriptor;
         private final Map<String, ServerMethodDefinition<?, ?>> methods =
-                new HashMap<String, ServerMethodDefinition<?, ?>>();
+                new HashMap<>();
 
         private Builder(String serviceName) throws GrpcServerException {
             if (serviceName == null) {

@@ -206,12 +206,12 @@ public class CompositeReadableBuffer extends AbstractReadableBuffer {
    */
   private abstract static class ReadOperation {
     /**
-     * Only used by {@link io.grpc.internal.CompositeReadableBuffer#readUnsignedByte()}.
+     * Only used by {@link CompositeReadableBuffer#readUnsignedByte()}.
      */
     int value;
 
     /**
-     * Only used by {@link io.grpc.internal.CompositeReadableBuffer#readBytes(OutputStream, int)}.
+     * Only used by {@link CompositeReadableBuffer#readBytes(OutputStream, int)}.
      */
     IOException ex;
 

@@ -18,6 +18,8 @@
 
 package org.ballerinalang.net.grpc;
 
+import org.ballerinalang.net.grpc.listener.ServerCallHandler;
+
 /**
  * Definition of a method exposed.
  *

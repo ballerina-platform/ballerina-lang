@@ -201,12 +201,6 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
         }
 
         @Override
-        public void request(int count) {
-
-            call.request(count);
-        }
-
-        @Override
         public void setMessageCompression(boolean enable) {
 
             call.setMessageCompression(enable);

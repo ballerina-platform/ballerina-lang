@@ -24,11 +24,11 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.net.grpc.GrpcServicesBuilderUtils;
-import org.ballerinalang.net.grpc.GrpcServicesRegistry;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServerConnectorListener;
 import org.ballerinalang.net.grpc.ServerConnectorPortBindingListener;
+import org.ballerinalang.net.grpc.ServicesBuilderUtils;
+import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConstants;
@@ -61,7 +61,7 @@ public class Register extends AbstractGrpcNativeFunction {
     public void execute(Context context) {
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        GrpcServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(serviceEndpoint);
+        ServicesRegistry.Builder servicesRegistryBuilder = getServiceRegistryBuilder(serviceEndpoint);
         try {
             if (servicesRegistryBuilder == null) {
                 context.setReturnValues(MessageUtils.getConnectorError(context, new BallerinaConnectorException
@@ -69,7 +69,7 @@ public class Register extends AbstractGrpcNativeFunction {
                 return;
             }
 
-            servicesRegistryBuilder.addService(GrpcServicesBuilderUtils.getServiceDefinition(service));
+            servicesRegistryBuilder.addService(ServicesBuilderUtils.getServiceDefinition(service));
             if (!isConnectorStarted(serviceEndpoint)) {
                 startServerConnector(serviceEndpoint, servicesRegistryBuilder.build());
             }
@@ -80,10 +80,10 @@ public class Register extends AbstractGrpcNativeFunction {
         }
     }
 
-    private void startServerConnector(Struct serviceEndpoint, GrpcServicesRegistry grpcServicesRegistry) {
+    private void startServerConnector(Struct serviceEndpoint, ServicesRegistry servicesRegistry) {
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(grpcServicesRegistry,
+        serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(servicesRegistry,
                 null));
 
         serverConnectorFuture.setPortBindingEventListener(new ServerConnectorPortBindingListener());

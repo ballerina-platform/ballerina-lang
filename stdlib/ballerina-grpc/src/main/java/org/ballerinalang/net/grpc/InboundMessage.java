@@ -22,6 +22,7 @@ import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
@@ -166,19 +167,14 @@ public class InboundMessage {
                     maxMessageSize);
         }
 
-        final void setMaxInboundMessageSize(int maxSize) {
-
-            deframer.setMaxInboundMessageSize(maxSize);
-        }
-
         /**
          * Override this method to provide a stream listener.
          */
         protected abstract StreamListener listener();
 
-        public void messagesAvailable(StreamListener.MessageProducer producer) {
+        public void messagesAvailable(InputStream inputStream) {
 
-            listener().messagesAvailable(producer);
+            listener().messagesAvailable(inputStream);
         }
 
         /**
@@ -208,19 +204,6 @@ public class InboundMessage {
 
             try {
                 deframer.deframe(frame);
-            } catch (Throwable t) {
-                deframeFailed(t);
-            }
-        }
-
-        /**
-         * Called to request the given number of messages from the deframer. Must be called from the
-         * transport thread.
-         */
-        public final void requestMessagesFromDeframer(final int numMessages) {
-
-            try {
-                deframer.request(numMessages);
             } catch (Throwable t) {
                 deframeFailed(t);
             }

@@ -24,8 +24,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.MessageUtils;
-import org.ballerinalang.net.grpc.ServerCallStreamObserver;
 import org.ballerinalang.net.grpc.StreamObserver;
+import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTION;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
@@ -55,8 +55,9 @@ public class IsCancelled extends BlockingNativeCallableUnit {
         BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
 
-        if (responseObserver instanceof ServerCallStreamObserver) {
-            ServerCallStreamObserver serverCallStreamObserver = (ServerCallStreamObserver) responseObserver;
+        if (responseObserver instanceof ServerCallHandler.ServerCallStreamObserver) {
+            ServerCallHandler.ServerCallStreamObserver serverCallStreamObserver = (ServerCallHandler
+                    .ServerCallStreamObserver) responseObserver;
             context.setReturnValues(new BBoolean(serverCallStreamObserver.isCancelled()));
         } else {
             context.setReturnValues(new BBoolean(Boolean.TRUE));

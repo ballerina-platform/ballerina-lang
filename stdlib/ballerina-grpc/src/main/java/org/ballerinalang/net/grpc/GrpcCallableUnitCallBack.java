@@ -19,23 +19,25 @@ package org.ballerinalang.net.grpc;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
 /**
  * gRPC call back class registered in B7a executor.
  *
+ * @param <ResponseT> Response message type.
  * @since 1.0.0
  */
-public class GrpcCallableUnitCallBack implements CallableUnitCallback {
+public class GrpcCallableUnitCallBack<ResponseT> implements CallableUnitCallback {
 
-    private StreamObserver<Message> requestSender;
+    private StreamObserver<ResponseT> requestSender;
     private boolean emptyResponse;
     
-    public GrpcCallableUnitCallBack(StreamObserver<Message> requestSender, boolean isEmptyResponse) {
+    public GrpcCallableUnitCallBack(StreamObserver<ResponseT> requestSender, boolean isEmptyResponse) {
         this.requestSender = requestSender;
         this.emptyResponse = isEmptyResponse;
     }
 
-    public GrpcCallableUnitCallBack(StreamObserver<Message> requestSender) {
+    public GrpcCallableUnitCallBack(StreamObserver<ResponseT> requestSender) {
         this.requestSender = requestSender;
         this.emptyResponse = false;
     }
@@ -47,8 +49,9 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
             return;
         }
         // check whether connection is closed.
-        if (requestSender instanceof ServerCallStreamObserver) {
-            ServerCallStreamObserver serverCallStreamObserver = (ServerCallStreamObserver) requestSender;
+        if (requestSender instanceof ServerCallHandler.ServerCallStreamObserver) {
+            ServerCallHandler.ServerCallStreamObserver serverCallStreamObserver = (ServerCallHandler
+                    .ServerCallStreamObserver) requestSender;
             if (!serverCallStreamObserver.isReady()) {
                 return;
             }
@@ -59,7 +62,7 @@ public class GrpcCallableUnitCallBack implements CallableUnitCallback {
         // notify success only if response message is empty. Service impl doesn't send empty message. Empty response
         // scenarios handles here.
         if (emptyResponse) {
-            requestSender.onNext(Message.newBuilder("Empty").build());
+            requestSender.onNext((ResponseT) Message.newBuilder("Empty").build());
         }
         // Notify complete if service impl doesn't call caller->complete();
         requestSender.onCompleted();

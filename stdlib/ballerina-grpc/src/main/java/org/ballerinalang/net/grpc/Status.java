@@ -415,9 +415,10 @@ public final class Status {
   /** A string representation of the status useful for debugging. */
   @Override
   public String toString() {
-    return ("code " + code.name() + " |") +
-            "description " + description + " |" +
-            "cause " + (cause != null ? getStackTraceAsString(cause) : null);
+
+    return ("Status{ code " + code.name() + ", ") +
+            "description " + description + ", " +
+            "cause " + (cause != null ? getStackTraceAsString(cause) : null) + "}";
   }
 
   private static String getStackTraceAsString(Throwable throwable) {

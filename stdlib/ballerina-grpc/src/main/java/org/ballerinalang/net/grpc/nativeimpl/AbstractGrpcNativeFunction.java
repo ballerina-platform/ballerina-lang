@@ -20,7 +20,7 @@ package org.ballerinalang.net.grpc.nativeimpl;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.net.grpc.GrpcConstants;
-import org.ballerinalang.net.grpc.GrpcServicesRegistry;
+import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 
 /**
@@ -30,8 +30,8 @@ import org.wso2.transport.http.netty.contract.ServerConnector;
  */
 public abstract class AbstractGrpcNativeFunction extends BlockingNativeCallableUnit {
 
-    protected GrpcServicesRegistry.Builder getServiceRegistryBuilder(Struct serviceEndpoint) {
-        return (GrpcServicesRegistry.Builder) serviceEndpoint.getNativeData(GrpcConstants.SERVICE_REGISTRY_BUILDER);
+    protected ServicesRegistry.Builder getServiceRegistryBuilder(Struct serviceEndpoint) {
+        return (ServicesRegistry.Builder) serviceEndpoint.getNativeData(GrpcConstants.SERVICE_REGISTRY_BUILDER);
     }
 
     protected ServerConnector getServerConnector(Struct serviceEndpoint) {

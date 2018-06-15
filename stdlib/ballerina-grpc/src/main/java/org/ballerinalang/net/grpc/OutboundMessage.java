@@ -212,6 +212,7 @@ public class OutboundMessage {
     public void complete(Status status, io.netty.handler.codec.http.HttpHeaders trailers) {
 
         framer().flush();
+        framer().dispose();
         addStatusToTrailers(status, trailers);
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         lastHttpContent.trailingHeaders().set(trailers);

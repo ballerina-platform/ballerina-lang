@@ -28,8 +28,8 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcConstants;
-import org.ballerinalang.net.grpc.GrpcServicesRegistry;
 import org.ballerinalang.net.grpc.MessageUtils;
+import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -78,7 +78,7 @@ public class Init extends AbstractGrpcNativeFunction {
             ServerConnector httpServerConnector =
                     HttpConnectionManager.getInstance().createHttpServerConnector(configuration);
 
-            GrpcServicesRegistry.Builder grpcServicesRegistryBuilder = new GrpcServicesRegistry.Builder();
+            ServicesRegistry.Builder grpcServicesRegistryBuilder = new ServicesRegistry.Builder();
             serviceEndpoint.addNativeData(SERVER_CONNECTOR, httpServerConnector);
             serviceEndpoint.addNativeData(SERVICE_REGISTRY_BUILDER, grpcServicesRegistryBuilder);
             context.setReturnValues();
