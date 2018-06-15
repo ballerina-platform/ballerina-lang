@@ -3059,8 +3059,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             } catch (Exception e) {
                 DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
                 Set<Whitespace> ws = getWS(simpleLiteralContext);
+                // Assign a value and continue the compilation. Since there is an error, program will not run.
                 this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
-                dlog.error(pos, DiagnosticCode.INTEGER_TOO_LARGE, nodeValue);
+                if (nodeValue.startsWith("-")) {
+                    dlog.error(pos, DiagnosticCode.INTEGER_TOO_SMALL, nodeValue);
+                } else {
+                    dlog.error(pos, DiagnosticCode.INTEGER_TOO_LARGE, nodeValue);
+                }
             }
         } else if (integerLiteralContext.HexIntegerLiteral() != null) {
             String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.HexIntegerLiteral());
@@ -3069,8 +3074,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             } catch (Exception e) {
                 DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
                 Set<Whitespace> ws = getWS(simpleLiteralContext);
+                // Assign a value and continue the compilation. Since there is an error, program will not run.
                 this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
-                dlog.error(pos, DiagnosticCode.HEXADECIMAL_TOO_LARGE, nodeValue);
+                if (nodeValue.startsWith("-")) {
+                    dlog.error(pos, DiagnosticCode.HEXADECIMAL_TOO_SMALL, nodeValue);
+                } else {
+                    dlog.error(pos, DiagnosticCode.HEXADECIMAL_TOO_LARGE, nodeValue);
+                }
             }
         } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
             String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral());
@@ -3079,8 +3089,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             } catch (Exception e) {
                 DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
                 Set<Whitespace> ws = getWS(simpleLiteralContext);
+                // Assign a value and continue the compilation. Since there is an error, program will not run.
                 this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
-                dlog.error(pos, DiagnosticCode.OCTAL_TOO_LARGE, nodeValue);
+                if (nodeValue.startsWith("-")) {
+                    dlog.error(pos, DiagnosticCode.OCTAL_TOO_SMALL, nodeValue);
+                } else {
+                    dlog.error(pos, DiagnosticCode.OCTAL_TOO_LARGE, nodeValue);
+                }
             }
         } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
             String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral());
@@ -3089,8 +3104,13 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             } catch (Exception e) {
                 DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
                 Set<Whitespace> ws = getWS(simpleLiteralContext);
+                // Assign a value and continue the compilation. Since there is an error, program will not run.
                 this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
-                dlog.error(pos, DiagnosticCode.BINARY_TOO_LARGE, nodeValue);
+                if (nodeValue.startsWith("-")) {
+                    dlog.error(pos, DiagnosticCode.BINARY_TOO_SMALL, nodeValue);
+                } else {
+                    dlog.error(pos, DiagnosticCode.BINARY_TOO_LARGE, nodeValue);
+                }
             }
         }
         return null;
