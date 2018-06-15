@@ -22,6 +22,7 @@ import org.ballerinalang.model.tree.clauses.StreamingInput;
 import org.ballerinalang.model.tree.clauses.WhereNode;
 import org.ballerinalang.model.tree.clauses.WindowClauseNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
+import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.Types;
@@ -53,10 +54,11 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
@@ -95,6 +97,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private List<BLangStatement> stmts;
     private BLangSimpleVarRef windowInvokableSimpleVarRef;
     private Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
+    private BLangFunction newLambdaFunctionNode;
+    private BVarSymbol paramVarSymbol;
 
     private StreamingCodeDesugar(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
@@ -126,13 +130,22 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         statementNodes.forEach(statementNode -> ((BLangStatement) statementNode).accept(this));
         stmts.add(foreverReplaceStatement);
-        return ASTBuilderUtil.createBlockStmt(foreverStatement.pos, stmts);
+        BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(foreverStatement.pos, stmts);
+        newLambdaFunctionNode.enclBlockStmt = bLangBlockStmt;
+        return bLangBlockStmt;
     }
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
+
+            BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
+            newLambdaFunctionNode = ASTBuilderUtil.createFunction(streamingQueryStatement.pos,
+                    getFunctionName(FUNC_CALLER));
+            lambdaFunction.function = newLambdaFunctionNode;
+
+            //=================================================================================================
 
             lambdaFunctionNode = ((BLangLambdaFunction)
                     (streamingQueryStatement.getStreamingAction()).getInvokableBody()).function;
@@ -149,26 +162,29 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             streamingAction.accept(this);
 
             //New Lambda Function
-            BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
-            BLangFunction newLambdaFunctionNode = ASTBuilderUtil.createFunction(streamingQueryStatement.pos,
-                    getFunctionName(FUNC_CALLER));
-            lambdaFunction.function = newLambdaFunctionNode;
 
             newLambdaFunctionNode.requiredParams.add((BLangVariable) (streamingQueryStatement.getStreamingAction()).
                     getInvokableBody().getFunctionNode().getParameters().get(0));
             newLambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.nilType);
             newLambdaFunctionNode.body = lambdaBody;
-            final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-            returnStmt.pos = streamingQueryStatement.pos;
-            returnStmt.expr = ASTBuilderUtil.createLiteral(streamingQueryStatement.pos, symTable.noType, Names.EMPTY);
-            newLambdaFunctionNode.body.stmts.add(returnStmt);
+//            final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
+//            returnStmt.pos = streamingQueryStatement.pos;
+//            returnStmt.expr = ASTBuilderUtil.createLiteral(streamingQueryStatement.pos, symTable.noType, Names.EMPTY);
+//            newLambdaFunctionNode.body.stmts.add(returnStmt);
             newLambdaFunctionNode.closureVarSymbols = closureVarSymbols;
             newLambdaFunctionNode.desugared = false;
+            BLangValueType returnType = new BLangValueType();
+            returnType.setTypeKind(TypeKind.NIL);
+            newLambdaFunctionNode.setReturnTypeNode(returnType);
 
             lambdaFunction.pos = streamingQueryStatement.pos;
             lambdaFunction.type = ((BLangLambdaFunction) (streamingQueryStatement.getStreamingAction()).
                     getInvokableBody()).type;
             defineFunction(newLambdaFunctionNode, env.enclPkg);
+
+            //TODO Hack - fix this
+            ifNode.parent = lambdaFunction;
+//            paramVarSymbol.owner = newLambdaFunctionNode.symbol;
 
             //===========================================================================================
 
@@ -287,7 +303,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         createExpressionStmt(bLangLambdaFunction.pos, ifNode.body);
                 exprStmt.expr = invocationExpr;
 
-                BVarSymbol paramVarSymbol = varRef.varSymbol;
+                paramVarSymbol = varRef.varSymbol;
                 closureVarSymbols.add((BVarSymbol) (windowInvokableSimpleVarRef).symbol);
                 closureVarSymbols.add(paramVarSymbol);
 
@@ -329,20 +345,29 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         BInvokableSymbol windowInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol((lambdaFunctionNode).pos, env, names.fromString("streams")).
                 scope.lookup(new Name("lengthWindow")).symbol;
-        BType windowInvokableType = symResolver.resolvePkgSymbol((lambdaFunctionNode).pos, env, names.
-                fromString("streams")).scope.lookup(new Name("lengthWindow")).symbol.type;
-        BVarSymbol windowInvokableTypeVarSymbol = new BVarSymbol(0, new Name("lengthWindow11"),
-                windowEventTypeSymbol.pkgID, windowInvokableType.getReturnType(), env.scope.owner);
 
+        BType windowInvokableType = symResolver.resolvePkgSymbol((lambdaFunctionNode).pos, env, names.
+                fromString("streams")).scope.lookup(new Name("lengthWindow")).symbol.type.getReturnType();
+
+
+        BVarSymbol windowInvokableTypeVarSymbol = new BVarSymbol(0, new Name("lengthWindow"),
+                windowEventTypeSymbol.pkgID, windowInvokableType, env.scope.owner);
         List<BLangExpression> args = new ArrayList<>();
         args.add(windowSize);
         args.add(windowEventTypeSimpleVarRef);
+
         BLangInvocation windowMethodInvocation = ASTBuilderUtil.
                 createInvocationExprForMethod(windowClause.pos, windowInvokableSymbol, args,
                         symResolver);
+        windowMethodInvocation.argExprs = args;
+
         BLangVariable windowInvokableTypeVariable = ASTBuilderUtil.
-                createVariable(windowClause.pos, "lengthWindow11", windowInvokableType, windowMethodInvocation,
+                createVariable(windowClause.pos, "lengthWindow", windowInvokableType, windowMethodInvocation,
                         windowInvokableTypeVarSymbol);
+        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
+        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(windowClause.pos, "LengthWindow");
+        userDefinedType.type = windowInvokableType;
+        windowInvokableTypeVariable.setTypeNode(userDefinedType);
 
         windowInvokableSimpleVarRef = ASTBuilderUtil.createVariableRef(windowClause.pos,
                 windowInvokableTypeVarSymbol);
