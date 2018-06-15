@@ -31,7 +31,8 @@ public class StandardNativeElementProvider implements NativeElementProvider {
 
     @Override
     public void populateNatives(NativeElementRepository repo) {
-        repo.registerNativeFunction(new NativeFunctionDef("testorg", "foo.bar", "mockedNativeFuncWithOptionalParams",
+        repo.registerNativeFunction(new NativeFunctionDef("testorg", "foo.bar:0.0.0",
+                "mockedNativeFuncWithOptionalParams",
                 new TypeKind[] { TypeKind.INT, TypeKind.FLOAT, TypeKind.STRING, TypeKind.INT, TypeKind.STRING,
                         TypeKind.ARRAY },
                 new TypeKind[] {}, "org.ballerinalang.test.utils.mock.TestOptionalArgsInNativeFunc"));
