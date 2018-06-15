@@ -1,6 +1,6 @@
 ## Package Overview
 This package provides functions to encapsulate multiple body parts, such as attachments in a single message. The communication of such messages follow the MIME (Multipurpose Internet Mail Extensions) specification as specified in the RFC 2045 standard.
-### MIME Specific terms 
+### MIME specific terms 
 The following terms are MIME specific and are extracted from the MIME specification.
 #### Entity
 This refers to the header fields and the content of a message, or a part of the body in a multipart entity. 
@@ -17,7 +17,7 @@ Content-Type: image/jpeg
 Content-Disposition: attachment; filename=genome.jpeg;
 Content-Description: a complete map of the human genome
 ```
-### Modify and retrieve the data in an Entity
+### Modify and retrieve the data in an entity
 The package provides functions to set and get an entity body from different kinds of message types, such as XML, text, JSON, blob, and body parts. Headers can be modified through functions such as `addHeader()`, `setHeader()`, `removeHeader()`, etc. 
 ## Samples
 ### Handle multipart request
@@ -50,7 +50,8 @@ service<http:Service> test bind {port:9090} {
                }
                response.setPayload(content);
            }
-           // If there is an error while getting the body parts, set the response code as 500 and set the error message as the response message.
+           // If there is an error while getting the body parts, set the response code as 500 and 
+           //set the error message as the response message.
           error err => {
               response.statusCode = 500;
               response.setPayload(err.message);
