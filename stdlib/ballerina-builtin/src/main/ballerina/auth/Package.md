@@ -4,7 +4,7 @@ This package provides a set of default authentication store providers that can b
 
 ### Authentication Store Provider
 
-An authentication Store provider defines an authentication scheme that could be used to protect endpoints. The `auth:AuthStoreProvider` type acts as the interface for all the authentication providers. Any type of implementation, such as LDAP, JDBC, and file based, should be object-wise similar. 
+An authentication store provider defines an authentication scheme that could be used to protect endpoints. The `auth:AuthStoreProvider` type acts as the interface for all the authentication providers. Any type of implementation, such as LDAP, JDBC, and file based, should be object-wise similar. 
 
 By default, there are two implementations of the `auth:AuthProvider`. They are, the `auth:ConfigAuthProvider`, which authenticates based on usernames and passwords stored in a configuration file, and the `auth:JWTAuthProvider`, which authenticates by validating a JWT. It is possible to implement more such authentication mechanisms. 
 
