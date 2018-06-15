@@ -705,5 +705,18 @@ public class NativeConversionTest {
     public void testJsonToArrayFail() {
         BRunUtil.invoke(compileResult, "testJsonToArrayFail");
     }
-    
+
+    @Test
+    public void anyToFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "anyToFloat");
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0);
+    }
+
+    @Test
+    public void testJsonFloatToInt() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonFloatToInt");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(returns[0].stringValue(), "{f:3.0}");
+    }
 }

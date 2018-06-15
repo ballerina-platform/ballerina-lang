@@ -368,14 +368,6 @@ public class TypeCastExprTest {
         BRunUtil.invoke(result, "testBooleanInJsonToInt");
     }
 
-    @Test(description = "Test casting an integer in JSON to float",
-            expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: error, message: 'int' " +
-                    "cannot be cast to 'float'.*")
-    public void testIntInJsonToFloat() {
-        BRunUtil.invoke(result, "testIntInJsonToFloat");
-    }
-
     @Test(description = "Test casting a null JSON to string",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp = ".*'null' cannot be cast to 'string'.*")
