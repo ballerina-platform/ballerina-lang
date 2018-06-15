@@ -17,14 +17,12 @@
  */
 package org.ballerinalang.testerina.util;
 
-import org.ballerinalang.config.ConfigRegistry;
-import org.ballerinalang.launcher.LauncherUtils;
-import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.testerina.core.BTestRunner;
 import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
+import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
@@ -43,7 +41,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 import java.util.List;
-import java.util.logging.LogManager;
 
 /**
  * Utility methods.
@@ -155,10 +152,14 @@ public class Utils {
         }
     }
 
-    public static void testWithBuild(String sourceRoot) { //Support build and build <source>
-        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        SourceDirectory srcDirectory = new FileSystemProjectDirectory(sourceRootPath);;
-        List<String> sourceFileList = srcDirectory.getSourcePackageNames();
+    public static void testWithBuild(Path sourceRootPath, List<String> sourceFileList) { //Support build and build <source>
+        SourceDirectory srcDirectory = null;
+        if (sourceFileList == null || sourceFileList.isEmpty()) {
+            srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
+            sourceFileList = srcDirectory.getSourcePackageNames();
+        } else if (sourceFileList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            return;
+        }
 
         Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
 

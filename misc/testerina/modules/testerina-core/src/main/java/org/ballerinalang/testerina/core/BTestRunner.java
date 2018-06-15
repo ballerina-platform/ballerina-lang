@@ -119,7 +119,8 @@ public class BTestRunner {
 
         Map<String, TestSuite> testSuites = registry.getTestSuites();
         if (testSuites.isEmpty()) {
-            throw new BallerinaException("No test functions found in the provided ballerina files.");
+//            throw new BallerinaException("No test functions found in the provided ballerina files.");
+            return Collections.emptyList();
         }
         List<String> groupList = new ArrayList<>();
         testSuites.forEach((packageName, suite) -> {
@@ -140,6 +141,10 @@ public class BTestRunner {
     private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
         if (buildWithTests) {
             outStream.println();
+        }
+
+        if (sourceFilePaths.length == 0) {
+            return;
         }
         outStream.println("Compiling tests");
         outStream.println();
@@ -188,7 +193,8 @@ public class BTestRunner {
     private void execute() {
         Map<String, TestSuite> testSuites = registry.getTestSuites();
         if (testSuites.isEmpty()) {
-            throw new BallerinaException("No test functions found in the provided ballerina files.");
+            // throw new BallerinaException("No test functions found in the provided ballerina files.");
+            return;
         }
 
         AtomicBoolean shouldSkip = new AtomicBoolean();

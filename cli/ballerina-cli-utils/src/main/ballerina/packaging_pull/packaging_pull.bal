@@ -32,7 +32,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     match result {
         http:Response response => httpResponse = response;
         error e => {
-            io:println("connection to the remote host failed : " + e.message);
+            io:println("\tconnection to the remote host failed : " + e.message);
             return;
         }
     }
@@ -40,16 +40,16 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
     http:Response res = new;
     string statusCode = <string> httpResponse.statusCode;
     if (statusCode.hasPrefix("5")) {
-        io:println("remote registry failed for url :" + url);
+        io:println("\tremote registry failed for url :" + url);
     } else if (statusCode != "200") {
         var jsonResponse = httpResponse.getJsonPayload();
         match jsonResponse {
             json resp => {
                 string message = resp.message.toString();
-                io:println(message);
+                io:println("\t" + message);
             }
             error err => {
-                io:println("error occurred when pulling the package");
+                io:println("\terror occurred when pulling the package");
             }
         }
     } else {
@@ -85,7 +85,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
             if (!createDirectories(destDirPath)) {
                 internal:Path pkgArchivePath = new(destArchivePath);
                 if (pkgArchivePath.exists()){
-                    io:println("package already exists in the home repository");
+                    io:println("\tpackage already exists in the home repository");
                     return;                              
                 }        
             }
@@ -99,7 +99,7 @@ function pullPackage (http:Client definedEndpoint, string url, string dirPath, s
             closeChannel(destDirChannel);
             closeChannel(sourceChannel);
         } else {
-            io:println("package version could not be detected");
+            io:println("\tpackage version could not be detected");
         }
     }
 }
@@ -115,11 +115,11 @@ function main(string... args){
         try {
           httpEndpoint = defineEndpointWithProxy(args[0], host, port, args[6], args[7]);
         } catch (error err) {
-          io:println("failed to resolve host : " + host + " with port " + port);
+          io:println("\tfailed to resolve host : " + host + " with port " + port);
           return;
         }
     } else  if (host != "" || port != "") {
-        io:println("both host and port should be provided to enable proxy");     
+        io:println("\tboth host and port should be provided to enable proxy");     
         return;   
     } else {
         httpEndpoint = defineEndpointWithoutProxy(args[0]);
@@ -226,7 +226,8 @@ documentation {
     P{{width}} Width of the terminal
 }
 function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string fullPkgPath, string toAndFrom, int width) {
-    int terminalWidth = width;
+    int tabLength = 10;
+    int terminalWidth = width - tabLength;
     int bytesChunk = 8;
     blob readContent;
     int readCount = -1;
@@ -256,12 +257,12 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
             string spaces = tabspaces.substring(startVal, totalVal - <int>(percentage * totalVal));   
             string size = "[" + bar + ">" + spaces + "] " + <int>totalCount + "/" + pkgSize;            
             string msg = truncateString(fullPkgPath + toAndFrom, terminalWidth - size.length());
-            io:print("\r" + rightPad(msg, rightpadLength) + size);
+            io:print("\r\t" + rightPad(msg, rightpadLength) + size);
         }
     } catch (error err) {
         io:println("");
     }
-    io:println("\r" + rightPad(fullPkgPath + toAndFrom, terminalWidth));
+    io:println("\r\t" + rightPad(fullPkgPath + toAndFrom, terminalWidth));
 }
 
 documentation {
@@ -334,7 +335,7 @@ documentation {
 function closeChannel(io:ByteChannel channel) {
     match channel.close() {
         error channelCloseError => {
-            io:println("Error occured while closing the channel: " + channelCloseError.message);
+            io:println("    Error occured while closing the channel: " + channelCloseError.message);
         }
         () => return;
     }

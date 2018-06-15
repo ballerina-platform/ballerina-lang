@@ -97,7 +97,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         // Run tests with the build command
-        Utils.testWithBuild(sourceRootPath.toString());
+        Utils.testWithBuild(sourceRootPath, argList);
         Runtime.getRuntime().exit(0);
     }
 

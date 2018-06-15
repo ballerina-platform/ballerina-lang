@@ -147,14 +147,7 @@ public class Compiler {
         packages.stream()
 //                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
                 .filter(pkgNode -> pkgNode.symbol != null)
-                .forEach(pkgNode -> {
-                             this.compilerDriver.compilePackage(pkgNode);
-                             if (pkgNode.packageID.isUnnamed) {
-                                 outStream.println("    " + pkgNode.packageID.sourceFileName.value);
-                             } else {
-                                 outStream.println("    " + pkgNode.packageID.toString());
-                             }
-                         }
+                .forEach(this.compilerDriver::compilePackage
                 );
         return packages;
     }

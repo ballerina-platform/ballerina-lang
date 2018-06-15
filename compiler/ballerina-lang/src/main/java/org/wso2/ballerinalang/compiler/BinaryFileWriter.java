@@ -100,6 +100,7 @@ public class BinaryFileWriter {
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {
         // Filter out package which doesn't have entry points
         if (!packageNode.symbol.entryPointExists) {
+            outStream.println("    no executable generated:" + fileName);
             return;
         }
 
@@ -113,6 +114,7 @@ public class BinaryFileWriter {
         } catch (IOException e) {
             throw new BLangCompilerException("error writing program file '" + execFileName + "'", e);
         }
+        outStream.println("    ./target/" + execFileName);
 
         final Path execFilePath = this.sourceDirectory.saveCompiledProgram(new ByteArrayInputStream(byteArrayOS
                 .toByteArray()), execFileName);
@@ -120,7 +122,6 @@ public class BinaryFileWriter {
         processorServiceLoader.forEach(plugin -> {
             plugin.codeGenerated(packageNode.packageID, execFilePath);
         });
-        outStream.println("    target/" + execFileName);
     }
 
     public void writeLibraryPackage(BLangPackage packageNode) {

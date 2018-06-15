@@ -59,7 +59,7 @@ public class TesterinaReport {
                 outStream.println("\t✗ "+ failedResult.getTestFunctionName() + ":");
                 outStream.println("\t    " + failedResult.getAssertFailureMessage().replaceAll("\n", "\n\t    "));
             }
-            outStream.println();
+            // outStream.println();
         }
 
         if (!testSummary.passedTests.isEmpty()) {
