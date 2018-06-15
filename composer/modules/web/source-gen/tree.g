@@ -327,9 +327,8 @@ Retry
    ;
 
 Return
-   : <noExpressionAvailable?> return                       ;
-   | <emptyBrackets?>         return                     ();
-   |                          return <expression.source>   ;
+   : <noExpressionAvailable?> return                     ;
+   |                          return <expression.source> ;
    ;
 
 SelectClause
@@ -520,8 +519,9 @@ UnaryExpr
    ;
 
 UnionTypeNode
-   : <withParantheses?> ( <memberTypeNodes-joined-by|>* )
-   |                      <memberTypeNodes-joined-by|>*
+   : <emptyParantheses?> (                               )
+   | <withParantheses?>  ( <memberTypeNodes-joined-by|>* )
+   |                       <memberTypeNodes-joined-by|>*
    ;
 
 UserDefinedType
