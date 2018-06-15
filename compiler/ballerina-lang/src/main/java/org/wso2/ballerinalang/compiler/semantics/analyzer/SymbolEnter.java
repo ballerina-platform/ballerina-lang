@@ -653,23 +653,33 @@ public class SymbolEnter extends BLangNodeVisitor {
         // this is a field variable defined for object init function
         if (varNode.isField) {
             Name varName = names.fromIdNode(varNode.name);
-            BSymbol symbol = symResolver.resolveObjectField(varNode.pos, env, varName,
-                    env.enclTypeDefinition.symbol.type.tsymbol);
+            BSymbol symbol;
+            if (env.enclTypeDefinition != null) {
+                symbol = symResolver.resolveObjectField(varNode.pos, env, varName,
+                        env.enclTypeDefinition.symbol.type.tsymbol);
+            } else {
+                symbol = symResolver.lookupSymbol(env, varName, SymTag.VARIABLE);
+            }
 
             if (symbol == symTable.notFoundSymbol) {
                 dlog.error(varNode.pos, DiagnosticCode.UNDEFINED_OBJECT_FIELD, varName, env.enclTypeDefinition.name);
             }
             varNode.type = symbol.type;
-            Name updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
+            Name updatedVarName = varName;
+            if (((BLangFunction) env.enclInvokable).receiver != null) {
+               updatedVarName = getFieldSymbolName(((BLangFunction) env.enclInvokable).receiver, varNode);
+            }
             BVarSymbol varSymbol = defineVarSymbol(varNode.pos, varNode.flagSet, varNode.type, updatedVarName, env);
 
             // Reset the name of the symbol to the original var name
             varSymbol.name = varName;
 
             // This means enclosing type definition is a object type defintion
-            BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
-            objectTypeNode.initFunction.initFunctionStmts.put(symbol,
-                    (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
+            if (env.enclTypeDefinition != null) {
+                BLangObjectTypeNode objectTypeNode = (BLangObjectTypeNode) env.enclTypeDefinition.typeNode;
+                objectTypeNode.initFunction.initFunctionStmts
+                        .put(symbol, (BLangStatement) createAssignmentStmt(varNode, varSymbol, symbol));
+            }
             varSymbol.docTag = varNode.docTag;
             varNode.symbol = varSymbol;
             return;

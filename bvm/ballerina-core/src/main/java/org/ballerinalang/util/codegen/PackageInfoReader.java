@@ -46,9 +46,11 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.NativeUnitLoader;
 import org.ballerinalang.util.codegen.Instruction.InstructionCALL;
+import org.ballerinalang.util.codegen.Instruction.InstructionCompensate;
 import org.ballerinalang.util.codegen.Instruction.InstructionFORKJOIN;
 import org.ballerinalang.util.codegen.Instruction.InstructionIteratorNext;
 import org.ballerinalang.util.codegen.Instruction.InstructionLock;
+import org.ballerinalang.util.codegen.Instruction.InstructionScopeEnd;
 import org.ballerinalang.util.codegen.Instruction.InstructionVCALL;
 import org.ballerinalang.util.codegen.Instruction.InstructionWRKSendReceive;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -96,6 +98,7 @@ import static org.ballerinalang.util.BLangConstants.CONSTRUCTOR_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.INIT_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.START_FUNCTION_SUFFIX;
 import static org.ballerinalang.util.BLangConstants.STOP_FUNCTION_SUFFIX;
+import static org.ballerinalang.util.codegen.InstructionCodes.COMPENSATE;
 
 /**
  * Reads a Ballerina {@code PackageInfo} structure from a file.
@@ -1141,6 +1144,7 @@ public class PackageInfoReader {
                 case InstructionCodes.THROW:
                 case InstructionCodes.ERRSTORE:
                 case InstructionCodes.NEWXMLSEQ:
+                case InstructionCodes.LOOP_COMPENSATE:
                     i = codeStream.readInt();
                     packageInfo.addInstruction(InstructionFactory.get(opcode, i));
                     break;
@@ -1407,6 +1411,14 @@ public class PackageInfoReader {
 
                     packageInfo.addInstruction(InstructionFactory.get(opcode, funcRefCPIndex, funcCallCPIndex));
                     break;
+                case InstructionCodes.SCOPE_END:
+                    FunctionInfo scopeFunction = ((FunctionRefCPEntry) packageInfo.getCPEntry(codeStream.readInt
+                            ())).getFunctionInfo();
+                    String scopeName = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt
+                            ())).getValue();
+                    packageInfo.addInstruction(new InstructionScopeEnd(opcode, scopeFunction, getArgRegs
+                            (codeStream), getChildScopesList(codeStream, packageInfo), scopeName));
+                    break;
                 case InstructionCodes.WRKSEND:
                 case InstructionCodes.WRKRECEIVE:
                     int channelRefCPIndex = codeStream.readInt();
@@ -1456,6 +1468,16 @@ public class PackageInfoReader {
                         varRegs[m] = codeStream.readInt();
                     }
                     packageInfo.addInstruction(new InstructionLock(opcode, varTypes, pkgRefs, varRegs));
+                    break;
+                case COMPENSATE:
+                    int nameIndex = codeStream.readInt();
+                    String name = ((UTF8CPEntry) packageInfo.getCPEntry(nameIndex)).getValue();
+                    int childCount = codeStream.readInt();
+                    ArrayList<String> childScopeMap = new ArrayList<>();
+                    for (int count = 0; count < childCount; count++) {
+                        childScopeMap.add(((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue());
+                    }
+                    packageInfo.addInstruction(new InstructionCompensate(opcode, name, childScopeMap));
                     break;
                 default:
                     throw new ProgramFileFormatException("unknown opcode " + opcode +
@@ -1802,5 +1824,16 @@ public class PackageInfoReader {
             }
             return new BFunctionType(funcParams.toArray(new BType[funcParams.size()]), returnTypes);
         }
+    }
+
+    private ArrayList<String> getChildScopesList(DataInputStream codeStream, PackageInfo packageInfo)
+            throws IOException {
+        int childCount = codeStream.readInt();
+        ArrayList<String> children = new ArrayList<>(childCount);
+        for (int i = 0; i < childCount; i++) {
+            children.add(((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue());
+        }
+
+        return children;
     }
 }

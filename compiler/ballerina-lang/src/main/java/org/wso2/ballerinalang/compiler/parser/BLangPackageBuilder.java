@@ -71,6 +71,7 @@ import org.ballerinalang.model.tree.statements.BlockNode;
 import org.ballerinalang.model.tree.statements.ForeverNode;
 import org.ballerinalang.model.tree.statements.ForkJoinNode;
 import org.ballerinalang.model.tree.statements.IfNode;
+import org.ballerinalang.model.tree.statements.ScopeNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.model.tree.statements.StreamingQueryStatementNode;
 import org.ballerinalang.model.tree.statements.TransactionNode;
@@ -156,6 +157,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -170,6 +172,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStreamingQueryStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -338,6 +341,8 @@ public class BLangPackageBuilder {
     private Stack<Set<Whitespace>> operatorWs = new Stack<>();
 
     private Stack<Set<Whitespace>> objectFieldBlockWs = new Stack<>();
+
+    private Stack<ScopeNode> scopeNodeStack = new Stack<>();
 
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
@@ -3126,5 +3131,126 @@ public class BLangPackageBuilder {
         matchExpr.pos = pos;
         matchExpr.addWS(ws);
         addExpressionNode(matchExpr);
+    }
+
+    public BLangFunction getScopesFunctionDef(DiagnosticPos pos,
+            Set<Whitespace> ws,
+            boolean publicFunc,
+            boolean nativeFunc,
+            boolean bodyExists,
+            boolean isReceiverAttached, String name) {
+
+        BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
+        endEndpointDeclarationScope();
+        function.pos = pos;
+        function.addWS(ws);
+
+        if (publicFunc) {
+            function.flagSet.add(Flag.PUBLIC);
+        }
+
+        if (nativeFunc) {
+            function.flagSet.add(Flag.NATIVE);
+        }
+
+        if (!bodyExists) {
+            function.body = null;
+        }
+
+        if (isReceiverAttached) {
+            BLangVariable receiver = (BLangVariable) this.varStack.pop();
+            receiver.docTag = DocTag.RECEIVER;
+            function.receiver = receiver;
+            function.flagSet.add(Flag.ATTACHED);
+        }
+
+        if (!function.deprecatedAttachments.isEmpty()) {
+            function.flagSet.add(Flag.DEPRECATED);
+        }
+
+        BLangIdentifier nameId = new BLangIdentifier();
+        nameId.setValue(name);
+        function.name = nameId;
+
+        BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
+        typeNode.pos = pos;
+        typeNode.typeKind = TypeKind.NIL;
+        function.returnTypeNode = typeNode;
+
+        //Create and add receiver to attached functions
+        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
+        receiver.pos = pos;
+
+        function.receiver = null;
+        return function;
+    }
+
+    void startScopeStmt() {
+        scopeNodeStack.push(TreeBuilder.createScopeNode());
+        startBlock();
+    }
+
+    void addCompensateStatement(DiagnosticPos pos, Set<Whitespace> ws, String name) {
+        BLangCompensate compensateNode = (BLangCompensate) TreeBuilder.createCompensateNode();
+        compensateNode.pos = pos;
+        compensateNode.addWS(ws);
+        compensateNode.scopeName = name;
+
+        compensateNode.invocation.name = (BLangIdentifier) createIdentifier(name);
+        compensateNode.invocation.pkgAlias = (BLangIdentifier) createIdentifier(null);
+
+        addStmtToCurrentBlock(compensateNode);
+    }
+
+    void endScopeStmt(DiagnosticPos pos, Set<Whitespace> ws, BLangIdentifier scopeName,
+            BLangFunction compensationFunction) {
+        BLangScope scope = (BLangScope) scopeNodeStack.pop();
+        scope.varRefs = getVariableReferences();
+        scope.pos = pos;
+        scope.addWS(ws);
+        scope.setScopeName(scopeName);
+        addStmtToCurrentBlock(scope);
+        if (!scopeNodeStack.isEmpty()) {
+            for (String child : scope.childScopes) {
+                scopeNodeStack.peek().addChildScope(child);
+            }
+            scopeNodeStack.peek().addChildScope(scopeName.getValue());
+        }
+
+        scope.varRefs.forEach(
+                varRef -> compensationFunction.addParameter(getParameterFromExpr((BLangSimpleVarRef) varRef, pos)));
+
+        scope.setCompensationFunction(compensationFunction);
+    }
+
+    private BLangVariable getParameterFromExpr(BLangSimpleVarRef varRef, DiagnosticPos pos) {
+        BLangVariable var = (BLangVariable) TreeBuilder.createVariableNode();
+        var.pos = pos;
+        IdentifierNode name = varRef.getVariableName();
+        var.setName(name);
+        var.addWS(null);
+        var.isField = true;
+        return var;
+    }
+
+    void addScopeBlock(DiagnosticPos currentPos) {
+        ScopeNode scopeNode = scopeNodeStack.peek();
+        BLangBlockStmt scopeBlock = (BLangBlockStmt) this.blockNodeStack.pop();
+        scopeBlock.pos = currentPos;
+        scopeNode.setScopeBody(scopeBlock);
+    }
+
+    void startOnCompensationBlock() {
+        startFunctionDef();
+    }
+
+    List<BLangExpression> getVariableReferences() {
+
+        List<BLangExpression> varRefs = new ArrayList<>();
+        if (this.exprNodeListStack != null && !this.exprNodeListStack.isEmpty()) {
+            List<ExpressionNode> exprNodes = this.exprNodeListStack.pop();
+            exprNodes.forEach(expressionNode -> varRefs.add((BLangExpression) expressionNode));
+        }
+        return varRefs;
     }
 }

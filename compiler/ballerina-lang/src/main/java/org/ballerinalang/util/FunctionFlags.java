@@ -25,6 +25,7 @@ public class FunctionFlags {
     public static final int NOTHING = 0;
     public static final int ASYNC = 1;
     public static final int OBSERVED = ASYNC << 1;
+    public static final int COMPENSATE = OBSERVED << 1;
     
     public static boolean isAsync(int flags) {
         return (flags & FunctionFlags.ASYNC) == FunctionFlags.ASYNC;
@@ -33,6 +34,10 @@ public class FunctionFlags {
     public static boolean isObserved(int flags) {
         return (flags & FunctionFlags.OBSERVED) == FunctionFlags.OBSERVED;
     }
+
+    public static boolean isCompensate(int flags) {
+        return (flags & FunctionFlags.COMPENSATE) == FunctionFlags.COMPENSATE;
+    }
     
     public static int markAsync(int flags) {
         return flags | FunctionFlags.ASYNC;
@@ -40,6 +45,10 @@ public class FunctionFlags {
     
     public static int markObserved(int flags) {
         return flags | FunctionFlags.OBSERVED;
+    }
+
+    public static int markCompensate(int flags) {
+        return flags | FunctionFlags.COMPENSATE;
     }
     
 }

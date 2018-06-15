@@ -68,9 +68,12 @@ import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
 import org.ballerinalang.model.values.StructureType;
+import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
+import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ErrorTableEntry;
 import org.ballerinalang.util.codegen.ForkjoinInfo;
 import org.ballerinalang.util.codegen.FunctionInfo;
@@ -106,12 +109,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 import org.ballerinalang.util.program.BLangFunctions;
 import org.ballerinalang.util.program.BLangVMUtils;
+import org.ballerinalang.util.program.CompensationTable;
 import org.ballerinalang.util.transactions.LocalTransactionInfo;
 import org.ballerinalang.util.transactions.TransactionConstants;
 import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -738,6 +743,34 @@ public class CPU {
                         ctx = execAwait(ctx, operands);
                         if (ctx == null) {
                             return;
+                        }
+                        break;
+                    case InstructionCodes.COMPENSATE:
+                        Instruction.InstructionCompensate compIn = (Instruction.InstructionCompensate) instruction;
+                        CompensationTable table = (CompensationTable) ctx.globalProps.get(Constants.COMPENSATION_TABLE);
+                        int index = --table.index;
+                        if (index >= 0 && (table.compensations.get(index).scope.equals(compIn
+                                .scopeName) || compIn.childScopes.contains(table.compensations.get(index).scope))) {
+                            ctx = handleCompensate(ctx, compIn.scopeName, table.compensations.get(index).functionInfo,
+                                    compIn.childScopes);
+
+                        }
+                        if (ctx == null) {
+                            return;
+                        }
+                        break;
+                    case InstructionCodes.SCOPE_END:
+                        Instruction.InstructionScopeEnd scopeEnd = (Instruction.InstructionScopeEnd) instruction;
+                        addToCompensationTable(scopeEnd, ctx);
+                        break;
+                    case InstructionCodes.LOOP_COMPENSATE:
+                        i = operands[0];
+                        CompensationTable compTable = (CompensationTable) ctx.globalProps
+                                .get(Constants.COMPENSATION_TABLE);
+                        if (compTable.index == 0) {
+                            compTable.index = compTable.compensations.size();
+                        } else {
+                            ctx.ip = i;
                         }
                         break;
                     default:
@@ -4049,5 +4082,40 @@ public class CPU {
         }
 
         return checkFunctionTypeEquality((BFunctionType) value.getType(), (BFunctionType) lhsType);
+    }
+
+    /**
+     * Invokes a callable after marking it as a compensate function. This is a non native, sync call.
+     * @param ctx
+     * @param scopeName scope to compensate
+     * @param funcInfo
+     * @param childScopes
+     * @return
+     */
+    private static WorkerExecutionContext handleCompensate (WorkerExecutionContext ctx, String scopeName,
+            CallableUnitInfo
+                    funcInfo, ArrayList<String> childScopes) {
+        int flags = 0;
+        flags = FunctionFlags.markCompensate(flags);
+
+        return BLangFunctions.invokeCallable(funcInfo, ctx, new int[0],
+                new int[0], false, flags);
+    }
+
+    /**
+     * Add the corresponding compensation function pointer of the given scope, to the compensations table. A copy of
+     * current worker data of the args also added to the table.
+     * @param scopeEnd current scope instruction
+     * @param ctx
+     */
+    private static void addToCompensationTable(Instruction.InstructionScopeEnd scopeEnd, WorkerExecutionContext ctx) {
+        CompensationTable compensationTable = (CompensationTable) ctx.globalProps.get(Constants.COMPENSATION_TABLE);
+        CompensationTable.CompensationEntry entry = compensationTable.getNewEntry();
+        entry.functionInfo = scopeEnd.function;
+        entry.scope = scopeEnd.scopeName;
+        entry.workerData = BLangVMUtils
+                .createWorkerDataForLocal(ctx.workerInfo, ctx, scopeEnd.argRegs, scopeEnd.function.getParamTypes());
+        compensationTable.compensations.add(entry);
+        compensationTable.index++;
     }
 }

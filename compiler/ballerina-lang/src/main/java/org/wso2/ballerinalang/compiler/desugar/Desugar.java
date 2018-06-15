@@ -131,6 +131,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBind;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
@@ -145,6 +146,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch.BLangMatchStmt
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPostIncrement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement.BLangStatementLink;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
@@ -919,6 +921,38 @@ public class Desugar extends BLangNodeVisitor {
         forkJoin.joinedBody = rewrite(forkJoin.joinedBody, env);
         forkJoin.timeoutBody = rewrite(forkJoin.timeoutBody, env);
         result = forkJoin;
+    }
+
+    @Override
+    public void visit(BLangCompensate compensateNode) {
+        result = compensateNode;
+    }
+
+    @Override
+    public void visit(BLangScope scopeNode) {
+        int i = 0;
+        for (BLangExpression expr : scopeNode.varRefs) {
+            String varName = GEN_VAR_PREFIX.value + i++;
+            BLangVariable matchExprVar = ASTBuilderUtil.createVariable(expr.pos,
+                    varName, expr.type, null, new BVarSymbol(0,
+                            names.fromString(varName),
+                            this.env.scope.owner.pkgID, expr.type, this.env.scope.owner));
+
+            scopeNode.compensationFunction.addParameter(matchExprVar);
+            scopeNode.compensationFunction.requiredParams.add(matchExprVar);
+
+        }
+
+        scopeNode.getCompensationFunction().body.scope = env.scope;
+        scopeNode.compensationFunction = rewrite(scopeNode.getCompensationFunction(), env);
+        env.enclPkg.functions.add(scopeNode.getCompensationFunction());
+        env.enclPkg.topLevelNodes.add(scopeNode.getCompensationFunction());
+
+
+        scopeNode.scopeBody = rewrite(scopeNode.scopeBody, env);
+        scopeNode.varRefs.forEach(bLangSimpleVarRef -> rewrite(bLangSimpleVarRef, env));
+
+        result = scopeNode;
     }
 
     // Expressions

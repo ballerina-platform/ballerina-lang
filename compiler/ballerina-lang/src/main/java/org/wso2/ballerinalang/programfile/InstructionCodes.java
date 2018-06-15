@@ -75,6 +75,10 @@ public interface InstructionCodes {
     int MAPLOAD = 46;
     int JSONLOAD = 47;
 
+    int COMPENSATE = 50;
+    int SCOPE_END = 51;
+    int LOOP_COMPENSATE = 52;
+
     int IASTORE = 55;
     int FASTORE = 56;
     int SASTORE = 57;

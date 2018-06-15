@@ -288,6 +288,8 @@ statement
     |   foreverStatement
     |   streamingQueryStatement
     |   doneStatement
+    |   scopeStatement
+    |   compensateStatement
     ;
 
 variableDefinitionStatement
@@ -400,6 +402,22 @@ continueStatement
 
 breakStatement
     :   BREAK SEMICOLON
+    ;
+
+compensateStatement
+    :  COMPENSATE Identifier SEMICOLON
+    ;
+
+scopeStatement
+    :   scopeClause compensationClause
+    ;
+
+scopeClause
+    : SCOPE Identifier LEFT_BRACE statement* RIGHT_BRACE
+    ;
+
+compensationClause
+    : COMPENSATION LEFT_PARENTHESIS variableReferenceList? RIGHT_PARENTHESIS callableUnitBody
     ;
 
 // typeName is only message

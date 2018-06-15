@@ -130,6 +130,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCatch;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangCompensate;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDone;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -141,6 +142,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRetry;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangReturn;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangScope;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangThrow;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangTransaction;
@@ -219,6 +221,7 @@ import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -275,6 +278,11 @@ public class CodeGenerator extends BLangNodeVisitor {
     private VariableIndex maxRegIndexes = new VariableIndex(REG);
 
     private List<RegIndex> regIndexList = new ArrayList<>();
+
+    /**
+     * This structure holds child scopes of a given scope.
+     */
+    private Map<String, Stack<String>> childScopesMap = new HashMap();
 
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator
@@ -1274,6 +1282,64 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(bLangStatementExpression.expr, this.env);
         emit(getOpcode(bLangStatementExpression.expr.type.tag, InstructionCodes.IMOVE),
                 bLangStatementExpression.expr.regIndex, bLangStatementExpression.regIndex);
+    }
+
+    public void visit(BLangScope scopeNode) {
+
+        // add the child nodes to the map
+        childScopesMap.put(scopeNode.name.getValue(), scopeNode.childScopes);
+        visit(scopeNode.scopeBody);
+
+        // generating scope end instruction
+        int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, scopeNode.name.getValue());
+        FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
+        int funcRefCPIndex =  currentPkgInfo.addCPEntry(funcRefCPEntry);
+        int i = 0;
+        //functionRefCP, scopenameUTF8CP, nArgs, args, nChild, children
+        Operand[] operands = new Operand[4 + scopeNode.varRefs.size() + scopeNode.childScopes.size()];
+        operands[i++] = getOperand(funcRefCPIndex);
+        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, scopeNode.getScopeName().getValue());
+        operands[i++] = getOperand(scopeNameCPIndex);
+
+        operands[i++] = getOperand(scopeNode.varRefs.size());
+        for (BLangExpression expr : scopeNode.varRefs) {
+            operands[i++] = ((BVarSymbol) (((BLangSimpleVarRef) expr)).symbol).varIndex;
+        }
+
+        operands[i++] = getOperand(scopeNode.childScopes.size());
+
+        for (String child : scopeNode.childScopes) {
+            int childScopeNameIndex = addUTF8CPEntry(currentPkgInfo, child);
+            operands[i++] = getOperand(childScopeNameIndex);
+        }
+
+        emit(InstructionCodes.SCOPE_END, operands);
+
+    }
+
+    public void visit(BLangCompensate compensate) {
+
+        Operand jumpAddr = getOperand(nextIP());
+        //Add child function refs
+        Stack children = childScopesMap.get(compensate.scopeName);
+
+        int i = 0;
+        //scopeName, child count, children
+        Operand[] operands = new Operand[2 + children.size()];
+
+        int scopeNameCPIndex = addUTF8CPEntry(currentPkgInfo, compensate.invocation.name.value);
+        operands[i++] = getOperand(scopeNameCPIndex);
+
+        operands[i++] = getOperand(children.size());
+        while (children != null && !children.isEmpty()) {
+            String childName = (String) children.pop();
+            int childNameCP = currentPkgInfo.addCPEntry(new UTF8CPEntry(childName));
+            operands[i++] = getOperand(childNameCP);
+        }
+
+        emit(InstructionCodes.COMPENSATE, operands);
+        emit(InstructionCodes.LOOP_COMPENSATE, jumpAddr);
     }
 
     // private methods
