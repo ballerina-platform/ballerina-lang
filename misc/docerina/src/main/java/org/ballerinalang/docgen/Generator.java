@@ -36,6 +36,7 @@ import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
 import org.ballerinalang.docgen.model.RecordDoc;
 import org.ballerinalang.docgen.model.StaticCaption;
 import org.ballerinalang.docgen.model.Variable;
+import org.ballerinalang.model.elements.DocAttachment;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.AnnotatableNode;
@@ -299,7 +300,10 @@ public class Generator {
     }
 
     private static String extractLink(Collection<BType> types) {
-        return types.stream().map(Generator::extractLink).collect(Collectors.joining(","));
+        return types.stream()
+                .filter(t -> t.tag != TypeTags.NIL)
+                .map(Generator::extractLink)
+                .collect(Collectors.joining(","));
     }
 
     //TODO
@@ -454,26 +458,36 @@ public class Generator {
         if (recordType.isAnonymous) {
             structName = "Anonymous Record " + structName.substring(structName.lastIndexOf('$') + 1);
         }
-        List<Field> fields = getFields(recordType, recordType.fields);
+        List<Field> fields = getFields(recordType, recordType.fields, recordType.symbol.documentation.attributes);
         return new RecordDoc(structName, recordType.symbol.documentation.description, new ArrayList<>(), fields);
     }
 
-    private static List<Field> getFields(BLangNode node, List<BLangVariable> allFields) {
+    private static List<Field> getFields(BLangNode node, List<BLangVariable> allFields,
+                                         List<DocAttachment.DocAttribute> nodeDocAttributes) {
         List<Field> fields = new ArrayList<>();
         for (BLangVariable param : allFields) {
             if (param.getFlags().contains(Flag.PUBLIC)) {
+                String name = param.getName().value;
                 String dataType = type(param);
                 String desc = fieldAnnotation(node, param);
+                desc = desc.isEmpty() ? findDescFromList(name, nodeDocAttributes) : desc;
+
                 String defaultValue = "";
                 if (null != param.getInitialExpression()) {
                     defaultValue = param.getInitialExpression().toString();
                 }
                 String href = extractLink(param.getTypeNode());
-                Field variable = new Field(param.getName().value, dataType, desc, defaultValue, href);
+                Field variable = new Field(name, dataType, desc, defaultValue, href);
                 fields.add(variable);
             }
         }
         return fields;
+    }
+
+    private static String findDescFromList(String name, List<DocAttachment.DocAttribute> nodeDocAttributes) {
+        String rawText = nodeDocAttributes.stream()
+                .filter(n -> n.name.equals(name)).findAny().map(d -> d.description).orElse("");
+        return BallerinaDocUtils.mdToHtml(rawText);
     }
 
     public static void addDocForType(BLangObjectTypeNode objectType,
@@ -484,7 +498,7 @@ public class Generator {
         String name = parent.getName().getValue();
         String description = description(parent);
 
-        List<Field> fields = getFields(parent, objectType.fields);
+        List<Field> fields = getFields(parent, objectType.fields, parent.symbol.documentation.attributes);
         boolean hasConstructor = false;
 
         if (objectType.initFunction != null) {
