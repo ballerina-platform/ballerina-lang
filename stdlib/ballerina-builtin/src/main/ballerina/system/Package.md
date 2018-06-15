@@ -1,6 +1,7 @@
 ## Package overview
 
-This package contains functions to retrieve information about the system and the current users of the system. It provides information such as environment variables, username, user home directory path, and the current working directory.
+This package contains functions to retrieve information about the system and the current users of the system. It 
+provides information such as environment variables, username, user home directory path, and the current working directory.
 
 ## Samples
 
