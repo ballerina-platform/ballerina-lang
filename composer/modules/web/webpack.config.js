@@ -333,6 +333,11 @@ const config = [{
             },
 		]
 	},
+	node: {
+		fs: 'empty',
+		module: 'empty',
+		net: 'empty'
+	},
 	plugins: [
 		new webpack.IgnorePlugin(/^((fs)|(path)|(os)|(crypto)|(source-map-support))$/, /vs\/language\/typescript\/lib/),
 		new webpack.ContextReplacementPlugin(

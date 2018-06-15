@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.index.dto.BObjectTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BPackageSymbolDTO;
 import org.ballerinalang.langserver.index.dto.BRecordTypeSymbolDTO;
 import org.ballerinalang.langserver.index.dto.OtherTypeSymbolDTO;
+import org.ballerinalang.langserver.index.dto.PackageIDDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -73,7 +74,10 @@ public class LSIndexQueryProcessor {
     
     private PreparedStatement getObjectsFromPackage;
 
+    private Connection connection;
+
     LSIndexQueryProcessor(Connection connection) {
+        this.connection = connection;
         // Generate the prepared statements
         try {
             // Insert Statements
@@ -335,6 +339,68 @@ public class LSIndexQueryProcessor {
         
         return DAOUtil.getObjectDAO(getObjectsFromPackage.executeQuery());
     }
+
+    /**
+     * Get all packages in index.
+     * @return                  List of Packages
+     * @throws SQLException     Exception while query
+     */
+    public List<PackageIDDTO> getAllPackages() throws SQLException {
+        List<PackageIDDTO> packages = new ArrayList<>();
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(Constants.GET_ALL_PACKAGES);
+            while (resultSet.next()) {
+                packages.add(new PackageIDDTO(
+                        Integer.parseInt(resultSet.getString(1)),
+                        resultSet.getString(2),
+                        resultSet.getString(3),
+                        resultSet.getString(4)
+                ));
+            }
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            if (resultSet != null) {
+                resultSet.close();
+            }
+        }
+        return packages;
+    }
+
+    /**
+     * Get all endpoints in index.
+     * @return                  List of Endpoints
+     * @throws SQLException     Exception while query
+     */
+    public List<BObjectTypeSymbolDTO> getAllEndpoints() throws SQLException {
+        List<BObjectTypeSymbolDTO> packages = new ArrayList<>();
+        Statement statement = null;
+        ResultSet resultSet = null;
+        try {
+            statement = connection.createStatement();
+            resultSet = statement.executeQuery(Constants.GET_ALL_ENDPOINTS);
+            while (resultSet.next()) {
+                packages.add(new BObjectTypeSymbolDTO(
+                        Integer.parseInt(resultSet.getString(2)),
+                        resultSet.getString(3),
+                        resultSet.getString(4)
+                ));
+            }
+        } finally {
+            if (statement != null) {
+                statement.close();
+            }
+            if (resultSet != null) {
+                resultSet.close();
+            }
+        }
+        return packages;
+    }
+
 
     // Private Methods
 

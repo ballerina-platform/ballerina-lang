@@ -161,13 +161,6 @@ class ServiceNode extends React.Component {
             });
         }
 
-        const resources = model.getResources();
-        this.props.model.viewState.components.transportLine.y2 = 0;
-        if (resources[resources.length - 1]) {
-            this.props.model.viewState.components.transportLine.y2
-                = resources[resources.length - 1].body.viewState.bBox.y - 15;
-        }
-
         let panelAdditionalProps = {};
 
         const protocol = model.getType();
@@ -210,7 +203,7 @@ class ServiceNode extends React.Component {
                     {endpoints}
                 </PanelDecorator>
                 <ServerConnectorProperties
-                    bBox={this.props.model.viewState.components.transportLine}
+                    bBox={this.props.model.viewState.components.serverConnector}
                     model={this.props.model}
                     protocol={model.getType()}
                 />

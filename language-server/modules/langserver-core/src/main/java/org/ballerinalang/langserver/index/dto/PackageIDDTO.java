@@ -21,6 +21,8 @@ package org.ballerinalang.langserver.index.dto;
  * DTO for Package.
  */
 public class PackageIDDTO {
+
+    private int id;
     
     private String name;
     
@@ -32,6 +34,17 @@ public class PackageIDDTO {
         this.name = name;
         this.orgName = orgName;
         this.version = version;
+    }
+
+    public PackageIDDTO(int id, String name, String orgName, String version) {
+        this.id = id;
+        this.name = name;
+        this.orgName = orgName;
+        this.version = version;
+    }
+
+    public int getId() {
+        return id;
     }
 
     public String getName() {

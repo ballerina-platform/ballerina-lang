@@ -370,4 +370,8 @@ public class HttpConstants {
 
     //WebSocket Related constants for WebSocket upgrade
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";
+
+    public static final int REQUEST_STRUCT_INDEX = 1;
+    public static final int REQUEST_REUSE_STATUS_INDEX = 0;
+    public static final int DIRTY_REQUEST = 1;
 }

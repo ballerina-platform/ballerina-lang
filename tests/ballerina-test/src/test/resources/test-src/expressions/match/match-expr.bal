@@ -96,3 +96,21 @@ function testAssignabileTypesInPatterns(string|int|float|error a) returns json {
              };
     return j;
 }
+
+function testMatchErrorWithCauses() {
+    error cause1 = {message: "root cause"};
+    error cause2 = {message: "intermediate cause", cause: cause1};
+    error err1 = {message: "actual error", cause: cause2};
+
+    error? err2 = err1;
+    match err2 {
+        error err3 => throw err3.cause but { 
+            error err4 => err4.cause but { 
+                () => err4 
+            },
+            () => err3 
+        };
+        () => {}
+    }
+}
+
