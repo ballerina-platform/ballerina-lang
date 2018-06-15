@@ -132,7 +132,7 @@ org.wso2.carbon.metrics.core-2.3.7.jar                                          
 org.wso2.carbon.secvault-5.0.8.jar                                              bundle         apache2   14844
 org.wso2.carbon.utils-2.0.2.jar                                                 bundle         apache2   14843
 org.wso2.securevault-1.0.0-wso2v2.jar                                           bundle         apache2   3537
-org.wso2.transport.http.netty-6.0.196.jar                                       bundle         apache2   19937
+org.wso2.transport.http.netty-6.0.197.jar                                       bundle         apache2   19937
 org.wso2.transport.local-file-system-6.0.53.jar                                 bundle         apache2   19936
 protobuf-ballerina-0.975.0.jar                                                  jar            apache2   3646
 protobuf-java-3.5.1.jar                                                         bundle         bsd3      3167
