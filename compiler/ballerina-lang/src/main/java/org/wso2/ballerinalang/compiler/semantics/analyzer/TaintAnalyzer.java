@@ -1541,6 +1541,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         if (taintErrorSet.size() > 0) {
             // When invocation returns an error (due to passing a tainted argument to a sensitive parameter) add current
             // error to the table for future reference.
+            // TODO: Generate error if an taint error occurs when ALL_UNTAINTED_TABLE_ENTRY_INDEX is being analyzed.
             taintTable.put(paramIndex, new TaintRecord(null, new ArrayList<>(taintErrorSet)));
             taintErrorSet.clear();
         } else if (this.blockedNode == null) {
@@ -1726,14 +1727,18 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         Map<Integer, TaintRecord> taintTable = invokableSymbol.taintTable;
         TaintedStatus returnTaintedStatus = TaintedStatus.UNTAINTED;
         TaintRecord allParamsUntaintedRecord = taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
-        if (allParamsUntaintedRecord.taintError != null && allParamsUntaintedRecord.taintError.size() > 0) {
-            // This can occur when there is a error regardless of tainted status of parameters.
-            // Example: Tainted value returned by function is passed to another functions's sensitive parameter.
-            addTaintError(allParamsUntaintedRecord.taintError);
+        if (allParamsUntaintedRecord == null) {
+            returnTaintedStatus = TaintedStatus.TAINTED;
         } else {
-            if (taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX).retParamTaintedStatus.size() > 0) {
-                returnTaintedStatus = taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX).retParamTaintedStatus
-                        .get(RETURN_TAINTED_STATUS_COLUMN_INDEX) ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED;
+            if (allParamsUntaintedRecord.taintError != null && allParamsUntaintedRecord.taintError.size() > 0) {
+                // This can occur when there is a error regardless of tainted status of parameters.
+                // Example: Tainted value returned by function is passed to another functions's sensitive parameter.
+                addTaintError(allParamsUntaintedRecord.taintError);
+            } else {
+                if (allParamsUntaintedRecord.retParamTaintedStatus.size() > 0) {
+                    returnTaintedStatus = allParamsUntaintedRecord.retParamTaintedStatus
+                            .get(RETURN_TAINTED_STATUS_COLUMN_INDEX) ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED;
+                }
             }
         }
         if (invocationExpr.argExprs != null) {
