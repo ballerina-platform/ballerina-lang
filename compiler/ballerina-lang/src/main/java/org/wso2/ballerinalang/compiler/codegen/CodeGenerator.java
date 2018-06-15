@@ -3050,21 +3050,32 @@ public class CodeGenerator extends BLangNodeVisitor {
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
         Operand[] operands;
-        if (!(fpExpr instanceof BLangLambdaFunction)) {
-            operands = new Operand[4];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = nextIndex;
-            operands[2] = typeCPIndex;
-            operands[3] = new Operand(0);
-        } else {
+        if (NodeKind.LAMBDA == fpExpr.getKind()) {
             Operand[] closureIndexes = calcAndGetClosureIndexes(((BLangLambdaFunction) fpExpr).function);
             operands = new Operand[3 + closureIndexes.length];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
             operands[2] = typeCPIndex;
             System.arraycopy(closureIndexes, 0, operands, 3, closureIndexes.length);
+        } else if (NodeKind.FIELD_BASED_ACCESS_EXPR == fpExpr.getKind()) {
+            operands = new Operand[5];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            operands[2] = typeCPIndex;
+            operands[3] = getOperand(-1);
+            operands[4] = getObjectArgIndex(((BLangStructFunctionVarRef) fpExpr));
+        } else {
+            operands = new Operand[4];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            operands[2] = typeCPIndex;
+            operands[3] = new Operand(0);
         }
         emit(InstructionCodes.FPLOAD, operands);
+    }
+
+    private Operand getObjectArgIndex(BLangStructFunctionVarRef fpExpr) {
+        return new Operand(((BVarSymbol) fpExpr.expr.symbol).varIndex.value);
     }
 
     private Operand[] calcAndGetClosureIndexes(BLangFunction function) {
