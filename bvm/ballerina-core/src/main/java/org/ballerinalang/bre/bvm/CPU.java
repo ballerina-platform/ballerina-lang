@@ -63,6 +63,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
@@ -2081,7 +2082,7 @@ public class CPU {
             case InstructionCodes.ANY2F:
                 i = operands[0];
                 j = operands[1];
-                sf.doubleRegs[j] = ((BFloat) sf.refRegs[i]).floatValue();
+                sf.doubleRegs[j] = ((BValueType) sf.refRegs[i]).floatValue();
                 break;
             case InstructionCodes.ANY2S:
                 i = operands[0];
@@ -3147,6 +3148,10 @@ public class CPU {
         }
 
         if (rhsType.equals(lhsType)) {
+            return true;
+        }
+
+        if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.FLOAT_TAG) {
             return true;
         }
 
