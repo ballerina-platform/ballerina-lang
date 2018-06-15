@@ -143,21 +143,18 @@ function findBalFilesInDirSync(dir, filelist) {
 describe('Ballerina Composer Test Suite', () => {
     // fetch configs before proceeding
     let backEndProcess;
-    let projectVersion;
     let moveFailingFiles;
 
     // Before running test suit.
     before(function (beforeAllDone) {
         this.timeout(10000);
         process.argv.forEach((arg) => {
-            if (arg.startsWith('--projectVersion')) {
-                projectVersion = arg.split('=')[1]
-            } else if (arg.startsWith('--moveFailingFiles')) {
+            if (arg.startsWith('--moveFailingFiles')) {
                 moveFailingFiles = arg.split('=')[1]
             }
         });
 
-        const targetPath = path.join(__dirname, '..', '..', 'lib', `composer-server-distribution-${projectVersion}.jar`);
+        const targetPath = path.join(__dirname, '..', '..', 'lib', `composer-server.jar`);
         const ballerinaHome = path.join(__dirname, '..', '..');
         backEndProcess = spawn('java', ['-Dbal.composer.home', `-Dballerina.home=${ballerinaHome}`, '-jar', targetPath]);
         backEndProcess.stderr.pipe(process.stderr);

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.973.1-SNAPSHOT</version>
+        <version>0.974.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -79,6 +79,7 @@
                             <groupId>org.ballerinalang</groupId>
                             <artifactId>composer-server-distribution</artifactId>
                             <version>${project.version}</version>
+                            <destFileName>composer-server.jar</destFileName>
                         </artifactItem>
                     </artifactItems>
                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
@@ -226,7 +227,6 @@
                             <arguments>
                                 <argument>test</argument>
                                 <argument>--</argument>
-                                <argument>--projectVersion=${project.version}</argument>
                                 <argument>--moveFailingFiles=${moveFailingFiles}</argument>
                             </arguments>
                             <skip>${maven.test.skip}</skip>
