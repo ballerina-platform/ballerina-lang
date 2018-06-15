@@ -130,12 +130,16 @@ public class PackageID {
 
     @Override
     public String toString() {
+        if (Names.DOT.equals(this.name)) {
+            return this.name.value;
+        }
+
         String orgName = "";
         if (this.orgName != null && !this.orgName.equals(Names.ANON_ORG)) {
             orgName = this.orgName + Names.ORG_NAME_SEPARATOR.value;
         }
 
-        if (version.equals(Names.DEFAULT_VERSION) || version.equals(Names.EMPTY)) {
+        if (version.equals(Names.EMPTY)) {
             return orgName + this.name.value;
         }
 

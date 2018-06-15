@@ -40,6 +40,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
 
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG_INDEX;
+
 /**
  * This contains test utils related to Ballerina service invocations.
  *
@@ -55,7 +59,7 @@ public class Services {
 
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
                                               HTTPTestRequest request) {
-        return invokeNew(compileResult, pkgName, Names.EMPTY.value, endpointName, request);
+        return invokeNew(compileResult, pkgName, Names.DEFAULT_VERSION.value, endpointName, request);
     }
 
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
@@ -84,7 +88,9 @@ public class Services {
             Object srcHandler = request.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
+        BStruct tempEndpoint = BLangConnectorSPIUtil.createObject(programFile, PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
+        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
+                .toStruct((BStruct) tempEndpoint.getRefField(SERVICE_ENDPOINT_CONFIG_INDEX)));
         callback.setRequestStruct(signatureParams[0]);
         Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
         callback.sync();

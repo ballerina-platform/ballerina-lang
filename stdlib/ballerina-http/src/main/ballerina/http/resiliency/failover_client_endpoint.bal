@@ -36,9 +36,9 @@ public type FailoverClient object {
     documentation {
         Initializes the endpoint using the configurations provided.
 
-        P{{failoverClientConfig}} The configurations to be used when initializing the endpoint
+        P{{foClientConfig}} The configurations to be used when initializing the endpoint
     }
-    public function init(FailoverClientEndpointConfiguration failoverClientConfig);
+    public function init(FailoverClientEndpointConfiguration foClientConfig);
 
     documentation {
         Returns the HTTP failover actions associated with the endpoint.
@@ -89,18 +89,18 @@ public type FailoverClientEndpointConfiguration {
     int intervalMillis,
 };
 
-public function FailoverClient::init(FailoverClientEndpointConfiguration failoverClientConfig) {
-    self.httpEP.httpClient = createFailOverClient(failoverClientConfig);
-    self.httpEP.config.circuitBreaker = failoverClientConfig.circuitBreaker;
-    self.httpEP.config.timeoutMillis = failoverClientConfig.timeoutMillis;
-    self.httpEP.config.httpVersion = failoverClientConfig.httpVersion;
-    self.httpEP.config.forwarded = failoverClientConfig.forwarded;
-    self.httpEP.config.keepAlive = failoverClientConfig.keepAlive;
-    self.httpEP.config.chunking = failoverClientConfig.chunking;
-    self.httpEP.config.followRedirects = failoverClientConfig.followRedirects;
-    self.httpEP.config.retryConfig = failoverClientConfig.retryConfig;
-    self.httpEP.config.proxy = failoverClientConfig.proxy;
-    self.httpEP.config.connectionThrottling = failoverClientConfig.connectionThrottling;
+public function FailoverClient::init(FailoverClientEndpointConfiguration foClientConfig) {
+    self.httpEP.httpClient = createFailOverClient(foClientConfig);
+    self.httpEP.config.circuitBreaker = foClientConfig.circuitBreaker;
+    self.httpEP.config.timeoutMillis = foClientConfig.timeoutMillis;
+    self.httpEP.config.httpVersion = foClientConfig.httpVersion;
+    self.httpEP.config.forwarded = foClientConfig.forwarded;
+    self.httpEP.config.keepAlive = foClientConfig.keepAlive;
+    self.httpEP.config.chunking = foClientConfig.chunking;
+    self.httpEP.config.followRedirects = foClientConfig.followRedirects;
+    self.httpEP.config.retryConfig = foClientConfig.retryConfig;
+    self.httpEP.config.proxy = foClientConfig.proxy;
+    self.httpEP.config.connectionThrottling = foClientConfig.connectionThrottling;
 }
 
 function createClientEPConfigFromFailoverEPConfig(FailoverClientEndpointConfiguration foConfig,

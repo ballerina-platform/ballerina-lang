@@ -31,6 +31,8 @@ public class BLangJSONModelConstants {
 
     public static final String STATEMENTS = "statements";
 
+    public static final String TYPE_NODE = "typeNode";
+
     public static final String FIELDS = "fields";
 
     public static final String TOP_LEVEL_NODES = "topLevelNodes";

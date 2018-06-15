@@ -45,9 +45,9 @@ public type Listener object {
     documentation {
          Gets called when the endpoint is being initialized during package initialization.
          
-         P{{config}} The Subscriber Service Endpoint Configuration of the endpoint
+         P{{c}} The Subscriber Service Endpoint Configuration of the endpoint
     }
-    public function init(SubscriberServiceEndpointConfiguration config);
+    public function init(SubscriberServiceEndpointConfiguration c);
 
     documentation {
         Gets called whenever a service attaches itself to this endpoint and during package initialization.
@@ -105,12 +105,10 @@ public type Listener object {
 
 };
 
-public function Listener::init(SubscriberServiceEndpointConfiguration config) {
-    self.config = config;
-    SignatureValidationFilter sigValFilter;
-    http:Filter[] filters = [<http:Filter>sigValFilter];
+public function Listener::init(SubscriberServiceEndpointConfiguration c) {
+    self.config = c;
     http:ServiceEndpointConfiguration serviceConfig = {
-        host:config.host, port:config.port, secureSocket:config.httpServiceSecureSocket, filters:filters
+        host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket
     };
 
     self.serviceEndpoint.init(serviceConfig);
@@ -287,53 +285,6 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
         }
     }
     return websubError;
-}
-
-documentation {
-    Signature validation filter for WebSub services.
-}
-public type SignatureValidationFilter object {
-
-    documentation {
-        Represents the filtering function that will be invoked on WebSub notification requests.
-
-        P{{request}} The request being intercepted
-        P{{context}} The filter context
-        R{{}} `http:FilterResult` The result of the filter indicating whether or not proceeding can be allowed
-    }
-    public function filterRequest(http:Request request, http:FilterContext context) returns http:FilterResult {
-        return interceptWebSubRequest(request, context);
-    }
-};
-
-//TODO: check if this can be not public
-documentation {
-    The function called to validate signature for content received by WebSub services.
-
-    P{{request}} The request being intercepted
-    P{{context}} The filter context
-    R{{}} `http:FilterResult` The result of the filter indicating whether or not proceeding can be allowed
-}
-public function interceptWebSubRequest(http:Request request, http:FilterContext context) returns http:FilterResult {
-    if (request.method == "POST") {
-        var processedNotification = processWebSubNotification(request, context.serviceType);
-        match (processedNotification) {
-            error webSubError => {
-                log:printDebug("Signature Validation failed for Notification: " + webSubError.message);
-                http:FilterResult filterResult =
-                {canProceed:false, statusCode:404, message:"validation failed for notification"};
-                return filterResult;
-            }
-            () => {
-                http:FilterResult filterResult =
-                {canProceed:true, statusCode:200, message:"validation successful for notification"};
-                return filterResult;
-            }
-        }
-    } else {
-        http:FilterResult filterResult = {canProceed:true, statusCode:200, message:"allow intent verification"};
-        return filterResult;
-    }
 }
 
 documentation {

@@ -24,9 +24,11 @@ import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,9 +46,15 @@ public class StatementContextResolver extends AbstractItemResolver {
         // action invocation or worker invocation
         if (isInvocationOrFieldAccess(completionContext)) {
             ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
-            PackageActionFunctionAndTypesFilter actionFunctionTypeFilter = new PackageActionFunctionAndTypesFilter();
-            actionAndFunctions.addAll(actionFunctionTypeFilter.filterItems(completionContext));
-            this.populateCompletionItemList(actionAndFunctions, completionItems);
+            Either<List<CompletionItem>, List<SymbolInfo>> itemList =
+                    SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
+                            .filterItems(completionContext);
+            if (itemList.isLeft()) {
+                completionItems.addAll(itemList.getLeft());
+            } else {
+                actionAndFunctions.addAll(itemList.getRight());
+                this.populateCompletionItemList(actionAndFunctions, completionItems);
+            }
         } else {
             CompletionItem xmlns = new CompletionItem();
             xmlns.setLabel(ItemResolverConstants.XMLNS);
@@ -64,7 +72,11 @@ public class StatementContextResolver extends AbstractItemResolver {
 
             StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
             // Add the statement templates
-            completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
+            Either<List<CompletionItem>, List<SymbolInfo>> itemList =
+                    statementTemplateFilter.filterItems(completionContext);
+            if (itemList.isLeft()) {
+                completionItems.addAll(itemList.getLeft());
+            }
             List<SymbolInfo> filteredList =
                     this.removeInvalidStatementScopeSymbols(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
             populateCompletionItemList(filteredList, completionItems);

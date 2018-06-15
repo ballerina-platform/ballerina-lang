@@ -115,11 +115,6 @@ public class PackageInfoReader {
         this.typeSigReader = new TypeSignatureReader<>();
     }
 
-    // This is used to assign a number to a package.
-    // This number is used as an offset when dealing with package level variables.
-    // A temporary solution until we implement dynamic package loading.
-    private int currentPkgIndex = 0;
-
     public void readConstantPool(ConstantPool constantPool) throws IOException {
         int constantPoolSize = dataInStream.readInt();
         for (int i = 0; i < constantPoolSize; i++) {
@@ -283,7 +278,7 @@ public class PackageInfoReader {
 
     public void readPackageInfo() throws IOException {
         PackageInfo packageInfo = new PackageInfo();
-        packageInfo.pkgIndex = currentPkgIndex++;
+        packageInfo.pkgIndex = programFile.currentPkgIndex++;
 
         // Read constant pool in the package.
         readConstantPool(packageInfo);
@@ -312,7 +307,7 @@ public class PackageInfoReader {
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read import package entries
-        readImportPackageInfoEntries(packageInfo);
+        readImportPackageInfoEntries();
 
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
@@ -350,25 +345,12 @@ public class PackageInfoReader {
         packageInfo.complete();
     }
 
-    private void readImportPackageInfoEntries(PackageInfo packageInfo) throws IOException {
+    private void readImportPackageInfoEntries() throws IOException {
         int impPkgCount = dataInStream.readShort();
         for (int i = 0; i < impPkgCount; i++) {
-
-            int orgNameCPIndex = dataInStream.readInt();
-            UTF8CPEntry orgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(orgNameCPIndex);
-
-            int pkgNameCPIndex = dataInStream.readInt();
-            UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
-
-            int pkgVersionCPIndex = dataInStream.readInt();
-            UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
-
-            String pkgPath =
-                    getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue());
-            
-            ImportPackageInfo importPackageInfo = new ImportPackageInfo(orgNameCPIndex, pkgNameCPIndex, pkgPath,
-                    pkgVersionCPIndex, pkgVersionCPEntry.getValue());
-            packageInfo.importPkgInfoList.add(importPackageInfo);
+            dataInStream.readInt();
+            dataInStream.readInt();
+            dataInStream.readInt();
         }
     }
 
@@ -1673,13 +1655,16 @@ public class PackageInfoReader {
     }
 
     private String getPackagePath(String orgName, String pkgName, String version) {
+        if (Names.DOT.value.equals(pkgName)) {
+            return pkgName;
+        }
         if (orgName.equals(Names.ANON_ORG.value)) {
             orgName = "";
         } else {
             orgName = orgName + Names.ORG_NAME_SEPARATOR.value;
         }
 
-        if (Names.DEFAULT_VERSION.value.equals(version) || Names.EMPTY.value.equals(version)) {
+        if (Names.EMPTY.value.equals(version)) {
             return orgName + pkgName;
         }
 

@@ -148,35 +148,31 @@ public type IntentVerificationRequest object {
     documentation {
         Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
 
-        P{{topic}} The topic for which subscription should be accepted, if not specified the annotated topic will be
-                    used
+        P{{t}} The topic for which subscription should be accepted
         R{{}} `http:Response` The response to the hub verifying/denying intent to subscribe
     }
-    public function buildSubscriptionVerificationResponse(string? topic = ()) returns http:Response;
+    public function buildSubscriptionVerificationResponse(string t) returns http:Response;
 
     documentation {
         Builds the response for the request, verifying intention to unsubscribe, if the topic matches that expected.
 
-        P{{topic}} The topic for which unsubscription should be accepted, if not specified the annotated topic will be
-                    used
+        P{{t}} The topic for which unsubscription should be accepted
         R{{}} `http:Response` The response to the hub verifying/denying intent to unsubscribe
     }
-    public function buildUnsubscriptionVerificationResponse(string? topic = ()) returns http:Response;
+    public function buildUnsubscriptionVerificationResponse(string t) returns http:Response;
 
 };
 
-public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string? topic = ())
+public function IntentVerificationRequest::buildSubscriptionVerificationResponse(string t)
     returns http:Response {
 
-    string intendedTopic = topic but {() => retrieveIntendedTopic()};
-    return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, intendedTopic);
+    return buildIntentVerificationResponse(self, MODE_SUBSCRIBE, t);
 }
 
-public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string? topic = ())
+public function IntentVerificationRequest::buildUnsubscriptionVerificationResponse(string t)
     returns http:Response {
 
-    string intendedTopic = topic but {() => retrieveIntendedTopic()};
-    return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, intendedTopic);
+    return buildIntentVerificationResponse(self, MODE_UNSUBSCRIBE, t);
 }
 
 documentation {
@@ -476,14 +472,39 @@ public type SubscriptionChangeResponse {
 documentation {
     Starts up the Ballerina Hub.
 
-    P{{port}} The port to start up the hub on
-    R{{}} `WebSubHub` The WebSubHub object representing the started up hub
+    P{{port}}                       The port to start up the hub on
+    P{{leaseSeconds}}               The default lease seconds value to honour if not specified in subscription requests
+    P{{signatureMethod}}            The signature method to use for authenticated content delivery (`SHA1`|`SHA256`)
+    P{{remotePublishingEnabled}}    Whether remote publishers should be allowed to publish to this hub (HTTP requests)
+    P{{remotePublishingMode}}       If remote publishing is allowed, the mode to use, `direct` (default) - fat ping with
+                                        the notification payload specified or `fetch` - the hub fetches the topic URL
+                                        specified in the "publish" request to identify the payload
+    P{{topicRegistrationRequired}}  Whether a topic needs to be registered at the hub prior to publishing/subscribing
+                                        to the topic
+    P{{publicUrl}}                  The URL for the hub to be included in content delivery requests, defaults to
+                                        `http(s)://localhost:{port}/websub/hub` if unspecified
+    P{{sslEnabled}}                 Whether SSL needs to be enabled for the hub, enabled by default
+    R{{}} `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
+                        that the hub is already started, and including the WebSubHub object representing the
+                        already started up hub
 }
-public function startUpBallerinaHub(int? port = ()) returns WebSubHub {
-    int websubHubPort = port but { () => hubPort };
-    string hubUrl = startUpHubService(websubHubPort);
-    WebSubHub ballerinaWebSubHub = new WebSubHub(hubUrl);
-    return ballerinaWebSubHub;
+public function startUpBallerinaHub(int? port = (), int? leaseSeconds = (), string? signatureMethod = (),
+                                    boolean? remotePublishingEnabled = (), string? remotePublishingMode = (),
+                                    boolean? topicRegistrationRequired = (), string? publicUrl = (),
+                                    boolean? sslEnabled = ()) returns WebSubHub|HubStartedUpError {
+    hubPort = port but { () => hubPort };
+    hubLeaseSeconds = leaseSeconds but { () => hubLeaseSeconds };
+    hubSignatureMethod = signatureMethod but { () => hubSignatureMethod };
+    hubRemotePublishingEnabled = remotePublishingEnabled but { () => hubRemotePublishingEnabled };
+    hubRemotePublishingMode = remotePublishingMode but { () => hubRemotePublishingMode };
+    hubTopicRegistrationRequired = topicRegistrationRequired but { () => hubTopicRegistrationRequired };
+    hubSslEnabled = sslEnabled but { () => hubSslEnabled };
+    //reset serviceSecureSocket and secureSocket after hubSslEnabled is set
+    serviceSecureSocket = getServiceSecureSocketConfig();
+    httpSecureSocket = getSecureSocketConfig();
+    //reset the hubUrl once the other parameters are set
+    hubPublicUrl = publicUrl but { () => getHubUrl() };
+    return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl);
 }
 
 documentation {
@@ -640,3 +661,14 @@ type WebSubContent {
 function isSuccessStatusCode(int statusCode) returns boolean {
     return (200 <= statusCode && statusCode < 300);
 }
+
+documentation {
+    Error to represent that a WebSubHub is already started up, encapsulating the started up Hub.
+
+    F{{message}}        The error message
+    F{{startedUpHub}}   The `WebSubHub` object representing the started up Hub
+}
+public type HubStartedUpError record {
+    string message;
+    WebSubHub startedUpHub;
+};

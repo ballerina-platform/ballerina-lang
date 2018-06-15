@@ -16,25 +16,21 @@
 import ballerina/http;
 
 ///////////////////////////////////////////////////////////////////
-//////////////////// WebSub Subscriber Natives ////////////////////
-///////////////////////////////////////////////////////////////////
-documentation {
-    Function to retrieve the topic specified as an annotation.
-    
-    R{{}} `string` representing the annotation
-}
-native function retrieveIntendedTopic() returns string;
-
-///////////////////////////////////////////////////////////////////
 //////////////////// WebSub Hub Natives ///////////////////////////
 ///////////////////////////////////////////////////////////////////
 documentation {
     Starts up the internal Ballerina Hub.
 
-    P{{port}} The port to start up the Hub service on
-    R{{}} `string` The URL of the Hub service
+    P{{topicRegistrationRequired}}  Whether a topic needs to be registered at the hub prior to publishing/subscribing
+                                        to the topic
+    P{{publicUrl}}                  The URL for the hub to be included in content delivery requests, defaults to
+                                        `http(s)://localhost:{port}/websub/hub` if unspecified
+    R{{}} `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
+                        that the hub is already started, and including the WebSubHub object representing the
+                        already started up hub
 }
-native function startUpHubService(int port) returns string;
+native function startUpHubService(boolean topicRegistrationRequired, string publicUrl)
+                                                                            returns WebSubHub|HubStartedUpError;
 
 documentation {
     Stop the Ballerina Hub, if started.

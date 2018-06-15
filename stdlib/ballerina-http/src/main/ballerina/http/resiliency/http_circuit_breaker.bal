@@ -156,13 +156,8 @@ public type CircuitBreakerClient object {
         P{{httpClient}}  The underlying `HttpActions` instance which will be making the actual network calls
         P{{circuitHealth}} The circuit health monitor
     }
-    public new (string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig circuitBreakerInferredConfig,
-                                                                            CallerActions httpClient, CircuitHealth circuitHealth) {
-        self.serviceUri = serviceUri;
-        self.config = config;
-        self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;
-        self.httpClient = httpClient;
-        self.circuitHealth = circuitHealth;
+    public new (serviceUri, config, circuitBreakerInferredConfig, httpClient, circuitHealth) {
+
     }
 
     documentation {

@@ -11,19 +11,20 @@ export default {
         'if', 'else', 'iterator', 'try', 'catch', 'finally', 'fork', 'join', 'all', 'some',
         'while', 'throw', 'return', 'returns', 'break', 'timeout', 'transaction', 'aborted',
         'abort', 'committed', 'failed', 'retries', 'continue', 'bind', 'with', 'lengthof', 'typeof',
-        'foreach', 'in', 'match', 'but', 'check', 'onretry'
+        'foreach', 'in', 'match', 'but', 'check', 'retry'
     ],
 
     otherKeywords: [
         'import', 'version', 'public', 'attach', 'as', 'native',
         'annotation', 'package', 'connector', 'function', 'resource', 'service', 'action',
         'worker', 'struct', 'transformer', 'endpoint',
-        'const', 'true', 'false', 'reply', 'create', 'parameter', 'new', 'async', 'untaint', 'done', 'start'
+        'const', 'true', 'false', 'reply', 'create', 'parameter', 'new', 'async', 'untaint', 'done', 'start',
+        'onretry', 'oncommit', 'onabort'
     ],
 
     typeKeywords: [
         'boolean', 'int', 'float', 'string', 'var', 'any', 'datatable', 'table', 'blob',
-        'map', 'exception', 'json', 'xml', 'xmlns', 'error', 'type',
+        'map', 'exception', 'json', 'xml', 'xmlns', 'error', 'type', 'future'
     ],
 
     operators: [
