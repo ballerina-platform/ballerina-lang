@@ -82,11 +82,11 @@ public class Compiler {
 
     public void build() {
         outStream.println("Compiling sources");
-        outStream.println("-----------------");
+        outStream.println();
         List<BLangPackage> packageList = compilePackages();
         if (packageList.size() > 0) {
             outStream.println("\nGenerating executables");
-            outStream.println("----------------------");
+            outStream.println();
             packageList.forEach(this.binaryFileWriter::write);
             packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
             this.lockFileWriter.writeLockFile(this.manifest);
@@ -95,7 +95,7 @@ public class Compiler {
 
     public void build(String sourcePackage, String targetFileName) {
         outStream.println("Compiling source");
-        outStream.println("----------------");
+        outStream.println();
         BLangPackage bLangPackage = compile(sourcePackage);
         if (bLangPackage.diagCollector.hasErrors()) {
             return;
@@ -103,6 +103,7 @@ public class Compiler {
 
         // Code gen and save...
         outStream.println("\nGenerating executables");
+        outStream.println();
         this.binaryFileWriter.write(bLangPackage, targetFileName);
         this.lockFileWriter.addEntryPkg(bLangPackage.symbol);
         this.lockFileWriter.writeLockFile(this.manifest);

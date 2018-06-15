@@ -35,6 +35,7 @@ import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.diagnostic.Diagnostic;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
@@ -68,8 +69,8 @@ public class BTestRunner {
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included
      */
-    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
-        runTest(sourceRoot, sourceFilePaths, groups, true);
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean buildWithTests) {
+        runTest(sourceRoot, sourceFilePaths, groups, true, buildWithTests);
     }
 
     /**
@@ -80,19 +81,15 @@ public class BTestRunner {
      * @param groups          List of groups to be included/excluded
      * @param shouldIncludeGroups    flag to specify whether to include or exclude provided groups
      */
-    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
-//        outStream.println("---------------------------------------------------------------------------");
-//        outStream.println("    T E S T S");
-//        outStream.println("---------------------------------------------------------------------------");
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups,
+                        boolean buildWithTests) {
         registry.setGroups(groups);
         registry.setShouldIncludeGroups(shouldIncludeGroups);
-
-        // Compile and build the test suites
-        compileAndBuildSuites(sourceRoot, sourceFilePaths);
+        compileAndBuildSuites(sourceRoot, sourceFilePaths, buildWithTests);
         // execute the test programs
         execute();
         // print the report
-        tReport.printSummary();
+        // tReport.printSummary();
     }
 
     /**
@@ -103,7 +100,7 @@ public class BTestRunner {
      */
     public void listGroups(String sourceRoot, Path[] sourceFilePaths) {
         //Build the test suites
-        compileAndBuildSuites(sourceRoot, sourceFilePaths);
+        compileAndBuildSuites(sourceRoot, sourceFilePaths, false);
         List<String> groupList = getGroupList();
         if (groupList.size() == 0) {
             outStream.println("There are no groups available!");
@@ -140,9 +137,12 @@ public class BTestRunner {
      * @param sourceRoot source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      */
-    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths)  {
-        outStream.println("Compiling sources");
-        outStream.println("-----------------");
+    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
+        if (buildWithTests) {
+            outStream.println();
+        }
+        outStream.println("Compiling tests");
+        outStream.println();
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
             String packageName = Utils.getFullPackageName(sourcePackage.toString());
@@ -197,13 +197,12 @@ public class BTestRunner {
 
         outStream.println();
         outStream.println("Running Tests");
-        outStream.println("-------------");
-
+        outStream.println();
         keys.forEach(packageName -> {
             TestSuite suite = testSuites.get(packageName);
-//            outStream.println("---------------------------------------------------------------------------");
-//            outStream.println("Running Tests of Package: " + packageName);
-//            outStream.println("---------------------------------------------------------------------------");
+            // outStream.println("---------------------------------------------------------------------------");
+//            outStream.println();
+//            outStream.println("Running Tests");
             if (!packageName.equals(Names.DOT.value)) {
 //                outStream.println("\t" + packageName);
 //                outStream.println("\t" + String.join("", Collections.nCopies(packageName.length(), "-")));
@@ -211,6 +210,7 @@ public class BTestRunner {
                 outStream.println();
 //                outStream.println(String.join("", Collections.nCopies(packageName.length(), "")));
             }
+            // outStream.println("---------------------------------------------------------------------------");
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);

@@ -23,6 +23,7 @@ import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
+import org.ballerinalang.testerina.util.Utils;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -95,6 +96,8 @@ public class BuildCommand implements BLauncherCmd {
                                          lockEnabled);
         }
 
+        // Run tests with the build command
+        Utils.testWithBuild(sourceRootPath.toString());
         Runtime.getRuntime().exit(0);
     }
 

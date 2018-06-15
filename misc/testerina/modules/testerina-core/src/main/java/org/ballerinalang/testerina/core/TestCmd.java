@@ -150,11 +150,7 @@ public class TestCmd implements BLauncherCmd {
                 .toArray(Path[]::new);
 
         if (srcDirectory != null) {
-            Manifest manifest = readManifestConfigurations();
-            String orgName = manifest.getName();
-            String version = manifest.getVersion();
-            TesterinaRegistry.getInstance().setOrgName(orgName);
-            TesterinaRegistry.getInstance().setVersion(version);
+            Utils.readManifestConfigs();
         }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {
@@ -162,9 +158,9 @@ public class TestCmd implements BLauncherCmd {
             Runtime.getRuntime().exit(0);
         }
         if (disableGroupList != null) {
-            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false);
+            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false, false);
         } else {
-            testRunner.runTest(sourceRootPath.toString(), paths, groupList, true);
+            testRunner.runTest(sourceRootPath.toString(), paths, groupList, false);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
             Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
@@ -195,20 +191,5 @@ public class TestCmd implements BLauncherCmd {
     public void setSelfCmdParser(JCommander selfCmdParser) {
         // ignore
 
-    }
-
-    /**
-     * Read the manifest.
-     *
-     * @return manifest configuration object
-     */
-    private static Manifest readManifestConfigurations() {
-        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
-            (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
-        try {
-            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
-        } catch (IOException e) {
-            return new Manifest();
-        }
     }
 }

@@ -17,20 +17,33 @@
  */
 package org.ballerinalang.testerina.util;
 
+import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.launcher.LauncherUtils;
+import org.ballerinalang.logging.BLogManager;
+import org.ballerinalang.testerina.core.BTestRunner;
+import org.ballerinalang.testerina.core.TesterinaConstants;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.ballerinalang.toml.model.Manifest;
+import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.debugger.Debugger;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.program.BLangFunctions;
+import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
+import org.wso2.ballerinalang.compiler.SourceDirectory;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Comparator;
+import java.util.List;
+import java.util.logging.LogManager;
 
 /**
  * Utility methods.
@@ -117,5 +130,47 @@ public class Utils {
         }
 
         return orgName + packageName + Names.VERSION_SEPARATOR + version;
+    }
+
+    public static void readManifestConfigs() {
+        Manifest manifest = readManifestConfigurations();
+        String orgName = manifest.getName();
+        String version = manifest.getVersion();
+        TesterinaRegistry.getInstance().setOrgName(orgName);
+        TesterinaRegistry.getInstance().setVersion(version);
+    }
+
+    /**
+     * Read the manifest.
+     *
+     * @return manifest configuration object
+     */
+    private static Manifest readManifestConfigurations() {
+        String tomlFilePath = Paths.get(".").toAbsolutePath().normalize().resolve
+                (ProjectDirConstants.MANIFEST_FILE_NAME).toString();
+        try {
+            return ManifestProcessor.parseTomlContentFromFile(tomlFilePath);
+        } catch (IOException e) {
+            return new Manifest();
+        }
+    }
+
+    public static void testWithBuild(String sourceRoot) { //Support build and build <source>
+        Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
+        SourceDirectory srcDirectory = new FileSystemProjectDirectory(sourceRootPath);;
+        List<String> sourceFileList = srcDirectory.getSourcePackageNames();
+
+        Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
+
+        Utils.readManifestConfigs();
+
+        BTestRunner testRunner = new BTestRunner();
+        testRunner.runTest(sourceRootPath.toString(), paths, null, true, true);
+
+        if (testRunner.getTesterinaReport().isFailure()) {
+            Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
+            Runtime.getRuntime().exit(1);
+        }
+        Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
     }
 }
