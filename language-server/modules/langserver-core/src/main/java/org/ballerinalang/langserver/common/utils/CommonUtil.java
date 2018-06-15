@@ -90,9 +90,12 @@ public class CommonUtil {
 
     public static final boolean LS_DEBUG_ENABLED;
 
+    public static final String BALLERINA_HOME;
+
     static {
         String debugLogStr = System.getProperty("ballerina.debugLog");
         LS_DEBUG_ENABLED =  debugLogStr != null && Boolean.parseBoolean(debugLogStr);
+        BALLERINA_HOME = System.getProperty("ballerina.home");
     }
 
     /**
@@ -528,7 +531,7 @@ public class CommonUtil {
             }).findFirst().orElse(null);
 
             if (packageID.equals(builtinPkgName)) {
-                // If the packageID is ballerina.builtin, we extract entries of builtin package
+                // If the packageID is ballerina/builtin, we extract entries of builtin package
                 entries = symbolTable.builtInPackageSymbol.scope.entries;
             } else if (packageSymbolInfo == null && packageID.equals(currentPkgName)) {
                 entries = getScopeEntries(bType, context);

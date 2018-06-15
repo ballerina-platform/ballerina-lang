@@ -499,7 +499,7 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 13, "cannot find matching interface " +
                 "function 'test3' in the object 'Person'", 54, 1);
         BAssertUtil.validateError(result, 14, "incompatible types: expected " +
-                "'string', found 'int'", 54, 44);
+                "'string', found 'int'", 54, 45);
         BAssertUtil.validateError(result, 15, "cannot find matching interface " +
                 "function 'test5' in the object 'Person'", 62, 1);
         BAssertUtil.validateError(result, 16, "cannot find matching interface " +
@@ -552,6 +552,16 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 23, 22);
         BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 14);
         BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
+    }
+
+    @Test
+    public void testAttachFunctionsWithIdenticalRestParams() {
+        CompileResult compileResult =
+                BCompileUtil.compile("test-src/object/attach_func_with_identical_rest_params.bal");
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAttachFunctionsWithIdenticalRestParams");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BString.class);
+        Assert.assertEquals(returns[0].stringValue(), "hello foo");
     }
 
 }

@@ -33,11 +33,11 @@ public type TopicPublisher object {
     }
 
     documentation { Initialize topic publisher endpoint
-        P{{config}} Topic publisher endpoint configuration
+        P{{c}} Topic publisher endpoint configuration
     }
-    public function init(TopicPublisherEndpointConfiguration config) {
-        self.config = config;
-        match (config.session) {
+    public function init(TopicPublisherEndpointConfiguration c) {
+        self.config = c;
+        match (c.session) {
             Session s => self.initTopicPublisher(s);
             () => {}
         }

@@ -39,6 +39,7 @@
             <package name="org.ballerinalang.test.auth"/>
             <package name="org.ballerinalang.test.securelistener"/>
             <package name="org.ballerinalang.test.service.websocket"/>
+            <package name="org.ballerinalang.test.invocationcontext"/>
         </packages>
     </test>
 

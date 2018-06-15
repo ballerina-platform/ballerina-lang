@@ -26,8 +26,8 @@ type Person object {
         string month = "february";
     }
 
-    new (age = 6, string name = "llll") {
-        self.name = name;
+    new (age = 6, string n = "llll") {
+        self.name = n;
         int value  = 8 + 7;
     }
 

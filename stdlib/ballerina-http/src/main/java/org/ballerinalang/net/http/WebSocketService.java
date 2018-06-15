@@ -41,7 +41,7 @@ public class WebSocketService implements Service {
     private final int maxFrameSize;
     private final Map<String, Resource> resourceMap = new ConcurrentHashMap<>();
     private String basePath;
-    private Resource upgradeResource;
+    private HttpResource upgradeResource;
     private static final int DEFAULT_MAX_FRAME_SIZE = 65536;
 
     public WebSocketService(Service service) {
@@ -67,9 +67,10 @@ public class WebSocketService implements Service {
         upgradeResource = null;
     }
 
-    public WebSocketService(String httpBasePath, Resource upgradeResource, Service service) {
+    public WebSocketService(String httpBasePath, HttpResource upgradeResource, Service service) {
         this(service);
-        Annotation resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(upgradeResource);
+        Annotation resourceConfigAnnotation = HttpResource.getResourceConfigAnnotation(
+                upgradeResource.getBalResource());
         if (resourceConfigAnnotation == null) {
             throw new BallerinaException("Cannot find a resource config for resource " + upgradeResource.getName());
         }
@@ -123,7 +124,7 @@ public class WebSocketService implements Service {
         return negotiableSubProtocols;
     }
 
-    public Resource getUpgradeResource() {
+    public HttpResource getUpgradeResource() {
         return upgradeResource;
     }
 

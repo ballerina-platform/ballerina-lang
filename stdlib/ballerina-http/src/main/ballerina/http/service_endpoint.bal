@@ -45,7 +45,7 @@ public type Listener object {
 
         R{{}} Error occurred during initialization
     }
-    public function init(ServiceEndpointConfiguration config);
+    public function init(ServiceEndpointConfiguration c);
 
     public native function initEndpoint() returns error;
 
@@ -172,8 +172,8 @@ documentation { Keeps the connection alive irrespective of the `connection` head
 documentation { Closes the connection irrespective of the `connection` header value }
 @final public KeepAlive KEEPALIVE_NEVER = "NEVER";
 
-public function Listener::init (ServiceEndpointConfiguration config) {
-    self.config = config;
+public function Listener::init (ServiceEndpointConfiguration c) {
+    self.config = c;
     var err = self.initEndpoint();
     if (err != null) {
         throw err;
@@ -213,11 +213,11 @@ public type WebSocketListener object {
     documentation {
         Gets invoked during package initialization to initialize the endpoint.
 
-        P{{config}} The `ServiceEndpointConfiguration` of the endpoint
+        P{{c}} The `ServiceEndpointConfiguration` of the endpoint
     }
-    public function init(ServiceEndpointConfiguration config) {
-        self.config = config;
-        httpEndpoint.init(config);
+    public function init(ServiceEndpointConfiguration c) {
+        self.config = c;
+        httpEndpoint.init(c);
     }
 
     documentation {

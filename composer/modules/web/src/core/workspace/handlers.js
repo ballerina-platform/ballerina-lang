@@ -44,7 +44,7 @@ const saveFile = (targetFile, filePath, context) => {
             }
         })
         .catch((error) => {
-            log.error('error while saving file', error);
+            log.error('error while saving file', error.message);
         });
 };
 
@@ -131,8 +131,8 @@ export function getHandlerDefinitions(workspaceManager) {
                             }
                         })
                         .catch((error) => {
-                            log.error(error);
-                            onSaveFail(error);
+                            log.error(error.message);
+                            onSaveFail(error.message);
                         });
                 }
             },

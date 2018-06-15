@@ -25,6 +25,7 @@ import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.ballerinalang.test.util.TestConstant;
 import org.testng.Assert;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -37,6 +38,12 @@ import java.util.Map;
 
 public class SingleFilterTestCase extends IntegrationTestCase {
     private ServerInstance ballerinaServer;
+    private Map<String, String> headers = new HashMap<>();
+
+    @BeforeClass
+    public void init() {
+        headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+    }
 
     @Test(description = "Single filter execution success case")
     public void testSingleFilterSuccess() throws Exception {
@@ -45,8 +52,6 @@ public class SingleFilterTestCase extends IntegrationTestCase {
                     + File.separator + "filter" + File.separator +
                     "single-filter-execution-success-test.bal").getAbsolutePath();
             startServer(relativePath);
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
             HttpResponse response = HttpClientRequest.doGet(ballerinaServer
                     .getServiceURLHttp("echo/test"), headers);
             Assert.assertNotNull(response);
@@ -56,19 +61,33 @@ public class SingleFilterTestCase extends IntegrationTestCase {
         }
     }
 
-    @Test(description = "Single filter execution failure case")
-    public void testSingleFilterFailure() throws Exception {
+    @Test(description = "Single request filter execution failure case")
+    public void testSingleRequestFilterFailure() throws Exception {
         try {
             String relativePath = new File("src" + File.separator + "test" + File.separator + "resources"
                     + File.separator + "filter" + File.separator +
-                    "single-filter-execution-failure-test.bal").getAbsolutePath();
+                    "single-request-filter-execution-failure-test.bal").getAbsolutePath();
             startServer(relativePath);
-            Map<String, String> headers = new HashMap<>();
-            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
             HttpResponse response = HttpClientRequest.doGet(ballerinaServer
                     .getServiceURLHttp("echo/test"), headers);
             Assert.assertNotNull(response);
             Assert.assertEquals(response.getResponseCode(), 401, "Response code mismatched");
+        } finally {
+            ballerinaServer.stopServer();
+        }
+    }
+
+    @Test(description = "Single response filter execution failure case")
+    public void testSingleResponseFilterFailure() throws Exception {
+        try {
+            String relativePath = new File(
+                    "src" + File.separator + "test" + File.separator + "resources" + File.separator + "filter" +
+                            File.separator + "single-response-filter-execution-failure-test.bal").getAbsolutePath();
+            startServer(relativePath);
+            HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+                                                                    .getServiceURLHttp("echo/test"), headers);
+            Assert.assertNotNull(response);
+            Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
         } finally {
             ballerinaServer.stopServer();
         }

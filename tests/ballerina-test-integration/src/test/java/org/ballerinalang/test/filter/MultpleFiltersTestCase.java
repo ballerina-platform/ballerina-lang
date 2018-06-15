@@ -109,6 +109,24 @@ public class MultpleFiltersTestCase extends IntegrationTestCase {
         }
     }
 
+    @Test(description = "Single response filter execution failure case")
+    public void testMultipleResponseFiltersFailure() throws Exception {
+        try {
+            String relativePath = new File(
+                    "src" + File.separator + "test" + File.separator + "resources" + File.separator + "filter" +
+                            File.separator + "multiple-response-filters-execution-failure-test.bal").getAbsolutePath();
+            startServer(relativePath);
+            Map<String, String> headers = new HashMap<>();
+            headers.put(HttpHeaderNames.CONTENT_TYPE.toString(), TestConstant.CONTENT_TYPE_TEXT_PLAIN);
+            HttpResponse response = HttpClientRequest.doGet(ballerinaServer
+                                                                    .getServiceURLHttp("echo/test"), headers);
+            Assert.assertNotNull(response);
+            Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        } finally {
+            ballerinaServer.stopServer();
+        }
+    }
+
     private void startServer(String balFile) throws Exception {
         ballerinaServer = ServerInstance.initBallerinaServer();
         ballerinaServer.startBallerinaServer(balFile);

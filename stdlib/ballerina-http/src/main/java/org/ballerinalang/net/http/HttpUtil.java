@@ -36,6 +36,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.mime.util.EntityBodyChannel;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.EntityWrapper;
@@ -233,7 +234,7 @@ public class HttpUtil {
             }
             return new BValue[]{entity};
         } catch (Throwable throwable) {
-            return new BValue[]{MimeUtil.createEntityError(context,
+            return new BValue[]{MimeUtil.createError(context,
                     "Error occurred during entity construction: " + throwable.getMessage())};
         }
     }
@@ -586,8 +587,9 @@ public class HttpUtil {
      * @param connection Represent the connection struct
      * @param inboundMsg Represent carbon message.
      */
-    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage inboundMsg) {
+    public static void enrichConnectionInfo(BStruct connection, HTTPCarbonMessage inboundMsg, Struct config) {
         connection.addNativeData(HttpConstants.TRANSPORT_MESSAGE, inboundMsg);
+        connection.setRefField(HttpConstants.HTTP_CONNECTOR_CONFIG_INDEX, (BStruct) config.getVMValue());
     }
 
     /**
@@ -598,7 +600,7 @@ public class HttpUtil {
      * @param httpResource Represent Http Resource.
      */
     public static void enrichServiceEndpointInfo(BStruct serviceEndpoint, HTTPCarbonMessage inboundMsg,
-                                                 HttpResource httpResource) {
+                                                 HttpResource httpResource, Struct config) {
         BStruct remote = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 PROTOCOL_PACKAGE_HTTP, HttpConstants.REMOTE);
@@ -627,6 +629,7 @@ public class HttpUtil {
         serviceEndpoint.setRefField(HttpConstants.LOCAL_STRUCT_INDEX, local);
         serviceEndpoint.setStringField(HttpConstants.SERVICE_ENDPOINT_PROTOCOL_INDEX,
                 (String) inboundMsg.getProperty(HttpConstants.PROTOCOL));
+        serviceEndpoint.setRefField(HttpConstants.SERVICE_ENDPOINT_CONFIG_INDEX, (BStruct) config.getVMValue());
     }
 
     /**

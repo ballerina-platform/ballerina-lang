@@ -16,23 +16,15 @@
 package org.ballerinalang.langserver.signature;
 
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
+import org.ballerinalang.model.elements.DocAttachment;
 import org.ballerinalang.model.elements.DocTag;
-import org.ballerinalang.model.symbols.SymbolKind;
 import org.eclipse.lsp4j.ParameterInformation;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.SignatureHelp;
 import org.eclipse.lsp4j.SignatureInformation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
-import org.wso2.ballerinalang.compiler.tree.BLangFunction;
-import org.wso2.ballerinalang.compiler.tree.BLangPackage;
-import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
-import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
-import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -109,8 +101,7 @@ public class SignatureHelpUtil {
         List<SymbolInfo> functions = context.get(SignatureKeys.FILTERED_FUNCTIONS);
         List<SignatureInformation> signatureInformationList = functions
                 .stream()
-                .map(symbolInfo -> getSignatureInformation((BInvokableSymbol) symbolInfo.getScopeEntry().symbol,
-                        context))
+                .map(symbolInfo -> getSignatureInformation((BInvokableSymbol) symbolInfo.getScopeEntry().symbol))
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
 
@@ -126,14 +117,12 @@ public class SignatureHelpUtil {
      * Get the signature information for the given Ballerina function.
      *
      * @param bInvokableSymbol BLang Invokable symbol
-     * @param signatureContext Signature operation context
      * @return {@link SignatureInformation}     Signature information for the function
      */
-    private static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol,
-                                                                LSServiceOperationContext signatureContext) {
+    private static SignatureInformation getSignatureInformation(BInvokableSymbol bInvokableSymbol) {
         List<ParameterInformation> parameterInformationList = new ArrayList<>();
         SignatureInformation signatureInformation = new SignatureInformation();
-        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol, signatureContext);
+        SignatureInfoModel signatureInfoModel = getSignatureInfoModel(bInvokableSymbol);
         String functionName = bInvokableSymbol.getName().getValue();
 
         // Join the function parameters to generate the function's signature
@@ -156,44 +145,20 @@ public class SignatureHelpUtil {
      * Get the required signature information filled model.
      *
      * @param bInvokableSymbol                  Invokable symbol
-     * @param signatureContext                  Signature operation context
      * @return {@link SignatureInfoModel}       SignatureInfoModel containing signature information
      */
-    private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol,
-                                                             LSServiceOperationContext signatureContext) {
-        List<BLangFunction> functionList;
+    private static SignatureInfoModel getSignatureInfoModel(BInvokableSymbol bInvokableSymbol) {
         Map<String, String> paramDescMap = new HashMap<>();
         SignatureInfoModel signatureInfoModel = new SignatureInfoModel();
         List<ParameterInfoModel> paramModels = new ArrayList<>();
-        String functionName = signatureContext.get(SignatureKeys.CALLABLE_ITEM_NAME);
-        CompilerContext compilerContext = signatureContext.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY);
-        BLangPackage bLangPackage = LSPackageLoader.getPackageById(compilerContext, bInvokableSymbol.pkgID);
+        DocAttachment docAttachment = bInvokableSymbol.getDocAttachment();
         
-        if (bInvokableSymbol.owner.kind.equals(SymbolKind.OBJECT)) {
-            BLangTypeDefinition filteredObject = bLangPackage.typeDefinitions.stream()
-                    .filter(object -> object.name.getValue().equals(bInvokableSymbol.owner.name.getValue()))
-                    .findFirst()
-                    .orElse(null);
-            functionList = ((BLangObjectTypeNode) filteredObject.typeNode).getFunctions();
-        } else {
-            functionList = bLangPackage.getFunctions();
-        }
-        
-        BLangFunction blangFunction = functionList.stream()
-                .filter(bLangFunction -> bLangFunction.getName().getValue().equals(functionName))
-                .findFirst()
-                .orElse(null);
-
-        if (blangFunction != null && !blangFunction.getDocumentationAttachments().isEmpty()) {
-            // Get the first documentation attachment
-            BLangDocumentation bLangDocumentation = blangFunction.getDocumentationAttachments().get(0);
-            signatureInfoModel.setSignatureDescription(bLangDocumentation.documentationText.trim());
-            bLangDocumentation.attributes.forEach(attribute -> {
-                if (attribute.docTag.equals(DocTag.PARAM)) {
-                    paramDescMap.put(attribute.documentationField.getValue(), attribute.documentationText.trim());
-                }
-            });
-        }
+        signatureInfoModel.setSignatureDescription(docAttachment.getDescription().trim());
+        docAttachment.attributes.forEach(attribute -> {
+            if (attribute.docTag.equals(DocTag.PARAM)) {
+                paramDescMap.put(attribute.getName(), attribute.getDescription());
+            }
+        });
 
         bInvokableSymbol.getParameters().forEach(bVarSymbol -> {
             ParameterInfoModel parameterInfoModel = new ParameterInfoModel();
@@ -302,11 +267,11 @@ public class SignatureHelpUtil {
 
         private String signatureDescription;
 
-        public List<ParameterInfoModel> getParameterInfoModels() {
+        List<ParameterInfoModel> getParameterInfoModels() {
             return parameterInfoModels;
         }
 
-        public void setParameterInfoModels(List<ParameterInfoModel> parameterInfoModels) {
+        void setParameterInfoModels(List<ParameterInfoModel> parameterInfoModels) {
             this.parameterInfoModels = parameterInfoModels;
         }
 
@@ -314,7 +279,7 @@ public class SignatureHelpUtil {
             return signatureDescription;
         }
 
-        public void setSignatureDescription(String signatureDescription) {
+        void setSignatureDescription(String signatureDescription) {
             this.signatureDescription = signatureDescription;
         }
     }

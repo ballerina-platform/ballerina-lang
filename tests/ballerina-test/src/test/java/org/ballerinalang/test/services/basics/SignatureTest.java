@@ -49,7 +49,7 @@ public class SignatureTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                "first parameter should be of type ballerina.http:Listener");
+                "first parameter should be of type ballerina/http:Listener");
     }
 
     @Test()
@@ -59,7 +59,7 @@ public class SignatureTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                "second parameter should be of type ballerina.http:Request");
+                "second parameter should be of type ballerina/http:Request");
     }
 
     @Test()
@@ -69,7 +69,7 @@ public class SignatureTest {
 
         Assert.assertEquals(compileResult.getErrorCount(), 1);
         Assert.assertEquals(compileResult.getDiagnostics().clone()[0].getMessage(),
-                "second parameter should be of type ballerina.http:Request");
+                "second parameter should be of type ballerina/http:Request");
     }
 
     @Test()

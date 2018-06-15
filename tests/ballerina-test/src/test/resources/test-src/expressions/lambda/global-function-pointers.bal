@@ -41,12 +41,12 @@ function bar (string x, boolean y) returns (string) {
 }
 
 function test5() returns (string){
-    function (string a, boolean b) returns (string) glf1 = bar;
-    return glf1("test5", false);
+    function (string a, boolean b) returns (string) glf4 = bar;
+    return glf4("test5", false);
 }
 function test6() returns (string) {
-    function (string a, boolean b) returns (string) glf1 = bar;
-    glf2 = glf1;
+    function (string a, boolean b) returns (string) glf4 = bar;
+    glf2 = glf4;
     return glf2("test6", true);
 }
 

@@ -36,7 +36,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         orgName = "ballerina", packageName = "http",
         functionName = "getCallerActions",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Listener",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         returnType = {@ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )

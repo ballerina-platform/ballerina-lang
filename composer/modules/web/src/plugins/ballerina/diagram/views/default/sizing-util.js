@@ -581,7 +581,7 @@ class SizingUtil {
         cmp.heading = new SimpleBBox();
         cmp.body = new SimpleBBox();
         cmp.initFunction = new SimpleBBox();
-        cmp.transportLine = new SimpleBBox();
+        cmp.serverConnector = new SimpleBBox();
         cmp.connectors = new SimpleBBox();
         cmp.annotation = new SimpleBBox();
         cmp.title = new SimpleBBox();
@@ -646,9 +646,11 @@ class SizingUtil {
         width += connectorWidth;
         cmp.connectors.w = connectorWidth;
         // calculate header related components.
-        const textWidth = this.getTextWidth(node.getName().value);
+        const textWidth = this.getTextWidth(node.getName().value, 0);
         viewState.titleWidth = textWidth.w;
         viewState.trimmedTitle = textWidth.text;
+
+        cmp.serverConnector.typeName = this.getTextWidth(node.getType(), 0);
         // set the heading height
         cmp.heading.h = this.config.panel.heading.height;
 
