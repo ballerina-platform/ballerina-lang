@@ -49,25 +49,25 @@ public class TesterinaReport {
 //                .size());
 //        outStream.println();
         if (!testSummary.failedTests.isEmpty()) {
-//            outStream.println();
+            // outStream.println();
 //            outStream.println("\t" + "failed tests:");
             for (TesterinaResult failedResult : testSummary.failedTests) {
 //                outStream.println("\t   ✗ "+ failedResult.getTestFunctionName());
 //                outStream.println("✗ "+ failedResult.getTestFunctionName());
 //                outStream.println(failedResult.getAssertFailureMessage());
                                           // + ": " + failedResult.getAssertFailureMessage());
-                outStream.println("✗ "+ failedResult.getTestFunctionName() + ": "
-                                          + failedResult.getAssertFailureMessage());
+                outStream.println("\t✗ "+ failedResult.getTestFunctionName() + ":");
+                outStream.println("\t    " + failedResult.getAssertFailureMessage().replaceAll("\n", "\n\t    "));
             }
-//            outStream.println();
+            outStream.println();
         }
 
         if (!testSummary.passedTests.isEmpty()) {
-//            outStream.println();
+            // outStream.println();
 //            outStream.println("\t" + "failed tests:");
             for (TesterinaResult passedResult : testSummary.passedTests) {
 //                outStream.println("\t   ✔ "+ passedResult.getTestFunctionName());
-                outStream.println("✔ "+ passedResult.getTestFunctionName());
+                outStream.println("\t✔ "+ passedResult.getTestFunctionName());
             }
             outStream.println();
         }
@@ -84,9 +84,9 @@ public class TesterinaReport {
 //        outStream.println("\t   " + failed + " failing");
 //        outStream.println("\t   " + skipped + " skipped");
 
-        outStream.println(" " + passed + " passing");
-        outStream.println(" " + failed + " failing");
-        outStream.println(" " + skipped + " skipped");
+        outStream.println("\t" + passed + " passing");
+        outStream.println("\t" + failed + " failing");
+        outStream.println("\t" + skipped + " skipped");
 //        outStream.println("\t\t" + (passed + failed) + " tests run");
         // outStream.print(" - in TestSuite");
         // outStream.println();
@@ -167,7 +167,7 @@ public class TesterinaReport {
 //                outStream.println();
 //                outStream.print(String.format("%-" + 67 + "s", packageName).replaceAll("\\s(?=\\s+$|$)", "."));
                 if (!packageName.equals(Names.DOT.value)) {
-                    outStream.println(" " + packageName + " " + String.join("", Collections.nCopies(size, "-"))
+                    outStream.println("    " + packageName + " " + String.join("", Collections.nCopies(size, "-"))
                                             + " " + ((summary.failedTests.size() > 0 || summary.skippedTests.size() > 0)
                             ? "FAILURE" : "SUCCESS"));
                 }

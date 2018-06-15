@@ -149,9 +149,9 @@ public class Compiler {
                 .forEach(pkgNode -> {
                              this.compilerDriver.compilePackage(pkgNode);
                              if (pkgNode.packageID.isUnnamed) {
-                                 outStream.println("" + pkgNode.packageID.sourceFileName.value);
+                                 outStream.println("    " + pkgNode.packageID.sourceFileName.value);
                              } else {
-                                 outStream.println("" + pkgNode.packageID.toString());
+                                 outStream.println("    " + pkgNode.packageID.toString());
                              }
                          }
                 );

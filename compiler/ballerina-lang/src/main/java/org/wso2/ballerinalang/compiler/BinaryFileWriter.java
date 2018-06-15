@@ -120,7 +120,7 @@ public class BinaryFileWriter {
         processorServiceLoader.forEach(plugin -> {
             plugin.codeGenerated(packageNode.packageID, execFilePath);
         });
-        outStream.println("target/" + execFileName);
+        outStream.println("    target/" + execFileName);
     }
 
     public void writeLibraryPackage(BLangPackage packageNode) {
