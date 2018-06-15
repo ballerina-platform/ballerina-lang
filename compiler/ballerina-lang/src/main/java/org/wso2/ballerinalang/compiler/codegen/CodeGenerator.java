@@ -305,6 +305,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     private Stack<Instruction> loopExitInstructionStack = new Stack<>();
     private Stack<Instruction> abortInstructions = new Stack<>();
     private Stack<Instruction> failInstructions = new Stack<>();
+    private Stack<Integer> tryCatchErrorRangeToIPStack = new Stack<>();
 
     private int workerChannelCount = 0;
     private int forkJoinCount = 0;
@@ -2944,28 +2945,36 @@ public class CodeGenerator extends BLangNodeVisitor {
         List<int[]> unhandledErrorRangeList = new ArrayList<>();
         ErrorTableAttributeInfo errorTable = createErrorTableIfAbsent(currentPkgInfo);
 
+        tryCatchErrorRangeToIPStack.push(-1);
         // Handle try block.
         int fromIP = nextIP();
         genNode(tryNode.tryBody, env);
-        int toIP = nextIP() - 1;
+        int toIP = tryCatchErrorRangeToIPStack.pop();
+        toIP = (toIP == -1) ? (nextIP() - 1) : toIP;
 
         // Append finally block instructions.
         if (tryNode.finallyBody != null) {
-            genNode(tryNode.finallyBody, env);
+            appendFinallyBlockInstructions(tryNode.finallyBody);
         }
+
         emit(instructGotoTryCatchEnd);
         unhandledErrorRangeList.add(new int[]{fromIP, toIP});
         // Handle catch blocks.
         int order = 0;
         for (BLangCatch bLangCatch : tryNode.getCatchBlocks()) {
+            tryCatchErrorRangeToIPStack.push(-1);
             addLineNumberInfo(bLangCatch.pos);
             int targetIP = nextIP();
             genNode(bLangCatch, env);
-            unhandledErrorRangeList.add(new int[]{targetIP, nextIP() - 1});
+            int errRangeToIp = tryCatchErrorRangeToIPStack.pop();
+            errRangeToIp = (errRangeToIp == -1) ? (nextIP() - 1) : errRangeToIp;
+            unhandledErrorRangeList.add(new int[]{targetIP, errRangeToIp});
+
             // Append finally block instructions.
             if (tryNode.finallyBody != null) {
-                genNode(tryNode.finallyBody, env);
+                appendFinallyBlockInstructions(tryNode.finallyBody);
             }
+
             emit(instructGotoTryCatchEnd);
             // Create Error table entry for this catch block
             BTypeSymbol structSymbol = bLangCatch.param.symbol.type.tsymbol;
@@ -2985,7 +2994,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 errorTable.addErrorTableEntry(errorTableEntry);
             }
             // Append finally block instruction.
-            genNode(tryNode.finallyBody, env);
+            appendFinallyBlockInstructions(tryNode.finallyBody);
             emit(InstructionFactory.get(InstructionCodes.THROW, getOperand(-1)));
         }
         gotoTryCatchEndAddr.value = nextIP();
@@ -3100,10 +3109,20 @@ public class CodeGenerator extends BLangNodeVisitor {
                     return;
                 }
             }
+            if (current.getKind() == NodeKind.RETURN
+                    && parent.statementLink.parent != null
+                    && NodeKind.TRY == parent.statementLink.parent.statement.getKind()) {
+                //if generateFinallyInstructions is called due to a return statement being present in a try block or
+                //a catch block, maintain the current IP (before code generation for the finally block) to use as
+                // the toIP of the error table entry
+                tryCatchErrorRangeToIPStack.pop();
+                tryCatchErrorRangeToIPStack.push(nextIP() - 1);
+            }
             if (NodeKind.TRY == parent.getKind()) {
                 BLangTryCatchFinally tryCatchFinally = (BLangTryCatchFinally) parent;
                 if (tryCatchFinally.finallyBody != null && current != tryCatchFinally.finallyBody) {
-                    genNode(tryCatchFinally.finallyBody, env);
+                    // Append finally block instructions.
+                    appendFinallyBlockInstructions(tryCatchFinally.finallyBody);
                 }
             } else if (NodeKind.LOCK == parent.getKind()) {
                 BLangLock lockNode = (BLangLock) parent;
@@ -3114,6 +3133,12 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
             current = parent;
         }
+    }
+
+    private void appendFinallyBlockInstructions(BLangBlockStmt finallyBody) {
+        tryCatchErrorRangeToIPStack.push(-1);
+        genNode(finallyBody, env);
+        tryCatchErrorRangeToIPStack.pop();
     }
 
     private RegIndex getNamespaceURIIndex(BXMLNSSymbol namespaceSymbol, SymbolEnv env) {
