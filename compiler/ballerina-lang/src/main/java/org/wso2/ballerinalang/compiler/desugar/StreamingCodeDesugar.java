@@ -98,7 +98,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangSimpleVarRef windowInvokableSimpleVarRef;
     private Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
     private BLangFunction newLambdaFunctionNode;
-    private BVarSymbol paramVarSymbol;
 
     private StreamingCodeDesugar(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
@@ -126,8 +125,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         List<? extends StatementNode> statementNodes = foreverStatement.getStreamingQueryStatements();
 
         // Generate Streaming Consumer Function
-        //generateStreamConsumerFunction(foreverStatement);
-
         statementNodes.forEach(statementNode -> ((BLangStatement) statementNode).accept(this));
         stmts.add(foreverReplaceStatement);
         BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(foreverStatement.pos, stmts);
@@ -137,46 +134,50 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
+
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
 
+            //Create new lambda function for process events received from stream
             BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
             newLambdaFunctionNode = ASTBuilderUtil.createFunction(streamingQueryStatement.pos,
                     getFunctionName(FUNC_CALLER));
             lambdaFunction.function = newLambdaFunctionNode;
+            lambdaBody = ASTBuilderUtil.createBlockStmt(streamingQueryStatement.pos);
 
-            //=================================================================================================
-
+            //Lambda function exists in streaming action
             lambdaFunctionNode = ((BLangLambdaFunction)
                     (streamingQueryStatement.getStreamingAction()).getInvokableBody()).function;
 
-            lambdaBody = ASTBuilderUtil.createBlockStmt(streamingQueryStatement.pos);
+
+
+            //Traverse to create if condition - Lambda body
             ((BLangStreamingInput) streamingInput).accept(this);
 
+            //Traverse window clause to create the length window
             WindowClauseNode windowClauseNode = streamingInput.getWindowClause();
             if (windowClauseNode != null) {
                 ((BLangWindow) windowClauseNode).accept(this);
             }
 
+            //Traverse to create the new lambda function body - Window.add method call
             BLangStreamAction streamingAction = (BLangStreamAction) streamingQueryStatement.getStreamingAction();
             streamingAction.accept(this);
 
-            //New Lambda Function
 
+
+
+
+            //New Lambda Function
             newLambdaFunctionNode.requiredParams.add((BLangVariable) (streamingQueryStatement.getStreamingAction()).
                     getInvokableBody().getFunctionNode().getParameters().get(0));
             newLambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.nilType);
             newLambdaFunctionNode.body = lambdaBody;
-//            final BLangReturn returnStmt = (BLangReturn) TreeBuilder.createReturnNode();
-//            returnStmt.pos = streamingQueryStatement.pos;
-//            returnStmt.expr = ASTBuilderUtil.createLiteral(streamingQueryStatement.pos, symTable.noType, Names.EMPTY);
-//            newLambdaFunctionNode.body.stmts.add(returnStmt);
             newLambdaFunctionNode.closureVarSymbols = closureVarSymbols;
             newLambdaFunctionNode.desugared = false;
             BLangValueType returnType = new BLangValueType();
             returnType.setTypeKind(TypeKind.NIL);
             newLambdaFunctionNode.setReturnTypeNode(returnType);
-
             lambdaFunction.pos = streamingQueryStatement.pos;
             lambdaFunction.type = ((BLangLambdaFunction) (streamingQueryStatement.getStreamingAction()).
                     getInvokableBody()).type;
@@ -184,10 +185,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
             //TODO Hack - fix this
             ifNode.parent = lambdaFunction;
-//            paramVarSymbol.owner = newLambdaFunctionNode.symbol;
 
-            //===========================================================================================
-
+            //Create function call - stream1.subscribe(lambda_function)
             foreverReplaceStatement = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
             foreverReplaceStatement.pos = streamingQueryStatement.pos;
             BInvokableSymbol subscribeMethodSymbol = (BInvokableSymbol) symTable.rootScope.
@@ -196,7 +195,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
             List<BLangExpression> variables = new ArrayList<>(1);
             variables.add(lambdaFunction);
-
             BLangInvocation invocationExpr = ASTBuilderUtil.
                     createInvocationExprForMethod(streamingQueryStatement.pos, subscribeMethodSymbol, variables,
                             symResolver);
@@ -289,9 +287,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 }
 
                 List<BLangExpression> variables = new ArrayList<>(1);
+
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) ((BLangInvocation.BLangAttachedFunctionInvocation)
                         ((BLangExpressionStmt) statementNode).expr).requiredArgs.get(1);
                 variables.add(varRef);
+
+
                 BLangInvocation invocationExpr = ASTBuilderUtil.
                         createInvocationExprForMethod(bLangLambdaFunction.pos, windowAdditionInvokableSymbol, variables,
                                 symResolver);
@@ -303,7 +304,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         createExpressionStmt(bLangLambdaFunction.pos, ifNode.body);
                 exprStmt.expr = invocationExpr;
 
-                paramVarSymbol = varRef.varSymbol;
+                BVarSymbol paramVarSymbol = varRef.varSymbol;
                 closureVarSymbols.add((BVarSymbol) (windowInvokableSimpleVarRef).symbol);
                 closureVarSymbols.add(paramVarSymbol);
 
@@ -380,6 +381,18 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     //-------------------------------------- Private methods ----------------------------------------------
 
+    private String getFunctionName(String name) {
+        return name + lambdaFunctionCount++;
+    }
+
+    private void defineFunction(BLangFunction funcNode, BLangPackage targetPkg) {
+        final BPackageSymbol packageSymbol = targetPkg.symbol;
+        final SymbolEnv packageEnv = this.symTable.pkgEnvMap.get(packageSymbol);
+        symbolEnter.defineNode(funcNode, packageEnv);
+        packageEnv.enclPkg.functions.add(funcNode);
+        packageEnv.enclPkg.topLevelNodes.add(funcNode);
+    }
+
     private void generateStreamConsumerFunction(BLangForever foreverStatement) {
 
         // Here we generate an function and function call for the forever statement.
@@ -415,19 +428,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.nilType);
         //lambdaFunctionNode.desugaredReturnType = true;
         //defineFunction(lambdaFunctionNode, foreverStatement.getEnv().enclPkg);
-    }
-
-    private String getFunctionName(String name) {
-        return name + lambdaFunctionCount++;
-    }
-
-    private void defineFunction(BLangFunction funcNode, BLangPackage targetPkg) {
-        final BPackageSymbol packageSymbol = targetPkg.symbol;
-        final SymbolEnv packageEnv = this.symTable.pkgEnvMap.get(packageSymbol);
-        symbolEnter.defineNode(funcNode, packageEnv);
-        packageEnv.enclPkg.functions.add(funcNode);
-        packageEnv.enclPkg.topLevelNodes.add(funcNode);
-//        parentDesugar.visit(funcNode);
     }
 
     private void defineVariable(BLangVariable variable, PackageID pkgID, BLangFunction funcNode) {
