@@ -31,6 +31,8 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.test.util.TestUtils.IS_WINDOWS;
+
 /**
  * Class used for test purposes related to invalid input types.
  */
@@ -40,10 +42,12 @@ public class InvalidServiceContractTestCase {
     private Path resourceDir;
 
     @BeforeClass
-    private void setup() throws Exception {
+    private void setup() {
         TestUtils.prepareBalo(this);
-        resourceDir = Paths.get(InvalidServiceContractTestCase.class.getProtectionDomain().getCodeSource().getLocation()
-                .toURI().getPath());
+        String resourcePath = InvalidServiceContractTestCase.class.getProtectionDomain().getCodeSource().getLocation()
+                .getPath();
+        resourcePath = IS_WINDOWS ? resourcePath.substring(1) : resourcePath;
+        resourceDir = Paths.get(resourcePath);
     }
 
     @Test

@@ -22,7 +22,6 @@ import io.netty.handler.codec.http.FullHttpResponse;
 
 import org.ballerinalang.util.BLangConstants;
 
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -31,6 +30,10 @@ import java.nio.file.Paths;
  * A utility class for integration tests.
  */
 public class TestUtils {
+
+    private static final String OS_NAME_KEY = "os.name";
+    private static final String WINDOWS_PARAM = "indow";
+    public static final boolean IS_WINDOWS = System.getProperty(OS_NAME_KEY).contains(WINDOWS_PARAM);
 
     public static final String LARGE_ENTITY = "Lorem ipsum dolor sit amet, libris quaerendum sea ei, in nec fugit " +
             "prodesset. Pro te quas mundi, mel viderer inimicus urbanitas an. No dolor essent timeam mei, exerci " +
@@ -158,9 +161,12 @@ public class TestUtils {
     }
 
     // TODO: find a better way to run client bal files during integration tests.
-    public static void prepareBalo(Object test) throws URISyntaxException {
-        String path = test.getClass().getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
-        Path target = Paths.get(path).getParent();
-        System.setProperty(BLangConstants.BALLERINA_HOME, target.toString());
+    public static void prepareBalo(Object test) {
+        String path = test.getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        if (path != null) {
+            path = IS_WINDOWS ? path.substring(1) : path;
+            Path target = Paths.get(path).getParent();
+            System.setProperty(BLangConstants.BALLERINA_HOME, target.toString());
+        }
     }
 }

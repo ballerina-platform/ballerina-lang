@@ -33,6 +33,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.ballerinalang.test.util.TestUtils.IS_WINDOWS;
+
 /**
  * Protobuf to bal generation function testcase.
  */
@@ -43,10 +45,12 @@ public class ClientStubGeneratorTestCase {
     private Path resourceDir;
 
     @BeforeClass
-    private void setup() throws Exception {
+    private void setup() {
         TestUtils.prepareBalo(this);
-        resourceDir = Paths.get(ClientStubGeneratorTestCase.class.getProtectionDomain().getCodeSource().getLocation()
-                .toURI().getPath());
+        String resourcePath = ClientStubGeneratorTestCase.class.getProtectionDomain().getCodeSource().getLocation()
+                .getPath();
+        resourcePath = IS_WINDOWS ? resourcePath.substring(1) : resourcePath;
+        resourceDir = Paths.get(resourcePath);
     }
 
     @Test
