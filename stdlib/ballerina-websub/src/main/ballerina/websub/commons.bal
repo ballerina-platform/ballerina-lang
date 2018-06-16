@@ -670,5 +670,6 @@ documentation {
 }
 public type HubStartedUpError record {
     string message;
+    error? cause;
     WebSubHub startedUpHub;
 };
