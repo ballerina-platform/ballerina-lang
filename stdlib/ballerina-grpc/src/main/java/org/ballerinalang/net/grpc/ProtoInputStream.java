@@ -17,14 +17,13 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.CodedOutputStream;
-import com.google.protobuf.MessageLite;
-import com.google.protobuf.Parser;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import javax.annotation.Nullable;
+
+import static com.google.protobuf.CodedOutputStream.DEFAULT_BUFFER_SIZE;
 
 /**
  * An {@link InputStream} backed by a protobuf.
@@ -34,19 +33,15 @@ class ProtoInputStream extends InputStream  implements Drainable, KnownLength {
   // ProtoInputStream is first initialized with a *message*. *partial* is initially null.
   // Once there has been a read operation on this stream, *message* is serialized to *partial* and
   // set to null.
-  @Nullable
-  private MessageLite message;
-  private final Parser<?> parser;
-  @Nullable
+  private Message message;
   private ByteArrayInputStream partial;
 
-  public ProtoInputStream(MessageLite message, Parser<?> parser) {
+  public ProtoInputStream(Message message) {
     this.message = message;
-    this.parser = parser;
   }
 
   @Override
-  public int read() throws IOException {
+  public int read() {
     if (message != null) {
       partial = new ByteArrayInputStream(message.toByteArray());
       message = null;
@@ -97,15 +92,11 @@ class ProtoInputStream extends InputStream  implements Drainable, KnownLength {
     return 0;
   }
 
-  MessageLite message() {
+  Message message() {
     if (message == null) {
       throw new IllegalStateException("message not available");
     }
     return message;
-  }
-
-  Parser<?> parser() {
-    return parser;
   }
 
   @Override
@@ -113,7 +104,14 @@ class ProtoInputStream extends InputStream  implements Drainable, KnownLength {
     int written;
     if (message != null) {
       written = message.getSerializedSize();
-      message.writeTo(target);
+
+      if (written > DEFAULT_BUFFER_SIZE) {
+        written = DEFAULT_BUFFER_SIZE;
+      }
+      final CodedOutputStream codedOutput =
+              CodedOutputStream.newInstance(target, written);
+      message.writeTo(codedOutput);
+      codedOutput.flush();
       message = null;
     } else if (partial != null) {
       written = (int) ProtoUtils.copy(partial, target);

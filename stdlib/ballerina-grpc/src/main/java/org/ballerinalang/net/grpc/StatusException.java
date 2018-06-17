@@ -16,10 +16,6 @@
 
 package org.ballerinalang.net.grpc;
 
-import io.netty.handler.codec.http.HttpHeaders;
-
-import javax.annotation.Nullable;
-
 /**
  * {@link Status} in Exception form, for propagating Status information via exceptions. This is
  * semantically equivalent to {@link StatusRuntimeException}, except for usage in APIs that promote
@@ -28,19 +24,13 @@ import javax.annotation.Nullable;
 public class StatusException extends Exception {
   private static final long serialVersionUID = -660954903976144640L;
   private final Status status;
-  private final HttpHeaders trailers;
-
-  public StatusException(Status status) {
-    this(status, null);
-  }
 
   /**
    * Constructs an exception with both a status and trailers.
    */
-  public StatusException(Status status, @Nullable HttpHeaders trailers) {
+  public StatusException(Status status) {
     super(Status.formatThrowableMessage(status), status.getCause());
     this.status = status;
-    this.trailers = trailers;
   }
 
   /**
@@ -48,12 +38,5 @@ public class StatusException extends Exception {
    */
   public final Status getStatus() {
     return status;
-  }
-
-  /**
-   * Returns the received trailers.
-   */
-  public final HttpHeaders getTrailers() {
-    return trailers;
   }
 }

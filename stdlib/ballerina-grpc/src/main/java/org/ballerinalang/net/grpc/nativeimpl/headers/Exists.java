@@ -15,14 +15,18 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -46,20 +50,14 @@ public class Exists extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         //TODO: redesign headers support
-/*        String headerName = context.getStringArgument(0);
+        String headerName = context.getStringArgument(0);
         BStruct headerValues = (BStruct) context.getRefArgument(0);
-        MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
+        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS)
                 : null;
         boolean isExist = false;
-        if (metadata != null) {
-            if (headerName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-                Metadata.Key<byte[]> key = Metadata.Key.of(headerName, Metadata.BINARY_BYTE_MARSHALLER);
-                isExist = metadata.containsKey(key);
-            } else {
-                Metadata.Key<String> key = Metadata.Key.of(headerName, Metadata.ASCII_STRING_MARSHALLER);
-                isExist = metadata.containsKey(key);
-            }
+        if (headers != null) {
+            isExist = headers.contains(headerName);
         }
-        context.setReturnValues(new BBoolean(isExist));*/
+        context.setReturnValues(new BBoolean(isExist));
     }
 }

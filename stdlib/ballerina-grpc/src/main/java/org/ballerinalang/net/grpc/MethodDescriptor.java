@@ -104,10 +104,10 @@ public final class MethodDescriptor<ReqT, RespT> {
      * <p>Stub implementations will define implementations of this interface for each of the request
      * and response messages provided by a service.
      *
-     * @param <T> type of serializable message
+     * @param <Message> type of serializable message
      * @since 1.0.0
      */
-    public interface Marshaller<T> {
+    public interface Marshaller<Message> {
 
         /**
          * Given a message, produce an {@link InputStream} for it so that it can be written to the wire.
@@ -117,7 +117,7 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @param value to serialize.
          * @return serialized value as stream of bytes.
          */
-        public InputStream stream(T value);
+        public InputStream stream(Message value);
 
         /**
          * Given an {@link InputStream} parse it into an instance of the declared type so that it can be
@@ -126,7 +126,7 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @param stream of bytes for serialized value
          * @return parsed value
          */
-        public T parse(InputStream stream);
+        public Message parse(InputStream stream);
     }
 
     /**

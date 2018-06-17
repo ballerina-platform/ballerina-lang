@@ -62,7 +62,7 @@ public class GrpcCallableUnitCallBack<ResponseT> implements CallableUnitCallback
         // notify success only if response message is empty. Service impl doesn't send empty message. Empty response
         // scenarios handles here.
         if (emptyResponse) {
-            requestSender.onNext((ResponseT) Message.newBuilder("Empty").build());
+            requestSender.onNext((ResponseT) new Message("Empty"));
         }
         // Notify complete if service impl doesn't call caller->complete();
         requestSender.onCompleted();

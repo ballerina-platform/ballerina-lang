@@ -109,7 +109,7 @@ public abstract class ServerCall<ReqT, RespT> {
      * @throws IllegalStateException if {@code close} has been called, a message has been sent, or
      *                               headers have already been sent
      */
-    public abstract void sendHeaders();
+    public abstract void sendHeaders(HttpHeaders headers);
 
     /**
      * Send a response message. Messages are the primary form of communication associated with

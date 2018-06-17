@@ -6,6 +6,7 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
+import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
@@ -54,9 +55,9 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
             }
 
             @Override
-            public void onError(Throwable t) {
+            public void onError(ReqT error) {
                 Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
-                onErrorInvoke(onError, responseObserver, t);
+                onErrorInvoke(onError, responseObserver, error);
             }
 
             @Override
@@ -78,7 +79,6 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
 
         private final StreamObserver<ReqT> requestObserver;
         private final ServerCallStreamObserver<RespT> responseObserver;
-        private final ServerCall<ReqT, RespT> call;
         private boolean halfClosed = false;
 
         // Non private to avoid synthetic class
@@ -89,7 +89,6 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
 
             this.requestObserver = requestObserver;
             this.responseObserver = responseObserver;
-            this.call = call;
         }
 
         @Override
@@ -110,10 +109,10 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
 
             responseObserver.cancelled = true;
             if (!halfClosed) {
-                requestObserver.onError(
-                        Status.Code.CANCELLED.toStatus()
-                                .withDescription("cancelled before receiving half close")
-                                .asRuntimeException());
+                Message message = new Message(Status.Code.CANCELLED.toStatus()
+                        .withDescription("cancelled before receiving half close")
+                        .asRuntimeException());
+                requestObserver.onError((ReqT) message);
             }
         }
 

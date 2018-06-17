@@ -71,10 +71,10 @@ public class ServicesBuilderUtils {
             messageRegistry.addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
             setNestedMessages(responseDescriptor, messageRegistry);
 
-            MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller(Message.newBuilder
-                    (requestDescriptor.getName()).build());
-            MethodDescriptor.Marshaller<Message> resMarshaller = ProtoUtils.marshaller(Message.newBuilder
-                    (responseDescriptor.getName()).build());
+            MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
+                    .getName()));
+            MethodDescriptor.Marshaller<Message> resMarshaller = ProtoUtils.marshaller(new Message(responseDescriptor
+                    .getName()));
 
             MethodDescriptor.MethodType methodType;
             ServerCallHandler<Message, Message> serverCallHandler;

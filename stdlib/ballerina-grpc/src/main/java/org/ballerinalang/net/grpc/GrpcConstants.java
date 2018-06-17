@@ -57,6 +57,7 @@ public class GrpcConstants {
     public static final String DEFAULT_HOSTNAME = "localhost";
     public static final String CALLER_ACTIONS = "CallerActions";
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
+    public static final String MESSAGE_HEADERS = "MessageHeaders";
 
 
     public static final String ENUM_KEY = "enum";

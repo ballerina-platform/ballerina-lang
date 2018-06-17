@@ -17,10 +17,6 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.CodedInputStream;
-import com.google.protobuf.ExtensionRegistryLite;
-import com.google.protobuf.InvalidProtocolBufferException;
-import com.google.protobuf.MessageLite;
-import com.google.protobuf.Parser;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,9 +31,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class ProtoUtils {
 
-    private static volatile ExtensionRegistryLite globalRegistry =
-            ExtensionRegistryLite.getEmptyRegistry();
-
     private static final int BUF_SIZE = 8192;
 
     private static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
@@ -50,20 +43,20 @@ public class ProtoUtils {
     /**
      * Create a {@code Marshaller} for protos of the same type as {@code defaultInstance}.
      */
-    public static <T extends MessageLite> MethodDescriptor.Marshaller<T> marshaller(final T defaultInstance) {
+    public static MethodDescriptor.Marshaller<Message> marshaller(Message defaultInstance) {
 
-        final Parser<T> parser = (Parser<T>) defaultInstance.getParserForType();
-        return new MethodDescriptor.Marshaller<T>() {
+        final MessageParser parser = defaultInstance.getParserForType();
+        return new MethodDescriptor.Marshaller<Message>() {
             @SuppressWarnings("unchecked")
 
             @Override
-            public InputStream stream(T value) {
+            public InputStream stream(Message value) {
 
-                return new ProtoInputStream(value, parser);
+                return new ProtoInputStream(value);
             }
 
             @Override
-            public T parse(InputStream stream) {
+            public Message parse(InputStream stream) {
 
                 CodedInputStream cis = null;
                 try {
@@ -106,22 +99,17 @@ public class ProtoUtils {
 
                 try {
                     return parseFrom(cis);
-                } catch (InvalidProtocolBufferException ipbe) {
+                } catch (IOException ipbe) {
                     throw Status.Code.INTERNAL.toStatus().withDescription("Invalid protobuf byte sequence")
                             .withCause(ipbe).asRuntimeException();
                 }
             }
 
-            private T parseFrom(CodedInputStream stream) throws InvalidProtocolBufferException {
+            private Message parseFrom(CodedInputStream stream) throws IOException {
 
-                T message = parser.parseFrom(stream, globalRegistry);
-                try {
-                    stream.checkLastTagWas(0);
-                    return message;
-                } catch (InvalidProtocolBufferException e) {
-                    e.setUnfinishedMessage(message);
-                    throw e;
-                }
+                Message message = parser.parseFrom(stream);
+                stream.checkLastTagWas(0);
+                return message;
             }
         };
     }

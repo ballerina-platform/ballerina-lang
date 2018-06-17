@@ -86,7 +86,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
     }
     
     @Override
-    public void onError(Throwable t) {
+    public void onError(Message error) {
         Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
         if (onError == null) {
             String message = "Error in listener service definition. onError resource does not exists";
@@ -96,7 +96,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onError.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BType errorType = paramDetails.get(0).getVarType();
-        BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, t);
+        BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, error.getError());
         signatureParams[0] = errorStruct;
         BStruct headerStruct = getHeaderStruct(onError);
 //        Metadata respMetadata = headerCapture.get();
@@ -123,10 +123,6 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BStruct headerStruct = getHeaderStruct(onCompleted);
-//        Metadata respMetadata = headerCapture.get();
-//        if (headerStruct != null && respMetadata != null) {
-//            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
-//        }
         
         if (headerStruct != null && signatureParams.length == 1) {
             signatureParams[0] = headerStruct;

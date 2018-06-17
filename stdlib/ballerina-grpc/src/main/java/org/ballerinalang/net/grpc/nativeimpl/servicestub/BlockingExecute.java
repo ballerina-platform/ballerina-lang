@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.BTupleType;
@@ -41,6 +42,7 @@ import java.util.Arrays;
 import java.util.Map;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
@@ -116,6 +118,16 @@ public class BlockingExecute extends AbstractExecute {
         if (connectionStub instanceof BlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
             Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
+
+            // Update request headers when request headers exists in the context.
+            BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
+            HttpHeaders headers = null;
+            if (headerValues instanceof BStruct) {
+                headers = (HttpHeaders) ((BStruct) headerValues).getNativeData(MESSAGE_HEADERS);
+            }
+            if (headers != null) {
+                requestMsg.setHeaders(headers);
+            }
             BlockingStub blockingStub = (BlockingStub) connectionStub;
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);

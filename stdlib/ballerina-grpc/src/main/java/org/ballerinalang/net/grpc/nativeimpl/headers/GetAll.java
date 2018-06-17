@@ -15,14 +15,20 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStringArray;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import java.util.List;
+
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -46,12 +52,19 @@ public class GetAll extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         //TODO: redesign headers support
-/*        String headerName = context.getStringArgument(0);
+        String headerName = context.getStringArgument(0);
         BStruct headerValues = (BStruct) context.getRefArgument(0);
-        MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
+        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS)
                 : null;
-        String[] headerValue = getHeaderValues(metadata, headerName);
-        context.setReturnValues(new BStringArray(headerValue));*/
+        List<String> headersList =  headers != null ? headers.getAll(headerName) : null;
+
+        if (headersList != null) {
+            String[] headerValue = new String[headersList.size()];
+            headerValue = headers.getAll(headerName).toArray(headerValue);
+            context.setReturnValues(new BStringArray(headerValue));
+        } else {
+            context.setReturnValues();
+        }
     }
 
 /*    private String[] getHeaderValues(MessageHeaders metadata, String keyName) {

@@ -15,14 +15,18 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -46,16 +50,15 @@ public class Get extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         //TODO: redesign headers support
-/*        String headerName = context.getStringArgument(0);
+        String headerName = context.getStringArgument(0);
         BStruct headerValues = (BStruct) context.getRefArgument(0);
-        MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
-                : null;
-        String headerValue = getHeaderValue(metadata, headerName);
+        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
+        String headerValue = headers != null ? headers.get(headerName) : null;
         if (headerValue != null) {
             context.setReturnValues(new BString(headerValue));
         } else {
             context.setReturnValues();
-        }*/
+        }
     }
 
 /*    private String getHeaderValue(MessageHeaders metadata, String keyName) {

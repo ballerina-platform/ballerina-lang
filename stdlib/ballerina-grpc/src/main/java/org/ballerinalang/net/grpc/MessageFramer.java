@@ -358,7 +358,7 @@ public class MessageFramer {
      * Produce a collection of ByteBuffer instances from the data written to an
      * {@link OutputStream}.
      */
-    private final class BufferChainOutputStream extends OutputStream {
+    private static final class BufferChainOutputStream extends OutputStream {
 
         private final List<ByteBuffer> bufferList = new ArrayList<ByteBuffer>();
         private ByteBuffer current;

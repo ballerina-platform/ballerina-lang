@@ -23,6 +23,7 @@ import org.ballerinalang.net.grpc.CallOptions;
 import org.ballerinalang.net.grpc.CallStreamObserver;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.ClientCallImpl;
+import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
@@ -59,8 +60,9 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
      */
     public <ReqT, RespT> void executeServerStreaming(ReqT request, StreamObserver<RespT> responseObserver,
                                        MethodDescriptor<ReqT, RespT> methodDescriptor) {
-        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(),
-                methodDescriptor, getCallOptions());
+
+        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(((Message) request)
+                .getHeaders()), methodDescriptor, getCallOptions());
         call.start(new NonblockingCallListener<>(responseObserver, true));
         try {
             call.sendMessage(request);
@@ -73,14 +75,14 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
     /**
      * Executes client streaming non blocking call.
      *
+     * @param requestHeaders request headers.
      * @param responseObserver response Observer.
-     * @param methodDescriptor method descriptor
+     * @param methodDescriptor method descriptor.
      */
-    public <ReqT, RespT> StreamObserver<ReqT> executeClientStreaming(StreamObserver<RespT>
-                                                                               responseObserver,
-                                                                       MethodDescriptor<ReqT, RespT>
-                                                                               methodDescriptor) {
-        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(),
+    public <ReqT, RespT> StreamObserver<ReqT> executeClientStreaming(HttpHeaders requestHeaders,
+                                                                     StreamObserver<RespT> responseObserver,
+                                                                     MethodDescriptor<ReqT, RespT> methodDescriptor) {
+        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(requestHeaders),
                 methodDescriptor, getCallOptions());
         ClientCallStreamObserver<ReqT> streamObserver = new ClientCallStreamObserver<>(call);
         call.start(new NonblockingCallListener<>(responseObserver, false));
@@ -97,8 +99,8 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
     public <ReqT, RespT> void executeUnary(ReqT request, StreamObserver<RespT> responseObserver,
                                            MethodDescriptor<ReqT, RespT> methodDescriptor) {
 
-        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(),
-                methodDescriptor, getCallOptions());
+        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(((Message) request)
+                .getHeaders()), methodDescriptor, getCallOptions());
         call.start(new NonblockingCallListener<>(responseObserver, false));
         try {
             call.sendMessage(request);
@@ -111,15 +113,14 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
     /**
      * Executes bidirectional streaming non blocking call.
      *
+     * @param requestHeaders request headers.
      * @param responseObserver response Observer.
      * @param methodDescriptor method descriptor
      */
-    public <ReqT, RespT> StreamObserver<ReqT> executeBidiStreaming(StreamObserver<RespT>
-                                                                               responseObserver,
-                                                                     MethodDescriptor<ReqT, RespT>
-                                                                             methodDescriptor) {
-        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(), methodDescriptor,
-                getCallOptions());
+    public <ReqT, RespT> StreamObserver<ReqT> executeBidiStreaming(HttpHeaders requestHeaders, StreamObserver<RespT>
+            responseObserver, MethodDescriptor<ReqT, RespT> methodDescriptor) {
+        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(requestHeaders),
+                methodDescriptor, getCallOptions());
         ClientCallStreamObserver<ReqT> streamObserver = new ClientCallStreamObserver<>(call);
         call.start(new NonblockingCallListener<>(responseObserver, true));
         return streamObserver;
@@ -161,7 +162,7 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
             if (status.isOk()) {
                 observer.onCompleted();
             } else {
-                observer.onError(status.asRuntimeException());
+                observer.onError((RespT) new Message(status.asRuntimeException()));
             }
         }
     }
@@ -183,9 +184,9 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
         }
 
         @Override
-        public void onError(Throwable t) {
+        public void onError(T error) {
 
-            call.cancel("Cancelled by client with StreamObserver.onError()", t);
+            call.cancel("Cancelled by client with StreamObserver.onError()", ((Message) error).getError());
         }
 
         @Override

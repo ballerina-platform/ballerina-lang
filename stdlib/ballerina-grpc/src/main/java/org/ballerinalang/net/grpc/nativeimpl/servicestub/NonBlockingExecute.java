@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -43,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
@@ -116,23 +118,21 @@ public class NonBlockingExecute extends AbstractExecute {
             return;
         }
 
-
-        // Update request headers when request headers exists in the context.
-//        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
-//        MessageHeaders headers = getMessageHeaders(headerValues);
-
         if (connectionStub instanceof NonBlockingStub) {
             BValue payloadBValue = context.getRefArgument(1);
             Message requestMsg = MessageUtils.generateProtoMessage(payloadBValue, methodDescriptor.getInputType());
-            NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
 
-            // Attach header read/write listener to the service stub.
-//            AtomicReference<Metadata> headerCapture = new AtomicReference<>();
-//            AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
-//            if (headers != null) {
-//                nonBlockingStub = MetadataUtils.attachHeaders(nonBlockingStub, headers.getMessageMetadata());
-//            }
-//            nonBlockingStub = MetadataUtils.captureMetadata(nonBlockingStub, headerCapture, trailerCapture);
+            // Update request headers when request headers exists in the context.
+            BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
+            HttpHeaders headers = null;
+            if (headerValues instanceof BStruct) {
+                headers = (HttpHeaders) ((BStruct) headerValues).getNativeData(MESSAGE_HEADERS);
+            }
+            if (headers != null) {
+                requestMsg.setHeaders(headers);
+            }
+
+            NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
 
             BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(2);
             Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField

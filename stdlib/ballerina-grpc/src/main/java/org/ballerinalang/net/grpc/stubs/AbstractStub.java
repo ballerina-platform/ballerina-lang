@@ -24,9 +24,6 @@ import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.OutboundMessage;
-import org.ballerinalang.net.grpc.Status;
-import org.ballerinalang.net.grpc.StatusException;
-import org.ballerinalang.net.grpc.StatusRuntimeException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.Constants;
@@ -35,11 +32,11 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -144,7 +141,7 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
         return build(connector, endpointConfig, callOptions.withOption(key, value));
     }
 
-    protected OutboundMessage createOutboundRequest() {
+    protected OutboundMessage createOutboundRequest(HttpHeaders httpHeaders) {
 
         try {
             HTTPCarbonMessage carbonMessage = MessageUtils.createHttpCarbonMessage(true);
@@ -158,6 +155,11 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
             setOutboundReqProperties(carbonMessage, url, port, host);
             setOutboundReqHeaders(carbonMessage, port, host);
 
+            if (httpHeaders != null) {
+                for (Map.Entry<String, String> headerEntry : httpHeaders.entries()) {
+                    carbonMessage.setHeader(headerEntry.getKey(), headerEntry.getValue());
+                }
+            }
             return new OutboundMessage(carbonMessage);
         } catch (MalformedURLException e) {
             throw new BallerinaException("Malformed url specified. " + e.getMessage());
@@ -240,30 +242,5 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
         }
         // should be impossible
         throw new AssertionError(t);
-    }
-
-    /**
-     * Wraps the given {@link Throwable} in a {@link StatusRuntimeException}. If it contains an
-     * embedded {@link StatusException} or {@link StatusRuntimeException}, the returned exception will
-     * contain the embedded trailers and status, with the given exception as the cause. Otherwise, an
-     * exception will be generated from an {@link Status
-     * } status.
-     */
-    private static StatusRuntimeException toStatusRuntimeException(Throwable t) {
-
-        Throwable cause = checkNotNull(t, "t");
-        while (cause != null) {
-            // If we have an embedded status, use it and replace the cause
-            if (cause instanceof StatusException) {
-                StatusException se = (StatusException) cause;
-                return new StatusRuntimeException(se.getStatus(), se.getTrailers());
-            } else if (cause instanceof StatusRuntimeException) {
-                StatusRuntimeException se = (StatusRuntimeException) cause;
-                return new StatusRuntimeException(se.getStatus(), se.getTrailers());
-            }
-            cause = cause.getCause();
-        }
-        return Status.Code.UNKNOWN.toStatus().withDescription("unexpected exception").withCause(t)
-                .asRuntimeException();
     }
 }

@@ -42,6 +42,7 @@ import org.wso2.transport.http.netty.contract.HttpClientConnector;
 
 import java.util.Arrays;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
 import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
@@ -80,8 +81,8 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
     public <ReqT, RespT> void executeUnary(ReqT request, MethodDescriptor<ReqT, RespT> methodDescriptor,
                                            DataContext dataContext) {
 
-        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(),
-                methodDescriptor, getCallOptions());
+        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(((Message) request)
+                .getHeaders()), methodDescriptor, getCallOptions());
 
         call.start(new CallBlockingListener<>(dataContext, methodDescriptor.getSchemaDescriptor()
                 .getOutputType()));
@@ -144,6 +145,7 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
                     // Set response headers, when response headers exists in the message context.
                     BStruct headerStruct = BLangConnectorSPIUtil.createBStruct(dataContext.context.getProgramFile(),
                             PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
+                    headerStruct.addNativeData(MESSAGE_HEADERS, ((Message) value).getHeaders());
                     BRefValueArray contentTuple = new BRefValueArray(RESP_TUPLE_TYPE);
                     contentTuple.add(0, (BRefType) responseBValue);
                     contentTuple.add(1, headerStruct);

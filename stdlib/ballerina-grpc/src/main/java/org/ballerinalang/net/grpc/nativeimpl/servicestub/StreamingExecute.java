@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -26,6 +27,7 @@ import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -45,6 +47,7 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT;
 import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_CLIENT;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
@@ -122,35 +125,31 @@ public class StreamingExecute extends AbstractExecute {
             return;
         }
 
-        // Update request headers when request headers exists in the context.
-//        BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
-//        MessageHeaders headers = getMessageHeaders(headerValues);
-
         if (connectionStub instanceof NonBlockingStub) {
             NonBlockingStub nonBlockingStub = (NonBlockingStub) connectionStub;
-
-            // Attach header read/write listener to the service stub.
-//            AtomicReference<Metadata> headerCapture = new AtomicReference<>();
-//            AtomicReference<Metadata> trailerCapture = new AtomicReference<>();
-//            if (headers != null) {
-//                nonBlockingStub = MetadataUtils.attachHeaders(nonBlockingStub, headers.getMessageMetadata());
-//            }
-//            nonBlockingStub = MetadataUtils.captureMetadata(nonBlockingStub, headerCapture, trailerCapture);
 
             BTypeDescValue serviceType = (BTypeDescValue) context.getRefArgument(1);
             Service callbackService = BLangConnectorSPIUtil.getServiceFromType(context.getProgramFile(), getTypeField
                     (serviceType));
+
+            // Update request headers when request headers exists in the context.
+            BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
+            HttpHeaders headers = null;
+            if (headerValues instanceof BStruct) {
+                headers = (HttpHeaders) ((BStruct) headerValues).getNativeData(MESSAGE_HEADERS);
+            }
+
             try {
                 MethodDescriptor.MethodType methodType = getMethodType(methodDescriptor);
                 DefaultStreamObserver responseObserver = new DefaultStreamObserver(callbackService);
                 StreamObserver<Message> requestSender;
                 if (methodType.equals(MethodDescriptor.MethodType.CLIENT_STREAMING)) {
-                    requestSender = nonBlockingStub.executeClientStreaming
-                            (responseObserver, methodDescriptors.get(methodName));
+                    requestSender = nonBlockingStub.executeClientStreaming(headers, responseObserver,
+                            methodDescriptors.get(methodName));
                     
                 } else if (methodType.equals(MethodDescriptor.MethodType.BIDI_STREAMING)) {
-                    requestSender = nonBlockingStub.executeBidiStreaming
-                            (responseObserver, methodDescriptors.get(methodName));
+                    requestSender = nonBlockingStub.executeBidiStreaming(headers, responseObserver, methodDescriptors
+                            .get(methodName));
                 } else {
                     notifyErrorReply(context, "Error while executing the client call. Method type " +
                             methodType.name() + " not supported");

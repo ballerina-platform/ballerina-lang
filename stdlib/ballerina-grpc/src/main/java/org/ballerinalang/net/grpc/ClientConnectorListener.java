@@ -28,7 +28,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(ClientConnectorListener.class);
     ClientCall call;
-    private ClientStreamListener streamListener;
     private Status transportError;
     private HttpHeaders transportErrorMetadata;
     private boolean headersReceived;
@@ -37,7 +36,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
     ClientConnectorListener(ClientCall call, ClientStreamListener streamListener) {
 
         this.call = call;
-        this.streamListener = streamListener;
         this.stateListener = new InboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, streamListener);
     }
 

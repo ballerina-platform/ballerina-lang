@@ -20,7 +20,6 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -51,10 +50,6 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         functionName = "complete",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = CALLER_ACTION,
                 structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC),
-        args = {
-                @Argument(name = "headers", type = TypeKind.OBJECT, structType = "Headers",
-                        structPackage = PROTOCOL_STRUCT_PACKAGE_GRPC)
-        },
         returnType = {
                 @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR,
                         structPackage = BALLERINA_BUILTIN_PKG)        },
@@ -62,12 +57,10 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 )
 public class Complete extends BlockingNativeCallableUnit {
     private static final Logger LOG = LoggerFactory.getLogger(Complete.class);
-    private static final int MESSAGE_HEADER_REF_INDEX = 1;
 
     @Override
     public void execute(Context context) {
         BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
-        //BValue headerValue = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
         StreamObserver responseObserver = MessageUtils.getResponseObserver(endpointClient);
         Descriptors.Descriptor outputType = (Descriptors.Descriptor) endpointClient.getNativeData(GrpcConstants
                 .RESPONSE_MESSAGE_DEFINITION);
@@ -77,7 +70,6 @@ public class Complete extends BlockingNativeCallableUnit {
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
                             "connector. response sender does not exist"))));
         } else {
-            //io.grpc.Context previous = msgContext != null ? msgContext.attach() : null;
             try {
                 if (!MessageUtils.isEmptyResponse(outputType)) {
                     responseObserver.onCompleted();
@@ -86,11 +78,6 @@ public class Complete extends BlockingNativeCallableUnit {
                 LOG.error("Error while sending complete message to caller.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));
             }
-//            } finally {
-//                if (previous != null) {
-//                    msgContext.detach(previous);
-//                }
-//            }
         }
     }
 }

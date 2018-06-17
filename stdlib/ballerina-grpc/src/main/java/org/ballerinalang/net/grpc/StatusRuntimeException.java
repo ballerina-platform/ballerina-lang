@@ -16,8 +16,6 @@
 
 package org.ballerinalang.net.grpc;
 
-import io.netty.handler.codec.http.HttpHeaders;
-
 /**
  * {@link Status} in RuntimeException form, for propagating Status information via exceptions.
  *
@@ -27,19 +25,13 @@ public class StatusRuntimeException extends RuntimeException {
 
   private static final long serialVersionUID = 1950934672280720624L;
   private final Status status;
-  private final HttpHeaders trailers;
-
-  public StatusRuntimeException(Status status) {
-    this(status, null);
-  }
 
   /**
    * Constructs the exception with both a status and trailers.
    */
-  public StatusRuntimeException(Status status, HttpHeaders trailers) {
+  public StatusRuntimeException(Status status) {
     super(Status.formatThrowableMessage(status), status.getCause());
     this.status = status;
-    this.trailers = trailers;
   }
 
   /**
@@ -47,12 +39,5 @@ public class StatusRuntimeException extends RuntimeException {
    */
   public final Status getStatus() {
     return status;
-  }
-
-  /**
-   * Returns the received trailers.
-   */
-  public final HttpHeaders getTrailers() {
-    return trailers;
   }
 }

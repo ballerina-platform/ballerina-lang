@@ -16,15 +16,15 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.CodedInputStream;
-import com.google.protobuf.ExtensionRegistryLite;
-import com.google.protobuf.InvalidProtocolBufferException;
+
+import java.io.IOException;
 
 /**
  * Proto Message Parser.
  *
  * @since 1.0.0
  */
-public class MessageParser extends com.google.protobuf.AbstractParser<Message> {
+public class MessageParser {
 
     private final String messageName;
 
@@ -32,9 +32,8 @@ public class MessageParser extends com.google.protobuf.AbstractParser<Message> {
         this.messageName = messageName;
     }
 
-    @Override
-    public Message parsePartialFrom(CodedInputStream input, ExtensionRegistryLite extensionRegistry) throws
-            InvalidProtocolBufferException {
-        return new Message(messageName, input, extensionRegistry);
+    public Message parseFrom(CodedInputStream input) throws
+            IOException {
+        return new Message(messageName, input);
     }
 }

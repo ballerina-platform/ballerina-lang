@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
 import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
 
@@ -103,16 +104,20 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
                 throw Status.Code.CANCELLED.toStatus().withDescription("call already cancelled").asRuntimeException();
             }
             if (!sentHeaders) {
-                call.sendHeaders();
+                call.sendHeaders(((Message) response).getHeaders());
                 sentHeaders = true;
             }
             call.sendMessage(response);
         }
 
         @Override
-        public void onError(Throwable t) {
+        public void onError(RespT error) {
 
-            call.close(Status.fromThrowable(t), new DefaultHttpHeaders());
+            if (!sentHeaders) {
+                call.sendHeaders(((Message) error).getHeaders());
+                sentHeaders = true;
+            }
+            call.close(Status.fromThrowable(((Message) error).getError()), new DefaultHttpHeaders());
         }
 
         @Override
@@ -199,7 +204,7 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
 
-    void onErrorInvoke(Resource resource, StreamObserver<ResponseT> responseObserver, Throwable t) {
+    void onErrorInvoke(Resource resource, StreamObserver<ResponseT> responseObserver, RequestT error) {
         if (resource == null) {
             String message = "Error in listener service definition. onError resource does not exists";
             LOG.error(message);
@@ -209,11 +214,11 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BType errorType = paramDetails.get(1).getVarType();
-        BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, t);
+        BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, ((Message) error).getError());
         signatureParams[1] = errorStruct;
         BStruct headerStruct = getHeaderStruct(resource);
         if (headerStruct != null) {
-            //headerStruct.addNativeData(METADATA_KEY, TODO: Add headers object);
+            headerStruct.addNativeData(MESSAGE_HEADERS, ((Message) error).getHeaders());
         }
 
         if (headerStruct != null && signatureParams.length == 3) {
@@ -234,7 +239,7 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BStruct headerStruct = getHeaderStruct(resource);
         if (headerStruct != null) {
-            //headerStruct.addNativeData(METADATA_KEY, TODO: Add headers object);
+            headerStruct.addNativeData(MESSAGE_HEADERS, ((Message) request).getHeaders());
         }
         BValue requestParam = getRequestParameter(resource, request, (headerStruct != null));
         if (requestParam != null) {

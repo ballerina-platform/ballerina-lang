@@ -63,6 +63,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
@@ -197,8 +198,8 @@ public class MessageUtils {
         LOG.error(errorMsg);
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
         if (streamObserver != null) {
-            streamObserver.onError(new StatusRuntimeException(Status.fromCodeValue(Status.Code.INTERNAL.value())
-                    .withDescription(errorMsg)));
+            streamObserver.onError((ResponseT) new Message(new StatusRuntimeException(Status.fromCodeValue(Status
+                    .Code.INTERNAL.value()).withDescription(errorMsg))));
         }
     }
     
@@ -258,7 +259,7 @@ public class MessageUtils {
      * @return generated protobuf message.
      */
     public static Message generateProtoMessage(BValue responseValue, Descriptors.Descriptor outputType) {
-        Message.Builder responseBuilder = Message.newBuilder(outputType.getName());
+        Message responseMessage = new Message(outputType.getName());
         int stringIndex = 0;
         int intIndex = 0;
         int floatIndex = 0;
@@ -278,16 +279,16 @@ public class MessageUtils {
                                 double indexValue = valueArray.get(i);
                                 messages[i] = indexValue;
                             }
-                            responseBuilder.addField(fieldName, messages);
+                            responseMessage.addField(fieldName, messages);
                         } else {
                             value = ((BStruct) responseValue).getFloatField(floatIndex++);
-                            responseBuilder.addField(fieldName, value);
+                            responseMessage.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BFloat) {
                             value = ((BFloat) responseValue).value();
                         }
-                        responseBuilder.addField(fieldName, value);
+                        responseMessage.addField(fieldName, value);
                     }
                     break;
                 }
@@ -302,17 +303,17 @@ public class MessageUtils {
                                 float indexValue = Float.parseFloat(String.valueOf(valueArray.get(i)));
                                 messages[i] = indexValue;
                             }
-                            responseBuilder.addField(fieldName, messages);
+                            responseMessage.addField(fieldName, messages);
                         } else {
                             value = Float.parseFloat(String.valueOf(((BStruct) responseValue).getFloatField
                                     (floatIndex++)));
-                            responseBuilder.addField(fieldName, value);
+                            responseMessage.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BFloat) {
                             value = Float.parseFloat(String.valueOf(((BFloat) responseValue).value()));
                         }
-                        responseBuilder.addField(fieldName, value);
+                        responseMessage.addField(fieldName, value);
                     }
                     break;
                 }
@@ -329,15 +330,15 @@ public class MessageUtils {
                                 long indexValue = valueArray.get(i);
                                 messages[i] = indexValue;
                             }
-                            responseBuilder.addField(fieldName, messages);
+                            responseMessage.addField(fieldName, messages);
                         } else {
                             value = ((BStruct) responseValue).getIntField(intIndex++);
-                            responseBuilder.addField(fieldName, value);
+                            responseMessage.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BInteger) {
                             value = ((BInteger) responseValue).value();
-                            responseBuilder.addField(fieldName, value);
+                            responseMessage.addField(fieldName, value);
                         }
                     }
                     break;
@@ -354,16 +355,16 @@ public class MessageUtils {
                                 int indexValue = Integer.parseInt(String.valueOf(valueArray.get(i)));
                                 messages[i] = indexValue;
                             }
-                            responseBuilder.addField(fieldName, messages);
+                            responseMessage.addField(fieldName, messages);
                         } else {
                             value = Integer.parseInt(String.valueOf(((BStruct) responseValue).getIntField(intIndex++)));
-                            responseBuilder.addField(fieldName, value);
+                            responseMessage.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BInteger) {
                             value = Integer.parseInt(String.valueOf(((BInteger) responseValue).value()));
                         }
-                        responseBuilder.addField(fieldName, value);
+                        responseMessage.addField(fieldName, value);
                     }
                     break;
                 }
@@ -378,15 +379,15 @@ public class MessageUtils {
                                 int indexValue = valueArray.get(i);
                                 messages[i] = indexValue != 0;
                             }
-                            responseBuilder.addField(fieldName, messages);
+                            responseMessage.addField(fieldName, messages);
                         } else {
                             value = ((BStruct) responseValue).getBooleanField(boolIndex++) > 0;
-                            responseBuilder.addField(fieldName, value);
+                            responseMessage.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BBoolean) {
                             value = ((BBoolean) responseValue).value();
-                            responseBuilder.addField(fieldName, value);
+                            responseMessage.addField(fieldName, value);
                         }
                     }
                     break;
@@ -402,23 +403,23 @@ public class MessageUtils {
                                 String indexValue = valueArray.get(i);
                                 messages[i] = indexValue;
                             }
-                            responseBuilder.addField(fieldName, messages);
+                            responseMessage.addField(fieldName, messages);
                         } else {
                             value = ((BStruct) responseValue).getStringField(stringIndex++);
-                            responseBuilder.addField(fieldName, value);
+                            responseMessage.addField(fieldName, value);
                         }
                     } else {
                         if (responseValue instanceof BString) {
                             value = ((BString) responseValue).value();
                         }
-                        responseBuilder.addField(fieldName, value);
+                        responseMessage.addField(fieldName, value);
                     }
                     break;
                 }
                 case DescriptorProtos.FieldDescriptorProto.Type.TYPE_ENUM_VALUE: {
                     if (responseValue instanceof BStruct) {
                         BValue bValue = ((BStruct) responseValue).getRefField(refIndex++);
-                        responseBuilder.addField(fieldName, fieldDescriptor.getEnumType().findValueByName(bValue
+                        responseMessage.addField(fieldName, fieldDescriptor.getEnumType().findValueByName(bValue
                                 .stringValue()));
                     }
                     break;
@@ -433,9 +434,9 @@ public class MessageUtils {
                                 BValue value = valueArray.get(i);
                                 messages[i] = generateProtoMessage(value, fieldDescriptor.getMessageType());
                             }
-                            responseBuilder.addField(fieldName, messages);
+                            responseMessage.addField(fieldName, messages);
                         } else {
-                            responseBuilder.addField(fieldName, generateProtoMessage(bValue, fieldDescriptor
+                            responseMessage.addField(fieldName, generateProtoMessage(bValue, fieldDescriptor
                                     .getMessageType()));
                         }
                     }
@@ -447,7 +448,7 @@ public class MessageUtils {
                 }
             }
         }
-        return responseBuilder.build();
+        return responseMessage;
     }
 
     public static BValue generateRequestStruct(Message request, ProgramFile programFile, String fieldName, BType
@@ -627,7 +628,7 @@ public class MessageUtils {
             return false;
         }
 
-        contentType = contentType.toLowerCase();
+        contentType = contentType.toLowerCase(Locale.ENGLISH);
         if (!contentType.startsWith(CONTENT_TYPE_GRPC)) {
             // Not a gRPC content-type.
             return false;

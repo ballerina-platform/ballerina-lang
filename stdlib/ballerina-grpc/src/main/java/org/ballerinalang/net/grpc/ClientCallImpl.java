@@ -198,6 +198,7 @@ public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
 
         private final Listener<RespT> observer;
         private boolean closed;
+        private HttpHeaders responseHeaders;
 
         public ClientStreamListenerImpl(Listener<RespT> observer) {
 
@@ -211,6 +212,7 @@ public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
                 if (closed) {
                     return;
                 }
+                responseHeaders = headers;
                 observer.onHeaders(headers);
             } catch (Throwable t) {
                 Status status =
@@ -229,7 +231,9 @@ public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
             }
 
             try {
-                observer.onMessage(method.parseResponse(message));
+                Message responseMessage = (Message) method.parseResponse(message);
+                responseMessage.setHeaders(responseHeaders);
+                observer.onMessage((RespT) responseMessage);
                 message.close();
             } catch (Throwable t) {
                 MessageUtils.closeQuietly(message);

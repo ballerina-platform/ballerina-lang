@@ -15,13 +15,17 @@
  */
 package org.ballerinalang.net.grpc.nativeimpl.headers;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
+import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -45,16 +49,15 @@ public class AddEntry extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         //TODO: redesign headers support
-/*        BStruct headerValues = (BStruct) context.getRefArgument(0);
-        MessageHeaders metadata = (MessageHeaders) headerValues.getNativeData(METADATA_KEY);
+        BStruct headerValues = (BStruct) context.getRefArgument(0);
+        HttpHeaders headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
         String headerName = context.getStringArgument(0);
         String headerValue = context.getStringArgument(1);
 
         // Only initialize ctx if not yet initialized
-        metadata = metadata != null ? metadata : new MessageHeaders();
-        Metadata.Key<String> key = Metadata.Key.of(headerName, Metadata.ASCII_STRING_MARSHALLER);
-        metadata.put(key, headerValue);
-        headerValues.addNativeData(METADATA_KEY, metadata);
-        context.setReturnValues();*/
+        headers = headers != null ? headers : new DefaultHttpHeaders();
+        headers.add(headerName, headerValue);
+        headerValues.addNativeData(MESSAGE_HEADERS, headers);
+        context.setReturnValues();
     }
 }

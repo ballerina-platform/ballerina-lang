@@ -23,6 +23,7 @@ import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
@@ -69,7 +70,7 @@ final class ServerCallImpl<ReqT, RespT> extends ServerCall<ReqT, RespT> {
     }
 
     @Override
-    public void sendHeaders() {
+    public void sendHeaders(HttpHeaders headers) {
 
         if (sendHeadersCalled) {
             throw new RuntimeException("sendHeaders has already been called");
@@ -105,6 +106,12 @@ final class ServerCallImpl<ReqT, RespT> extends ServerCall<ReqT, RespT> {
 
         if (advertisedEncodings != null) {
             outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
+        }
+
+        if (headers != null) {
+            for (Map.Entry<String, String> headerEntry : headers.entries()) {
+                outboundMessage.setHeader(headerEntry.getKey(), headerEntry.getValue());
+            }
         }
 
         // Don't check if sendMessage has been called, since it requires that sendHeaders was already
@@ -247,7 +254,9 @@ final class ServerCallImpl<ReqT, RespT> extends ServerCall<ReqT, RespT> {
             try {
                 while (message != null && message.available() > 0) {
                     try {
-                        listener.onMessage(call.method.parseRequest(message));
+                        Message request = (Message) call.method.parseRequest(message);
+                        request.setHeaders(call.inboundMessage.getHeaders());
+                        listener.onMessage((ReqT) request);
                     } catch (Throwable t) {
                         MessageUtils.closeQuietly(message);
                         throw t;

@@ -110,10 +110,8 @@ public final class ServiceDefinition {
                     MethodDescriptor.<Message, Message>newBuilder()
                             .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
                             .setFullMethodName(fullMethodName)
-                            .setRequestMarshaller(ProtoUtils.marshaller(org.ballerinalang.net.grpc.Message
-                                            .newBuilder(reqMessage.getName()).build()))
-                            .setResponseMarshaller(ProtoUtils.marshaller(org.ballerinalang.net.grpc.Message
-                                            .newBuilder(resMessage.getName()).build()))
+                            .setRequestMarshaller(ProtoUtils.marshaller(new Message(reqMessage.getName())))
+                            .setResponseMarshaller(ProtoUtils.marshaller(new Message(resMessage.getName())))
                             .setSchemaDescriptor(methodDescriptor)
                             .build();
             descriptorMap.put(fullMethodName, descriptor);

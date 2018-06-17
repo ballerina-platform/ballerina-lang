@@ -17,14 +17,12 @@
 package org.ballerinalang.net.grpc;
 
 import java.util.Arrays;
-import javax.annotation.concurrent.Immutable;
 
 /**
  * The collection of runtime options for a new RPC call.
  * <p>
  * <p>A field that is not set is {@code null}.
  */
-@Immutable
 public final class CallOptions {
 
     /**

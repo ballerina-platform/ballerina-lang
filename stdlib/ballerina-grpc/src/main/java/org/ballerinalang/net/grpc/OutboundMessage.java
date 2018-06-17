@@ -38,8 +38,6 @@ public class OutboundMessage {
 
     private final HTTPCarbonMessage responseMessage;
     private int statusCode = NULL_STATUS_CODE;
-    private String mediaType = null;
-    private int chunkSize = NO_CHUNK;
     private MessageFramer framer;
     private boolean outboundClosed;
 
@@ -169,27 +167,12 @@ public class OutboundMessage {
     }
 
     /**
-     * Set HTTP media type of the response.
-     *
-     * @param mediaType HTTP media type string
-     * @return OutboundMessage object
-     */
-    public OutboundMessage setMediaType(String mediaType) {
-
-        this.mediaType = mediaType;
-        return this;
-    }
-
-    /**
      * Set http body for the HTTP response.
      *
      * @param entity object that should be set as the response body
      */
     public void sendMessage(InputStream entity) {
 
-//        if (responseMessage.isEmpty()) {
-//            throw new IllegalStateException("CarbonMessage should not contain a message body");
-//        }
         if (entity != null) {
             framer().writePayload(entity);
             framer().flush();
@@ -197,16 +180,6 @@ public class OutboundMessage {
             ByteBuffer byteBuffer = ByteBuffer.allocate(0);
             responseMessage.addHttpContent(new DefaultLastHttpContent(Unpooled.wrappedBuffer(byteBuffer)));
         }
-    }
-
-    /**
-     * Specify the chunk size to send the response.
-     *
-     * @param chunkSize if 0 response will be sent without chunking
-     *                  if -1 a default chunk size will be applied
-     */
-    public void setChunkSize(int chunkSize) {
-        this.chunkSize = chunkSize;
     }
 
     public void complete(Status status, io.netty.handler.codec.http.HttpHeaders trailers) {

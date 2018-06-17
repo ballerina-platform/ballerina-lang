@@ -83,8 +83,7 @@ public class Register extends AbstractGrpcNativeFunction {
     private void startServerConnector(Struct serviceEndpoint, ServicesRegistry servicesRegistry) {
         ServerConnector serverConnector = getServerConnector(serviceEndpoint);
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
-        serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(servicesRegistry,
-                null));
+        serverConnectorFuture.setHttpConnectorListener(new ServerConnectorListener(servicesRegistry));
 
         serverConnectorFuture.setPortBindingEventListener(new ServerConnectorPortBindingListener());
         try {

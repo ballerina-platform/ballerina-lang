@@ -68,7 +68,7 @@ public interface StreamObserver<V>  {
    *
    * @param t the error occurred on the stream
    */
-  void onError(Throwable t);
+  void onError(V t);
 
   /**
    * Receives a notification of successful stream completion.

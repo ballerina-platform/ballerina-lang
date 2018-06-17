@@ -21,7 +21,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
@@ -47,13 +46,9 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
     private final ServicesRegistry servicesRegistry;
 
-    private final Value[] filterHolders;
-
-    public ServerConnectorListener(ServicesRegistry servicesRegistry,
-                                   Value[] filterHolders) {
+    public ServerConnectorListener(ServicesRegistry servicesRegistry) {
 
         this.servicesRegistry = servicesRegistry;
-        this.filterHolders = filterHolders;
     }
 
     @Override

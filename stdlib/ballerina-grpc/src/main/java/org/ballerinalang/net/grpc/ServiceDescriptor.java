@@ -134,7 +134,6 @@ public final class ServiceDescriptor {
 
         private String name;
         private List<MethodDescriptor<?, ?>> methods = new ArrayList<>();
-        private Object schemaDescriptor;
 
         /**
          * Sets the name.  This should be non-{@code null}.
