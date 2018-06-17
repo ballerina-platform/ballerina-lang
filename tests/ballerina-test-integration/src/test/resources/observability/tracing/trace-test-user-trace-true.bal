@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/testing;
+import ballerina/testobserve;
 import ballerina/observe;
 
 endpoint http:Listener listener {
@@ -43,7 +43,7 @@ service echoService bind listener {
 
     getMockTracers(endpoint caller, http:Request clientRequest) {
         http:Response res = new;
-        json returnString = testing:getMockTracers();
+        json returnString = testobserve:getMockTracers();
         res.setJsonPayload(returnString);
         _ = caller -> respond(res);
     }

@@ -20,6 +20,7 @@ package org.ballerinalang.test.observability.tracing;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.ServerInstance;
 import org.ballerinalang.test.util.HttpClientRequest;
@@ -46,6 +47,7 @@ public class TracingTestCase {
     private ServerInstance serverInstanceOne;
     private ServerInstance serverInstanceTwo;
     private ServerInstance serverInstanceThree;
+    private static final String BASEDIR = System.getProperty("basedir");
     private static final String RESOURCE_LOCATION = "src" + File.separator + "test" + File.separator +
             "resources" + File.separator + "observability" + File.separator + "tracing" + File.separator;
     private static final String TEST_NATIVES_JAR = "observability-test-natives.jar";
@@ -71,6 +73,12 @@ public class TracingTestCase {
 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverInstance.getServerHome()
                 + DEST_FUNCTIONS_JAR));
+
+        FileUtils.copyDirectoryToDirectory(
+                new File(BASEDIR + File.separator + "target" + File.separator +
+                "lib"  + File.separator + "repo" + File.separator + "ballerina" + File.separator + "testobserve"),
+                new File(serverInstance.getServerHome()
+                        + File.separator + "lib" + File.separator + "repo" + File.separator + "ballerina"));
 
         serverInstance.startServer();
     }

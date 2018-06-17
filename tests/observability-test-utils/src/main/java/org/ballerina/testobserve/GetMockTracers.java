@@ -14,37 +14,45 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
-package org.ballerinalang.nativeimpl.observe.metrics;
 
+package org.ballerina.testobserve;
+
+import com.google.gson.Gson;
+import io.opentracing.mock.MockTracer;
+import org.ballerina.testobserve.extension.BMockTracer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.util.metrics.Summary;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Returns the total amount of all recorded events.
+ * This function returns the span context of a given span.
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "observe",
-        functionName = "getSum",
-        receiver = @Receiver(type = TypeKind.STRUCT, structType = Constants.SUMMARY,
-                structPackage = Constants.OBSERVE_PACKAGE_PATH),
-        returnType = @ReturnType(type = TypeKind.INT),
+        packageName = "testobserve",
+        functionName = "getMockTracers",
+        returnType = {@ReturnType(type = TypeKind.ARRAY)},
         isPublic = true
 )
-public class SummarySum extends BlockingNativeCallableUnit {
+public class GetMockTracers extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct bSummary = (BStruct) context.getRefArgument(0);
-        Summary summary = (Summary) bSummary.getNativeData(Constants.SUMMARY);
-        context.setReturnValues(new BInteger(summary.getSum()));
+        List<MockTracer> mockTracers = BMockTracer.getTracerMap();
+        List<BMockSpan> mockSpans = new ArrayList<>();
+        mockTracers
+                .forEach(mockTracer -> mockTracer.finishedSpans()
+                        .forEach(mockSpan -> mockSpans
+                                .add(new BMockSpan(mockSpan.operationName(), mockSpan.context().traceId(),
+                                        mockSpan.context().spanId(), mockSpan.parentId(), mockSpan.tags()))));
+        context.setReturnValues(new BJSON(new Gson().toJson(mockSpans)));
     }
 }

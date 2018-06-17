@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerina.testing;
+package org.ballerina.testobserve;
 
 import java.util.Map;
 

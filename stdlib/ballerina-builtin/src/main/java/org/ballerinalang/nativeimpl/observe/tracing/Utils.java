@@ -29,8 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * This provides the util functions to tracing related functions.
@@ -53,7 +53,7 @@ public class Utils {
     }
 
     public static BStruct createErrorStruct(Context context, String message) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         return BLangVMStructs.createBStruct(errorStructInfo, message);
     }
