@@ -49,7 +49,7 @@ public class BLangTableLiteral extends BLangExpression implements TableLiteralNo
 
     public BLangTableColumn getColumn(String columnName) {
         BLangTableColumn column = null;
-        for(BLangTableColumn c: columns) {
+        for (BLangTableColumn c : columns) {
             if (c.columnName.equals(columnName)) {
                 column = c;
                 break;

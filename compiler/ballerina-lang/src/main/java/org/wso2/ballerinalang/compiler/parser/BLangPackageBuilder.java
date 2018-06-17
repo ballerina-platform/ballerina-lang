@@ -951,7 +951,7 @@ public class BLangPackageBuilder {
         List<BLangTableLiteral.BLangTableColumn> keyNames = tableLiteralNodes.peek().columns;
         List<ExpressionNode> recordValues = exprNodeListStack.pop();
         int index = 0;
-        for(ExpressionNode e : recordValues) {
+        for (ExpressionNode e : recordValues) {
             BLangRecordKeyValue keyValue = (BLangRecordKeyValue) TreeBuilder.createRecordKeyValue();
             //Value
             keyValue.valueExpr = (BLangExpression) e;

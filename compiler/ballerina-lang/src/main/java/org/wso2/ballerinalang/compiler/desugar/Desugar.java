@@ -1005,7 +1005,7 @@ public class Desugar extends BLangNodeVisitor {
         columnArrayLiteral.type = new BArrayType(symTable.stringType);
         tableLiteral.allColumnsArrayLiteral = columnArrayLiteral;
         List<String> keyColumns = new ArrayList<>();
-        for(BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
+        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
             if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
                 keyColumns.add(column.columnName);
             }
