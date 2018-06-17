@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/testing;
+import ballerina/testobserve;
 
 endpoint http:Listener listener {
     port : 9090
@@ -40,7 +40,7 @@ service echoService bind listener {
 
     getMockTracers(endpoint caller, http:Request clientRequest) {
         http:Response res = new;
-        json returnString = testing:getMockTracers();
+        json returnString = testobserve:getMockTracers();
         res.setJsonPayload(returnString);
         _ = caller -> respond(res);
     }

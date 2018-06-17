@@ -39,7 +39,7 @@ import java.util.List;
         orgName = "ballerina",
         packageName = "testobserve",
         functionName = "getMockTracers",
-        returnType = {@ReturnType(type = TypeKind.ARRAY)},
+        returnType = {@ReturnType(type = TypeKind.JSON)},
         isPublic = true
 )
 public class GetMockTracers extends BlockingNativeCallableUnit {
