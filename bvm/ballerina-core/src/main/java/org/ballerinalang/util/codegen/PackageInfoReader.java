@@ -1445,20 +1445,20 @@ public class PackageInfoReader {
         j = codeStream.readInt();
         k = codeStream.readInt();
         int[] operands;
-        if (k == -1) {
+        if (k == -1) { // no additional reading is needed
             operands = new int[4];
             operands[0] = h;
             operands[1] = i;
             operands[2] = j;
             operands[3] = k;
-        } else if (k == 0) {
+        } else if (k == 0) { // this is a object attached function invocation as function pointer, so read its index
             operands = new int[5];
             operands[0] = h;
             operands[1] = i;
             operands[2] = j;
             operands[3] = k;
             operands[4] = codeStream.readInt();
-        } else {
+        } else { //this is a closure related scenario, so read the closure indexes
             operands = new int[4 + (k * 2)];
             operands[0] = h;
             operands[1] = i;
