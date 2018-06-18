@@ -13,5 +13,5 @@ function main(string... args) {
     float piValue = math:PI;
 
     // Use the explicit alias `console` to invoke a function defined in the `ballerina/io` package.
-    console:println(math:PI);
+    console:println(piValue);
 }
