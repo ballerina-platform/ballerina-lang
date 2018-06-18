@@ -16,36 +16,30 @@
  * under the License.
  */
 
-package org.ballerina.testobserve;
+package org.ballerinalang.nativeimpl.observe.tracing;
 
-import io.opentracing.mock.MockTracer;
-import org.ballerina.testobserve.extension.BMockTracer;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
-import org.ballerinalang.natives.annotations.ReturnType;
-
-import java.util.List;
 
 /**
- * This function returns the span context of a given span.
+ * This function which implements the finishSpan method for tracing.
  */
 @BallerinaFunction(
         orgName = "ballerina",
-        packageName = "testobserve",
-        functionName = "getFinishedSpansCount",
-        returnType = {@ReturnType(type = TypeKind.INT)},
+        packageName = "observe",
+        functionName = "finishSpan",
         isPublic = true
 )
-public class GetFinishedSpansCount extends BlockingNativeCallableUnit {
+public class FinishSpan extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        List<MockTracer> mockTracer = BMockTracer.getTracerMap();
-        final int[] count = {0};
-        mockTracer.forEach((tracer) -> count[0] += tracer.finishedSpans().size());
-        context.setReturnValues(new BInteger(count[0]));
+        int spanId = (int) context.getIntArgument(0);
+        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(spanId);
+
+        if (!isFinished) {
+            context.setReturnValues(Utils.createErrorStruct(context, "Can not finish already finished span"));
+        }
     }
 }

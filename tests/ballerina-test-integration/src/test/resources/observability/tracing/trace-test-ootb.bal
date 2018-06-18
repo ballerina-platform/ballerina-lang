@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
 import ballerina/http;
 import ballerina/testobserve;
 
@@ -26,13 +27,9 @@ endpoint http:Listener listener {
 service echoService bind listener {
     resourceOne (endpoint caller, http:Request clientRequest) {
         http:Response outResponse = new;
-        http:Request request = new;
-        http:Response | () response = callNextResource();
+        var response = check callNextResource();
         outResponse.setTextPayload("Hello, World!");
-        match response {
-            http:Response res => _ = caller -> respond(res);
-            () => _ = caller -> respond(new http:Response());
-        }
+        _ = caller -> respond(outResponse);
     }
 
     resourceTwo (endpoint caller, http:Request clientRequest) {
@@ -41,22 +38,18 @@ service echoService bind listener {
         _ = caller -> respond(res);
     }
 
-    getFinishedSpansCount(endpoint caller, http:Request clientRequest) {
+    getMockTracers(endpoint caller, http:Request clientRequest) {
         http:Response res = new;
-        string returnString = testobserve:getFinishedSpansCount();
-        res.setTextPayload(returnString);
+        json returnString = testobserve:getMockTracers();
+        res.setJsonPayload(returnString);
         _ = caller -> respond(res);
     }
 }
 
-function callNextResource() returns (http:Response | ()) {
+function callNextResource() returns (http:Response | error) {
     endpoint http:Client httpEndpoint {
         url: "http://localhost:9090/echoService"
     };
-    http:Request request = new;
-    var resp = httpEndpoint -> get("/resourceTwo", message = request);
-    match resp {
-        error err => return ();
-        http:Response response => return response;
-    }
+    http:Response resp = check httpEndpoint -> get("/resourceTwo");
+    return resp;
 }

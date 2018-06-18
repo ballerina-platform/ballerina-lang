@@ -15,8 +15,8 @@
 // under the License.
 
 documentation {
-    Get the number of finished spans.
+    Get the mock tracers object.
 
-    R{{}} Total number of spans finished
+    R{{}} Mock tracers object in json format
 }
-public native function getFinishedSpansCount () returns string;
+public native function getMockTracers () returns json;

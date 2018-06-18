@@ -128,46 +128,37 @@ public native function getSummaryInstance(string name, string? description = (),
 
 
 documentation {
-    Represents a span
-    F{{spanId}} unique Id to identify a span
-    F{{isFinished}} mark a span as finished
+    Start a span with no parent span.
+
+    P{{spanName}} name of the span
+    P{{tags}} tags to be associated to the span
+    R{{spanId}} spanId of the started span
 }
-public type Span object {
-
-    private {
-        string spanId,
-        boolean isFinished,
-    }
-
-    documentation {
-        Add a key value pair as a tag to the span.
-
-        P{{tagKey}} key of the tag
-        P{{tagValue}} value of the tag
-        R{{}} An error if an error occured while attaching tag to the span
-    }
-    public native function addTag(string tagKey, string tagValue) returns error?;
-
-    documentation {
-        Finish the current span.
-
-        R{{}} An error if an error occured while attaching tag to the span
-    }
-    public native function finish();
-
-};
+public native function startRootSpan(string spanName, map<string>? tags = ()) returns int;
 
 documentation {
-    Start a span.
+    Start a span and create child relationship to current active span or user specified span.
 
-    P{{serviceName}} Name of the service the span should belong to
-    P{{spanName}} Name of the span
+    P{{spanName}} name of the span
     P{{tags}} tags to be associated to the span
-    R{{}} An instance of the started span
+    P{{parentSpanId}} id of the parent span or -1 if parent span should be taken from system trace
+    R{{spanId}} spanId of the started span
 }
-public native function startSpan(string serviceName, string spanName, map? tags = ()) returns Span {}
+public native function startSpan(string spanName, map<string>? tags = (), int parentSpanId = -1) returns int|error;
 
-// Native implementation to avoid reading configuration file
-//public native function isTraceEnabled() returns boolean {}
+documentation {
+        Add a key value pair as a tag to the span.
 
-//public native function isMetricsEnabled() returns boolean {}
+        P{{spanId}} id of span to which the tags should be added
+        P{{tagKey}} key of the tag
+        P{{tagValue}} value of the tag
+        R{{error}} An error if an error occured while attaching tag to the span
+    }
+public native function addTagToSpan(int spanId, string tagKey, string tagValue) returns error?;
+
+documentation {
+        Finish the current span.
+
+        P{{spanId}} id of span to finish
+    }
+public native function finishSpan(int spanId) returns error?;

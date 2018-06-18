@@ -20,6 +20,9 @@ package org.ballerinalang.util.observability;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.config.ConfigRegistry;
+import org.ballerinalang.model.types.BServiceType;
+import org.ballerinalang.util.codegen.ServiceInfo;
+import org.ballerinalang.util.program.BLangVMUtils;
 import org.ballerinalang.util.tracer.BSpan;
 
 import java.util.ArrayList;
@@ -34,6 +37,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 import static org.ballerinalang.util.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
+import static org.ballerinalang.util.observability.ObservabilityConstants.UNKNOWN_SERVICE;
 import static org.ballerinalang.util.tracer.TraceConstants.KEY_SPAN;
 
 /**
@@ -44,6 +48,7 @@ public class ObservabilityUtils {
     private static final List<BallerinaObserver> observers = new CopyOnWriteArrayList<>();
 
     private static final boolean enabled;
+    private static final String PACKAGE_SEPARATOR = ".";
 
     static {
         ConfigRegistry configRegistry = ConfigRegistry.getInstance();
@@ -80,16 +85,16 @@ public class ObservabilityUtils {
     /**
      * Start a server observation.
      *
-     * @param connectorName    The server connector name.
-     * @param serviceName      The service name.
-     * @param resourceName     The resource name.
-     * @param parentContext    The {@link WorkerExecutionContext} instance. If this is null when starting the
-     *                         observation, the
-     *                         {@link #continueServerObservation(ObserverContext, WorkerExecutionContext)}
-     *                          method must be called later with relevant {@link ObserverContext}
+     * @param connectorName The server connector name.
+     * @param serviceInfo   Instance of {@link ServiceInfo}.
+     * @param resourceName  The resource name.
+     * @param parentContext The {@link WorkerExecutionContext} instance. If this is null when starting the
+     *                      observation, the
+     *                      {@link #continueServerObservation(ObserverContext, WorkerExecutionContext)}
+     *                      method must be called later with relevant {@link ObserverContext}
      * @return An {@link Optional} {@link ObserverContext} instance.
      */
-    public static Optional<ObserverContext> startServerObservation(String connectorName, String serviceName,
+    public static Optional<ObserverContext> startServerObservation(String connectorName, ServiceInfo serviceInfo,
                                                                    String resourceName,
                                                                    WorkerExecutionContext parentContext) {
         if (!enabled) {
@@ -98,7 +103,8 @@ public class ObservabilityUtils {
         Objects.requireNonNull(connectorName);
         ObserverContext ctx = new ObserverContext();
         ctx.setConnectorName(connectorName);
-        ctx.setServiceName(serviceName);
+        ctx.setServiceName(getFullServiceName(serviceInfo));
+
         ctx.setResourceName(resourceName);
         if (parentContext != null) {
             continueServerObservation(ctx, parentContext);
@@ -109,12 +115,12 @@ public class ObservabilityUtils {
     /**
      * Start a client observation.
      *
-     * @param connectorName    The connector name.
-     * @param actionName       The action name.
-     * @param parentCtx        The {@link WorkerExecutionContext} instance. If this is null when starting the
-     *                         observation, the
-     *                         {@link #continueClientObservation(ObserverContext, WorkerExecutionContext)}
-     *                         method must be called later with relevant {@link ObserverContext}
+     * @param connectorName The connector name.
+     * @param actionName    The action name.
+     * @param parentCtx     The {@link WorkerExecutionContext} instance. If this is null when starting the
+     *                      observation, the
+     *                      {@link #continueClientObservation(ObserverContext, WorkerExecutionContext)}
+     *                      method must be called later with relevant {@link ObserverContext}
      * @return An {@link Optional} of {@link ObserverContext} instance.
      */
     public static Optional<ObserverContext> startClientObservation(String connectorName, String actionName,
@@ -127,6 +133,12 @@ public class ObservabilityUtils {
         ctx.setConnectorName(connectorName);
         ctx.setActionName(actionName);
         if (parentCtx != null) {
+            ServiceInfo serviceInfo = BLangVMUtils.getServiceInfo(parentCtx);
+            if (serviceInfo != null) {
+                ctx.setServiceName(getFullServiceName(serviceInfo));
+            } else {
+                ctx.setServiceName(UNKNOWN_SERVICE);
+            }
             continueClientObservation(ctx, parentCtx);
         }
         return Optional.of(ctx);
@@ -134,11 +146,11 @@ public class ObservabilityUtils {
 
     /**
      * Continue server observation if the
-     * {@link #startServerObservation(String, String, String, WorkerExecutionContext)} was called
+     * {@link #startServerObservation(String, ServiceInfo, String, WorkerExecutionContext)} was called
      * without {@link WorkerExecutionContext}.
      *
-     * @param observerContext  The {@link ObserverContext} instance.
-     * @param parentCtx The parent {@link WorkerExecutionContext} instance.
+     * @param observerContext The {@link ObserverContext} instance.
+     * @param parentCtx       The parent {@link WorkerExecutionContext} instance.
      */
     public static void continueServerObservation(ObserverContext observerContext, WorkerExecutionContext parentCtx) {
         if (!enabled) {
@@ -157,8 +169,8 @@ public class ObservabilityUtils {
      * Continue client observation if the {@link #startClientObservation(String, String, WorkerExecutionContext)} was
      * called without {@link WorkerExecutionContext}.
      *
-     * @param observerContext  The {@link ObserverContext} instance.
-     * @param parentCtx The {@link WorkerExecutionContext} instance.
+     * @param observerContext The {@link ObserverContext} instance.
+     * @param parentCtx       The {@link WorkerExecutionContext} instance.
      */
     public static void continueClientObservation(ObserverContext observerContext, WorkerExecutionContext parentCtx) {
         if (!enabled) {
@@ -187,6 +199,7 @@ public class ObservabilityUtils {
         } else {
             observers.forEach(observer -> observer.stopClientObservation(observerContext));
         }
+        observerContext.setFinished();
     }
 
     /**
@@ -199,10 +212,10 @@ public class ObservabilityUtils {
                 : Optional.empty();
     }
 
-    public static Map<String, String> getContextProperties(ObserverContext observerContext) {
+    public static Map<String, String> getContextProperties(ObserverContext observerContext, String headerName) {
         BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (bSpan != null) {
-            return bSpan.getTraceContext();
+            return bSpan.getTraceContext(headerName);
         }
         return Collections.emptyMap();
     }
@@ -232,12 +245,23 @@ public class ObservabilityUtils {
             parent = parent.parent;
         }
         ObserverContext observerContext = (ctx != null) ? (ObserverContext) ctx : new ObserverContext();
+        while (observerContext.isFinished() && observerContext.getParent() != null) {
+            observerContext = observerContext.getParent();
+        }
+        ObserverContext currentObserverContext = observerContext;
         ancestors.forEach(w -> {
             if (w.localProps == null) {
                 w.localProps = new HashMap<>();
             }
-            w.localProps.put(KEY_OBSERVER_CONTEXT, observerContext);
+            w.localProps.put(KEY_OBSERVER_CONTEXT, currentObserverContext);
         });
         return observerContext;
+    }
+
+    public static String getFullServiceName(ServiceInfo serviceInfo) {
+        BServiceType serviceInfoType = serviceInfo.getType();
+        return serviceInfoType.getPackagePath().equals(PACKAGE_SEPARATOR)
+                ? serviceInfoType.getName()
+                : serviceInfoType.getPackagePath() + PACKAGE_SEPARATOR + serviceInfoType.getName();
     }
 }
