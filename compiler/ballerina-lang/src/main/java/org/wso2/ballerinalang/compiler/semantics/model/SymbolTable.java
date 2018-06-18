@@ -70,6 +70,9 @@ public class SymbolTable {
     public static final PackageID BUILTIN = new PackageID(Names.BUILTIN_ORG,
                                                           Names.BUILTIN_PACKAGE,
                                                           Names.EMPTY);
+    public static final PackageID g = new PackageID(Names.BUILTIN_ORG,
+            Names.RUNTIME_PACKAGE,
+            Names.EMPTY);
 
     public final BLangPackage rootPkgNode;
     public final BPackageSymbol rootPkgSymbol;

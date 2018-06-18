@@ -124,6 +124,7 @@ public class Compiler {
     private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream) {
         // TODO This is hack to load the builtin package. We will fix this with BALO support
         this.compilerDriver.loadBuiltinPackage();
+        this.compilerDriver.loadRuntimePackage();
 
         // 1) Load all source packages. i.e. source-code -> BLangPackageNode
         // 2) Define all package level symbols for all the packages including imported packages in the AST
