@@ -305,12 +305,14 @@ public final class Constants {
                 = "Remote client closed connection while writing outbound response";
 
     // Server connection closure error scenarios
-    public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION
-            = "Remote host closed the connection without completing inbound response";
-    public static final String REMOTE_SERVER_ABRUPTLY_CLOSE_REQUEST_CONNECTION
-            = "Remote host closed the connection before completing outbound request";
-    public static final String REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ
-            = "Remote host closed the connection without sending inbound response";
+    public static final String REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST
+            = "Remote host closed the connection before initiating outbound request";
+    public static final String REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST
+            = "Remote host closed the connection while writing outbound request";
+    public static final String REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE
+            = "Remote host closed the connection before initiating inbound response";
+    public static final String REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE
+            = "Remote host closed  connection while reading inbound response";
 
     public static final String PROMISED_STREAM_REJECTED_ERROR
             = "Promised stream is already rejected or stream is no longer valid";

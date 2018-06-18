@@ -85,7 +85,7 @@ public class ClientConnectorClosureAfterRequestReadTestCase {
             assertNotNull(response);
             String result = response.getMessage();
 
-            assertEquals(Constants.REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ, result);
+            assertEquals(Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE, result);
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running httpsGetTest", e);
         }
