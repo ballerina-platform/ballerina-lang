@@ -25,10 +25,10 @@ import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXML;
-import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.util.BuiltInUtils;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
@@ -56,7 +56,7 @@ public class ToXML extends BlockingNativeCallableUnit {
             // Accessing Parameters
             BJSON json = (BJSON) ctx.getNullableRefArgument(0);
             if (json == null) {
-                error = Utils.createConversionError(ctx, "cannot convert null json to xml");
+                error = BuiltInUtils.createConversionError(ctx, "cannot convert null json to xml");
                 ctx.setReturnValues(error);
                 return;
             }
@@ -68,7 +68,7 @@ public class ToXML extends BlockingNativeCallableUnit {
             xml = JSONUtils.convertToXML(json, attributePrefix, arrayEntryTag);
             ctx.setReturnValues(xml);
         } catch (Throwable e) {
-            error = Utils.createConversionError(ctx, "failed to convert json to xml: " + e.getMessage());
+            error = BuiltInUtils.createConversionError(ctx, "failed to convert json to xml: " + e.getMessage());
             ctx.setReturnValues(error);
         }
     }
