@@ -79,4 +79,8 @@ public enum Flag {
      * Temporary indicator for records.
      */
     RECORD,
+    /**
+     * Temporary indicator for compensation variables.
+     */
+    COMPENSATE,
 }

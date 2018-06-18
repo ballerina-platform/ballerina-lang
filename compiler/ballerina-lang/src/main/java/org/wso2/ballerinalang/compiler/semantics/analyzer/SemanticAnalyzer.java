@@ -1468,6 +1468,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             analyzeStmt(scopeNode.onCompensationBody, env);
         }
 
+        scopeNode.compensationFunction.getParameters().forEach(param -> param.flagSet.add(Flag.COMPENSATE));
         symbolEnter.defineNode(scopeNode.compensationFunction, env);
         visit(scopeNode.compensationFunction);
     }

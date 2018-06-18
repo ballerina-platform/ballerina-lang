@@ -202,6 +202,10 @@ public class SymbolResolver extends BLangNodeVisitor {
             dlog.error(pos, DiagnosticCode.REDECLARED_SYMBOL, symbol.name);
             return false;
         }
+        // ignore if this is added through compensations
+        if ((symbol.flags & Flags.COMPENSATE) == Flags.COMPENSATE) {
+            return true;
+        }
         // We allow variable shadowing for xml namespaces. For all other types, we do not allow variable shadowing.
         if ((foundSym.getKind() == SymbolKind.XMLNS && symbol.getKind() != SymbolKind.XMLNS)
                 || foundSym.getKind() != SymbolKind.XMLNS

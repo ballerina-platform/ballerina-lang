@@ -44,7 +44,6 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
