@@ -30,9 +30,11 @@ import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
 import org.apache.axiom.om.OMXMLBuilderFactory;
+import org.apache.axiom.om.OMXMLParserWrapper;
 import org.apache.axiom.om.impl.dom.TextImpl;
 import org.apache.axiom.om.impl.llom.OMSourcedElementImpl;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.axiom.om.util.StAXParserConfiguration;
 import org.ballerinalang.model.TableOMDataSource;
 import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.values.BJSON;
@@ -127,7 +129,7 @@ public class XMLUtils {
         BRefValueArray elementsSeq = new BRefValueArray();
         OMDocument doc;
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(xmlStream).getDocument();
+            doc = createOMBuilder(xmlStream).getDocument();
             Iterator<OMNode> docChildItr = doc.getChildren();
             int i = 0;
             while (docChildItr.hasNext()) {
@@ -153,7 +155,7 @@ public class XMLUtils {
         BRefValueArray elementsSeq = new BRefValueArray();
         OMDocument doc;
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(xmlStream, charset).getDocument();
+            doc = createOMBuilder(xmlStream, charset).getDocument();
             Iterator<OMNode> docChildItr = doc.getChildren();
             int index = 0;
             while (docChildItr.hasNext()) {
@@ -178,7 +180,7 @@ public class XMLUtils {
         BRefValueArray elementsSeq = new BRefValueArray();
         OMDocument doc;
         try {
-            doc = OMXMLBuilderFactory.createOMBuilder(reader).getDocument();
+            doc = createOMBuilder(reader).getDocument();
             Iterator<OMNode> docChildItr = doc.getChildren();
             int i = 0;
             while (docChildItr.hasNext()) {
@@ -654,5 +656,17 @@ public class XMLUtils {
             qname = new QName(namespaceUri, localName);
         }
         return qname;
+    }
+
+    public static OMXMLParserWrapper createOMBuilder(InputStream xmlStream) {
+        return createOMBuilder(xmlStream, null);
+    }
+
+    public static OMXMLParserWrapper createOMBuilder(InputStream xmlStream, String encoding) {
+        return OMXMLBuilderFactory.createOMBuilder(StAXParserConfiguration.STANDALONE, xmlStream, encoding);
+    }
+
+    public static OMXMLParserWrapper createOMBuilder(Reader in) {
+        return OMXMLBuilderFactory.createOMBuilder(StAXParserConfiguration.STANDALONE, in);
     }
 }
