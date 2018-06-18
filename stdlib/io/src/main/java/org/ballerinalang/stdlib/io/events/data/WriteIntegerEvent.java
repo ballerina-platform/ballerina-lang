@@ -23,7 +23,6 @@ import org.ballerinalang.stdlib.io.channels.base.Representation;
 import org.ballerinalang.stdlib.io.events.Event;
 import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.stdlib.io.events.result.NumericResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +50,7 @@ public class WriteIntegerEvent implements Event {
      */
     private Representation representation;
 
-    private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(WriteIntegerEvent.class);
 
     public WriteIntegerEvent(DataChannel dataChannel, long value, Representation representation, EventContext context) {
         this.channel = dataChannel;

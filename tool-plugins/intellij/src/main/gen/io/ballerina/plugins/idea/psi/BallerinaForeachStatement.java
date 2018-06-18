@@ -30,9 +30,6 @@ public interface BallerinaForeachStatement extends BallerinaCompositeElement {
   BallerinaExpression getExpression();
 
   @Nullable
-  BallerinaIntRangeExpression getIntRangeExpression();
-
-  @Nullable
   BallerinaVariableReferenceList getVariableReferenceList();
 
   @Nullable

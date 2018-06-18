@@ -34,8 +34,8 @@ import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Creates a new directory.
@@ -50,8 +50,8 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
                              structPackage = Constants.PACKAGE_PATH)
         ,
         returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
-        },
+                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR,
+                        structPackage = BALLERINA_BUILTIN_PKG)        },
         isPublic = true
 )
 public class CreateDirectory extends BlockingNativeCallableUnit {

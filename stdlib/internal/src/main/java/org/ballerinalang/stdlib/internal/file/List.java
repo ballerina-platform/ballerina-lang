@@ -25,6 +25,7 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.stdlib.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -37,8 +38,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * List out the content in directory.
@@ -55,7 +56,7 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
         returnType = {
                 @ReturnType(type = TypeKind.ARRAY, elementType = TypeKind.OBJECT),
                 @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR, structPackage =
-                        PACKAGE_BUILTIN)
+                        BALLERINA_BUILTIN_PKG)
         },
         isPublic = true
 )
@@ -70,9 +71,8 @@ public class List extends BlockingNativeCallableUnit {
         final BRefValueArray filesList = new BRefValueArray(new BArrayType(pathStruct.getType()));
         try {
             Files.list(path).forEach(p -> {
-                BStruct filePaths = BLangConnectorSPIUtil.createBStruct(context, Constants.PACKAGE_PATH,
-                        Constants.PATH_STRUCT);
-                filePaths.addNativeData(Constants.PATH_DEFINITION_NAME, p);
+                BStruct filePaths = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH,
+                        Constants.PATH_STRUCT, new BString(p.toString()));
                 long index = filesList.size();
                 filesList.add((index), filePaths);
             });

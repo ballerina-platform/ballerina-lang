@@ -36,8 +36,8 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
  */
 abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
 
-    private static final String PKG_INTERNAL = "ballerina.internal";
-    private static final String PKG_REFELCT = "ballerina.reflect";
+    private static final String PKG_INTERNAL = "ballerina/internal";
+    private static final String PKG_REFELCT = "ballerina/reflect";
     private static final String STRUCT_ANNOTATION = "annotationData";
     static final String DOT = ".";
 

@@ -23,7 +23,6 @@ import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.events.Event;
 import org.ballerinalang.stdlib.io.events.EventContext;
 import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
 import org.ballerinalang.stdlib.io.events.result.BooleanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ public class ReadBoolEvent implements Event {
      */
     private EventContext context;
 
-    private static final Logger log = LoggerFactory.getLogger(ReadBytesEvent.class);
+    private static final Logger log = LoggerFactory.getLogger(ReadBoolEvent.class);
 
     public ReadBoolEvent(DataChannel channel, EventContext context) {
         this.channel = channel;

@@ -36,14 +36,14 @@
     {
       "label":"request",
       "kind":"Unit",
-      "detail":"ballerina.http:Request",
+      "detail":"ballerina/http:Request",
       "sortText":"110",
       "insertText":"request"
     },
     {
       "label":"client",
       "kind":"Unit",
-      "detail":"ballerina.http:Listener",
+      "detail":"ballerina/http:Listener",
       "sortText":"110",
       "insertText":"client"
     }

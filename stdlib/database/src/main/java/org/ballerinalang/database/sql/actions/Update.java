@@ -29,6 +29,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+
 /**
  * {@code Update} is the Update action implementation of the SQL Connector.
  *
@@ -45,7 +47,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
         },
         returnType = {
                 @ReturnType(type = TypeKind.INT),
-                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = "ballerina.builtin")
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)
         }
 )
 public class Update extends AbstractSQLAction {

@@ -44,7 +44,7 @@ import javax.jms.Session;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "jms",
         functionName = "initEndpoint",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session", structPackage = "ballerina.jms"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session", structPackage = "ballerina/jms"),
         args = {@Argument(name = "connection", type = TypeKind.OBJECT, structType = "Connection")
         }
 )

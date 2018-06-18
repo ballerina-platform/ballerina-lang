@@ -108,7 +108,7 @@ objectInitializerParameterList
     ;
 
 objectFunctions
-    :   (annotationAttachment* documentationAttachment? deprecatedAttachment? objectFunctionDefinition)+
+    :   objectFunctionDefinition+
     ;
 
 // TODO merge with fieldDefinition later
@@ -134,7 +134,7 @@ objectDefaultableParameter
 
 // TODO merge with functionDefinition later
 objectFunctionDefinition
-    :   (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC)? (NATIVE)? FUNCTION objectCallableUnitSignature (callableUnitBody | SEMICOLON)
     ;
 
 //TODO merge with callableUnitSignature later
@@ -387,7 +387,7 @@ matchPatternClause
     ;
 
 foreachStatement
-    :   FOREACH LEFT_PARENTHESIS? variableReferenceList IN  (expression | intRangeExpression) RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
+    :   FOREACH LEFT_PARENTHESIS? variableReferenceList IN expression RIGHT_PARENTHESIS? LEFT_BRACE statement* RIGHT_BRACE
     ;
 
 intRangeExpression
@@ -593,6 +593,7 @@ expression
     |   expression (EQUAL | NOT_EQUAL) expression                           # binaryEqualExpression
     |   expression AND expression                                           # binaryAndExpression
     |   expression OR expression                                            # binaryOrExpression
+    |   expression (ELLIPSIS | HALF_OPEN_RANGE) expression                  # integerRangeExpression
     |   expression QUESTION_MARK expression COLON expression                # ternaryExpression
     |   awaitExpression                                                     # awaitExprExpression
     |	expression matchExpression										    # matchExprExpression

@@ -12,7 +12,7 @@ The SQLType represents the SQL data type of a given parameter. When using a para
 
 ### Direction
 
-The Direction type represents the direction of the parameter used in call operation. IN parameters are used to send values to stored procedures or pass parameters to other operations like select, update, etc. This is the default direction of a parameter. The OUT parameters are used to get values from stored procedures. The INOUT parameters are used to send values to stored procedures and retrieve values from stored procedures.
+The Direction type represents the direction of the parameter used in call operation. IN parameters are used to send values to stored procedures or pass parameters to other operations such as select, update, etc. This is the default direction of a parameter. The OUT parameters are used to get values from stored procedures. The INOUT parameters are used to send values to stored procedures and retrieve values from stored procedures.
  
 ### Parameter
 

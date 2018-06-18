@@ -38,7 +38,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         orgName = "ballerina", packageName = "http",
         functionName = "removeAttribute",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         args = {@Argument(name = "attributeKey", type = TypeKind.STRING)},
         isPublic = true
 )

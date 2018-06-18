@@ -33,11 +33,16 @@ import org.ballerinalang.net.http.HttpResource;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
+
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONFIG_INDEX;
 
 /**
  * This contains test utils related to Ballerina service invocations.
@@ -49,13 +54,19 @@ public class Services {
 
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String endpointName,
                                               HTTPTestRequest request) {
-        return invokeNew(compileResult, ".", endpointName, request);
+        return invokeNew(compileResult, ".", Names.EMPTY.value, endpointName, request);
     }
 
     public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String endpointName,
                                               HTTPTestRequest request) {
+        return invokeNew(compileResult, pkgName, Names.DEFAULT_VERSION.value, endpointName, request);
+    }
+
+    public static HTTPCarbonMessage invokeNew(CompileResult compileResult, String pkgName, String version,
+                                              String endpointName, HTTPTestRequest request) {
         ProgramFile programFile = compileResult.getProgFile();
-        BStruct connectorEndpoint = BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, endpointName);
+        BStruct connectorEndpoint =
+                BLangConnectorSPIUtil.getPackageEndpoint(programFile, pkgName, version, endpointName);
 
         HTTPServicesRegistry httpServicesRegistry =
                 (HTTPServicesRegistry) connectorEndpoint.getNativeData("HTTP_SERVICE_REGISTRY");
@@ -77,7 +88,9 @@ public class Services {
             Object srcHandler = request.getProperty(HttpConstants.SRC_HANDLER);
             properties = Collections.singletonMap(HttpConstants.SRC_HANDLER, srcHandler);
         }
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request);
+        BStruct tempEndpoint = BLangConnectorSPIUtil.createObject(programFile, PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
+        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(resource, request, BLangConnectorSPIUtil
+                .toStruct((BStruct) tempEndpoint.getRefField(SERVICE_ENDPOINT_CONFIG_INDEX)));
         callback.setRequestStruct(signatureParams[0]);
         Executor.submit(resource.getBalResource(), callback, properties, null, signatureParams);
         callback.sync();

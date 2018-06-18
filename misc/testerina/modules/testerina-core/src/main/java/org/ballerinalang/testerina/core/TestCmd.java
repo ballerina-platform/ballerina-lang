@@ -145,7 +145,9 @@ public class TestCmd implements BLauncherCmd {
         if (srcDirectory != null) {
             Manifest manifest = readManifestConfigurations();
             String orgName = manifest.getName();
+            String version = manifest.getVersion();
             TesterinaRegistry.getInstance().setOrgName(orgName);
+            TesterinaRegistry.getInstance().setVersion(version);
         }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {

@@ -30,6 +30,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.BuiltInUtils;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+
 /**
  * Converts a JSON to the corresponding XML representation.
  *
@@ -40,7 +42,7 @@ import org.ballerinalang.util.BuiltInUtils;
         functionName = "json.toXML",
         args = {@Argument(name = "j", type = TypeKind.JSON),
                 @Argument(name = "options", type = TypeKind.RECORD, structType = "Options",
-                          structPackage = "ballerina.builtin")},
+                          structPackage = BALLERINA_BUILTIN_PKG)},
         returnType = { @ReturnType(type = TypeKind.XML), @ReturnType(type = TypeKind.RECORD) },
         isPublic = true
 )

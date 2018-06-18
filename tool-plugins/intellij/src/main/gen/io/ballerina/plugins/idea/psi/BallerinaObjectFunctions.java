@@ -24,15 +24,6 @@ import com.intellij.psi.PsiElement;
 public interface BallerinaObjectFunctions extends BallerinaCompositeElement {
 
   @NotNull
-  List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
-
-  @NotNull
   List<BallerinaObjectFunctionDefinition> getObjectFunctionDefinitionList();
-
-  @NotNull
-  List<BallerinaDeprecatedAttachment> getDeprecatedAttachmentList();
-
-  @NotNull
-  List<BallerinaDocumentationAttachment> getDocumentationAttachmentList();
 
 }

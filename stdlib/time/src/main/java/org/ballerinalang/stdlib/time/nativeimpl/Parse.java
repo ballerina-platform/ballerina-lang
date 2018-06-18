@@ -45,7 +45,7 @@ import java.time.temporal.TemporalAccessor;
         functionName = "parse",
         args = {@Argument(name = "timestamp", type = TypeKind.STRING),
                 @Argument(name = "format", type = TypeKind.UNION)},
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time", structPackage = "ballerina.time")},
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "Time", structPackage = "ballerina/time")},
         isPublic = true
 )
 public class Parse extends AbstractTimeFunction {

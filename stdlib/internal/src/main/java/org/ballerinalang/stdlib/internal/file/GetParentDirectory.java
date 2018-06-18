@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.stdlib.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -33,8 +34,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * Get the parent director of a file or directory.
@@ -51,7 +52,8 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
         returnType = {
                 @ReturnType(type = TypeKind.OBJECT, structType = Constants.PATH_STRUCT,
                             structPackage = Constants.PACKAGE_PATH),
-                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN)
+                @ReturnType(type = TypeKind.OBJECT, structType = STRUCT_GENERIC_ERROR,
+                            structPackage = BALLERINA_BUILTIN_PKG)
         },
         isPublic = true
 )
@@ -65,10 +67,10 @@ public class GetParentDirectory extends BlockingNativeCallableUnit {
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
     
         try {
-            if (path.getParent() != null) {
-                BStruct parentPath = BLangConnectorSPIUtil.createBStruct(context, Constants.PACKAGE_PATH, Constants
-                        .PATH_STRUCT);
-                parentPath.addNativeData(Constants.PATH_DEFINITION_NAME, path.getParent());
+            Path parent = path.getParent();
+            if (parent != null) {
+                BStruct parentPath = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH, Constants
+                        .PATH_STRUCT, new BString(parent.toString()));
                 context.setReturnValues(parentPath);
             } else {
                 String msg = "Parent folder cannot be found for: " + path;

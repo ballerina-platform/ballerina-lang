@@ -44,7 +44,6 @@ import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
-import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolEnter;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.SymbolResolver;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -122,7 +121,6 @@ public class TreeVisitor extends LSNodeVisitor {
     private int transactionCount = 0;
     private SymbolEnv symbolEnv;
     private SymbolResolver symbolResolver;
-    private SymbolEnter symbolEnter;
     private SymbolTable symTable;
     private Stack<Node> blockOwnerStack;
     private Stack<BLangBlockStmt> blockStmtStack;
@@ -141,7 +139,6 @@ public class TreeVisitor extends LSNodeVisitor {
         blockOwnerStack = new Stack<>();
         blockStmtStack = new Stack<>();
         isCurrentNodeTransactionStack = new Stack<>();
-        symbolEnter = SymbolEnter.getInstance(compilerContext);
         symTable = SymbolTable.getInstance(compilerContext);
         symbolResolver = SymbolResolver.getInstance(compilerContext);
         documentServiceContext.put(DocumentServiceKeys.SYMBOL_TABLE_KEY, symTable);
@@ -215,8 +212,6 @@ public class TreeVisitor extends LSNodeVisitor {
             if (terminateVisitor && !funcNode.workers.isEmpty()) {
                 this.setTerminateVisitor(false);
             }
-
-            funcNode.workers.forEach(e -> this.symbolEnter.defineNode(e, funcEnv));
             funcNode.workers.forEach(e -> this.acceptNode(e, funcEnv));
         }
     }
@@ -560,8 +555,6 @@ public class TreeVisitor extends LSNodeVisitor {
     @Override
     public void visit(BLangForkJoin forkJoin) {
         SymbolEnv folkJoinEnv = SymbolEnv.createFolkJoinEnv(forkJoin, this.symbolEnv);
-        // TODO: check the symbolEnter.defineNode
-        forkJoin.workers.forEach(e -> this.symbolEnter.defineNode(e, folkJoinEnv));
         forkJoin.workers.forEach(e -> this.acceptNode(e, folkJoinEnv));
 
         /* create code black and environment for join result section, i.e. (map results) */

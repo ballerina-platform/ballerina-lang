@@ -39,7 +39,7 @@ public class GlobalVarServicePkgTest {
     CompileResult result;
     private static final String MOCK_ENDPOINT_NAME = "globalVarEP";
     private static final String PKG_NAME = "globalvar.pkg.srvc";
-    private static final String ORG_PKG_NAME = "globalvar.pkg.main." + PKG_NAME;
+    private static final String ORG_PKG_NAME = "globalvar.pkg.main/" + PKG_NAME;
 
     @BeforeClass
     public void setup() {

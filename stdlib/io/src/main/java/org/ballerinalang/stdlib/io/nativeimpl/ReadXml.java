@@ -34,7 +34,7 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
- * Native function ballerina.io#readXml.
+ * Native function ballerina/io#readXml.
  *
  * @since 0.971.0
  */
@@ -42,7 +42,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         orgName = "ballerina",
         packageName = "io",
         functionName = "readXml",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CharacterChannel", structPackage = "ballerina/io"),
         isPublic = true
 )
 public class ReadXml implements NativeCallableUnit {

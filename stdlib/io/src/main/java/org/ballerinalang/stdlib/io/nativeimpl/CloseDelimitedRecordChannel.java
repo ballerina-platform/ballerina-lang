@@ -33,7 +33,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina.io#closeTextRecordChannel.
+ * Native function ballerina/io#closeTextRecordChannel.
  *
  * @since 0.95
  */
@@ -42,14 +42,14 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
         functionName = "close",
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DelimitedTextRecordChannel",
-                structPackage = "ballerina.io"),
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.io")},
+                structPackage = "ballerina/io"),
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class CloseDelimitedRecordChannel implements NativeCallableUnit {
 
     /**
-     * The index of the DelimitedRecordChannel in ballerina.io#closeDelimitedRecordChannel().
+     * The index of the DelimitedRecordChannel in ballerina/io#closeDelimitedRecordChannel().
      */
     private static final int RECORD_CHANNEL_INDEX = 0;
 

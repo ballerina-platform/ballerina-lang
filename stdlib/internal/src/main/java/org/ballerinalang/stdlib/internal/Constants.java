@@ -18,6 +18,8 @@
 
 package org.ballerinalang.stdlib.internal;
 
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+
 /**
  * Constants for internal package file functions.
  */
@@ -35,7 +37,7 @@ public class Constants {
     /**
      * Package path to internal package.
      */
-    public static final String PACKAGE_PATH = ORG_NAME + "." + PACKAGE_NAME;
+    public static final String PACKAGE_PATH = ORG_NAME + ORG_NAME_SEPARATOR + PACKAGE_NAME;
     
     /**
      * Specifies the struct definition of the path.

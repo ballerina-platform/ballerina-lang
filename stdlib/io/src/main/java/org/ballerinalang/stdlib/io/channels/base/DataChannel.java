@@ -61,10 +61,7 @@ public class DataChannel {
      */
     private long decodeLong(Representation representation) throws IOException {
         ByteBuffer buffer;
-        long value = 0;
-        int totalNumberOfBits;
         int requiredNumberOfBytes;
-        int maxNumberOfBits = 0xFFFF;
         if (Representation.VARIABLE.equals(representation)) {
             throw new UnsupportedOperationException();
         } else {
@@ -74,7 +71,20 @@ public class DataChannel {
         }
         readFull(buffer);
         buffer.flip();
-        totalNumberOfBits = (buffer.limit() - 1) * Byte.SIZE;
+        return deriveLong(representation, buffer);
+    }
+
+    /**
+     * Merge bytes and encodes long.
+     *
+     * @param representation the capacity of the long value i.e whether it's 32bit, 64bit.
+     * @param buffer         holds the bytes which represents the long.
+     * @return the value of long.
+     */
+    private long deriveLong(Representation representation, ByteBuffer buffer) {
+        long value = 0;
+        int maxNumberOfBits = 0xFFFF;
+        int totalNumberOfBits = (buffer.limit() - 1) * representation.getBase();
         do {
             long shiftedValue = 0L;
             if (Representation.BIT_64.equals(representation)) {
@@ -89,7 +99,7 @@ public class DataChannel {
             }
             maxNumberOfBits = 0xFF;
             value = value + shiftedValue;
-            totalNumberOfBits = totalNumberOfBits - Byte.SIZE;
+            totalNumberOfBits = totalNumberOfBits - representation.getBase();
         } while (buffer.hasRemaining());
         return value;
     }
@@ -112,10 +122,10 @@ public class DataChannel {
             nBytes = representation.getNumberOfBytes();
             content = new byte[representation.getNumberOfBytes()];
         }
-        totalNumberOfBits = (nBytes * Byte.SIZE) - Byte.SIZE;
+        totalNumberOfBits = (nBytes * representation.getBase()) - representation.getBase();
         for (int count = 0; count < nBytes; count++) {
             content[count] = (byte) (value >> totalNumberOfBits);
-            totalNumberOfBits = totalNumberOfBits - Byte.SIZE;
+            totalNumberOfBits = totalNumberOfBits - representation.getBase();
         }
         return content;
     }
@@ -227,5 +237,14 @@ public class DataChannel {
     public String readString(int nBytes, String encoding) throws IOException {
         CharacterChannel ch = new CharacterChannel(this.channel, encoding);
         return ch.readAllChars(nBytes);
+    }
+
+    /**
+     * Close the channel.
+     *
+     * @throws IOException during i/o error.
+     */
+    public void close() throws IOException {
+        this.channel.close();
     }
 }

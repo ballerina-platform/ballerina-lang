@@ -48,7 +48,7 @@ import java.util.Map;
         orgName = "ballerina", packageName = "http",
         functionName = "initEndpoint",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "WebSocketClient",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         args = {@Argument(name = "epName", type = TypeKind.STRING),
                 @Argument(name = "config", type = TypeKind.RECORD, structType = "ServiceEndpointConfiguration")},
         isPublic = true

@@ -48,15 +48,15 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
         orgName = "ballerina", packageName = "http",
         functionName = "pushPromisedResponse",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Connection",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         args = {@Argument(name = "promise", type = TypeKind.OBJECT, structType = "PushPromise",
-                structPackage = "ballerina.http"),
+                structPackage = "ballerina/http"),
                 @Argument(name = "res", type = TypeKind.OBJECT, structType = "OutResponse",
-                structPackage = "ballerina.http")
+                structPackage = "ballerina/http")
 
         },
         returnType = @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-                                 structPackage = "ballerina.http"),
+                                 structPackage = "ballerina/http"),
         isPublic = true
 )
 public class PushPromisedResponse extends ConnectionAction {

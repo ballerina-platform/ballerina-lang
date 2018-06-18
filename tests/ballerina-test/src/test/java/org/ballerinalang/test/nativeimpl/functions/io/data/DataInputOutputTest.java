@@ -53,7 +53,7 @@ public class DataInputOutputTest {
         currentDirectoryPath = System.getProperty("user.dir") + "/target";
     }
 
-    @Test(description = "Test fixed long value ranges", dataProvider = "signedLongValues")
+    @Test(description = "Test fixed long value ranges", dataProvider = "SignedLongValues")
     public void testSignedFixedLong(long value, Representation representation) throws IOException, URISyntaxException {
         String filePath = currentDirectoryPath + "/sample.bin";
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
@@ -109,6 +109,28 @@ public class DataInputOutputTest {
         Assert.assertEquals(readStr, content);
     }
 
+    @Test(description = "Test reading/writing mixed data input/output")
+    public void testMixedData() throws IOException {
+        int writtenInt = 13;
+        double writtenDouble = 48449.56f;
+        String filePath = currentDirectoryPath + "/sample.bin";
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        Channel channel = new MockByteChannel(byteChannel);
+        DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        dataChannel.writeFixedLong(writtenInt, Representation.BIT_32);
+        dataChannel.writeDouble(writtenDouble, Representation.BIT_32);
+        dataChannel.writeBoolean(false);
+        byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        channel = new MockByteChannel(byteChannel);
+        dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        long longValue = dataChannel.readFixedLong(Representation.BIT_32);
+        double doubleValue = dataChannel.readDouble(Representation.BIT_32);
+        boolean booleanValue = dataChannel.readBoolean();
+        Assert.assertEquals(writtenInt, longValue);
+        Assert.assertEquals(writtenDouble, doubleValue);
+        Assert.assertEquals(false, booleanValue);
+    }
+
     @DataProvider(name = "StringValues")
     public static Object[][] stringValues() {
         return new Object[][]{
@@ -117,7 +139,7 @@ public class DataInputOutputTest {
         };
     }
 
-    @DataProvider(name = "signedLongValues")
+    @DataProvider(name = "SignedLongValues")
     public static Object[][] signedLongValues() {
         return new Object[][]{
                 {0, BIT_16}, {0, BIT_32}, {0, BIT_64},

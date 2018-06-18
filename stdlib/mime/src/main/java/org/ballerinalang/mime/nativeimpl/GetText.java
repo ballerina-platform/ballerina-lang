@@ -47,7 +47,7 @@ import static org.ballerinalang.mime.util.Constants.TEXT_AS_PRIMARY_TYPE;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
         functionName = "getText",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
         returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
@@ -73,11 +73,11 @@ public class GetText extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not text " +
+                context.setReturnValues(MimeUtil.createError(context, "Entity body is not text " +
                         "compatible since the received content-type is : " + baseType));
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while retrieving text data from entity : " + e.getMessage()));
         }
     }

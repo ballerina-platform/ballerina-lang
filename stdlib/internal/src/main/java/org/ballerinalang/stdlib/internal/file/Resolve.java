@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.stdlib.internal.Constants;
@@ -70,9 +71,8 @@ public class Resolve extends BlockingNativeCallableUnit {
             newPath = newPath.resolve(pathsToAppend.get(i));
         }
     
-        BStruct parentPath = BLangConnectorSPIUtil.createBStruct(context, Constants.PACKAGE_PATH, Constants
-                .PATH_STRUCT);
-        parentPath.addNativeData(Constants.PATH_DEFINITION_NAME, newPath);
+        BStruct parentPath = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH, Constants
+                .PATH_STRUCT, new BString(newPath.toString()));
         context.setReturnValues(parentPath);
     }
 }

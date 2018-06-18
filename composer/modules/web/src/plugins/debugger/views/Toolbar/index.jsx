@@ -16,7 +16,7 @@
  * under the License.
  */
 import React from 'react';
-import './toolbar.css';
+import './toolbar.scss';
 import DebugManager from './../../DebugManager';
 import ToolSetView from './tool-set';
 import ToolItemView from './tool-item-view';
@@ -76,7 +76,7 @@ class DebugToolbarView extends React.Component {
         }
         return (
             <ToolSetView
-                id='debugger-tools'
+                className='debugger-tools'
             >
                 {/* Stop */}
                 <ToolItemView

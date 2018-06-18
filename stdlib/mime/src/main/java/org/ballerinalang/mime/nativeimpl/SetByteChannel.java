@@ -42,7 +42,7 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
  */
 @BallerinaFunction(orgName = "ballerina", packageName = "mime",
         functionName = "setByteChannel",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
         args = {@Argument(name = "byteChannel", type = TypeKind.OBJECT), @Argument(name = "contentType",
                 type = TypeKind.STRING)},
         isPublic = true

@@ -35,12 +35,12 @@ import org.ballerinalang.net.http.DataContext;
                 @Argument(name = "httpVerb", type = TypeKind.STRING),
                 @Argument(name = "path", type = TypeKind.STRING),
                 @Argument(name = "req", type = TypeKind.OBJECT, structType = "OutRequest",
-                        structPackage = "ballerina.http")
+                        structPackage = "ballerina/http")
         },
         returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = "HttpFuture", structPackage = "ballerina.http"),
+                @ReturnType(type = TypeKind.OBJECT, structType = "HttpFuture", structPackage = "ballerina/http"),
                 @ReturnType(type = TypeKind.RECORD, structType = "HttpConnectorError",
-                        structPackage = "ballerina.http"),
+                        structPackage = "ballerina/http"),
         }
 )
 public class Submit extends Execute {

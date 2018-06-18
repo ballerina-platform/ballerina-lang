@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "shutdownInput",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
         returnType = { @ReturnType(type = TypeKind.RECORD, structType = "error")},
         isPublic = true
 )

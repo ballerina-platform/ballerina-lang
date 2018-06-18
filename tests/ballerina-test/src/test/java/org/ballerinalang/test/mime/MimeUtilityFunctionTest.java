@@ -82,7 +82,7 @@ public class MimeUtilityFunctionTest {
         compileResult = BCompileUtil.compile(sourceFilePath);
     }
 
-    @Test(description = "Test 'getMediaType' function in ballerina.mime package")
+    @Test(description = "Test 'getMediaType' function in ballerina/mime package")
     public void testGetMediaType() {
         String contentType = "multipart/form-data; boundary=032a1ab685934650abbe059cb45d6ff3";
         BValue[] args = {new BString(contentType)};
@@ -96,7 +96,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(map.get("boundary").stringValue(), "032a1ab685934650abbe059cb45d6ff3");
     }
 
-    @Test(description = "Test 'getBaseType' function in ballerina.mime package")
+    @Test(description = "Test 'getBaseType' function in ballerina/mime package")
     public void testGetBaseTypeOnMediaType() {
         BStruct mediaType = BCompileUtil
                 .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, mediaTypeStruct);
@@ -108,7 +108,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "application/test+xml");
     }
 
-    @Test(description = "Test 'testToStringOnMediaType' function in ballerina.mime package")
+    @Test(description = "Test 'testToStringOnMediaType' function in ballerina/mime package")
     public void testToStringOnMediaType() {
         BStruct mediaType = BCompileUtil
                 .createAndGetStruct(compileResult.getProgFile(), protocolPackageMime, mediaTypeStruct);
@@ -123,7 +123,7 @@ public class MimeUtilityFunctionTest {
         Assert.assertEquals(returns[0].stringValue(), "application/test+xml; charset=utf-8");
     }
 
-    @Test(description = "Test 'getContentDispositionObject' function in ballerina.mime package")
+    @Test(description = "Test 'getContentDispositionObject' function in ballerina/mime package")
     public void testGetContentDispositionObject() {
         String contentType = "form-data; name=\"filepart\"; filename=\"file-01.txt\"";
         BValue[] args = {new BString(contentType)};

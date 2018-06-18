@@ -33,21 +33,21 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 
 /**
- * Native function ballerina.io#close.
+ * Native function ballerina/io#close.
  *
  * @since 0.94
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina.io"),
-        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "IOError", structPackage = "ballerina.io")},
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ByteChannel", structPackage = "ballerina/io"),
+        returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class CloseByteChannel implements NativeCallableUnit {
 
     /**
-     * The index of the ByteChannel in ballerina.io#close().
+     * The index of the ByteChannel in ballerina/io#close().
      */
     private static final int BYTE_CHANNEL_INDEX = 0;
 

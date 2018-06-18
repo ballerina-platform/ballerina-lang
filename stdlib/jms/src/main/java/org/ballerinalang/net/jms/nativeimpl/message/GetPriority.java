@@ -43,7 +43,7 @@ import javax.jms.Message;
         functionName = "getPriority",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "Message",
-                             structPackage = "ballerina.jms"),
+                             structPackage = "ballerina/jms"),
         returnType = { @ReturnType(type = TypeKind.INT) },
         isPublic = true
 )

@@ -36,7 +36,7 @@ import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
- * Native function ballerina.internal:execBallerina.
+ * Native function ballerina/internal:execBallerina.
  *
  * @since 0.974.0-beta14
  */

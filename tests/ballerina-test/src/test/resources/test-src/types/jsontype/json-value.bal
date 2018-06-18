@@ -343,3 +343,10 @@ function testAddToNull () returns (json) {
     j.address.country = "SriLanka";
     return j;
 }
+
+function testJsonIntToFloat () returns (float) {
+    json j = {score:4};
+    float jFloat;
+    jFloat = check <float>j.score;
+    return jFloat;
+}

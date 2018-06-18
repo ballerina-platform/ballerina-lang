@@ -30,7 +30,7 @@ import org.jetbrains.annotations.NotNull;
 public class BallerinaLanguageCodeStyleSettingsProvider extends LanguageCodeStyleSettingsProvider {
 
     private static final String DEFAULT_CODE_SAMPLE =
-            "import ballerina.io;\n" +
+            "import ballerina/io;\n" +
                     "\n" +
                     "function main(string... args) {\n" +
                     "\tio:println(\"Hello\");\n" +

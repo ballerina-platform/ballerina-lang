@@ -30,7 +30,7 @@ documentation {
 documentation {
     Auth annotation package.
 }
-@final string ANN_PACKAGE = "ballerina.http";
+@final string ANN_PACKAGE = "ballerina/http";
 documentation {
     Resource level annotation name.
 }

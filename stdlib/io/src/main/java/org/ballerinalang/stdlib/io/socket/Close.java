@@ -41,7 +41,7 @@ import java.nio.channels.ByteChannel;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
         returnType = { @ReturnType(type = TypeKind.RECORD, structType = "error")},
         isPublic = true
 )

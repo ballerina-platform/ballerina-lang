@@ -40,7 +40,7 @@ import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "time",
         functionName = "getTime",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina.time"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = STRUCT_TYPE_TIME, structPackage = "ballerina/time"),
         returnType = {@ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.INT),
                 @ReturnType(type = TypeKind.INT),

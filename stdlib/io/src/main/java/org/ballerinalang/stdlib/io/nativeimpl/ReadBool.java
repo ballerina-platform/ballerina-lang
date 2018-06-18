@@ -37,14 +37,14 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#readBool.
+ * Native function ballerina/io#readBool.
  *
  * @since 0.973.1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "readBool",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina/io"),
         isPublic = true
 )
 public class ReadBool implements NativeCallableUnit {

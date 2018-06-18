@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.stdlib.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -66,9 +67,8 @@ public class ToAbsolutePath extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BStruct pathStruct = (BStruct) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        BStruct absolutePath = BLangConnectorSPIUtil.createBStruct(context, Constants.PACKAGE_PATH, Constants
-                .PATH_STRUCT);
-        absolutePath.addNativeData(Constants.PATH_DEFINITION_NAME, getAbsolutePath(path));
+        BStruct absolutePath = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH, Constants
+                .PATH_STRUCT, new BString(getAbsolutePath(path).toString()));
         context.setReturnValues(absolutePath);
     }
 }

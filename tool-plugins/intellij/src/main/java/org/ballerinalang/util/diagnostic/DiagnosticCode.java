@@ -70,14 +70,14 @@ public enum DiagnosticCode {
     FORK_JOIN_WORKER_CANNOT_RETURN("fork.join.worker.cannot.return"),
     FORK_JOIN_INVALID_WORKER_COUNT("fork.join.invalid.worker.count"),
     UNREACHABLE_CODE("unreachable.code"),
-    NEXT_CANNOT_BE_OUTSIDE_LOOP("next.cannot.be.outside.loop"),
+    CONTINUE_CANNOT_BE_OUTSIDE_LOOP("continue.cannot.be.outside.loop"),
     BREAK_CANNOT_BE_OUTSIDE_LOOP("break.cannot.be.outside.loop"),
 
     //Transaction related error codes
     ABORT_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("abort.cannot.be.outside.transaction.block"),
     FAIL_CANNOT_BE_OUTSIDE_TRANSACTION_BLOCK("fail.cannot.be.outside.transaction.block"),
     BREAK_CANNOT_BE_USED_TO_EXIT_TRANSACTION("break.statement.cannot.be.used.to.exit.from.a.transaction"),
-    NEXT_CANNOT_BE_USED_TO_EXIT_TRANSACTION("next.statement.cannot.be.used.to.exit.from.a.transaction"),
+    CONTINUE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("continue.statement.cannot.be.used.to.exit.from.a.transaction"),
     RETURN_CANNOT_BE_USED_TO_EXIT_TRANSACTION("return.statement.cannot.be.used.to.exit.from.a.transaction"),
     DONE_CANNOT_BE_USED_TO_EXIT_TRANSACTION("done.statement.cannot.be.used.to.exit.from.a.transaction"),
     INVALID_RETRY_COUNT("invalid.retry.count"),
@@ -103,16 +103,6 @@ public enum DiagnosticCode {
     INVALID_ACTION_INVOCATION_SYNTAX("invalid.action.invocation.syntax"),
     INVALID_ACTION_INVOCATION("invalid.action.invocation"),
     UNDEFINED_ACTION("undefined.action"),
-
-    // Transformer related error codes
-    UNDEFINED_TRANSFORMER("undefined.transformer"),
-    TRANSFORMER_INVALID_OUTPUT_USAGE("transformer.invalid.output.usage"),
-    TRANSFORMER_INVALID_INPUT_UPDATE("transformer.invalid.input.update"),
-    INVALID_STATEMENT_IN_TRANSFORMER("invalid.statement.in.transformer"),
-    TRANSFORMER_MUST_HAVE_OUTPUT("transformer.must.have.output"),
-    TOO_MANY_OUTPUTS_FOR_TRANSFORMER("too.many.outputs.for.transformer"),
-    TRANSFORMER_CONFLICTS_WITH_CONVERSION("transformer.conflicts.with.conversion"),
-    TRANSFORMER_UNSUPPORTED_TYPES("transformer.unsupported.types"),
 
     // Cast and conversion related codes
     INCOMPATIBLE_TYPES_CAST("incompatible.types.cast"),

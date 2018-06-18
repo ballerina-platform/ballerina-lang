@@ -38,14 +38,14 @@ import org.ballerinalang.stdlib.io.utils.IOUtils;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#writeFloat32.
+ * Native function ballerina/io#writeFloat32.
  *
  * @since 0.973.1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "writeFloat32",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "DataChannel", structPackage = "ballerina/io"),
         args = {@Argument(name = "value", type = TypeKind.FLOAT)},
         isPublic = true
 )

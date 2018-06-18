@@ -47,7 +47,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
@@ -57,6 +56,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_STUB_REF_INDEX;
 import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * {@code BlockingExecute} is the BlockingExecute action implementation of the gRPC Connector.
@@ -78,8 +78,8 @@ import static org.ballerinalang.net.grpc.MessageUtils.getMessageHeaders;
         },
         returnType = {
                 @ReturnType(type = TypeKind.ANY),
-                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR, structPackage = PACKAGE_BUILTIN),
-        },
+                @ReturnType(type = TypeKind.RECORD, structType = STRUCT_GENERIC_ERROR,
+                        structPackage = BALLERINA_BUILTIN_PKG),        },
         isPublic = true
 )
 public class BlockingExecute extends AbstractExecute {

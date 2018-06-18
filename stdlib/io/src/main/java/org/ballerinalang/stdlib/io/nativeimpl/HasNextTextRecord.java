@@ -37,7 +37,7 @@ import org.ballerinalang.stdlib.io.utils.IOConstants;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Native function ballerina.io#hasNextTextRecord.
+ * Native function ballerina/io#hasNextTextRecord.
  *
  * @since 0.961.0
  */
@@ -46,13 +46,13 @@ import java.util.concurrent.CompletableFuture;
         functionName = "hasNext",
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DelimitedTextRecordChannel",
-                structPackage = "ballerina.io"),
+                structPackage = "ballerina/io"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )
 public class HasNextTextRecord implements NativeCallableUnit {
     /**
-     * Specifies the index which contains the byte channel in ballerina.io#hasNextTextRecord.
+     * Specifies the index which contains the byte channel in ballerina/io#hasNextTextRecord.
      */
     private static final int TXT_RECORD_CHANNEL_INDEX = 0;
 
