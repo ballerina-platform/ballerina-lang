@@ -140,9 +140,9 @@ public class BTestRunner {
             return;
         }
         if (sourceFilePaths.length > 0) {
-            outStream.println("Compiling tests");
+            outStream.println("\nCompiling tests");
         } else {
-            outStream.println("Compiling test");
+            outStream.println("\nCompiling test");
         }
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
