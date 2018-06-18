@@ -41,12 +41,12 @@ function startFilterQuery() {
     Teacher t3 = {name: "Nimal", age: 45, status: "married", batch: "LK1988", school: "Ananda College"};
 
     streams:EventType evType = "ALL";
-    streams:LengthWindow lengthWindow = streams:lengthWindow(5, evType);
+    streams:LengthWindow lengthWindow11 = streams:lengthWindow(5, evType);
 
     employeeStream.subscribe((Teacher e) => {
 
             if (e.age > 25) {
-                lengthWindow.add(e);
+                lengthWindow11.add(e);
             }
 
             //addToGlobalEmployeeArray(e);

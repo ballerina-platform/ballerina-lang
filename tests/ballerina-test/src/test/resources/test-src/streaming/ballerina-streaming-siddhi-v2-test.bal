@@ -52,7 +52,7 @@ function testQuery() {
     forever {
         from employeeStream
         window lengthWindow(10)
-        where employeeStream.age > 20
+        where employeeStream.age > 30
         select employeeStream.name, employeeStream.age, employeeStream.status, employeeStream.batch, employeeStream.school
         => (Teacher emp) {
             outputEmployeeStream.publish(emp);

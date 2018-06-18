@@ -98,6 +98,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private BLangSimpleVarRef windowInvokableSimpleVarRef;
     private Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
     private BLangFunction newLambdaFunctionNode;
+    private BLangVariable lambdaFunctionVariable;
 
     private StreamingCodeDesugar(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
@@ -138,6 +139,17 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         StreamingInput streamingInput = streamingQueryStatement.getStreamingInput();
         if (streamingInput != null) {
 
+            BLangVariable oldFunctionVarible = (BLangVariable) (streamingQueryStatement.getStreamingAction()).
+                    getInvokableBody().getFunctionNode().getParameters().get(0);
+            BType varType = oldFunctionVarible.type;
+            BVarSymbol windowEventTypeVarSymbol = new BVarSymbol(0, new Name("emp11"),
+                    varType.tsymbol.pkgID, varType, env.scope.owner);
+
+            lambdaFunctionVariable = ASTBuilderUtil.createVariable(streamingQueryStatement.pos, "emp11",
+                    varType, null, windowEventTypeVarSymbol);
+            lambdaFunctionVariable.typeNode = oldFunctionVarible.getTypeNode();
+
+
             //Create new lambda function for process events received from stream
             BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
             newLambdaFunctionNode = ASTBuilderUtil.createFunction(streamingQueryStatement.pos,
@@ -145,11 +157,19 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             lambdaFunction.function = newLambdaFunctionNode;
             lambdaBody = ASTBuilderUtil.createBlockStmt(streamingQueryStatement.pos);
 
+
             //Lambda function exists in streaming action
             lambdaFunctionNode = ((BLangLambdaFunction)
                     (streamingQueryStatement.getStreamingAction()).getInvokableBody()).function;
 
 
+            //New Lambda Function
+            newLambdaFunctionNode.requiredParams.add(lambdaFunctionVariable);
+            newLambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.nilType);
+            BLangValueType returnType = new BLangValueType();
+            returnType.setTypeKind(TypeKind.NIL);
+            newLambdaFunctionNode.setReturnTypeNode(returnType);
+            defineFunction(newLambdaFunctionNode, env.enclPkg);
 
             //Traverse to create if condition - Lambda body
             ((BLangStreamingInput) streamingInput).accept(this);
@@ -165,23 +185,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             streamingAction.accept(this);
 
 
-
-
-
-            //New Lambda Function
-            newLambdaFunctionNode.requiredParams.add((BLangVariable) (streamingQueryStatement.getStreamingAction()).
-                    getInvokableBody().getFunctionNode().getParameters().get(0));
-            newLambdaFunctionNode.returnTypeNode = ASTBuilderUtil.createTypeNode(symTable.nilType);
             newLambdaFunctionNode.body = lambdaBody;
             newLambdaFunctionNode.closureVarSymbols = closureVarSymbols;
             newLambdaFunctionNode.desugared = false;
-            BLangValueType returnType = new BLangValueType();
-            returnType.setTypeKind(TypeKind.NIL);
-            newLambdaFunctionNode.setReturnTypeNode(returnType);
             lambdaFunction.pos = streamingQueryStatement.pos;
             lambdaFunction.type = ((BLangLambdaFunction) (streamingQueryStatement.getStreamingAction()).
                     getInvokableBody()).type;
-            defineFunction(newLambdaFunctionNode, env.enclPkg);
 
             //TODO Hack - fix this
             ifNode.parent = lambdaFunction;
@@ -259,7 +268,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(fieldAccessExpr.pos,
-                (lambdaFunctionNode).requiredParams.get(0).symbol);
+                lambdaFunctionVariable.symbol);
         conditionalExpression = ASTBuilderUtil.createFieldAccessExpr(varRef,
                 fieldAccessExpr.field);
         ((BLangFieldBasedAccess) conditionalExpression).symbol = fieldAccessExpr.symbol;
@@ -287,12 +296,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 }
 
                 List<BLangExpression> variables = new ArrayList<>(1);
-
-                BLangSimpleVarRef varRef = (BLangSimpleVarRef) ((BLangInvocation.BLangAttachedFunctionInvocation)
-                        ((BLangExpressionStmt) statementNode).expr).requiredArgs.get(1);
+                BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(bLangLambdaFunction.pos,
+                        lambdaFunctionVariable.symbol);
                 variables.add(varRef);
-
-
                 BLangInvocation invocationExpr = ASTBuilderUtil.
                         createInvocationExprForMethod(bLangLambdaFunction.pos, windowAdditionInvokableSymbol, variables,
                                 symResolver);
@@ -304,7 +310,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         createExpressionStmt(bLangLambdaFunction.pos, ifNode.body);
                 exprStmt.expr = invocationExpr;
 
-                BVarSymbol paramVarSymbol = varRef.varSymbol;
+                BVarSymbol paramVarSymbol = (BVarSymbol) varRef.symbol;
                 closureVarSymbols.add((BVarSymbol) (windowInvokableSimpleVarRef).symbol);
                 closureVarSymbols.add(paramVarSymbol);
 
