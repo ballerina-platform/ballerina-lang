@@ -915,20 +915,20 @@ public class CPU {
 
         int h = operands[3];
 
-        //if '-1', then there are no additional indexes needs to be processed
-        if (h == -1) {
+        //if '0', then there are no additional indexes needs to be processed
+        if (h == 0) {
             return;
         }
 
-        //if '0', then this is a object attached function invocation as function pointer
-        if (h == 0) {
+        //if '1', then this is a object attached function invocation as function pointer
+        if (h == 1) {
             fp.setAttachedFunctionObjectIndex(operands[4]);
             return;
         }
 
         //if > 1, then this is a closure related scenario
         for (int i = 0; i < h; i++) {
-            int operandIndex = (i * 2) + 4;
+            int operandIndex = i + 4;
             int type = operands[operandIndex];
             int index = operands[++operandIndex];
             switch (type) {
@@ -955,6 +955,7 @@ public class CPU {
                 default:
                     fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index]), TypeTags.ANY_TAG);
             }
+            i++;
         }
     }
 

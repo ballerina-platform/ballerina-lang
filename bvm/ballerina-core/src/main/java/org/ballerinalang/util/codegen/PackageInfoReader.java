@@ -1445,13 +1445,13 @@ public class PackageInfoReader {
         j = codeStream.readInt();
         k = codeStream.readInt();
         int[] operands;
-        if (k == -1) { // no additional reading is needed
+        if (k == 0) { // no additional reading is needed
             operands = new int[4];
             operands[0] = h;
             operands[1] = i;
             operands[2] = j;
             operands[3] = k;
-        } else if (k == 0) { // this is a object attached function invocation as function pointer, so read its index
+        } else if (k == 1) { // this is a object attached function invocation as function pointer, so read its index
             operands = new int[5];
             operands[0] = h;
             operands[1] = i;
@@ -1459,12 +1459,12 @@ public class PackageInfoReader {
             operands[3] = k;
             operands[4] = codeStream.readInt();
         } else { //this is a closure related scenario, so read the closure indexes
-            operands = new int[4 + (k * 2)];
+            operands = new int[4 + k];
             operands[0] = h;
             operands[1] = i;
             operands[2] = j;
             operands[3] = k;
-            for (int x = 0; x < (k * 2); x++) {
+            for (int x = 0; x < k; x++) {
                 operands[x + 4] = codeStream.readInt();
             }
         }

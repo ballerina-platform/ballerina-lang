@@ -3058,14 +3058,14 @@ public class CodeGenerator extends BLangNodeVisitor {
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
             operands[2] = typeCPIndex;
-            operands[3] = getOperand(0);
+            operands[3] = getOperand(1);
             operands[4] = getObjectArgIndex(((BLangStructFunctionVarRef) fpExpr));
         } else {
             operands = new Operand[4];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
             operands[2] = typeCPIndex;
-            operands[3] = new Operand(-1);
+            operands[3] = new Operand(0);
         }
         emit(InstructionCodes.FPLOAD, operands);
     }
@@ -3083,7 +3083,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                                           Operand typeCPIndex) {
         List<Operand> closureOperandList = new ArrayList<>();
 
-        int closureOperandPairs = 0;
 
         for (BVarSymbol symbol : function.symbol.params) {
             if (!symbol.closure || function.requiredParams.stream().anyMatch(var -> var.symbol.equals(symbol))) {
@@ -3093,23 +3092,22 @@ public class CodeGenerator extends BLangNodeVisitor {
             Operand index = new Operand(symbol.varIndex.value);
             closureOperandList.add(type);
             closureOperandList.add(index);
-            closureOperandPairs++;
         }
         Operand[] operands;
-        if (closureOperandPairs > 0) {
+        if (!closureOperandList.isEmpty()) {
             Operand[] closureIndexes = closureOperandList.toArray(new Operand[]{});
             operands = new Operand[4 + closureIndexes.length];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
             operands[2] = typeCPIndex;
-            operands[3] = getOperand(closureOperandPairs);
+            operands[3] = getOperand(closureIndexes.length);
             System.arraycopy(closureIndexes, 0, operands, 4, closureIndexes.length);
         } else {
             operands = new Operand[4];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
             operands[2] = typeCPIndex;
-            operands[3] = getOperand(-1);
+            operands[3] = getOperand(0);
         }
         return operands;
     }
