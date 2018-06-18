@@ -128,9 +128,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         // Generate Streaming Consumer Function
         statementNodes.forEach(statementNode -> ((BLangStatement) statementNode).accept(this));
         stmts.add(foreverReplaceStatement);
-        BLangBlockStmt bLangBlockStmt = ASTBuilderUtil.createBlockStmt(foreverStatement.pos, stmts);
-        newLambdaFunctionNode.enclBlockStmt = bLangBlockStmt;
-        return bLangBlockStmt;
+        return ASTBuilderUtil.createBlockStmt(foreverStatement.pos, stmts);
     }
 
     @Override

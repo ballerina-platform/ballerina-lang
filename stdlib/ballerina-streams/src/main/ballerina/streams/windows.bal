@@ -38,8 +38,8 @@ public type LengthWindow object {
 };
 
 public function lengthWindow(int length, EventType  eventType) returns LengthWindow {
-    LengthWindow lengthWindow = new(length, eventType);
-    return lengthWindow;
+    LengthWindow lengthWindowObject = new(length, eventType);
+    return lengthWindowObject;
 }
 
 
@@ -49,8 +49,8 @@ type QNode object {
         QNode? nextNode;
     }
 
-    new(any data) {
-        self.data = data;
+    new(any data1) {
+        self.data = data1;
     }
 
 };
@@ -95,8 +95,8 @@ type Queue object {
         }
     }
 
-    public function enqueue(any data) {
-        QNode temp = new(data);
+    public function enqueue(any data1) {
+        QNode temp = new(data1);
         match rear {
             QNode value => {
                 value.nextNode = temp;
