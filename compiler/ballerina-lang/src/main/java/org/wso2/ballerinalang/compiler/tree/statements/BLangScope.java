@@ -33,7 +33,6 @@ import java.util.Stack;
 public class BLangScope extends BLangStatement implements ScopeNode {
 
     public BLangBlockStmt scopeBody;
-    public BLangBlockStmt onCompensationBody;
     public BLangFunction compensationFunction;
     public BLangIdentifier name;
     public Stack<String> childScopes = new Stack<>();
@@ -45,7 +44,6 @@ public class BLangScope extends BLangStatement implements ScopeNode {
             BLangBlockStmt onCompensationBody,
             BLangIdentifier name, List<BLangExpression> varRefs) {
         this.scopeBody = scopeBody;
-        this.onCompensationBody = onCompensationBody;
         this.name = name;
         this.varRefs = varRefs;
     }
@@ -57,11 +55,6 @@ public class BLangScope extends BLangStatement implements ScopeNode {
     @Override
     public BLangBlockStmt getScopeBody() {
         return scopeBody;
-    }
-
-    @Override
-    public BLangBlockStmt getCompensationBody() {
-        return onCompensationBody;
     }
 
     @Override
@@ -80,11 +73,6 @@ public class BLangScope extends BLangStatement implements ScopeNode {
     }
 
     @Override
-    public void setCompensationBody(BlockNode body) {
-        this.onCompensationBody = (BLangBlockStmt) body;
-    }
-
-    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
@@ -92,12 +80,6 @@ public class BLangScope extends BLangStatement implements ScopeNode {
     @Override
     public NodeKind getKind() {
         return NodeKind.SCOPE;
-    }
-
-    @Override
-    public String toString() {
-        return "Scope: {" + scopeBody + "} "
-                + (onCompensationBody != null ? " onCompensation {" + String.valueOf(onCompensationBody) + "}" : "");
     }
 
     public BLangFunction getCompensationFunction() {

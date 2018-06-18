@@ -932,10 +932,6 @@ public class PositionTreeVisitor extends LSNodeVisitor {
             acceptNode(scopeNode.scopeBody);
         }
 
-        if (scopeNode.onCompensationBody != null) {
-            acceptNode(scopeNode.onCompensationBody);
-        }
-
         acceptNode(scopeNode.compensationFunction);
     }
 

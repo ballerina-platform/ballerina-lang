@@ -474,10 +474,6 @@ public class DefinitionTreeVisitor extends LSNodeVisitor {
             scopeNode.varRefs.forEach(bLangVariableReference -> this.acceptNode(bLangVariableReference));
         }
 
-        if (scopeNode.onCompensationBody != null) {
-            this.acceptNode(scopeNode.onCompensationBody);
-        }
-
         this.acceptNode(scopeNode.compensationFunction);
     }
 

@@ -25,15 +25,11 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 public interface ScopeNode extends StatementNode {
     BlockNode getScopeBody();
 
-    BlockNode getCompensationBody();
-
     BLangIdentifier getScopeName();
 
     void setScopeName(BLangIdentifier name);
 
     void setScopeBody(BlockNode body);
-
-    void setCompensationBody(BlockNode body);
 
     void addChildScope(String scopeName);
 

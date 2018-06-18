@@ -500,9 +500,6 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     public void visit(BLangScope scopeNode) {
         scopeNode.scopeBody.accept(this);
         nonOverridingAnalysis = true;
-        if (scopeNode.onCompensationBody != null) {
-            scopeNode.onCompensationBody.accept(this);
-        }
         nonOverridingAnalysis = false;
     }
 

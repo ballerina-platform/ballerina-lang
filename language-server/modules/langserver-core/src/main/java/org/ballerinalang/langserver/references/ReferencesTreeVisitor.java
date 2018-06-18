@@ -746,10 +746,6 @@ public class ReferencesTreeVisitor extends LSNodeVisitor {
             this.acceptNode(scopeNode.scopeBody);
         }
 
-        if (scopeNode.onCompensationBody != null) {
-            this.acceptNode(scopeNode.onCompensationBody);
-        }
-
         scopeNode.varRefs.forEach(bLangVariableReference -> this.acceptNode(bLangVariableReference));
 
         this.acceptNode(scopeNode.compensationFunction);

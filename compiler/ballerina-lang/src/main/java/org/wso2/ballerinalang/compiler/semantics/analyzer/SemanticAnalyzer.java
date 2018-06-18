@@ -1464,10 +1464,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         scopeNode.varRefs.forEach(bLangVariableReference -> typeChecker.checkExpr(bLangVariableReference, env));
 
-        if (scopeNode.onCompensationBody != null) {
-            analyzeStmt(scopeNode.onCompensationBody, env);
-        }
-
         scopeNode.compensationFunction.getParameters().forEach(param -> param.flagSet.add(Flag.COMPENSATE));
         symbolEnter.defineNode(scopeNode.compensationFunction, env);
         visit(scopeNode.compensationFunction);

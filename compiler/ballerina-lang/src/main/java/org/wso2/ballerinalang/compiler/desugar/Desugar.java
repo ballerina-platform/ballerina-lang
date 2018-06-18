@@ -936,13 +936,13 @@ public class Desugar extends BLangNodeVisitor {
         int i = 0;
         for (BLangExpression expr : scopeNode.varRefs) {
             String varName = GEN_VAR_PREFIX.value + i++;
-            BLangVariable matchExprVar = ASTBuilderUtil.createVariable(expr.pos,
+            BLangVariable exprVar = ASTBuilderUtil.createVariable(expr.pos,
                     varName, expr.type, null, new BVarSymbol(0,
                             names.fromString(varName),
                             this.env.scope.owner.pkgID, expr.type, this.env.scope.owner));
 
-            scopeNode.compensationFunction.addParameter(matchExprVar);
-            scopeNode.compensationFunction.requiredParams.add(matchExprVar);
+            scopeNode.compensationFunction.addParameter(exprVar);
+            scopeNode.compensationFunction.requiredParams.add(exprVar);
 
         }
 

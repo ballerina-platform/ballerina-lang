@@ -502,7 +502,6 @@ public class SymbolFindingVisitor extends BLangNodeVisitor {
 
     public void visit(BLangScope scopeNode) {
         visit(scopeNode.getScopeBody());
-        visit(scopeNode.getCompensationBody());
         visit(scopeNode.compensationFunction);
     }
 

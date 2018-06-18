@@ -767,12 +767,6 @@ public class TreeVisitor extends LSNodeVisitor {
         this.blockOwnerStack.pop();
         this.isCurrentNodeScopeStack.pop();
 
-        if (scopeNode.onCompensationBody != null) {
-            this.blockOwnerStack.push(scopeNode);
-            this.acceptNode(scopeNode.onCompensationBody, symbolEnv);
-            this.blockOwnerStack.pop();
-        }
-
         this.acceptNode(scopeNode.compensationFunction, symbolEnv);
     }
 

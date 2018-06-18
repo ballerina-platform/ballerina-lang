@@ -1151,11 +1151,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         scopeNode.getScopeBody().accept(this);
         analyzeExprs(scopeNode.varRefs);
         this.resetLastStatement();
-        if (scopeNode.onCompensationBody != null) {
-            scopeNode.onCompensationBody.accept(this);
-            this.resetStatementReturns();
-            this.resetLastStatement();
-        }
         visit(scopeNode.compensationFunction);
     }
 

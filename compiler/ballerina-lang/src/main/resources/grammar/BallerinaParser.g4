@@ -404,10 +404,6 @@ breakStatement
     :   BREAK SEMICOLON
     ;
 
-compensateStatement
-    :  COMPENSATE Identifier SEMICOLON
-    ;
-
 scopeStatement
     :   scopeClause compensationClause
     ;
@@ -418,6 +414,10 @@ scopeClause
 
 compensationClause
     : COMPENSATION LEFT_PARENTHESIS variableReferenceList? RIGHT_PARENTHESIS callableUnitBody
+    ;
+
+compensateStatement
+    :  COMPENSATE Identifier SEMICOLON
     ;
 
 // typeName is only message

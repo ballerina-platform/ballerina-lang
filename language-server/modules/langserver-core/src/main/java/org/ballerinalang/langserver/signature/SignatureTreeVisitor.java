@@ -252,12 +252,6 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         this.acceptNode(scopeNode.scopeBody, symbolEnv);
         this.blockOwnerStack.pop();
 
-        if (scopeNode.onCompensationBody != null) {
-            this.blockOwnerStack.push(scopeNode);
-            this.acceptNode(scopeNode.onCompensationBody, symbolEnv);
-            this.blockOwnerStack.pop();
-        }
-
         this.acceptNode(scopeNode.compensationFunction, symbolEnv);
     }
 
