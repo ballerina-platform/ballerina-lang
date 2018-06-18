@@ -23,11 +23,11 @@ function main(string... args) {
     io:println("06/10: " + "quotient=" + q + " " + "remainder=" + r);
 
     //To ignore a return value, use '_'.
-    //This ignores the first return value.
+    //This ignores the second return value.
     var (q1, _) = divideBy10(57);
     io:println("57/10: " + "quotient=" + q1);
 
-    //This ignores the second return value.
+    //This ignores the first return value.
     var (_, r1) = divideBy10(9);
     io:println("09/10: " + "remainder=" + r1);
 }
