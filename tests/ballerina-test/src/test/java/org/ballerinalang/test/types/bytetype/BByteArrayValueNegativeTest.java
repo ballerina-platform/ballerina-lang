@@ -23,7 +23,7 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
- * This test class will test the blob value negative test cases.
+ * This test class will test the byte array value negative test cases.
  */
 public class BByteArrayValueNegativeTest {
 

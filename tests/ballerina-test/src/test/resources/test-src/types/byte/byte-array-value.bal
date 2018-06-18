@@ -51,6 +51,11 @@ function base64Test() {
     byte[] z = base64 `    `;
 }
 
+function testByteArrayLiteral() returns byte[] {
+    byte[] a = [1,27,34,145,224];
+    return a;
+}
+
 function testBlobParameter(byte[] b) returns (byte[]) {
     byte[] a;
     a = b;

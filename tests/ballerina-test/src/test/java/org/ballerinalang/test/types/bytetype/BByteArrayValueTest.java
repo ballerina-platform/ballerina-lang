@@ -31,7 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 /**
- * This test class will test the blob values.
+ * This test class will test byte array values.
  */
 public class BByteArrayValueTest {
 
@@ -229,6 +229,14 @@ public class BByteArrayValueTest {
         assertResult(bytes0, returns[5]);
         assertResult(bytes1, returns[6]);
         assertResult(empty, returns[7]);
+    }
+
+    @Test(description = "Test byte array literal value")
+    public void testByteArrayLiteral() {
+        byte[] bytes = new byte[]{1, 27, 34, (byte) 145, (byte) 224};
+        BValue[] returns = BRunUtil.invoke(result, "testByteArrayLiteral", new BValue[]{});
+        Assert.assertEquals(returns.length, 1);
+        assertResult(bytes, returns[0]);
     }
 
     private static byte[] decode(String b64) {
