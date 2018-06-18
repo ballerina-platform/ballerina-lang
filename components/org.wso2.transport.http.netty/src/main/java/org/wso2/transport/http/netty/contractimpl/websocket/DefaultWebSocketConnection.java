@@ -167,10 +167,35 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture terminateConnection() {
+        frameHandler.setCloseInitialized(true);
         return ctx.close();
     }
 
-    public int getCloseInitiatedStatusCode() {
+    @Override
+    public ChannelFuture terminateConnection(int statusCode, String reason) {
+        ChannelPromise closePromise = ctx.newPromise();
+        ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(writeFuture -> {
+            frameHandler.setCloseInitialized(true);
+            Throwable writeCause = writeFuture.cause();
+            if (writeFuture.isSuccess() && writeCause != null) {
+                closePromise.setFailure(writeCause);
+                ctx.close();
+                return;
+            }
+            ctx.close().addListener(closeFuture -> {
+                Throwable closeCause = closeFuture.cause();
+                if (!closeFuture.isSuccess() && closeCause != null) {
+                    closePromise.setFailure(closeCause);
+                } else {
+                    closePromise.setSuccess();
+                }
+            });
+
+        });
+        return closePromise;
+    }
+
+    int getCloseInitiatedStatusCode() {
         return this.closeInitiatedStatusCode;
     }
 
@@ -179,7 +204,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         return session;
     }
 
-    public ByteBuf getNettyBuf(ByteBuffer buffer) {
+    private ByteBuf getNettyBuf(ByteBuffer buffer) {
         return Unpooled.wrappedBuffer(buffer);
     }
 }

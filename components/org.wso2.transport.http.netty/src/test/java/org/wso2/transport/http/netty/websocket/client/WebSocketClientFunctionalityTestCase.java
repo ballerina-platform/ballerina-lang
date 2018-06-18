@@ -185,11 +185,25 @@ public class WebSocketClientFunctionalityTestCase {
     }
 
     @Test(description = "Test connection termination using WebSocketConnection without sending a close frame.")
-    public void testConnectionTermination() throws Throwable {
+    public void testConnectionTerminationWithoutCloseFrame() throws Throwable {
         WebSocketConnection webSocketConnection =
                 getWebSocketConnectionSync(new WebSocketTestClientConnectorListener());
         CountDownLatch countDownLatch = new CountDownLatch(1);
         ChannelFuture closeFuture = webSocketConnection.terminateConnection().addListener(
+                future -> countDownLatch.countDown());
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
+
+        Assert.assertNull(closeFuture.cause());
+        Assert.assertTrue(closeFuture.isDone());
+        Assert.assertTrue(closeFuture.isSuccess());
+    }
+
+    @Test(description = "Test connection termination using WebSocketConnection with a close frame.")
+    public void testConnectionTerminationWithCloseFrame() throws Throwable {
+        WebSocketConnection webSocketConnection =
+                getWebSocketConnectionSync(new WebSocketTestClientConnectorListener());
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ChannelFuture closeFuture = webSocketConnection.terminateConnection(1011, "Unexpected failure").addListener(
                 future -> countDownLatch.countDown());
         countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 

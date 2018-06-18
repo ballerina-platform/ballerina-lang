@@ -63,13 +63,14 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private final boolean securedConnection;
     private final String target;
     private final String interfaceId;
+    private final WebSocketFramesBlockingHandler blockingHandler;
     private DefaultWebSocketConnection webSocketConnection;
     private ChannelHandlerContext ctx;
-    private boolean caughtException;
     private ChannelPromise closePromise;
-    private boolean closeFrameReceived;
     private WebSocketFrameType continuationFrameType;
-    private final WebSocketFramesBlockingHandler blockingHandler;
+    private boolean caughtException;
+    private boolean closeFrameReceived;
+    private boolean closeInitialized;
 
     public WebSocketInboundFrameHandler(WebSocketConnectorFuture connectorFuture,
                                         WebSocketFramesBlockingHandler blockingHandler, boolean isServer,
@@ -80,13 +81,14 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
         this.securedConnection = securedConnection;
         this.target = target;
         this.interfaceId = interfaceId;
+        closeInitialized = false;
     }
 
     /**
      * Set channel promise for WebSocket connection close.
      *
      * @param closePromise {@link ChannelPromise} to indicate the receiving of close frame echo
-     *                                      back from the remote endpoint.
+     *                     back from the remote endpoint.
      */
     public void setClosePromise(ChannelPromise closePromise) {
         this.closePromise = closePromise;
@@ -112,6 +114,10 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
         return closeFrameReceived;
     }
 
+    public void setCloseInitialized(boolean closeInitialized) {
+        this.closeInitialized = closeInitialized;
+    }
+
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         this.ctx = ctx;
@@ -131,7 +137,8 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws WebSocketConnectorException {
-        if (!caughtException && webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null) {
+        if (!caughtException && webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null &&
+                !closeInitialized) {
             // Notify abnormal closure.
             DefaultWebSocketMessage webSocketCloseMessage =
                     new DefaultWebSocketCloseMessage(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
@@ -209,7 +216,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment)
             throws WebSocketConnectorException {
         DefaultWebSocketMessage webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content,
-                finalFragment);
+                                                                                           finalFragment);
         setupCommonProperties(webSocketBinaryMessage);
         connectorFuture.notifyWebSocketListener((WebSocketBinaryMessage) webSocketBinaryMessage);
     }
@@ -265,7 +272,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
         webSocketMessage.setSessionlID(webSocketConnection.getId());
         webSocketMessage.setIsServerMessage(isServer);
         webSocketMessage.setProperty(Constants.LISTENER_PORT,
-                ((InetSocketAddress) ctx.channel().localAddress()).getPort());
+                                     ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         webSocketMessage.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         webSocketMessage.setProperty(
                 Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());
