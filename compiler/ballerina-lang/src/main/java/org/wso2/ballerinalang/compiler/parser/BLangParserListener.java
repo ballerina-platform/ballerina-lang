@@ -728,40 +728,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.attachWorkerWS(getWS(ctx));
     }
 
-//    @Override
-//    public void exitUnsealedArrayTypeNameLabel(BallerinaParser.UnsealedArrayTypeNameLabelContext ctx) {
-//        if (ctx.exception != null) {
-//            return;
-//        }
-//        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), (ctx.getChildCount() - 1) / 2);
-//    }
-//
-//    @Override
-//    public void exitImplicitSealedArrayTypeNameLabel(BallerinaParser.ImplicitSealedArrayTypeNameLabelContext ctx) {
-//        if (ctx.exception != null) {
-//            return;
-//        }
-//        int dimensions = (ctx.getChildCount() - 1) / 3;
-//        List<BallerinaParser.IntegerLiteralContext> integerLiteralContexts = ctx.integerLiteral();
-//        int[] sizes = new int[dimensions];
-//        final int[] i = {dimensions - 1};
-//        integerLiteralContexts.forEach(integerLiteralContext -> {
-//            Long longObject;
-//            if ((longObject = getIntegerLiteral(ctx, integerLiteralContext)) != null) {
-//                try {
-//                    sizes[i[0]--] = longObject.intValue();
-//                } catch (NumberFormatException ex) {
-//                    // When ctx.IntegerLiteral() is not a string or missing,
-//                    // compilation fails due to NumberFormatException.
-//                    // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
-//                }
-//            }
-//        });
-//
-//        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), dimensions, sizes);
-//    }
-
-
     @Override
     public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
         if (ctx.exception != null) {

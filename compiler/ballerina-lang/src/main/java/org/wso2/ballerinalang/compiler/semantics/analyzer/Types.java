@@ -279,7 +279,7 @@ public class Types {
     public boolean isSealedArrayInitialized(BArrayType rhsArrayType, BArrayType lhsArrayType) {
         if (lhsArrayType.size == -1) {  // Not a sealed array
             return true;
-        } else if (lhsArrayType.size == -2 && rhsArrayType.size >= -1) {
+        } else if (lhsArrayType.size == -2 && rhsArrayType.size >= -1) { // Array is sealed using keyword hence size -2
             return true;
         } else {
             return lhsArrayType.size == rhsArrayType.size;

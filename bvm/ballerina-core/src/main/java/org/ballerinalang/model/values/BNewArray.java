@@ -67,7 +67,7 @@ public abstract class BNewArray implements BRefType, BCollection {
     }
 
     protected Object newArrayInstance(Class<?> componentType, int size) {
-        if (size == -1 || size == -2) {
+        if (size == -1) {
             return newArrayInstance(componentType);
         } else {
             this.size = maxArraySize = size;

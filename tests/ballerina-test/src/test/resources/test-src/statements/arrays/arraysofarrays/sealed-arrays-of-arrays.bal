@@ -14,10 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// Function Call and Return
-
-// Record type
-
 function initTwoDimensionalSealedArray() returns (int, int, int, int) {
     string[3][4] x1;
     sealed float[][] x2 = [[1.0, 2.1, 3.2], [4.3, 5.4, 6.5]];
