@@ -133,6 +133,13 @@
     margin-left: 1px;
     color: #333;
     padding-bottom: 0;
+    
+}
+
+.suggest-list{
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 400px;
 }
 
 .interaction-menu-area:hover .interaction-menu-item, .interaction-menu-area-clicked .interaction-menu-item {

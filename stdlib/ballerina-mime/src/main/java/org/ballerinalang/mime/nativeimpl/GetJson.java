@@ -46,7 +46,7 @@ import static org.ballerinalang.mime.util.Constants.JSON_TYPE_IDENTIFIER;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
         functionName = "getJson",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
         returnType = {@ReturnType(type = TypeKind.JSON), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
@@ -76,11 +76,11 @@ public class GetJson extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not json " +
+                context.setReturnValues(MimeUtil.createError(context, "Entity body is not json " +
                         "compatible since the received content-type is : " + baseType));
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while extracting json data from entity: " + e.getMessage()));
         }
     }

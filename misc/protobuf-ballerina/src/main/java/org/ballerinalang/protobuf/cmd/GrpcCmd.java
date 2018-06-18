@@ -40,20 +40,24 @@ import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.protobuf.BalGenerationConstants.BUILD_COMMAND_NAME;
 import static org.ballerinalang.protobuf.BalGenerationConstants.COMPONENT_IDENTIFIER;
 import static org.ballerinalang.protobuf.BalGenerationConstants.EMPTY_STRING;
 import static org.ballerinalang.protobuf.BalGenerationConstants.FILE_SEPARATOR;
+import static org.ballerinalang.protobuf.BalGenerationConstants.META_LOCATION;
 import static org.ballerinalang.protobuf.BalGenerationConstants.NEW_LINE_CHARACTER;
-import static org.ballerinalang.protobuf.BalGenerationConstants.PLUGIN_PROTO_FILEPATH;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_PREFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTOC_PLUGIN_EXE_URL_SUFFIX;
 import static org.ballerinalang.protobuf.BalGenerationConstants.PROTO_SUFFIX;
+import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_COMPILER_DIRECTORY;
+import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_GOOGLE_DIRECTORY;
+import static org.ballerinalang.protobuf.BalGenerationConstants.TEMP_PROTOBUF_DIRECTORY;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.delete;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.grantPermission;
 import static org.ballerinalang.protobuf.utils.BalFileGenerationUtils.saveFile;
@@ -99,52 +103,68 @@ public class GrpcCmd implements BLauncherCmd {
     
     @Override
     public void execute() {
-        
-        File protoFile = new File(protoPath);
-        if (!protoFile.isFile() || !protoFile.exists() || EMPTY_STRING.equals(protoPath) ||
-                !protoPath.contains(".proto")) {
-            String errorMessage = "Invalid proto file location. Please input valid proto file location.";
+
+        if (protoPath == null || !protoPath.toLowerCase(Locale.ENGLISH).endsWith(PROTO_SUFFIX)) {
+            String errorMessage = "Invalid proto file path. Please input valid proto file location.";
             outStream.println(errorMessage);
             throw new BalGenToolException(errorMessage);
         }
-        protoPath = protoFile.getAbsolutePath();
+
+        if (!Files.isReadable(Paths.get(protoPath))) {
+            String errorMessage = "Provided service proto file is not readable. Please input valid proto file " +
+                    "location.";
+            outStream.println(errorMessage);
+            throw new BalGenToolException(errorMessage);
+        }
+
         if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(parentCmdParser, "build");
+            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND_NAME);
             outStream.println(commandUsageInfo);
             return;
         }
+
         try {
             downloadProtocexe();
         } catch (BalGenToolException e) {
             LOG.error("Error while generating protoc executable. ", e);
             throw new BalGenToolException("Error while generating protoc executable. ", e);
         }
-        ClassLoader classLoader = this.getClass().getClassLoader();
-        String descriptorPath = BalGenerationConstants.META_LOCATION + getProtoFileName() + "-descriptor.desc";
-        File descFile = generateDescTempFolder(descriptorPath);
+
+        File descFile = createTempDirectory();
         StringBuilder msg = new StringBuilder();
         LOG.debug("Initializing the ballerina code generation.");
-        List<String> protoFiles = readProperties(classLoader);
-        for (String file : protoFiles) {
-            try {
-                exportResource(file, classLoader);
-            } catch (Exception e) {
-                msg.append("Error extracting resource file ").append(file).append(NEW_LINE_CHARACTER);
-                outStream.println(msg.toString());
-                LOG.error("Error exacting resource file " + file, e);
+
+        byte[] root;
+        List<byte[]> dependant;
+
+        try {
+            ClassLoader classLoader = this.getClass().getClassLoader();
+            List<String> protoFiles = readProperties(classLoader);
+            for (String file : protoFiles) {
+                try {
+                    exportResource(file, classLoader);
+                } catch (Exception e) {
+                    msg.append("Error extracting resource file ").append(file).append(NEW_LINE_CHARACTER);
+                    outStream.println(msg.toString());
+                    LOG.error("Error exacting resource file " + file, e);
+                }
             }
+            msg.append("Successfully generated initial files.").append(NEW_LINE_CHARACTER);
+            root = BalFileGenerationUtils.getProtoByteArray(this.exePath, this.protoPath, descFile.getAbsolutePath());
+            if (root.length == 0) {
+                throw new BalGenerationException("Error occurred at generating proto descriptor.");
+            }
+            LOG.debug("Successfully generated root descriptor.");
+            dependant = DescriptorsGenerator.generateDependentDescriptor
+                    (descFile.getAbsolutePath(), this.protoPath, new ArrayList<>(), exePath, classLoader);
+            LOG.debug("Successfully generated dependent descriptor.");
+        } finally {
+            //delete temporary meta files
+            delete(new File(META_LOCATION));
+            delete(new File(TEMP_GOOGLE_DIRECTORY));
+            LOG.debug("Successfully deleted temporary files.");
         }
-        msg.append("Successfully generated initial files.").append(NEW_LINE_CHARACTER);
-        byte[] root = BalFileGenerationUtils.getProtoByteArray(this.exePath, this.protoPath, descFile
-                .getAbsolutePath());
-        if (root.length == 0) {
-            throw new BalGenerationException("Error occurred at generating proto descriptor.");
-        }
-        LOG.debug("Successfully generated root descriptor.");
-        List<byte[]> dependant = DescriptorsGenerator.generateDependentDescriptor
-                (descriptorPath, this.protoPath, new ArrayList<>(), exePath, classLoader);
-        LOG.debug("Successfully generated dependent descriptor.");
-        //Path balPath = Paths.get(balOutPath);
+
         try {
             BallerinaFileBuilder ballerinaFileBuilder;
             // By this user can generate stub at different location
@@ -161,52 +181,39 @@ public class GrpcCmd implements BLauncherCmd {
             outStream.println(msg.toString());
         }
         msg.append("Successfully generated ballerina file.").append(NEW_LINE_CHARACTER);
-        //delete temporary meta files
-        delete(new File("desc_gen"));
-        delete(new File("google"));
-        LOG.debug("Successfully deleted temporary files.");
+
         outStream.println(msg.toString());
     }
     
     /**
-     * Generate the meta folder which needed for intermediate processing.
+     * Create meta temp directory which needed for intermediate processing.
      *
-     * @param descriptorPath proto descriptor path
      * @return Temporary Created meta file.
      */
-    private File generateDescTempFolder(String descriptorPath) {
-        File descFile = new File(descriptorPath);
-        String path = descFile.getAbsolutePath().substring(0, descFile.getAbsolutePath()
-                .lastIndexOf(BalGenerationConstants.FILE_SEPARATOR));
-        File folderPath = new File(path);
-        try {
-            if (!folderPath.exists() && !folderPath.mkdirs()) {
-                throw new IllegalStateException("Couldn't create dir: " + descFile);
-            }
-            descriptorPath = descFile.getAbsolutePath();
-            byte data[] = new byte[0];
-            Path file = Paths.get(descriptorPath);
-            Files.write(file, data);
-        } catch (IOException e) {
-            throw new BalGenToolException("Error creating " + descriptorPath + " file.", e);
+    private File createTempDirectory() {
+        File metadataHome = new File(META_LOCATION);
+        if (!metadataHome.exists() && !metadataHome.mkdir()) {
+            throw new IllegalStateException("Couldn't create dir: " + metadataHome);
         }
-        
-        File targetFile = new File(PLUGIN_PROTO_FILEPATH);
-        File parent1 = targetFile.getParentFile();
-        File parent2 = targetFile.getParentFile().getParentFile();
-        File parent3 = targetFile.getParentFile().getParentFile().getParentFile();
-        if (!parent1.exists() && !parent1.mkdirs()) {
-            throw new IllegalStateException("Couldn't create dir: " + parent1);
-        }
-        if (!parent2.exists() && !parent2.mkdirs()) {
-            throw new IllegalStateException("Couldn't create dir: " + parent2);
-        }
-        if (!parent3.exists() && !parent3.mkdirs()) {
-            throw new IllegalStateException("Couldn't create dir: " + parent3);
-        }
-        return descFile;
+
+        File googleHome = new File(TEMP_GOOGLE_DIRECTORY);
+        createTempDirectory(googleHome);
+
+        File protobufHome = new File(googleHome, TEMP_PROTOBUF_DIRECTORY);
+        createTempDirectory(protobufHome);
+
+        File compilerHome = new File(protobufHome, TEMP_COMPILER_DIRECTORY);
+        createTempDirectory(compilerHome);
+
+        return new File(metadataHome, getProtoFileName() + "-descriptor.desc");
     }
-    
+
+    private void createTempDirectory(File dirName) {
+        if (!dirName.exists() && !dirName.mkdir()) {
+            throw new IllegalStateException("Couldn't create dir: " + dirName);
+        }
+    }
+
     /**
      * Export a resource embedded into a Jar file to the local file path.
      *

@@ -82,6 +82,7 @@ import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.util.exceptions.ProgramFileFormatException;
 import org.wso2.ballerinalang.compiler.TypeCreater;
 import org.wso2.ballerinalang.compiler.TypeSignatureReader;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
@@ -113,11 +114,6 @@ public class PackageInfoReader {
         this.programFile = programFile;
         this.typeSigReader = new TypeSignatureReader<>();
     }
-
-    // This is used to assign a number to a package.
-    // This number is used as an offset when dealing with package level variables.
-    // A temporary solution until we implement dynamic package loading.
-    private int currentPkgIndex = 0;
 
     public void readConstantPool(ConstantPool constantPool) throws IOException {
         int constantPoolSize = dataInStream.readInt();
@@ -282,26 +278,36 @@ public class PackageInfoReader {
 
     public void readPackageInfo() throws IOException {
         PackageInfo packageInfo = new PackageInfo();
-        packageInfo.pkgIndex = currentPkgIndex++;
+        packageInfo.pkgIndex = programFile.currentPkgIndex++;
 
         // Read constant pool in the package.
         readConstantPool(packageInfo);
 
+        // Read org name
+        int orgNameCPIndex = dataInStream.readInt();
+        UTF8CPEntry orgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(orgNameCPIndex);
+        packageInfo.orgNameCPIndex = orgNameCPIndex;
+
+        // Read package name
         int pkgNameCPIndex = dataInStream.readInt();
         UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
         packageInfo.nameCPIndex = pkgNameCPIndex;
-        packageInfo.pkgPath = pkgNameCPEntry.getValue();
 
+
+        // Read package version
         int pkgVersionCPIndex = dataInStream.readInt();
         UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
         packageInfo.versionCPIndex = pkgVersionCPIndex;
         packageInfo.pkgVersion = pkgVersionCPEntry.getValue();
 
+        packageInfo.pkgPath =
+                getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue());
+
         packageInfo.setProgramFile(programFile);
         programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read import package entries
-        readImportPackageInfoEntries(packageInfo);
+        readImportPackageInfoEntries();
 
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
@@ -339,18 +345,12 @@ public class PackageInfoReader {
         packageInfo.complete();
     }
 
-    private void readImportPackageInfoEntries(PackageInfo packageInfo) throws IOException {
+    private void readImportPackageInfoEntries() throws IOException {
         int impPkgCount = dataInStream.readShort();
         for (int i = 0; i < impPkgCount; i++) {
-            // TODO populate import package info structure
-            int pkgNameCPIndex = dataInStream.readInt();
-            UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
-
-            int pkgVersionCPIndex = dataInStream.readInt();
-            UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
-            ImportPackageInfo importPackageInfo = new ImportPackageInfo(pkgNameCPIndex,
-                    pkgNameCPEntry.getValue(), pkgVersionCPIndex, pkgVersionCPEntry.getValue());
-            packageInfo.importPkgInfoList.add(importPackageInfo);
+            dataInStream.readInt();
+            dataInStream.readInt();
+            dataInStream.readInt();
         }
     }
 
@@ -1652,6 +1652,23 @@ public class PackageInfoReader {
 
     private BType getBTypeFromDescriptor(PackageInfo packageInfo, String desc) {
         return this.typeSigReader.getBTypeFromDescriptor(new RuntimeTypeCreater(packageInfo), desc);
+    }
+
+    private String getPackagePath(String orgName, String pkgName, String version) {
+        if (Names.DOT.value.equals(pkgName)) {
+            return pkgName;
+        }
+        if (orgName.equals(Names.ANON_ORG.value)) {
+            orgName = "";
+        } else {
+            orgName = orgName + Names.ORG_NAME_SEPARATOR.value;
+        }
+
+        if (Names.EMPTY.value.equals(version)) {
+            return orgName + pkgName;
+        }
+
+        return orgName + pkgName + Names.VERSION_SEPARATOR.value + version;
     }
 
     /**

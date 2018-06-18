@@ -14,7 +14,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"respond(ballerina.http:Response|string|xml|json|blob|ballerina.io:ByteChannel|ballerina.mime:Entity[]? message)(error?)",
+      "label":"respond(ballerina/http:Response|string|xml|json|blob|ballerina/io:ByteChannel|ballerina/mime:Entity[]? message)(error?)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",
@@ -38,7 +38,7 @@
       "insertTextFormat":"Snippet"
     },
     {
-      "label":"acceptWebSocketUpgrade(map headers)(ballerina.http:WebSocketListener)",
+      "label":"acceptWebSocketUpgrade(map headers)(ballerina/http:WebSocketListener)",
       "kind":"Function",
       "detail":"Function",
       "sortText":"120",

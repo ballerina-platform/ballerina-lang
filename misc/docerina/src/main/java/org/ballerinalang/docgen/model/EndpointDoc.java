@@ -18,10 +18,7 @@
 package org.ballerinalang.docgen.model;
 
 
-import org.apache.commons.lang3.EnumUtils;
-
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Documentable node for Endpoints and Objects.
@@ -32,8 +29,6 @@ public class EndpointDoc extends Documentable {
     public final boolean hasConstructor;
     public final List<Field> fields;
 
-    private enum FilteredFunctions { init, register, start, stop, getCallerActions }
-
     /**
      * Constructor.
      *
@@ -41,43 +36,19 @@ public class EndpointDoc extends Documentable {
      * @param description    description.
      * @param children       endpoint's actions/ object's functions.
      * @param fields         fields of the object.
-     * @param isEndpoint    whether an endpoint or an object.
+     * @param isEndpoint     whether an endpoint or an object.
      * @param hasConstructor indicates whether this object has a constructor or not.
      */
     public EndpointDoc(String name, String description, List<Documentable> children, List<Field> fields,
                        List<Documentable> utilityFunctions, boolean isEndpoint, boolean hasConstructor) {
         super(name, "fw-endpoint", description, children);
-        if (!isEndpoint) {
-            super.icon = "fw-struct";
+        for (Documentable doc : children) {
+            doc.icon = "fw-action";
         }
-        if (isEndpoint) {
-            for (Documentable doc : children) {
-                doc.icon = "fw-action";
-            }
-        }
-        children.addAll(utilityFunctions);
         this.fields = fields;
         this.isConnector = isEndpoint;
         this.isObject = !isEndpoint;
         this.hasConstructor = hasConstructor;
-
-        // filter internal functions
-        List<Documentable> filteredChildren = children.stream().filter(f -> {
-            if (f instanceof FunctionDoc) {
-                FunctionDoc functionDoc = (FunctionDoc) f;
-                return isNotAFilteredFunction(functionDoc.name);
-            }
-            return true;
-        }).collect(Collectors.toList());
-
-        children.clear();
-        children.addAll(filteredChildren);
     }
 
-    private boolean isNotAFilteredFunction(String name) {
-        if (EnumUtils.isValidEnum(FilteredFunctions.class, name)) {
-            return false;
-        }
-        return true;
-    }
 }

@@ -19,13 +19,17 @@ package org.ballerinalang.langserver.completions.resolvers;
 
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.langserver.completions.util.filters.StatementTemplateFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.InsertTextFormat;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Default resolver for the completion items.
@@ -46,8 +50,9 @@ public class DefaultResolver extends AbstractItemResolver {
         populateCompletionItemList(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY), completionItems);
 
         // Add the statement templates
-        StatementTemplateFilter statementTemplateFilter = new StatementTemplateFilter();
-        completionItems.addAll(statementTemplateFilter.filterItems(completionContext));
+        Either<List<CompletionItem>, List<SymbolInfo>> filteredItems =
+                SymbolFilters.getFilterByClass(StatementTemplateFilter.class).filterItems(completionContext);
+        this.populateCompletionItemList(filteredItems, completionItems);
 
         return completionItems;
     }

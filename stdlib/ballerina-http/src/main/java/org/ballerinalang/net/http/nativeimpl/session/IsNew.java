@@ -39,7 +39,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
         orgName = "ballerina", packageName = "http",
         functionName = "isNew",
         receiver = @Receiver(type = TypeKind.OBJECT, structType = "Session",
-                             structPackage = "ballerina.http"),
+                             structPackage = "ballerina/http"),
         returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
         isPublic = true
 )

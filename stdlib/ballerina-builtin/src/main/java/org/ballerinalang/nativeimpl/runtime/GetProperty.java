@@ -24,7 +24,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.BuiltInUtils;
 
 /**
- * Native function ballerina.runtime:getProperty.
+ * Native function ballerina/runtime:getProperty.
  *
  * @since 0.94.1
  */

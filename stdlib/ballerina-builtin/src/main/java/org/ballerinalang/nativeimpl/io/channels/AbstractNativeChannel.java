@@ -39,7 +39,7 @@ public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
     /**
      * The package path of the byte channel.
      */
-    private static final String BYTE_CHANNEL_PACKAGE = "ballerina.io";
+    private static final String BYTE_CHANNEL_PACKAGE = "ballerina/io";
 
     /**
      * The struct type of the byte channel.

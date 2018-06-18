@@ -57,3 +57,23 @@ function testWhileStmtWithoutBraces(int x, int y) returns (int) {
     }
     return z;
 }
+
+function testWhileStmtWithDefaultValues() returns (int, string, float) {
+    int count = 0;
+    int fi;
+    string fs;
+    float ff;
+    while(count <3) {
+        int i;
+        string s;
+        float f;
+        i += 1;
+        f += 1.0;
+        s += "hello";
+        fi = i;
+        fs = s;
+        ff = f;
+        count += 1;
+    }
+    return (fi, fs, ff);
+}

@@ -58,6 +58,6 @@ function read (int size) returns (blob, int) | error {
     }
 }
 
-function close (io:Socket socket) {
-    error? err = socket.close();
+function close (io:Socket localSocket) {
+    error? err = localSocket.close();
 }

@@ -169,25 +169,25 @@ public class ClosureTest {
     @Test(description = "Test closure with variable shadowing")
     public void testClosureWithVariableShadowing1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test23");
-        Assert.assertEquals((returns[0]).stringValue(), "Ballerina22");
+        Assert.assertEquals((returns[0]).stringValue(), "Ballerina30");
     }
 
     @Test(description = "Test two level closure with variable shadowing")
     public void testClosureWithVariableShadowing2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test24");
-        Assert.assertEquals((returns[0]).stringValue(), "Out22In52Ballerina!!!");
+        Assert.assertEquals((returns[0]).stringValue(), "Out30In63Ballerina!!!");
     }
 
     @Test(description = "Test three level closure with variable shadowing")
     public void testClosureWithVariableShadowing3() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test25");
-        Assert.assertEquals((returns[0]).stringValue(), "OutMost22Out37In73Ballerina!!!");
+        Assert.assertEquals((returns[0]).stringValue(), "OutMost30Out44In77Ballerina!!!");
     }
 
     @Test(description = "Test three level closure with variable shadowing another test case")
     public void testClosureWithVariableShadowing4() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test26");
-        Assert.assertEquals((returns[0]).stringValue(), "OutMost48Out49In38Ballerina!!!");
+        Assert.assertEquals((returns[0]).stringValue(), "OutMost47Out47In35Ballerina!!!");
     }
 
     @Test(description = "Test iterable operations with lambda. This will verify whether local referred vars are " +
@@ -196,5 +196,12 @@ public class ClosureTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testLocalVarModifyWithinClosureScope");
         Assert.assertNotNull(returns);
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
+    }
+
+    @Test(description = "Test multi level block statements with closure test case")
+    public void testMultiLevelBlockStatements() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test27");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 57);
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 167);
     }
 }
