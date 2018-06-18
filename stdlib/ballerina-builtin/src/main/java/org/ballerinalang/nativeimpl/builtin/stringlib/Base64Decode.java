@@ -22,7 +22,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.io.utils.Utils;
+import org.ballerinalang.util.BuiltInUtils;
 
 /**
  * Native function ballerina.model.string:base64Decode.
@@ -43,6 +43,6 @@ public class Base64Decode extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         String s = context.getStringArgument(0);
         String charset = context.getStringArgument(1);
-        Utils.decodeString(context, s, charset, false);
+        BuiltInUtils.decodeString(context, s, charset, false);
     }
 }
