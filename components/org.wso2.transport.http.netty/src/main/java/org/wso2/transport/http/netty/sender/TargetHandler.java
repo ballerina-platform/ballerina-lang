@@ -17,14 +17,10 @@ package org.wso2.transport.http.netty.sender;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.ChannelInputShutdownReadComplete;
-import io.netty.handler.codec.DecoderException;
-import io.netty.handler.codec.DecoderResult;
-import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.LastHttpContent;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2ConnectionPrefaceAndSettingsFrameWrittenEvent;
 import io.netty.handler.ssl.SslCloseCompletionEvent;
@@ -54,6 +50,9 @@ import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import java.io.IOException;
 
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIVING_ENTITY_BODY;
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
 /**
@@ -71,6 +70,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
     private HandlerExecutor handlerExecutor;
     private KeepAliveConfig keepAliveConfig;
     private boolean idleTimeoutTriggered;
+    private TargetErrorHandler targetErrorHandler;
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -78,8 +78,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (handlerExecutor != null) {
             handlerExecutor.executeAtTargetConnectionInitiation(Integer.toString(ctx.hashCode()));
         }
-
         super.channelActive(ctx);
+        targetErrorHandler.setState(CONNECTED);
     }
 
     @SuppressWarnings("unchecked")
@@ -90,6 +90,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
         if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
+                targetErrorHandler.setState(RECEIVING_ENTITY_BODY);
                 HttpResponse httpInboundResponse = (HttpResponse) msg;
                 inboundResponseMsg = setUpCarbonMessage(ctx, msg);
 
@@ -122,7 +123,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                         }
                         this.inboundResponseMsg = null;
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-
+                        targetErrorHandler.setState(ENTITY_BODY_RECEIVED);
                         if (!isKeepAlive(keepAliveConfig)) {
                             closeChannel(ctx);
                         }
@@ -181,9 +182,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         if (!idleTimeoutTriggered) {
             if (targetChannel.isRequestHeaderWritten()) {
                 httpResponseFuture.notifyHttpListener(new ClientConnectorException(channelID,
-                        Constants.REMOTE_SERVER_CLOSE_RESPONSE_CONNECTION_AFTER_REQUEST_READ));
+                        Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE));
             } else if (inboundResponseMsg != null) {
-                handleIncompleteInboundResponse(Constants.REMOTE_SERVER_ABRUPTLY_CLOSE_RESPONSE_CONNECTION);
+                handleIncompleteInboundResponse(Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE);
             }
         }
     }
@@ -276,12 +277,7 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private void handleIncompleteInboundResponse(String errorMessage) {
-        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
-        lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
-        inboundResponseMsg.addHttpContent(lastHttpContent);
-        log.warn(errorMessage);
-    }
+
 
     public void setHttpResponseFuture(HttpResponseFuture httpResponseFuture) {
         this.httpResponseFuture = httpResponseFuture;
@@ -336,5 +332,9 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                // The execution will never reach here. To make the code compilable, default case has to be placed here.
                return true;
         }
+    }
+
+    public void setTargetErrorHandler(TargetErrorHandler targetErrorHandler) {
+        this.targetErrorHandler = targetErrorHandler;
     }
 }
