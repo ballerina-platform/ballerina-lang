@@ -28,7 +28,7 @@ public class DefaultValue {
 
     private int valueCPIndex = -1;
     private long intValue;
-    private int byteValue;
+    private byte byteValue;
     private double floatValue;
     private String stringValue;
     private boolean booleanValue;
@@ -95,11 +95,11 @@ public class DefaultValue {
         this.blobValue = blobValue;
     }
 
-    public int getByteValue() {
+    public byte getByteValue() {
         return byteValue;
     }
 
-    public void setByteValue(int byteValue) {
+    public void setByteValue(byte byteValue) {
         this.byteValue = byteValue;
     }
 }

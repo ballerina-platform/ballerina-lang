@@ -25,13 +25,13 @@ package org.wso2.ballerinalang.programfile.cpentries;
  */
 public class ByteCPEntry implements ConstantPoolEntry {
 
-    private int value;
+    private byte value;
 
-    public ByteCPEntry(int value) {
+    public ByteCPEntry(byte value) {
         this.value = value;
     }
 
-    public int getValue() {
+    public byte getValue() {
         return value;
     }
 
@@ -55,6 +55,6 @@ public class ByteCPEntry implements ConstantPoolEntry {
 
     @Override
     public int hashCode() {
-        return Integer.hashCode(value);
+        return Byte.hashCode(value);
     }
 }

@@ -577,7 +577,7 @@ public class CodeGenerator extends BLangNodeVisitor {
                 break;
 
             case TypeTags.BYTE:
-                int byteVal = (Byte) literalExpr.value;
+                byte byteVal = (Byte) literalExpr.value;
                 int byteCPEntryIndex = currentPkgInfo.addCPEntry(new ByteCPEntry(byteVal));
                 emit(InstructionCodes.BICONST, getOperand(byteCPEntryIndex), regIndex);
                 break;

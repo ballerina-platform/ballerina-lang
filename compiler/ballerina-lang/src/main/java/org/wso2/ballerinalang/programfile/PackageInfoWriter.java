@@ -88,8 +88,8 @@ public class PackageInfoWriter {
                     dataOutStream.writeLong(longVal);
                     break;
                 case CP_ENTRY_BYTE:
-                    int byteVal = ((ByteCPEntry) cpEntry).getValue();
-                    dataOutStream.writeInt(byteVal);
+                    byte byteVal = ((ByteCPEntry) cpEntry).getValue();
+                    dataOutStream.writeByte(byteVal);
                     break;
                 case CP_ENTRY_FLOAT:
                     double doubleVal = ((FloatCPEntry) cpEntry).getValue();

@@ -281,7 +281,7 @@ public class CompiledPackageSymbolEnter {
             case CP_ENTRY_INTEGER:
                 return new IntegerCPEntry(dataInStream.readLong());
             case CP_ENTRY_BYTE:
-                return new ByteCPEntry(dataInStream.readInt());
+                return new ByteCPEntry(dataInStream.readByte());
             case CP_ENTRY_FLOAT:
                 return new FloatCPEntry(dataInStream.readDouble());
             case CP_ENTRY_STRING:

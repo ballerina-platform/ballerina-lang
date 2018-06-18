@@ -353,7 +353,7 @@ public class Debugger {
                     variableDTO.setBValue(new BInteger(ctx.workerLocal.longRegs[l.getVariableIndex()]));
                     break;
                 case TypeTags.BYTE_TAG:
-                    variableDTO.setBValue(new BByte(ctx.workerLocal.intRegs[l.getVariableIndex()]));
+                    variableDTO.setBValue(new BByte((byte) ctx.workerLocal.intRegs[l.getVariableIndex()]));
                     break;
                 case TypeTags.FLOAT_TAG:
                     variableDTO.setBValue(new BFloat(ctx.workerLocal.doubleRegs[l.getVariableIndex()]));

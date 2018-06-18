@@ -28,7 +28,7 @@ public class DefaultValue {
 
     public int valueCPIndex = -1;
     public long intValue;
-    public int byteValue;
+    public byte byteValue;
     public double floatValue;
     public String stringValue;
     public boolean booleanValue;

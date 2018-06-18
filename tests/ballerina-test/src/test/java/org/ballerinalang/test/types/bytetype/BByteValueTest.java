@@ -214,7 +214,9 @@ public class BByteValueTest {
 
     @Test(description = "Test byte equal operation")
     public void testByteEqual() {
-        BValue[] args = {new BByte(2), new BByte(3), new BByte(2)};
+        byte b1 = 2;
+        byte b2 = 3;
+        BValue[] args = {new BByte(b1), new BByte(b2), new BByte(b1)};
         BValue[] returns = BRunUtil.invoke(result, "testByteBinaryOperation", args);
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
@@ -227,7 +229,9 @@ public class BByteValueTest {
 
     @Test(description = "Test byte not equal operation")
     public void testByteNotEqual() {
-        BValue[] args = {new BByte(12), new BByte(34), new BByte(12)};
+        byte b1 = 12;
+        byte b2 = 32;
+        BValue[] args = {new BByte(b1), new BByte(b2), new BByte(b1)};
         BValue[] returns = BRunUtil.invoke(result, "testByteBinaryNotEqualOperation", args);
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BBoolean.class);

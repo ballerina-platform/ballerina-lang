@@ -957,7 +957,7 @@ public class CPU {
                     break;
                 }
                 case TypeTags.BYTE_TAG: {
-                    fp.addClosureVar(new BClosure(new BByte(ctx.workerLocal.intRegs[index])), TypeTags.BYTE_TAG);
+                    fp.addClosureVar(new BClosure(new BByte((byte) ctx.workerLocal.intRegs[index])), TypeTags.BYTE_TAG);
                     break;
                 }
                 case TypeTags.FLOAT_TAG: {
@@ -2173,7 +2173,7 @@ public class CPU {
             case InstructionCodes.BI2ANY:
                 i = operands[0];
                 j = operands[1];
-                sf.refRegs[j] = new BByte(sf.intRegs[i]);
+                sf.refRegs[j] = new BByte((byte) sf.intRegs[i]);
                 break;
             case InstructionCodes.F2ANY:
                 i = operands[0];
@@ -3068,7 +3068,7 @@ public class CPU {
                 result = new BInteger(data.longRegs[reg]);
                 break;
             case TypeTags.BYTE_TAG:
-                result = new BByte(data.intRegs[reg]);
+                result = new BByte((byte) data.intRegs[reg]);
                 break;
             case TypeTags.FLOAT_TAG:
                 result = new BFloat(data.doubleRegs[reg]);
@@ -3814,7 +3814,7 @@ public class CPU {
                     map.put(key, new BInteger(bStruct.getIntField(++longRegIndex)));
                     break;
                 case TypeTags.BYTE_TAG:
-                    map.put(key, new BByte(bStruct.getBooleanField(++booleanRegIndex)));
+                    map.put(key, new BByte((byte) bStruct.getBooleanField(++booleanRegIndex)));
                     break;
                 case TypeTags.FLOAT_TAG:
                     map.put(key, new BFloat(bStruct.getFloatField(++doubleRegIndex)));

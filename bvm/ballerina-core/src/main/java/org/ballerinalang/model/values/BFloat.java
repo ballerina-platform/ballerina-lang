@@ -40,7 +40,7 @@ public final class BFloat extends BValueType implements BRefType<Double> {
 
     @Override
     public int byteValue() {
-        return (byte) this.value;
+        return Byte.toUnsignedInt((byte) this.value);
     }
 
     @Override

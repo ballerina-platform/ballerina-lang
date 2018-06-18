@@ -161,7 +161,7 @@ public class PackageInfoReader {
                 return new IntegerCPEntry(longVal);
 
             case CP_ENTRY_BYTE:
-                int byteVal = dataInStream.readInt();
+                byte byteVal = dataInStream.readByte();
                 return new ByteCPEntry(byteVal);
 
             case CP_ENTRY_FLOAT:
@@ -1625,7 +1625,7 @@ public class PackageInfoReader {
                 value = new BInteger(intValue);
                 break;
             case TypeSignature.SIG_BYTE:
-                int byteValue = defaultValue.getByteValue();
+                byte byteValue = defaultValue.getByteValue();
                 value = new BByte(byteValue);
                 break;
             case TypeSignature.SIG_FLOAT:

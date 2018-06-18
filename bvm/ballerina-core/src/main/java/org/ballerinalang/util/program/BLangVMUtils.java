@@ -269,7 +269,7 @@ public class BLangVMUtils {
                 returnValues[i] = new BInteger(data.longRegs[retRegs[i]]);
                 break;
             case TypeTags.BYTE_TAG:
-                returnValues[i] = new BByte(data.intRegs[retRegs[i]]);
+                returnValues[i] = new BByte((byte) data.intRegs[retRegs[i]]);
                 break;
             case TypeTags.FLOAT_TAG:
                 returnValues[i] = new BFloat(data.doubleRegs[retRegs[i]]);
