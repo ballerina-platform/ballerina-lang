@@ -3054,63 +3054,40 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                                    BallerinaParser.IntegerLiteralContext integerLiteralContext) {
         if (integerLiteralContext.DecimalIntegerLiteral() != null) {
             String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.DecimalIntegerLiteral());
-            try {
-                return Long.parseLong(nodeValue);
-            } catch (Exception e) {
-                DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
-                Set<Whitespace> ws = getWS(simpleLiteralContext);
-                // Assign a value and continue the compilation. Since there is an error, program will not run.
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
-                if (nodeValue.startsWith("-")) {
-                    dlog.error(pos, DiagnosticCode.INTEGER_TOO_SMALL, nodeValue);
-                } else {
-                    dlog.error(pos, DiagnosticCode.INTEGER_TOO_LARGE, nodeValue);
-                }
-            }
+            return this.parseLong(simpleLiteralContext, nodeValue, nodeValue, 10, DiagnosticCode.INTEGER_TOO_SMALL,
+                    DiagnosticCode.INTEGER_TOO_LARGE);
         } else if (integerLiteralContext.HexIntegerLiteral() != null) {
             String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.HexIntegerLiteral());
-            try {
-                return Long.parseLong(nodeValue.toLowerCase().replace("0x", ""), 16);
-            } catch (Exception e) {
-                DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
-                Set<Whitespace> ws = getWS(simpleLiteralContext);
-                // Assign a value and continue the compilation. Since there is an error, program will not run.
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
-                if (nodeValue.startsWith("-")) {
-                    dlog.error(pos, DiagnosticCode.HEXADECIMAL_TOO_SMALL, nodeValue);
-                } else {
-                    dlog.error(pos, DiagnosticCode.HEXADECIMAL_TOO_LARGE, nodeValue);
-                }
-            }
+            String processedNodeValue = nodeValue.toLowerCase().replace("0x", "");
+            return this.parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 16,
+                    DiagnosticCode.HEXADECIMAL_TOO_SMALL, DiagnosticCode.HEXADECIMAL_TOO_LARGE);
         } else if (integerLiteralContext.OctalIntegerLiteral() != null) {
             String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.OctalIntegerLiteral());
-            try {
-                return Long.parseLong(nodeValue.replace("0_", ""), 8);
-            } catch (Exception e) {
-                DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
-                Set<Whitespace> ws = getWS(simpleLiteralContext);
-                // Assign a value and continue the compilation. Since there is an error, program will not run.
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
-                if (nodeValue.startsWith("-")) {
-                    dlog.error(pos, DiagnosticCode.OCTAL_TOO_SMALL, nodeValue);
-                } else {
-                    dlog.error(pos, DiagnosticCode.OCTAL_TOO_LARGE, nodeValue);
-                }
-            }
+            String processedNodeValue = nodeValue.replace("0_", "");
+            return this.parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 8,
+                    DiagnosticCode.OCTAL_TOO_SMALL, DiagnosticCode.OCTAL_TOO_LARGE);
         } else if (integerLiteralContext.BinaryIntegerLiteral() != null) {
             String nodeValue = getNodeValue(simpleLiteralContext, integerLiteralContext.BinaryIntegerLiteral());
-            try {
-                return Long.parseLong(nodeValue.toLowerCase().replace("0b", ""), 2);
-            } catch (Exception e) {
-                DiagnosticPos pos = getCurrentPos(simpleLiteralContext);
-                Set<Whitespace> ws = getWS(simpleLiteralContext);
-                // Assign a value and continue the compilation. Since there is an error, program will not run.
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
-                if (nodeValue.startsWith("-")) {
-                    dlog.error(pos, DiagnosticCode.BINARY_TOO_SMALL, nodeValue);
-                } else {
-                    dlog.error(pos, DiagnosticCode.BINARY_TOO_LARGE, nodeValue);
-                }
+            String processedNodeValue = nodeValue.toLowerCase().replace("0b", "");
+            return this.parseLong(simpleLiteralContext, nodeValue, processedNodeValue, 2,
+                    DiagnosticCode.BINARY_TOO_SMALL, DiagnosticCode.BINARY_TOO_LARGE);
+        }
+        return null;
+    }
+
+    private Long parseLong(ParserRuleContext context, String originalNodeValue, String processedNodeValue, int radix,
+                           DiagnosticCode code1, DiagnosticCode code2) {
+        try {
+            return Long.parseLong(processedNodeValue, radix);
+        } catch (Exception e) {
+            DiagnosticPos pos = getCurrentPos(context);
+            Set<Whitespace> ws = getWS(context);
+            // Assign a value and continue the compilation. Since there is an error, program will not run.
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, Long.MAX_VALUE);
+            if (originalNodeValue.startsWith("-")) {
+                dlog.error(pos, code1, originalNodeValue);
+            } else {
+                dlog.error(pos, code2, originalNodeValue);
             }
         }
         return null;
