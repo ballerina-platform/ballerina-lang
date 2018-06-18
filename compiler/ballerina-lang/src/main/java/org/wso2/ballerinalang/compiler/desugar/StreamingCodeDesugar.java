@@ -90,14 +90,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private int lambdaFunctionCount = 0;
     private BLangFunction lambdaFunctionNode;
     private BLangIf ifNode;
-    private BLangExpressionStmt foreverReplaceStatement;
     private BLangExpression conditionalExpression;
     private SymbolEnv env;
     private BLangBlockStmt lambdaBody;
     private List<BLangStatement> stmts;
     private BLangSimpleVarRef windowInvokableSimpleVarRef;
     private Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
-    private BLangFunction newLambdaFunctionNode;
     private BLangVariable lambdaFunctionVariable;
 
     private StreamingCodeDesugar(CompilerContext context) {
@@ -127,7 +125,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         // Generate Streaming Consumer Function
         statementNodes.forEach(statementNode -> ((BLangStatement) statementNode).accept(this));
-        stmts.add(foreverReplaceStatement);
         return ASTBuilderUtil.createBlockStmt(foreverStatement.pos, stmts);
     }
 
@@ -139,18 +136,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
             BLangVariable oldFunctionVarible = (BLangVariable) (streamingQueryStatement.getStreamingAction()).
                     getInvokableBody().getFunctionNode().getParameters().get(0);
-            BType varType = oldFunctionVarible.type;
-            BVarSymbol windowEventTypeVarSymbol = new BVarSymbol(0, new Name("emp11"),
-                    varType.tsymbol.pkgID, varType, env.scope.owner);
-
-            lambdaFunctionVariable = ASTBuilderUtil.createVariable(streamingQueryStatement.pos, "emp11",
-                    varType, null, windowEventTypeVarSymbol);
-            lambdaFunctionVariable.typeNode = oldFunctionVarible.getTypeNode();
-
+            lambdaFunctionVariable = cloneBLangVariable(oldFunctionVarible, streamingQueryStatement.pos, env);
 
             //Create new lambda function for process events received from stream
             BLangLambdaFunction lambdaFunction = (BLangLambdaFunction) TreeBuilder.createLambdaFunctionNode();
-            newLambdaFunctionNode = ASTBuilderUtil.createFunction(streamingQueryStatement.pos,
+            BLangFunction newLambdaFunctionNode = ASTBuilderUtil.createFunction(streamingQueryStatement.pos,
                     getFunctionName(FUNC_CALLER));
             lambdaFunction.function = newLambdaFunctionNode;
             lambdaBody = ASTBuilderUtil.createBlockStmt(streamingQueryStatement.pos);
@@ -159,7 +149,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             //Lambda function exists in streaming action
             lambdaFunctionNode = ((BLangLambdaFunction)
                     (streamingQueryStatement.getStreamingAction()).getInvokableBody()).function;
-
 
             //New Lambda Function
             newLambdaFunctionNode.requiredParams.add(lambdaFunctionVariable);
@@ -190,11 +179,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             lambdaFunction.type = ((BLangLambdaFunction) (streamingQueryStatement.getStreamingAction()).
                     getInvokableBody()).type;
 
-            //TODO Hack - fix this
-            ifNode.parent = lambdaFunction;
-
             //Create function call - stream1.subscribe(lambda_function)
-            foreverReplaceStatement = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+            BLangExpressionStmt foreverReplaceStatement = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
             foreverReplaceStatement.pos = streamingQueryStatement.pos;
             BInvokableSymbol subscribeMethodSymbol = (BInvokableSymbol) symTable.rootScope.
                     lookup(names.fromString("stream.subscribe"))
@@ -209,6 +195,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             BVarSymbol varSymbol = ((BVarSymbol) ((BLangSimpleVarRef) (streamingInput).getStreamReference()).symbol);
             invocationExpr.expr = ASTBuilderUtil.createVariableRef(streamingQueryStatement.pos, varSymbol);
             foreverReplaceStatement.expr = invocationExpr;
+            stmts.add(foreverReplaceStatement);
         }
     }
 
@@ -397,6 +384,22 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         packageEnv.enclPkg.topLevelNodes.add(funcNode);
     }
 
+    //----------------------------------------- Static Util Methods ---------------------------------------------------
+
+    private static BLangVariable cloneBLangVariable(BLangVariable langVariable, DiagnosticPos pos, SymbolEnv env) {
+        BType varType = langVariable.type;
+        BVarSymbol varSymbol = new BVarSymbol(0, ((BVarSymbol) langVariable.symbol).name,
+                varType.tsymbol.pkgID, varType, env.scope.owner);
+
+        BLangVariable clonedBLangVariable = ASTBuilderUtil.createVariable(pos, (langVariable.symbol).name.getValue(),
+                varType, null, varSymbol);
+        clonedBLangVariable.typeNode = langVariable.getTypeNode();
+        return clonedBLangVariable;
+    }
+
+
+    //-------------------------------- Deprecated Methods ---------------------------------------------------------
+
     private void generateStreamConsumerFunction(BLangForever foreverStatement) {
 
         // Here we generate an function and function call for the forever statement.
@@ -437,4 +440,5 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private void defineVariable(BLangVariable variable, PackageID pkgID, BLangFunction funcNode) {
         variable.symbol = new BVarSymbol(0, names.fromIdNode(variable.name), pkgID, variable.type, funcNode.symbol);
     }
+
 }
