@@ -81,29 +81,12 @@ public class BinaryFileWriter {
         return this.codeGenerator.generateBALX(entryPackageNode);
     }
 
-    public void write(BLangPackage packageNode) {
-        writeLibraryPackage(packageNode);
-        writeExecutableBinary(packageNode);
-    }
-
-    public void write(BLangPackage packageNode, String fileName) {
-        // TODO Reuse binary content in PackageFile when writing the program file..
-        writeLibraryPackage(packageNode);
-        writeExecutableBinary(packageNode, fileName);
-    }
-
     public void writeExecutableBinary(BLangPackage packageNode) {
         String fileName = getOutputFileName(packageNode, BLANG_COMPILED_PROG_EXT);
         writeExecutableBinary(packageNode, fileName);
     }
 
     public void writeExecutableBinary(BLangPackage packageNode, String fileName) {
-        // Filter out package which doesn't have entry points
-        if (!packageNode.symbol.entryPointExists) {
-            outStream.println("    no executable generated:" + fileName);
-            return;
-        }
-
         String execFileName = cleanupExecFileName(fileName);
 
         // Generate code for the given executable

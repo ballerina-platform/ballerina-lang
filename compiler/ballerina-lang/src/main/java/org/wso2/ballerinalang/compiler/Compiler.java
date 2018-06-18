@@ -83,12 +83,19 @@ public class Compiler {
     public void build() {
         outStream.println("Compiling source");
         List<BLangPackage> packageList = compilePackages();
-        if (packageList.size() > 0) {
+        if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
             outStream.println("\nGenerating executables");
-            packageList.forEach(this.binaryFileWriter::write);
-            packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
-            this.lockFileWriter.writeLockFile(this.manifest);
         }
+        packageList.forEach(bLangPackage -> {
+                                // Filter out package which doesn't have entry points
+                                if (bLangPackage.symbol.entryPointExists) {
+                                    this.binaryFileWriter.writeExecutableBinary(bLangPackage);
+                                }
+                                this.binaryFileWriter.writeLibraryPackage(bLangPackage);
+                            }
+        );
+        packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
+        this.lockFileWriter.writeLockFile(this.manifest);
     }
 
     public void build(String sourcePackage, String targetFileName) {
@@ -99,8 +106,11 @@ public class Compiler {
         }
 
         // Code gen and save...
-        outStream.println("\nGenerating executable");
-        this.binaryFileWriter.write(bLangPackage, targetFileName);
+        if (bLangPackage.symbol.entryPointExists) { // Filter out package which doesn't have entry points
+            outStream.println("\nGenerating executable");
+            this.binaryFileWriter.writeExecutableBinary(bLangPackage, targetFileName);
+        }
+        this.binaryFileWriter.writeLibraryPackage(bLangPackage);
         this.lockFileWriter.addEntryPkg(bLangPackage.symbol);
         this.lockFileWriter.writeLockFile(this.manifest);
     }
