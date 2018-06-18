@@ -40,7 +40,7 @@ public class DataProviderTest {
     public void testBefore() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("data-provider-test.bal")}, new
-                ArrayList<>());
+                ArrayList<>(), false);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 5);
 
     }
@@ -50,7 +50,7 @@ public class DataProviderTest {
     public void testInvalidDataProviderNonArrayOfArraysReturn() {
         new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
                         ("invalid-data-provider-test.bal")},
-                new ArrayList<>());
+                new ArrayList<>(), false);
     }
 
     //TODO temporarily commenting out till we solve the correct validations
@@ -58,7 +58,7 @@ public class DataProviderTest {
 //            + "\\[invalidDataGen\\] should have only one return type.*")
     public void testInvalidDataProviderMultiReturn() {
         new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
-                ("invalid-data-provider-test-2.bal")}, new ArrayList<>());
+                ("invalid-data-provider-test-2.bal")}, new ArrayList<>(), false);
     }
 
     @Test(expectedExceptions = BallerinaException.class, expectedExceptionsMessageRegExp = ".*Data provider " +
@@ -66,7 +66,7 @@ public class DataProviderTest {
     public void testInvalidDataProviderPrimitiveReturn() {
         new BTestRunner().runTest(sourceRoot, new Path[]{Paths.get
                         ("invalid-data-provider-test-3.bal")},
-                new ArrayList<>());
+                new ArrayList<>(), false);
 
     }
 

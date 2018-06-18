@@ -58,7 +58,7 @@ public class ServiceTest {
         TesterinaRegistry.getInstance().setOrgName("$anon");
         BTestRunner bTestRunner = new BTestRunner();
         bTestRunner.runTest("src/test/resources", new Path[]{Paths.get("servicemocktest"), Paths.get
-                ("servicemocktest2")}, new ArrayList<>());
+                ("servicemocktest2")}, new ArrayList<>(), false);
         Assert.assertEquals(bTestRunner.getTesterinaReport().getTestSummary("servicemocktest", "passed"), 1);
     }
 

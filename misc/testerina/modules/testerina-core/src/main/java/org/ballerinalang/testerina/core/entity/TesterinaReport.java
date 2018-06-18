@@ -19,16 +19,13 @@
 package org.ballerinalang.testerina.core.entity;
 
 import org.ballerinalang.testerina.util.Utils;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 /**
  * Util class for printing Testerina test report.
@@ -37,143 +34,36 @@ public class TesterinaReport {
 
     private static PrintStream outStream = System.err;
     private Map<String, TestSummary> testReportOfPackage = new HashMap<>();
-    private TestSummary testSummary;
     private boolean failure;
 
     public void printTestSuiteSummary(String packageName) {
-        testSummary = testReportOfPackage.get(packageName);
+        TestSummary testSummary = testReportOfPackage.get(packageName);
         if (testSummary == null) {
             printTestSuiteResult(0, 0, 0);
             return;
         }
-//        printTestSuiteResult(testSummary.passedTests.size(), testSummary.failedTests.size(), testSummary.skippedTests
-//                .size());
-//        outStream.println();
         if (!testSummary.failedTests.isEmpty()) {
-            // outStream.println();
-//            outStream.println("\t" + "failed tests:");
             for (TesterinaResult failedResult : testSummary.failedTests) {
-//                outStream.println("\t   ✗ "+ failedResult.getTestFunctionName());
-//                outStream.println("✗ "+ failedResult.getTestFunctionName());
-//                outStream.println(failedResult.getAssertFailureMessage());
-                                          // + ": " + failedResult.getAssertFailureMessage());
-                outStream.println("\t✗ "+ failedResult.getTestFunctionName() + ":");
-                // outStream.println("\t    " + failedResult.getAssertFailureMessage().replaceAll("\n", "\n\t    "));
+                outStream.println("\t✗ " + failedResult.getTestFunctionName() + ":");
                 outStream.println("\t    " + Utils.formatError(failedResult.getAssertFailureMessage()));
             }
-            // outStream.println();
         }
 
         if (!testSummary.passedTests.isEmpty()) {
-            // outStream.println();
-//            outStream.println("\t" + "failed tests:");
             for (TesterinaResult passedResult : testSummary.passedTests) {
-//                outStream.println("\t   ✔ "+ passedResult.getTestFunctionName());
-                outStream.println("\t✔ "+ passedResult.getTestFunctionName());
+                outStream.println("\t✔ " + passedResult.getTestFunctionName());
             }
             outStream.println();
         }
         printTestSuiteResult(testSummary.passedTests.size(), testSummary.failedTests.size(), testSummary.skippedTests
                 .size());
-
         outStream.println();
     }
 
     private void printTestSuiteResult(int passed, int failed, int skipped) {
-//        outStream.println();
-        // outStream.print("Tests run: " + (passed + failed));
-//        outStream.println("\t   " + passed + " passing");
-//        outStream.println("\t   " + failed + " failing");
-//        outStream.println("\t   " + skipped + " skipped");
-
         outStream.println("\t" + passed + " passing");
         outStream.println("\t" + failed + " failing");
         outStream.println("\t" + skipped + " skipped");
-//        outStream.println("\t\t" + (passed + failed) + " tests run");
-        // outStream.print(" - in TestSuite");
-        // outStream.println();
-    }
-
-    public void printSummary() {
-        int totalPassed = 0, totalFailed = 0, totalSkipped = 0;
-        for (TestSummary summary : testReportOfPackage.values()) {
-            totalPassed += summary.passedTests.size();
-            totalFailed += summary.failedTests.size();
-            totalSkipped += summary.skippedTests.size();
-        }
-
-//        outStream.println();
-//        // outStream.println("---------------------------------------------------------------------------");
-//        outStream.println("\t\t" + "results:");
-////        outStream.println();
-//        outStream.println("\t\t" + totalPassed + " passing");
-//        outStream.println("\t\t" + totalFailed + " failing");
-//        outStream.println("\t\t" + totalSkipped + " skipped");
-//        outStream.println("\t\t" + (totalPassed + totalFailed) + " tests run");
-
-//        outStream.print("Tests run: " + (totalPassed + totalFailed));
-//        outStream.print(", Passed: " + totalPassed);
-//        outStream.print(", Failures: " + totalFailed);
-//        outStream.print(", Skipped: " + totalSkipped);
-//        outStream.println();
-//        outStream.println("---------------------------------------------------------------------------");
-//        outStream.println("Summary:");
-//        outStream.println();
-
-//        outStream.println();
-        // outStream.println("---------------------------------------------------------------------------");
-        // outStream.println();
-
-
-//        if (!testSummary.failedTests.isEmpty()) {
-//            for (TesterinaResult failedResult : testSummary.failedTests) {
-////                outStream.println("\t✗ "+ failedResult.getTestFunctionName() + ": ");
-////                outStream.println("\t  "+ failedResult.getAssertFailureMessage());
-//
-//                outStream.println("✗ "+ failedResult.getTestFunctionName() + ": "
-//                                          + failedResult.getAssertFailureMessage());
-//            }
-//            // outStream.println();
-//        }
-
-        printSucessAndFailures();
-
-    }
-
-    public void printSucessAndFailures() {
-        if (testReportOfPackage.size() == 0) {
-//            outStream.println("Test Suites: 0");
-        } else {
-            LinkedList<String> keys = new LinkedList<>(testReportOfPackage.keySet());
-            Collections.sort(keys);
-            keys.forEach(packageName -> {
-                TestSummary summary = testReportOfPackage.get(packageName);
-                outStream.println();
-                outStream.print(String.format("%-" + 67 + "s", packageName).replaceAll("\\s(?=\\s+$|$)", "."));
-                outStream.print(" " + ((summary.failedTests.size() > 0 || summary.skippedTests.size() > 0) ?
-                        "FAILURE" : "SUCCESS"));
-            Optional<String> longest = testReportOfPackage.keySet().stream()
-                                                          .sorted((e1, e2) -> e1.length() > e2.length() ? -1 : 1)
-                                                          .findFirst();
-            testReportOfPackage.forEach((packageName, summary) -> {
-                int size = 0;
-                if (longest.isPresent()) {
-                    int lengthOfLongest = longest.get().length();
-                    int pkgLength = packageName.length();
-                    if (lengthOfLongest > pkgLength) {
-                        size = lengthOfLongest - pkgLength + 5;
-                    } else {
-                        size = 5;
-                    }
-                }
-//                outStream.println();
-                if (!packageName.equals(Names.DOT.value)) {
-                    outStream.println("    " + packageName + " " + String.join("", Collections.nCopies(size, "-"))
-                                            + " " + ((summary.failedTests.size() > 0 || summary.skippedTests.size() > 0)
-                            ? "FAILURE" : "SUCCESS"));
-                }
-            });
-        }
     }
 
     public void addPackageReport(String packageName) {

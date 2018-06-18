@@ -115,7 +115,6 @@ public class PackageLoader {
     private static final boolean shouldReadBalo = true;
     private static PrintStream outStream = System.out;
 
-
     public static PackageLoader getInstance(CompilerContext context) {
         PackageLoader loader = context.get(PACKAGE_LOADER_KEY);
         if (loader == null) {

@@ -27,13 +27,10 @@ import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.logging.BLogManager;
 import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 import org.ballerinalang.testerina.util.Utils;
-import org.ballerinalang.toml.model.Manifest;
-import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.VMOptions;
 import org.wso2.ballerinalang.compiler.FileSystemProjectDirectory;
 import org.wso2.ballerinalang.compiler.SourceDirectory;
-import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -150,7 +147,7 @@ public class TestCmd implements BLauncherCmd {
                 .toArray(Path[]::new);
 
         if (srcDirectory != null) {
-            Utils.readManifestConfigs();
+            Utils.setManifestConfigs();
         }
         BTestRunner testRunner = new BTestRunner();
         if (listGroups) {

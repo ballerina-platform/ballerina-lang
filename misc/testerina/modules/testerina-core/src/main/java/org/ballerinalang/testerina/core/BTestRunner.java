@@ -148,7 +148,6 @@ public class BTestRunner {
         } else {
             outStream.println("Compiling test");
         }
-//        outStream.println();
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
             String packageName = Utils.getFullPackageName(sourcePackage.toString());
@@ -190,7 +189,7 @@ public class BTestRunner {
 
     /**
      * Run all tests.
-     * @param buildWithTests
+     * @param buildWithTests build with tests or just execute tests
      */
     private void execute(boolean buildWithTests) {
         Map<String, TestSuite> testSuites = registry.getTestSuites();
@@ -215,13 +214,8 @@ public class BTestRunner {
 //            outStream.println();
 //            outStream.println("Running Tests");
             if (!packageName.equals(Names.DOT.value)) {
-//                outStream.println("\t" + packageName);
-//                outStream.println("\t" + String.join("", Collections.nCopies(packageName.length(), "-")));
                 outStream.println("    " + packageName);
-//                outStream.println();
-//                outStream.println(String.join("", Collections.nCopies(packageName.length(), "")));
             }
-            // outStream.println("---------------------------------------------------------------------------");
             shouldSkip.set(false);
             TestAnnotationProcessor.injectMocks(suite);
             tReport.addPackageReport(packageName);
@@ -235,8 +229,6 @@ public class BTestRunner {
                     test.invoke();
                 } catch (Throwable e) {
                     shouldSkip.set(true);
-//                    errorMsg = String.format("Failed to execute before test suite function [%s] of test suite " +
-//                                             "package [%s]. Cause: %s", test.getName(), packageName, e.getMessage());
                     errorMsg = "\t✗ " + test.getName() + " [before test suite function]" + ":\n\t    "
                             + Utils.formatError(e.getMessage());
                     errStream.println(errorMsg);
@@ -253,12 +245,8 @@ public class BTestRunner {
                             beforeEachTest.invoke();
                         } catch (Throwable e) {
                             shouldSkipTest.set(true);
-//                            errorMsg = String.format("\tFailed to execute before each test function [%s] for the "
-//                                                     + "test [%s] of test suite package [%s]. Cause: %s",
-//                                    beforeEachTest.getName(),
-//                                    test.getTestFunction().getName(), packageName, e.getMessage());
-                            errorMsg = String.format("\t✗ " +  beforeEachTest.getName() +
-                                                             " [before each test function for test %s] :\n\t    %s",
+                            errorMsg = String.format("\t✗ " + beforeEachTest.getName() +
+                                                     " [before each test function for the test %s] :\n\t    %s",
                                                      test.getTestFunction().getName(),
                                                      Utils.formatError(e.getMessage()));
                             errStream.println(errorMsg);
@@ -274,13 +262,8 @@ public class BTestRunner {
                         }
                     } catch (Throwable e) {
                         shouldSkipTest.set(true);
-//                        errorMsg = String.format("\tFailed to execute before test function" + " [%s] for the test " +
-//                                                 "[%s] of test suite package [%s]. Cause: %s",
-//                                test.getBeforeTestFunctionObj().getName
-//                                        (), test.getTestFunction().getName(), packageName, e.getMessage());
-
-                        errorMsg = String.format("\t✗ " +  test.getBeforeTestFunctionObj().getName() +
-                                                         " [before test function for test %s] :\n\t    %s",
+                        errorMsg = String.format("\t✗ " + test.getBeforeTestFunctionObj().getName() +
+                                                 " [before test function for the test %s] :\n\t    %s",
                                                  test.getTestFunction().getName(),
                                                  Utils.formatError(e.getMessage()));
                         errStream.println(errorMsg);
@@ -324,12 +307,9 @@ public class BTestRunner {
                 } catch (Throwable e) {
                     // If the test function is skipped lets add it to the failed test list
                     failedOrSkippedTests.add(test.getTestFunction().getName());
-//                    String errorMsg = String.format("Failed to execute the test function [%s] of test suite package "
-//                            + "[%s]. Cause: %s", test.getTestFunction().getName(), packageName, e.getMessage());
-////                    errStream.println(errorMsg);
                     // report the test result
                     functionResult = new TesterinaResult(test.getTestFunction().getName(), false, shouldSkip.get(),
-                            e.getMessage());
+                                                         e.getMessage());
                     tReport.addFunctionResult(packageName, functionResult);
                 }
 
@@ -340,14 +320,9 @@ public class BTestRunner {
                         test.getAfterTestFunctionObj().invoke();
                     }
                 } catch (Throwable e) {
-//                    error = String.format("\tFailed to execute after test function" + " [%s] for the test [%s] of test " +
-//                                          "suite package [%s]. Cause: %s", test.getAfterTestFunctionObj().getName(),
-//                            test.getTestFunction().getName(), packageName, e.getMessage());
-
-
-                    error = String.format("\t✗ " +  test.getAfterTestFunctionObj().getName() +
-                                                     " [after test function for test %s] :\n\t    %s",
-                                             test.getTestFunction().getName(),
+                    error = String.format("\t✗ " + test.getAfterTestFunctionObj().getName() +
+                                          " [after test function for the test %s] :\n\t    %s",
+                                          test.getTestFunction().getName(),
                                           Utils.formatError(e.getMessage()));
                     errStream.println(error);
                 }
@@ -358,13 +333,9 @@ public class BTestRunner {
                     try {
                         afterEachTest.invoke();
                     } catch (Throwable e) {
-//                        errorMsg2 = String.format("\tFailed to execute after each test function" + " [%s] for the test " +
-//                                                  "[%s] of test suite package [%s]. Cause: %s", afterEachTest.getName(),
-//                                test.getTestFunction().getName(), packageName, e.getMessage());
-
-                        errorMsg2 = String.format("\t✗ " +  afterEachTest.getName() +
-                                                      " [after each test function for test %s] :\n\t    %s",
-                                              test.getTestFunction().getName(),
+                        errorMsg2 = String.format("\t✗ " + afterEachTest.getName() +
+                                                  " [after each test function for the test %s] :\n\t    %s",
+                                                  test.getTestFunction().getName(),
                                                   Utils.formatError(e.getMessage()));
                         errStream.println(errorMsg2);
                     }
@@ -378,11 +349,7 @@ public class BTestRunner {
                 try {
                     func.invoke();
                 } catch (Throwable e) {
-//                    errorMsg = String.format("\tFailed to execute after test suite function [%s] of test suite " +
-//                                             "package [%s]. Cause: %s", func.getName(), packageName, e.getMessage());
-
-                    errorMsg = String.format("\t✗ " +  func.getName() +
-                                                      " [after test suite function] :\n\t    %s",
+                    errorMsg = String.format("\t✗ " + func.getName() + " [after test suite function] :\n\t    %s",
                                              Utils.formatError(e.getMessage()));
                     errStream.println(errorMsg);
                 }

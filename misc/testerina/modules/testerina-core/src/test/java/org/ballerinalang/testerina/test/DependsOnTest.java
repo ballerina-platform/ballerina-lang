@@ -40,7 +40,7 @@ public class DependsOnTest {
     public void tesDependsOnFunctions() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on.bal")}, new
-            ArrayList<>());
+            ArrayList<>(), false);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 4);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
@@ -50,7 +50,7 @@ public class DependsOnTest {
     public void tesDependsOnFunctionsWithBefore() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-with-before.bal")}, new
-            ArrayList<>());
+            ArrayList<>(), false);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 4);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
@@ -61,7 +61,7 @@ public class DependsOnTest {
     public void tesDependsOnFunctionsMissingFunction() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("depends-on-negative.bal")}, new
-            ArrayList<>());
+            ArrayList<>(), false);
     }
 
     @AfterMethod
