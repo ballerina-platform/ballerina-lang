@@ -36,7 +36,7 @@ import org.testng.annotations.Test;
  * byte b;
  * b = 23;
  *
- * @since 0.975
+ * @since 0.980
  */
 
 public class BByteValueTest {

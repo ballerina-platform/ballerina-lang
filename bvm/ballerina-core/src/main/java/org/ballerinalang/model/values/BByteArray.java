@@ -28,7 +28,7 @@ import java.util.StringJoiner;
 /**
  * {@code BByteArray} represents a byte array in Ballerina.
  *
- * @since 0.975
+ * @since 0.980
  */
 public class BByteArray extends BNewArray {
 

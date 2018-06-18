@@ -467,7 +467,6 @@ public class SQLDataIterator extends TableIterator {
             BType fieldType) {
         int fieldTypeTag = fieldType.getTag();
         if (fieldTypeTag == TypeTags.UNION_TAG) {
-            //TODO fix for byte
             BRefType refValue = bytes == null ? null : new BBlob(bytes);
             validateAndSetRefRecordField(bStruct, refRegIndex.incrementAndGet(), TypeTags.BLOB_TAG,
                     retrieveNonNilTypeTag(fieldType), refValue, UNASSIGNABLE_UNIONTYPE_EXCEPTION);

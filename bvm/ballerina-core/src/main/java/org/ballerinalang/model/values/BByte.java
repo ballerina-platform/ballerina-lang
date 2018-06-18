@@ -24,7 +24,7 @@ import org.ballerinalang.model.types.BTypes;
 /**
  * The {@code BByte} represents a byte value in Ballerina.
  *
- * @since 0.975
+ * @since 0.980
  */
 public final class BByte extends BValueType implements BRefType<Integer> {
 

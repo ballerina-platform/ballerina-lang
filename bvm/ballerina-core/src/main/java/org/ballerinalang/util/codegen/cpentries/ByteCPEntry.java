@@ -21,7 +21,7 @@ package org.ballerinalang.util.codegen.cpentries;
 /**
  * {@code ByteCPEntry} represents a Ballerina byte value in the constant pool.
  *
- * @since 0.975
+ * @since 0.980
  */
 public class ByteCPEntry implements ConstantPoolEntry {
 
