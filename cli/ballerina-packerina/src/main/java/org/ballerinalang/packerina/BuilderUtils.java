@@ -18,6 +18,7 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.CompilerPhase;
+import org.wso2.ballerinalang.compiler.CompiledPackages;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -35,13 +36,12 @@ import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
  * @since 0.95.2
  */
 public class BuilderUtils {
-
-    public static void compileAndWrite(Path sourceRootPath,
-                                       String packagePath,
-                                       String targetPath,
-                                       boolean buildCompiledPkg,
-                                       boolean offline,
-                                       boolean lockEnabled) {
+    public static void compile(Path sourceRootPath,
+                               String packagePath,
+                               String targetPath,
+                               boolean buildCompiledPkg,
+                               boolean offline,
+                               boolean lockEnabled) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
@@ -54,7 +54,7 @@ public class BuilderUtils {
         compiler.build(packagePath, targetPath);
     }
 
-    public static void compileAndWrite(Path sourceRootPath, boolean offline, boolean lockEnabled) {
+    public static void compile(Path sourceRootPath, boolean offline, boolean lockEnabled) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
@@ -64,5 +64,36 @@ public class BuilderUtils {
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.build();
+    }
+
+    public static void write(Path sourceRootPath,
+                             String packagePath,
+                             boolean buildCompiledPkg,
+                             boolean offline,
+                             boolean lockEnabled) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(BUILD_COMPILED_PACKAGE, Boolean.toString(buildCompiledPkg));
+        options.put(OFFLINE, Boolean.toString(offline));
+        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
+
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.write(packagePath, CompiledPackages.getInstance().getPkgList().get(0));
+        CompiledPackages.getInstance().getPkgList().clear();
+    }
+
+    public static void write(Path sourceRootPath, boolean offline, boolean lockEnabled) {
+        CompilerContext context = new CompilerContext();
+        CompilerOptions options = CompilerOptions.getInstance(context);
+        options.put(PROJECT_DIR, sourceRootPath.toString());
+        options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(OFFLINE, Boolean.toString(offline));
+        options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
+
+        Compiler compiler = Compiler.getInstance(context);
+        compiler.write(CompiledPackages.getInstance().getPkgList());
+        CompiledPackages.getInstance().getPkgList().clear();
     }
 }

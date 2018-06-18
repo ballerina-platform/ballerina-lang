@@ -155,11 +155,11 @@ public class BTestRunner {
                 CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
-                errStream.println(diagnostic.getKind() + ": " + diagnostic.getPosition() + " " + diagnostic
+                errStream.println("error: " + diagnostic.getPosition() + " " + diagnostic
                     .getMessage());
             }
             if (compileResult.getErrorCount() > 0) {
-                throw new BallerinaException("[ERROR] Compilation failed.");
+                throw new BallerinaException("error : compilation failed");
             }
             // set the debugger
             ProgramFile programFile = compileResult.getProgFile();
@@ -174,7 +174,7 @@ public class BTestRunner {
                     try {
                         ((TestAnnotationProcessor) plugin).packageProcessed(programFile);
                     } catch (Exception e) {
-                        errStream.println("[ERROR] Validation failed. Cause: " + e.getMessage());
+                        errStream.println("error: validation failed. Cause: " + e.getMessage());
                         throw new BallerinaException(e);
                     }
                 }

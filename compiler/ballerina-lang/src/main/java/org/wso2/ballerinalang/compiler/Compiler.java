@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler;
 
+import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.parser.ManifestProcessor;
@@ -28,7 +29,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -82,32 +82,38 @@ public class Compiler {
 
     public void build() {
         outStream.println("Compiling source");
-        List<BLangPackage> packageList = compilePackages();
-        if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
-            outStream.println("\nGenerating executables");
-        }
-        packageList.forEach(bLangPackage -> {
-                                // Filter out package which doesn't have entry points
-                                if (bLangPackage.symbol.entryPointExists) {
-                                    this.binaryFileWriter.writeExecutableBinary(bLangPackage);
-                                }
-                                this.binaryFileWriter.writeLibraryPackage(bLangPackage);
-                            }
-        );
-        packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
-        this.lockFileWriter.writeLockFile(this.manifest);
+        CompiledPackages.getInstance().setPkgList(compilePackages());
     }
 
     public void build(String sourcePackage, String targetFileName) {
         outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage);
         if (bLangPackage.diagCollector.hasErrors()) {
-            return;
+            throw new BLangCompilerException("compilation contains errors");
         }
+        CompiledPackages.getInstance().addToPkgList(bLangPackage);
+    }
 
-        // Code gen and save...
+    public void write(List<BLangPackage> packageList) {
+        if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
+            outStream.println("Generating executables");
+        }
+        packageList.forEach(bLangPackage -> {
+                  // Filter out package which doesn't have entry points
+                  if (bLangPackage.symbol.entryPointExists) {
+                    this.binaryFileWriter.writeExecutableBinary(bLangPackage);
+                  }
+                  this.binaryFileWriter.writeLibraryPackage(bLangPackage);
+               }
+        );
+        packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
+        this.lockFileWriter.writeLockFile(this.manifest);
+    }
+
+    public void write(String targetFileName, BLangPackage bLangPackage) {
+        // Code gen and save
         if (bLangPackage.symbol.entryPointExists) { // Filter out package which doesn't have entry points
-            outStream.println("\nGenerating executable");
+            outStream.println("Generating executable");
             this.binaryFileWriter.writeExecutableBinary(bLangPackage, targetFileName);
         }
         this.binaryFileWriter.writeLibraryPackage(bLangPackage);
@@ -122,7 +128,7 @@ public class Compiler {
     public void list(String sourcePackage) {
         BLangPackage bLangPackage = compile(sourcePackage);
         if (bLangPackage.diagCollector.hasErrors()) {
-            return;
+            throw new BLangCompilerException("compilation contains errors");
         }
 
         this.dependencyTree.listDependencyPackages(bLangPackage);
@@ -130,7 +136,7 @@ public class Compiler {
 
     public ProgramFile getExecutableProgram(BLangPackage entryPackageNode) {
         if (dlog.errorCount > 0) {
-            return null;
+            throw new BLangCompilerException("compilation contains errors");
         }
         return this.binaryFileWriter.genExecutable(entryPackageNode);
     }
@@ -161,7 +167,7 @@ public class Compiler {
         List<BLangPackage> compiledPackages = compilePackages(
                 this.sourceDirectoryManager.listSourceFilesAndPackages());
         if (this.dlog.errorCount > 0) {
-            return new ArrayList<>();
+            throw new BLangCompilerException("compilation contains errors");
         }
 
         return compiledPackages;
