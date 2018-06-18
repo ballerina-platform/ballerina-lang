@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
@@ -871,6 +872,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     public void visit(BLangIndexBasedAccess indexAccessExpr) {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
+
+        // Check for illegal access of sealed arrays using literals
+        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY && indexAccessExpr.indexExpr instanceof BLangLiteral) {
+            BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
+            BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
+            if (bArrayType.size > -1
+                    && (indexExpr.getValue() instanceof Long) && (bArrayType.size <= (Long) indexExpr.getValue())) {
+                dlog.error(
+                        indexExpr.pos, DiagnosticCode.ARRAY_INDEX_OUT_OF_BOUNDS);
+            }
+        }
     }
 
     public void visit(BLangInvocation invocationExpr) {

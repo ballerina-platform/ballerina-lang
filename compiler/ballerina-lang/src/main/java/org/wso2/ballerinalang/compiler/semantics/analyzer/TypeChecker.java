@@ -276,8 +276,22 @@ public class TypeChecker extends BLangNodeVisitor {
 
         } else if (expTypeTag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) expType;
+            if (arrayType.size == -2) {
+                arrayType.size = arrayLiteral.exprs.size();
+            } else if (arrayType.size != -1 && arrayType.size != arrayLiteral.exprs.size()) {
+                dlog.error(arrayLiteral.pos,
+                        DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, arrayLiteral.exprs.size());
+                resultType = symTable.errType;
+                return;
+            }
             checkExprs(arrayLiteral.exprs, this.env, arrayType.eType);
-            actualType = new BArrayType(arrayType.eType);
+            BType childType = arrayType.eType;
+            while (childType != null && childType.tag == TypeTags.ARRAY) {
+                BArrayType bArrayType = (BArrayType) childType;
+                bArrayType.size = bArrayType.size == -2 ? -1 : bArrayType.size;
+                childType = bArrayType.eType;
+            }
+            actualType = arrayType;
 
         } else if (expTypeTag != TypeTags.ERROR) {
             List<BType> resTypes = checkExprs(arrayLiteral.exprs, this.env, symTable.noType);

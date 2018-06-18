@@ -21,7 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.ArrayTypeNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
-import java.util.Collections;
+import java.util.Arrays;
 
 /**
  * @since 0.94
@@ -30,6 +30,8 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
     public BLangType elemtype;
 
     public int dimensions;
+
+    public int[] sizes;
 
     public BLangArrayType() {
     }
@@ -45,13 +47,26 @@ public class BLangArrayType extends BLangType implements ArrayTypeNode {
     }
 
     @Override
+    public int[] getSizes() {
+        return sizes;
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }
 
     @Override
     public String toString() {
-        return getTypeName() + String.join("", Collections.nCopies(dimensions, "[]"));
+        final StringBuilder[] sb = {new StringBuilder(getTypeName())};
+        Arrays.stream(sizes).forEach(size -> {
+            if (size == -1) {
+                sb[0].append("[]");
+            } else {
+                sb[0].append("[").append(size).append("]");
+            }
+        });
+        return sb[0].toString();
     }
 
     @Override

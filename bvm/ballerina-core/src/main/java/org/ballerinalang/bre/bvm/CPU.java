@@ -560,7 +560,8 @@ public class CPU {
     
                     case InstructionCodes.INEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BIntArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BIntArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.ARRAYLEN:
                         i = operands[0];
@@ -582,19 +583,23 @@ public class CPU {
                         break;
                     case InstructionCodes.FNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BFloatArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BFloatArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.SNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BStringArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BStringArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.BNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BBooleanArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BBooleanArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.LNEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BBlobArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BBlobArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.RNEWARRAY:
                         i = operands[0];

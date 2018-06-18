@@ -26,4 +26,6 @@ public interface ArrayTypeNode extends ReferenceTypeNode {
     TypeNode getElementType();
 
     int getDimensions();
+
+    int[] getSizes();
 }

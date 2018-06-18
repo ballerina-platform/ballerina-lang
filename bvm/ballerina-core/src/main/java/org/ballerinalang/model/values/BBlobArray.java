@@ -28,17 +28,22 @@ import java.util.Arrays;
  */
 public class BBlobArray extends BNewArray {
 
-    private static BType arrayType = new BArrayType(BTypes.typeBlob);
-
     private byte[][] values;
 
     public BBlobArray(byte[][] values) {
         this.values = values;
         this.size = values.length;
+        super.arrayType = new BArrayType(BTypes.typeBlob);
     }
 
     public BBlobArray() {
         values = (byte[][]) newArrayInstance(byte[].class);
+        super.arrayType = new BArrayType(BTypes.typeBlob);
+    }
+
+    public BBlobArray(int size) {
+        values = (byte[][]) newArrayInstance(byte[].class, size);
+        super.arrayType = new BArrayType(BTypes.typeBlob);
     }
 
     public void add(long index, byte[] value) {

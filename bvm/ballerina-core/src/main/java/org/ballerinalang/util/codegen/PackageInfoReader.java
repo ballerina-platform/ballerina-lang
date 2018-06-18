@@ -1162,12 +1162,6 @@ public class PackageInfoReader {
                 case InstructionCodes.BR_FALSE:
                 case InstructionCodes.TR_END:
                 case InstructionCodes.ARRAYLEN:
-                case InstructionCodes.INEWARRAY:
-                case InstructionCodes.FNEWARRAY:
-                case InstructionCodes.SNEWARRAY:
-                case InstructionCodes.BNEWARRAY:
-                case InstructionCodes.LNEWARRAY:
-                case InstructionCodes.RNEWARRAY:
                 case InstructionCodes.JSONNEWARRAY:
                 case InstructionCodes.NEWSTRUCT:
                 case InstructionCodes.ITR_NEW:
@@ -1328,6 +1322,12 @@ public class PackageInfoReader {
                 case InstructionCodes.JSON2MAP:
                 case InstructionCodes.JSON2ARRAY:
                 case InstructionCodes.INT_RANGE:
+                case InstructionCodes.INEWARRAY:
+                case InstructionCodes.FNEWARRAY:
+                case InstructionCodes.SNEWARRAY:
+                case InstructionCodes.BNEWARRAY:
+                case InstructionCodes.LNEWARRAY:
+                case InstructionCodes.RNEWARRAY:
                     i = codeStream.readInt();
                     j = codeStream.readInt();
                     k = codeStream.readInt();
@@ -1766,7 +1766,12 @@ public class PackageInfoReader {
         }
 
         @Override
-        public BType getCollenctionType(char typeChar, List<BType> memberTypes) {
+        public BType getArrayType(BType elemType, int size) {
+            return new BArrayType(elemType, size);
+        }
+
+        @Override
+        public BType getCollectionType(char typeChar, List<BType> memberTypes) {
             switch (typeChar) {
                 case 'O':
                     return new BUnionType(memberTypes);

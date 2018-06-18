@@ -38,7 +38,9 @@ public interface TypeCreater<T> {
 
     public T getArrayType(T elementType);
 
-    public T getCollenctionType(char typeChar, List<T> memberTypes);
+    public T getArrayType(T elemType, int size);
+
+    public T getCollectionType(char typeChar, List<T> memberTypes);
 
     public T getFunctionType(List<T> funcParamsStack, T retType);
 }

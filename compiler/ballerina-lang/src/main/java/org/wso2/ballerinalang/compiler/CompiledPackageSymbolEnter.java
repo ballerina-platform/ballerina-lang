@@ -1123,7 +1123,14 @@ public class CompiledPackageSymbolEnter {
         }
 
         @Override
-        public BType getCollenctionType(char typeChar, List<BType> memberTypes) {
+        public BType getArrayType(BType elementType, int size) {
+            BTypeSymbol arrayTypeSymbol = Symbols.createTypeSymbol(SymTag.ARRAY_TYPE, Flags.asMask(EnumSet
+                    .of(Flag.PUBLIC)), Names.EMPTY, env.pkgSymbol.pkgID, null, env.pkgSymbol.owner);
+            return new BArrayType(elementType, arrayTypeSymbol, size);
+        }
+
+        @Override
+        public BType getCollectionType(char typeChar, List<BType> memberTypes) {
 
             switch (typeChar) {
                 case 'O':

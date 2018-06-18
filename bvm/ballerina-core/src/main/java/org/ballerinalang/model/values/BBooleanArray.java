@@ -29,17 +29,22 @@ import java.util.StringJoiner;
  */
 public class BBooleanArray extends BNewArray {
 
-    private static BType arrayType = new BArrayType(BTypes.typeBoolean);
-
     private int[] values;
 
     public BBooleanArray(int[] values) {
         this.values = values;
         this.size = values.length;
+        super.arrayType = new BArrayType(BTypes.typeBoolean);
     }
 
     public BBooleanArray() {
         values = (int[]) newArrayInstance(Integer.TYPE);
+        super.arrayType = new BArrayType(BTypes.typeBoolean);
+    }
+
+    public BBooleanArray(int size) {
+        values = (int[]) newArrayInstance(Integer.TYPE, size);
+        super.arrayType = new BArrayType(BTypes.typeBoolean);
     }
 
     public void add(long index, int value) {

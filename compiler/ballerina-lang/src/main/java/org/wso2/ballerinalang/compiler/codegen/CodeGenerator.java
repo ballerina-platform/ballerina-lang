@@ -225,7 +225,6 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
@@ -626,7 +625,20 @@ public class CodeGenerator extends BLangNodeVisitor {
         int opcode = getOpcode(etype.tag, InstructionCodes.INEWARRAY);
         Operand arrayVarRegIndex = calcAndGetExprRegIndex(arrayLiteral);
         Operand typeCPIndex = getTypeCPIndex(arrayLiteral.type);
-        emit(opcode, arrayVarRegIndex, typeCPIndex);
+
+        BLangLiteral arraySizeLiteral = new BLangLiteral();
+        arraySizeLiteral.pos = arrayLiteral.pos;
+        if (arrayLiteral.type.tag == TypeTags.ARRAY) {
+            BArrayType type = (BArrayType) arrayLiteral.type;
+            long size = (type.size);
+            arraySizeLiteral.value = (size == -2) ? -1L : size;
+        } else {
+            arraySizeLiteral.value = -1L;
+        }
+        arraySizeLiteral.type = symTable.intType;
+        genNode(arraySizeLiteral, this.env);
+
+        emit(opcode, arrayVarRegIndex, typeCPIndex, arraySizeLiteral.regIndex);
 
         // Emit instructions populate initial array values;
         for (int i = 0; i < arrayLiteral.exprs.size(); i++) {
@@ -1035,7 +1047,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Emit create array instruction
         RegIndex exprRegIndex = calcAndGetExprRegIndex(bracedOrTupleExpr);
         Operand typeCPIndex = getTypeCPIndex(bracedOrTupleExpr.type);
-        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex);
+
+        BLangLiteral sizeLiteral = new BLangLiteral();
+        sizeLiteral.pos = bracedOrTupleExpr.pos;
+        sizeLiteral.value = -1L;
+        sizeLiteral.type = symTable.intType;
+        genNode(sizeLiteral, this.env);
+
+        emit(InstructionCodes.RNEWARRAY, exprRegIndex, typeCPIndex, sizeLiteral.regIndex);
 
         // Emit instructions populate initial array values;
         for (int i = 0; i < bracedOrTupleExpr.expressions.size(); i++) {

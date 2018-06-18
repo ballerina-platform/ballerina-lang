@@ -194,7 +194,8 @@ finiteTypeUnit
 
 typeName
     :   simpleTypeName                                                      # simpleTypeNameLabel
-    |   typeName (LEFT_BRACKET RIGHT_BRACKET)+                              # arrayTypeNameLabel
+    |   SEALED typeName (LEFT_BRACKET RIGHT_BRACKET)+                       # sealedArrayTypeNameLabel
+    |   typeName (LEFT_BRACKET integerLiteral? RIGHT_BRACKET)+              # arrayTypeNameLabel
     |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
     |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel

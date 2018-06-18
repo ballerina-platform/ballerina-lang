@@ -422,6 +422,18 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitRecordTypeNameLabel(BallerinaParser.RecordTypeNameLabelContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code sealedArrayTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void enterSealedArrayTypeNameLabel(BallerinaParser.SealedArrayTypeNameLabelContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code sealedArrayTypeNameLabel}
+	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * @param ctx the parse tree
+	 */
+	void exitSealedArrayTypeNameLabel(BallerinaParser.SealedArrayTypeNameLabelContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code unionTypeNameLabel}
 	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree

@@ -30,6 +30,8 @@ public class BArrayType extends BType implements ArrayType {
 
     public BType eType;
 
+    public int size = -1; // Default to unsealed
+
     public BArrayType(BType elementType) {
         super(TypeTags.ARRAY, null);
         this.eType = elementType;
@@ -40,8 +42,19 @@ public class BArrayType extends BType implements ArrayType {
         this.eType = elementType;
     }
 
+    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size) {
+        super(TypeTags.ARRAY, tsymbol);
+        this.eType = elementType;
+        this.size = size; // -2 value to infer size from expression
+    }
+
     public String getDesc() {
-        return TypeDescriptor.SIG_ARRAY + eType.getDesc();
+        return TypeDescriptor.SIG_ARRAY + size + ";" + eType.getDesc();
+    }
+
+    @Override
+    public int getSize() {
+        return size;
     }
 
     @Override
@@ -61,6 +74,13 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public String toString() {
-        return eType.toString() + "[]";
+        StringBuilder sb = new StringBuilder(eType.toString());
+        if (sb.indexOf("[") != -1) {
+            return size != -1 ?
+                    sb.insert(sb.indexOf("["), "[" + size + "]").toString() :
+                    sb.insert(sb.indexOf("["), "[]").toString();
+        } else {
+            return size != -1 ? sb.append("[").append(size).append("]").toString() : sb.append("[]").toString();
+        }
     }
 }

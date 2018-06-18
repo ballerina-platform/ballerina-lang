@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.parser;
 
 import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ballerinalang.model.Whitespace;
@@ -33,11 +34,14 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
+import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -49,6 +53,7 @@ import java.util.stream.Collectors;
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_NATIVE = "native";
+    private final BLangDiagnosticLog dlog;
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -60,6 +65,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
+        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     @Override
@@ -722,13 +728,86 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.attachWorkerWS(getWS(ctx));
     }
 
+//    @Override
+//    public void exitUnsealedArrayTypeNameLabel(BallerinaParser.UnsealedArrayTypeNameLabelContext ctx) {
+//        if (ctx.exception != null) {
+//            return;
+//        }
+//        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), (ctx.getChildCount() - 1) / 2);
+//    }
+//
+//    @Override
+//    public void exitImplicitSealedArrayTypeNameLabel(BallerinaParser.ImplicitSealedArrayTypeNameLabelContext ctx) {
+//        if (ctx.exception != null) {
+//            return;
+//        }
+//        int dimensions = (ctx.getChildCount() - 1) / 3;
+//        List<BallerinaParser.IntegerLiteralContext> integerLiteralContexts = ctx.integerLiteral();
+//        int[] sizes = new int[dimensions];
+//        final int[] i = {dimensions - 1};
+//        integerLiteralContexts.forEach(integerLiteralContext -> {
+//            Long longObject;
+//            if ((longObject = getIntegerLiteral(ctx, integerLiteralContext)) != null) {
+//                try {
+//                    sizes[i[0]--] = longObject.intValue();
+//                } catch (NumberFormatException ex) {
+//                    // When ctx.IntegerLiteral() is not a string or missing,
+//                    // compilation fails due to NumberFormatException.
+//                    // Hence catching the error and ignore. Still Parser complains about missing IntegerLiteral.
+//                }
+//            }
+//        });
+//
+//        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), dimensions, sizes);
+//    }
+
+
     @Override
     public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx),
-                (ctx.getChildCount() - 1) / 2);
+        if (ctx.getParent().getChild(0) != null && "sealed".equals(ctx.getParent().getChild(0).getText())) {
+            return; // if sealed keyword used exitSealedArrayTypeNameLabel will parse the array
+        }
+        int index = 1;
+        int dimensions = 0;
+        List<Integer> sizes = new ArrayList<>();
+        List<ParseTree> children = ctx.children;
+        while (index < children.size()) {
+            if (children.get(index).getText().equals("[")) {
+                if (children.get(index + 1).getText().equals("]")) {
+                    sizes.add(-1);
+                    index += 2;
+                } else {
+                    sizes.add(Integer.parseInt(children.get(index + 1).getText()));
+                    index += 3;
+                }
+                dimensions++;
+            } else {
+                index++;
+            }
+        }
+        Collections.reverse(sizes);
+        this.pkgBuilder.addArrayType(
+                getCurrentPos(ctx), getWS(ctx), dimensions, sizes.stream().mapToInt(val -> val).toArray());
+    }
+
+    @Override
+    public void exitSealedArrayTypeNameLabel(BallerinaParser.SealedArrayTypeNameLabelContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        int childDimensions = 0;
+        if (ctx.children.get(1) instanceof BallerinaParser.ArrayTypeNameLabelContext) {
+            BallerinaParser.ArrayTypeNameLabelContext arrayTypeNameLabelContext
+                    = (BallerinaParser.ArrayTypeNameLabelContext) ctx.children.get(1);
+            childDimensions = (arrayTypeNameLabelContext.getChildCount() - 1) / 2;
+        }
+        int dimensions = (ctx.getChildCount() - 1) / 2 + childDimensions;
+        int[] intArray = new int[dimensions];
+        Arrays.fill(intArray, -2);
+        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), dimensions, intArray);
     }
 
     @Override

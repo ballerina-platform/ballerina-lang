@@ -147,6 +147,13 @@ public class Types {
             return expr.type;
         }
 
+        if (actualType.tag == TypeTags.ARRAY && expType.tag == TypeTags.ARRAY) {
+            if (!isSealedArrayInitialized((BArrayType) actualType, (BArrayType) expType)) {
+                dlog.error(expr.pos,
+                        DiagnosticCode.INVALID_ASSIGNMENT_FOR_SEALED_TYPE, expType, actualType);
+            }
+        }
+
         // Set an implicit cast expression, if applicable
         setImplicitCastExpr(expr, actualType, expType);
 
@@ -267,6 +274,16 @@ public class Types {
 
         return source.tag == TypeTags.ARRAY && target.tag == TypeTags.ARRAY &&
                 isArrayTypesAssignable(source, target);
+    }
+
+    public boolean isSealedArrayInitialized(BArrayType rhsArrayType, BArrayType lhsArrayType) {
+        if (lhsArrayType.size == -1) {  // Not a sealed array
+            return true;
+        } else if (lhsArrayType.size == -2 && rhsArrayType.size >= -1) {
+            return true;
+        } else {
+            return lhsArrayType.size == rhsArrayType.size;
+        }
     }
 
     public boolean isArrayTypesAssignable(BType source, BType target) {

@@ -29,17 +29,22 @@ import java.util.StringJoiner;
  */
 public class BIntArray extends BNewArray {
 
-    static BType arrayType = new BArrayType(BTypes.typeInt);
-
     private long[] values;
 
     public BIntArray(long[] values) {
         this.values = values;
         this.size = values.length;
+        super.arrayType = new BArrayType(BTypes.typeInt);
     }
     
     public BIntArray() {
         values = (long[]) newArrayInstance(Long.TYPE);
+        super.arrayType = new BArrayType(BTypes.typeInt);
+    }
+
+    public BIntArray(int size) {
+        values = (long[]) newArrayInstance(Long.TYPE, size);
+        super.arrayType = new BArrayType(BTypes.typeInt);
     }
 
     public void add(long index, long value) {

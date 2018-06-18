@@ -29,17 +29,22 @@ import java.util.StringJoiner;
  */
 public class BFloatArray extends BNewArray {
 
-    private static BType arrayType = new BArrayType(BTypes.typeFloat);
-
     private double[] values;
 
     public BFloatArray(double[] values) {
         this.values = values;
         this.size = values.length;
+        super.arrayType = new BArrayType(BTypes.typeFloat);
     }
 
     public BFloatArray() {
         values = (double[]) newArrayInstance(Double.TYPE);
+        super.arrayType = new BArrayType(BTypes.typeFloat);
+    }
+
+    public BFloatArray(int size) {
+        values = (double[]) newArrayInstance(Double.TYPE, size);
+        super.arrayType = new BArrayType(BTypes.typeFloat);
     }
 
     public void add(long index, double value) {
