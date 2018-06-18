@@ -42,9 +42,11 @@ public type Request object {
 
     private {
         mime:Entity entity;
+        boolean dirtyRequest;
     }
 
     public new() {
+        self.dirtyRequest = false;
         self.entity = createNewEntity();
     }
 
@@ -58,9 +60,9 @@ public type Request object {
     documentation {
         Sets the provided `Entity` to the request.
 
-        P{{entity}} The `Entity` to be set to the request
+        P{{e}} The `Entity` to be set to the request
     }
-    public native function setEntity(mime:Entity entity);
+    public native function setEntity(mime:Entity e);
 
     documentation {
         Gets the query parameters of the request, as a map.

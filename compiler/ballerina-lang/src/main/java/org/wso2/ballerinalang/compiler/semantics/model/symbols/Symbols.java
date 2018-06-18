@@ -90,11 +90,9 @@ public class Symbols {
         return annotationAttributeSymbol;
     }
 
-    public static BAnnotationSymbol createAnnotationSymbol(int flags, Name name,
-                                                           PackageID pkgID,
-                                                           BType type,
-                                                           BSymbol owner) {
-        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, pkgID, type, owner);
+    public static BAnnotationSymbol createAnnotationSymbol(int flags, int attachPoints, Name name, PackageID pkgID,
+                                                           BType type, BSymbol owner) {
+        BAnnotationSymbol annotationSymbol = new BAnnotationSymbol(name, flags, attachPoints, pkgID, type, owner);
         annotationSymbol.kind = SymbolKind.ANNOTATION;
         return annotationSymbol;
     }
@@ -281,5 +279,9 @@ public class Symbols {
 
     public static boolean isFlagOn(int mask, int flag) {
         return (mask & flag) == flag;
+    }
+
+    public static boolean isAttachPointPresent(int mask, int attachPoint) {
+        return (mask & attachPoint) == attachPoint;
     }
 }

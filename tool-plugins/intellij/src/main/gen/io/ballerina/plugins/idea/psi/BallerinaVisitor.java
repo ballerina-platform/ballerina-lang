@@ -372,6 +372,10 @@ public class BallerinaVisitor extends PsiElementVisitor {
     visitCompositeElement(o);
   }
 
+  public void visitIntegerRangeExpression(@NotNull BallerinaIntegerRangeExpression o) {
+    visitExpression(o);
+  }
+
   public void visitInvocation(@NotNull BallerinaInvocation o) {
     visitCompositeElement(o);
   }

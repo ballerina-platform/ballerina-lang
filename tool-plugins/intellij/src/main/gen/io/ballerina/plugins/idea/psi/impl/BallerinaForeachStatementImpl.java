@@ -55,12 +55,6 @@ public class BallerinaForeachStatementImpl extends BallerinaCompositeElementImpl
 
   @Override
   @Nullable
-  public BallerinaIntRangeExpression getIntRangeExpression() {
-    return PsiTreeUtil.getChildOfType(this, BallerinaIntRangeExpression.class);
-  }
-
-  @Override
-  @Nullable
   public BallerinaVariableReferenceList getVariableReferenceList() {
     return PsiTreeUtil.getChildOfType(this, BallerinaVariableReferenceList.class);
   }

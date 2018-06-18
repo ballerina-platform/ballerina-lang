@@ -4,13 +4,13 @@ function testInt1 () returns (int, int, int, int, int, float) {
     add = 0;
     int[] fa = [-5, 2, 4, 5, 7, -8, -3, 2];
     fa.foreach((int i) => { add = add + i;});
-    int fadd = add;
+    int fadd1 = add;
     int count = fa.count();
     int max = fa.max();
     int min = fa.min();
     int sum = fa.sum();
     float avg = fa.average();
-    return (fadd, count, max, min, sum, avg);
+    return (fadd1, count, max, min, sum, avg);
 }
 
 function testInt2 () returns (int, int, int, int, float) {

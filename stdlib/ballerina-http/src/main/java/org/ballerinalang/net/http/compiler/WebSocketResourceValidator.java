@@ -48,12 +48,15 @@ public class WebSocketResourceValidator {
                 validateOnPingPongResource(serviceName, resource, dlog, isClient);
                 break;
             case WebSocketConstants.RESOURCE_NAME_ON_CLOSE:
-                validateCloseResource(serviceName, resource, dlog, isClient);
+                validateOnCloseResource(serviceName, resource, dlog, isClient);
+                break;
+            case WebSocketConstants.RESOURCE_NAME_ON_ERROR:
+                validateOnErrorResource(serviceName, resource, dlog, isClient);
                 break;
             default:
                 dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                                   "Invalid resource name " + resource.getName().getValue() + " in service " +
-                                           serviceName);
+                        "Invalid resource name " + resource.getName().getValue() + " in service " +
+                                serviceName);
         }
 
     }
@@ -66,8 +69,8 @@ public class WebSocketResourceValidator {
             validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         } else {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "onOpen resource is not supported for " + WebSocketConstants.WEBSOCKET_CLIENT_SERVICE +
-                                       " " + serviceName);
+                    "onOpen resource is not supported for " + WebSocketConstants.WEBSOCKET_CLIENT_SERVICE +
+                            " " + serviceName);
         }
     }
 
@@ -78,15 +81,15 @@ public class WebSocketResourceValidator {
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"string".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "Invalid resource signature for " + resource.getName().getValue() +
-                                       " resource in service " +
-                                       serviceName + ": The second parameter should be a string");
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": The second parameter should be a string");
         }
         if (paramDetails.size() == 3 && !"boolean".equals(paramDetails.get(2).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "Invalid resource signature for " + resource.getName().getValue() +
-                                       " resource in service " +
-                                       serviceName + ": The third parameter should be a boolean");
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": The third parameter should be a boolean");
         }
     }
 
@@ -97,15 +100,15 @@ public class WebSocketResourceValidator {
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"blob".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "Invalid resource signature for " + resource.getName().getValue() +
-                                       " resource in service " +
-                                       serviceName + ": The second parameter should be a blob");
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": The second parameter should be a blob");
         }
         if (paramDetails.size() == 3 && !"boolean".equals(paramDetails.get(2).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "Invalid resource signature for " + resource.getName().getValue() +
-                                       " resource in service " +
-                                       serviceName + ": The third parameter should be a boolean");
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": The third parameter should be a boolean");
         }
     }
 
@@ -116,28 +119,40 @@ public class WebSocketResourceValidator {
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"blob".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "Invalid resource signature for " + resource.getName().getValue() +
-                                       " resource in service " +
-                                       serviceName + ": The second parameter should be a blob");
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": The second parameter should be a blob");
         }
     }
 
-    private static void validateCloseResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
-                                              boolean isClient) {
+    private static void validateOnCloseResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
+                                                boolean isClient) {
         List<BLangVariable> paramDetails = resource.getParameters();
         validateParamDetailsSize(paramDetails, 3, serviceName, resource, dlog);
         validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
         if (paramDetails.size() < 2 || !"int".equals(paramDetails.get(1).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "Invalid resource signature for " + resource.getName().getValue() +
-                                       " resource in service " +
-                                       serviceName + ": The second parameter should be an int");
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": The second parameter should be an int");
         }
         if (paramDetails.size() < 3 || !"string".equals(paramDetails.get(2).type.toString())) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "Invalid resource signature for " + resource.getName().getValue() +
-                                       " resource in service " +
-                                       serviceName + ": The third parameter should be a string");
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": The third parameter should be a string");
+        }
+    }
+
+    private static void validateOnErrorResource(String serviceName, BLangResource resource, DiagnosticLog dlog,
+                                                boolean isClient) {
+        List<BLangVariable> paramDetails = resource.getParameters();
+        validateParamDetailsSize(paramDetails, 2, serviceName, resource, dlog);
+        validateEndpointParameter(serviceName, resource, dlog, paramDetails, isClient);
+        if (paramDetails.size() < 2 || !"error".equals(paramDetails.get(1).type.toString())) {
+            dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos, String.format("Invalid resource signature for " +
+                            "%s resource in service %s: The second parameter should be an error",
+                    resource.getName().getValue(), serviceName));
         }
     }
 
@@ -145,9 +160,9 @@ public class WebSocketResourceValidator {
                                                  BLangResource resource, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() != expectedSize) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "Invalid resource signature for " + resource.getName().getValue() +
-                                       " resource in service " +
-                                       serviceName + ": Expected parameter count = " + expectedSize);
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": Expected parameter count = " + expectedSize);
         }
     }
 
@@ -155,9 +170,9 @@ public class WebSocketResourceValidator {
                                                  BLangResource resource, DiagnosticLog dlog) {
         if (paramDetails == null || paramDetails.size() < min || paramDetails.size() > max) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "Invalid resource signature for " + resource.getName().getValue() +
-                                       " resource in service " +
-                                       serviceName + ": Unexpected parameter count");
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": Unexpected parameter count");
         }
     }
 
@@ -169,9 +184,9 @@ public class WebSocketResourceValidator {
                 (isClient && !WebSocketConstants.WEBSOCKET_CLIENT_ENDPOINT_NAME.equals(
                         paramDetails.get(0).type.toString()))) {
             dlog.logDiagnostic(Diagnostic.Kind.ERROR, resource.pos,
-                               "Invalid resource signature for " + resource.getName().getValue() +
-                                       " resource in service " +
-                                       serviceName + ": The first parameter should be an endpoint");
+                    "Invalid resource signature for " + resource.getName().getValue() +
+                            " resource in service " +
+                            serviceName + ": The first parameter should be an endpoint");
         }
     }
 }

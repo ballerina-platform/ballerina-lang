@@ -30,6 +30,7 @@ import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -52,7 +53,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotAttribute;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
 import org.wso2.ballerinalang.compiler.tree.BLangEnum;
@@ -384,16 +384,19 @@ public class CodeGenerator extends BLangNodeVisitor {
         }
 
         pkgNode.imports.forEach(impPkgNode -> {
-            int impPkgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.bvmAlias());
+            int impPkgOrgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.orgName.value);
+            int impPkgNameCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.name.value);
             int impPkgVersionCPIndex = addUTF8CPEntry(this.currentPkgInfo, impPkgNode.symbol.pkgID.version.value);
-            ImportPackageInfo importPkgInfo = new ImportPackageInfo(impPkgNameCPIndex, impPkgVersionCPIndex);
+            ImportPackageInfo importPkgInfo =
+                    new ImportPackageInfo(impPkgOrgNameCPIndex, impPkgNameCPIndex, impPkgVersionCPIndex);
             this.currentPkgInfo.importPkgInfoSet.add(importPkgInfo);
         });
 
         // Add the current package to the program file
         BPackageSymbol pkgSymbol = pkgNode.symbol;
         currentPkgID = pkgSymbol.pkgID;
-        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.bvmAlias());
+        currentPkgInfo.orgNameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.orgName.value);
+        currentPkgInfo.nameCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.name.value);
         currentPkgInfo.versionCPIndex = addUTF8CPEntry(currentPkgInfo, currentPkgID.version.value);
 
         // Insert the package reference to the constant pool of the current package
@@ -1842,16 +1845,9 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (annotation.typeNode != null) {
             typeSigCPIndex = addUTF8CPEntry(currentPkgInfo, annotation.typeNode.type.getDesc());
         }
-        //TODO any better way?
-        int[] attachPointCPIndexes = new int[annotation.attachmentPoints.size()];
-        List<BLangAnnotationAttachmentPoint> attachmentPoints = annotation.attachmentPoints;
-        for (int i = 0; i < attachmentPoints.size(); i++) {
-            String pointName = attachmentPoints.get(i).attachmentPoint.getValue();
-            attachPointCPIndexes[i] = addUTF8CPEntry(currentPkgInfo, pointName);
-        }
 
         AnnotationInfo annotationInfo = new AnnotationInfo(nameCPIndex, typeSigCPIndex,
-                annotation.symbol.flags, attachPointCPIndexes);
+                annotation.symbol.flags, ((BAnnotationSymbol) annotation.symbol).attachPoints);
         currentPkgInfo.annotationInfoMap.put(annotation.name.value, annotationInfo);
     }
 
@@ -2220,7 +2216,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     private int addPackageRefCPEntry(ConstantPool pool, PackageID pkgID) {
-        int nameCPIndex = addUTF8CPEntry(pool, pkgID.bvmAlias());
+        int nameCPIndex = addUTF8CPEntry(pool, pkgID.toString());
         int versionCPIndex = addUTF8CPEntry(pool, pkgID.version.value);
         PackageRefCPEntry packageRefCPEntry = new PackageRefCPEntry(nameCPIndex, versionCPIndex);
         return pool.addCPEntry(packageRefCPEntry);
@@ -3416,15 +3412,15 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (pkgNode == null) {
             // This is a package loaded from a BALO
             packageSymbol.imports.forEach(importPkdSymbol -> addPackageInfo(importPkdSymbol, programFile));
-            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
-                programFile.packageFileMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile);
+            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())) {
+                programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
             }
             return;
         }
 
         pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
-        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.bvmAlias())) {
-            programFile.packageFileMap.put(packageSymbol.pkgID.bvmAlias(), packageSymbol.packageFile);
+        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())) {
+            programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
         }
     }
 

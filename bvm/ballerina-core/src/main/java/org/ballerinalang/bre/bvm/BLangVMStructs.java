@@ -65,7 +65,10 @@ public class BLangVMStructs {
     }
 
     /**
-     * Create ballerina object.
+     * This is a helper method to create a object in native code.
+     *
+     * WARNING - please be cautious when using this method, if you have non blocking calls inside the
+     * object constructor, then using this method may cause thread blocking scenarios.
      *
      * @param objectInfo {@link ObjectTypeInfo} of the BStruct
      * @param values     field values of the BStruct.

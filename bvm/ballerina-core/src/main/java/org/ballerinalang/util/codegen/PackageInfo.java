@@ -39,6 +39,7 @@ import java.util.Map;
  */
 public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
+    public int orgNameCPIndex;
     public int nameCPIndex;
     public String pkgPath;
     public int versionCPIndex;
@@ -54,8 +55,6 @@ public class PackageInfo implements ConstantPool, AttributeInfoPool {
 
     private Instruction[] instructions;
     private List<Instruction> instructionList = new ArrayList<>();
-
-    public List<ImportPackageInfo> importPkgInfoList = new ArrayList<>();
 
     private Map<String, PackageVarInfo> constantInfoMap = new LinkedHashMap<>();
 

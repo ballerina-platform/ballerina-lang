@@ -45,9 +45,9 @@ public type Listener object {
     documentation {
          Gets called when the endpoint is being initialized during package initialization.
          
-         P{{config}} The Subscriber Service Endpoint Configuration of the endpoint
+         P{{c}} The Subscriber Service Endpoint Configuration of the endpoint
     }
-    public function init(SubscriberServiceEndpointConfiguration config);
+    public function init(SubscriberServiceEndpointConfiguration c);
 
     documentation {
         Gets called whenever a service attaches itself to this endpoint and during package initialization.
@@ -105,12 +105,10 @@ public type Listener object {
 
 };
 
-public function Listener::init(SubscriberServiceEndpointConfiguration config) {
-    self.config = config;
-    SignatureValidationFilter sigValFilter;
-    http:Filter[] filters = [<http:Filter>sigValFilter];
+public function Listener::init(SubscriberServiceEndpointConfiguration c) {
+    self.config = c;
     http:ServiceEndpointConfiguration serviceConfig = {
-        host:config.host, port:config.port, secureSocket:config.secureSocket, filters:filters
+        host: c.host, port: c.port, secureSocket: c.httpServiceSecureSocket
     };
 
     self.serviceEndpoint.init(serviceConfig);
@@ -150,10 +148,10 @@ function Listener::sendSubscriptionRequests() {
             string hub = <string>subscriptionDetails["hub"];
             string topic = <string>subscriptionDetails["topic"];
 
-            http:SecureSocket? secureSocket;
+            http:SecureSocket? newSecureSocket;
             match (<http:SecureSocket>subscriptionDetails["secureSocket"]) {
-                http:SecureSocket httpSecureSocket => { secureSocket = httpSecureSocket; }
-                error => { secureSocket = (); }
+                http:SecureSocket s => { newSecureSocket = s; }
+                error => { newSecureSocket = (); }
             }
 
             http:AuthConfig? auth;
@@ -174,7 +172,7 @@ function Listener::sendSubscriptionRequests() {
                         "Subscription Request not sent since hub and/or topic and resource URL are unavailable");
                     return;
                 }
-                match (retrieveHubAndTopicUrl(resourceUrl, auth, secureSocket, followRedirects)) {
+                match (retrieveHubAndTopicUrl(resourceUrl, auth, newSecureSocket, followRedirects)) {
                     (string, string) discoveredDetails => {
                         var (retHub, retTopic) = discoveredDetails;
                         retHub = check http:decode(retHub, "UTF-8");
@@ -191,7 +189,7 @@ function Listener::sendSubscriptionRequests() {
                     }
                 }
             }
-            invokeClientConnectorForSubscription(hub, auth, secureSocket, followRedirects, subscriptionDetails);
+            invokeClientConnectorForSubscription(hub, auth, newSecureSocket, followRedirects, subscriptionDetails);
         }
     }
 }
@@ -201,7 +199,7 @@ documentation {
 
     F{{host}} The configuration for the endpoint
     F{{port}} The underlying HTTP service endpoint
-    F{{secureSocket}} The SSL configurations for the service endpoint
+    F{{httpServiceSecureSocket}} The SSL configurations for the service endpoint
     F{{topicIdentifier}} The identifier based on which dispatching should happen for custom subscriber services
     F{{topicHeader}} The header to consider if required with dispatching for custom services
     F{{topicPayloadKeys}} The payload keys to consider if required with dispatching for custom services
@@ -210,7 +208,7 @@ documentation {
 public type SubscriberServiceEndpointConfiguration {
     string host;
     int port;
-    http:ServiceSecureSocket? secureSocket;
+    http:ServiceSecureSocket? httpServiceSecureSocket;
     TopicIdentifier? topicIdentifier;
     string? topicHeader;
     string[]? topicPayloadKeys;
@@ -223,13 +221,13 @@ documentation {
     P{{resourceUrl}} The resource URL advertising hub and topic URLs
     R{{}} `(string, string)` (hub, topic) URLs if successful, `error` if not
 }
-function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? secureSocket,
+function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                 http:FollowRedirects? followRedirects) returns @tainted (string, string)|error {
 
     endpoint http:Client resourceEP {
         url:resourceUrl,
         auth:auth,
-        secureSocket:secureSocket,
+        secureSocket: localSecureSocket,
         followRedirects:followRedirects
     };
 
@@ -290,63 +288,16 @@ function retrieveHubAndTopicUrl(string resourceUrl, http:AuthConfig? auth, http:
 }
 
 documentation {
-    Signature validation filter for WebSub services.
-}
-public type SignatureValidationFilter object {
-
-    documentation {
-        Represents the filtering function that will be invoked on WebSub notification requests.
-
-        P{{request}} The request being intercepted
-        P{{context}} The filter context
-        R{{}} `http:FilterResult` The result of the filter indicating whether or not proceeding can be allowed
-    }
-    public function filterRequest(http:Request request, http:FilterContext context) returns http:FilterResult {
-        return interceptWebSubRequest(request, context);
-    }
-};
-
-//TODO: check if this can be not public
-documentation {
-    The function called to validate signature for content received by WebSub services.
-
-    P{{request}} The request being intercepted
-    P{{context}} The filter context
-    R{{}} `http:FilterResult` The result of the filter indicating whether or not proceeding can be allowed
-}
-public function interceptWebSubRequest(http:Request request, http:FilterContext context) returns http:FilterResult {
-    if (request.method == "POST") {
-        var processedNotification = processWebSubNotification(request, context.serviceType);
-        match (processedNotification) {
-            error webSubError => {
-                log:printDebug("Signature Validation failed for Notification: " + webSubError.message);
-                http:FilterResult filterResult =
-                {canProceed:false, statusCode:404, message:"validation failed for notification"};
-                return filterResult;
-            }
-            () => {
-                http:FilterResult filterResult =
-                {canProceed:true, statusCode:200, message:"validation successful for notification"};
-                return filterResult;
-            }
-        }
-    } else {
-        http:FilterResult filterResult = {canProceed:true, statusCode:200, message:"allow intent verification"};
-        return filterResult;
-    }
-}
-
-documentation {
     Function to invoke the WebSubSubscriberConnector's actions for subscription.
 
     P{{hub}} The hub to which the subscription request is to be sent
     P{{subscriptionDetails}} Map containing subscription details
 }
-function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? secureSocket,
+function invokeClientConnectorForSubscription(string hub, http:AuthConfig? auth, http:SecureSocket? localSecureSocket,
                                               http:FollowRedirects? followRedirects, map subscriptionDetails) {
     endpoint Client websubHubClientEP {
         url:hub,
-        secureSocket:secureSocket,
+        clientSecureSocket: localSecureSocket,
         auth:auth,
         followRedirects:followRedirects
     };

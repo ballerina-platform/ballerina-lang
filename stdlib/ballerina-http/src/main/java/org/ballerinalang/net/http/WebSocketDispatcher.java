@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.net.http;
 
+import io.netty.handler.codec.CorruptedFrameException;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
+import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
@@ -30,6 +32,12 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
+import org.ballerinalang.util.BLangConstants;
+import org.ballerinalang.util.codegen.PackageInfo;
+import org.ballerinalang.util.codegen.ProgramFile;
+import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
@@ -40,6 +48,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,16 +60,18 @@ import java.util.Map;
  */
 public class WebSocketDispatcher {
 
+    private static final Logger log = LoggerFactory.getLogger(WebSocketDispatcher.class);
+
     /**
      * This will find the best matching service for given web socket request.
      *
      * @param webSocketMessage incoming message.
      * @return matching service.
      */
-    public static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
-                                               Map<String, String> pathParams, WebSocketInitMessage webSocketMessage,
-                                               HTTPCarbonMessage msg) {
+    static WebSocketService findService(WebSocketServicesRegistry servicesRegistry,
+                                        WebSocketInitMessage webSocketMessage) {
         try {
+            Map<String, String> pathParams = new HashMap<>();
             String serviceUri = webSocketMessage.getTarget();
             serviceUri = WebSocketUtil.refactorUri(serviceUri);
             URI requestUri;
@@ -74,7 +85,9 @@ public class WebSocketDispatcher {
             if (service == null) {
                 throw new BallerinaConnectorException("no Service found to handle the service request: " + serviceUri);
             }
+            HTTPCarbonMessage msg = webSocketMessage.getHttpCarbonRequest();
             msg.setProperty(HttpConstants.QUERY_STR, requestUri.getRawQuery());
+            msg.setProperty(HttpConstants.RESOURCE_ARGS, pathParams);
             return service;
         } catch (Throwable throwable) {
             String message = "No Service found to handle the service request";
@@ -83,8 +96,8 @@ public class WebSocketDispatcher {
         }
     }
 
-    public static void dispatchTextMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                           WebSocketTextMessage textMessage) {
+    static void dispatchTextMessage(WebSocketOpenConnectionInfo connectionInfo,
+                                    WebSocketTextMessage textMessage) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onTextMessageResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_TEXT);
@@ -103,8 +116,8 @@ public class WebSocketDispatcher {
                         null, bValues);
     }
 
-    public static void dispatchBinaryMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                             WebSocketBinaryMessage binaryMessage) {
+    static void dispatchBinaryMessage(WebSocketOpenConnectionInfo connectionInfo,
+                                      WebSocketBinaryMessage binaryMessage) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onBinaryMessageResource = wsService.getResourceByName(
@@ -124,8 +137,8 @@ public class WebSocketDispatcher {
                         null, bValues);
     }
 
-    public static void dispatchControlMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                              WebSocketControlMessage controlMessage) {
+    static void dispatchControlMessage(WebSocketOpenConnectionInfo connectionInfo,
+                                       WebSocketControlMessage controlMessage) {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
             WebSocketDispatcher.dispatchPingMessage(connectionInfo, controlMessage);
         } else if (controlMessage.getControlSignal() == WebSocketControlSignal.PONG) {
@@ -169,8 +182,8 @@ public class WebSocketDispatcher {
                         null, bValues);
     }
 
-    public static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
-                                            WebSocketCloseMessage closeMessage) {
+    static void dispatchCloseMessage(WebSocketOpenConnectionInfo connectionInfo,
+                                     WebSocketCloseMessage closeMessage) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onCloseResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_CLOSE);
@@ -186,7 +199,7 @@ public class WebSocketDispatcher {
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = connectionInfo.getWebSocketEndpoint();
         bValues[1] = new BInteger(closeCode);
-        bValues[2] = new BString(closeReason);
+        bValues[2] = new BString(closeReason == null ? "" : closeReason);
         CallableUnitCallback onCloseCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
@@ -205,8 +218,52 @@ public class WebSocketDispatcher {
         Executor.submit(onCloseResource, onCloseCallback, null, null, bValues);
     }
 
-    public static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo,
-                                           WebSocketControlMessage controlMessage) {
+    static void dispatchError(WebSocketOpenConnectionInfo connectionInfo, Throwable throwable) {
+        WebSocketService webSocketService = connectionInfo.getService();
+        Resource onErrorResource = webSocketService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_ERROR);
+        if (isUnexpectedError(throwable)) {
+            log.error("Unexpected error", throwable);
+        }
+        if (onErrorResource == null) {
+            ErrorHandlerUtils.printError(throwable);
+            return;
+        }
+        BValue[] bValues = new BValue[onErrorResource.getParamDetails().size()];
+        bValues[0] = connectionInfo.getWebSocketEndpoint();
+        bValues[1] = getError(webSocketService, throwable);
+        CallableUnitCallback onErrorCallback = new CallableUnitCallback() {
+            @Override
+            public void notifySuccess() {
+                // Do nothing.
+            }
+
+            @Override
+            public void notifyFailure(BStruct error) {
+                ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+            }
+        };
+        Executor.submit(onErrorResource, onErrorCallback, null, null, bValues);
+    }
+
+    private static BStruct getError(WebSocketService webSocketService, Throwable throwable) {
+        ProgramFile programFile = webSocketService.getServiceInfo().getPackageInfo().getProgramFile();
+        PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
+        StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
+        String errMsg;
+        if (isUnexpectedError(throwable)) {
+            errMsg = "Unexpected internal error. Please check internal-log for more details!";
+        } else {
+            errMsg = throwable.getMessage();
+        }
+        return BLangVMStructs.createBStruct(errorStructInfo, errMsg);
+    }
+
+    private static boolean isUnexpectedError(Throwable throwable) {
+        return !(throwable instanceof CorruptedFrameException);
+    }
+
+    static void dispatchIdleTimeout(WebSocketOpenConnectionInfo connectionInfo,
+                                    WebSocketControlMessage controlMessage) {
         WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
         WebSocketService wsService = connectionInfo.getService();
         Resource onIdleTimeoutResource = wsService.getResourceByName(WebSocketConstants.RESOURCE_NAME_ON_IDLE_TIMEOUT);

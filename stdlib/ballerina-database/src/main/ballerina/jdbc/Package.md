@@ -6,7 +6,7 @@ This package provides the functionality required to access and manipulate data s
 
 To access a database, you must first create an `endpoint`, which is a virtual representation of the physical endpoint that you are trying to connect to. Create an endpoint of the JDBC client type (i.e., `jdbc:Client`) and provide the necessary connection parameters. This will create a pool of connections to the specified database. A sample for creating an endpoint with a JDBC client can be found below. 
 
-**NOTE**: Althought the JDBC client type supports connecting to any type of relational database that is accessible via JDBC, if you are using a MySQL or H2 database, it is recommended to use endpoints that are created using the client types specific to them via the relevant Ballerina packages. 
+**NOTE**: Although the JDBC client type supports connecting to any type of relational database that is accessible via JDBC, if you are using a MySQL or H2 database, it is recommended to use endpoints that are created using the client types specific to them via the relevant Ballerina packages.
 
 ### Database operations
 

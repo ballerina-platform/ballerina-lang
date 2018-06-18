@@ -27,10 +27,11 @@ import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.util.AttachPoints;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,7 +85,7 @@ public class LSAnnotationCache {
             try {
                 // We will wrap this with a try catch to prevent LS crashing due to compiler errors.
                 BPackageSymbol bPackageSymbol = LSPackageLoader.getPackageSymbolById(tempCompilerContext, packageID);
-                staticPackages.put(bPackageSymbol.pkgID.bvmAlias(), bPackageSymbol);
+                staticPackages.put(bPackageSymbol.pkgID.toString(), bPackageSymbol);
             } catch (Exception e) {
                 logger.warn("Error while loading package :" + sdkPackage.getPackageName());
             }
@@ -169,23 +170,17 @@ public class LSAnnotationCache {
         scopeEntries.forEach(annotationEntry -> {
             if (annotationEntry.symbol instanceof BAnnotationSymbol) {
                 BAnnotationSymbol annotationSymbol = ((BAnnotationSymbol) annotationEntry.symbol);
-                List<BLangAnnotationAttachmentPoint> attachmentPoints
-                        = ((BAnnotationSymbol) annotationEntry.symbol).attachmentPoints;
-                attachmentPoints.forEach(attachmentPoint -> {
-                    switch (attachmentPoint.attachmentPoint) {
-                        case SERVICE:
-                            addAttachment(annotationSymbol, serviceAnnotations, bPackageSymbol.pkgID);
-                            break;
-                        case RESOURCE:
-                            addAttachment(annotationSymbol, resourceAnnotations, bPackageSymbol.pkgID);
-                            break;
-                        case FUNCTION:
-                            addAttachment(annotationSymbol, functionAnnotations, bPackageSymbol.pkgID);
-                            break;
-                        default:
-                            break;
-                    }
-                });
+                int attachPoints = ((BAnnotationSymbol) annotationEntry.symbol).attachPoints;
+
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.SERVICE)) {
+                    addAttachment(annotationSymbol, serviceAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.RESOURCE)) {
+                    addAttachment(annotationSymbol, resourceAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FUNCTION)) {
+                    addAttachment(annotationSymbol, functionAnnotations, bPackageSymbol.pkgID);
+                }
             }
         });
     }
@@ -193,7 +188,7 @@ public class LSAnnotationCache {
     private static boolean containsPackageWithBvmAlias(PackageID packageID, HashMap<PackageID,
             List<BAnnotationSymbol>> map) {
         return map.entrySet().stream()
-                .filter(entry -> entry.getKey().bvmAlias().equals(packageID.bvmAlias()))
+                .filter(entry -> entry.getKey().toString().equals(packageID.toString()))
                 .findFirst()
                 .orElse(null) != null;
     }

@@ -130,14 +130,6 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
             clientEndpointConfig) {
         ProxyServerConfiguration proxyServerConfiguration = null;
-        boolean followRedirect = false;
-        int maxRedirectCount = DEFAULT_MAX_REDIRECT_COUNT;
-        Struct followRedirects = clientEndpointConfig.getStructField(HttpConstants.FOLLOW_REDIRECT_STRUCT_REFERENCE);
-        if (followRedirects != null) {
-            followRedirect = followRedirects.getBooleanField(HttpConstants.FOLLOW_REDIRECT_ENABLED);
-            maxRedirectCount = (int) followRedirects.getIntField(HttpConstants.FOLLOW_REDIRECT_MAXCOUNT);
-        }
-
         Struct secureSocket = null;
         Value[] targetServices = clientEndpointConfig.getArrayField(HttpConstants.TARGET_SERVICES);
 
@@ -242,9 +234,6 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
             }
             senderConfiguration.setProxyServerConfiguration(proxyServerConfiguration);
         }
-
-        senderConfiguration.setFollowRedirect(followRedirect);
-        senderConfiguration.setMaxRedirectCount(maxRedirectCount);
 
         String chunking = clientEndpointConfig.getRefField(HttpConstants.CLIENT_EP_CHUNKING).getStringValue();
         senderConfiguration.setChunkingConfig(HttpUtil.getChunkConfig(chunking));

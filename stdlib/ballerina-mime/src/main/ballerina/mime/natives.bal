@@ -154,18 +154,18 @@ documentation {
     Represents the headers and body of a message. This can be used to represent both the entity of a top level message
     and an entity(body part) inside of a multipart entity.
 
-    F{{contentType}} Describes the data contained in the body of the entity
-    F{{contentId}} Helps one body of an entity to make a reference to another
-    F{{contentLength}} Represents the size of the entity
-    F{{contentDisposition}} Represents values related to `Content-Disposition` header
+    F{{cType}} Describes the data contained in the body of the entity
+    F{{cId}} Helps one body of an entity to make a reference to another
+    F{{cLength}} Represents the size of the entity
+    F{{cDisposition}} Represents values related to `Content-Disposition` header
 }
 public type Entity object {
 
     private {
-        MediaType contentType;
-        string contentId;
-        int contentLength;
-        ContentDisposition contentDisposition;
+        MediaType cType;
+        string cId;
+        int cLength;
+        ContentDisposition cDisposition;
     }
 
     documentation {
@@ -174,7 +174,7 @@ public type Entity object {
         P{{mediaType}} Content type that needs to be set to the entity
     }
     public function setContentType(string mediaType) {
-        self.contentType = check getMediaType(mediaType);
+        self.cType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
     }
 
@@ -197,7 +197,7 @@ public type Entity object {
         P{{contentId}} Content ID that needs to be set to entity
     }
     public function setContentId(string contentId) {
-        self.contentId = contentId;
+        self.cId = contentId;
         self.setHeader(CONTENT_ID, contentId);
     }
 
@@ -220,7 +220,7 @@ public type Entity object {
         P{{contentLength}} Content length that needs to be set to entity
     }
     public function setContentLength(int contentLength) {
-        self.contentLength = contentLength;
+        self.cLength = contentLength;
         var contentLengthStr = <string>contentLength;
         self.setHeader(CONTENT_LENGTH, contentLengthStr);
     }
@@ -248,7 +248,7 @@ public type Entity object {
         P{{contentDisposition}} Content disposition that needs to be set to entity
     }
     public function setContentDisposition(ContentDisposition contentDisposition) {
-        self.contentDisposition = contentDisposition;
+        self.cDisposition = contentDisposition;
         self.setHeader(CONTENT_DISPOSITION, contentDisposition.toString());
     }
 

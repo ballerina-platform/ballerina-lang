@@ -649,7 +649,7 @@ XMLQName
     ;
 
 XML_TAG_WS
-    :   [ \t\r\n]   -> skip 
+    :   [ \t\r\n]   -> channel(HIDDEN)
     ;
 
 XMLTagExpressionStart

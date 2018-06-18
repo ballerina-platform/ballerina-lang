@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -79,7 +80,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -271,7 +271,7 @@ public class BLangPackageBuilder {
 
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
-    private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
+    private Stack<AttachPoint> attachPointStack = new Stack<>();
 
     private Stack<OrderByNode> orderByClauseStack = new Stack<>();
 
@@ -355,8 +355,8 @@ public class BLangPackageBuilder {
         this.compUnit = compUnit;
     }
 
-    void addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint attachPoint) {
-        attachmentPointStack.push(new BLangAnnotationAttachmentPoint(attachPoint));
+    void addAttachPoint(AttachPoint attachPoint) {
+        attachPointStack.push(attachPoint);
     }
 
     void addValueType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -710,10 +710,6 @@ public class BLangPackageBuilder {
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
         endFunctionDef(pos, null, false, false, true, false, true);
-        //this is added for analysing closures
-        if (!(blockNodeStack.empty())) {
-            lambdaFunction.enclBlockStmt = (BLangBlockStmt) blockNodeStack.peek();
-        }
     }
 
     private void startEndpointDeclarationScope(List<BLangEndpoint> endpointList) {
@@ -1669,8 +1665,8 @@ public class BLangPackageBuilder {
         if (publicAnnotation) {
             annotationNode.flagSet.add(Flag.PUBLIC);
         }
-        while (!attachmentPointStack.empty()) {
-            annotationNode.attachmentPoints.add(attachmentPointStack.pop());
+        while (!attachPointStack.empty()) {
+            annotationNode.attachPoints.add(attachPointStack.pop());
         }
         if (isTypeAttached) {
             annotationNode.typeNode = (BLangType) this.typeNodeStack.pop();

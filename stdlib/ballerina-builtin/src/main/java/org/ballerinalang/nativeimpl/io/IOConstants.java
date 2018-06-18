@@ -56,15 +56,10 @@ public class IOConstants {
     /**
      * Specifies the io package information.
      */
-    public static final String IO_PACKAGE = "ballerina.io";
+    public static final String IO_PACKAGE = "ballerina/io";
 
     /**
-     * Specifies the io package information.
+     * Represents the base number of protobuf.
      */
-    public static final String BALLERINA_BUILTIN = "ballerina.builtin";
-
-    /**
-     * Struct which represents io error.
-     */
-    public static final String IO_ERROR_STRUCT = "error";
+    public static final int PROTO_BUF_BASE = 7;
 }

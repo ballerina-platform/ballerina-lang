@@ -202,6 +202,7 @@ public class Desugar extends BLangNodeVisitor {
     private Types types;
     private Names names;
     private SiddhiQueryBuilder siddhiQueryBuilder;
+    private HttpFiltersDesugar httpFiltersDesugar;
 
     private BLangNode result;
 
@@ -239,6 +240,7 @@ public class Desugar extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.siddhiQueryBuilder = SiddhiQueryBuilder.getInstance(context);
         this.names = Names.getInstance(context);
+        httpFiltersDesugar = HttpFiltersDesugar.getInstance(context);
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -469,6 +471,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangResource resourceNode) {
         addReturnIfNotPresent(resourceNode);
+        httpFiltersDesugar.invokeFilters(resourceNode, env);
         SymbolEnv resourceEnv = SymbolEnv.createResourceActionSymbolEnv(resourceNode, resourceNode.symbol.scope, env);
         Collections.reverse(resourceNode.endpoints); // To preserve endpoint code gen order at resource
         resourceNode.endpoints = rewrite(resourceNode.endpoints, resourceEnv);
@@ -1575,6 +1578,8 @@ public class Desugar extends BLangNodeVisitor {
                         this.env.scope.owner.pkgID, bLangMatchExpression.type, this.env.scope.owner));
 
         BLangVariableDef tempResultVarDef = ASTBuilderUtil.createVariableDef(bLangMatchExpression.pos, tempResultVar);
+        tempResultVarDef.desugared = true;
+
         BLangBlockStmt stmts = ASTBuilderUtil.createBlockStmt(bLangMatchExpression.pos, Lists.of(tempResultVarDef));
         List<BLangMatchStmtPatternClause> patternClauses = new ArrayList<>();
 
@@ -1629,6 +1634,7 @@ public class Desugar extends BLangNodeVisitor {
                         names.fromString(checkedExprVarName),
                         this.env.scope.owner.pkgID, checkedExpr.type, this.env.scope.owner));
         BLangVariableDef checkedExprVarDef = ASTBuilderUtil.createVariableDef(checkedExpr.pos, checkedExprVar);
+        checkedExprVarDef.desugared = true;
 
         // Create the pattern to match the success case
         BLangMatchStmtPatternClause patternSuccessCase = getSafeAssignSuccessPattern(checkedExprVar.pos,
@@ -2293,12 +2299,30 @@ public class Desugar extends BLangNodeVisitor {
 
         switch (type.tag) {
             case TypeTags.INT:
+                BLangLiteral intDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                intDefault.value = Long.parseLong("0");
+                intDefault.type = symTable.intType;
+                return intDefault;
             case TypeTags.FLOAT:
+                BLangLiteral floatDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                floatDefault.value = Double.parseDouble("0");
+                floatDefault.type = symTable.floatType;
+                return floatDefault;
             case TypeTags.BOOLEAN:
+                BLangLiteral booleanDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                booleanDefault.value = Boolean.parseBoolean("false");
+                booleanDefault.type = symTable.booleanType;
+                return booleanDefault;
             case TypeTags.STRING:
+                BLangLiteral stringDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                stringDefault.value = "";
+                stringDefault.type = symTable.stringType;
+                return stringDefault;
             case TypeTags.BLOB:
-                // Int, float, boolean, string, blob types will get default values from VM side.
-                break;
+                BLangLiteral blobDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
+                blobDefault.value = new byte[0];
+                blobDefault.type = symTable.blobType;
+                return blobDefault;
             case TypeTags.XML:
                 return new BLangXMLSequenceLiteral(type);
             case TypeTags.MAP:

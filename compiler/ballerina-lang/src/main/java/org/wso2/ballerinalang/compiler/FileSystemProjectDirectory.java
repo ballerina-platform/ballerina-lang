@@ -123,7 +123,14 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public InputStream getLockFileContent() {
-        return null;
+        Path tomlFilePath = projectDirPath.resolve(ProjectDirConstants.TARGET_DIR_NAME).resolve("Ballerina.lock");
+        if (Files.exists(tomlFilePath)) {
+            try {
+                return Files.newInputStream(tomlFilePath);
+            } catch (IOException ignore) {
+            }
+        }
+        return new ByteArrayInputStream(new byte[0]);
     }
 
     @Override

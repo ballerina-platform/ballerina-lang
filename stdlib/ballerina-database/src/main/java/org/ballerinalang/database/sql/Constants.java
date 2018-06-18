@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.database.sql;
 
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
+
 /**
  * Constants for SQL Data Connectors.
  *
@@ -182,14 +184,13 @@ public final class Constants {
     public static final String TIMEZONE_UTC = "UTC";
     public static final String QUESTION_MARK = "?";
     public static final String STRUCT_TIME = "Time";
-    public static final String STRUCT_TIME_PACKAGE = "ballerina.time";
+    public static final String STRUCT_TIME_PACKAGE = "ballerina" + ORG_NAME_SEPARATOR + "time";
     public static final String URL = "url";
     public static final String USER = "user";
     public static final String PASSWORD = "password";
 
-    public static final String SQL_PACKAGE_PATH = "ballerina.sql";
+    public static final String SQL_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "sql";
     public static final String SQL_PARAMETER = "Parameter";
-    public static final String BUILTIN_PACKAGE_PATH = "ballerina.builtin";
     public static final String CALLER_ACTIONS = "CallerActions";
 
     public static final String SQL_SERVER_DB_POSTFIX = "_SERVER";

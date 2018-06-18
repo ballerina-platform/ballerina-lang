@@ -33,6 +33,7 @@ public class BFutureType extends BType {
      * Create a {@code BTableType} which represents the SQL Result Set.
      *
      * @param typeName string name of the type
+     * @param pkgPath of the type
      */
     public BFutureType(String typeName, String pkgPath) {
         super(typeName, pkgPath, BFuture.class);

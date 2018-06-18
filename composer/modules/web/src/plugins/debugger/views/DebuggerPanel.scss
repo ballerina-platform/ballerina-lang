@@ -4,21 +4,17 @@
     .ui.button.debug-button{
         background      : #252525;
         text-align      : left;
-        color : #f1f1f1!important;
+        color : #f1f1f1;
         background  : #252525; 
         &:hover{
-            color       : #f1f1f1!important;
-            background  : #444!important;
+            color       : #f1f1f1;
+            background  : #444;
         }
     }
 }
 
 .debugger-threads{
-    padding: 10px;
 
-    .debug-threads-header {
-        border-bottom: 1px solid #9a9a9a
-    }
     ul {
         padding: 0;
         margin: 0;
@@ -29,7 +25,11 @@
             cursor: pointer;
         }
         li.active {
-            background-color: #6b6b6b;
+            background-color: #383838;
+            margin-top: -5px;
+            padding: 14px;
+            border-bottom: 1px solid #565656;
+            color: #2fb8b0;
         }
     }
 

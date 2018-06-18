@@ -43,26 +43,25 @@ class EndpointAggregatorUtil {
 
     aggregateAllVisibleEndpoints(node) {
         const visibleOuterEndpoints = TreeUtil.getAllEndpoints(node.parent);
-        const invocationStmts = node.body ? _.filter(node.body.statements, (statement) => {
-            return TreeUtil.getInvocation(statement);
-        }) : [];
+        const invocationStmts = [];
+
+        node.body.accept({
+            beginVisit: (statement) => {
+                if (TreeUtil.isInvocation(statement) && statement.actionInvocation) {
+                    if (!TreeUtil.statementIsClientResponder(statement)) {
+                        invocationStmts.push(statement);
+                    }
+                }
+            },
+            endVisit: (statement) => {},
+        });
 
         node.endpointNodes = _.filter(node.endpointNodes, (endpoint) => {
             return endpoint.id;
         });
         _.forEach(visibleOuterEndpoints, (ep) => {
             const invocationIndex = _.findIndex(invocationStmts, (invocation) => {
-                let refName;
-                if (TreeUtil.isVariableDef(invocation)) {
-                    if (TreeUtil.isCheckExpr(invocation.variable.initialExpression)) {
-                        refName = invocation.variable.initialExpression.expression.expression.variableName.value;
-                    } else {
-                        refName = invocation.variable.initialExpression.expression.variableName.value;
-                    }
-                } else {
-                    refName = invocation.expression.expression.variableName.value;
-                }
-                return refName === ep.name.value;
+                return invocation.expression.variableName.value === ep.name.value;
             });
             if (invocationIndex >= 0) {
                 const epClone = {

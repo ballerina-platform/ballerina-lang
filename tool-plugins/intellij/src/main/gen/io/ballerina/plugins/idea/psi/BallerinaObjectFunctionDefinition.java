@@ -23,11 +23,20 @@ import com.intellij.psi.PsiElement;
 
 public interface BallerinaObjectFunctionDefinition extends BallerinaCompositeElement {
 
+  @NotNull
+  List<BallerinaAnnotationAttachment> getAnnotationAttachmentList();
+
   @Nullable
   BallerinaCallableUnitBody getCallableUnitBody();
 
   @Nullable
   BallerinaObjectCallableUnitSignature getObjectCallableUnitSignature();
+
+  @Nullable
+  BallerinaDeprecatedAttachment getDeprecatedAttachment();
+
+  @Nullable
+  BallerinaDocumentationAttachment getDocumentationAttachment();
 
   @Nullable
   PsiElement getSemicolon();

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 import ballerina/http;
-import ballerina/testing;
+import ballerina/testobserve;
 
 endpoint http:Listener listener {
     port : 9090
@@ -43,7 +43,7 @@ service echoService bind listener {
 
     getFinishedSpansCount(endpoint caller, http:Request clientRequest) {
         http:Response res = new;
-        string returnString = testing:getFinishedSpansCount();
+        string returnString = testobserve:getFinishedSpansCount();
         res.setTextPayload(returnString);
         _ = caller -> respond(res);
     }

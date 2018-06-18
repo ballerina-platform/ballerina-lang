@@ -40,7 +40,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "milliseconds", type = TypeKind.INT),
                 @Argument(name = "zoneID", type = TypeKind.STRING)},
         returnType = {@ReturnType(type = TypeKind.OBJECT, structType = "Time",
-                                  structPackage = "ballerina.time")},
+                                  structPackage = "ballerina/time")},
         isPublic = true
 )
 public class CreateTime extends AbstractTimeFunction {

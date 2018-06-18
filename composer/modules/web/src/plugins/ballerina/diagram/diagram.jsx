@@ -23,7 +23,6 @@ import ControllerOverlay from './views/default/components/decorators/controller-
 import PositionVisitor from './visitors/position-visitor';
 import EndpointAggregatorVisitor from './visitors/endpoint-aggregator-visitor';
 import DimensionVisitor from './visitors/dimension-visitor';
-import ErrorRenderer from './visitors/error-rendering-visitor';
 import WorkerInvocationSyncVisitor from './visitors/worker-invocation-sync-visitor';
 import InvocationArrowPositionVisitor from './visitors/worker-invocation-arrow-position-sync-visitor';
 // import ArrowConflictResolver from '../visitors/arrow-conflict-resolver';
@@ -36,7 +35,6 @@ import {
     getWorkerInvocationSyncUtil,
     getInvocationArrowPositionUtil,
     getConfig,
-//    getErrorCollectorUtil,
 } from './diagram-util';
 import ActiveArbiter from './views/default/components/decorators/active-arbiter';
 import CompilationUnitNode from './../model/tree/compilation-unit-node';
@@ -61,7 +59,6 @@ class Diagram extends React.Component {
         this.dimentionVisitor = new DimensionVisitor();
         this.positionCalc = new PositionVisitor();
         this.endpointAggregator = new EndpointAggregatorVisitor();
-        this.errorRenderer = new ErrorRenderer();
         this.workerInvocationSynVisitor = new WorkerInvocationSyncVisitor();
         this.invocationArrowPositionVisitor = new InvocationArrowPositionVisitor();
     }

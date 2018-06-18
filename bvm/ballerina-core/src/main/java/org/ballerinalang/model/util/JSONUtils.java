@@ -100,6 +100,7 @@ public class JSONUtils {
      * Convert {@link BMap} to {@link BJSON}.
      *
      * @param map {@link BMap} to be converted to {@link BJSON}
+     * @param targetType to be converted
      * @return JSON representation of the provided map
      */
     @SuppressWarnings("unchecked")
@@ -653,6 +654,10 @@ public class JSONUtils {
     private static double jsonNodeToFloat(JsonNode jsonNode) {
         if (jsonNode.isDouble()) {
             return jsonNode.doubleValue();
+        }
+
+        if (jsonNode.isLong()) {
+            return jsonNode.longValue();
         }
 
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,

@@ -38,7 +38,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrayLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -56,7 +55,7 @@ import java.util.stream.Collectors;
  * completion of processing a ballerina package.
  */
 @SupportedAnnotationPackages(
-        value = "ballerina.test"
+        value = "ballerina/test"
 )
 public class TestAnnotationProcessor extends AbstractCompilerPlugin {
     private static final String TEST_ANNOTATION_NAME = "Config";
@@ -531,17 +530,6 @@ public class TestAnnotationProcessor extends AbstractCompilerPlugin {
 
     private String getPackageName(PackageNode packageNode) {
         BLangPackage bLangPackage = ((BLangPackage) packageNode);
-        // If the org name is not set it is a single .bal file execution
-        if (registry.getOrgName() == null) {
-            return ".";
-        }
-        // This is project but org name is not given
-        if (bLangPackage.packageID.orgName.getValue().equals(Names.ANON_ORG.toString())) {
-            return bLangPackage.packageID.getName().getValue();
-        }
-        // Org name is available for the project
-        String packageName = bLangPackage.packageID.orgName.getValue() + "."
-                             + bLangPackage.packageID.getName().getValue();
-        return packageName;
+        return bLangPackage.packageID.toString();
     }
 }

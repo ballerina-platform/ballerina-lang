@@ -95,7 +95,8 @@ public class BLangFragmentParser {
                 break;
             case BLangFragmentParserConstants.FIELD_DEFINITION_LIST:
                 // 0th element in the fields property of the record is fieldVariable.
-                fragmentNode = rootConstruct.getAsJsonArray(BLangJSONModelConstants.FIELDS).get(0).getAsJsonObject();
+                fragmentNode = rootConstruct.getAsJsonObject(BLangJSONModelConstants.TYPE_NODE)
+                        .getAsJsonArray(BLangJSONModelConstants.FIELDS).get(0).getAsJsonObject();
                 break;
             case BLangFragmentParserConstants.ANON_RECORD:
                 fragmentNode = jsonArray.get(1).getAsJsonObject().getAsJsonObject(BLangJSONModelConstants.BODY)

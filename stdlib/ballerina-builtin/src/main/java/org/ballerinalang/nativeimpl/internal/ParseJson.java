@@ -31,7 +31,7 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.internal:parseJson.
+ * Native function ballerina/internal:parseJson.
  *
  * @since 0.980.0
  */

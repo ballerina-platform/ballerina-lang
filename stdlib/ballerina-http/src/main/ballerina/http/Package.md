@@ -14,7 +14,7 @@ When a failure occurs in the remote service, the client connections might wait f
 
 The Ballerina circuit breaker supports tripping on HTTP error status codes and I/O errors. Failure thresholds can be configured based on a sliding window (e.g., 5 failures within 10 seconds). `Client` endpoints also support a retry mechanism that allows a client to resend failed requests periodically for a given number of times.
 
-`Client` endpoints support Certificate Revocation List (CRL) and Online Certificate Status Protocol (OCSP). They also support HTTP2, keep-alive, chunking, HTTP caching, and data compression/decompression. 
+`Client` endpoints support Certificate Revocation List (CRL), Online Certificate Status Protocol (OCSP) and OCSP Stapling for SSL/TLS connection. They also support HTTP2, keep-alive, chunking, HTTP caching, and data compression/decompression. 
 
 See [Client Endpoint Example](https://ballerina.io/learn/by-example/http-client-endpoint.html), [Circuit Breaker Example](https://ballerina.io/learn/by-example/http-circuit-breaker.html), [HTTP Redirects Example](https://ballerina.io/learn/by-example/http-redirects.html)
 
@@ -27,7 +27,7 @@ When a `Service` receives a request, it is dispatched to the best-matched resour
 
 See [Listener Endpoint Example](https://ballerina.io/learn/by-example/http-data-binding.html), [HTTP CORS Example](https://ballerina.io/learn/by-example/http-cors.html), [HTTP Failover Example](https://ballerina.io/learn/by-example/http-failover.html), [HTTP Load Balancer Example](https://ballerina.io/learn/by-example/http-load-balancer.html)
 
-`Listener` endpoints can be exposed via SSL. They support Mutual SSL, Hostname Verification, and Server Name Indication (SNI), and Application Layer Protocol Negotiation (ALPN). `Listener` endpoints also support OCSP Stapling, HTTP2, keep-alive, chunking, HTTP caching, and data compression/decompression. 
+`Listener` endpoints can be exposed via SSL. They support Mutual SSL, Hostname Verification, and Server Name Indication (SNI) and Application Layer Protocol Negotiation (ALPN). `Listener` endpoints also support Certificate Revocation List (CRL), Online Certificate Status Protocol (OCSP), OCSP Stapling, HTTP2, keep-alive, chunking, HTTP caching, and data compression/decompression. 
 
 See [Mutual SSL Example](https://ballerina.io/learn/by-example/mutual-ssl.html).
 
@@ -63,9 +63,9 @@ Here `upgradeService` is a `WebSocketService`.
 
 **onIdleTimeout**: This resource is dispatched when idle timeout is reached. idleTimeout has to be configured by the user.
 
-**onClose**: This resource is dispatched when a close message is recieved.
+**onClose**: This resource is dispatched when a close message is received.
 
-
+**onError**: This resource is dispatched when an error occurred in a particular WebSocket connection. This will always be followed by a connection closure.
 
 See [WebSocket Basic Example](https://ballerina.io/learn/by-example/websocket-basic-sample.html), 
 [HTTP to WebSocket Upgrade Example](https://ballerina.io/learn/by-example/http-to-websocket-upgrade.html),

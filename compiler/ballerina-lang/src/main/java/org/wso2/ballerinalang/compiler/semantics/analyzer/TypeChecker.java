@@ -57,6 +57,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
+import org.wso2.ballerinalang.compiler.tree.BLangInvokableNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangGroupBy;
@@ -149,6 +150,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private SymbolResolver symResolver;
     private Types types;
     private IterableAnalyzer iterableAnalyzer;
+    private SemanticAnalyzer semanticAnalyzer;
     private BLangDiagnosticLog dlog;
 
     private SymbolEnv env;
@@ -179,6 +181,7 @@ public class TypeChecker extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.types = Types.getInstance(context);
         this.iterableAnalyzer = IterableAnalyzer.getInstance(context);
+        this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
@@ -405,10 +408,12 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkSefReferences(varRefExpr.pos, env, varSym);
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
-                if (env.enclInvokable != null && env.enclInvokable.flagSet.contains(Flag.LAMBDA) &&
-                        env.enclEnv.enclEnv != null && !(symbol.owner instanceof BPackageSymbol)) {
-                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(env.enclEnv,
-                            symbol.name, SymTag.VARIABLE_NAME);
+                BLangInvokableNode encInvokable = env.enclInvokable;
+                if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA) &&
+                        !(symbol.owner instanceof BPackageSymbol)) {
+                    SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                    BSymbol closureVarSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                            SymTag.VARIABLE_NAME);
                     if (closureVarSymbol != symTable.notFoundSymbol &&
                             !isFunctionArgument(closureVarSymbol, env.enclInvokable.requiredParams)) {
                         ((BLangFunction) env.enclInvokable).closureVarSymbols.add((BVarSymbol) closureVarSymbol);
@@ -424,6 +429,18 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Check type compatibility
         resultType = types.checkType(varRefExpr, actualType, expType);
+    }
+
+    /**
+     * This method will recursively traverse and find the symbol environment of a lambda node (which is given as the
+     * enclosing invokable node) which is needed to lookup closure variables. The variable lookup will start from the
+     * enclosing invokable node's environment, which are outside of the scope of a lambda function.
+     */
+    private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
+        if (env.enclInvokable == encInvokable) {
+            return findEnclosingInvokableEnv(env.enclEnv, encInvokable);
+        }
+        return env;
     }
 
     private boolean isFunctionArgument(BSymbol symbol, List<BLangVariable> params) {
@@ -824,7 +841,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
+        //analysing the lambda function here in order to resolve and type check for closure scenarios.
+        BLangFunction lambdaFunction = bLangLambdaFunction.function;
+        bLangLambdaFunction.type = lambdaFunction.symbol.type;
+        semanticAnalyzer.analyzeDef(lambdaFunction, env);
+        lambdaFunction.isTypeChecked = true;
         resultType = types.checkType(bLangLambdaFunction, bLangLambdaFunction.type, expType);
     }
 

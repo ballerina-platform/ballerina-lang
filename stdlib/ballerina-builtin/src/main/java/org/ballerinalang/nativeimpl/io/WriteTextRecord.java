@@ -33,7 +33,7 @@ import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * Native function ballerina.io#writeTextRecord.
+ * Native function ballerina/io#writeTextRecord.
  *
  * @since 0.94
  */
@@ -42,20 +42,20 @@ import org.ballerinalang.natives.annotations.ReturnType;
         functionName = "write",
         receiver = @Receiver(type = TypeKind.OBJECT,
                 structType = "DelimitedTextRecordChannel",
-                structPackage = "ballerina.io"),
+                structPackage = "ballerina/io"),
         args = {@Argument(name = "content", type = TypeKind.ARRAY, elementType = TypeKind.STRING)},
-        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina.io")},
+        returnType = {@ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")},
         isPublic = true
 )
 public class WriteTextRecord implements NativeCallableUnit {
 
     /**
-     * Index of the record channel in ballerina.io#writeTextRecord.
+     * Index of the record channel in ballerina/io#writeTextRecord.
      */
     private static final int RECORD_CHANNEL_INDEX = 0;
 
     /**
-     * Index of the content in ballerina.io#writeTextRecord.
+     * Index of the content in ballerina/io#writeTextRecord.
      */
     private static final int CONTENT_INDEX = 1;
 

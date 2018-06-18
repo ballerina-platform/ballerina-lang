@@ -330,7 +330,7 @@ documentation {
 function verifyIntent(string callback, string topic, map<string> params) {
     endpoint http:Client callbackEp {
         url:callback,
-        secureSocket:secureSocket
+        secureSocket: httpSecureSocket
     };
 
     string mode = params[HUB_MODE];
@@ -570,6 +570,36 @@ function addSubscriptionsOnStartup() {
 }
 
 documentation {
+    Function to delete topic and subscription details from the database at shutdown, if persistence is enabled.
+}
+function clearSubscriptionDataInDb() {
+    endpoint jdbc:Client subscriptionDbEp {
+        url:hubDatabaseUrl,
+        username:hubDatabaseUsername,
+        password:hubDatabasePassword,
+        poolOptions:{maximumPoolSize:5}
+    };
+
+    var dbResult = subscriptionDbEp->update("DELETE FROM subscriptions");
+    match(dbResult) {
+        int => {}
+        error sqlErr => {
+            log:printError("Error deleting subscription data from the database: " + sqlErr.message);
+        }
+    }
+
+    dbResult = subscriptionDbEp->update("DELETE FROM topics");
+    match(dbResult) {
+        int => {}
+        error sqlErr => {
+            log:printError("Error deleting topic data from the database: " + sqlErr.message);
+        }
+    }
+
+    subscriptionDbEp.stop();
+}
+
+documentation {
     Function to fetch updates for a particular topic.
 
     P{{topic}} The topic URL to be fetched to retrieve updates
@@ -579,7 +609,7 @@ documentation {
 function fetchTopicUpdate(string topic) returns http:Response|error {
     endpoint http:Client topicEp {
         url:topic,
-        secureSocket:secureSocket
+        secureSocket: httpSecureSocket
     };
 
     http:Request request = new;
@@ -598,7 +628,7 @@ documentation {
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent) {
     endpoint http:Client callbackEp {
         url:callback,
-        secureSocket:secureSocket
+        secureSocket: httpSecureSocket
     };
 
     http:Request request = new;

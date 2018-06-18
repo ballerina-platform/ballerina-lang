@@ -157,6 +157,9 @@ class ServiceNode extends AbstractServiceNode {
                 }
                 return false;
             });
+            if(endpoint === undefined){
+                return 'Unknown';
+            }
             pkg = endpoint.endPointType.packageAlias.value;
             name = endpoint.endPointType.typeName.value;
         }

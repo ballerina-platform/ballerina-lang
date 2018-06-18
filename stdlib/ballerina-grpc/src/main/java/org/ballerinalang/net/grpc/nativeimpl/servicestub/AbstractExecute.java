@@ -31,9 +31,9 @@ import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
-import static org.ballerinalang.bre.bvm.BLangVMErrors.PACKAGE_BUILTIN;
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
  * {@code AbstractExecute} is the Execute action implementation of the gRPC Connector.
@@ -87,7 +87,7 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
     }
     
     void notifyErrorReply(Context context, String errorMessage) {
-        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_BUILTIN);
+        PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         BStruct outboundError = new BStruct(errorStructInfo.getType());
         outboundError.setStringField(0, errorMessage);

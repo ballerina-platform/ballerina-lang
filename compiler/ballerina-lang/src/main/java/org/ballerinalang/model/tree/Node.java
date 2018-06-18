@@ -25,8 +25,6 @@ import java.util.Set;
 /**
  * {@code Node} is the base interface for all tree nodes in Ballerina abstract syntax tree.
  *
- * @see FunctionNode
- * @see StructNode
  * @since 0.94
  */
 public interface Node {
