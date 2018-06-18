@@ -174,4 +174,18 @@ public class Utils {
         }
         Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));
     }
+
+    public static String formatError(String errorMsg) {
+        StringBuilder newErrMsg = new StringBuilder();
+        errorMsg = errorMsg.replaceAll("\n", "\n\t    ");
+        for (String msgPart : errorMsg.split("\n")) {
+            if (msgPart.startsWith("\t    caused by error")) {
+                msgPart = "\t    \t" + msgPart.trim();
+            }
+            if (!msgPart.equals("\t    ")) {
+                newErrMsg.append(msgPart).append("\n");
+            }
+        }
+        return newErrMsg.toString();
+    }
 }

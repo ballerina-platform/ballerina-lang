@@ -18,6 +18,7 @@
 
 package org.ballerinalang.testerina.core.entity;
 
+import org.ballerinalang.testerina.util.Utils;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.PrintStream;
@@ -57,7 +58,8 @@ public class TesterinaReport {
 //                outStream.println(failedResult.getAssertFailureMessage());
                                           // + ": " + failedResult.getAssertFailureMessage());
                 outStream.println("\t✗ "+ failedResult.getTestFunctionName() + ":");
-                outStream.println("\t    " + failedResult.getAssertFailureMessage().replaceAll("\n", "\n\t    "));
+                // outStream.println("\t    " + failedResult.getAssertFailureMessage().replaceAll("\n", "\n\t    "));
+                outStream.println("\t    " + Utils.formatError(failedResult.getAssertFailureMessage()));
             }
             // outStream.println();
         }
@@ -165,7 +167,6 @@ public class TesterinaReport {
                     }
                 }
 //                outStream.println();
-//                outStream.print(String.format("%-" + 67 + "s", packageName).replaceAll("\\s(?=\\s+$|$)", "."));
                 if (!packageName.equals(Names.DOT.value)) {
                     outStream.println("    " + packageName + " " + String.join("", Collections.nCopies(size, "-"))
                                             + " " + ((summary.failedTests.size() > 0 || summary.skippedTests.size() > 0)
