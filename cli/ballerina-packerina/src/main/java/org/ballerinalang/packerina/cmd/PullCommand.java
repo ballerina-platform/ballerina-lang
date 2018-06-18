@@ -108,7 +108,7 @@ public class PullCommand implements BLauncherCmd {
         }
 
         URI baseURI = URI.create(RepoUtils.getRemoteRepoURL());
-        Repo remoteRepo = new RemoteRepo(baseURI);
+        Repo remoteRepo = new RemoteRepo(baseURI, false);
 
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
 
