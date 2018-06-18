@@ -1446,6 +1446,12 @@ public class PackageInfoReader {
         k = codeStream.readInt();
         int[] operands;
         if (k == -1) {
+            operands = new int[4];
+            operands[0] = h;
+            operands[1] = i;
+            operands[2] = j;
+            operands[3] = k;
+        } else if (k == 0) {
             operands = new int[5];
             operands[0] = h;
             operands[1] = i;

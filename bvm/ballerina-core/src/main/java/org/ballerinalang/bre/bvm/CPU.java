@@ -915,13 +915,13 @@ public class CPU {
 
         int h = operands[3];
 
-        //if '0', then there are no additional indexes needs to be processed
-        if (h == 0) {
+        //if '-1', then there are no additional indexes needs to be processed
+        if (h == -1) {
             return;
         }
 
-        //if '-1', then this is a object attached function invocation as function pointer
-        if (h == -1) {
+        //if '0', then this is a object attached function invocation as function pointer
+        if (h == 0) {
             fp.setAttachedFunctionObjectIndex(operands[4]);
             return;
         }

@@ -3051,25 +3051,21 @@ public class CodeGenerator extends BLangNodeVisitor {
         RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
         Operand[] operands;
         if (NodeKind.LAMBDA == fpExpr.getKind()) {
-            Operand[] closureIndexes = calcAndGetClosureIndexes(((BLangLambdaFunction) fpExpr).function);
-            operands = new Operand[3 + closureIndexes.length];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = nextIndex;
-            operands[2] = typeCPIndex;
-            System.arraycopy(closureIndexes, 0, operands, 3, closureIndexes.length);
+            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
+                    typeCPIndex);
         } else if (NodeKind.FIELD_BASED_ACCESS_EXPR == fpExpr.getKind()) {
             operands = new Operand[5];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
             operands[2] = typeCPIndex;
-            operands[3] = getOperand(-1);
+            operands[3] = getOperand(0);
             operands[4] = getObjectArgIndex(((BLangStructFunctionVarRef) fpExpr));
         } else {
             operands = new Operand[4];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
             operands[2] = typeCPIndex;
-            operands[3] = new Operand(0);
+            operands[3] = new Operand(-1);
         }
         emit(InstructionCodes.FPLOAD, operands);
     }
@@ -3078,8 +3074,14 @@ public class CodeGenerator extends BLangNodeVisitor {
         return new Operand(((BVarSymbol) fpExpr.expr.symbol).varIndex.value);
     }
 
-    private Operand[] calcAndGetClosureIndexes(BLangFunction function) {
-        List<Operand> operands = new ArrayList<>();
+    /**
+     * This is a helper method which calculate the required additional indexes needed for closure scenarios.
+     * If there are no closure variables found, then this method will just add -1 as the termination index
+     * which is used at runtime.
+     */
+    private Operand[] calcClosureOperands(BLangFunction function, int funcRefCPIndex, RegIndex nextIndex,
+                                          Operand typeCPIndex) {
+        List<Operand> closureOperandList = new ArrayList<>();
 
         int closureOperandPairs = 0;
 
@@ -3089,13 +3091,27 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
             Operand type = new Operand(symbol.type.tag);
             Operand index = new Operand(symbol.varIndex.value);
-            operands.add(type);
-            operands.add(index);
+            closureOperandList.add(type);
+            closureOperandList.add(index);
             closureOperandPairs++;
         }
-
-        operands.add(0, new Operand(closureOperandPairs));
-        return operands.toArray(new Operand[]{});
+        Operand[] operands;
+        if (closureOperandPairs > 0) {
+            Operand[] closureIndexes = closureOperandList.toArray(new Operand[]{});
+            operands = new Operand[4 + closureIndexes.length];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            operands[2] = typeCPIndex;
+            operands[3] = getOperand(closureOperandPairs);
+            System.arraycopy(closureIndexes, 0, operands, 4, closureIndexes.length);
+        } else {
+            operands = new Operand[4];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            operands[2] = typeCPIndex;
+            operands[3] = getOperand(-1);
+        }
+        return operands;
     }
 
     private void generateFinallyInstructions(BLangStatement statement) {
