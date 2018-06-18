@@ -155,6 +155,22 @@ public class TryCatchThrowStmtTest {
         Assert.assertEquals(returns[0].stringValue(), "startdone");
     }
 
+    @Test(description = "Test throwing an error in the finally block when there is a return in the try block",
+            expectedExceptionsMessageRegExp = ".*error, message: number of finally executions: 1.*",
+            expectedExceptions = BLangRuntimeException.class)
+    public void testThrowInFinallyWithReturnInTry() {
+        BValue[] args = {};
+        BRunUtil.invoke(compileResult, "testThrowInFinallyWithReturnInTry", args);
+    }
+
+    @Test(description = "Test throwing an error in the finally block when there is a return in the catch block",
+            expectedExceptionsMessageRegExp = ".*error, message: number of finally executions: 1.*",
+            expectedExceptions = BLangRuntimeException.class)
+    public void testThrowInFinallyWithReturnInCatch() {
+        BValue[] args = {};
+        BRunUtil.invoke(compileResult, "testThrowInFinallyWithReturnInCatch", args);
+    }
+
     @Test()
     public void testDuplicateExceptionVariable() {
         BAssertUtil.validateError(compileResultNegative, 0, "redeclared symbol 'e'", 5, 9);

@@ -143,3 +143,33 @@ function testTryWithinWhile () returns (int) {
     }
     return i;
 }
+
+function testThrowInFinallyWithReturnInTry() returns int {
+    int catchExecs = 0;
+    int finallyExecs = 0;
+    try {
+        return 4;
+    } catch(error e) {
+        catchExecs += 1;
+        error catchErr = { message: "number of catch executions: " + catchExecs  };
+        throw catchErr;
+    } finally {
+        finallyExecs += 1;
+        error finErr = { message: "number of finally executions: " + finallyExecs  };
+        throw finErr;
+    }
+}
+
+function testThrowInFinallyWithReturnInCatch() returns int {
+    int finallyExecs = 0;
+    try {
+        error tryErr = { message: "error thrown in try" };
+        throw tryErr;
+    } catch(error e) {
+        return 8;
+    } finally {
+        finallyExecs += 1;
+        error finErr = { message: "number of finally executions: " + finallyExecs  };
+        throw finErr;
+    }
+}
