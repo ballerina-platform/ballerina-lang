@@ -641,10 +641,10 @@ public class CPU {
                         k = operands[3];
                         int m = operands[4];
                         typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
-                        BStringArray allColumns = (BStringArray) sf.refRegs[j];
+                        BStringArray indexColumns = (BStringArray) sf.refRegs[j];
                         BStringArray keyColumns = (BStringArray) sf.refRegs[k];
                         BRefValueArray dataRows = (BRefValueArray) sf.refRegs[m];
-                        sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), allColumns, keyColumns, dataRows);
+                        sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), indexColumns, keyColumns, dataRows);
                         break;
                     case InstructionCodes.NEWSTREAM:
                         i = operands[0];

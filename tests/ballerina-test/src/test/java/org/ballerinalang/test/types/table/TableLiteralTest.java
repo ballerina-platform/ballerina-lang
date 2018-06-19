@@ -109,7 +109,7 @@ public class TableLiteralTest {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintData");
             Assert.assertEquals(outContent.toString(),
-                    "table<Person> {index: [\"id\", \"age\"], primaryKey: [\"id\", \"age\"], data: [{id:1, age:30, "
+                    "table<Person> {index: [], primaryKey: [\"id\", \"age\"], data: [{id:1, age:30, "
                             + "salary:300.5, name:\"jane\", married:true}, {id:2, age:20, salary:200.5, "
                             + "name:\"martin\", married:true}, {id:3, age:32, salary:100.5, name:\"john\", "
                             + "married:false}]}\n");
@@ -373,9 +373,11 @@ public class TableLiteralTest {
 
     @Test(description = "Test table remove with function pointer of invalid return type")
     public void testTableReturnNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
         BAssertUtil.validateError(resultNegative, 0,
            "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
            20, 33);
+        BAssertUtil.validateError(resultNegative, 1, "incompatible types: expected 'Person', found 'int'", 33, 10);
+        BAssertUtil.validateError(resultNegative, 2, "incompatible types: expected 'Person', found 'int'", 33, 13);
     }
 }

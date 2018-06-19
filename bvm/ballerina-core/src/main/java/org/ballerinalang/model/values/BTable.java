@@ -78,33 +78,7 @@ public class BTable implements BRefType<Object>, BCollection {
         this.constraintType = constraintType;
     }
 
-    public BTable(BType type, BStruct configStruct) {
-        BStringArray primaryKeys = null;
-        BStringArray indexColumns = null;
-        BRefValueArray data = null;
-        if (configStruct != null) {
-            primaryKeys = (BStringArray) configStruct.getRefField(0);
-            indexColumns = (BStringArray) configStruct.getRefField(1);
-            data = (BRefValueArray) configStruct.getRefField(2);
-        }
-        //Create table with given constraints.
-        BType constrainedType = ((BTableType) type).getConstrainedType();
-        if (constrainedType == null) {
-            throw new BallerinaException("table cannot be created without a constraint");
-        }
-        this.tableProvider = TableProvider.getInstance();
-        this.tableName = tableProvider.createTable(constrainedType, primaryKeys, indexColumns);
-        this.constraintType = (BStructureType) constrainedType;
-        this.primaryKeys = primaryKeys;
-        this.indices = indexColumns;
-        //Insert initial data
-        if (data != null) {
-            insertInitialData(data);
-        }
-    }
-
-    public BTable(BType type, BStringArray allColumns, BStringArray keyColumns, BRefValueArray dataRows) {
-        BStringArray indexColumns = null;
+    public BTable(BType type, BStringArray indexColumns, BStringArray keyColumns, BRefValueArray dataRows) {
         //Create table with given constraints.
         BType constrainedType = ((BTableType) type).getConstrainedType();
         if (constrainedType == null) {

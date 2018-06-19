@@ -785,10 +785,10 @@ public class CodeGenerator extends BLangNodeVisitor {
         arrayLiteral.exprs = dataRows;
         arrayLiteral.type = symTable.anyType;
         genNode(arrayLiteral, this.env);
-        genNode(tableLiteral.allColumnsArrayLiteral, this.env);
+        genNode(tableLiteral.indexColumnsArrayLiteral, this.env);
         genNode(tableLiteral.keyColumnsArrayLiteral, this.env);
         emit(InstructionCodes.NEWTABLE, tableLiteral.regIndex, typeCPIndex,
-                tableLiteral.allColumnsArrayLiteral.regIndex, tableLiteral.keyColumnsArrayLiteral.regIndex,
+                tableLiteral.indexColumnsArrayLiteral.regIndex, tableLiteral.keyColumnsArrayLiteral.regIndex,
                 arrayLiteral.regIndex);
     }
 

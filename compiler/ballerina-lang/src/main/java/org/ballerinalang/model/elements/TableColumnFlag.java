@@ -24,5 +24,7 @@ public enum TableColumnFlag {
     /**
      * Indicates Flagged column is a primary key.
      */
-    PRIMARYKEY
+    PRIMARYKEY,
+
+    INDEX
 }

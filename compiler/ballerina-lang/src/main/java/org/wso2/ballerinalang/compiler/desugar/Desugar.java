@@ -998,12 +998,7 @@ public class Desugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangTableLiteral tableLiteral) {
         tableLiteral.tableDataRows = rewriteExprs(tableLiteral.tableDataRows);
-        BLangArrayLiteral columnArrayLiteral = createArrayLiteralExprNode();
-        columnArrayLiteral.exprs = tableLiteral.columns.stream()
-                .map(expr -> ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.stringType, expr.columnName))
-                .collect(Collectors.toList());
-        columnArrayLiteral.type = new BArrayType(symTable.stringType);
-        tableLiteral.allColumnsArrayLiteral = columnArrayLiteral;
+        //Generate key columns Array
         List<String> keyColumns = new ArrayList<>();
         for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
             if (column.flagSet.contains(TableColumnFlag.PRIMARYKEY)) {
@@ -1016,6 +1011,19 @@ public class Desugar extends BLangNodeVisitor {
                 .collect(Collectors.toList());
         keyColumnsArrayLiteral.type = new BArrayType(symTable.stringType);
         tableLiteral.keyColumnsArrayLiteral = keyColumnsArrayLiteral;
+        //Generate index columns Array
+        List<String> indexColumns = new ArrayList<>();
+        for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
+            if (column.flagSet.contains(TableColumnFlag.INDEX)) {
+                indexColumns.add(column.columnName);
+            }
+        }
+        BLangArrayLiteral indexColumnsArrayLiteral = createArrayLiteralExprNode();
+        indexColumnsArrayLiteral.exprs = indexColumns.stream()
+                .map(expr -> ASTBuilderUtil.createLiteral(tableLiteral.pos, symTable.stringType, expr))
+                .collect(Collectors.toList());
+        indexColumnsArrayLiteral.type = new BArrayType(symTable.stringType);
+        tableLiteral.indexColumnsArrayLiteral = indexColumnsArrayLiteral;
         result = tableLiteral;
     }
 

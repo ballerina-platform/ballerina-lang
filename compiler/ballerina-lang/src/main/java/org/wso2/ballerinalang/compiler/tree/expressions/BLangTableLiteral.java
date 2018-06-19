@@ -38,7 +38,7 @@ public class BLangTableLiteral extends BLangExpression implements TableLiteralNo
 
     public List<BLangExpression> tableDataRows;
 
-    public BLangArrayLiteral allColumnsArrayLiteral;
+    public BLangArrayLiteral indexColumnsArrayLiteral;
 
     public BLangArrayLiteral keyColumnsArrayLiteral;
 

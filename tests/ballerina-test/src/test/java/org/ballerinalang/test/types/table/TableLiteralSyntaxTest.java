@@ -80,10 +80,10 @@ public class TableLiteralSyntaxTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*initial data should be in struct type.*")
-    public void testTableLiteralDataWithInit() {
-        BRunUtil.invoke(result, "testTableLiteralDataWithInit");
+    @Test
+    public void testTableLiteralDataAndAdd2() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableLiteralDataAndAdd2");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
