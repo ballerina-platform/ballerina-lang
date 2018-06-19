@@ -389,8 +389,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         int tLine = beforeCursorToken.getLine();
         int tCol = beforeCursorToken.getCharPositionInLine();
 
-        while (type != BallerinaParser.EOF
-                && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
+        while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
             beforeCursorToken = tokenStream.LT(index);
             type = beforeCursorToken.getType();
             tLine = beforeCursorToken.getLine();
