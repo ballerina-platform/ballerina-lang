@@ -142,11 +142,7 @@ public class BTestRunner {
         if (buildWithTests) {
             outStream.println();
         }
-        if (sourceFilePaths.length > 0) {
-            outStream.println("Compiling tests");
-        } else {
-            outStream.println("Compiling test");
-        }
+        outStream.println(sourceFilePaths.length > 0 ? "Compiling tests" : "Compiling test");
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 
             String packageName = Utils.getFullPackageName(sourcePackage.toString());
