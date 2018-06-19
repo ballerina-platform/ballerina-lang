@@ -23,12 +23,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-composer-web</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-composer-web</artifactId>
             <classifier>ballerina-composer-library</classifier>
             <version>${project.version}</version>
             <type>zip</type>
@@ -92,25 +86,6 @@
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-composer-dependencies</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${maven.test.skip}</skip>
-                            <includeArtifactIds>ballerina-composer-web</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/extracted-web</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                            <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
-                            <stripVersion>true</stripVersion>
-                            <includes>
-                                */resources/composer/web/public/vendor-*.js,*/resources/composer/web/public/testable-*.js,*/resources/composer/web/public/tree-*.js
-                            </includes>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>unpack-composer-library</id>
                         <phase>generate-test-resources</phase>
                         <goals>
@@ -144,16 +119,6 @@
                             <skip>${maven.test.skip}</skip>
                             <target name="copy js files to target">
                                 <mkdir dir="${project.build.directory}/js-files-from-web"/>
-                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true"
-                                      flatten="true">
-                                    <fileset dir="${project.build.directory}/extracted-web/">
-                                        <include name="**/*.js"/>
-                                    </fileset>
-                                    <chainedmapper>
-                                        <flattenmapper/>
-                                        <regexpmapper from="(.+)-([0-9a-f]+).js" to="\1.js"/>
-                                    </chainedmapper>
-                                </copy>
                                 <copy todir="${project.build.directory}/js-files-from-web" overwrite="true"
                                       flatten="true">
                                     <fileset dir="${project.build.directory}/extracted-web-lib/">
