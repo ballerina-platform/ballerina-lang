@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_EXT;
 import static org.wso2.ballerinalang.util.RepoUtils.BALLERINA_INSTALL_DIR_PROP;
 import static org.wso2.ballerinalang.util.RepoUtils.COMPILE_BALLERINA_ORG_PROP;
@@ -93,6 +94,7 @@ public class GenerateBalo {
         options.put(PROJECT_DIR, sourceRootDir);
         options.put(OFFLINE, Boolean.TRUE.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
+        options.put(SKIP_TESTS, Boolean.TRUE.toString());
 
         SymbolTable symbolTable = SymbolTable.getInstance(context);
 

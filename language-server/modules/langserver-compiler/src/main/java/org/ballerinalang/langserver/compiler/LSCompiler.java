@@ -248,7 +248,7 @@ public class LSCompiler {
         try {
             BLangDiagnosticLog.getInstance(context).errorCount = 0;
             Compiler compiler = Compiler.getInstance(context);
-            bLangPackage = compiler.compile(packageName);
+            bLangPackage = compiler.compile(packageName, false);
             LSPackageCache.getInstance(context).invalidate(bLangPackage.packageID);
         } catch (RuntimeException e) {
             // Ignore.
@@ -316,7 +316,7 @@ public class LSCompiler {
                                     LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument,
                                                                       preserveWhitespace, docManager);
                             Compiler compiler = getCompiler(context, fileName, compilerContext, customErrorStrategy);
-                            BLangPackage bLangPackage = compiler.compile(file.getName());
+                            BLangPackage bLangPackage = compiler.compile(file.getName(), false);
                             packages.add(bLangPackage);
                             LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
                         }
@@ -335,7 +335,7 @@ public class LSCompiler {
                     LSCompiler.prepareCompilerContext(packageID, packageRepository, sourceDocument,
                                                       preserveWhitespace, docManager);
             Compiler compiler = getCompiler(context, fileName, compilerContext, customErrorStrategy);
-            BLangPackage bLangPackage = compiler.compile(pkgName);
+            BLangPackage bLangPackage = compiler.compile(pkgName, false);
             packages.add(bLangPackage);
             LSPackageCache.getInstance(compilerContext).invalidate(bLangPackage.packageID);
         }

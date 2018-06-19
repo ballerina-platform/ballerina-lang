@@ -32,6 +32,7 @@ import java.nio.file.Paths;
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * Class providing utility methods to generate balx from bal.
@@ -47,6 +48,7 @@ public class GenerateBalx {
         options.put(PROJECT_DIR, prjctDir.toString());
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(OFFLINE, Boolean.toString(true));
+        options.put(SKIP_TESTS, Boolean.toString(true));
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.build();

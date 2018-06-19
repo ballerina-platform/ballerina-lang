@@ -24,14 +24,19 @@ import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
 import java.io.PrintStream;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * @since 0.94
@@ -41,6 +46,9 @@ public class Compiler {
     private static final CompilerContext.Key<Compiler> COMPILER_KEY =
             new CompilerContext.Key<>();
     private static PrintStream outStream = System.out;
+    private final CompilerOptions options;
+    private final CompiledPackages compiledPackages;
+    private final boolean skiptests;
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
@@ -53,6 +61,7 @@ public class Compiler {
     private Compiler(CompilerContext context) {
         context.put(COMPILER_KEY, this);
 
+        this.options = CompilerOptions.getInstance(context);
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
@@ -61,6 +70,8 @@ public class Compiler {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
+        this.skiptests = Boolean.parseBoolean(options.get(SKIP_TESTS));
+        this.compiledPackages = CompiledPackages.getInstance();
     }
 
     public static Compiler getInstance(CompilerContext context) {
@@ -71,30 +82,37 @@ public class Compiler {
         return compiler;
     }
 
-    public BLangPackage compile(String sourcePackage) {
+    public BLangPackage compile(String sourcePackage, boolean isBuild) {
         PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
         if (packageID == null) {
             throw ProjectDirs.getPackageNotFoundError(sourcePackage);
         }
 
-        return compilePackage(packageID);
+        return compilePackage(packageID, isBuild);
     }
 
     public void build() {
         outStream.println("Compiling source");
-        CompiledPackages.getInstance().setPkgList(compilePackages());
+        this.compiledPackages.setPkgList(compilePackages());
+        if (skiptests) {
+            write();
+        }
     }
 
     public void build(String sourcePackage, String targetFileName) {
         outStream.println("Compiling source");
-        BLangPackage bLangPackage = compile(sourcePackage);
+        BLangPackage bLangPackage = compile(sourcePackage, true);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
         }
-        CompiledPackages.getInstance().addToPkgList(bLangPackage);
+        this.compiledPackages.setPkgList(Collections.singletonList(bLangPackage));
+        if (skiptests) {
+            write(targetFileName);
+        }
     }
 
-    public void write(List<BLangPackage> packageList) {
+    public void write() {
+        List<BLangPackage> packageList = this.compiledPackages.getPkgList();
         if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
             outStream.println("Generating executables");
         }
@@ -108,17 +126,21 @@ public class Compiler {
         );
         packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
         this.lockFileWriter.writeLockFile(this.manifest);
+        this.compiledPackages.clearPkgs();
     }
 
-    public void write(String targetFileName, BLangPackage bLangPackage) {
-        // Code gen and save
-        if (bLangPackage.symbol.entryPointExists) { // Filter out package which doesn't have entry points
-            outStream.println("Generating executable");
-            this.binaryFileWriter.writeExecutableBinary(bLangPackage, targetFileName);
+    public void write(String targetFileName) {
+        Optional<BLangPackage> bLangPackage = this.compiledPackages.getPkgList().stream().findFirst();
+        if (bLangPackage.isPresent()) {
+            if (bLangPackage.get().symbol.entryPointExists) { // Filter out package which doesn't have entry points
+                outStream.println("Generating executable");
+                this.binaryFileWriter.writeExecutableBinary(bLangPackage.get(), targetFileName);
+            }
+            this.binaryFileWriter.writeLibraryPackage(bLangPackage.get());
+            this.lockFileWriter.addEntryPkg(bLangPackage.get().symbol);
         }
-        this.binaryFileWriter.writeLibraryPackage(bLangPackage);
-        this.lockFileWriter.addEntryPkg(bLangPackage.symbol);
         this.lockFileWriter.writeLockFile(this.manifest);
+        this.compiledPackages.clearPkgs();
     }
 
     public void list() {
@@ -126,7 +148,7 @@ public class Compiler {
     }
 
     public void list(String sourcePackage) {
-        BLangPackage bLangPackage = compile(sourcePackage);
+        BLangPackage bLangPackage = compile(sourcePackage, false);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
         }
@@ -136,7 +158,7 @@ public class Compiler {
 
     public ProgramFile getExecutableProgram(BLangPackage entryPackageNode) {
         if (dlog.errorCount > 0) {
-            throw new BLangCompilerException("compilation contains errors");
+            return null;
         }
         return this.binaryFileWriter.genExecutable(entryPackageNode);
     }
@@ -144,7 +166,7 @@ public class Compiler {
 
     // private methods
 
-    private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream) {
+    private List<BLangPackage> compilePackages(Stream<PackageID> pkgIdStream, boolean isBuild) {
         // TODO This is hack to load the builtin package. We will fix this with BALO support
         this.compilerDriver.loadBuiltinPackage();
 
@@ -152,7 +174,7 @@ public class Compiler {
         // 2) Define all package level symbols for all the packages including imported packages in the AST
         List<BLangPackage> packages = pkgIdStream
                 .filter(p -> !SymbolTable.BUILTIN.equals(p))
-                .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null))
+                .map((PackageID pkgId) -> this.pkgLoader.loadEntryPackage(pkgId, null, isBuild))
                 .collect(Collectors.toList());
 
         // 3) Invoke compiler phases. e.g. type_check, code_analyze, taint_analyze, desugar etc.
@@ -165,7 +187,7 @@ public class Compiler {
 
     private List<BLangPackage> compilePackages() {
         List<BLangPackage> compiledPackages = compilePackages(
-                this.sourceDirectoryManager.listSourceFilesAndPackages());
+                this.sourceDirectoryManager.listSourceFilesAndPackages(), true);
         if (this.dlog.errorCount > 0) {
             throw new BLangCompilerException("compilation contains errors");
         }
@@ -173,7 +195,7 @@ public class Compiler {
         return compiledPackages;
     }
 
-    private BLangPackage compilePackage(PackageID packageID) {
-        return compilePackages(Stream.of(packageID)).get(0);
+    private BLangPackage compilePackage(PackageID packageID, boolean isBuild) {
+        return compilePackages(Stream.of(packageID), isBuild).get(0);
     }
 }

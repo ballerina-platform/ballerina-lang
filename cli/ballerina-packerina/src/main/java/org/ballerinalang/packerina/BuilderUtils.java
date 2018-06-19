@@ -30,6 +30,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.LOCK_ENABLED;
 import static org.ballerinalang.compiler.CompilerOptionName.OFFLINE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
+import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 /**
  * This class provides util methods for building Ballerina programs and packages.
  *
@@ -41,7 +42,8 @@ public class BuilderUtils {
                                String targetPath,
                                boolean buildCompiledPkg,
                                boolean offline,
-                               boolean lockEnabled) {
+                               boolean lockEnabled,
+                               boolean skiptests) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
@@ -49,18 +51,20 @@ public class BuilderUtils {
         options.put(BUILD_COMPILED_PACKAGE, Boolean.toString(buildCompiledPkg));
         options.put(OFFLINE, Boolean.toString(offline));
         options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
+        options.put(SKIP_TESTS, Boolean.toString(skiptests));
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.build(packagePath, targetPath);
     }
 
-    public static void compile(Path sourceRootPath, boolean offline, boolean lockEnabled) {
+    public static void compile(Path sourceRootPath, boolean offline, boolean lockEnabled, boolean skiptests) {
         CompilerContext context = new CompilerContext();
         CompilerOptions options = CompilerOptions.getInstance(context);
         options.put(PROJECT_DIR, sourceRootPath.toString());
         options.put(OFFLINE, Boolean.toString(offline));
         options.put(COMPILER_PHASE, CompilerPhase.CODE_GEN.toString());
         options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
+        options.put(SKIP_TESTS, Boolean.toString(skiptests));
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.build();
@@ -80,7 +84,7 @@ public class BuilderUtils {
         options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.write(packagePath, CompiledPackages.getInstance().getPkgList().get(0));
+        compiler.write(packagePath);
         CompiledPackages.getInstance().getPkgList().clear();
     }
 
@@ -93,7 +97,6 @@ public class BuilderUtils {
         options.put(LOCK_ENABLED, Boolean.toString(lockEnabled));
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.write(CompiledPackages.getInstance().getPkgList());
-        CompiledPackages.getInstance().getPkgList().clear();
+        compiler.write();
     }
 }

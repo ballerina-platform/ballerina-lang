@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -68,18 +69,9 @@ public class CompiledPackages {
     }
 
     /**
-     * Add compiled package to the package list.
-     *
-     * @param bLangPackage compiled package
-     */
-    void addToPkgList(BLangPackage bLangPackage) {
-        list.add(bLangPackage);
-    }
-
-    /**
      * Clear the compiled package list.
      */
-    public void clear() {
-        list.clear();
+    public void clearPkgs() {
+        this.list = Collections.emptyList();
     }
 }

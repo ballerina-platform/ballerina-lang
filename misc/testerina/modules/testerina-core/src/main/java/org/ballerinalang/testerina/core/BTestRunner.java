@@ -83,7 +83,7 @@ public class BTestRunner {
                         boolean buildWithTests) {
         registry.setGroups(groups);
         registry.setShouldIncludeGroups(shouldIncludeGroups);
-        compileAndBuildSuites(sourceRoot, sourceFilePaths);
+        compileAndBuildSuites(sourceRoot, sourceFilePaths, buildWithTests);
         // execute the test programs
         execute(buildWithTests);
         // print the report
@@ -98,7 +98,7 @@ public class BTestRunner {
      */
     public void listGroups(String sourceRoot, Path[] sourceFilePaths) {
         //Build the test suites
-        compileAndBuildSuites(sourceRoot, sourceFilePaths);
+        compileAndBuildSuites(sourceRoot, sourceFilePaths, false);
         List<String> groupList = getGroupList();
         if (groupList.size() == 0) {
             outStream.println("There are no groups available!");
@@ -135,14 +135,17 @@ public class BTestRunner {
      * @param sourceRoot source root
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      */
-    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths)  {
+    private void compileAndBuildSuites(String sourceRoot, Path[] sourceFilePaths, boolean buildWithTests)  {
         if (sourceFilePaths.length == 0) {
             return;
         }
+        if (buildWithTests) {
+            outStream.println();
+        }
         if (sourceFilePaths.length > 0) {
-            outStream.println("\nCompiling tests");
+            outStream.println("Compiling tests");
         } else {
-            outStream.println("\nCompiling test");
+            outStream.println("Compiling test");
         }
         Arrays.stream(sourceFilePaths).forEach(sourcePackage -> {
 

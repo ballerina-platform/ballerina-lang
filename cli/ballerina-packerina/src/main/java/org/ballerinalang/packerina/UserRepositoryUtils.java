@@ -100,7 +100,7 @@ public class UserRepositoryUtils {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        compiler.compile(packagePath.toString());
+        compiler.compile(packagePath.toString(), false);
 
         Path srcDirectoryPath = BLangPrograms.validateAndResolveSourcePath(sourceRootPath, packagePath);
         Path targetDirectoryPath = initializeUserRepository()

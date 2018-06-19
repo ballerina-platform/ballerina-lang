@@ -260,11 +260,9 @@ public class PackageLoader {
         }
     }
 
-    public BLangPackage loadEntryPackage(PackageID pkgId, PackageID enclPackageId) {
-        if (pkgId.isUnnamed) {
-            outStream.println("    " + pkgId.sourceFileName.value);
-        } else {
-            outStream.println("    " + pkgId.toString());
+    public BLangPackage loadEntryPackage(PackageID pkgId, PackageID enclPackageId, boolean isBuild) {
+        if (isBuild) {
+            outStream.println("    " + (pkgId.isUnnamed ? pkgId.sourceFileName.value : pkgId.toString()));
         }
         //even entry package may be already loaded through an import statement.
         BLangPackage bLangPackage = packageCache.get(pkgId);

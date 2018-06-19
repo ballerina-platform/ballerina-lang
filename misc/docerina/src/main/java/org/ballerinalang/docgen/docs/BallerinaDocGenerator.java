@@ -409,7 +409,7 @@ public class BallerinaDocGenerator {
             // compile the given package
             Path fileOrPackageName = packagePath.getFileName();
             bLangPackage = compiler.compile(fileOrPackageName == null ? packagePath.toString() : fileOrPackageName
-                    .toString());
+                    .toString(), false);
         }
 
         if (bLangPackage == null) {

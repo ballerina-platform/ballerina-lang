@@ -56,7 +56,7 @@ public class WorkspacePackageRepositoryTest {
     //@Test
     public void testCompilePackageWithDirtyContent() {
         Compiler compiler = Compiler.getInstance(prepareCompilerContext());
-        BLangPackage packageNode = compiler.compile(pkg);
+        BLangPackage packageNode = compiler.compile(pkg, false);
         Assert.assertEquals(packageNode.getFunctions().size(), 1,
                 "Package should contain one function which is in persisted file.");
         Assert.assertEquals(packageNode.getFunctions().get(0).getName().getValue(), "sayHello",
@@ -66,7 +66,7 @@ public class WorkspacePackageRepositoryTest {
         final Path filePath = Paths.get(sourceRoot, "org.pkg1", "file1.bal");
         documentManager.openFile(filePath, "package org.pkg1;");
         compiler = Compiler.getInstance(prepareCompilerContext());
-        compiler.compile(pkg);
+        compiler.compile(pkg, false);
         Assert.assertEquals(packageNode.getFunctions().size(), 0,
                 "Package should now contain no functions as we removed it in file1.bal dirty content.");
 
@@ -74,7 +74,7 @@ public class WorkspacePackageRepositoryTest {
         documentManager.updateFile(filePath, "package org.pkg1; public function f1(){} " +
                 "public function f2(){}");
         compiler = Compiler.getInstance(prepareCompilerContext());
-        compiler.compile(pkg);
+        compiler.compile(pkg, false);
         Assert.assertEquals(packageNode.getFunctions().size(), 2,
                 "Package should now contain two functions.");
         Assert.assertEquals(packageNode.getFunctions().get(0).getName().getValue(), "f1",
@@ -85,7 +85,7 @@ public class WorkspacePackageRepositoryTest {
         // now close file without saving new content to disk
         documentManager.closeFile(filePath);
         compiler = Compiler.getInstance(prepareCompilerContext());
-        compiler.compile(pkg);
+        compiler.compile(pkg, false);
         Assert.assertEquals(packageNode.getFunctions().size(), 1,
                 "Package should now contain a single function which is in the file on disk.");
         Assert.assertEquals(packageNode.getFunctions().get(0).getName().getValue(), "sayHello",

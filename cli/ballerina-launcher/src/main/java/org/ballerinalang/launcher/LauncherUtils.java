@@ -254,7 +254,7 @@ public class LauncherUtils {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage entryPkgNode = compiler.compile(sourcePath.toString());
+        BLangPackage entryPkgNode = compiler.compile(sourcePath.toString(), false);
         CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPkgNode);
         if (programFile == null) {
             throw createLauncherException("compilation contains errors");
