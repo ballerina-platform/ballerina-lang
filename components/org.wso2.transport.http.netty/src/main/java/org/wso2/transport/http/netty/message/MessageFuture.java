@@ -49,8 +49,9 @@ public class MessageFuture {
                 }
             }
             while (!pendingPayload.isEmpty()) {
-                notifyMessageListener(pendingPayload.poll());
-                if (pendingPayload.poll() instanceof LastHttpContent) {
+                HttpContent httpContent = pendingPayload.poll();
+                notifyMessageListener(httpContent);
+                if (httpContent instanceof LastHttpContent) {
                     this.httpCarbonMessage.removeMessageFuture();
                     return;
                 }
