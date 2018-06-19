@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.socket;
+package org.ballerinalang.nativeimpl.socket.client;
 
 import java.io.IOException;
 import java.io.InputStream;

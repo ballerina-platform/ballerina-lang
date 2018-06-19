@@ -16,51 +16,47 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.socket;
+package org.ballerinalang.nativeimpl.socket.server;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
+import org.ballerinalang.nativeimpl.socket.SocketConstants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.channels.ServerSocketChannel;
+
 /**
- * Native function to ShutdownInput in a socket.
+ * Native function to close a Client socket.
  *
- * @since 0.970.0
+ * @since 0.963.0
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "io",
-        functionName = "shutdownInput",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
-        returnType = { @ReturnType(type = TypeKind.RECORD, structType = "error")},
+        orgName = "ballerina", packageName = "io", functionName = "close",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ServerSocket", structPackage = "ballerina/io"),
+        returnType = { @ReturnType(type = TypeKind.OBJECT, structType = "error")},
         isPublic = true
 )
-public class ShutdownInput extends BlockingNativeCallableUnit {
+public class Close extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(ShutdownInput.class);
+    private static final Logger log = LoggerFactory.getLogger(Close.class);
 
     @Override
     public void execute(Context context) {
-        BStruct socket;
+        BStruct serverSocketStruct;
         try {
-            socket = (BStruct) context.getRefArgument(0);
-            BStruct byteChannelStruct = (BStruct) socket.getRefField(0);
-            Channel channel = (Channel) byteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            if (channel instanceof SocketIOChannel) {
-                SocketIOChannel socketIOChannel = (SocketIOChannel) channel;
-                socketIOChannel.shutdownInput();
-            }
+            serverSocketStruct = (BStruct) context.getRefArgument(0);
+            ServerSocketChannel serverSocket = (ServerSocketChannel) serverSocketStruct
+                    .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
+            serverSocket.close();
         } catch (Throwable e) {
-            String message = "Failed to shutdown input in socket:" + e.getMessage();
+            String message = "Failed to close the ServerSocket:" + e.getMessage();
             log.error(message, e);
             context.setReturnValues(IOUtils.createError(context, message));
         }

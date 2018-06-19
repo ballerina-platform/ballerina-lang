@@ -34,4 +34,9 @@ public class SocketConstants {
     public static final int SSL_ENABLED_PROTOCOLS_OPTION_FIELD_INDEX = 5;
     public static final int CIPHERS_OPTION_FIELD_INDEX = 6;
     public static final int SSL_PROTOCOL_OPTION_FIELD_INDEX = 7;
+
+    public static final String SERVER_SOCKET_KEY = "ServerSocket";
+    public static final String SOCKET_KEY = "Socket";
+
+    public static final String SOCKET_PACKAGE = "ballerina/io";
 }

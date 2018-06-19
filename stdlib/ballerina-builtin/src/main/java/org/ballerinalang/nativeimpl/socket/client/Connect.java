@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.socket;
+package org.ballerinalang.nativeimpl.socket.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
@@ -26,8 +26,10 @@ import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
+import org.ballerinalang.nativeimpl.socket.SocketConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -41,29 +43,24 @@ import java.nio.channels.SocketChannel;
 import static org.ballerinalang.nativeimpl.socket.SocketConstants.LOCAL_PORT_OPTION_FIELD_INDEX;
 
 /**
- * Native function to open a Client socket.
+ * Native function to open a Client socket connection.
  *
- * @since 0.963.0
+ * @since 0.971.1
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
-        functionName = "openSocket",
+        functionName = "connect",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket",
+                             structPackage = SocketConstants.SOCKET_PACKAGE),
         args = {@Argument(name = "host", type = TypeKind.STRING),
-                @Argument(name = "port", type = TypeKind.INT),
-                @Argument(name = "option", type = TypeKind.RECORD, structType = "SocketProperties",
-                        structPackage = "ballerina/io")},
-        returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io")
+                @Argument(name = "port", type = TypeKind.INT)
         },
         isPublic = true
 )
-public class OpenSocket extends BlockingNativeCallableUnit {
+public class Connect extends BlockingNativeCallableUnit {
 
-    private static final Logger log = LoggerFactory.getLogger(OpenSocket.class);
+    private static final Logger log = LoggerFactory.getLogger(Connect.class);
 
-    private static final String SOCKET_PACKAGE = "ballerina/io";
-    private static final String SOCKET_STRUCT_TYPE = "Socket";
     private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
 
     @Override
@@ -76,16 +73,10 @@ public class OpenSocket extends BlockingNativeCallableUnit {
             log.debug("Remote port: " + port);
         }
         Socket socket;
-        SocketChannel channel;
         try {
             // Open a client connection
-            SocketChannel socketChannel = SocketChannel.open();
-            if (options.getIntField(LOCAL_PORT_OPTION_FIELD_INDEX) > 0) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Bind client socket to local port: " + options.getIntField(0));
-                }
-                socketChannel.bind(new InetSocketAddress((int) options.getIntField(0)));
-            }
+            BStruct socketStruct = (BStruct) context.getRefArgument(0);
+            SocketChannel socketChannel = (SocketChannel) socketStruct.getNativeData(SocketConstants.SOCKET_KEY);
             socketChannel.connect(new InetSocketAddress(host, port));
             log.debug("Successfully connect to remote server.");
             socket = socketChannel.socket();
@@ -95,24 +86,20 @@ public class OpenSocket extends BlockingNativeCallableUnit {
                 log.debug("ReceiveBufferSize: " + socket.getReceiveBufferSize());
                 log.debug("KeepAlive: " + socket.getKeepAlive());
             }
-            channel = socket.getChannel();
-            PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SOCKET_PACKAGE);
+            PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SocketConstants.SOCKET_PACKAGE);
             // Create ByteChannel Struct
             StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
-            Channel ballerinaSocketChannel = new SocketIOChannel(channel, 0);
+            Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, 0);
             BStruct channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
             channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
 
             // Create Socket Struct
-            StructureTypeInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
-            BStruct socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
             socketStruct.setRefField(0, channelStruct);
             socketStruct.setIntField(0, socket.getPort());
             socketStruct.setIntField(1, socket.getLocalPort());
             socketStruct.setStringField(0, socket.getInetAddress().getHostAddress());
             socketStruct.setStringField(1, socket.getLocalAddress().getHostAddress());
-            socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, channel);
-            context.setReturnValues(socketStruct);
+            socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, socketChannel);
         } catch (Throwable e) {
             String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
             log.error(msg, e);

@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.socket;
+package org.ballerinalang.nativeimpl.socket.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
@@ -26,6 +26,7 @@ import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
+import org.ballerinalang.nativeimpl.socket.SocketConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -67,8 +68,10 @@ import javax.net.ssl.TrustManagerFactory;
                  @Argument(name = "option", type = TypeKind.RECORD, structType = "SocketProperties",
                            structPackage = "ballerina/io") },
         returnType = {
-                @ReturnType(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
-                @ReturnType(type = TypeKind.RECORD, structType = "IOError", structPackage = "ballerina/io") },
+                @ReturnType(type = TypeKind.OBJECT, structType = "Socket",
+                            structPackage = SocketConstants.SOCKET_PACKAGE),
+                @ReturnType(type = TypeKind.RECORD, structType = "IOError",
+                            structPackage = SocketConstants.SOCKET_PACKAGE) },
         isPublic = true)
 public class OpenSecureSocket extends BlockingNativeCallableUnit {
 

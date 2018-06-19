@@ -46,7 +46,7 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * Test class for secure client socket related actions.
  */
-@Test(groups = { "broken" })
+//@Test(groups = { "broken" })
 public class SecureClientSocketTest {
 
     private static final Logger log = LoggerFactory.getLogger(SecureClientSocketTest.class);
