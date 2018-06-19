@@ -36,10 +36,6 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
     FunctionRefCPEntry funcRefCPEntry;
     BType type;
 
-    //index value of the `self` object which goes as an argument when object attached function is invoked as function
-    //pointer, which should go along with this function pointer instance
-    private int attachedFunctionObjectIndex;
-
     //container which keeps the closure variables values
     private List<BClosure> closureVars = new ArrayList<>();
 
@@ -74,14 +70,6 @@ public class BFunctionPointer implements BRefType<FunctionRefCPEntry> {
 
     public Integer getAdditionalIndexCount(int type) {
         return additionalIndexes.getOrDefault(type, 0);
-    }
-
-    public void setAttachedFunctionObjectIndex(int attachedFunctionObjectIndex) {
-        this.attachedFunctionObjectIndex = attachedFunctionObjectIndex;
-    }
-
-    public int getAttachedFunctionObjectIndex() {
-        return attachedFunctionObjectIndex;
     }
 
     @Override
