@@ -24,6 +24,7 @@ import org.apache.axiom.om.OMNamespace;
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMProcessingInstruction;
 import org.apache.axiom.om.OMText;
+import org.apache.axiom.om.OMXMLBuilderFactory;
 import org.apache.axiom.om.impl.common.OMChildrenQNameIterator;
 import org.apache.axiom.om.impl.common.OMNamespaceImpl;
 import org.apache.axiom.om.impl.dom.CommentImpl;
@@ -32,7 +33,6 @@ import org.apache.axiom.om.impl.llom.OMAttributeImpl;
 import org.apache.axiom.om.impl.llom.OMDocumentImpl;
 import org.apache.axiom.om.impl.llom.OMElementImpl;
 import org.apache.axiom.om.impl.llom.OMProcessingInstructionImpl;
-import org.apache.axiom.om.util.AXIOMUtil;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.XMLNodeType;
 import org.ballerinalang.model.util.XMLUtils;
@@ -87,7 +87,7 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         try {
-            omNode = AXIOMUtil.stringToOM(xmlValue);
+            omNode = XMLUtils.stringToOM(xmlValue);
             setXMLNodeType();
         } catch (Throwable t) {
             handleXmlException("failed to create xml: ", t);
@@ -115,7 +115,8 @@ public final class BXMLItem extends BXML<OMNode> {
         }
 
         try {
-            omNode = XMLUtils.createOMBuilder(inputStream).getDocumentElement();
+            omNode = OMXMLBuilderFactory.createOMBuilder(XMLUtils.STAX_PARSER_CONFIGURATION,
+                    inputStream).getDocumentElement();
             setXMLNodeType();
         } catch (Throwable t) {
             handleXmlException("failed to create xml: ", t);
