@@ -159,6 +159,19 @@ public class TreeVisitor extends LSNodeVisitor {
                 node.getPosition().getSource().getCompilationUnitName().equals(fileName)
         ).collect(Collectors.toList());
 
+        List<BLangImportPackage> imports = pkgNode.getImports().stream().filter(
+                node -> node.getPosition().getSource().getCompilationUnitName().equals(fileName)
+        ).collect(Collectors.toList());
+
+        if (!imports.isEmpty()) {
+            cursorPositionResolver = PackageNodeScopeResolver.class;
+            imports.forEach(bLangImportPackage -> {
+                cursorPositionResolver = TopLevelNodeScopeResolver.class;
+                this.blockOwnerStack.push(pkgNode);
+                acceptNode((BLangNode) bLangImportPackage, pkgEnv);
+            });
+        }
+
         if (topLevelNodes.isEmpty()) {
             this.setTerminateVisitor(true);
             acceptNode(null, null);
@@ -175,7 +188,10 @@ public class TreeVisitor extends LSNodeVisitor {
     public void visit(BLangImportPackage importPkgNode) {
         BPackageSymbol pkgSymbol = importPkgNode.symbol;
         SymbolEnv pkgEnv = symTable.pkgEnvMap.get(pkgSymbol);
-        acceptNode(pkgEnv.node, pkgEnv);
+        if (isCursorWithinBlock(importPkgNode.getPosition(), pkgEnv)) {
+            this.populateSymbols(this.resolveAllVisibleSymbols(pkgEnv), pkgEnv);
+            setTerminateVisitor(true);
+        }
     }
 
     public void visit(BLangXMLNS xmlnsNode) {
