@@ -853,6 +853,16 @@ function testJsonToArrayFail() {
     int[] x = check <int[]> j;
 }
 
+function anyToFloat() returns float {
+    any a = 5;
+    return check <float> a;
+}
 
+type A {
+    float f;
+};
 
-
+function testJsonFloatToInt() returns A {
+    json j = {f : 3};
+    return check <A> j;
+}

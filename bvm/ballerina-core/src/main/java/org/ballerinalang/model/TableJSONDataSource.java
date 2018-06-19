@@ -237,6 +237,14 @@ public class TableJSONDataSource implements JSONDataSource {
                 for (Object value  : dataArray) {
                     jsonArray.add((double) value);
                 }
+            } else if (obj instanceof BigDecimal) {
+                for (Object value : dataArray) {
+                    if (value != null) {
+                        jsonArray.add(((BigDecimal) value).doubleValue());
+                    } else {
+                        jsonArray.addNull();
+                    }
+                }
             }
         }
         return  jsonArray;

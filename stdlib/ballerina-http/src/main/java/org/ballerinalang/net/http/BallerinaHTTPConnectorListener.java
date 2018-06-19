@@ -18,23 +18,15 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.model.values.BTypeDescValue;
+import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.runtime.Constants;
-import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.ballerinalang.util.observability.ObservabilityUtils;
 import org.ballerinalang.util.observability.ObserverContext;
-import org.ballerinalang.util.program.BLangFunctions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
@@ -44,7 +36,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.util.observability.ObservabilityConstants.PROPERTY_TRACE_PROPERTIES;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_HTTP;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_METHOD;
@@ -61,12 +52,12 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     private final HTTPServicesRegistry httpServicesRegistry;
 
-    private final Value[] filterHolders;
+    protected final Struct endpointConfig;
 
     public BallerinaHTTPConnectorListener(HTTPServicesRegistry httpServicesRegistry,
-                                          Value[] filterHolders) {
+                                          Struct endpointConfig) {
         this.httpServicesRegistry = httpServicesRegistry;
-        this.filterHolders = filterHolders;
+        this.endpointConfig = endpointConfig;
     }
 
     @Override
@@ -79,7 +70,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
                 return;
             }
             httpResource = HttpDispatcher.findResource(httpServicesRegistry, inboundMessage);
-            if (HttpDispatcher.shouldDiffer(httpResource, hasFilters())) {
+            if (HttpDispatcher.shouldDiffer(httpResource)) {
                 inboundMessage.setProperty(HTTP_RESOURCE, httpResource);
                 return;
             }
@@ -97,19 +88,14 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onError(Throwable throwable) {
-        log.error("Error in HTTP server connector: " + throwable.getMessage(), throwable);
+        log.error("Error in HTTP server connector: " + throwable.getMessage());
     }
 
     protected void extractPropertiesAndStartResourceExecution(HTTPCarbonMessage inboundMessage,
                                                               HttpResource httpResource) {
         boolean isTransactionInfectable = httpResource.isTransactionInfectable();
         Map<String, Object> properties = collectRequestProperties(inboundMessage, isTransactionInfectable);
-        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage);
-        // invoke the request path filters
-        WorkerExecutionContext parentCtx = new WorkerExecutionContext(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile());
-        invokeRequestFilters(inboundMessage, signatureParams[1], getRequestFilterContext(httpResource), parentCtx);
-
+        BValue[] signatureParams = HttpDispatcher.getSignatureParameters(httpResource, inboundMessage, endpointConfig);
         Resource balResource = httpResource.getBalResource();
 
         Optional<ObserverContext> observerContext = ObservabilityUtils.startServerObservation(SERVER_CONNECTOR_HTTP,
@@ -125,20 +111,7 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
 
         CallableUnitCallback callback = new HttpCallableUnitCallback(inboundMessage);
         //TODO handle BallerinaConnectorException
-        Executor.submit(balResource, callback, properties, observerContext.orElse(null), parentCtx, signatureParams);
-    }
-
-    protected BValue getRequestFilterContext(HttpResource httpResource) {
-        BStruct filterCtxtStruct = BLangConnectorSPIUtil.createBStruct(
-                httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
-                PROTOCOL_PACKAGE_HTTP, "FilterContext");
-        filterCtxtStruct.setRefField(0,
-                                     new BTypeDescValue(httpResource.getBalResource().getResourceInfo().getServiceInfo()
-                                                                .getType()));
-        filterCtxtStruct.setStringField(0, httpResource.getParentService().getName());
-        filterCtxtStruct.setStringField(1, httpResource.getName());
-        filterCtxtStruct.setRefField(1, new BMap());
-        return filterCtxtStruct;
+        Executor.submit(balResource, callback, properties, observerContext.orElse(null), signatureParams);
     }
 
     protected boolean accessed(HTTPCarbonMessage inboundMessage) {
@@ -168,52 +141,6 @@ public class BallerinaHTTPConnectorListener implements HttpConnectorListener {
         properties.put(HttpConstants.POOLED_BYTE_BUFFER_FACTORY,
                        inboundMessage.getHeader(HttpConstants.POOLED_BYTE_BUFFER_FACTORY));
         return properties;
-    }
-
-    /**
-     * Invokes the set of filters for the request path. If one filter fails, the execution would stop and the relevant
-     * error message given from the filter will be returned to the user.
-     *
-     * @param inboundMessage {@link HTTPCarbonMessage} instance
-     * @param requestObject     Representation of ballerina.net.Request struct
-     * @param filterCtxt        filtering criteria
-     * @param parentCtx         WorkerExecutionContext instance, which corresponds to the current worker execution
-     *                          context
-     */
-    protected void invokeRequestFilters(HTTPCarbonMessage inboundMessage, BValue requestObject, BValue filterCtxt,
-                                        WorkerExecutionContext parentCtx) {
-
-        if (!hasFilters()) {
-            // no filters, return
-            return;
-        }
-
-        for (Value filterHolder : filterHolders) {
-            BStructureType structType = (BStructureType) filterHolder.getVMValue().getType();
-            // get the request filter function and invoke
-            BValue[] returnValue = BLangFunctions
-                    .invokeCallable(((StructureTypeInfo) structType.getTypeInfo()).funcInfoEntries
-                                            .get(HttpConstants.HTTP_REQUEST_FILTER_FUNCTION_NAME).functionInfo,
-                                    parentCtx, new BValue[]{filterHolder.getVMValue(), requestObject, filterCtxt});
-            BStruct filterResultStruct = (BStruct) returnValue[0];
-            if (filterResultStruct.getBooleanField(0) == 0) {
-                // filter returned false, stop further execution
-                // get the status code and the message
-                int filterStatusCode = Math.toIntExact(filterResultStruct.getIntField(0));
-                // if the status code returned by filter result is 4xx, use it, else use the code 400
-                int responseStatusCode = filterStatusCode >= 400 && filterStatusCode < 500 ? filterStatusCode : 400;
-                inboundMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, responseStatusCode);
-                throw new BallerinaException("Request failed: " + filterResultStruct.getStringField(0));
-            }
-            // filter has returned true, can continue
-        }
-    }
-
-    /**
-     * Method to retrive if filters have been specified.
-     */
-    protected boolean hasFilters() {
-        return filterHolders != null && filterHolders.length > 0;
     }
 
 }

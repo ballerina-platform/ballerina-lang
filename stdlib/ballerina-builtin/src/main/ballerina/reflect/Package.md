@@ -56,14 +56,12 @@ service<http:Service> hello bind { port: 9090 } {
     hello(endpoint caller, http:Request req) {
         http:Response res = new;
         res.setTextPayload("hello world");
-        var result = caller -> respond(res);
+        var result = caller->respond(res);
     }
 }
 
-annotationData[] annotations= reflect:getServiceAnnotations(hello); 
+reflect:annotationData[] annotations= reflect:getServiceAnnotations(hello); 
 string annoName = annotations[0].name; //Eg. “ServiceConfig”
-string annoPkg = annotations[0].package; //Eg/ “ballerina.http”
+string annoPkg = annotations[0].pkgName; //Eg/ “ballerina.http”
 
 ```
-
-## Package contents

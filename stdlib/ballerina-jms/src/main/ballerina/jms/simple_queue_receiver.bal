@@ -36,10 +36,10 @@ public type SimpleQueueReceiver object {
     }
 
     documentation { Initialize the SimpleQueueReceiver endpoint
-        P{{config}} Configurations related to the SimpleQueueReceiver endpoint
+        P{{c}} Configurations related to the SimpleQueueReceiver endpoint
     }
-    public function init(SimpleQueueReceiverEndpointConfiguration config) {
-        self.config = config;
+    public function init(SimpleQueueReceiverEndpointConfiguration c) {
+        self.config = c;
         Connection conn = new({
                 initialContextFactory:config.initialContextFactory,
                 providerUrl:config.providerUrl,
@@ -56,8 +56,8 @@ public type SimpleQueueReceiver object {
         QueueReceiver receiver = new;
         QueueReceiverEndpointConfiguration queueReceiverConfig = {
             session:newSession,
-            queueName:config.queueName,
-            messageSelector:config.messageSelector
+            queueName: c.queueName,
+            messageSelector: c.messageSelector
         };
         receiver.init(queueReceiverConfig);
         self.queueReceiver = receiver;

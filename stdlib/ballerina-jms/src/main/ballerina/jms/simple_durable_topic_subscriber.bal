@@ -35,10 +35,10 @@ public type SimpleDurableTopicSubscriber object {
     }
 
     documentation { Initializes the simple durable topic subscriber endpoint
-        P{{config}} Configurations related to the endpoint
+        P{{c}} Configurations related to the endpoint
     }
-    public function init(SimpleDurableTopicSubscriberEndpointConfiguration config) {
-        self.config = config;
+    public function init(SimpleDurableTopicSubscriberEndpointConfiguration c) {
+        self.config = c;
         Connection conn = new({
                 initialContextFactory:config.initialContextFactory,
                 providerUrl:config.providerUrl,
@@ -55,14 +55,14 @@ public type SimpleDurableTopicSubscriber object {
         DurableTopicSubscriber topicSubscriber = new;
         DurableTopicSubscriberEndpointConfiguration consumerConfig = {
             session:newSession,
-            topicPattern:config.topicPattern,
-            messageSelector:config.messageSelector,
-            identifier:config.identifier
+            topicPattern: c.topicPattern,
+            messageSelector: c.messageSelector,
+            identifier: c.identifier
         };
         topicSubscriber.init(consumerConfig);
         self.subscriber = topicSubscriber;
         self.consumerActions = new SimpleDurableTopicSubscriberActions(topicSubscriber.getCallerActions(), newSession,
-                                                                       config.identifier);
+                                                                       c.identifier);
     }
 
     documentation { Binds the endpoint to a service

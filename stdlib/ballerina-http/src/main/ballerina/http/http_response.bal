@@ -71,9 +71,9 @@ public type Response object {
     documentation {
         Sets the provided `Entity` to the response.
 
-        P{{entity}} The `Entity` to be set to the response
+        P{{e}} The `Entity` to be set to the response
     }
-    public native function setEntity(mime:Entity entity);
+    public native function setEntity(mime:Entity e);
 
     documentation {
         Checks whether the requested header key exists in the header map.

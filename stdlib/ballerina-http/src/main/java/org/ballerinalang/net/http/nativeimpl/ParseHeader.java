@@ -84,6 +84,6 @@ public class ParseHeader extends BlockingNativeCallableUnit {
         }
 
         // set parse error
-        context.setReturnValues(MimeUtil.getParserError(context, errMsg));
+        context.setReturnValues(MimeUtil.createError(context, errMsg));
     }
 }

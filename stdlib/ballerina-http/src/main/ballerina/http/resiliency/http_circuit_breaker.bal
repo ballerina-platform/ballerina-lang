@@ -156,13 +156,8 @@ public type CircuitBreakerClient object {
         P{{httpClient}}  The underlying `HttpActions` instance which will be making the actual network calls
         P{{circuitHealth}} The circuit health monitor
     }
-    public new (string serviceUri, ClientEndpointConfig config, CircuitBreakerInferredConfig circuitBreakerInferredConfig,
-                                                                            CallerActions httpClient, CircuitHealth circuitHealth) {
-        self.serviceUri = serviceUri;
-        self.config = config;
-        self.circuitBreakerInferredConfig = circuitBreakerInferredConfig;
-        self.httpClient = httpClient;
-        self.circuitHealth = circuitHealth;
+    public new (serviceUri, config, circuitBreakerInferredConfig, httpClient, circuitHealth) {
+
     }
 
     documentation {
@@ -332,6 +327,13 @@ public type CircuitBreakerClient object {
         until `resetTimeMillis` interval exceeds.
     }
     public function forceOpen();
+
+    documentation {
+        Provides `CircuitState` of the circuit breaker.
+
+        R{{}} The current `CircuitState` of circuit breaker
+    }
+    public function getCurrentState() returns CircuitState;
 };
 
 public function CircuitBreakerClient::post(string path, Request|string|xml|json|blob|io:ByteChannel|mime:Entity[]|()
@@ -583,6 +585,10 @@ public function CircuitBreakerClient::forceClose() {
 public function CircuitBreakerClient::forceOpen() {
     self.currentCircuitState = CB_OPEN_STATE;
     self.circuitHealth.lastForcedOpenTime = time:currentTime();
+}
+
+public function CircuitBreakerClient::getCurrentState() returns CircuitState {
+    return self.currentCircuitState;
 }
 
 documentation {

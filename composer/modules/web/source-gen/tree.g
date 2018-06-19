@@ -109,7 +109,7 @@ ConstrainedType
    ;
 
 Documentation
-   : documentation { <documentationText> <attributes>* }
+   : <startDoc> <documentationText> <attributes>* }
    ;
 
 DocumentationAttribute
@@ -253,10 +253,14 @@ Limit
    ;
 
 Literal
-   : <inTemplateLiteral?>   <unescapedValue>
+   | <startTemplateLiteral?> <endTemplateLiteral?> }}            <value>
+   | <lastNodeValue?>        <endTemplateLiteral?> }}            <value>
+   |                         <endTemplateLiteral?> }}
+   | <startTemplateLiteral?>                                     <value>
+   : <inTemplateLiteral?>                               <unescapedValue>
    | <inTemplateLiteral?>
-   | <emptyParantheses?>  (                  )
-   |                        <value>
+   | <emptyParantheses?>                              (                  )
+   |                                                             <value>
    ;
 
 Lock
@@ -323,9 +327,8 @@ Retry
    ;
 
 Return
-   : <noExpressionAvailable?> return                       ;
-   | <emptyBrackets?>         return                     ();
-   |                          return <expression.source>   ;
+   : <noExpressionAvailable?> return                     ;
+   |                          return <expression.source> ;
    ;
 
 SelectClause
@@ -395,7 +398,7 @@ StreamingQuery
    ;
 
 StringTemplateLiteral
-   : string\u0020` <expressions>* `
+   : <startTemplate> <expressions>* `
    ;
 
 Table
@@ -516,8 +519,9 @@ UnaryExpr
    ;
 
 UnionTypeNode
-   : <withParantheses?> ( <memberTypeNodes-joined-by|>* )
-   |                      <memberTypeNodes-joined-by|>*
+   : <emptyParantheses?> (                               )
+   | <withParantheses?>  ( <memberTypeNodes-joined-by|>* )
+   |                       <memberTypeNodes-joined-by|>*
    ;
 
 UserDefinedType

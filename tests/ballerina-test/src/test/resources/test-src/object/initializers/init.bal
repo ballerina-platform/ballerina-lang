@@ -6,15 +6,15 @@ public type employee object {
         string address;
     }
 
-    public new (int age = 10, name) {
-        self.age = age;
+    public new (int a = 10, name) {
+        self.age = a;
     }
 
     public function getAge();
 
 };
 
-public function  employee::getAge() {
+public function employee::getAge() {
     self.age = 12;
 }
 

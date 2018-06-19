@@ -85,7 +85,8 @@ public class InvocationContextUtils {
         StructureTypeInfo invocationContextInfo = getStructInfo(context,
                 BALLERINA_RUNTIME_PKG, STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
-        return BLangVMStructs.createBStruct(invocationContextInfo, invocationId.toString(), userPrincipal, authContext);
+        return BLangVMStructs.createBStruct(invocationContextInfo, invocationId.toString(), userPrincipal,
+                authContext, new BMap());
     }
 
     private static BStruct createAuthContext(Context context) {

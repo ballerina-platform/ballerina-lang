@@ -34,6 +34,11 @@ public class Endpoint {
         this.fields = new ArrayList<>();
     }
 
+    public Endpoint(String name, String packageName) {
+        this.name = name;
+        this.packageName = packageName;
+    }
+
     public String getName() {
         return name;
     }

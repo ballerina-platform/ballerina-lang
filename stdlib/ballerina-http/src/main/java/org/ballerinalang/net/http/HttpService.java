@@ -61,7 +61,7 @@ public class HttpService implements Cloneable {
 
     private Service balService;
     private List<HttpResource> resources;
-    private List<Resource> upgradeToWebSocketResources;
+    private List<HttpResource> upgradeToWebSocketResources;
     private List<String> allAllowedMethods;
     private String basePath;
     private CorsHeaders corsHeaders;
@@ -160,12 +160,12 @@ public class HttpService implements Cloneable {
         }
     }
 
-    public List<Resource> getUpgradeToWebSocketResources() {
+    public List<HttpResource> getUpgradeToWebSocketResources() {
         return upgradeToWebSocketResources;
     }
 
     public void setUpgradeToWebSocketResources(
-            List<Resource> upgradeToWebSocketResources) {
+            List<HttpResource> upgradeToWebSocketResources) {
         this.upgradeToWebSocketResources = upgradeToWebSocketResources;
     }
 
@@ -206,13 +206,14 @@ public class HttpService implements Cloneable {
         }
 
         List<HttpResource> httpResources = new ArrayList<>();
-        List<Resource> upgradeToWebSocketResources = new ArrayList<>();
+        List<HttpResource> upgradeToWebSocketResources = new ArrayList<>();
         for (Resource resource : httpService.getBallerinaService().getResources()) {
             Annotation resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
             if (resourceConfigAnnotation != null
                     && resourceConfigAnnotation.getValue().getStructField(WEBSOCKET_UPGRADE_FIELD) != null) {
-                upgradeToWebSocketResources.add(resource);
+                HttpResource upgradeResource = HttpResource.buildHttpResource(resource, httpService);
+                upgradeToWebSocketResources.add(upgradeResource);
             } else {
                 HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
                 try {

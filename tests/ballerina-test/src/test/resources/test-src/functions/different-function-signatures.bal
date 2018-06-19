@@ -150,25 +150,25 @@ public type Employee object {
     new (name = "supun", salary = 100) {
     }
 
-    public function getSalary (string name, int bonus = 0) returns int {
-        return salary + bonus;
+    public function getSalary (string n, int b = 0) returns int {
+        return salary + b;
     }
 };
 
 function testAttachedFunction() returns (int, int) {
     Employee emp = new;
-    return (emp.getSalary("Alex"), emp.getSalary("Alex", bonus = 10));
+    return (emp.getSalary("Alex"), emp.getSalary("Alex", b = 10));
 }
 
 
 function testDefaultableParamInnerFunc () returns (int, string) {
     Person p = new;
-    return p.test1(age = 50);
+    return p.test1(a = 50);
 }
 
 function testDefaultableParamOuterFunc () returns (int, string) {
     Person p = new;
-    return p.test2(age = 40);
+    return p.test2(a = 40);
 }
 
 type Person object {
@@ -176,17 +176,17 @@ type Person object {
         int age,
     }
 
-    function test1(int age = 77, string name = "inner default") returns (int, string);
+    function test1(int a = 77, string n = "inner default") returns (int, string);
 
-    function test2(int age = 89, string name = "hello") returns (int, string) {
-        string val = name + " world";
-        int intVal = age + 10;
+    function test2(int a = 89, string n = "hello") returns (int, string) {
+        string val = n + " world";
+        int intVal = a + 10;
         return (intVal, val);
     }
 };
 
-function Person::test1(int age = 77, string name = "hello") returns (int, string) {
-    string val = name + " world";
-    int intVal = age + 10;
+function Person::test1(int a = 77, string n = "hello") returns (int, string) {
+    string val = n + " world";
+    int intVal = a + 10;
     return (intVal, val);
 }

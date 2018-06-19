@@ -34,6 +34,7 @@ import java.util.Map;
 public class TesterinaRegistry {
 
     private String orgName = null;
+    private String version = null;
     private List<String> groups = new ArrayList<>();
     private boolean shouldIncludeGroups;
     private Map<String, TestSuite> testSuites = new HashMap<>();
@@ -126,5 +127,13 @@ public class TesterinaRegistry {
 
     public void setOrgName(String orgName) {
         this.orgName = orgName;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
  }

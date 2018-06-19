@@ -43,3 +43,14 @@ function testAuthToken () returns (boolean) {
     runtime:getInvocationContext().authContext.authToken = authToken;
     return authToken == runtime:getInvocationContext().authContext.authToken;
 }
+
+function testAttributes () returns boolean {
+    string attributeName = "attributeName";
+    string attributeValue = "attributeValue";
+    string jsonAttributeName = "jsonAttribute";
+    json jsonAttribute = { name: "value" };
+    runtime:getInvocationContext().attributes[attributeName] = attributeValue;
+    runtime:getInvocationContext().attributes[jsonAttributeName] = jsonAttribute;
+    return (attributeValue == runtime:getInvocationContext().attributes[attributeName]) &&
+        (jsonAttribute == runtime:getInvocationContext().attributes[jsonAttributeName]);
+}

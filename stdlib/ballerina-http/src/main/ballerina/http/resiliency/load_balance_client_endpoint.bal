@@ -34,9 +34,9 @@ public type LoadBalanceClient object {
     documentation {
         The initialization function for the load balance client endpoint.
 
-        P{{loadBalanceClientConfig}} The user provided configurations for the load balance client endpoint
+        P{{lbClientConfig}} The user provided configurations for the load balance client endpoint
     }
-    public function init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig);
+    public function init(LoadBalanceClientEndpointConfiguration lbClientConfig);
 
     documentation {
         Returns the HTTP LoadBalancer actions associated with the endpoint.
@@ -87,18 +87,18 @@ public type LoadBalanceClientEndpointConfiguration {
     boolean failover = true;
 };
 
-public function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration loadBalanceClientConfig) {
-    self.httpEP.httpClient = createLoadBalancerClient(loadBalanceClientConfig);
-    self.httpEP.config.circuitBreaker = loadBalanceClientConfig.circuitBreaker;
-    self.httpEP.config.timeoutMillis = loadBalanceClientConfig.timeoutMillis;
-    self.httpEP.config.httpVersion = loadBalanceClientConfig.httpVersion;
-    self.httpEP.config.forwarded = loadBalanceClientConfig.forwarded;
-    self.httpEP.config.keepAlive = loadBalanceClientConfig.keepAlive;
-    self.httpEP.config.chunking = loadBalanceClientConfig.chunking;
-    self.httpEP.config.followRedirects = loadBalanceClientConfig.followRedirects;
-    self.httpEP.config.retryConfig = loadBalanceClientConfig.retryConfig;
-    self.httpEP.config.proxy = loadBalanceClientConfig.proxy;
-    self.httpEP.config.connectionThrottling = loadBalanceClientConfig.connectionThrottling;
+public function LoadBalanceClient::init(LoadBalanceClientEndpointConfiguration lbClientConfig) {
+    self.httpEP.httpClient = createLoadBalancerClient(lbClientConfig);
+    self.httpEP.config.circuitBreaker = lbClientConfig.circuitBreaker;
+    self.httpEP.config.timeoutMillis = lbClientConfig.timeoutMillis;
+    self.httpEP.config.httpVersion = lbClientConfig.httpVersion;
+    self.httpEP.config.forwarded = lbClientConfig.forwarded;
+    self.httpEP.config.keepAlive = lbClientConfig.keepAlive;
+    self.httpEP.config.chunking = lbClientConfig.chunking;
+    self.httpEP.config.followRedirects = lbClientConfig.followRedirects;
+    self.httpEP.config.retryConfig = lbClientConfig.retryConfig;
+    self.httpEP.config.proxy = lbClientConfig.proxy;
+    self.httpEP.config.connectionThrottling = lbClientConfig.connectionThrottling;
 }
 
 function createClientEPConfigFromLoalBalanceEPConfig(LoadBalanceClientEndpointConfiguration lbConfig,
