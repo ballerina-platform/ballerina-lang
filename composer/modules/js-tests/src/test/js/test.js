@@ -8,7 +8,7 @@ global.targetPath = path.join(__dirname, '..', '..', '..', 'target');
 
 const testEnv = require('./environment');
 
-const testFilesDir = path.join(__dirname, '../resources/passing');
+const testFilesDir = path.join(__dirname, '../resources/ballerina-examples');
 const parserUrl = `http://127.0.0.1:9091/composer/ballerina/parser/file/validate-and-parse`;
 
 

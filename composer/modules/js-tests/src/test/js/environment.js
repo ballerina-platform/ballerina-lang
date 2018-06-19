@@ -29,6 +29,8 @@ function initialize() {
     const testScriptEl = window.document.createElement("script");
     testScriptEl.textContent = `
         window.render = (el, jsonModel, opt) => {
+            // following is done because "instanceof Array" would always give false for arrays
+            // created outside of jsdom environment
             const _jsonModel = JSON.parse(JSON.stringify(jsonModel));
             window.ballerinaDiagram.renderDiagram(el, _jsonModel, opt);
         }
