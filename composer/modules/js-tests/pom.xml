@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.ballerinalang</groupId>
         <artifactId>composer</artifactId>
-        <version>0.973.1-SNAPSHOT</version>
+        <version>0.975.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
     <packaging>pom</packaging>
@@ -19,12 +19,6 @@
             <version>${project.version}</version>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-composer-web</artifactId>
-            <version>${project.version}</version>
-            <type>zip</type>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -79,6 +73,7 @@
                             <groupId>org.ballerinalang</groupId>
                             <artifactId>composer-server-distribution</artifactId>
                             <version>${project.version}</version>
+                            <destFileName>composer-server.jar</destFileName>
                         </artifactItem>
                     </artifactItems>
                     <outputDirectory>${project.build.directory}/lib</outputDirectory>
@@ -90,25 +85,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
-                    <execution>
-                        <id>unpack-composer-dependencies</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>unpack-dependencies</goal>
-                        </goals>
-                        <configuration>
-                            <skip>${maven.test.skip}</skip>
-                            <includeArtifactIds>ballerina-composer-web</includeArtifactIds>
-                            <outputDirectory>${project.build.directory}/extracted-web</outputDirectory>
-                            <overWriteReleases>false</overWriteReleases>
-                            <overWriteSnapshots>true</overWriteSnapshots>
-                            <useSubDirectoryPerArtifact>true</useSubDirectoryPerArtifact>
-                            <stripVersion>true</stripVersion>
-                            <includes>
-                                */resources/composer/web/public/vendor-*.js,*/resources/composer/web/public/testable-*.js,*/resources/composer/web/public/tree-*.js
-                            </includes>
-                        </configuration>
-                    </execution>
                     <execution>
                         <id>unpack-composer-library</id>
                         <phase>generate-test-resources</phase>
@@ -143,16 +119,6 @@
                             <skip>${maven.test.skip}</skip>
                             <target name="copy js files to target">
                                 <mkdir dir="${project.build.directory}/js-files-from-web"/>
-                                <copy todir="${project.build.directory}/js-files-from-web" overwrite="true"
-                                      flatten="true">
-                                    <fileset dir="${project.build.directory}/extracted-web/">
-                                        <include name="**/*.js"/>
-                                    </fileset>
-                                    <chainedmapper>
-                                        <flattenmapper/>
-                                        <regexpmapper from="(.+)-([0-9a-f]+).js" to="\1.js"/>
-                                    </chainedmapper>
-                                </copy>
                                 <copy todir="${project.build.directory}/js-files-from-web" overwrite="true"
                                       flatten="true">
                                     <fileset dir="${project.build.directory}/extracted-web-lib/">
@@ -201,21 +167,6 @@
                         </configuration>
                     </execution>
                     <execution>
-                        <id>npm compile (run babel)</id>
-                        <goals>
-                            <goal>exec</goal>
-                        </goals>
-                        <phase>compile</phase>
-                        <configuration>
-                            <executable>${npm.executable}</executable>
-                            <arguments>
-                                <argument>run</argument>
-                                <argument>compile</argument>
-                            </arguments>
-                            <skip>${maven.test.skip}</skip>
-                        </configuration>
-                    </execution>
-                    <execution>
                         <id>npm test</id>
                         <goals>
                             <goal>exec</goal>
@@ -226,7 +177,6 @@
                             <arguments>
                                 <argument>test</argument>
                                 <argument>--</argument>
-                                <argument>--projectVersion=${project.version}</argument>
                                 <argument>--moveFailingFiles=${moveFailingFiles}</argument>
                             </arguments>
                             <skip>${maven.test.skip}</skip>
