@@ -219,9 +219,11 @@ public abstract class AbstractItemResolver {
      */
     protected boolean isAnnotationContext(LSServiceOperationContext ctx) {
         return ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null
-                && UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY
-                .equals(ctx.get(DocumentServiceKeys.TOKEN_STREAM_KEY).get(ctx.get(DocumentServiceKeys.TOKEN_INDEX_KEY))
-                        .getText());
+                && ctx.get(DocumentServiceKeys.TOKEN_STREAM_KEY) != null
+                && ctx.get(DocumentServiceKeys.TOKEN_INDEX_KEY) != null
+                && UtilSymbolKeys.ANNOTATION_START_SYMBOL_KEY.equals(
+                        ctx.get(DocumentServiceKeys.TOKEN_STREAM_KEY).get(ctx.get(DocumentServiceKeys.TOKEN_INDEX_KEY))
+                                .getText());
     }
 
     /**

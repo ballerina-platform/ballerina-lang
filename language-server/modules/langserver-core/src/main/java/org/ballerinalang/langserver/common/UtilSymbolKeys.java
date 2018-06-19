@@ -72,6 +72,8 @@ public class UtilSymbolKeys {
     public static final String NEW_KEYWORD_KEY = "new";
     
     public static final String IMPORT_KEYWORD_KEY = "import";
-    
+
+    public static final String SLASH_KEYWORD_KEY = "/";
+
     public static final String EP_OBJECT_IDENTIFIER = "getCallerActions";
 }
