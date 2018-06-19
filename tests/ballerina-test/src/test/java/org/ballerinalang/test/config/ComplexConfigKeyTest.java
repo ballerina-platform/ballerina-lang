@@ -55,7 +55,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test dotted table header with quoted entries")
-    public void testDottedTableHeaderWithQuotedEntries () {
+    public void testDottedTableHeaderWithQuotedEntries() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDottedTableHeaderWithQuotedEntries");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
@@ -63,7 +63,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test colon separated table header")
-    public void testColonSeparatedTableHeader () {
+    public void testColonSeparatedTableHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testColonSeparatedTableHeader");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
@@ -71,7 +71,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test dotted key with quoted entries")
-    public void testDottedKeyWithQuotedEntries () {
+    public void testDottedKeyWithQuotedEntries() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDottedKeyWithQuotedEntries");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
@@ -79,7 +79,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test slash separated key")
-    public void testSlashSeparatedKey () {
+    public void testSlashSeparatedKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSlashSeparatedKey");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
@@ -87,7 +87,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test slash separated header and key")
-    public void testSlashSeparatedHeaderAndKey () {
+    public void testSlashSeparatedHeaderAndKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSlashSeparatedHeaderAndKey");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
@@ -95,7 +95,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test simple key")
-    public void testSimpleKey () {
+    public void testSimpleKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleKey");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
