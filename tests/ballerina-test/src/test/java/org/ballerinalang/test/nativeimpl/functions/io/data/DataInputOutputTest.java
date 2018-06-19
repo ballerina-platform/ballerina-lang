@@ -59,12 +59,28 @@ public class DataInputOutputTest {
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
         Channel channel = new MockByteChannel(byteChannel);
         DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        dataChannel.writeFixedLong(value, representation);
+        dataChannel.writeLong(value, representation);
         channel.close();
         byteChannel = TestUtil.openForReadingAndWriting(filePath);
         channel = new MockByteChannel(byteChannel);
         dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        long readInt = dataChannel.readFixedLong(representation);
+        long readInt = dataChannel.readLong(representation);
+        Assert.assertEquals(readInt, value);
+    }
+
+    @Test(description = "Test signed var long")
+    public void testSingedVarLong() throws IOException {
+        long value = 4;
+        String filePath = currentDirectoryPath + "/sample.bin";
+        ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        Channel channel = new MockByteChannel(byteChannel);
+        DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        dataChannel.writeLong(value, Representation.VARIABLE);
+        channel.close();
+        byteChannel = TestUtil.openForReadingAndWriting(filePath);
+        channel = new MockByteChannel(byteChannel);
+        dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
+        long readInt = dataChannel.readLong(Representation.VARIABLE);
         Assert.assertEquals(readInt, value);
     }
 
@@ -117,13 +133,13 @@ public class DataInputOutputTest {
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
         Channel channel = new MockByteChannel(byteChannel);
         DataChannel dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        dataChannel.writeFixedLong(writtenInt, Representation.BIT_32);
+        dataChannel.writeLong(writtenInt, Representation.BIT_32);
         dataChannel.writeDouble(writtenDouble, Representation.BIT_32);
         dataChannel.writeBoolean(false);
         byteChannel = TestUtil.openForReadingAndWriting(filePath);
         channel = new MockByteChannel(byteChannel);
         dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        long longValue = dataChannel.readFixedLong(Representation.BIT_32);
+        long longValue = dataChannel.readLong(Representation.BIT_32);
         double doubleValue = dataChannel.readDouble(Representation.BIT_32);
         boolean booleanValue = dataChannel.readBoolean();
         Assert.assertEquals(writtenInt, longValue);

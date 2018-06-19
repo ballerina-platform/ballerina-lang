@@ -52,6 +52,29 @@ public class DataChannel {
         } while (buffer.hasRemaining() && !channel.hasReachedEnd());
     }
 
+    private ByteBuffer readVarInt() throws IOException {
+        int bufferLimit = 0;
+        boolean hasRemainingBytes = true;
+        //Will create an array with maximum number of bytes allocated
+        byte[] content = new byte[Long.BYTES];
+        ByteBuffer buf = ByteBuffer.wrap(content);
+        do {
+            buf.limit(++bufferLimit);
+            readFull(buf);
+            buf.flip();
+            byte b = buf.get(bufferLimit - 1);
+            if ((b & 0x80) >> 7 == 0) {
+                hasRemainingBytes = false;
+            }
+            //This means we could read more bytes
+            //We convert the read value back by omitting the msb
+            buf.put(bufferLimit - 1, (byte) (b & 0x7F));
+            //The inserted byte will be made ready to be read
+            buf.position(buf.limit());
+        } while (hasRemainingBytes);
+        return buf;
+    }
+
     /**
      * Decodes the long from a provided input channel.
      *
@@ -63,13 +86,13 @@ public class DataChannel {
         ByteBuffer buffer;
         int requiredNumberOfBytes;
         if (Representation.VARIABLE.equals(representation)) {
-            throw new UnsupportedOperationException();
+            buffer = readVarInt();
         } else {
             requiredNumberOfBytes = representation.getNumberOfBytes();
             buffer = ByteBuffer.allocate(requiredNumberOfBytes);
             buffer.order(order);
+            readFull(buffer);
         }
-        readFull(buffer);
         buffer.flip();
         return deriveLong(representation, buffer);
     }
@@ -96,6 +119,9 @@ public class DataChannel {
             } else if (Representation.BIT_16.equals(representation)) {
                 short flippedValue = (short) (buffer.get() & maxNumberOfBits);
                 shiftedValue = flippedValue << totalNumberOfBits;
+            } else if (Representation.VARIABLE.equals(representation)) {
+                long flippedValue = (buffer.get() & maxNumberOfBits);
+                shiftedValue = flippedValue << totalNumberOfBits;
             }
             maxNumberOfBits = 0xFF;
             value = value + shiftedValue;
@@ -116,7 +142,8 @@ public class DataChannel {
         int nBytes;
         int totalNumberOfBits;
         if (Representation.VARIABLE.equals(representation)) {
-            nBytes = (int) Math.abs(Math.round((Math.log(Math.abs(value)) / Math.log(2)) / Byte.SIZE));
+            nBytes = (int) Math.abs(Math.round((Math.log(Math.abs(value)) / Math.log(2)) / representation.getBase()))
+                    +1;
             content = new byte[nBytes];
         } else {
             nBytes = representation.getNumberOfBytes();
@@ -125,6 +152,14 @@ public class DataChannel {
         totalNumberOfBits = (nBytes * representation.getBase()) - representation.getBase();
         for (int count = 0; count < nBytes; count++) {
             content[count] = (byte) (value >> totalNumberOfBits);
+            if (Representation.VARIABLE.equals(representation)) {
+                //When we cast byte to a base 7 we need to omit the last bit being modified
+                content[count] = (byte) (content[count] & 0x7F);
+                if (count < (nBytes - 1)) {
+                    //We indicated the most significant bit to be '1' since this is variable length
+                    content[count] = (byte) (content[count] | 0x80);
+                }
+            }
             totalNumberOfBits = totalNumberOfBits - representation.getBase();
         }
         return content;
@@ -137,7 +172,7 @@ public class DataChannel {
      * @param representation the size of the long in bits.
      * @throws IOException during i/o error.
      */
-    public void writeFixedLong(long value, Representation representation) throws IOException {
+    public void writeLong(long value, Representation representation) throws IOException {
         byte[] bytes = encodeLong(value, representation);
         channel.write(ByteBuffer.wrap(bytes));
     }
@@ -149,7 +184,7 @@ public class DataChannel {
      * @return the long value which is read.
      * @throws IOException during i/o error.
      */
-    public long readFixedLong(Representation representation) throws IOException {
+    public long readLong(Representation representation) throws IOException {
         return decodeLong(representation);
     }
 
@@ -167,7 +202,7 @@ public class DataChannel {
         } else {
             lValue = Double.doubleToRawLongBits(value);
         }
-        writeFixedLong(lValue, representation);
+        writeLong(lValue, representation);
     }
 
     /**
@@ -179,10 +214,10 @@ public class DataChannel {
      */
     public double readDouble(Representation representation) throws IOException {
         if (Representation.BIT_32.equals(representation)) {
-            int fValue = (int) readFixedLong(Representation.BIT_32);
+            int fValue = (int) readLong(Representation.BIT_32);
             return Float.intBitsToFloat(fValue);
         } else {
-            long lValue = readFixedLong(representation);
+            long lValue = readLong(representation);
             return Double.longBitsToDouble(lValue);
         }
     }
