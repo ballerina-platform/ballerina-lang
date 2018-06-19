@@ -16,8 +16,8 @@
  * under the License.
  */
 
-import _ from 'lodash';
-import chalk from 'chalk';
+const _ = require('lodash');
+const chalk = require('chalk');
 
 const subScriptChars = ['₀', '₁', '₂', '₃', '₄', '₅', '₆', '₇', '₈', '₉'];
 
@@ -54,3 +54,4 @@ function debugPrint(node, name = '', l = 1) {
     }
 }
 
+module.exports = debugPrint;

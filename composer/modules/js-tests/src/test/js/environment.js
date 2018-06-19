@@ -58,6 +58,11 @@ function initialize() {
             const tree = window.ballerinaDiagram.TreeBuilder.build(_jsonModel);
             return tree.getSource();
         }
+
+        window.buildTree = (jsonModel) => {
+            const _jsonModel = JSON.parse(JSON.stringify(jsonModel));
+            return window.ballerinaDiagram.TreeBuilder.build(_jsonModel);
+        }
     `;
     window.document.body.appendChild(testScriptEl);
 }
@@ -72,8 +77,13 @@ function generateSource(model) {
     return window.generateSource(model);
 }
 
+function buildTree(model) {
+    return window.buildTree(model);
+}
+
 module.exports = {
     initialize,
     render,
     generateSource,
+    buildTree,
 }
