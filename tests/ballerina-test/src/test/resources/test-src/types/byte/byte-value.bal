@@ -6,6 +6,12 @@ function testByteValue() returns byte {
     return a;
 }
 
+function testByteValueSpace() returns byte {
+    byte a;
+    a = 234;
+    return a;
+}
+
 function testByteDefaultValue() returns byte {
     byte a;
     return a;

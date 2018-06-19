@@ -56,6 +56,14 @@ public class BByteValueTest {
         Assert.assertEquals(byteValue.byteValue(), 34, "Invalid byte value returned.");
     }
 
+    @Test(description = "Test byte value space")
+    public void testByteValueSpace() {
+        BValue[] returns = BRunUtil.invoke(result, "testByteValueSpace", new BValue[]{});
+        BByte byteValue = (BByte) returns[0];
+        Assert.assertEquals(byteValue.stringValue(), Integer.toString(Byte.toUnsignedInt((byte) 234)),
+                "Invalid byte value returned.");
+    }
+
     @Test(description = "Test byte default value")
     public void testByteDefaultValue() {
         BValue[] returns = BRunUtil.invoke(result, "testByteDefaultValue");
