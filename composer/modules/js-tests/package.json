@@ -1,9 +1,8 @@
 {
   "scripts": {
-    "test": "mocha --timeout 3000 target/test/js/source-gen-test.js",
+    "test": "mocha --timeout 3000 src/test/js/test.js",
     "test:debug": "cross-env SOURCE_DEBUG=true mocha target/test/js/source-gen-test.js",
-    "compile": "babel ./src --out-dir ./target",
-    "test-rendering": "node src/test/js/rendering-test.js"
+    "compile": "babel ./src --out-dir ./target"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
