@@ -112,6 +112,10 @@ fieldDefinition
     :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;
 
+recordRestDefinition
+    : typeName ELLIPSIS
+    ;
+
 // TODO try to merge with formalParameterList later
 objectParameterList
     :   (objectParameter | objectDefaultableParameter) (COMMA (objectParameter | objectDefaultableParameter))* (COMMA restParameter)?
@@ -201,10 +205,11 @@ typeName
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
     |   RECORD? LEFT_BRACE fieldDefinitionList RIGHT_BRACE                  # recordTypeNameLabel
+    |   SEALED RECORD LEFT_BRACE fieldDefinitionList RIGHT_BRACE                  # recordTypeNameLabel
     ;
 
 fieldDefinitionList
-    :   fieldDefinition*
+    :   fieldDefinition* recordRestDefinition?
     ;
 
 // Temporary production rule name

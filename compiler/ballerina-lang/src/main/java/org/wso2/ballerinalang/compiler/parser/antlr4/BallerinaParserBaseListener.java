@@ -292,6 +292,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterRecordRestDefinition(BallerinaParser.RecordRestDefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRecordRestDefinition(BallerinaParser.RecordRestDefinitionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterObjectParameterList(BallerinaParser.ObjectParameterListContext ctx) { }
 	/**
 	 * {@inheritDoc}

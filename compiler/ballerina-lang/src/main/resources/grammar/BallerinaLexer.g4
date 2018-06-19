@@ -22,7 +22,7 @@ SERVICE     : 'service' ;
 RESOURCE    : 'resource' ;
 FUNCTION    : 'function' ;
 OBJECT      : 'object' ;
-RECORD      : 'record';
+RECORD      : 'record' ;
 ANNOTATION  : 'annotation' ;
 PARAMETER   : 'parameter' ;
 TRANSFORMER : 'transformer' ;
@@ -136,6 +136,7 @@ AWAIT       : 'await' ;
 BUT         : 'but' ;
 CHECK       : 'check' ;
 DONE        : 'done' ;
+SEALED      : 'sealed' ;
 
 // Separators
 
