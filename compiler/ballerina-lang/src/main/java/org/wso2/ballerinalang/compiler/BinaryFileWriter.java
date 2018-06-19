@@ -81,6 +81,22 @@ public class BinaryFileWriter {
         return this.codeGenerator.generateBALX(entryPackageNode);
     }
 
+    public void write(BLangPackage packageNode) {
+        if (packageNode.symbol.entryPointExists) {
+            writeExecutableBinary(packageNode);
+        }
+        writeLibraryPackage(packageNode);
+    }
+
+    public void write(BLangPackage packageNode, String fileName) {
+        // TODO Reuse binary content in PackageFile when writing the program file..
+        if (packageNode.symbol.entryPointExists) {
+            outStream.println("Generating executable");
+            writeExecutableBinary(packageNode, fileName);
+        }
+        writeLibraryPackage(packageNode);
+    }
+
     public void writeExecutableBinary(BLangPackage packageNode) {
         String fileName = getOutputFileName(packageNode, BLANG_COMPILED_PROG_EXT);
         writeExecutableBinary(packageNode, fileName);

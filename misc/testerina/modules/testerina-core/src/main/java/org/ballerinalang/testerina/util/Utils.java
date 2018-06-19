@@ -50,7 +50,7 @@ public class Utils {
 
     private static PrintStream errStream = System.err;
     private static TesterinaRegistry registry = TesterinaRegistry.getInstance();
-
+    private static PrintStream outStream = System.out;
 
     public static void startService(ProgramFile programFile) {
         if (!programFile.isServiceEPAvailable()) {
@@ -168,6 +168,7 @@ public class Utils {
             srcDirectory = new FileSystemProjectDirectory(sourceRootPath);
             sourceFileList = srcDirectory.getSourcePackageNames();
         } else if (sourceFileList.get(0).endsWith(BLangConstants.BLANG_SRC_FILE_SUFFIX)) {
+            outStream.println();
             return;
         }
 

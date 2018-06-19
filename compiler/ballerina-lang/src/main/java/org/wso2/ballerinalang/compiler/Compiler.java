@@ -30,6 +30,7 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -92,9 +93,9 @@ public class Compiler {
     }
 
     public void build() {
-        outStream.println("Compiling source");
         this.compiledPackages.setPkgList(compilePackages());
         if (skiptests) {
+            outStream.println();
             write();
         }
     }
@@ -107,6 +108,7 @@ public class Compiler {
         }
         this.compiledPackages.setPkgList(Collections.singletonList(bLangPackage));
         if (skiptests) {
+            outStream.println();
             write(targetFileName);
         }
     }
@@ -116,14 +118,7 @@ public class Compiler {
         if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
             outStream.println("Generating executables");
         }
-        packageList.forEach(bLangPackage -> {
-                  // Filter out package which doesn't have entry points
-                  if (bLangPackage.symbol.entryPointExists) {
-                    this.binaryFileWriter.writeExecutableBinary(bLangPackage);
-                  }
-                  this.binaryFileWriter.writeLibraryPackage(bLangPackage);
-               }
-        );
+        packageList.forEach(this.binaryFileWriter::write);
         packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
         this.lockFileWriter.writeLockFile(this.manifest);
         this.compiledPackages.clearPkgs();
@@ -132,11 +127,7 @@ public class Compiler {
     public void write(String targetFileName) {
         Optional<BLangPackage> bLangPackage = this.compiledPackages.getPkgList().stream().findFirst();
         if (bLangPackage.isPresent()) {
-            if (bLangPackage.get().symbol.entryPointExists) { // Filter out package which doesn't have entry points
-                outStream.println("Generating executable");
-                this.binaryFileWriter.writeExecutableBinary(bLangPackage.get(), targetFileName);
-            }
-            this.binaryFileWriter.writeLibraryPackage(bLangPackage.get());
+            this.binaryFileWriter.write(bLangPackage.get(), targetFileName);
             this.lockFileWriter.addEntryPkg(bLangPackage.get().symbol);
         }
         this.lockFileWriter.writeLockFile(this.manifest);
@@ -186,12 +177,15 @@ public class Compiler {
     }
 
     private List<BLangPackage> compilePackages() {
-        List<BLangPackage> compiledPackages = compilePackages(
-                this.sourceDirectoryManager.listSourceFilesAndPackages(), true);
+        List<PackageID> pkgList = this.sourceDirectoryManager.listSourceFilesAndPackages().collect(Collectors.toList());
+        if (pkgList.size() == 0) {
+            return new ArrayList<>();
+        }
+        outStream.println("Compiling source");
+        List<BLangPackage> compiledPackages = compilePackages(pkgList.stream(), true);
         if (this.dlog.errorCount > 0) {
             throw new BLangCompilerException("compilation contains errors");
         }
-
         return compiledPackages;
     }
 
