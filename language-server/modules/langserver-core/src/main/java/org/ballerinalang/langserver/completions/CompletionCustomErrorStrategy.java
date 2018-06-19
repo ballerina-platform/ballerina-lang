@@ -338,7 +338,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             needToRemoveTokenCount++;
         }
 
-        while (needToRemoveTokenCount > 0){
+        while (needToRemoveTokenCount > 0) {
             recognizer.consume();
             needToRemoveTokenCount--;
         }
@@ -354,7 +354,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         }
     }
 
-    private Token getFirstTokenOfCursorLine(TokenStream tokenStream){
+    private Token getFirstTokenOfCursorLine(TokenStream tokenStream) {
         Token firstCursorLineToken = null;
         int cursorLine = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine() + 1;
 
