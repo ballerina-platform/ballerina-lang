@@ -33,6 +33,7 @@ import org.ballerinalang.net.grpc.ServicesRegistry;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.util.exceptions.BallerinaException;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.ListenerConfiguration;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.contract.ServerConnector;
@@ -108,11 +109,11 @@ public class Init extends AbstractGrpcNativeFunction {
         listenerConfiguration.setPort(Math.toIntExact(port));
         
         if (sslConfig != null) {
-            return setSslConfig(sslConfig, listenerConfiguration);
+            setSslConfig(sslConfig, listenerConfiguration);
         }
         
         listenerConfiguration.setServerHeader(getServerName());
-        listenerConfiguration.setVersion("2.0");
+        listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
         
         return listenerConfiguration;
     }

@@ -16,6 +16,7 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.ByteString;
+import com.google.protobuf.CodedInputStream;
 import com.google.protobuf.CodedOutputStream;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
@@ -244,12 +245,10 @@ public class Message {
                             if (this.fields.containsKey(name)) {
                                 messages = (List<Message>) this.fields.get(name);
                             }
-                            messages.add(new MessageParser(fieldDescriptor.getMessageType().getName())
-                                    .parseFrom(input));
+                            messages.add(readMessage(fieldDescriptor, input));
                             this.fields.put(name, messages);
                         } else {
-                            Message message = new MessageParser(fieldDescriptor.getMessageType().getName())
-                                    .parseFrom(input);
+                            Message message = readMessage(fieldDescriptor, input);
                             this.fields.put(name, message);
                         }
                         break;
@@ -281,7 +280,20 @@ public class Message {
         memoizedIsInitialized = 1;
         return true;
     }
-    
+
+    @Override
+    public String toString() {
+        StringBuilder payload = new StringBuilder("Message { fields: ");
+        if (fields != null) {
+            for (Map.Entry<String, Object> entry : fields.entrySet()) {
+                payload.append(entry.getKey()).append(":").append(entry.getValue()).append(",\n");
+            }
+        } else {
+            payload.append("null");
+        }
+        return payload.toString();
+    }
+
     public void writeTo(com.google.protobuf.CodedOutputStream output)
             throws java.io.IOException {
         Descriptors.Descriptor messageDescriptor = getDescriptor();
@@ -640,5 +652,14 @@ public class Message {
                     " (should never happen).", e);
         }
     }
-    
+
+
+    private Message readMessage(final Descriptors.FieldDescriptor fieldDescriptor, final CodedInputStream in)
+            throws IOException {
+        int length = in.readRawVarint32();
+        final int oldLimit = in.pushLimit(length);
+        Message result = new MessageParser(fieldDescriptor.getMessageType().getName()).parseFrom(in);
+        in.popLimit(oldLimit);
+        return result;
+    }
 }

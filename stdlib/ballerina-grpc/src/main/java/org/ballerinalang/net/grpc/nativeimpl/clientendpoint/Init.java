@@ -33,6 +33,7 @@ import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.http.HttpConnectionManager;
 import org.ballerinalang.net.http.HttpConstants;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
@@ -102,7 +103,7 @@ public class Init extends BlockingNativeCallableUnit {
         senderConfiguration.setTLSStoreType(HttpConstants.PKCS_STORE_TYPE);
 
         senderConfiguration = populateSenderConfigurationOptions(endpointConfig, scheme);
-        senderConfiguration.setHttpVersion("2.0");
+        senderConfiguration.setHttpVersion(String.valueOf(Constants.HTTP_2_0));
         senderConfiguration.setForceHttp2(true);
         HttpClientConnector clientConnector = httpConnectorFactory.createHttpClientConnector(properties,
                 senderConfiguration);

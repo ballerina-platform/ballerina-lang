@@ -20,6 +20,7 @@ import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -252,20 +253,18 @@ final class ServerCallImpl<ReqT, RespT> extends ServerCall<ReqT, RespT> {
             }
 
             try {
-                while (message != null && message.available() > 0) {
-                    try {
-                        Message request = (Message) call.method.parseRequest(message);
-                        request.setHeaders(call.inboundMessage.getHeaders());
-                        listener.onMessage((ReqT) request);
-                    } catch (Throwable t) {
-                        MessageUtils.closeQuietly(message);
-                        throw t;
-                    }
-                    message.close();
-                }
+                Message request = (Message) call.method.parseRequest(message);
+                request.setHeaders(call.inboundMessage.getHeaders());
+                listener.onMessage((ReqT) request);
             } catch (Throwable t) {
                 MessageUtils.closeQuietly(message);
                 throw new RuntimeException(t);
+            } finally {
+                try {
+                    message.close();
+                } catch (IOException ignore) {
+                    // ignore the error.
+                }
             }
         }
 

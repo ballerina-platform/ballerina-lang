@@ -20,8 +20,6 @@ package org.ballerinalang.net.grpc.nativeimpl.servicestub;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.types.BTupleType;
-import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
@@ -38,7 +36,6 @@ import org.ballerinalang.net.http.DataContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Arrays;
 import java.util.Map;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
@@ -78,8 +75,7 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 public class BlockingExecute extends AbstractExecute {
     private static final Logger LOG = LoggerFactory.getLogger(BlockingExecute.class);
     private static final int MESSAGE_HEADER_REF_INDEX = 2;
-    private static final BTupleType respTupleType = new BTupleType(Arrays.asList(BTypes.typeAny, BTypes.typeAny));
-    
+
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
