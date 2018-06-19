@@ -31,12 +31,16 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
+import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
+
 /**
  * Test cases for ballerina/http.ServiceEndpoint.
  */
 public class ServiceEndpointTest {
     private CompileResult serviceResult;
     private static final String MOCK_ENDPOINT_NAME = "mockEP";
+    private static final String LOCAL_ADDRESS = "LOCAL_ADDRESS";
 
     @BeforeClass
     public void setup() {
@@ -59,12 +63,13 @@ public class ServiceEndpointTest {
     }
 
     @Test(description = "Test the local struct values of the ServiceEndpoint struct within a service")
-    public void testLocalStructInConnection() {
-        String expectedMessage = "{\"local\":{\"host\":\"0.0.0.0\",\"port\":9090}}";
-        String expectedHost = "0.0.0.0";
-        String expectedPort = "9090";
+    public void testLocalStructInConnection() throws UnknownHostException {
         String path = "/hello/local";
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
+        String expectedHost = ((InetSocketAddress) cMsg.getProperty(LOCAL_ADDRESS)).getHostName();
+        String expectedPort = "9090";
+        String expectedMessage = "{\"local\":{\"host\":\"" + expectedHost + "\",\"port\":9090}}";
+
         HTTPCarbonMessage response = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, cMsg);
 
         Assert.assertNotNull(response, "Response message not found");
