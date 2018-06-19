@@ -17,7 +17,9 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.elements.TableColumnFlag;
+import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.ExpressionNode;
 import org.ballerinalang.model.tree.expressions.TableLiteralNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
@@ -48,14 +50,22 @@ public class BLangTableLiteral extends BLangExpression implements TableLiteralNo
     }
 
     public BLangTableColumn getColumn(String columnName) {
-        BLangTableColumn column = null;
-        for (BLangTableColumn c : columns) {
-            if (c.columnName.equals(columnName)) {
-                column = c;
-                break;
+        for (BLangTableColumn column : columns) {
+            if (column.columnName.equals(columnName)) {
+                return column;
             }
         }
-        return column;
+        return null;
+    }
+
+    @Override
+    public List<? extends ExpressionNode> getDataRows() {
+        return this.tableDataRows;
+    }
+
+    @Override
+    public List<? extends Node> getTableColumns() {
+        return this.columns;
     }
 
     @Override
@@ -91,7 +101,7 @@ public class BLangTableLiteral extends BLangExpression implements TableLiteralNo
 
         @Override
         public void accept(BLangNodeVisitor visitor) {
-
+            /* ignore */
         }
     }
 }
