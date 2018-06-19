@@ -32,7 +32,7 @@ public class XMLSecurityTest {
         String xmlString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
                 "<!DOCTYPE foo [" +
                 "<!ELEMENT foo ANY >" +
-                "<!ENTITY xxe SYSTEM \"file:///etc/passwd\" >]>" +
+                "<!ENTITY xxe SYSTEM \"https://www.w3schools.com/xml/note.xml\" >]>" +
                 "<foo>&xxe;</foo>";
         BXML xmlDocument = XMLUtils.parse(xmlString);
         Assert.assertEquals(xmlDocument.toString(), "<foo></foo>");
