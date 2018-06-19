@@ -25,8 +25,8 @@ function main(string... args) {
     Employee[] employees = [e1, e2, e3, e4];
 
     // This adds the created records to the table.
-    foreach (e in employees) {
-        var ret = tb.add(e);
+    foreach (emp in employees) {
+        var ret = tb.add(emp);
         match ret {
             () => io:println("Adding to table successful");
             error e => io:println("Adding to table failed: " + e.message);
@@ -69,7 +69,7 @@ function main(string... args) {
     // This deletes the rows that match a given criteria.
     var ret = tb.remove(isLowerSalary);
     match ret {
-        int count => io:println("Deleted row count: " + count);
+        int rowCount => io:println("Deleted row count: " + rowCount);
         error e => io:println("Error in removing employees from table: "
                                + e.message);
     }
