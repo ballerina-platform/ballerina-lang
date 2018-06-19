@@ -199,4 +199,9 @@ public final class Constants {
 
     public static final String SQL_CONNECTOR_ERROR = "error";
     public static final String SQL_EXCEPTION_OCCURED = "SQL Exception Occurred";
+    
+    public static final String PARAMETER_SQL_TYPE_FIELD = "sqlType";
+    public static final String PARAMETER_VALUE_FIELD = "value";
+    public static final String PARAMETER_DIRECTION_FIELD = "direction";
+    public static final String PARAMETER_RECORD_TYPE_FIELD = "recordType";
 }

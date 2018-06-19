@@ -21,8 +21,9 @@ package org.ballerinalang.nativeimpl.io.utils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
@@ -72,7 +73,7 @@ public class IOUtils {
      * @param message error message.
      * @return error message struct.
      */
-    public static BStruct createError(Context context, String message) {
+    public static BMap<String, BValue> createError(Context context, String message) {
         PackageInfo ioPkg = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo error = ioPkg.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
         return BLangVMStructs.createBStruct(error, message);

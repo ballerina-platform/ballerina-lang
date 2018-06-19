@@ -22,6 +22,7 @@ import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpResponseStatus;
+
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -34,7 +35,6 @@ import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.BallerinaHTTPConnectorListener;
@@ -57,8 +57,10 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ANNOTATED_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.ENTITY_ACCESSED_REQUEST;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.LISTENER_SERVICE_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_CHALLENGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_LEASE_SECONDS;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.PARAM_HUB_MODE;
@@ -69,6 +71,11 @@ import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBS
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_NOTIFICATION_REQUEST;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIBE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.UNSUBSCRIBE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_CHALLENGE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_LEASE_SECONDS;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_MODE;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_REQUEST;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.VERIFICATION_REQUEST_TOPIC;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 
 /**
@@ -142,29 +149,30 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
         String resourceName = httpResource.getName();
         if (RESOURCE_NAME_ON_INTENT_VERIFICATION.equals(resourceName)) {
             signatureParams[0] = subscriberServiceEndpoint;
-            BStruct intentVerificationRequestStruct = createIntentVerificationRequestStruct(balResource);
+            BMap<String, BValue> intentVerificationRequestStruct = createIntentVerificationRequestStruct(balResource);
             if (httpCarbonMessage.getProperty(HttpConstants.QUERY_STR) != null) {
                 String queryString = (String) httpCarbonMessage.getProperty(HttpConstants.QUERY_STR);
                 BMap<String, BString> params = new BMap<>();
                 try {
                     URIUtil.populateQueryParamMap(queryString, params);
-                    intentVerificationRequestStruct.setStringField(0, params.get(PARAM_HUB_MODE).stringValue());
-                    intentVerificationRequestStruct.setStringField(1, params.get(PARAM_HUB_TOPIC).stringValue());
-                    intentVerificationRequestStruct.setStringField(2, params.get(PARAM_HUB_CHALLENGE).stringValue());
+                    intentVerificationRequestStruct.put(VERIFICATION_REQUEST_MODE, params.get(PARAM_HUB_MODE));
+                    intentVerificationRequestStruct.put(VERIFICATION_REQUEST_TOPIC, params.get(PARAM_HUB_TOPIC));
+                    intentVerificationRequestStruct.put(VERIFICATION_REQUEST_CHALLENGE,
+                            params.get(PARAM_HUB_CHALLENGE));
                     if (params.hasKey(PARAM_HUB_LEASE_SECONDS)) {
-                        intentVerificationRequestStruct.setIntField(0, Integer.parseInt(
-                                params.get(PARAM_HUB_LEASE_SECONDS).stringValue()));
+                        intentVerificationRequestStruct.put(VERIFICATION_REQUEST_LEASE_SECONDS,
+                                params.get(PARAM_HUB_LEASE_SECONDS));
                     }
                 } catch (UnsupportedEncodingException e) {
                     throw new BallerinaException("Error populating query map for intent verification request received: "
                                                          + e.getMessage());
                 }
             }
-            intentVerificationRequestStruct.setRefField(0, (BRefType) httpRequest);
+            intentVerificationRequestStruct.put(VERIFICATION_REQUEST_REQUEST, (BRefType) httpRequest);
             signatureParams[1] = intentVerificationRequestStruct;
         } else { //Notification Resource
-            BStruct notificationRequestStruct = createNotificationRequestStruct(balResource);
-            notificationRequestStruct.setRefField(0, (BRefType) httpRequest);
+            BMap<String, BValue> notificationRequestStruct = createNotificationRequestStruct(balResource);
+            notificationRequestStruct.put(VERIFICATION_REQUEST_REQUEST, (BRefType) httpRequest);
             //validate signature for requests received at the callback
             validateSignature(httpCarbonMessage, httpResource, notificationRequestStruct);
 
@@ -182,16 +190,17 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     }
 
     private void validateSignature(HTTPCarbonMessage httpCarbonMessage, HttpResource httpResource,
-                                   BStruct notificationRequestStruct) {
+                                   BMap<String, BValue> notificationRequestStruct) {
         //invoke processWebSubNotification function
         PackageInfo packageInfo = context.getProgramFile().getPackageInfo(WEBSUB_PACKAGE);
         FunctionInfo functionInfo = packageInfo.getFunctionInfo("processWebSubNotification");
         BValue[] returnValues = BLangFunctions.invokeCallable(functionInfo, new BValue[]{notificationRequestStruct,
                 new BTypeDescValue(httpResource.getBalResource().getResourceInfo().getServiceInfo().getType())});
 
-        BStruct errorStruct = (BStruct) returnValues[0];
+        BMap<String, BValue> errorStruct = (BMap<String, BValue>) returnValues[0];
         if (errorStruct != null) {
-            log.debug("Signature Validation failed for Notification: " + errorStruct.getStringField(0));
+            log.debug("Signature Validation failed for Notification: " +
+                    errorStruct.get(ERROR_MESSAGE_FIELD).stringValue());
             httpCarbonMessage.setProperty(HttpConstants.HTTP_STATUS_CODE, 404);
             throw new BallerinaException("validation failed for notification");
         }
@@ -204,28 +213,30 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      * @param httpCarbonMessage the HTTP message representing the request received
      * @return the struct representing the subscriber service endpoint
      */
-    private BStruct getSubscriberServiceEndpoint(HttpResource httpResource, HTTPCarbonMessage httpCarbonMessage) {
-        BStruct subscriberServiceEndpoint = createSubscriberServiceEndpointStruct(httpResource.getBalResource());
-        BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
+    private BMap<String, BValue> getSubscriberServiceEndpoint(HttpResource httpResource,
+                                                              HTTPCarbonMessage httpCarbonMessage) {
+        BMap<String, BValue> subscriberServiceEndpoint =
+                createSubscriberServiceEndpointStruct(httpResource.getBalResource());
+        BMap<String, BValue> serviceEndpoint = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.SERVICE_ENDPOINT);
 
-        BStruct connection = BLangConnectorSPIUtil.createBStruct(
+        BMap<String, BValue> connection = BLangConnectorSPIUtil.createBStruct(
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                 HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.CONNECTION);
 
         HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
-        serviceEndpoint.setRefField(HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX, connection);
+        serviceEndpoint.put(HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD, connection);
 
-        subscriberServiceEndpoint.setRefField(1, serviceEndpoint);
+        subscriberServiceEndpoint.put(LISTENER_SERVICE_ENDPOINT, serviceEndpoint);
         return subscriberServiceEndpoint;
     }
 
     /**
      * Method to create the struct representing the WebSub subscriber service endpoint.
      */
-    private BStruct createSubscriberServiceEndpointStruct(Resource resource) {
+    private BMap<String, BValue> createSubscriberServiceEndpointStruct(Resource resource) {
         return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                              WEBSUB_PACKAGE, SERVICE_ENDPOINT);
     }
@@ -234,7 +245,7 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
      * Method to create the intent verification request struct representing a subscription/unsubscription intent
      * verification request received.
      */
-    private BStruct createIntentVerificationRequestStruct(Resource resource) {
+    private BMap<String, BValue> createIntentVerificationRequestStruct(Resource resource) {
         return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                              WEBSUB_PACKAGE, STRUCT_WEBSUB_INTENT_VERIFICATION_REQUEST);
     }
@@ -242,12 +253,12 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
     /**
      * Method to create the notification request struct representing WebSub notifications received.
      */
-    private BStruct createNotificationRequestStruct(Resource resource) {
+    private BMap<String, BValue> createNotificationRequestStruct(Resource resource) {
         return createBStruct(resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                              WEBSUB_PACKAGE, STRUCT_WEBSUB_NOTIFICATION_REQUEST);
     }
 
-    private BStruct createBStruct(ProgramFile programFile, String packagePath, String structName) {
+    private BMap<String, BValue> createBStruct(ProgramFile programFile, String packagePath, String structName) {
         return BLangConnectorSPIUtil.createBStruct(programFile, packagePath, structName);
     }
 

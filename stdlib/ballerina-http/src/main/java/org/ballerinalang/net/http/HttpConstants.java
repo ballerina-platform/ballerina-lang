@@ -193,71 +193,71 @@ public class HttpConstants {
     public static final int ENTITY_INDEX = 1;
 
     // ServeConnector struct indices
-    public static final int HTTP_CONNECTOR_CONFIG_INDEX = 0;
-    public static final int SERVICE_ENDPOINT_CONFIG_INDEX = 3;
-    public static final int SERVICE_ENDPOINT_CONNECTION_INDEX = 2;
+    public static final String HTTP_CONNECTOR_CONFIG_FIELD = "config";
+    public static final String SERVICE_ENDPOINT_CONFIG_FIELD = "config";
+    public static final String SERVICE_ENDPOINT_CONNECTION_FIELD = "conn";
 
     //Connection struct indexes
     public static final int CONNECTION_HOST_INDEX = 0;
     public static final int CONNECTION_PORT_INDEX = 0;
 
-    //Request struct indexes
-    public static final int REQUEST_RAW_PATH_INDEX = 0;
-    public static final int REQUEST_METHOD_INDEX = 1;
-    public static final int REQUEST_VERSION_INDEX = 2;
-    public static final int REQUEST_USER_AGENT_INDEX = 3;
-    public static final int REQUEST_EXTRA_PATH_INFO_INDEX = 4;
-    public static final int REQUEST_CACHE_CONTROL_INDEX = 0;
+    //Request struct field names
+    public static final String REQUEST_RAW_PATH_FIELD = "rawPath";
+    public static final String REQUEST_METHOD_FIELD = "method";
+    public static final String REQUEST_VERSION_FIELD = "httpVersion";
+    public static final String REQUEST_USER_AGENT_FIELD = "userAgent";
+    public static final String REQUEST_EXTRA_PATH_INFO_FIELD = "extraPathInfo";
+    public static final String REQUEST_CACHE_CONTROL_FIELD = "cacheControl";
 
-    //Response struct indexes
-    public static final int RESPONSE_STATUS_CODE_INDEX = 0;
-    public static final int RESPONSE_REASON_PHRASE_INDEX = 0;
-    public static final int RESPONSE_SERVER_INDEX = 1;
-    public static final int RESOLVED_REQUESTED_URI_INDEX = 2;
-    public static final int RESPONSE_CACHE_CONTROL_INDEX = 0;
-    public static final int IN_RESPONSE_RECEIVED_TIME_INDEX = 1;
+    //Response struct field names
+    public static final String RESPONSE_STATUS_CODE_FIELD = "statusCode";
+    public static final String RESPONSE_REASON_PHRASE_FIELD = "reasonPhrase";
+    public static final String RESPONSE_SERVER_FIELD = "server";
+    public static final String RESOLVED_REQUESTED_URI_FIELD = "resolvedRequestedURI";
+    public static final String RESPONSE_CACHE_CONTROL_FIELD = "cacheControl";
+    public static final String IN_RESPONSE_RECEIVED_TIME_FIELD = "receivedTime";
 
-    //PushPromise struct indexes
-    public static final int PUSH_PROMISE_PATH_INDEX = 0;
-    public static final int PUSH_PROMISE_METHOD_INDEX = 1;
+    //PushPromise struct field names
+    public static final String PUSH_PROMISE_PATH_FIELD = "path";
+    public static final String PUSH_PROMISE_METHOD_FIELD = "method";
 
-    //Proxy server struct indexes
+    //Proxy server struct field names
     public static final int PROXY_STRUCT_INDEX = 3;
-    public static final int PROXY_HOST_INDEX = 0;
-    public static final int PROXY_PORT_INDEX = 0;
-    public static final int PROXY_USER_NAME_INDEX = 1;
-    public static final int PROXY_PASSWORD_INDEX = 2;
+    public static final String PROXY_HOST_INDEX = "host";
+    public static final String PROXY_PORT_INDEX = "port";
+    public static final String PROXY_USER_NAME_INDEX = "userName";
+    public static final String PROXY_PASSWORD_INDEX = "password";
 
-    //Connection Throttling struct indexes
+    //Connection Throttling struct field names
     public static final int CONNECTION_THROTTLING_STRUCT_INDEX = 4;
-    public static final int CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS_INDEX = 0;
-    public static final int CONNECTION_THROTTLING_WAIT_TIME_INDEX = 1;
+    public static final String CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS_INDEX = "maxActiveConnections";
+    public static final String CONNECTION_THROTTLING_WAIT_TIME_INDEX = "waitTime";
 
-    //Retry Struct indexes
-    public static final int RETRY_STRUCT_INDEX = 4;
-    public static final int RETRY_COUNT_INDEX = 0;
-    public static final int RETRY_INTERVAL_INDEX = 1;
+    //Retry Struct field names
+    public static final int RETRY_STRUCT_FIELD = 4;
+    public static final String RETRY_COUNT_FIELD = "count";
+    public static final String RETRY_INTERVAL_FIELD = "interval";
 
-    // ResponseCacheControl struct indices
-    public static final int RES_CACHE_CONTROL_MUST_REVALIDATE_INDEX = 0;
-    public static final int RES_CACHE_CONTROL_NO_CACHE_INDEX = 1;
-    public static final int RES_CACHE_CONTROL_NO_STORE_INDEX = 2;
-    public static final int RES_CACHE_CONTROL_NO_TRANSFORM_INDEX = 3;
-    public static final int RES_CACHE_CONTROL_IS_PRIVATE_INDEX = 4;
-    public static final int RES_CACHE_CONTROL_PROXY_REVALIDATE_INDEX = 5;
-    public static final int RES_CACHE_CONTROL_MAX_AGE_INDEX = 0;
-    public static final int RES_CACHE_CONTROL_S_MAXAGE_INDEX = 1;
-    public static final int RES_CACHE_CONTROL_NO_CACHE_FIELDS_INDEX = 0;
-    public static final int RES_CACHE_CONTROL_PRIVATE_FIELDS_INDEX = 1;
+    // ResponseCacheControl struct field names
+    public static final String RES_CACHE_CONTROL_MUST_REVALIDATE_FIELD = "mustRevalidate";
+    public static final String RES_CACHE_CONTROL_NO_CACHE_FIELD = "noCache";
+    public static final String RES_CACHE_CONTROL_NO_STORE_FIELD = "noStore";
+    public static final String RES_CACHE_CONTROL_NO_TRANSFORM_FIELD = "noTransform";
+    public static final String RES_CACHE_CONTROL_IS_PRIVATE_FIELD = "isPrivate";
+    public static final String RES_CACHE_CONTROL_PROXY_REVALIDATE_FIELD = "proxyRevalidate";
+    public static final String RES_CACHE_CONTROL_MAX_AGE_FIELD = "maxAge";
+    public static final String RES_CACHE_CONTROL_S_MAXAGE_FIELD = "sMaxAge";
+    public static final String RES_CACHE_CONTROL_NO_CACHE_FIELDS_FIELD = "noCacheFields";
+    public static final String RES_CACHE_CONTROL_PRIVATE_FIELDS_FIELD = "privateFields";
 
-    // RequestCacheControl struct indices
-    public static final int REQ_CACHE_CONTROL_NO_CACHE_INDEX = 0;
-    public static final int REQ_CACHE_CONTROL_NO_STORE_INDEX = 1;
-    public static final int REQ_CACHE_CONTROL_NO_TRANSFORM_INDEX = 2;
-    public static final int REQ_CACHE_CONTROL_ONLY_IF_CACHED_INDEX = 3;
-    public static final int REQ_CACHE_CONTROL_MAX_AGE_INDEX = 0;
-    public static final int REQ_CACHE_CONTROL_MAX_STALE_INDEX = 1;
-    public static final int REQ_CACHE_CONTROL_MIN_FRESH_INDEX = 2;
+    // RequestCacheControl struct field names
+    public static final String REQ_CACHE_CONTROL_NO_CACHE_FIELD = "noCache";
+    public static final String REQ_CACHE_CONTROL_NO_STORE_FIELD = "noStore";
+    public static final String REQ_CACHE_CONTROL_NO_TRANSFORM_FIELD = "noTransform";
+    public static final String REQ_CACHE_CONTROL_ONLY_IF_CACHED_FIELD = "onlyIfCached";
+    public static final String REQ_CACHE_CONTROL_MAX_AGE_FIELD = "maxAge";
+    public static final String REQ_CACHE_CONTROL_MAX_STALE_FIELD = "maxStale";
+    public static final String REQ_CACHE_CONTROL_MIN_FRESH_FIELD = "minFresh";
 
     public static final String CONNECTION_HEADER = "Connection";
     public static final String HEADER_VAL_CONNECTION_CLOSE = "Close";
@@ -317,7 +317,7 @@ public class HttpConstants {
     public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
 
     //Client Endpoint Config
-    public static final String URI = "uri";
+    public static final String URL_FIELD = "url";
     public static final String CLIENT_EP_CHUNKING = "chunking";
     public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
     public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";
@@ -326,19 +326,19 @@ public class HttpConstants {
     public static final String TARGET_SERVICES = "targets";
     public static final String CLIENT_EP_ACCEPT_ENCODING = "acceptEncoding";
 
-    //Connection Throttling Indexes
+    //Connection Throttling field names
     public static final String CONNECTION_THROTTLING_STRUCT_REFERENCE = "connectionThrottling";
     public static final String CONNECTION_THROTTLING_MAX_ACTIVE_CONNECTIONS = "maxActiveConnections";
     public static final String CONNECTION_THROTTLING_WAIT_TIME = "waitTime";
     public static final String CONNECTION_THROTTLING_MAX_ACTIVE_STREAMS_PER_CONNECTION =
             "maxActiveStreamsPerConnection";
 
-    //FollowRedirect Indexes
+    //FollowRedirect field names
     public static final String FOLLOW_REDIRECT_STRUCT_REFERENCE = "followRedirects";
     public static final String FOLLOW_REDIRECT_ENABLED = "enabled";
     public static final String FOLLOW_REDIRECT_MAXCOUNT = "maxCount";
 
-    //Proxy Indexed
+    //Proxy field names
     public static final String PROXY_STRUCT_REFERENCE = "proxy";
     public static final String PROXY_HOST = "host";
     public static final String PROXY_PORT = "port";
@@ -356,22 +356,22 @@ public class HttpConstants {
     public static final String RETRY_COUNT = "count";
     public static final String RETRY_INTERVAL = "interval";
 
-    public static final int SERVICE_ENDPOINT_PROTOCOL_INDEX = 0;
+    public static final String SERVICE_ENDPOINT_PROTOCOL_FIELD = "protocol";
 
-    //Remote struct indexes
-    public static final int REMOTE_STRUCT_INDEX = 0;
-    public static final int REMOTE_HOST_INDEX = 0;
-    public static final int REMOTE_PORT_INDEX = 0;
+    //Remote struct field names
+    public static final String REMOTE_STRUCT_FIELD = "remote";
+    public static final String REMOTE_HOST_FIELD = "host";
+    public static final String REMOTE_PORT_FIELD = "port";
 
-    //Local struct indexes
-    public static final int LOCAL_STRUCT_INDEX = 1;
-    public static final int LOCAL_HOST_INDEX = 0;
-    public static final int LOCAL_PORT_INDEX = 0;
+    //Local struct field names
+    public static final String LOCAL_STRUCT_INDEX = "local";
+    public static final String LOCAL_HOST_FIELD = "host";
+    public static final String LOCAL_PORT_FIELD = "port";
 
     //WebSocket Related constants for WebSocket upgrade
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";
 
     public static final int REQUEST_STRUCT_INDEX = 1;
-    public static final int REQUEST_REUSE_STATUS_INDEX = 0;
-    public static final int DIRTY_REQUEST = 1;
+    public static final String REQUEST_REUSE_STATUS_INDEX = "dirtyRequest";
+    public static final boolean DIRTY_REQUEST = true;
 }

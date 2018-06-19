@@ -28,8 +28,8 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.BLangConstants;
@@ -206,12 +206,13 @@ public class WebSocketDispatcher {
                 if (closeMessage.getCloseCode() != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE
                         && webSocketConnection.getSession().isOpen()) {
                     webSocketConnection.finishConnectionClosure(closeCode, null).addListener(
-                            closeFuture -> connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0));
+                            closeFuture -> connectionInfo.getWebSocketEndpoint()
+                                    .put(WebSocketConstants.LISTENER_IS_SECURE_FIELD, new BBoolean(false)));
                 }
             }
 
             @Override
-            public void notifyFailure(BStruct error) {
+            public void notifyFailure(BMap<String, BValue> error) {
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
             }
         };
@@ -238,14 +239,14 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BStruct error) {
+            public void notifyFailure(BMap<String, BValue> error) {
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
             }
         };
         Executor.submit(onErrorResource, onErrorCallback, null, null, bValues);
     }
 
-    private static BStruct getError(WebSocketService webSocketService, Throwable throwable) {
+    private static BMap<String, BValue> getError(WebSocketService webSocketService, Throwable throwable) {
         ProgramFile programFile = webSocketService.getServiceInfo().getPackageInfo().getProgramFile();
         PackageInfo errorPackageInfo = programFile.getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(BLangVMErrors.STRUCT_GENERIC_ERROR);
@@ -282,7 +283,7 @@ public class WebSocketDispatcher {
             }
 
             @Override
-            public void notifyFailure(BStruct error) {
+            public void notifyFailure(BMap<String, BValue> error) {
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
             }
         };

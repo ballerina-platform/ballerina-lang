@@ -21,7 +21,8 @@ import org.ballerinalang.bre.bvm.BLangScheduler;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 /**
@@ -55,7 +56,7 @@ public class BLangCallableUnitCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BStruct error) {
+    public void notifyFailure(BMap<String, BValue> error) {
         BLangScheduler.resume(BLangScheduler.errorThrown(this.parentCtx, error));
     }
 

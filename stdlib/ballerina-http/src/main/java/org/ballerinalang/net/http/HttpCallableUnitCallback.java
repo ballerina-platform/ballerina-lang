@@ -17,7 +17,8 @@
 package org.ballerinalang.net.http;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 /**
@@ -38,7 +39,7 @@ public class HttpCallableUnitCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BStruct error) {
+    public void notifyFailure(BMap<String, BValue> error) {
         HttpUtil.handleFailure(requestMessage, error);
         requestMessage.waitAndReleaseAllEntities();
     }

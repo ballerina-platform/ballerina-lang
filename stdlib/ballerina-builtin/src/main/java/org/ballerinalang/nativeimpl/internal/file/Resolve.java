@@ -22,9 +22,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -61,7 +62,7 @@ public class Resolve extends BlockingNativeCallableUnit {
      */
     @Override
     public void execute(Context context) {
-        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> pathStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
     
         BStringArray pathsToAppend = (BStringArray) context.getNullableRefArgument(1);
@@ -71,7 +72,7 @@ public class Resolve extends BlockingNativeCallableUnit {
             newPath = newPath.resolve(pathsToAppend.get(i));
         }
     
-        BStruct parentPath = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH, Constants
+        BMap<String, BValue> parentPath = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH, Constants
                 .PATH_STRUCT, new BString(newPath.toString()));
         context.setReturnValues(parentPath);
     }

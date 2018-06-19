@@ -23,7 +23,7 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.observability.ObservabilityUtils;
@@ -40,7 +40,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 
 import java.util.Optional;
 
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.SERVER_CONNECTOR_WEBSOCKET;
 
 /**
@@ -73,8 +73,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
             BValue[] signatureParams = HttpDispatcher.getSignatureParameters(onUpgradeResource, webSocketInitMessage
                     .getHttpCarbonRequest(), httpEndpointConfig);
 
-            BStruct httpServiceEndpoint = (BStruct) signatureParams[0];
-            BStruct httpConnection = (BStruct) httpServiceEndpoint.getRefField(SERVICE_ENDPOINT_CONNECTION_INDEX);
+            BMap<String, BValue> httpServiceEndpoint = (BMap<String, BValue>) signatureParams[0];
+            BMap<String, BValue> httpConnection =
+                    (BMap<String, BValue>) httpServiceEndpoint.get(SERVICE_ENDPOINT_CONNECTION_FIELD);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_MESSAGE, webSocketInitMessage);
             httpConnection.addNativeData(WebSocketConstants.WEBSOCKET_SERVICE, wsService);
             httpConnection.addNativeData(HttpConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER, connectionManager);
@@ -98,10 +99,9 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                             WebSocketOpenConnectionInfo connectionInfo =
                                     connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
                             WebSocketConnection webSocketConnection = connectionInfo.getWebSocketConnection();
-                            BStruct webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
-                            BStruct webSocketConnector =
-                                    (BStruct) webSocketEndpoint.getRefField(
-                                            WebSocketConstants.LISTENER_CONNECTOR_INDEX);
+                            BMap<String, BValue> webSocketEndpoint = connectionInfo.getWebSocketEndpoint();
+                            BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) webSocketEndpoint
+                                    .get(WebSocketConstants.LISTENER_CONNECTOR_FIELD);
                             if (onOpenResource != null) {
                                 WebSocketUtil.executeOnOpenResource(onOpenResource, webSocketEndpoint,
                                                                     webSocketConnection);
@@ -113,7 +113,7 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 }
 
                 @Override
-                public void notifyFailure(BStruct error) {
+                public void notifyFailure(BMap<String, BValue> error) {
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                 }
             }, null, observerContext.orElse(null), signatureParams);

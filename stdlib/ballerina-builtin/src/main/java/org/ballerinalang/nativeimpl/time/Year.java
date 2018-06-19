@@ -20,7 +20,8 @@ package org.ballerinalang.nativeimpl.time;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -43,7 +44,7 @@ public class Year extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
-        BStruct timeStruct = ((BStruct) context.getRefArgument(0));
+        BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
         context.setReturnValues(new BInteger(getYear(timeStruct)));
     }
 }

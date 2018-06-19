@@ -63,19 +63,22 @@ public class WebSocketConstants {
     public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";
 
-    //The indexes of WebSocket endpoints
-    public static final int LISTENER_ID_INDEX = 0;
-    public static final int LISTENER_NEGOTIATED_SUBPROTOCOLS_INDEX = 1;
-    public static final int LISTENER_IS_SECURE_INDEX = 0;
-    public static final int LISTENER_IS_OPEN_INDEX = 1;
-    public static final int LISTENER_ATTRIBUTES_INDEX = 0;
-    public static final int LISTENER_CONNECTOR_INDEX = 1;
-    public static final int LISTENER_CONFIG_INDEX = 2;
-    public static final int LISTENER_HTTP_ENDPOINT_INDEX = 3;
-    public static final int CLIENT_RESPONSE_INDEX = 0;
-    public static final int CLIENT_CONNECTOR_INDEX = 2;
+    // WebSocketListener struct field names
+    public static final String LISTENER_ID_FIELD = "id";
+    public static final String LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD = "negotiatedSubProtocol";
+    public static final String LISTENER_IS_SECURE_FIELD = "isSecure";
+    public static final String LISTENER_IS_OPEN_FIELD = "isOpen";
+    public static final String LISTENER_ATTRIBUTES_FIELD = "attributes";
+    public static final String LISTENER_CONFIG_FIELD = "config";
+    public static final String LISTENER_CONNECTOR_FIELD = "conn";
+    public static final int LISTENER_HTTP_ENDPOINT_FIELD = 3;
 
-    public static final int CONNECTOR_IS_READY_INDEX = 0;
+    // WebSocketClient struct field names
+    public static final String CLIENT_RESPONSE_FIELD = "response";
+    public static final String CLIENT_CONNECTOR_FIELD = "conn";
+
+    // WebSocketConnector
+    public static final String CONNECTOR_IS_READY_FIELD = "isReady";
 
     public static final int STATUS_CODE_ABNORMAL_CLOSURE = 1006;
 }

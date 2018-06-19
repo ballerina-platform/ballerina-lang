@@ -20,7 +20,9 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -47,9 +49,9 @@ public class BooleanTypeTest {
 
         Assert.assertEquals(outputRequestCountObjs.length, 1, "Expected events are not received");
 
-        BStruct requestCount = (BStruct) outputRequestCountObjs[0];
+        BMap<String, BValue> requestCount = (BMap<String, BValue>) outputRequestCountObjs[0];
 
-        Assert.assertEquals(requestCount.getIntField(0), 7);
-        Assert.assertEquals(requestCount.getBooleanField(0), 1);
+        Assert.assertEquals(((BInteger) requestCount.get("count")).intValue(), 7);
+        Assert.assertTrue(((BBoolean) requestCount.get("test")).booleanValue());
     }
 }

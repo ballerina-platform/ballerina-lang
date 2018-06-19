@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -48,6 +48,7 @@ import java.util.zip.ZipFile;
  */
 public class CompressionTest {
     private CompileResult compileResult;
+    private static final String ERROR_MESSAGE_FIELD = "message";
 
     @BeforeClass
     public void setup() {
@@ -77,8 +78,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
-                "decompressed is not available");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Path of the folder to be decompressed is not available");
     }
 
     @Test(description = "test unzipping/decompressing a compressed file without destination directory path")
@@ -91,8 +92,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path to place the decompressed " +
-                "file is not available");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Path to place the decompressed file is not available");
     }
 
     @Test(description = "test unzipping/decompressing a compressed file with incorrect src directory path")
@@ -107,8 +108,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0).startsWith("Path of the folder to be " +
-                                                                "decompressed is not available"), true);
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+                .startsWith("Path of the folder to be decompressed is not available"), true);
     }
 
     @Test(description = "test unzipping/decompressing a compressed file with incorrect src directory path")
@@ -123,8 +124,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0).startsWith("Path to place the " +
-                                "decompressed file is not available"), true);
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+                .startsWith("Path to place the decompressed file is not available"), true);
     }
 
     @Test(description = "test zipping/compressing a folder")
@@ -176,8 +177,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0).startsWith("Error occurred when " +
-               "compressing"), true);
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+                .startsWith("Error occurred when compressing"), true);
     }
 
     @Test(description = "test zipping/compressing a file without src directory path")
@@ -190,8 +191,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
-                "compressed is not available");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Path of the folder to be compressed is not available");
     }
 
     @Test(description = "test zipping/compressing a file without destination directory path")
@@ -204,8 +205,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Error occurred when " +
-                "compressing  (No such file or directory)");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Error occurred when compressing  (No such file or directory)");
     }
 
     @Test(description = "test zipping/compressing a file without destination directory path")
@@ -218,8 +219,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
-                "compressed is not available");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Path of the folder to be compressed is not available");
     }
 
 
@@ -254,7 +255,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Length of the byte array is empty");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Length of the byte array is empty");
     }
 
     @Test(description = "test unzipping/decompressing a byte array without the destination directory path")
@@ -269,8 +271,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path to place the decompressed " +
-                "file is not available");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Path to place the decompressed file is not available");
     }
 
     @Test(description = "test unzipping/decompressing a byte array with an incorrect destination directory path")
@@ -286,8 +288,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path to place the decompressed " +
-                "file is not available");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Path to place the decompressed file is not available");
     }
 
     @Test(description = "test zipping/compressing a file to a byte array and decompressing it to check if it was " +
@@ -317,8 +319,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
-                "compressed is not available");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Path of the folder to be compressed is not available");
     }
 
     @Test(description = "test zipping/compressing a file to a byte array when an incorrect src directory is given")
@@ -331,8 +333,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
-                "compressed is not available");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Path of the folder to be compressed is not available");
 
     }
 
@@ -349,7 +351,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                 "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Arbitrary File Write attack attempted via an " +
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
+                "Arbitrary File Write attack attempted via an " +
                 "archive file. File name: ../../../../../../../../../../../../../../../../../../../../../../../../.." +
                 "/../../../../../../../../../../../../../../../tmp/evil.txt");
     }

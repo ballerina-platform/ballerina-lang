@@ -19,7 +19,8 @@
 package org.ballerinalang.net.websub.util;
 
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -34,15 +35,16 @@ import static org.ballerinalang.mime.util.Constants.PROTOCOL_PACKAGE_MIME;
  */
 public class WebSubUtils {
 
-    public static BStruct getHttpRequest(ProgramFile programFile, HTTPCarbonMessage httpCarbonMessage) {
-        BStruct httpRequest = createBStruct(programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
-        BStruct inRequestEntity = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
-        BStruct mediaType = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+    public static BMap<String, BValue> getHttpRequest(ProgramFile programFile, HTTPCarbonMessage httpCarbonMessage) {
+        BMap<String, BValue> httpRequest =
+                createBStruct(programFile, HttpConstants.PROTOCOL_PACKAGE_HTTP, HttpConstants.REQUEST);
+        BMap<String, BValue> inRequestEntity = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
+        BMap<String, BValue> mediaType = createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
         HttpUtil.populateInboundRequest(httpRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
         return httpRequest;
     }
 
-    private static BStruct createBStruct(ProgramFile programFile, String packagePath, String structName) {
+    private static BMap<String, BValue> createBStruct(ProgramFile programFile, String packagePath, String structName) {
         return BLangConnectorSPIUtil.createBStruct(programFile, packagePath, structName);
     }
 }
