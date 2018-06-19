@@ -26,7 +26,7 @@ import org.ballerinalang.model.types.BTypes;
  *
  * @since 0.980
  */
-public final class BByte extends BValueType implements BRefType<Integer> {
+public final class BByte extends BValueType implements BRefType<Byte> {
 
     private byte value;
 
@@ -35,8 +35,8 @@ public final class BByte extends BValueType implements BRefType<Integer> {
     }
 
     @Override
-    public int byteValue() {
-        return Byte.toUnsignedInt(this.value);
+    public byte byteValue() {
+        return this.value;
     }
 
     @Override
@@ -61,7 +61,7 @@ public final class BByte extends BValueType implements BRefType<Integer> {
 
     @Override
     public String stringValue() {
-        return String.valueOf(value);
+        return String.valueOf(Byte.toUnsignedInt(value));
     }
 
     @Override
@@ -84,8 +84,8 @@ public final class BByte extends BValueType implements BRefType<Integer> {
     }
 
     @Override
-    public Integer value() {
-        return Byte.toUnsignedInt(this.value);
+    public Byte value() {
+        return this.value;
     }
 
     @Override

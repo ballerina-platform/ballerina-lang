@@ -76,7 +76,7 @@ public class BByteArray extends BNewArray {
     public String stringValue() {
         StringJoiner sj = new StringJoiner(", ", "[", "]");
         for (int i = 0; i < size; i++) {
-            sj.add("\'" + values[i] + "\'");
+            sj.add("\'" + Byte.toUnsignedInt(values[i]) + "\'");
         }
         return sj.toString();
     }

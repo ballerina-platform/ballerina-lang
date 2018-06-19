@@ -46,10 +46,10 @@ public final class BString extends BValueType implements BRefType<String> {
     }
 
     @Override
-    public int byteValue() {
-        int result;
+    public byte byteValue() {
+        byte result;
         try {
-            result = Byte.toUnsignedInt(Byte.parseByte(this.value));
+            result = Byte.parseByte(this.value);
         } catch (NumberFormatException e) {
             throw new BallerinaException("input value " + this.value + " cannot be cast to byte");
         }

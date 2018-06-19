@@ -51,7 +51,7 @@ public final class BBoolean extends BValueType implements BRefType<Boolean> {
     }
 
     @Override
-    public int byteValue() {
+    public byte byteValue() {
         return 0;
     }
 

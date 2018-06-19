@@ -39,8 +39,8 @@ public final class BInteger extends BValueType implements BRefType<Long> {
     }
 
     @Override
-    public int byteValue() {
-        return (int) this.value;
+    public byte byteValue() {
+        return (byte) this.value;
     }
 
     @Override

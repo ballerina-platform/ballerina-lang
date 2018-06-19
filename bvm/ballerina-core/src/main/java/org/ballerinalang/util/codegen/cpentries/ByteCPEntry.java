@@ -55,6 +55,6 @@ public class ByteCPEntry implements ConstantPoolEntry {
 
     @Override
     public int hashCode() {
-        return Integer.hashCode(value);
+        return Byte.hashCode(value);
     }
 }

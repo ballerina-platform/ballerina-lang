@@ -40,7 +40,7 @@ public abstract class BValueType implements BValue {
      * @return  the numeric value represented by this object after conversion
      *          to type {@code byte}.
      */
-    public abstract int byteValue();
+    public abstract byte byteValue();
 
     /**
      * Returns the value of the specified number as a {@code float},
