@@ -147,32 +147,6 @@ public class Instruction {
     }
 
     /**
-     * {@code InstructionTCALL} represents the TCALL instruction in Ballerina bytecode.
-     * <p>
-     * The TCALL instruction performs an transformer invocation in BVM.
-     *
-     * @since 0.95.6
-     */
-    public static class InstructionTCALL extends Instruction {
-
-        public int transformerRefCPIndex;
-        public TransformerInfo transformerInfo;
-        public int flags;
-        public int[] argRegs;
-        public int[] retRegs;
-
-        InstructionTCALL(int opcode, int transformerRefCPIndex, TransformerInfo transformerInfo, int flags,
-                         int[] argRegs, int[] retRegs) {
-            super(opcode);
-            this.transformerRefCPIndex = transformerRefCPIndex;
-            this.transformerInfo = transformerInfo;
-            this.flags = flags;
-            this.argRegs = argRegs;
-            this.retRegs = retRegs;
-        }
-    }
-
-    /**
      * {@code InstructionWRKSendReceive} represents the worker send/receive operation in Ballerina.
      *
      * @since 0.95.6

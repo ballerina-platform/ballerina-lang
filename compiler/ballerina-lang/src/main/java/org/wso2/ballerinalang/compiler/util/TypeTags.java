@@ -37,8 +37,8 @@ public class TypeTags {
     public static final int INVOKABLE = MAP + 1;
     // All the above types are branded types
     public static final int ANY = INVOKABLE + 1;
-    public static final int CONNECTOR = ANY + 1;
-    public static final int SERVICE = CONNECTOR + 1;
+    public static final int ENDPOINT = ANY + 1;
+    public static final int SERVICE = ENDPOINT + 1;
     public static final int ENUM = SERVICE + 1;
     public static final int ARRAY = ENUM + 1;
     public static final int UNION = ARRAY + 1;

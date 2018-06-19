@@ -23,7 +23,7 @@ documentation {
     F{{username}} Username for the database connection
     F{{password}} Password for the database connection
     F{{poolOptions}} Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
-    F{{dbOptions}} A map of DB specific properties. These properties will be effect only if the dataSourceClassName is provided in poolOptions
+    F{{dbOptions}} A map of DB specific properties. These properties will have an effect only if the dataSourceClassName is provided in poolOptions
 }
 public type ClientEndpointConfiguration {
     string url,
@@ -34,7 +34,7 @@ public type ClientEndpointConfiguration {
 };
 
 documentation {
-    Represents an JDBC SQL client endpoint.
+    Represents a JDBC SQL client endpoint.
 
     F{{config}} The configurations associated with the SQL endpoint
 }
@@ -47,10 +47,10 @@ public type Client object {
     documentation {
         Gets called when the endpoint is being initialized during the package initialization.
 
-        P{{config}} The ClientEndpointConfiguration of the endpoint
+        P{{c}} The ClientEndpointConfiguration of the endpoint
     }
-    function init(ClientEndpointConfiguration config) {
-        self.callerActions = createClient(config);
+    function init(ClientEndpointConfiguration c) {
+        self.callerActions = createClient(c);
     }
 
     documentation {

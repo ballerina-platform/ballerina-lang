@@ -40,7 +40,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.tree.BLangAction;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
-import org.wso2.ballerinalang.compiler.tree.BLangConnector;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
@@ -146,13 +145,6 @@ public class SignatureTreeVisitor extends LSNodeVisitor {
         this.blockOwnerStack.push(resourceNode);
         acceptNode(resourceNode.body, resourceEnv);
         this.blockOwnerStack.pop();
-    }
-
-    @Override
-    public void visit(BLangConnector connectorNode) {
-        BSymbol connectorSymbol = connectorNode.symbol;
-        SymbolEnv connectorEnv = SymbolEnv.createConnectorEnv(connectorNode, connectorSymbol.scope, symbolEnv);
-        connectorNode.actions.forEach(action -> this.acceptNode(action, connectorEnv));
     }
 
     @Override

@@ -797,4 +797,34 @@ public interface TomlListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStdTableClose(TomlParser.StdTableCloseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TomlParser#arrayTable}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayTable(TomlParser.ArrayTableContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TomlParser#arrayTable}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayTable(TomlParser.ArrayTableContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TomlParser#arrayTableOpen}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayTableOpen(TomlParser.ArrayTableOpenContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TomlParser#arrayTableOpen}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayTableOpen(TomlParser.ArrayTableOpenContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link TomlParser#arrayTableClose}.
+	 * @param ctx the parse tree
+	 */
+	void enterArrayTableClose(TomlParser.ArrayTableCloseContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link TomlParser#arrayTableClose}.
+	 * @param ctx the parse tree
+	 */
+	void exitArrayTableClose(TomlParser.ArrayTableCloseContext ctx);
 }

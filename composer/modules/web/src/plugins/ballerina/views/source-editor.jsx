@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import _ from 'lodash';
 import React from 'react';
 import PropTypes from 'prop-types';
 import debuggerHoc from 'src/plugins/debugger/views/DebuggerHoc';
@@ -32,23 +33,25 @@ import BAL_LANG_CONFIG from '../utils/monaco-lang-config';
 
 const BAL_LANGUAGE = 'ballerina-lang';
 
-const webpackHash = process.env.NODE_ENV === 'production' ? __webpack_hash__ : __webpack_hash__();
+const webpackHash = process.env.NODE_ENV === 'production'
+            || process.env.NODE_ENV === 'electron'
+            ? __webpack_hash__ : __webpack_hash__();
 
 self.MonacoEnvironment = {
     getWorkerUrl: function (moduleId, label) {
       if (label === 'json') {
-        return `./json.worker-${webpackHash}.js`;
+        return `./workers/json.worker.bundle.js`;
       }
       if (label === 'css') {
-        return `./css.worker-${webpackHash}.js`;
+        return `./workers/css.worker.bundle.js`;
       }
       if (label === 'html') {
-        return `./html.worker-${webpackHash}.js`;
+        return `./workers/html.worker.bundle.js`;
       }
       if (label === 'typescript' || label === 'javascript') {
-        return `./ts.worker-${webpackHash}.js`;
+        return `./workers/ts.worker.bundle.js`;
       }
-      return `./editor.worker-${webpackHash}.js`;
+      return `./workers/editor.worker.bundle.js`;
     }
 };
 
@@ -172,10 +175,7 @@ class SourceEditor extends React.Component {
         if (!modelForFile) {
             modelForFile = monaco.editor.createModel(this.props.file.content, BAL_LANGUAGE, uri);
         }
-        modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
-            if (this.shouldIgnoreChangeEvt()) {
-                return;
-            }
+        const debouncedSetContent = _.debounce(() => {
             const changeEvent = {
                 type: CHANGE_EVT_TYPES.SOURCE_MODIFIED,
                 title: 'Modify source',
@@ -185,6 +185,13 @@ class SourceEditor extends React.Component {
             };
             this.props.file
                 .setContent(editorInstance.getValue(), changeEvent);
+        },
+        400);
+        modelForFile.onDidChangeContent(({ changes, isRedoing, isUndoing }) => {
+            if (this.shouldIgnoreChangeEvt()) {
+                return;
+            }
+            debouncedSetContent();
         });
         // this.props.file.on(CONTENT_MODIFIED, this.onFileContentChanged);
         editorInstance.setModel(modelForFile);

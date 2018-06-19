@@ -34,44 +34,49 @@ const extensions = [
 ];
 
 function setupNativeWizards(mainWindow) {
-    ipcMain.on('show-file-open-dialog', function (event) {
+    ipcMain.on('show-file-open-dialog', function (event, title, message, exts, props) {
         dialog.showOpenDialog(
           mainWindow,
             {
-                title: 'Open Ballerina File',
-                message: 'choose ballerina file to open',
-                filters: extensions,
-                properties: ['openFile', 'promptToCreate']
+                title,
+                message,
+                filters: exts ? exts : extensions,
+                properties: props ? props : ['openFile', 'promptToCreate']
             }, function (file) {
                 event.sender.send('file-open-wizard-closed', file)
             }
         );
     });
 
-    ipcMain.on('show-file-save-dialog', function (event) {
+    ipcMain.on('show-file-save-dialog', function (event, title, message, exts, props) {
         dialog.showSaveDialog(
           mainWindow,
             {
-                title: 'Save Ballerina File',
-                message: 'select where to save the ballerina file',
-                filters: extensions
+                title,
+                message,
+                filters: exts ? exts : extensions,
+                properties: props ? props : []
             }, function (file) {
                 event.sender.send('file-save-wizard-closed', file);
             }
         );
     });
 
-    ipcMain.on('show-folder-open-dialog', function (event) {
+    ipcMain.on('show-folder-open-dialog', function (event, title, message, props) {
         dialog.showOpenDialog(
           mainWindow,
             {
-                title: 'Open Ballerina Folder',
-                message: 'select a ballerina project folder',
-                properties: ['openDirectory', 'createDirectory']
+                title,
+                message,
+                properties: props ? props : ['openDirectory', 'createDirectory']
             }, function (folders) {
                 event.sender.send('folder-open-wizard-closed', folders ? folders[0] : undefined);
             }
         );
+    });
+
+    ipcMain.on('show-error-dialog', function (event, title, message) {
+        dialog.showErrorBox(title, message);
     });
 }
 

@@ -22,13 +22,11 @@ import org.ballerinalang.compiler.plugins.SupportedAnnotationPackages;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
-import org.ballerinalang.model.tree.ConnectorNode;
 import org.ballerinalang.model.tree.EnumNode;
 import org.ballerinalang.model.tree.FunctionNode;
 import org.ballerinalang.model.tree.PackageNode;
 import org.ballerinalang.model.tree.ResourceNode;
 import org.ballerinalang.model.tree.ServiceNode;
-import org.ballerinalang.model.tree.TransformerNode;
 import org.ballerinalang.model.tree.TypeDefinition;
 import org.ballerinalang.model.tree.VariableNode;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
@@ -71,12 +69,6 @@ public class ABCCompilerPlugin extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void process(ConnectorNode connectorNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.CONNECTOR_ANN, connectorNode.getName().getValue(), annotations.size());
-
-    }
-
-    @Override
     public void process(ActionNode actionNode, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.ACTION_ANN, actionNode.getName().getValue(), annotations.size());
 
@@ -105,12 +97,6 @@ public class ABCCompilerPlugin extends AbstractCompilerPlugin {
     @Override
     public void process(AnnotationNode annotationNode, List<AnnotationAttachmentNode> annotations) {
         addEvent(TestEvent.Kind.ANNOTATION_ANN, annotationNode.getName().getValue(), annotations.size());
-    }
-
-    @Override
-    public void process(TransformerNode transformerNode, List<AnnotationAttachmentNode> annotations) {
-        addEvent(TestEvent.Kind.TRANSFORM_ANN, transformerNode.getName().getValue(), annotations.size());
-
     }
 
     @Override

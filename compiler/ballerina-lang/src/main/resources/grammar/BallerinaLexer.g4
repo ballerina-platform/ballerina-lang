@@ -200,6 +200,10 @@ COMPOUND_DIV   : '/=' ;
 INCREMENT      : '++' ;
 DECREMENT      : '--' ;
 
+// Integer Range Operators.
+// CLOSED_RANGE - ELLIPSIS
+HALF_OPEN_RANGE   : '..<' ;
+
 DecimalIntegerLiteral
     :   DecimalNumeral IntegerTypeSuffix?
     ;
@@ -641,7 +645,7 @@ XMLQName
     ;
 
 XML_TAG_WS
-    :   [ \t\r\n]   -> skip 
+    :   [ \t\r\n]   -> channel(HIDDEN)
     ;
 
 XMLTagExpressionStart

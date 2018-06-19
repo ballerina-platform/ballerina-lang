@@ -29,12 +29,6 @@ public interface BallerinaWhileStatement extends BallerinaCompositeElement {
   @Nullable
   BallerinaWhileStatementBody getWhileStatementBody();
 
-  @Nullable
-  PsiElement getLeftParenthesis();
-
-  @Nullable
-  PsiElement getRightParenthesis();
-
   @NotNull
   PsiElement getWhile();
 

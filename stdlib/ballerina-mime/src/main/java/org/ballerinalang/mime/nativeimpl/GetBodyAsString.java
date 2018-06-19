@@ -42,7 +42,7 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 @BallerinaFunction(
         orgName = "ballerina", packageName = "mime",
         functionName = "getBodyAsString",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina.mime"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Entity", structPackage = "ballerina/mime"),
         returnType = {@ReturnType(type = TypeKind.STRING), @ReturnType(type = TypeKind.RECORD)},
         isPublic = true
 )
@@ -66,7 +66,7 @@ public class GetBodyAsString extends BlockingNativeCallableUnit {
             context.setReturnValues(result);
 
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while retrieving text data from entity : " + e.getMessage()));
         }
     }

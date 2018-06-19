@@ -31,8 +31,8 @@ import org.testng.annotations.Test;
  */
 public class BlockStmtTest {
 
-    CompileResult result;
-    CompileResult resultNegative;
+    private CompileResult result;
+    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
@@ -49,19 +49,19 @@ public class BlockStmtTest {
     @Test
     public void testVariableShadowingBasic() {
         BValue[] returns = BRunUtil.invoke(result, "test1");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 9);
     }
 
     @Test
     public void testVariableShadowingInCurrentScope1() {
         BValue[] returns = BRunUtil.invoke(result, "test2");
-        Assert.assertEquals(((BInteger) returns[0]).intValue(), 10);
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 8);
     }
 
     @Test
     public void testVariableShadowingInCurrentScope2() {
         BValue[] returns = BRunUtil.invoke(result, "test3");
-        Assert.assertEquals(returns[0].stringValue(), "K17");
+        Assert.assertEquals(returns[0].stringValue(), "K25");
     }
 
     @Test(description = "Test block statement with errors")

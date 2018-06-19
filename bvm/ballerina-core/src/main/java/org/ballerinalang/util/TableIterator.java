@@ -42,6 +42,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BXMLItem;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
+import java.math.BigDecimal;
 import java.sql.Array;
 import java.sql.Blob;
 import java.sql.ResultSet;
@@ -311,6 +312,12 @@ public class TableIterator implements DataIterator {
                 doubleDataArray.add(i, (Double) dataArray[i]);
             }
             return doubleDataArray;
+        } else if ((firstNonNullElement instanceof BigDecimal)) {
+            BFloatArray doubleDataArray = new BFloatArray();
+            for (int i = 0; i < dataArray.length; i++) {
+                doubleDataArray.add(i, ((BigDecimal) dataArray[i]).doubleValue());
+            }
+            return doubleDataArray;
         } else {
             return null;
         }
@@ -348,6 +355,12 @@ public class TableIterator implements DataIterator {
             refValueArray = createEmptyRefValueArray(BTypes.typeFloat, length);
             for (int i = 0; i < length; i++) {
                 refValueArray.add(i, dataArray[i] != null ? new BFloat((Double) dataArray[i]) : null);
+            }
+        } else if (firstNonNullElement instanceof BigDecimal) {
+            refValueArray = createEmptyRefValueArray(BTypes.typeFloat, length);
+            for (int i = 0; i < length; i++) {
+                refValueArray
+                        .add(i, dataArray[i] != null ? new BFloat(((BigDecimal) dataArray[i]).doubleValue()) : null);
             }
         }
         return refValueArray;

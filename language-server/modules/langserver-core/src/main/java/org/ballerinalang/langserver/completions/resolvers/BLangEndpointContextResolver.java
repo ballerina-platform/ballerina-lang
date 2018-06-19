@@ -23,7 +23,9 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -63,11 +65,14 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
                     DiagnosticPos valuePos = CommonUtil.toZeroBasedPosition(valueExpr.getPosition());
                     if (valuePos.getStartLine() == cursorLine) {
                         if (isInvocationOrFieldAccess(completionContext)) {
-                            ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
-                            PackageActionFunctionAndTypesFilter actionFunctionTypeFilter
-                                    = new PackageActionFunctionAndTypesFilter();
-                            actionAndFunctions.addAll(actionFunctionTypeFilter.filterItems(completionContext));
-                            this.populateCompletionItemList(actionAndFunctions, completionItems);
+                            Either<List<CompletionItem>, List<SymbolInfo>> filteredItems =
+                                    SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
+                                            .filterItems(completionContext);
+                            if (filteredItems.isLeft()) {
+                                completionItems.addAll(filteredItems.getLeft());
+                            } else {
+                                this.populateCompletionItemList(filteredItems.getRight(), completionItems);
+                            }
                         } else {
                             completionItems.addAll(this.getVariableDefinitionCompletionItems(completionContext));
                         }

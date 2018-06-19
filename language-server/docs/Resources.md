@@ -23,6 +23,8 @@ the language features for [Ballerina Language](https://ballerinalang.org/). Impl
 ### Blogs
 
 * [Why Use Language Server](https://medium.com/@nadeeshaangunasinghe/why-use-language-server-aa9bb47207b8)
+* [Implementing a Language Server…How Hard Can It Be?? — Part 1 (Introduction)](https://medium.com/@nipunamarcus2/implementing-a-language-server-how-hard-can-it-be-part-1-introduction-c915d2437076)
+* [Language Server for Ballerina— Auto Completion Engine in Depth](https://medium.com/@nadeeshaangunasinghe/language-server-for-ballerina-auto-completion-engine-in-depth-ee20e543ac26)
 
 ### How to Contribute
 

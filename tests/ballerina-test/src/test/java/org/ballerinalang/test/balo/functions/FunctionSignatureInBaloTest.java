@@ -25,7 +25,9 @@ import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -42,6 +44,7 @@ public class FunctionSignatureInBaloTest {
 
     @BeforeClass
     public void setup() throws IOException {
+        BaloCreator.createAndSetupBalo("test-src/balo/test_projects/test_project", "testorg", "foo");
         result = BCompileUtil.compile("test-src/balo/test_balo/functions/test_different_function_signatures.bal");
     }
 
@@ -389,5 +392,10 @@ public class FunctionSignatureInBaloTest {
 
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 50);
         Assert.assertEquals(returns[1].stringValue(), "hello world");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        BaloCreator.cleaPackageFromRepository("testorg", "foo");
     }
 }

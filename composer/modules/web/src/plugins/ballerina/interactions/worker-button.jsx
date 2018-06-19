@@ -72,7 +72,6 @@ class LifelineButton extends React.Component {
         this.onChange = this.onChange.bind(this);
         this.onSuggestionSelected = this.onSuggestionSelected.bind(this);
         this.getSuggestionValue = this.getSuggestionValue.bind(this);
-        this.createAction = this.createAction.bind(this);
         this.getAllSugestions = this.getAllSugestions.bind(this);
     }
 
@@ -123,14 +122,10 @@ class LifelineButton extends React.Component {
     }
 
     onSuggestionSelected(event, item) {
-        if (item.suggestion.addNewValue) {
-            this.createAction();
-        } else {
-            item.suggestion.endpoint = this.state.selectedEndpoint;
-            this.setState({ listConnectors: false, listActions: false, selectedConnecter: '', selectedEndpoint: '' });
-            const node = DefaultNodeFactory.createConnectorActionInvocationAssignmentStatement(item.suggestion);
-            this.props.model.acceptDrop(node);
-        }
+        item.suggestion.endpoint = this.state.selectedEndpoint;
+        this.setState({ listConnectors: false, listActions: false, selectedConnecter: '', selectedEndpoint: '' });
+        const node = DefaultNodeFactory.createConnectorActionInvocationAssignmentStatement(item.suggestion);
+        this.props.model.acceptDrop(node);
     }
 
     getAllSugestions(endpointNode) {
@@ -189,36 +184,6 @@ class LifelineButton extends React.Component {
         if (autosuggest !== null) {
             this.input = autosuggest.input;
         }
-    }
-
-    createAction() {
-        const actionNode = DefaultNodeFactory.createConnectorAction();
-        actionNode.name.setValue(this.state.value);
-        this.props.model.getRoot().topLevelNodes.forEach((topLevelNode) => {
-            if (TreeUtil.isConnector(topLevelNode) &&
-                topLevelNode.getName().getValue() === this.state.selectedConnecter) {
-                topLevelNode.addActions(actionNode);
-            }
-        });
-        const currentPackage = this.context.editor.environment.getCurrentPackage();
-        const currentConnector = currentPackage.getConnectorByName(this.state.selectedConnecter);
-        const node = DefaultNodeFactory.createConnectorActionInvocationAssignmentStatement({
-            pkg: currentPackage,
-            action: new ConnectorAction(
-                {
-                    name: this.state.value,
-                    id: '',
-                    action: this.state.value,
-                    parameters: [],
-                    returnParams: [],
-                }),
-            connector: currentConnector,
-            endpoint: this.state.selectedEndpoint,
-            packageName: currentPackage.getName(),
-            fullPackageName: currentPackage.getName(),
-        });
-        this.props.model.acceptDrop(node);
-        this.setState({ listConnectors: false, listActions: false, selectedConnecter: '', selectedEndpoint: '' });
     }
 
     /**

@@ -73,14 +73,13 @@ public class ModelGenerator {
         generateSourceFiles(nodes, "positioning-util.hbs" , "positioning-util.js");
         generateSourceFiles(nodes, "sizing-util.hbs" , "sizing-util.js");
         generateSourceFiles(nodes, "error-rendering-util.hbs" , "error-rendering-util.js");
+        generateSourceFiles(nodes, "formatting-util.hbs" , "formatting-util.js");
     }
 
     public static JsonObject getContext() {
+
         // Set alias for the classes
-        //alias.put("EnumeratorNode", "");
         alias.put("ImportNode", "ImportPackageNode");
-        alias.put("RecordLiteralKeyValueNode", "");
-        alias.put("XmlnsNode", "");
         alias.put("ArrayLiteralExprNode", "ArrayLiteralNode");
         alias.put("BinaryExprNode", "BinaryExpressionNode");
         alias.put("BracedTupleExprNode", "BracedOrTupleExpression");
@@ -88,52 +87,58 @@ public class ModelGenerator {
         alias.put("FieldBasedAccessExprNode", "FieldBasedAccessNode");
         alias.put("IndexBasedAccessExprNode", "IndexBasedAccessNode");
         alias.put("IntRangeExprNode", "IntRangeExpression");
-        //alias.put("ActionInvocationNode", "");
         alias.put("LambdaNode", "LambdaFunctionNode");
-        alias.put("RecordLiteralExprNode", "");
         alias.put("SimpleVariableRefNode", "SimpleVariableReferenceNode");
         alias.put("TernaryExprNode", "TernaryExpressionNode");
         alias.put("AwaitExprNode", "AwaitExpressionNode");
         alias.put("TypeCastExprNode", "TypeCastNode");
         alias.put("TypeConversionExprNode", "TypeConversionNode");
-        alias.put("IsAssignableExprNode", "");
         alias.put("UnaryExprNode", "UnaryExpressionNode");
         alias.put("RestArgsExprNode", "RestArgsNode");
         alias.put("NamedArgsExprNode", "NamedArgNode");
-        //alias.put("XmlQnameNode", "");
-        //alias.put("XmlAttributeNode", "");
-        //alias.put("XmlAttributeAccessExprNode", "");
-        //alias.put("XmlQuotedStringNode", "");
-        //alias.put("XmlElementLiteralNode", "");
-        //alias.put("XmlTextLiteralNode", "");
-        //alias.put("XmlCommentLiteralNode", "");
-        //alias.put("XmlPiLiteralNode", "");
-        //alias.put("XmlSequenceLiteralNode", "");
-        alias.put("MatchExpressionPatternClauseNode", "MatchExpressionPatternNode");
-        alias.put("TableQueryExpressionNode", "");
+        alias.put("MatchExpressionPatternClauseNode", "MatchExpressionNode");
         alias.put("MatchPatternClauseNode", "MatchStatementPatternNode");
-        //alias.put("TransformNode", "");
         alias.put("TryNode", "TryCatchFinallyNode");
         alias.put("VariableDefNode", "VariableDefinitionNode");
-        alias.put("StreamNode", "");
         alias.put("UnionTypeNodeNode", "UnionTypeNode");
         alias.put("TupleTypeNodeNode", "TupleTypeNode");
-        alias.put("BuiltInRefTypeNode", "");
         alias.put("EndpointTypeNode", "UserDefinedTypeNode");
+        alias.put("StreamingQueryNode", "StreamingQueryStatementNode");
+        alias.put("WithinNode", "WithinClause");
+        alias.put("PatternClauseNode", "PatternClause");
+        alias.put("ElvisExprNode", "ElvisExpressionNode");
+        alias.put("CheckExprNode", "CheckedExpressionNode");
+        alias.put("RecordLiteralExprNode", "RecordLiteralNode");
+        alias.put("TypeDefinitionNode", "TypeDefinition");
+
+        alias.put("EnumeratorNode", "");
+        alias.put("RecordLiteralKeyValueNode", "");
+        alias.put("TableNode", "");
+        alias.put("XmlnsNode", "");
+        alias.put("IsAssignableExprNode", "");
+        alias.put("XmlQnameNode", "");
+        alias.put("XmlAttributeNode", "");
+        alias.put("XmlAttributeAccessExprNode", "");
+        alias.put("XmlQuotedStringNode", "");
+        alias.put("XmlElementLiteralNode", "");
+        alias.put("XmlTextLiteralNode", "");
+        alias.put("XmlCommentLiteralNode", "");
+        alias.put("XmlPiLiteralNode", "");
+        alias.put("XmlSequenceLiteralNode", "");
+        alias.put("TableQueryExpressionNode", "");
+        alias.put("NextNode", "");
+        alias.put("TransformNode", "");
+        alias.put("StreamNode", "");
+        alias.put("FiniteTypeNodeNode", "");
+        alias.put("BuiltInRefTypeNode", "");
         alias.put("StreamingInputNode", "");
         alias.put("JoinStreamingInputNode", "");
         alias.put("TableQueryNode", "");
         alias.put("SetAssignmentClauseNode", "");
         alias.put("SetNode", "");
-        alias.put("StreamingQueryNode", "StreamingQueryStatementNode");
-        //alias.put("QueryNode", "");
+        alias.put("QueryNode", "");
         alias.put("StreamingQueryDeclarationNode", "");
-        alias.put("WithinNode", "WithinClause");
-        alias.put("PatternClauseNode", "PatternClause");
-        alias.put("TypeDefinitionNode", "");
-        alias.put("TableNode", "");
-        alias.put("ElvisExprNode", "ElvisExpressionNode");
-        //alias.put("CheckExprNode", "");
+
 
         List<Class<?>> list = ModelGenerator.find("org.ballerinalang.model.tree");
 

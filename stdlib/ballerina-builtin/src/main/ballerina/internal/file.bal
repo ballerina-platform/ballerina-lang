@@ -17,14 +17,6 @@
 import ballerina/time;
 
 documentation {
-    Represents an I/O error that could occur when processing a file.
-}
-public type IOError {
-    string message;
-    error? cause;
-};
-
-documentation {
     Reference to the file location.
 }
 public type Path object {
@@ -39,7 +31,7 @@ public type Path object {
     documentation {
         Constructs the path.
     }
-    native function init(string root);
+    native function init(string r);
 
     documentation {
         Retrieves the absolute path from the provided location.
@@ -49,71 +41,102 @@ public type Path object {
     native function toAbsolutePath() returns Path;
 
     documentation {
-            Retreives the absolute path from the provided location.
+        Retreives the absolute path from the provided location.
 
-            R{{}} Returns the absolute path string value
-        }
+        R{{}} Returns the absolute path as a string
+    }
     public native function getPathValue() returns string;
 
     documentation {
-            Retreives the name of the file from the provided location.
+        Retreives the name of the file from the provided location.
 
-            R{{}} Returns the name of the file
-        }
-    native function getName() returns string;
+        R{{}} Returns the name of the file
+    }
+    public native function getName() returns string;
+
+    documentation {
+        Retreives the extension of the file from the provided location.
+
+        R{{}} Returns the extension of the file. Empty string if no extension.
+    }
+    public native function getExtension() returns string;
+
+    documentation {
+        Check for existance of the file.
+
+        R{{}} True if the file exists, else false
+    }
+    public native function exists() returns boolean;
+
+    documentation {
+        Returns the files of folders in the directory.
+
+        R{{}} True if the given file path is a directory. It is false otherwise
+    }
+    public native function list() returns Path[]|error;
+
+    documentation {
+        Check if given file is a directory
+
+        R{{}} True if directory, else false
+    }
+    public native function isDirectory() returns boolean;
+
+    documentation {
+        Deletes a file/directory.
+
+        R{{}} Error if the directory/file could not be deleted
+    }
+    public native function delete() returns error?;
+
+    documentation {
+        Creates a directory.
+
+        R{{}} Error if the directory could not be created
+    }
+    public native function createDirectory() returns error?;
+
+    documentation {
+        Creates a file.
+
+        R{{}} Error if the file could not be created
+    }
+    public native function createFile() returns error?;
+
+    documentation {
+        Retrieves the last modified time of the file of directory.
+
+        R{{}} Last modified time or an error if the path cannot be resolved
+    }
+    public native function getModifiedTime() returns time:Time|error;
+
+    documentation {
+        Copy file or directory to another path.
+
+        P{{target}} The location to copy file or directory
+        R{{}} Error if the file could not be copied
+    }
+    public native function copyTo(@sensitive Path target) returns error?;
+
+    documentation {
+        Move file or directory to another path.
+
+        P{{target}} The location to move file or directory
+        R{{}} Error if the file could not be moved
+    }
+    public native function moveTo(@sensitive Path target) returns error?;
+
+    documentation {
+        Get the enclosing parent directory.
+
+        R{{}} Path of parent folder or error occurred while getting parent directory
+    }
+    public native function getParentDirectory() returns Path|error;
+
+    documentation {
+        Resolve given path.
+
+        R{{}} Resolved path
+    }
+    public native function resolve(string... paths) returns Path;
 };
-
-documentation {
-    Check for existance of the file.
-
-    P{{path}} Refernce to the file location
-    R{{}} true if the file exists
-}
-public native function pathExists(@sensitive Path path) returns boolean;
-
-documentation {
-    Returns the list of paths in the directory.
-
-    P{{path}} Reference to the file path location
-    R{{}} List of file paths in the directory or an I/O error
-}
-public native function list(@sensitive Path path) returns Path[]|IOError;
-
-documentation {
-    Returns if the provided path is a directory.
-
-    P{{path}} Reference to the file path location
-    R{{}} true if the given file path is a directory. It is false otherwise
-}
-native function isDirectory(@sensitive Path path) returns boolean;
-
-documentation {
-    Deletes a file/directory from the specified path.
-
-    P{{path}} Reference to the file path location
-    R{{}} error if the directory/file could not be deleted
-}
-public native function delete(@sensitive Path path) returns boolean|IOError;
-
-documentation {
-    Creates a directory in the specified location.
-
-    P{{path}} Reference to the file path location
-    R{{}} error if the directory could not be created
-}
-public native function createDirectory(@sensitive Path path) returns boolean|IOError;
-
-documentation {
-    Creates a file in the specified location.
-
-    P{{path}} Reference to the file path location
-    R{{}} error if the file could not be created
-}
-public native function createFile(@sensitive Path path) returns (boolean|IOError);
-
-documentation {
-    Retrieves the last modified time of the path.
-
-    R{{}} Last modified time or an error if the path cannot be resolved
-}
-public native function getModifiedTime(@sensitive Path path) returns (time:Time|IOError);

@@ -22,6 +22,7 @@ import org.ballerinalang.compiler.CompilerOptionName;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.TreeUtils;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.DocTag;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
@@ -80,7 +81,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticCode;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotation;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
-import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachmentPoint;
 import org.wso2.ballerinalang.compiler.tree.BLangDeprecatedNode;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
 import org.wso2.ballerinalang.compiler.tree.BLangEndpoint;
@@ -274,7 +274,7 @@ public class BLangPackageBuilder {
 
     private Stack<XMLAttributeNode> xmlAttributeNodeStack = new Stack<>();
 
-    private Stack<BLangAnnotationAttachmentPoint> attachmentPointStack = new Stack<>();
+    private Stack<AttachPoint> attachPointStack = new Stack<>();
 
     private Stack<OrderByNode> orderByClauseStack = new Stack<>();
 
@@ -340,6 +340,8 @@ public class BLangPackageBuilder {
 
     private Stack<Set<Whitespace>> operatorWs = new Stack<>();
 
+    private Stack<Set<Whitespace>> objectFieldBlockWs = new Stack<>();
+
     private BLangAnonymousModelHelper anonymousModelHelper;
     private CompilerOptions compilerOptions;
 
@@ -356,8 +358,8 @@ public class BLangPackageBuilder {
         this.compUnit = compUnit;
     }
 
-    void addAttachPoint(BLangAnnotationAttachmentPoint.AttachmentPoint attachPoint) {
-        attachmentPointStack.push(new BLangAnnotationAttachmentPoint(attachPoint));
+    void addAttachPoint(AttachPoint attachPoint) {
+        attachPointStack.push(attachPoint);
     }
 
     void addValueType(DiagnosticPos pos, Set<Whitespace> ws, String typeName) {
@@ -711,10 +713,6 @@ public class BLangPackageBuilder {
         addExpressionNode(lambdaExpr);
         // TODO: is null correct here
         endFunctionDef(pos, null, false, false, true, false, true);
-        //this is added for analysing closures
-        if (!(blockNodeStack.empty())) {
-            lambdaFunction.enclBlockStmt = (BLangBlockStmt) blockNodeStack.peek();
-        }
     }
 
     private void startEndpointDeclarationScope(List<BLangEndpoint> endpointList) {
@@ -1139,15 +1137,12 @@ public class BLangPackageBuilder {
         addExpressionNode(typeAccessExpr);
     }
 
-    void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws, boolean namedTransformer) {
+    void createTypeConversionExpr(DiagnosticPos pos, Set<Whitespace> ws) {
         BLangTypeConversionExpr typeConversionNode = (BLangTypeConversionExpr) TreeBuilder.createTypeConversionNode();
         typeConversionNode.pos = pos;
         typeConversionNode.addWS(ws);
         typeConversionNode.typeNode = (BLangType) typeNodeStack.pop();
         typeConversionNode.expr = (BLangExpression) exprNodeStack.pop();
-        if (namedTransformer) {
-            typeConversionNode.transformerInvocation = (BLangInvocation) exprNodeStack.pop();
-        }
         addExpressionNode(typeConversionNode);
     }
 
@@ -1390,6 +1385,7 @@ public class BLangPackageBuilder {
 
     void addObjectType(DiagnosticPos pos, Set<Whitespace> ws, boolean isFieldAnalyseRequired, boolean isAnonymous) {
         BLangObjectTypeNode objectTypeNode = populateObjectTypeNode(pos, ws, isAnonymous);
+        objectTypeNode.addWS(this.objectFieldBlockWs.pop());
         objectTypeNode.isFieldAnalyseRequired = isFieldAnalyseRequired;
         objFunctionListStack.pop().forEach(f -> {
             if (f.objInitFunction) {
@@ -1430,11 +1426,16 @@ public class BLangPackageBuilder {
         return objectTypeNode;
     }
 
-    //TODO fix this - talk with marcus
-//    void addObjectFieldsBlock (Set<Whitespace> ws) {
-//        BLangObject objectNode = (BLangObject) this.objectStack.peek();
-//        objectNode.addWS(ws);
-//    }
+    void startFieldBlockList() {
+        this.objectFieldBlockWs.push(new TreeSet<>());
+    }
+
+    void addObjectFieldsBlock(Set<Whitespace> ws) {
+        Set<Whitespace> fieldObjectWhitespace = this.objectFieldBlockWs.peek();
+        if (fieldObjectWhitespace != null && ws != null) {
+            fieldObjectWhitespace.addAll(ws);
+        }
+    }
 
     void endTypeDefinition(DiagnosticPos pos, Set<Whitespace> ws, String identifier, boolean publicType) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
@@ -1495,6 +1496,7 @@ public class BLangPackageBuilder {
         typeDefinition.addWS(ws);
         attachDocumentations(typeDefinition);
         attachDeprecatedNode(typeDefinition);
+        attachAnnotations(typeDefinition);
         this.compUnit.addTopLevelNode(typeDefinition);
     }
 
@@ -1696,8 +1698,8 @@ public class BLangPackageBuilder {
         if (publicAnnotation) {
             annotationNode.flagSet.add(Flag.PUBLIC);
         }
-        while (!attachmentPointStack.empty()) {
-            annotationNode.attachmentPoints.add(attachmentPointStack.pop());
+        while (!attachPointStack.empty()) {
+            annotationNode.attachPoints.add(attachPointStack.pop());
         }
         if (isTypeAttached) {
             annotationNode.typeNode = (BLangType) this.typeNodeStack.pop();

@@ -36,7 +36,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.SendActionHandler;
                    functionName = "send",
                    receiver = @Receiver(type = TypeKind.OBJECT,
                                         structType = "TopicPublisherActions",
-                                        structPackage = "ballerina.jms"),
+                                        structPackage = "ballerina/jms"),
                    args = { @Argument(name = "message", type = TypeKind.OBJECT) },
                    isPublic = true
 )

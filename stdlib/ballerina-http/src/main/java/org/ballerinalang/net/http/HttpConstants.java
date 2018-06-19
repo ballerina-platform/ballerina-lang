@@ -18,6 +18,9 @@
 
 package org.ballerinalang.net.http;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;;
+
 /**
  * Constants for HTTP.
  *
@@ -39,8 +42,8 @@ public class HttpConstants {
     public static final String DEFAULT_SUB_PATH = "/*";
 
     public static final String PROTOCOL_HTTP = "http";
-    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina.http";
-    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina.http:Listener";
+    public static final String PROTOCOL_PACKAGE_HTTP = "ballerina" + ORG_NAME_SEPARATOR + "http";
+    public static final String HTTP_SERVICE_ENDPOINT_NAME = "ballerina" + ORG_NAME_SEPARATOR + "http:Listener";
     public static final String PROTOCOL_HTTPS = "https";
     public static final String HTTP_METHOD = "HTTP_METHOD";
     public static final String HTTP_STATUS_CODE = "HTTP_STATUS_CODE";
@@ -62,8 +65,9 @@ public class HttpConstants {
     public static final String FORWARDED_TRANSITION = "transition";
     public static final String FORWARDED_DISABLE = "disable";
     public static final String DISABLE = "disable";
+    public static final String DEFAULT_HOST = "b7a.default";
 
-    public static final String HTTP_PACKAGE_PATH = "ballerina.http";
+    public static final String HTTP_PACKAGE_PATH = "ballerina" + ORG_NAME_SEPARATOR + "http";
 
     public static final String HTTP_REQUEST_METHOD = "method";
     public static final String HTTP_METHOD_GET = "GET";
@@ -113,7 +117,7 @@ public class HttpConstants {
     public static final String ANN_CONFIG_ATTR_ALLOW_NO_VERSION = "allowNoVersion";
     public static final String ANN_CONFIG_ATTR_MATCH_MAJOR_VERSION = "matchMajorVersion";
     public static final String ANN_CONFIG_ATTR_WEBSOCKET_UPGRADE = "webSocketUpgrade";
-    public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";;
+    public static final String ANN_WEBSOCKET_ATTR_UPGRADE_PATH = "upgradePath";
     public static final String ANNOTATION_METHOD_GET = HTTP_METHOD_GET;
     public static final String ANNOTATION_METHOD_POST = HTTP_METHOD_POST;
     public static final String ANNOTATION_METHOD_PUT = HTTP_METHOD_PUT;
@@ -140,7 +144,7 @@ public class HttpConstants {
     public static final String PREFLIGHT_RESOURCES = "PREFLIGHT_RESOURCES";
     public static final String RESOURCES_CORS = "RESOURCES_CORS";
     public static final String LISTENER_INTERFACE_ID = "listener.interface.id";
-    public static final String PACKAGE_BALLERINA_BUILTIN = "ballerina.builtin";
+    public static final String PACKAGE_BALLERINA_BUILTIN = BALLERINA_BUILTIN_PKG;
 
     public static final String CALLER_ACTIONS = "CallerActions";
 
@@ -189,6 +193,8 @@ public class HttpConstants {
     public static final int ENTITY_INDEX = 1;
 
     // ServeConnector struct indices
+    public static final int HTTP_CONNECTOR_CONFIG_INDEX = 0;
+    public static final int SERVICE_ENDPOINT_CONFIG_INDEX = 3;
     public static final int SERVICE_ENDPOINT_CONNECTION_INDEX = 2;
 
     //Connection struct indexes
@@ -364,4 +370,8 @@ public class HttpConstants {
 
     //WebSocket Related constants for WebSocket upgrade
     public static final String NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER = "NATIVE_DATA_WEBSOCKET_CONNECTION_MANAGER";
+
+    public static final int REQUEST_STRUCT_INDEX = 1;
+    public static final int REQUEST_REUSE_STATUS_INDEX = 0;
+    public static final int DIRTY_REQUEST = 1;
 }

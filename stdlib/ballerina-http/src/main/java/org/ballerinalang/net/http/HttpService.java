@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.net.http.HttpConstants.AUTO;
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 
 /**
@@ -55,17 +56,19 @@ public class HttpService implements Cloneable {
     private static final String COMPRESSION_FIELD = "compression";
     private static final String CORS_FIELD = "cors";
     private static final String VERSIONING_FIELD = "versioning";
+    private static final String HOST_FIELD = "host";
     protected static final String WEBSOCKET_UPGRADE_FIELD = "webSocketUpgrade";
 
     private Service balService;
     private List<HttpResource> resources;
-    private List<Resource> upgradeToWebSocketResources;
+    private List<HttpResource> upgradeToWebSocketResources;
     private List<String> allAllowedMethods;
     private String basePath;
     private CorsHeaders corsHeaders;
     private URITemplate<HttpResource, HTTPCarbonMessage> uriTemplate;
     private boolean keepAlive = true; //default behavior
     private String compression = AUTO; //default behavior
+    private String hostName;
 
     public Service getBallerinaService() {
         return balService;
@@ -119,6 +122,14 @@ public class HttpService implements Cloneable {
         this.allAllowedMethods = allAllowMethods;
     }
 
+    public void setHostName(String hostName) {
+        this.hostName = hostName;
+    }
+
+    public String getHostName() {
+        return hostName;
+    }
+
     public String getBasePath() {
         return basePath;
     }
@@ -149,12 +160,12 @@ public class HttpService implements Cloneable {
         }
     }
 
-    public List<Resource> getUpgradeToWebSocketResources() {
+    public List<HttpResource> getUpgradeToWebSocketResources() {
         return upgradeToWebSocketResources;
     }
 
     public void setUpgradeToWebSocketResources(
-            List<Resource> upgradeToWebSocketResources) {
+            List<HttpResource> upgradeToWebSocketResources) {
         this.upgradeToWebSocketResources = upgradeToWebSocketResources;
     }
 
@@ -176,11 +187,13 @@ public class HttpService implements Cloneable {
             //service name cannot start with / hence concat
 //            httpService.setBasePath(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
             basePathList.add(HttpConstants.DEFAULT_BASE_PATH.concat(httpService.getName()));
+            httpService.setHostName(DEFAULT_HOST);
         } else {
             Struct serviceConfig = serviceConfigAnnotation.getValue();
 
             httpService.setCompression(serviceConfig.getRefField(COMPRESSION_FIELD).getStringValue());
             httpService.setCorsHeaders(CorsHeaders.buildCorsHeaders(serviceConfig.getStructField(CORS_FIELD)));
+            httpService.setHostName(serviceConfig.getStringField(HOST_FIELD).trim());
 
             String basePath = serviceConfig.getStringField(BASE_PATH_FIELD);
             if (basePath.contains(HttpConstants.VERSION)) {
@@ -193,13 +206,14 @@ public class HttpService implements Cloneable {
         }
 
         List<HttpResource> httpResources = new ArrayList<>();
-        List<Resource> upgradeToWebSocketResources = new ArrayList<>();
+        List<HttpResource> upgradeToWebSocketResources = new ArrayList<>();
         for (Resource resource : httpService.getBallerinaService().getResources()) {
             Annotation resourceConfigAnnotation =
                     HttpUtil.getResourceConfigAnnotation(resource, HttpConstants.HTTP_PACKAGE_PATH);
             if (resourceConfigAnnotation != null
                     && resourceConfigAnnotation.getValue().getStructField(WEBSOCKET_UPGRADE_FIELD) != null) {
-                upgradeToWebSocketResources.add(resource);
+                HttpResource upgradeResource = HttpResource.buildHttpResource(resource, httpService);
+                upgradeToWebSocketResources.add(upgradeResource);
             } else {
                 HttpResource httpResource = HttpResource.buildHttpResource(resource, httpService);
                 try {

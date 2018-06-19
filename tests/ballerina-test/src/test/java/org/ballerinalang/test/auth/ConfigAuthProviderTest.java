@@ -39,6 +39,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 
+/**
+ * Configuration auth provider testcase.
+ */
 public class ConfigAuthProviderTest {
     private static final Log log = LogFactory.getLog(ConfigAuthProviderTest.class);
     private static final String BALLERINA_CONF = "ballerina.conf";

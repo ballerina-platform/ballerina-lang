@@ -154,7 +154,6 @@ public interface InstructionCodes {
     int ERRSTORE = 124;
     int FPCALL = 125;
     int FPLOAD = 126;
-    int TCALL = 127;
 
     int SEQ_NULL = 128;
     int SNE_NULL = 129;
@@ -261,6 +260,7 @@ public interface InstructionCodes {
     int ITR_NEW = 220;
     int ITR_HAS_NEXT = 221;
     int ITR_NEXT = 222;
+    int INT_RANGE = 223;
 
     int IRET = 229;
     int FRET = 230;

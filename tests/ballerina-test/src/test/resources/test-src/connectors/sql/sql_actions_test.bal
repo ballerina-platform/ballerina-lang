@@ -57,7 +57,6 @@ type ResultBalTypes {
     float NUMERIC_TYPE,
     float DECIMAL_TYPE,
     float REAL_TYPE,
-    blob BLOB_TYPE,
 };
 
 type Employee {
@@ -461,20 +460,13 @@ function testBoolArrayofQueryParameters(string jdbcUrl, string userName, string 
     boolean accepted3 = true;
     boolean[] boolDataArray = [accepted1, accepted2, accepted3];
 
-    table dt1 = check testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
-
-    blob blobData;
-    while (dt1.hasNext()) {
-        ResultBlob rs = check <ResultBlob>dt1.getNext();
-        blobData = rs.BLOB_TYPE;
-    }
-    blob[] blobDataArray = [blobData];
+    string[] stringDataArray = ["Hello", "World", "Test"];
 
     sql:Parameter para1 = { sqlType: sql:TYPE_BOOLEAN, value: boolDataArray };
-    sql:Parameter para2 = { sqlType: sql:TYPE_BLOB, value: blobDataArray };
+    sql:Parameter para2 = { sqlType: sql:TYPE_VARCHAR, value: stringDataArray };
 
-    table dt = check testDB->select("SELECT  int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
-        blob_type in (?)", ResultIntType, 1, para1, para2);
+    table dt = check testDB->select("SELECT int_type from DataTypeTable where row_id = ? and boolean_type in(?) and
+        string_type in (?)", ResultIntType, 1, para1, para2);
 
     int value;
     while (dt.hasNext()) {
@@ -536,7 +528,7 @@ function testArrayInParameters(string jdbcUrl, string userName, string password)
 }
 
 function testOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any, any,
-            any, any, any, any, any, any, any) {
+            any, any, any, any, any, any) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -557,22 +549,56 @@ function testOutParameters(string jdbcUrl, string userName, string password) ret
     sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, direction: sql:DIRECTION_OUT };
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_OUT };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
 
-    _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
+    if (jdbcUrl.contains("postgres")) {
+        // There is no CLOB type in postgres. Therefore have to use TEXT type instead.
+        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_OUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means double precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_OUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
+    }
+
+    _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
 
     testDB.stop();
 
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-    paraBlob.value, paraBinary.value);
+    paraBinary.value);
+}
+
+function testBlobOutInOutParameters(string jdbcUrl, string userName, string password) returns (any, any) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    // OUT param
+    sql:Parameter paraID1 = { sqlType: sql:TYPE_INTEGER, value: "1" };
+    sql:Parameter paraBlobOut = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_OUT };
+
+    // INOUT param
+    sql:Parameter paraID2 = { sqlType: sql:TYPE_INTEGER, value: 5 };
+    sql:Parameter paraBlobInOut = { sqlType: sql:TYPE_BLOB, value: "YmxvYiBkYXRh", direction: sql:DIRECTION_INOUT };
+
+    _ = testDB->call("{call TestOUTINOUTParamsBlob(?,?,?,?)}", (), paraID1, paraID2, paraBlobOut, paraBlobInOut);
+
+    testDB.stop();
+
+    return (paraBlobOut.value, paraBlobInOut.value);
 }
 
 function testNullOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any,
-            any, any, any, any, any, any, any, any) {
+            any, any, any, any, any, any, any) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -593,16 +619,48 @@ function testNullOutParameters(string jdbcUrl, string userName, string password)
     sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, direction: sql:DIRECTION_OUT };
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_OUT };
-    sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_OUT };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_OUT };
 
-    _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
+    if (jdbcUrl.contains("postgres")) {
+        // There is no CLOB type in postgres. Therefore have to use TEXT type instead.
+        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_OUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means testCallProceduredouble precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_OUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_OUT };
+    }
+
+    _ = testDB->call("{call TestOutParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
     testDB.stop();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-    paraBlob.value, paraBinary.value);
+    paraBinary.value);
+}
+
+function testNullOutInOutBlobParameters(string jdbcUrl, string userName, string password) returns (any, any) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    // OUT params
+    sql:Parameter paraID1 = { sqlType: sql:TYPE_INTEGER, value: "2" };
+    sql:Parameter paraBlobOut = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_OUT };
+
+    // INOUT params
+    sql:Parameter paraID2 = { sqlType: sql:TYPE_INTEGER, value: "6" };
+    sql:Parameter paraBlobInOut = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_INOUT };
+
+    _ = testDB->call("{call TestOUTINOUTParamsBlob(?,?,?,?)}", (), paraID1, paraID2, paraBlobOut, paraBlobInOut);
+    testDB.stop();
+    return (paraBlobOut.value, paraBlobInOut.value);
 }
 
 function testINParameters(string jdbcUrl, string userName, string password) returns (int) {
@@ -626,20 +684,23 @@ function testINParameters(string jdbcUrl, string userName, string password) retu
     sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, value: 1 };
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, value: 5555 };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, value: "very long text" };
-    sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: "YmxvYiBkYXRh" };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu" };
+
+    if (jdbcUrl.contains("postgres")) {
+        // In postgres there is no Clob type. TEXT type can be used instead.
+        paraClob = { sqlType: sql:TYPE_VARCHAR, value: "very long text" };
+    }
 
     int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id,int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-            smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            smallint_type, clob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
     testDB.stop();
     return insertCount;
 }
 
-function testINParametersWithDirectValues(string jdbcUrl, string userName, string password) returns (int, int, float,
-        float, boolean, string, float, float, float, blob, blob) {
+function testBlobInParameter(string jdbcUrl, string userName, string password) returns int {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -647,20 +708,29 @@ function testINParametersWithDirectValues(string jdbcUrl, string userName, strin
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt1 = check testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
+    sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 3 };
+    sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: "YmxvYiBkYXRh" };
+    int insertCount = check testDB->update("INSERT INTO BlobTable (row_id,blob_type) VALUES (?,?)",
+        paraID, paraBlob);
 
-    blob blobInsert;
-    while (dt1.hasNext()) {
-        ResultBlob rs = check <ResultBlob>dt1.getNext();
-        blobInsert = rs.BLOB_TYPE;
-    }
+    testDB.stop();
+    return insertCount;
+}
 
-    int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)", 25, 1, 9223372036854774807, 123.34, 2139095039.1, true,
-        "Hello", 1234.567, 1234.567, 1234.567, blobInsert);
+function testINParametersWithDirectValues(string jdbcUrl, string userName, string password) returns (int, int, float,
+        float, boolean, string, float, float, float) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type, float_type,
+        double_type, boolean_type, string_type, numeric_type, decimal_type, real_type) VALUES (?,?,?,?,?,?,?,?,?,?)",
+        25, 1, 9223372036854774807, 123.34, 2139095039.1, true, "Hello", 1234.567, 1234.567, 1234.567);
     table dt = check testDB->select("SELECT int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type from
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type from
             DataTypeTable where row_id = 25", ResultBalTypes);
     int i;
     int l;
@@ -671,7 +741,6 @@ function testINParametersWithDirectValues(string jdbcUrl, string userName, strin
     float n;
     float dec;
     float real;
-    blob blobReturn;
 
     while (dt.hasNext()) {
         ResultBalTypes rs = check <ResultBalTypes>dt.getNext();
@@ -683,14 +752,12 @@ function testINParametersWithDirectValues(string jdbcUrl, string userName, strin
         n = rs.NUMERIC_TYPE;
         dec = rs.DECIMAL_TYPE;
         real = rs.REAL_TYPE;
-        blobReturn = rs.BLOB_TYPE;
     }
     testDB.stop();
-    return (i, l, f, d, b, s, n, dec, real, blobInsert, blobReturn);
+    return (i, l, f, d, b, s, n, dec, real);
 }
 
-function testINParametersWithDirectVariables(string jdbcUrl, string userName, string password) returns (int, int, float,
-        float, boolean, string, float, float, float, blob, blob) {
+function testINParametersWithDirectBlobValues(string jdbcUrl, string userName, string password) returns (blob, blob) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -698,13 +765,36 @@ function testINParametersWithDirectVariables(string jdbcUrl, string userName, st
         poolOptions: { maximumPoolSize: 1 }
     };
 
-    table dt1 = check testDB->select("SELECT blob_type from DataTypeTable where row_id = 1", ResultBlob);
+    table dt1 = check testDB->select("SELECT blob_type from BlobTable where row_id = 1", ResultBlob);
 
     blob blobInsert;
     while (dt1.hasNext()) {
         ResultBlob rs = check <ResultBlob>dt1.getNext();
         blobInsert = rs.BLOB_TYPE;
     }
+
+    int insertCount = check testDB->update("INSERT INTO BlobTable (row_id, blob_type)
+            VALUES (?,?)", 25, blobInsert);
+    table dt = check testDB->select("SELECT blob_type from BlobTable where row_id = 25", ResultBlob);
+
+    blob blobReturn;
+    while (dt.hasNext()) {
+        ResultBlob rs = check <ResultBlob>dt.getNext();
+        blobReturn = rs.BLOB_TYPE;
+    }
+    testDB.stop();
+
+    return (blobInsert, blobReturn);
+}
+
+function testINParametersWithDirectVariables(string jdbcUrl, string userName, string password) returns (int, int, float,
+        float, boolean, string, float, float, float) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
 
     int rowid = 26;
     int intType = 1;
@@ -718,11 +808,11 @@ function testINParametersWithDirectVariables(string jdbcUrl, string userName, st
     float realType = 1234.567;
 
     int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
-        stringType, numericType, decimalType, realType, blobInsert);
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type)
+            VALUES (?,?,?,?,?,?,?,?,?,?)", rowid, intType, longType, floatType, doubleType, boolType,
+            stringType, numericType, decimalType, realType);
     table dt = check testDB->select("SELECT int_type, long_type,
-            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, blob_type from
+            float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type from
             DataTypeTable where row_id = 26", ResultBalTypes);
     int i;
     int l;
@@ -733,7 +823,6 @@ function testINParametersWithDirectVariables(string jdbcUrl, string userName, st
     float n;
     float dec;
     float real;
-    blob blobReturn;
 
     while (dt.hasNext()) {
         var rs = check <ResultBalTypes>dt.getNext();
@@ -745,10 +834,9 @@ function testINParametersWithDirectVariables(string jdbcUrl, string userName, st
         n = rs.NUMERIC_TYPE;
         dec = rs.DECIMAL_TYPE;
         real = rs.REAL_TYPE;
-        blobReturn = rs.BLOB_TYPE;
     }
     testDB.stop();
-    return (i, l, f, d, b, s, n, dec, real, blobInsert, blobReturn);
+    return (i, l, f, d, b, s, n, dec, real);
 }
 
 function testNullINParameterValues(string jdbcUrl, string userName, string password) returns (int) {
@@ -772,20 +860,36 @@ function testNullINParameterValues(string jdbcUrl, string userName, string passw
     sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, value: () };
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, value: () };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, value: () };
-    sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: () };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: () };
 
     int insertCount = check testDB->update("INSERT INTO DataTypeTable (row_id, int_type, long_type,
             float_type, double_type, boolean_type, string_type, numeric_type, decimal_type, real_type, tinyint_type,
-            smallint_type, clob_type, blob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            smallint_type, clob_type, binary_type) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
+    testDB.stop();
+    return insertCount;
+}
+
+function testNullINParameterBlobValue(string jdbcUrl, string userName, string password) returns (int) {
+    endpoint jdbc:Client testDB {
+        url: jdbcUrl,
+        username: userName,
+        password: password,
+        poolOptions: { maximumPoolSize: 1 }
+    };
+
+    sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 4 };
+    sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: () };
+
+    int insertCount = check testDB->update("INSERT INTO BlobTable (row_id, blob_type) VALUES (?,?)",
+        paraID, paraBlob);
     testDB.stop();
     return insertCount;
 }
 
 function testINOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any,
-            any, any, any, any, any, any, any, any) {
+            any, any, any, any, any, any, any) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -796,7 +900,7 @@ function testINOutParameters(string jdbcUrl, string userName, string password) r
     sql:Parameter paraID = { sqlType: sql:TYPE_INTEGER, value: 5 };
     sql:Parameter paraInt = { sqlType: sql:TYPE_INTEGER, value: 10, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraLong = { sqlType: sql:TYPE_BIGINT, value: "9223372036854774807", direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraFloat = { sqlType: sql:TYPE_FLOAT, value: 123.34, direction: sql:DIRECTION_INOUT };
+    sql:Parameter paraFloat = { sqlType: sql:TYPE_REAL, value: 123.34, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraDouble = { sqlType: sql:TYPE_DOUBLE, value: 2139095039, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraBool = { sqlType: sql:TYPE_BOOLEAN, value: true, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraString = { sqlType: sql:TYPE_VARCHAR, value: "Hello", direction: sql:DIRECTION_INOUT };
@@ -806,22 +910,32 @@ function testINOutParameters(string jdbcUrl, string userName, string password) r
     sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, value: 1, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, value: 5555, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, value: "very long text", direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, value: "YmxvYiBkYXRh", direction: sql:DIRECTION_INOUT };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, value: "d3NvMiBiYWxsZXJpbmEgYmluYXJ5IHRlc3Qu", direction: sql
     :
     DIRECTION_INOUT };
 
-    _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
+    if (jdbcUrl.contains("postgres")) {
+        paraClob = { sqlType: sql:TYPE_VARCHAR, value: "very long text", direction: sql:DIRECTION_INOUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means double precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, value: 123.34, direction: sql:DIRECTION_INOUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, value: 1, direction: sql:DIRECTION_INOUT };
+    }
+
+    _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
     testDB.stop();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-    paraBlob.value, paraBinary.value);
+    paraBinary.value);
 }
 
 function testNullINOutParameters(string jdbcUrl, string userName, string password) returns (any, any, any, any, any, any
-            , any, any, any, any, any, any, any, any) {
+            , any, any, any, any, any, any, any) {
     endpoint jdbc:Client testDB {
         url: jdbcUrl,
         username: userName,
@@ -842,16 +956,26 @@ function testNullINOutParameters(string jdbcUrl, string userName, string passwor
     sql:Parameter paraTinyInt = { sqlType: sql:TYPE_TINYINT, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraSmallInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraClob = { sqlType: sql:TYPE_CLOB, direction: sql:DIRECTION_INOUT };
-    sql:Parameter paraBlob = { sqlType: sql:TYPE_BLOB, direction: sql:DIRECTION_INOUT };
     sql:Parameter paraBinary = { sqlType: sql:TYPE_BINARY, direction: sql:DIRECTION_INOUT };
 
-    _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
+    if (jdbcUrl.contains("postgres")) {
+        paraClob = { sqlType: sql:TYPE_VARCHAR, direction: sql:DIRECTION_INOUT };
+        // In postgres FLOAT with no precision represents DOUBLE
+        // float(1) to float(24) means REAL
+        // float(25) to float(53) means double precision
+        // Therefore to get the OUT param right, it is required to use "REAL" type
+        paraFloat = { sqlType: sql:TYPE_REAL, direction: sql:DIRECTION_INOUT };
+        // There is no TINYINT in postgres, hence using SMALLINT instead
+        paraTinyInt = { sqlType: sql:TYPE_SMALLINT, direction: sql:DIRECTION_INOUT };
+    }
+
+    _ = testDB->call("{call TestINOUTParams(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}", (),
         paraID, paraInt, paraLong, paraFloat, paraDouble, paraBool, paraString, paraNumeric,
-        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBlob, paraBinary);
+        paraDecimal, paraReal, paraTinyInt, paraSmallInt, paraClob, paraBinary);
     testDB.stop();
     return (paraInt.value, paraLong.value, paraFloat.value, paraDouble.value, paraBool.value, paraString.value,
     paraNumeric.value, paraDecimal.value, paraReal.value, paraTinyInt.value, paraSmallInt.value, paraClob.value,
-    paraBlob.value, paraBinary.value);
+    paraBinary.value);
 }
 
 function testEmptySQLType(string jdbcUrl, string userName, string password) returns (int) {
@@ -898,17 +1022,24 @@ function testArrayInOutParameters(string jdbcUrl, string userName, string passwo
         poolOptions: { maximumPoolSize: 1 }
     };
 
+    int[] intArray1 = [10,20,30];
+    int[] intArray2 = [10000000, 20000000, 30000000];
+    float[] floatArray1 = [2454.23, 55594.49, 87964.123];
+    float[] floatArray2 = [2454.23, 55594.49, 87964.123];
+    boolean[] booleanArray = [false, false, true];
+    string[] stringArray = ["Hello","Ballerina","Lang"];
+
     sql:Parameter para1 = { sqlType: sql:TYPE_INTEGER, value: 3 };
     sql:Parameter para2 = { sqlType: sql:TYPE_INTEGER, direction: sql:DIRECTION_OUT };
-    sql:Parameter para3 = { sqlType: sql:TYPE_ARRAY, value: "10,20,30", direction: sql:DIRECTION_INOUT };
-    sql:Parameter para4 = { sqlType: sql:TYPE_ARRAY, value: "10000000, 20000000, 30000000", direction: sql:
+    sql:Parameter para3 = { sqlType: sql:TYPE_ARRAY, value: intArray1, direction: sql:DIRECTION_INOUT };
+    sql:Parameter para4 = { sqlType: sql:TYPE_ARRAY, value: intArray2, direction: sql:
     DIRECTION_INOUT };
-    sql:Parameter para5 = { sqlType: sql:TYPE_ARRAY, value: "2454.23, 55594.49, 87964.123", direction: sql:
+    sql:Parameter para5 = { sqlType: sql:TYPE_ARRAY, value: floatArray1, direction: sql:
     DIRECTION_INOUT };
-    sql:Parameter para6 = { sqlType: sql:TYPE_ARRAY, value: "2454.23, 55594.49, 87964.123", direction: sql:
+    sql:Parameter para6 = { sqlType: sql:TYPE_ARRAY, value: floatArray2, direction: sql:
     DIRECTION_INOUT };
-    sql:Parameter para7 = { sqlType: sql:TYPE_ARRAY, value: "FALSE, FALSE, TRUE", direction: sql:DIRECTION_INOUT };
-    sql:Parameter para8 = { sqlType: sql:TYPE_ARRAY, value: "Hello,Ballerina,Lang", direction: sql:DIRECTION_INOUT };
+    sql:Parameter para7 = { sqlType: sql:TYPE_ARRAY, value: booleanArray, direction: sql:DIRECTION_INOUT };
+    sql:Parameter para8 = { sqlType: sql:TYPE_ARRAY, value: stringArray, direction: sql:DIRECTION_INOUT };
 
     _ = testDB->call("{call TestArrayInOutParams(?,?,?,?,?,?,?,?)}", (),
         para1, para2, para3, para4, para5, para6, para7, para8);
@@ -1263,7 +1394,7 @@ function testComplexTypeRetrieval(string jdbcUrl, string userName, string passwo
     string s3;
     string s4;
 
-    table dt = check testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
+    table dt = check testDB->select("SELECT * from BlobTable where row_id = 1", ());
     xml x1 = check <xml>dt;
     s1 = io:sprintf("%l", x1);
 
@@ -1271,7 +1402,7 @@ function testComplexTypeRetrieval(string jdbcUrl, string userName, string passwo
     xml x2 = check <xml>dt;
     s2 = io:sprintf("%l", x2);
 
-    dt = check testDB->select("SELECT * from DataTypeTable where row_id = 1", ());
+    dt = check testDB->select("SELECT * from BlobTable where row_id = 1", ());
     json j = check <json>dt;
     s3 = io:sprintf("%j", j);
 
@@ -1359,8 +1490,8 @@ function testLoadToMemorySelectAfterTableClose(string jdbcUrl, string userName, 
     try {
         while (dt.hasNext()) {
             Employee rs = check <Employee>dt.getNext();
-            Employee e = { id: rs.id, name: rs.name, address: rs.address };
-            employeeArray3[i] = e;
+            Employee emp = { id: rs.id, name: rs.name, address: rs.address };
+            employeeArray3[i] = emp;
             i++;
         }
     } catch (error err) {

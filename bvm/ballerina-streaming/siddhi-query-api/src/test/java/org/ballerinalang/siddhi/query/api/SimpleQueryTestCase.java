@@ -28,6 +28,9 @@ import org.ballerinalang.siddhi.query.api.expression.Expression;
 import org.ballerinalang.siddhi.query.api.expression.condition.Compare;
 import org.testng.annotations.Test;
 
+/**
+ * Testcase for simple streaming queries.
+ */
 public class SimpleQueryTestCase {
 
 //    from StockStream[ 7+9.5>price AND 100>=volume]

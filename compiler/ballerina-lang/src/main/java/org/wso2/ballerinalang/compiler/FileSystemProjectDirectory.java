@@ -106,11 +106,7 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
                                                 ProjectDirConstants.TARGET_DIR_NAME,
                                                 ProjectDirConstants.RESOURCE_DIR_NAME);
         String dirNameStr = dirName.toString();
-        try {
-            return dirNameStr.startsWith(".") || Files.isHidden(dirName) || ignoreDirs.contains(dirNameStr);
-        } catch (IOException e) {
-            throw new BLangCompilerException("error reading directory: " + dirNameStr);
-        }
+        return dirNameStr.startsWith(".") || dirName.toFile().isHidden() || ignoreDirs.contains(dirNameStr);
     }
 
     @Override
@@ -127,7 +123,14 @@ public class FileSystemProjectDirectory extends FileSystemProgramDirectory {
 
     @Override
     public InputStream getLockFileContent() {
-        return null;
+        Path tomlFilePath = projectDirPath.resolve(ProjectDirConstants.TARGET_DIR_NAME).resolve("Ballerina.lock");
+        if (Files.exists(tomlFilePath)) {
+            try {
+                return Files.newInputStream(tomlFilePath);
+            } catch (IOException ignore) {
+            }
+        }
+        return new ByteArrayInputStream(new byte[0]);
     }
 
     @Override

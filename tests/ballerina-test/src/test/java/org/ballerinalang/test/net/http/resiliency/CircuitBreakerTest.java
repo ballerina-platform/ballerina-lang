@@ -20,13 +20,21 @@ package org.ballerinalang.test.net.http.resiliency;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
+import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.http.HttpConstants;
+import org.ballerinalang.test.services.testutils.HTTPTestRequest;
+import org.ballerinalang.test.services.testutils.MessageUtils;
+import org.ballerinalang.test.services.testutils.Services;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
 
 /**
  * Test cases for the Circuit Breaker.
@@ -34,6 +42,7 @@ import org.testng.annotations.Test;
 public class CircuitBreakerTest {
 
     private static final String CB_ERROR_MSG = "Upstream service unavailable.";
+    private static final String MOCK_ENDPOINT_NAME = "mockEP";
 
     // Following constants are defined to filter out Http Client errors from union responses.
     private static final int CB_CLIENT_FIRST_ERROR_INDEX = 3;
@@ -42,11 +51,13 @@ public class CircuitBreakerTest {
     private static final int CB_CLIENT_FAILURE_CASE_ERROR_INDEX = 5;
     private static final int CB_CLIENT_FORCE_OPEN_INDEX = 4;
 
-    private CompileResult compileResult;
+    private CompileResult compileResult, serviceResult;
 
     @BeforeClass
     public void setup() {
-        compileResult = BCompileUtil.compile("test-src/net/http/resiliency/circuit-breaker-test.bal");
+        String sourceFilePath = "test-src/net/http/resiliency/circuit-breaker-test.bal";
+        compileResult = BCompileUtil.compile(sourceFilePath);
+        serviceResult = BServiceUtil.setupProgramFile(this, sourceFilePath);
     }
 
     /**
@@ -181,6 +192,18 @@ public class CircuitBreakerTest {
             long statusCode = res.getIntField(0);
             Assert.assertEquals(statusCode, expectedStatusCodes[i], "Status code does not match.");
         }
+    }
+
+    @Test(description = "Test the getCurrentState function of circuit breaker")
+    public void testCBGetCurrentStatausScenario() {
+        String value = "Circuit Breaker is in CLOSED state";
+        String path = "/cb/getState";
+        HTTPTestRequest inRequestMsg = MessageUtils.generateHTTPMessage(path, HttpConstants.HTTP_METHOD_GET);
+        HTTPCarbonMessage responseMsg = Services.invokeNew(serviceResult, MOCK_ENDPOINT_NAME, inRequestMsg);
+
+        Assert.assertNotNull(responseMsg, "Response message not found");
+        Assert.assertEquals(
+                StringUtils.getStringFromInputStream(new HttpMessageDataStreamer(responseMsg).getInputStream()), value);
     }
 
     private void validateCBResponses(BRefValueArray responses, BRefValueArray errors,

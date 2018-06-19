@@ -21,6 +21,8 @@ import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.completion.BInvokableSymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -29,25 +31,20 @@ import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.ballerinalang.model.symbols.SymbolKind;
-import org.ballerinalang.model.types.TypeConstants;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -84,7 +81,7 @@ public abstract class AbstractItemResolver {
                         && !(bSymbol instanceof BAnnotationSymbol)
                         && !(bSymbol.getName().getValue().equals("runtime"))
                         && !(bSymbol instanceof BServiceSymbol)) {
-                    completionItem = this.populateBTypeCompletionItem(symbolInfo);
+                    completionItem = BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName());
                 }
             }
 
@@ -95,18 +92,29 @@ public abstract class AbstractItemResolver {
     }
 
     /**
+     * Populate the completion item list by either list.
+     * @param listEither            Either List of completion items or symbol info
+     * @param completionItems       Completion Items List
+     */
+    protected void populateCompletionItemList(Either<List<CompletionItem>, List<SymbolInfo>> listEither,
+                                              List<CompletionItem> completionItems) {
+        if (listEither.isLeft()) {
+            completionItems.addAll(listEither.getLeft());
+        } else {
+            this.populateCompletionItemList(listEither.getRight(), completionItems);
+        }
+    }
+
+    /**
      * Populate the Ballerina Function Completion Item.
      * @param symbolInfo - symbol information
      * @return completion item
      */
     private CompletionItem populateBallerinaFunctionCompletionItem(SymbolInfo symbolInfo) {
-        String insertText;
-        String label;
-        CompletionItem completionItem = new CompletionItem();
-        
         if (symbolInfo.isIterableOperation()) {
-            insertText = symbolInfo.getIterableOperationSignature().getInsertText();
-            label = symbolInfo.getIterableOperationSignature().getLabel();
+            return BInvokableSymbolUtil.getFunctionCompletionItem(
+                    symbolInfo.getIterableOperationSignature().getInsertText(),
+                    symbolInfo.getIterableOperationSignature().getLabel());
         } else {
             BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
             if (!(bSymbol instanceof BInvokableSymbol)) {
@@ -118,18 +126,8 @@ public abstract class AbstractItemResolver {
                     bInvokableSymbol.getName().getValue().equals("main")) {
                 return null;
             }
-            FunctionSignature functionSignature = getFunctionSignature(bInvokableSymbol);
-            
-            insertText = functionSignature.getInsertText();
-            label = functionSignature.getLabel();
+            return BInvokableSymbolUtil.getFunctionCompletionItem(bInvokableSymbol);
         }
-        completionItem.setInsertTextFormat(InsertTextFormat.Snippet);
-        completionItem.setLabel(label);
-        completionItem.setInsertText(insertText);
-        completionItem.setDetail(ItemResolverConstants.FUNCTION_TYPE);
-        completionItem.setKind(CompletionItemKind.Function);
-
-        return completionItem;
     }
 
     /**
@@ -150,21 +148,6 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Populate the BType Completion Item.
-     * @param symbolInfo - symbol information
-     * @return completion item
-     */
-    public CompletionItem populateBTypeCompletionItem(SymbolInfo symbolInfo) {
-        CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(symbolInfo.getSymbolName());
-        String[] delimiterSeparatedTokens = (symbolInfo.getSymbolName()).split("\\.");
-        completionItem.setInsertText(delimiterSeparatedTokens[delimiterSeparatedTokens.length - 1]);
-        completionItem.setDetail(ItemResolverConstants.B_TYPE);
-
-        return completionItem;
-    }
-
-    /**
      * Populate the Namespace declaration Completion Item.
      * @param symbolInfo - symbol information
      * @return completion item
@@ -179,115 +162,6 @@ public abstract class AbstractItemResolver {
         return completionItem;
     }
 
-    /**
-     * Get the function signature.
-     * @param bInvokableSymbol - ballerina function instance
-     * @return {@link String}
-     */
-    private FunctionSignature getFunctionSignature(BInvokableSymbol bInvokableSymbol) {
-        String[] funcNameComponents = bInvokableSymbol.getName().getValue().split("\\.");
-        String functionName = funcNameComponents[funcNameComponents.length - 1];
-
-        // If there is a receiver symbol, then the name comes with the package name and struct name appended.
-        // Hence we need to remove it
-        if (bInvokableSymbol.receiverSymbol != null) {
-            String receiverType = bInvokableSymbol.receiverSymbol.getType().toString();
-            functionName = functionName.replace(receiverType + ".", "");
-        }
-        StringBuilder signature = new StringBuilder(functionName + "(");
-        StringBuilder insertText = new StringBuilder(functionName + "(");
-        List<BVarSymbol> parameterDefs = bInvokableSymbol.getParameters();
-        List<BVarSymbol> defaultParameterDefs = bInvokableSymbol.getDefaultableParameters();
-
-        for (int itr = 0; itr < parameterDefs.size(); itr++) {
-            signature.append(this.getParameterSignature(parameterDefs.get(itr), false));
-            insertText.append(this.getParameterInsertText(parameterDefs.get(itr), false, itr + 1));
-            
-            if (!(itr == parameterDefs.size() - 1 && defaultParameterDefs.isEmpty())) {
-                signature.append(", ");
-                insertText.append(", ");
-            }
-        }
-
-        for (int itr = 0; itr < defaultParameterDefs.size(); itr++) {
-            signature.append(this.getParameterSignature(defaultParameterDefs.get(itr), true));
-            insertText.append(this.getParameterInsertText(defaultParameterDefs.get(itr), true,
-                    defaultParameterDefs.size() + itr + 1));
-
-            if (itr < defaultParameterDefs.size() - 1) {
-                signature.append(", ");
-                insertText.append(", ");
-            }
-        }
-        signature.append(")");
-        insertText.append(")");
-        String initString = "(";
-        String endString = ")";
-
-        BType returnType = bInvokableSymbol.type.getReturnType();
-        if (returnType != null && !(returnType instanceof BNilType)) {
-            signature.append(initString).append(returnType.toString());
-            signature.append(endString);
-        }
-        return new FunctionSignature(insertText.toString(), signature.toString());
-    }
-    
-    private String getTypeName(BVarSymbol bVarSymbol) {
-        BType paramType = bVarSymbol.getType();
-        String typeName;
-        if (paramType instanceof BInvokableType) {
-            // Check for the case when we can give a function as a parameter
-            typeName = bVarSymbol.type.toString();
-        } else if (paramType instanceof BUnionType) {
-            typeName = paramType.toString();
-        } else {
-            BTypeSymbol tSymbol;
-            tSymbol = (paramType instanceof BArrayType) ?
-                    ((BArrayType) paramType).eType.tsymbol : paramType.tsymbol;
-            List<Name> nameComps = tSymbol.pkgID.nameComps;
-            if (tSymbol.pkgID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())
-                    || tSymbol.pkgID.getName().getValue().equals(Names.DOT.getValue())) {
-                typeName = tSymbol.getName().getValue();
-            } else {
-                typeName = nameComps.get(nameComps.size() - 1).getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
-                        + tSymbol.getName().getValue();
-            }
-        }
-        
-        return typeName;
-    }
-    
-    private String getParameterSignature(BVarSymbol bVarSymbol, boolean isDefault) {
-        if (!isDefault) {
-            return this.getTypeName(bVarSymbol) + " " + bVarSymbol.getName();
-        } else {
-            String defaultStringVal;
-            if (bVarSymbol.defaultValue == null) {
-                defaultStringVal = "()";
-            } else {
-                defaultStringVal = bVarSymbol.defaultValue.toString();
-            }
-            return this.getTypeName(bVarSymbol) + " " + bVarSymbol.getName() + " = " + defaultStringVal;
-        }
-    }
-    
-    private String getParameterInsertText(BVarSymbol bVarSymbol, boolean isDefault, int iteration) {
-        if (!isDefault) {
-            return "${" + iteration + ":" + bVarSymbol.getName() + "}";
-        } else {
-            String defaultStringVal;
-            if (bVarSymbol.defaultValue == null) {
-                defaultStringVal = "()";
-            } else {
-                defaultStringVal = bVarSymbol.defaultValue.toString();
-                if (bVarSymbol.getType() != null
-                        && bVarSymbol.getType().toString().equals(TypeConstants.STRING_TNAME)) {
-                    defaultStringVal = "\"" + defaultStringVal + "\"";
-                }
-            }
-            return bVarSymbol.getName() + " = " + "${" + iteration + ":" + defaultStringVal + "}";
-        }
-    }
     /**
      * Check whether the token stream corresponds to a action invocation or a function invocation.
      * @param documentServiceContext - Completion operation context
@@ -351,36 +225,6 @@ public abstract class AbstractItemResolver {
     }
 
     /**
-     * Inner static class for the Function Signature. This holds both the insert text and the label for the FUnction.
-     * Signature Completion Item
-     */
-    private static class FunctionSignature {
-        private String insertText;
-        private String label;
-
-        FunctionSignature(String insertText, String label) {
-            this.insertText = insertText;
-            this.label = label;
-        }
-
-        String getInsertText() {
-            return insertText;
-        }
-
-        public void setInsertText(String insertText) {
-            this.insertText = insertText;
-        }
-
-        String getLabel() {
-            return label;
-        }
-
-        public void setLabel(String label) {
-            this.label = label;
-        }
-    }
-
-    /**
      * Populate a completion item with the given data and return it.
      * @param insertText insert text
      * @param type type of the completion item
@@ -404,7 +248,7 @@ public abstract class AbstractItemResolver {
                     && !((bSymbol instanceof BPackageSymbol) && bSymbol.pkgID.getName().getValue().equals("runtime"))
                     && !(bSymbol instanceof BAnnotationSymbol)
                     && !(bSymbol instanceof BServiceSymbol)) {
-                completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
+                completionItems.add(BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()));
             }
         });
     }
@@ -416,7 +260,7 @@ public abstract class AbstractItemResolver {
      */
     protected List<SymbolInfo> removeInvalidStatementScopeSymbols(List<SymbolInfo> symbolInfoList) {
         // We need to remove the functions having a receiver symbol and the bTypes of the following
-        // ballerina.coordinator, ballerina.runtime, and anonStructs
+        // ballerina.coordinator, ballerina/runtime, and anonStructs
         ArrayList<String> invalidPkgs = new ArrayList<>(Arrays.asList("runtime",
                 "transactions"));
         symbolInfoList.removeIf(symbolInfo -> {
@@ -440,40 +284,56 @@ public abstract class AbstractItemResolver {
      */
     protected List<CompletionItem> getVariableDefinitionCompletionItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
+        List<SymbolInfo> filteredList;
+        String tokenString = CommonUtil.getPreviousDefaultToken(
+                completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY),
+                completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY)).getText();
+        if (ItemResolverConstants.NEW.equals(tokenString)) {
+            filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
+                    .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol.kind == SymbolKind.OBJECT)
+                    .collect(Collectors.toList());
+            filteredList.forEach(symbolInfo -> {
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) symbolInfo.getScopeEntry().symbol;
+                BInvokableSymbol initializerFunction = objectTypeSymbol.initializerFunc.symbol;
+                initializerFunction.name = new Name(objectTypeSymbol.getName().getValue());
+                completionItems.add(BInvokableSymbolUtil.getFunctionCompletionItem(initializerFunction));
+            });
+            this.populateCompletionItemList(filteredList, completionItems);
+        } else {
+            // Add the check keyword
+            CompletionItem createKeyword = new CompletionItem();
+            createKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
+            createKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
+            createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
 
-        // Add the check keyword
-        CompletionItem createKeyword = new CompletionItem();
-        createKeyword.setInsertText(Snippet.CHECK_KEYWORD_SNIPPET.toString());
-        createKeyword.setLabel(ItemResolverConstants.CHECK_KEYWORD);
-        createKeyword.setDetail(ItemResolverConstants.KEYWORD_TYPE);
-        
-        // Add But keyword item
-        CompletionItem butKeyword = new CompletionItem();
-        butKeyword.setInsertText(Snippet.BUT.toString());
-        butKeyword.setLabel(ItemResolverConstants.BUT);
-        butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
-        butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
+            // Add But keyword item
+            CompletionItem butKeyword = new CompletionItem();
+            butKeyword.setInsertText(Snippet.BUT.toString());
+            butKeyword.setLabel(ItemResolverConstants.BUT);
+            butKeyword.setInsertTextFormat(InsertTextFormat.Snippet);
+            butKeyword.setDetail(ItemResolverConstants.STATEMENT_TYPE);
 
-        List<SymbolInfo> filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
-                .stream()
-                .filter(symbolInfo -> {
-                    BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                    SymbolKind symbolKind = bSymbol.kind;
+            filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY)
+                    .stream()
+                    .filter(symbolInfo -> {
+                        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                        SymbolKind symbolKind = bSymbol.kind;
 
-                    // Here we return false if the BType is not either a package symbol or ENUM
-                    return !((bSymbol instanceof BTypeSymbol) && !(bSymbol instanceof BPackageSymbol
-                            || SymbolKind.ENUM.equals(symbolKind)));
-                })
-                .collect(Collectors.toList());
+                        // Here we return false if the BType is not either a package symbol or ENUM
+                        return !((bSymbol instanceof BTypeSymbol) && !(bSymbol instanceof BPackageSymbol
+                                || SymbolKind.ENUM.equals(symbolKind)));
+                    })
+                    .collect(Collectors.toList());
 
-        // Remove the functions without a receiver symbol
-        filteredList.removeIf(symbolInfo -> {
-            BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-            return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
-        });
-        populateCompletionItemList(filteredList, completionItems);
-        completionItems.add(createKeyword);
-        completionItems.add(butKeyword);
+            // Remove the functions without a receiver symbol
+            filteredList.removeIf(symbolInfo -> {
+                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                return bSymbol instanceof BInvokableSymbol && ((BInvokableSymbol) bSymbol).receiverSymbol != null;
+            });
+            populateCompletionItemList(filteredList, completionItems);
+            completionItems.add(createKeyword);
+            completionItems.add(butKeyword);
+        }
         
         return completionItems;
     }

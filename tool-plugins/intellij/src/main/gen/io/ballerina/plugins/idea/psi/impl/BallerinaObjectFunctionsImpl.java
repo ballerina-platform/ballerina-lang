@@ -43,26 +43,8 @@ public class BallerinaObjectFunctionsImpl extends BallerinaCompositeElementImpl 
 
   @Override
   @NotNull
-  public List<BallerinaAnnotationAttachment> getAnnotationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaAnnotationAttachment.class);
-  }
-
-  @Override
-  @NotNull
   public List<BallerinaObjectFunctionDefinition> getObjectFunctionDefinitionList() {
     return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaObjectFunctionDefinition.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaDeprecatedAttachment> getDeprecatedAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaDeprecatedAttachment.class);
-  }
-
-  @Override
-  @NotNull
-  public List<BallerinaDocumentationAttachment> getDocumentationAttachmentList() {
-    return PsiTreeUtil.getChildrenOfTypeAsList(this, BallerinaDocumentationAttachment.class);
   }
 
 }

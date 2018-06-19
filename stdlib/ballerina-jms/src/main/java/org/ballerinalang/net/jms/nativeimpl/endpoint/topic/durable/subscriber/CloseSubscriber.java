@@ -37,7 +37,7 @@ import org.ballerinalang.net.jms.nativeimpl.endpoint.common.CloseConsumerHandler
         functionName = "closeSubscriber",
         receiver = @Receiver(type = TypeKind.OBJECT,
                              structType = "DurableTopicSubscriber",
-                             structPackage = "ballerina.jms"),
+                             structPackage = "ballerina/jms"),
         args = {
                 @Argument(name = "consumerActions",
                           type = TypeKind.OBJECT,

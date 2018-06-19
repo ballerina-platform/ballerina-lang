@@ -25,7 +25,7 @@ package org.ballerinalang.util;
 public class BLangConstants {
 
     public static final int MAGIC_NUMBER = 0xBA1DA4CE;
-    public static final short VERSION_NUMBER = 17;
+    public static final short VERSION_NUMBER = 18;
 
     public static final String MAIN_FUNCTION_NAME = "main";
     public static final String INIT_FUNCTION_SUFFIX = ".<init>";
@@ -60,11 +60,13 @@ public class BLangConstants {
 
     public static final String BALLERINA_BUILTIN_PKG_PREFIX = "ballerina";
 
+    public static final String ORG_NAME_SEPARATOR = "/";
     public static final String USER_HOME = "user.home";
     public static final String BALLERINA_HOME = "ballerina.home";
-    public static final String BALLERINA_PACKAGE_PREFIX = "ballerina.";
-    public static final String BALLERINA_BUILTIN_PKG = "ballerina.builtin";
-    
+    public static final String BALLERINA_PACKAGE_PREFIX = "ballerina" + ORG_NAME_SEPARATOR;
+    public static final String BALLERINA_BUILTIN_PKG = BALLERINA_PACKAGE_PREFIX + "builtin";
+    public static final String BALLERINA_RUNTIME_PKG = BALLERINA_PACKAGE_PREFIX + "runtime";
+
     // Zero value for string
     public static final String STRING_NULL_VALUE = null;
     

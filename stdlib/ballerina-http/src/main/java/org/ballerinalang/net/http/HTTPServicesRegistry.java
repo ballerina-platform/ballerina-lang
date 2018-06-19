@@ -34,6 +34,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
+
 /**
  * This services registry holds all the services of HTTP + WebSocket. This is a singleton class where all HTTP +
  * WebSocket Dispatchers can access.
@@ -44,9 +46,9 @@ public class HTTPServicesRegistry {
 
     private static final Logger logger = LoggerFactory.getLogger(HTTPServicesRegistry.class);
 
-    // Outer Map key=basePath
-    protected final Map<String, HttpService> servicesInfoMap = new ConcurrentHashMap<>();
-    protected CopyOnWriteArrayList<String> sortedServiceURIs = new CopyOnWriteArrayList<>();
+    protected Map<String, ServicesMapHolder> servicesMapByHost = new ConcurrentHashMap<>();
+    protected Map<String, HttpService> servicesByBasePath;
+    protected List<String> sortedServiceURIs;
     private final WebSocketServicesRegistry webSocketServicesRegistry;
 
     public HTTPServicesRegistry(WebSocketServicesRegistry webSocketServicesRegistry) {
@@ -60,16 +62,37 @@ public class HTTPServicesRegistry {
      * @return the {@link HttpService} instance if exist else null
      */
     public HttpService getServiceInfo(String basepath) {
-        return servicesInfoMap.get(basepath);
+        return servicesByBasePath.get(basepath);
     }
 
     /**
-     * Get ServiceInfo map for given interfaceId.
+     * Get ServicesMapHolder for given host name.
      *
-     * @return the serviceInfo map if exists else null.
+     * @param hostName of the service
+     * @return the servicesMapHolder if exists else null
      */
-    public Map<String, HttpService> getServicesInfoByInterface() {
-        return servicesInfoMap;
+    public ServicesMapHolder getServicesMapHolder(String hostName) {
+        return servicesMapByHost.get(hostName);
+    }
+
+    /**
+     * Get Services map for given host name.
+     *
+     * @param hostName of the service
+     * @return the serviceHost map if exists else null
+     */
+    public Map<String, HttpService> getServicesByHost(String hostName) {
+        return servicesMapByHost.get(hostName).servicesByBasePath;
+    }
+
+    /**
+     * Get sortedServiceURIs list for given host name.
+     *
+     * @param hostName of the service
+     * @return the sorted basePath list if exists else null
+     */
+    public List<String> getSortedServiceURIsByHost(String hostName) {
+        return servicesMapByHost.get(hostName).sortedServiceURIs;
     }
 
     /**
@@ -81,12 +104,23 @@ public class HTTPServicesRegistry {
         List<HttpService> httpServices = HttpService.buildHttpService(service);
 
         for (HttpService httpService : httpServices) {
-            String basePath = httpService.getBasePath();
-            if (servicesInfoMap.containsKey(basePath)) {
-                throw new BallerinaException("Service registration failed: two services have the same basePath : " +
-                                                     basePath);
+            String hostName = httpService.getHostName();
+            if (servicesMapByHost.get(hostName) == null) {
+                servicesByBasePath = new ConcurrentHashMap<>();
+                sortedServiceURIs = new CopyOnWriteArrayList<>();
+                servicesMapByHost.put(hostName, new ServicesMapHolder(servicesByBasePath, sortedServiceURIs));
+            } else {
+                servicesByBasePath = getServicesByHost(hostName);
+                sortedServiceURIs = getSortedServiceURIsByHost(hostName);
             }
-            servicesInfoMap.put(basePath, httpService);
+
+            String basePath = httpService.getBasePath();
+            if (servicesByBasePath.containsKey(basePath)) {
+                String errorMessage = hostName.equals(DEFAULT_HOST) ? "'" : "' under host name : '" + hostName + "'";
+                throw new BallerinaException("Service registration failed: two services have the same basePath : '" +
+                                                     basePath + errorMessage);
+            }
+            servicesByBasePath.put(basePath, httpService);
             String errLog = String.format("Service deployed : %s with context %s", service.getName(), basePath);
             logger.info(errLog);
 
@@ -99,9 +133,10 @@ public class HTTPServicesRegistry {
 
     private void registerUpgradableWebSocketService(HttpService httpService) {
         httpService.getUpgradeToWebSocketResources().forEach(upgradeToWebSocketResource -> {
-            ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource);
+            ProgramFile programFile = WebSocketUtil.getProgramFile(upgradeToWebSocketResource.getBalResource());
             Annotation resourceConfigAnnotation =
-                    HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource, HttpConstants.HTTP_PACKAGE_PATH);
+                    HttpUtil.getResourceConfigAnnotation(upgradeToWebSocketResource.getBalResource(),
+                                                         HttpConstants.HTTP_PACKAGE_PATH);
             if (resourceConfigAnnotation == null) {
                 throw new BallerinaException("Cannot register WebSocket service without resource config " +
                                                      "annotation in resource " + upgradeToWebSocketResource.getName());
@@ -127,7 +162,8 @@ public class HTTPServicesRegistry {
         return basePath;
     }
 
-    public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services) {
+    public String findTheMostSpecificBasePath(String requestURIPath, Map<String, HttpService> services,
+                                              List<String> sortedServiceURIs) {
         for (Object key : sortedServiceURIs) {
             if (!requestURIPath.toLowerCase().contains(key.toString().toLowerCase())) {
                 continue;
@@ -143,5 +179,18 @@ public class HTTPServicesRegistry {
             return HttpConstants.DEFAULT_BASE_PATH;
         }
         return null;
+    }
+
+    /**
+     * Holds both serviceByBasePath map and sorted Service basePath list.
+     */
+    protected class ServicesMapHolder {
+        private Map<String, HttpService> servicesByBasePath;
+        private List<String> sortedServiceURIs;
+
+        public ServicesMapHolder(Map<String, HttpService> servicesByBasePath, List<String> sortedServiceURIs) {
+            this.servicesByBasePath = servicesByBasePath;
+            this.sortedServiceURIs = sortedServiceURIs;
+        }
     }
 }

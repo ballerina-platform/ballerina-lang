@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.packaging.repo.RemoteRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -88,7 +89,7 @@ public class PushUtils {
 
         String orgName = manifest.getName();
         String version = manifest.getVersion();
-
+        String ballerinaVersion = RepoUtils.getBallerinaVersion();
         PackageID packageID = new PackageID(new Name(orgName), new Name(packageName), new Name(version));
 
         // Get package path from project directory path
@@ -96,7 +97,7 @@ public class PushUtils {
                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName,
                                             packageName, version, packageName + ".zip");
         if (Files.notExists(pkgPathFromPrjtDir)) {
-            throw new BLangCompilerException("package does not exist");
+            throw new BLangCompilerException("Package doesn't exist. Did you run `ballerina build`?");
         }
 
         if (installToRepo == null) {
@@ -121,11 +122,11 @@ public class PushUtils {
             String resourcePath = resolvePkgPathInRemoteRepo(packageID);
             String msg = orgName + "/" + packageName + ":" + version + " [project repo -> central]";
             Proxy proxy = RepoUtils.readSettings().getProxy();
-
+            String baloVersionOfPkg = String.valueOf(ProgramFileConstants.VERSION_NUMBER);
             executor.execute("packaging_push/packaging_push.balx", true, accessToken, mdFileContent,
                              description, homepageURL, repositoryURL, apiDocURL, authors, keywords, license,
-                             resourcePath, pkgPathFromPrjtDir.toString(), msg, proxy.getHost(), proxy.getPort(),
-                             proxy.getUserName(), proxy.getPassword());
+                             resourcePath, pkgPathFromPrjtDir.toString(), msg, ballerinaVersion, proxy.getHost(),
+                             proxy.getPort(), proxy.getUserName(), proxy.getPassword(), baloVersionOfPkg);
 
         } else {
             if (!installToRepo.equals("home")) {
@@ -245,7 +246,7 @@ public class PushUtils {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
         }
         Converter<URI> converter = remoteRepo.getConverterInstance();
-        List<URI> uris = patten.convert(converter).collect(Collectors.toList());
+        List<URI> uris = patten.convert(converter, packageID).collect(Collectors.toList());
         if (uris.isEmpty()) {
             throw new BLangCompilerException("Couldn't find package " + packageID.toString());
         }
@@ -255,8 +256,8 @@ public class PushUtils {
     /**
      * Read the manifest.
      *
+     * @param prjDirPath project directory path
      * @return manifest configuration object
-     * @param prjDirPath
      */
     private static Manifest readManifestConfigurations(Path prjDirPath) {
         String tomlFilePath = prjDirPath.resolve(ProjectDirConstants.MANIFEST_FILE_NAME).toString();

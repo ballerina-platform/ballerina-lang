@@ -152,7 +152,6 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ERRSTORE] = "errstore";
         mnemonics[InstructionCodes.FPCALL] = "fp_call";
         mnemonics[InstructionCodes.FPLOAD] = "fp_load";
-        mnemonics[InstructionCodes.TCALL] = "tcall";
 
         mnemonics[InstructionCodes.I2F] = "i2f";
         mnemonics[InstructionCodes.I2S] = "i2s";
@@ -241,6 +240,7 @@ public class Mnemonics {
         mnemonics[InstructionCodes.ITR_NEW] = "itr_new";
         mnemonics[InstructionCodes.ITR_HAS_NEXT] = "itr_has_next";
         mnemonics[InstructionCodes.ITR_NEXT] = "itr_next";
+        mnemonics[InstructionCodes.INT_RANGE] = "int_range";
 
         mnemonics[InstructionCodes.IRET] = "iret";
         mnemonics[InstructionCodes.FRET] = "fret";

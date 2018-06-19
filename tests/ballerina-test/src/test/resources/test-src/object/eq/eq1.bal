@@ -15,7 +15,7 @@ public type person object {
 
     public function getSSN() returns (string);
 
-    public function setSSN(string ssn);
+    public function setSSN(string s);
 };
 
 
@@ -31,8 +31,8 @@ public function person::getSSN() returns (string) {
     return self.ssn;
 }
 
-public function person::setSSN(string ssn) {
-    self.ssn = ssn;
+public function person::setSSN(string s) {
+    self.ssn = s;
 }
 
 public type employee object {
@@ -54,7 +54,7 @@ public type employee object {
 
     public function getSSN() returns (string);
 
-    public function setSSN(string ssn);
+    public function setSSN(string s);
 
     public function getEmployeeId() returns (int);
 };
@@ -71,8 +71,8 @@ public function employee::getSSN() returns (string) {
     return self.ssn + ":employee";
 }
 
-public function employee::setSSN(string ssn) {
-    self.ssn = ssn;
+public function employee::setSSN(string s) {
+    self.ssn = s;
 }
 
 public function employee::getEmployeeId() returns (int) {

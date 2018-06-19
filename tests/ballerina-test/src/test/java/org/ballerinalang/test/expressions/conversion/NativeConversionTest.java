@@ -398,7 +398,7 @@ public class NativeConversionTest {
 
     @Test(description = "Test converting a JSON integer array to string array",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
     public void testNullJsonToArray() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testNullJsonToArray");
         Assert.assertEquals(returns[0], null);
@@ -423,7 +423,7 @@ public class NativeConversionTest {
     }
 
     @Test(description = "Test converting a null JSON to struct", expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: ballerina.runtime:NullReferenceException.*")
+            expectedExceptionsMessageRegExp = "error: ballerina/runtime:NullReferenceException.*")
     public void testNullJsonToStruct() {
         BRunUtil.invoke(compileResult, "testNullJsonToStruct");
     }
@@ -705,5 +705,18 @@ public class NativeConversionTest {
     public void testJsonToArrayFail() {
         BRunUtil.invoke(compileResult, "testJsonToArrayFail");
     }
-    
+
+    @Test
+    public void anyToFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "anyToFloat");
+        Assert.assertTrue(returns[0] instanceof BFloat);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 5.0);
+    }
+
+    @Test
+    public void testJsonFloatToInt() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonFloatToInt");
+        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertEquals(returns[0].stringValue(), "{f:3.0}");
+    }
 }

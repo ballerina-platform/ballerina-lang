@@ -45,19 +45,21 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+
 /**
- * Native function ballerina.io#loadToTable.
+ * Native function ballerina/io#loadToTable.
  *
  * @since 0.970.0
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io",
         functionName = "getTable",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CSVChannel", structPackage = "ballerina.io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "CSVChannel", structPackage = "ballerina/io"),
         args = {@Argument(name = "structType", type = TypeKind.TYPEDESC)},
         returnType = {
                 @ReturnType(type = TypeKind.TABLE),
-                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = "ballerina.builtin")},
+                @ReturnType(type = TypeKind.RECORD, structType = "error", structPackage = BALLERINA_BUILTIN_PKG)},
         isPublic = true
 )
 public class GetTable implements NativeCallableUnit {

@@ -51,18 +51,27 @@ const config = [{
         tree: './src/plugins/ballerina/model/tree-builder.js',
         bundle: './src/index.js',
         testable: './src/plugins/ballerina/tests/testable.js',
-        "editor.worker": 'monaco-editor/esm/vs/editor/editor.worker.js',
-        "json.worker": 'monaco-editor/esm/vs/language/json/json.worker',
-        "css.worker": 'monaco-editor/esm/vs/language/css/css.worker',
-        "html.worker": 'monaco-editor/esm/vs/language/html/html.worker',
-        "ts.worker": 'monaco-editor/esm/vs/language/typescript/ts.worker',
     },
     output: {
         filename: '[name]-[hash].js',
         path: path.resolve(__dirname, 'dist'),
     },
     module: {
-        rules: [{
+        rules: [
+        {
+            test: require.resolve('monaco-editor/esm/vs/editor/common/services/editorSimpleWorker'),
+            use: [
+                {
+                    loader: 'babel-loader',
+                    options: {
+                        plugins: [
+                            replaceSelfRequireWithGlobalRequire()
+                        ]
+                    }
+                }
+            ],
+        },    
+        {
             test: /\.js$/,
             exclude: /(node_modules|modules\/web\/lib\/scss)/,
             use: [
@@ -137,7 +146,7 @@ const config = [{
     },
     plugins: [
         new ProgressBarPlugin(),
-        new CleanWebpackPlugin(['dist'], {watch: true, exclude:['themes']}),
+        new CleanWebpackPlugin(['dist'], {watch: true, exclude:['themes', 'workers']}),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'tree',
             chunks: ['bundle', 'tree', 'testable'],
@@ -204,7 +213,7 @@ const config = [{
             template: 'src/index.ejs',
             inject: false,
         }),
-        new webpack.ExtendedAPIPlugin()
+        new webpack.ExtendedAPIPlugin(),
         /*
         new CircularDependencyPlugin({
             exclude: /a\.css|node_modules/,
@@ -277,19 +286,84 @@ const config = [{
         extractThemes,
     ],
     devtool: 'source-map',
+}, 
+{
+    name: 'monaco-workers',
+    target: 'webworker',
+    entry: {
+        'editor': 'monaco-editor/esm/vs/editor/editor.worker.js',
+        'json': 'monaco-editor/esm/vs/language/json/json.worker.js',
+        'css': 'monaco-editor/esm/vs/language/css/css.worker.js',
+        'html': 'monaco-editor/esm/vs/language/html/html.worker.js',
+        'ts': 'monaco-editor/esm/vs/language/typescript/ts.worker.js'
+    },
+    output: {
+        filename: '[name].worker.bundle.js',
+        path: path.resolve(__dirname, 'dist/workers/'),
+    },
+    module: {
+		rules: [
+			{
+				test: /\.css$/,
+				use: [ 'style-loader', 'css-loader' ]
+			},
+			{
+				test: require.resolve('monaco-editor/esm/vs/editor/common/services/editorSimpleWorker'),
+				use: [
+					{
+						loader: 'babel-loader',
+						options: {
+							plugins: [
+								replaceSelfRequireWithGlobalRequire()
+							]
+						}
+					}
+				],
+            },
+            {
+                test: /\.js$/,
+                use: [
+                    {
+                        loader: 'babel-loader',
+                        query: {
+                            presets: ['es2015', 'react'],
+                        },
+                    },
+                ],
+            },
+		]
+	},
+	node: {
+		fs: 'empty',
+		module: 'empty',
+		net: 'empty'
+	},
+	plugins: [
+		new webpack.IgnorePlugin(/^((fs)|(path)|(os)|(crypto)|(source-map-support))$/, /vs\/language\/typescript\/lib/),
+		new webpack.ContextReplacementPlugin(
+			new RegExp('^' + path.dirname(require.resolve('monaco-editor/esm/vs/editor/common/services/editorSimpleWorker')) + '$'),
+			'',
+			{
+				'vs/language/css/cssWorker': require.resolve('monaco-editor/esm/vs/language/css/cssWorker'),
+				'vs/language/html/htmlWorker': require.resolve('monaco-editor/esm/vs/language/html/htmlWorker'),
+				'vs/language/json/jsonWorker': require.resolve('monaco-editor/esm/vs/language/json/jsonWorker'),
+				'vs/language/typescript/tsWorker': require.resolve('monaco-editor/esm/vs/language/typescript/tsWorker')
+			}
+		)
+	],
 }];
 exportConfig = config;
 if (target === 'web') {
     config[0].node = { module: 'empty', net: 'empty', fs: 'empty' };
     config[0].plugins.push(new webpack.IgnorePlugin(/electron/));
 }
-if (process.env.NODE_ENV === 'production') {
+if (isProductionBuild) {
     config[0].plugins.push(new webpack.DefinePlugin({
         PRODUCTION: JSON.stringify(true),
 
         // React does some optimizations to it if NODE_ENV is set to 'production'
         'process.env': {
-            NODE_ENV: JSON.stringify('production'),
+            NODE_ENV: JSON.stringify(NODE_ENV),
         },
     }));
 
@@ -328,6 +402,26 @@ if (process.env.NODE_ENV === 'test') {
         }),
     ];
     exportConfig = testConfig;
+}
+
+function replaceSelfRequireWithGlobalRequire() {
+	return (babel) => {
+		const { types: t } = babel;
+		return {
+			visitor: {
+				CallExpression(path) {
+					const { node } = path;
+					const isSelfRequireExpression = (
+						t.isMemberExpression(node.callee)
+						&& t.isIdentifier(node.callee.object, { name: 'self' })
+						&& t.isIdentifier(node.callee.property, { name: 'require' })
+					);
+					if (!isSelfRequireExpression) { return; }
+					path.get('callee').replaceWith(t.identifier('require'));
+				}
+			}
+		};
+	};
 }
 
 /* eslint-enable */

@@ -59,7 +59,7 @@ public class StructMessage extends Message {
     }
 
     /**
-     * MessageDefinition.Builder
+     * MessageDefinition.Builder.
      */
     public static class Builder {
         private String messageName;

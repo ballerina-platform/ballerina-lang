@@ -28,7 +28,6 @@ public enum NodeKind {
     ANNOTATION_ATTRIBUTE,
     CATCH,
     COMPILATION_UNIT,
-    CONNECTOR,
     DEPRECATED,
     DOCUMENTATION,
     ENDPOINT,
@@ -47,7 +46,6 @@ public enum NodeKind {
     VARIABLE,
     WORKER,
     XMLNS,
-    TRANSFORMER,
 
     /* Expressions */
     DOCUMENTATION_ATTRIBUTE,

@@ -17,6 +17,8 @@
 */
 package org.wso2.ballerinalang.compiler;
 
+import org.wso2.ballerinalang.compiler.util.Names;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -61,28 +63,15 @@ public class TypeSignatureReader<T> {
             case 'D':
             case 'G':
             case 'Z':
-                index++;
                 nameIndex = index;
-                int colonIndex = -1;
                 while (chars[nameIndex] != ';') {
-                    if (chars[nameIndex] == ':') {
-                        colonIndex = nameIndex;
-                    }
                     nameIndex++;
                 }
+                String name = new String(Arrays.copyOfRange(chars, index, nameIndex + 1));
+                T type = getBTypeFromDescriptor(typeCreater, name);
+                typeStack.push(type);
 
-                String pkgPath = null;
-                String name;
-                if (colonIndex != -1) {
-                    pkgPath = new String(Arrays.copyOfRange(chars, index, colonIndex));
-                    name = new String(Arrays.copyOfRange(chars, colonIndex + 1, nameIndex));
-                } else {
-                    name = new String(Arrays.copyOfRange(chars, index, nameIndex));
-                }
-
-                T constraintType = typeCreater.getRefType(typeChar, pkgPath, name);
-                typeStack.push(typeCreater.getConstrainedType(typeChar, constraintType));
-
+                index++;
                 return nameIndex + 1;
             case '[':
                 index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
@@ -92,7 +81,7 @@ public class TypeSignatureReader<T> {
             case 'M':
             case 'H':
                 index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
-                constraintType = typeStack.pop();
+                T constraintType = typeStack.pop();
                 typeStack.push(typeCreater.getConstrainedType(typeChar, constraintType));
                 return index;
             case 'U':
@@ -157,8 +146,15 @@ public class TypeSignatureReader<T> {
                     }
                 }
 
-                String pkgPath = parts[0];
-                String name = parts[1];
+                String pkgPath;
+                String name;
+                if (parts.length == 2) {
+                    pkgPath = parts[0];
+                    name = parts[1];
+                } else {
+                    pkgPath = String.join(Names.VERSION_SEPARATOR.value, parts[0], parts[1]);
+                    name = parts[2];
+                }
 
                 constraintType = typeCreater.getRefType(ch, pkgPath, name);
                 return typeCreater.getConstrainedType(ch, constraintType);

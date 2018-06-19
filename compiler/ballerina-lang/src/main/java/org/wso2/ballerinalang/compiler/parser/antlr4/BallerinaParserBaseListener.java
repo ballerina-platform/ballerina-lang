@@ -1864,6 +1864,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterIntegerRangeExpression(BallerinaParser.IntegerRangeExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIntegerRangeExpression(BallerinaParser.IntegerRangeExpressionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterElvisExpression(BallerinaParser.ElvisExpressionContext ctx) { }
 	/**
 	 * {@inheritDoc}

@@ -72,10 +72,10 @@ public class DescriptorsGenerator {
                             + depPath).toURI().getPath();
                 } else {
                     //Get file from resources folder
-                    File dependentDesc = new File(META_LOCATION + depPath);
+                    File dependentDesc = new File(META_LOCATION, depPath);
                     File parentFile = dependentDesc.getParentFile();
                     if (!parentFile.exists() && !parentFile.mkdirs()) {
-                        throw new IllegalStateException("Couldn't create directory '" + META_LOCATION + depPath + "'");
+                        throw new IllegalStateException("Couldn't create directory " + dependentDesc);
                     }
                     try (InputStream initialStream = classLoader.getResourceAsStream(depPath);
                          OutputStream outStream = new FileOutputStream(dependentDesc)) {

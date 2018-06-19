@@ -17,6 +17,9 @@ import java.util.stream.Stream;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
 
+/**
+ * Packaging pattern testcase.
+ */
 public class PattenTest {
     private static <I> Converter<I> mockResolver(I start,
                                                  BiFunction<I, String, I> combine,
@@ -30,7 +33,7 @@ public class PattenTest {
             }
 
             @Override
-            public Stream<I> latest(I i) {
+            public Stream<I> latest(I i, PackageID packageID) {
                 return expand.apply(i);
             }
 
@@ -64,7 +67,7 @@ public class PattenTest {
                                               null, null);
         Patten subject = new Patten(path("hello", "world"));
 
-        List<String> strings = subject.convert(mock).collect(Collectors.toList());
+        List<String> strings = subject.convert(mock, null).collect(Collectors.toList());
 
         Assert.assertEquals(strings, Collections.singletonList("root-dir > hello > world"));
     }
@@ -79,7 +82,7 @@ public class PattenTest {
                                               null, null);
         Patten subject = new Patten(Patten.LATEST_VERSION_DIR);
 
-        List<String> strings = subject.convert(mock).collect(Collectors.toList());
+        List<String> strings = subject.convert(mock, null).collect(Collectors.toList());
 
         Assert.assertEquals(strings, Arrays.asList("root-dir > cache1",
                                                    "root-dir > cache2",
@@ -114,7 +117,7 @@ public class PattenTest {
                                                              s + " > dir2 > dir3 > f.bal"), null);
         Patten subject = new Patten(Patten.WILDCARD_SOURCE);
 
-        List<String> strings = subject.convert(mock).collect(Collectors.toList());
+        List<String> strings = subject.convert(mock, null).collect(Collectors.toList());
 
         Assert.assertEquals(strings, Arrays.asList("project-dir > dir1 > x.bal",
                                                    "project-dir > y.bal",
@@ -122,7 +125,7 @@ public class PattenTest {
     }
 
     /**
-     * Disabled because it fails in JVM 8
+     * Disabled because it fails in JVM 8.
      * See: https://bugs.openjdk.java.net/browse/JDK-8075939
      */
     @Test(enabled = false)
@@ -137,7 +140,7 @@ public class PattenTest {
                                               null, null);
         Patten subject = new Patten(Patten.LATEST_VERSION_DIR);
 
-        List<String> strings = subject.convert(mock).limit(1).collect(Collectors.toList());
+        List<String> strings = subject.convert(mock, null).limit(1).collect(Collectors.toList());
 
         Assert.assertTrue(strings.isEmpty());
     }
@@ -154,7 +157,7 @@ public class PattenTest {
                                                              q + " > dir2 > dir3 > f.bal"), null);
         Patten subject = new Patten(path("hello"), Patten.LATEST_VERSION_DIR, path("world"), Patten.WILDCARD_SOURCE);
 
-        List<String> strings = subject.convert(mock).collect(Collectors.toList());
+        List<String> strings = subject.convert(mock, null).collect(Collectors.toList());
 
         Assert.assertEquals(strings, Arrays.asList("my-dir > hello > cache1 > world > dir1 > x.bal",
                                                    "my-dir > hello > cache1 > world > y.bal",

@@ -19,7 +19,7 @@
 package org.ballerinalang.siddhi.core.util.timestamp;
 
 /**
- * {@link TimestampGenerator} which return value of System.currentTimeMillis()
+ * {@link TimestampGenerator} which return value of System.currentTimeMillis().
  */
 public class SystemCurrentTimeMillisTimestampGenerator implements TimestampGenerator {
 

@@ -369,11 +369,10 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     LSContextManager lsContextManager = LSContextManager.getInstance();
                     String sourceRoot = LSCompiler.getSourceRoot(CommonUtil.getPath(lsDocument));
                     CompilerContext compilerContext = lsContextManager.getCompilerContext(sourceRoot);
-                    LSPackageCache lsPackageCache = LSPackageCache.getInstance(compilerContext);
                     params.getContext().getDiagnostics().forEach(diagnostic -> {
                         if (start.getLine() == diagnostic.getRange().getStart().getLine()) {
                             commands.addAll(CommandUtil
-                                                    .getCommandsByDiagnostic(diagnostic, params, lsPackageCache));
+                                                    .getCommandsByDiagnostic(diagnostic, params, documentManager));
                         }
                     });
                 }

@@ -1,8 +1,6 @@
 package org.wso2.ballerinalang.compiler;
 
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
-import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
-import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
@@ -17,12 +15,10 @@ import java.util.List;
 public class DependencyTree {
     private static final CompilerContext.Key<DependencyTree> DEPENDENCY_TREE_KEY =
             new CompilerContext.Key<>();
-    private SymbolTable symbolTable;
     private PrintStream outStream = System.out;
 
     private DependencyTree(CompilerContext context) {
         context.put(DEPENDENCY_TREE_KEY, this);
-        symbolTable = SymbolTable.getInstance(context);
     }
 
     public static DependencyTree getInstance(CompilerContext context) {
@@ -33,19 +29,15 @@ public class DependencyTree {
         return binaryFileWriter;
     }
 
-    public void listDependencyPackages(BLangPackage packageNode) {
-        outStream.println(packageNode.packageID.toString());
-        outStream.println(DependencyTree.renderDependencyTree(packageNode, symbolTable, 0));
-    }
     /**
      * Render dependency tree of package.
      *
-     * @param packageNode package
-     * @param symbolTable SymbolTable
+     * @param packageSymbol package symbol
+     * @param depth         depth
      * @return dependency tree
      */
-    public static String renderDependencyTree(BLangPackage packageNode, SymbolTable symbolTable, int depth) {
-        List<StringBuilder> lines = renderDependencyTreeLines(packageNode, symbolTable, depth);
+    private static String renderDependencyTree(BPackageSymbol packageSymbol, int depth) {
+        List<StringBuilder> lines = renderDependencyTreeLines(packageSymbol, depth);
         StringBuilder sb = new StringBuilder(lines.size() * 20);
         for (StringBuilder line : lines) {
             sb.append(line);
@@ -58,21 +50,17 @@ public class DependencyTree {
      * Render dependency tree lines.
      *
      * @param packageNode package
-     * @param symbolTable Symbol table
-     * @param depth
+     * @param depth       depth
      * @return list of strings with strings to render the dependency tree
      */
-    public static List<StringBuilder> renderDependencyTreeLines(BLangPackage packageNode, SymbolTable symbolTable,
-                                                                int depth) {
+    private static List<StringBuilder> renderDependencyTreeLines(BPackageSymbol packageNode, int depth) {
         List<StringBuilder> result = new LinkedList<>();
         if (depth > 0) {
-            result.add(new StringBuilder().append(packageNode.packageID.toString()));
+            result.add(new StringBuilder().append(packageNode.pkgID.toString()));
         }
-        Iterator<BLangImportPackage> iterator = packageNode.getImports().iterator();
+        Iterator<BPackageSymbol> iterator = packageNode.imports.iterator();
         while (iterator.hasNext()) {
-            SymbolEnv symbolEnv = symbolTable.pkgEnvMap.get(iterator.next().symbol);
-            BLangPackage enclPkg = symbolEnv.enclPkg;
-            List<StringBuilder> subtree = renderDependencyTreeLines(enclPkg, symbolTable, 1);
+            List<StringBuilder> subtree = renderDependencyTreeLines(iterator.next(), 1);
             if (iterator.hasNext()) {
                 addSubtree(result, subtree);
             } else {
@@ -108,5 +96,19 @@ public class DependencyTree {
         while (iterator.hasNext()) {
             result.add(iterator.next().insert(0, "    "));
         }
+    }
+
+    /**
+     * List dependency packages.
+     *
+     * @param packageNode package node
+     */
+    void listDependencyPackages(BLangPackage packageNode) {
+        String pkgIdAsStr = packageNode.symbol.pkgID.toString();
+        if (packageNode.symbol.pkgID.isUnnamed) {
+            pkgIdAsStr = packageNode.symbol.pkgID.sourceFileName.value;
+        }
+        outStream.println(pkgIdAsStr);
+        outStream.println(DependencyTree.renderDependencyTree(packageNode.symbol, 0));
     }
 }
