@@ -180,7 +180,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                     getInvokableBody()).type;
 
             //Create function call - stream1.subscribe(lambda_function)
-            BLangExpressionStmt foreverReplaceStatement = (BLangExpressionStmt) TreeBuilder.createExpressionStatementNode();
+            BLangExpressionStmt foreverReplaceStatement = (BLangExpressionStmt) TreeBuilder.
+                    createExpressionStatementNode();
             foreverReplaceStatement.pos = streamingQueryStatement.pos;
             BInvokableSymbol subscribeMethodSymbol = (BInvokableSymbol) symTable.rootScope.
                     lookup(names.fromString("stream.subscribe"))
