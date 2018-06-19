@@ -18,7 +18,6 @@
 package org.ballerinalang.packerina;
 
 import org.ballerinalang.compiler.CompilerPhase;
-import org.wso2.ballerinalang.compiler.CompiledPackages;
 import org.wso2.ballerinalang.compiler.Compiler;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
@@ -85,7 +84,6 @@ public class BuilderUtils {
 
         Compiler compiler = Compiler.getInstance(context);
         compiler.write(packagePath);
-        CompiledPackages.getInstance().getPkgList().clear();
     }
 
     public static void write(Path sourceRootPath, boolean offline, boolean lockEnabled) {
