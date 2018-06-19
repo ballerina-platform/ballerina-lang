@@ -21,6 +21,7 @@ import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
@@ -28,6 +29,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.common.LSCustomErrorStrategy;
+import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 import java.util.ArrayList;
@@ -283,5 +285,123 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         }
         
         return false;
+    }
+
+    @Override
+    public void reportMatch(Parser recognizer) {
+        super.reportMatch(recognizer);
+        if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
+            // -2 since Parser.match() consumes one extra + skip current token
+            deleteTokensUpToCursor(recognizer, -2);
+        }
+    }
+
+    @Override
+    public void sync(Parser recognizer) throws RecognitionException {
+        if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInFirstTokenOfCursorLine(recognizer)) {
+            // -1 since skip current token
+            deleteTokensUpToCursor(recognizer, -1);
+        }
+        super.sync(recognizer);
+    }
+
+    private boolean isInFirstTokenOfCursorLine(Parser recognizer) {
+        Token currentToken = recognizer.getCurrentToken();
+        Token firstTokenOfCursorLine = getFirstTokenOfCursorLine(recognizer.getInputStream());
+        return firstTokenOfCursorLine != null && currentToken.getTokenIndex() == firstTokenOfCursorLine.getTokenIndex();
+    }
+
+    private boolean isInLastTermination(Parser recognizer) {
+        Token currentToken = recognizer.getCurrentToken();
+        Token lastTerminationToken = getLastTerminationToken(recognizer.getInputStream());
+        return lastTerminationToken != null && currentToken.getTokenIndex() == lastTerminationToken.getTokenIndex();
+    }
+
+    private void deleteTokensUpToCursor(Parser recognizer, int tokenOffset) {
+        Position cursorPosition = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int cursorLine = cursorPosition.getLine() + 1;
+        int cursorCol = cursorPosition.getCharacter() + 1;
+
+        int index = 1;
+        Token beforeCursorToken = recognizer.getInputStream().LT(index);
+        int type = beforeCursorToken.getType();
+        int tLine = beforeCursorToken.getLine();
+        int tCol = beforeCursorToken.getCharPositionInLine();
+
+        int needToRemoveTokenCount = tokenOffset;
+        while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
+            beforeCursorToken = recognizer.getInputStream().LT(index);
+            type = beforeCursorToken.getType();
+            tLine = beforeCursorToken.getLine();
+            tCol = beforeCursorToken.getCharPositionInLine();
+            index++;
+            needToRemoveTokenCount++;
+        }
+
+        while (needToRemoveTokenCount > 0){
+            recognizer.consume();
+            needToRemoveTokenCount--;
+        }
+
+        Token currentToken = recognizer.getCurrentToken();
+        Token prevToken = recognizer.getInputStream().LT(-1);
+        if (currentToken.getLine() == prevToken.getLine()) {
+            //To avoid catching incorrect contexts
+            ParserRuleContext context = recognizer.getContext();
+            this.context.put(DocumentServiceKeys.TOKEN_INDEX_KEY, currentToken.getTokenIndex());
+            this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, context);
+            this.context.put(DocumentServiceKeys.TOKEN_STREAM_KEY, recognizer.getTokenStream());
+        }
+    }
+
+    private Token getFirstTokenOfCursorLine(TokenStream tokenStream){
+        Token firstCursorLineToken = null;
+        int cursorLine = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine() + 1;
+
+        int index = 1;
+        Token beforeCursorToken = tokenStream.LT(index);
+        int type = beforeCursorToken.getType();
+        int tLine = beforeCursorToken.getLine();
+
+        firstCursorLineToken = (tLine == cursorLine) ? beforeCursorToken : null;
+
+        while (type != BallerinaParser.EOF && (tLine <= cursorLine)) {
+            if (tLine == cursorLine) {
+                firstCursorLineToken = beforeCursorToken;
+            }
+            index++;
+            beforeCursorToken = tokenStream.LT(index);
+            type = beforeCursorToken.getType();
+            tLine = beforeCursorToken.getLine();
+        }
+        return firstCursorLineToken;
+    }
+
+    private Token getLastTerminationToken(TokenStream tokenStream) {
+        Token lastTerminationToken = null;
+        Position cursorPosition = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        int cursorLine = cursorPosition.getLine() + 1;
+        int cursorCol = cursorPosition.getCharacter() + 1;
+
+        int index = 1;
+        Token beforeCursorToken = tokenStream.LT(index);
+        int type = beforeCursorToken.getType();
+        int tLine = beforeCursorToken.getLine();
+        int tCol = beforeCursorToken.getCharPositionInLine();
+
+        while (type != BallerinaParser.EOF
+                && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
+            beforeCursorToken = tokenStream.LT(index);
+            type = beforeCursorToken.getType();
+            tLine = beforeCursorToken.getLine();
+            tCol = beforeCursorToken.getCharPositionInLine();
+            if (beforeCursorToken.getTokenIndex() == 1 || type == BallerinaParser.SEMICOLON ||
+                    type == BallerinaParser.LEFT_BRACE || type == BallerinaParser.RIGHT_BRACE ||
+                    type == BallerinaParser.COMMA) {
+                lastTerminationToken = beforeCursorToken;
+            }
+            index++;
+        }
+        return lastTerminationToken;
     }
 }
