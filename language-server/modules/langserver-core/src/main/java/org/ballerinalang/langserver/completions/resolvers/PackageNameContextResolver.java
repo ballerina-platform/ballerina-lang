@@ -49,9 +49,11 @@ public class PackageNameContextResolver extends AbstractItemResolver {
                 .forEach(packagesList::addAll);
         TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         int currentIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
-        if (tokenStream.get(currentIndex).getText().equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
+        Token currentToken = tokenStream.get(currentIndex);
+        if (currentToken.getText().equals(UtilSymbolKeys.IMPORT_KEYWORD_KEY)) {
             completionItems.addAll(this.getOrgNameCompletionItems(packagesList));
         } else {
+            boolean currentTokenIsASlash = currentToken.getText().equals(UtilSymbolKeys.SLASH_KEYWORD_KEY);
             StringBuilder orgNameComponentReversed = new StringBuilder();
             while (true) {
                 if (currentIndex < 0) {
@@ -67,7 +69,7 @@ public class PackageNameContextResolver extends AbstractItemResolver {
             
             List<String> pkgNameComps = Arrays.asList(orgNameComponentReversed.toString().split("/"));
             Collections.reverse(pkgNameComps);
-            if (orgNameComponentReversed.toString().contains("/")) {
+            if (currentTokenIsASlash || orgNameComponentReversed.toString().contains("/")) {
                 String orgName = pkgNameComps.get(0);
                 completionItems.addAll(this.getPackageNameCompletions(orgName, packagesList));
             } else {
