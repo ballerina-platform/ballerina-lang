@@ -35,6 +35,7 @@ import org.ballerinalang.langserver.compiler.format.TextDocumentFormatUtil;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.definition.util.DefinitionUtil;
 import org.ballerinalang.langserver.hover.util.HoverUtil;
@@ -130,17 +131,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
             LSServiceOperationContext completionContext = new LSServiceOperationContext();
             Path completionPath = CommonUtil.getPath(new LSDocument(fileUri));
             Optional<Lock> lock = documentManager.lockFile(completionPath);
+            completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
+            completionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
+            completionContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
             try {
-                completionContext.put(DocumentServiceKeys.POSITION_KEY, position);
-                completionContext.put(DocumentServiceKeys.FILE_URI_KEY, fileUri);
-                completionContext.put(CompletionKeys.DOC_MANAGER_KEY, documentManager);
-                // TODO: Remove passing completion context after introducing a proper fix for _=.... issue
-
                 BLangPackage bLangPackage = LSCompiler.getBLangPackage(completionContext, documentManager, false,
                                                                        CompletionCustomErrorStrategy.class,
                                                                        false).get(0);
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       bLangPackage.symbol.getName().getValue());
+                CompletionSubRuleParser.parseWithinFunctionDefinition(completionContext);
                 CompletionUtil.resolveSymbols(completionContext, bLangPackage);
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
