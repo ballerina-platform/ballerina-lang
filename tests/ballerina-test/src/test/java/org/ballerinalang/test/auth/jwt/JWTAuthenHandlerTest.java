@@ -95,7 +95,8 @@ public class JWTAuthenHandlerTest {
     public void setup() throws Exception {
         trustStorePath = getClass().getClassLoader().getResource(
                 "datafiles/security/keyStore/ballerinaTruststore.p12").getPath();
-        resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
                 .get(resourceRoot, "datafiles", "config", "auth", "jwt", BALLERINA_CONF);
