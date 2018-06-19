@@ -27,6 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,7 +42,8 @@ public class ComplexConfigKeyTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "config");
         Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", COMPLEX_BALLERINA_CONF);
 
