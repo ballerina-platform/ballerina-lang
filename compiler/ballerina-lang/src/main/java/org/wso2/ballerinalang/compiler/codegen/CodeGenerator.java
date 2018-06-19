@@ -1358,6 +1358,11 @@ public class CodeGenerator extends BLangNodeVisitor {
         return opcode;
     }
 
+    /**
+     * This is a separate method that calculates opcode values for array related operations such as INEWARRAY, IALOAD,
+     * IALOAD. A separate methods is added to adhere to the same pattern of using INT as a base opcode and to support
+     * byte array related operations.
+     */
     private int getOpcodeForArrayOperations(int typeTag, int baseOpcode) {
         int opcode;
         switch (typeTag) {
