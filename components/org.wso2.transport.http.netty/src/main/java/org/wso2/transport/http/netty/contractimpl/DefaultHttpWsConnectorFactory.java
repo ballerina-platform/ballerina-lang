@@ -72,7 +72,7 @@ public class DefaultHttpWsConnectorFactory implements HttpWsConnectorFactory {
         serverConnectorBootstrap.addCacheDelay(listenerConfig.getCacheValidityPeriod());
         serverConnectorBootstrap.addCacheSize(listenerConfig.getCacheSize());
         serverConnectorBootstrap.addOcspStapling(listenerConfig.isOcspStaplingEnabled());
-        serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout(120000));
+        serverConnectorBootstrap.addIdleTimeout(listenerConfig.getSocketIdleTimeout());
         if (Constants.HTTP_2_0 == Float.valueOf(listenerConfig.getVersion())) {
             serverConnectorBootstrap.setHttp2Enabled(true);
         }
