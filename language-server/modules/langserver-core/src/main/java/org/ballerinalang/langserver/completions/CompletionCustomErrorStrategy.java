@@ -131,7 +131,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             tCol = beforeCursorToken.getCharPositionInLine();
         }
 
-        if (isInLastTermination && needToRemoveTokenCount > 0) {
+        if (isInLastTermination) {
             removeTokenCount = needToRemoveTokenCount;
         }
     }
