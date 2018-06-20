@@ -4,7 +4,7 @@ import ballerina/io;
 // This is the mock function which will replace the real function.
 @test:Mock {
     // Since we don't have a package declaration, `.` is the current package
-    // We can include any package here e.g : `ballerina.io`
+    // We can include any package here e.g : `ballerina/io`
     packageName: ".",
     functionName: "intAdd"
 }
