@@ -20,7 +20,6 @@ package org.ballerinalang.langserver.completions;
 import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
-import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.RecognitionException;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
@@ -43,25 +42,9 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     private LSContext context;
 
-    private boolean overriddenTokenIndex = false;
-    private boolean overriddenContext = false;
-
 	private int removeTokenCount = 0;
 
-	Stack<Token> forceConsumedTokens = new Stack<>();
-
-	private enum TokenRemovalStrategy {
-		SYNC(1), MATCH(1);
-		private final int tokenOffset;
-
-		TokenRemovalStrategy(int tokenOffset) {
-			this.tokenOffset = tokenOffset;
-		}
-
-		public int getTokenOffset() {
-			return this.tokenOffset;
-		}
-	}
+	private Stack<Token> forceConsumedTokens = new Stack<>();
 
     public CompletionCustomErrorStrategy(LSContext context) {
         super(context);
@@ -94,7 +77,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         super.reportMatch(recognizer);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
             // -2 since Parser.match() consumes one extra + skip current token
-            deleteTokensUpToCursor(recognizer, TokenRemovalStrategy.MATCH, true, false);
+            deleteTokensUpToCursor(recognizer, true);
         }
     }
 
@@ -103,10 +86,10 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 		removePendingTokens(recognizer);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInFirstTokenOfCursorLine(recognizer)) {
             // -1 since skip current token
-            deleteTokensUpToCursor(recognizer, TokenRemovalStrategy.SYNC, false, true);
+            deleteTokensUpToCursor(recognizer, false);
         } else if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
             // -1 since skip current token
-            deleteTokensUpToCursor(recognizer, TokenRemovalStrategy.SYNC, true, false);
+            deleteTokensUpToCursor(recognizer, true);
         }
         super.sync(recognizer);
     }
@@ -131,8 +114,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         return lastTerminationToken != null && currentToken.getTokenIndex() == lastTerminationToken.getTokenIndex();
     }
 
-    private void deleteTokensUpToCursor(Parser recognizer, TokenRemovalStrategy tokenRemovalStrategy,
-                                        boolean isInLastTermination, boolean firstTokenOfCursorLine) {
+    private void deleteTokensUpToCursor(Parser recognizer, boolean isInLastTermination) {
 	    Position cursorPosition = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int cursorLine = cursorPosition.getLine() + 1;
         int cursorCol = cursorPosition.getCharacter() + 1;
@@ -143,7 +125,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         int tLine = beforeCursorToken.getLine();
         int tCol = beforeCursorToken.getCharPositionInLine();
 
-        int needToRemoveTokenCount = -1 * tokenRemovalStrategy.getTokenOffset();
+        int needToRemoveTokenCount = -1;
         while (type != BallerinaParser.EOF && ((tLine < cursorLine) || (tLine == cursorLine && tCol < cursorCol))) {
             index++;
             needToRemoveTokenCount++;
@@ -152,8 +134,6 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             tLine = beforeCursorToken.getLine();
             tCol = beforeCursorToken.getCharPositionInLine();
         }
-
-        Stack<Token> tokenStack = new Stack<>();
 
         if (isInLastTermination && needToRemoveTokenCount > 0) {
             removeTokenCount = needToRemoveTokenCount;
