@@ -19,11 +19,7 @@ package org.ballerinalang.persistence;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
-import org.ballerinalang.bre.bvm.persistency.SerializableState;
-import org.ballerinalang.connector.api.Executor;
-import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.util.codegen.CallableUnitInfo;
+import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.ResourceInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;

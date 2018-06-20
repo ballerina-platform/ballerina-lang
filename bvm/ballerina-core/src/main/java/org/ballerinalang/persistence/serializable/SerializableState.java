@@ -15,18 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency;
+package org.ballerinalang.persistence.serializable;
 
 import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableBStruct;
-import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableRefType;
-import org.ballerinalang.bre.bvm.persistency.reftypes.SerializedKey;
+import org.ballerinalang.persistence.PersistenceUtils;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.persistence.StateStore;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 
@@ -34,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public class SerializableState {
 

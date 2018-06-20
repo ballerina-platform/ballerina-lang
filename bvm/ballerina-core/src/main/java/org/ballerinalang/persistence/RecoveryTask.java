@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency;
+package org.ballerinalang.persistence;
 
 import org.ballerinalang.BLangProgramRunner;
 import org.ballerinalang.bre.bvm.BLangScheduler;

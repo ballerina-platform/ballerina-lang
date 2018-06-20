@@ -15,19 +15,14 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency.reftypes;
+package org.ballerinalang.persistence;
 
-import org.ballerinalang.model.values.BString;
-
-public class SerializableBString {
-
-    private String value;
-
-    public SerializableBString(BString bString) {
-        this.value = bString.value();
+public class ConnectionException extends RuntimeException {
+    public ConnectionException(String message) {
+        super(message);
     }
 
-    public BString getBString() {
-        return new BString(value);
+    public ConnectionException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

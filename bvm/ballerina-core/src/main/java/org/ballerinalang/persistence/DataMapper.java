@@ -15,10 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency.reftypes;
+package org.ballerinalang.persistence;
 
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.persistence.serializable.LocalPropKey;
+import org.ballerinalang.persistence.serializable.NativeDataKey;
 
 import java.util.ArrayList;
 import java.util.HashMap;

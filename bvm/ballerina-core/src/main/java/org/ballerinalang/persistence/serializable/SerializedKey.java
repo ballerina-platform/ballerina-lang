@@ -15,15 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency.reftypes;
+package org.ballerinalang.persistence.serializable;
 
-import org.ballerinalang.bre.bvm.persistency.SerializableState;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.util.codegen.ProgramFile;
+public class SerializedKey {
+    public String key;
 
-public interface RefTypeHandler<V extends SerializableRefType, U extends BRefType> {
-
-    V serialize(U refType, SerializableState state);
-
-    U deserialize(V serializableRefType, SerializableState state, ProgramFile programFile);
+    public SerializedKey(String key) {
+        this.key = key;
+    }
 }
