@@ -133,4 +133,9 @@ public interface WebSocketConnection {
      * @return Future to represent the completion of closure asynchronously.
      */
     ChannelFuture terminateConnection();
+
+    /**
+     * Send a close frame and close the connection without waiting for a response.
+     */
+    ChannelFuture terminateConnection(int statusCode, String reason);
 }
