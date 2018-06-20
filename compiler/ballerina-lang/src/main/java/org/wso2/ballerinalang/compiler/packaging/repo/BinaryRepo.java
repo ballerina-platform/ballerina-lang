@@ -8,6 +8,7 @@ import org.wso2.ballerinalang.compiler.packaging.converters.ZipConverter;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import static org.wso2.ballerinalang.compiler.packaging.Patten.LATEST_VERSION_DIR;
 import static org.wso2.ballerinalang.compiler.packaging.Patten.path;
@@ -21,11 +22,11 @@ public class BinaryRepo implements Repo<Path> {
     private final ZipConverter converter;
 
     public BinaryRepo(Path pathToHiddenDir) {
-        this.converter = new ZipConverter(pathToHiddenDir.resolve(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME));
+        this(pathToHiddenDir, Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME));
     }
 
-    public BinaryRepo(Path path, String cacheName) {
-        this.converter = new ZipConverter(path.resolve(cacheName));
+    public BinaryRepo(Path pathToHiddenDir, Path subDir) {
+        this.converter = new ZipConverter(pathToHiddenDir.resolve(subDir));
     }
 
     @Override
