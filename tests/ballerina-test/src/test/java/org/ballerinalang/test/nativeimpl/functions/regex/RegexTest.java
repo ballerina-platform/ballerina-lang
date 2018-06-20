@@ -35,6 +35,8 @@ public class RegexTest {
 
     private static final String s1 = "WSO2 Inc.";
     private CompileResult result;
+    private static final String CR = "\r";
+    private static final String EMPTY_STRING = "";
 
     @BeforeClass
     public void setup() {
@@ -91,8 +93,8 @@ public class RegexTest {
         BValue[] returns = BRunUtil.invoke(result, "invalidPattern", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Unclosed character class near index 0\n" +
-                "[\n^");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0).replaceAll(CR, EMPTY_STRING),
+                "Unclosed character class near index 0\n[\n^");
     }
 
     @Test(description = "Test for executing regex functions on non-initialized pattern")
@@ -101,8 +103,8 @@ public class RegexTest {
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Unclosed character class near index 0\n" +
-                "[\n^");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0).replaceAll(CR, EMPTY_STRING),
+                "Unclosed character class near index 0\n[\n^");
     }
 
     @Test(description = "Test for executing multiple regex functions on same pattern")

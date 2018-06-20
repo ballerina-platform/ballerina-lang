@@ -35,6 +35,9 @@ import java.util.List;
  */
 public class ObjectDocumentationTest {
 
+    private static final String CR = "\r";
+    private static final String EMPTY_STRING = "";
+
     @BeforeClass
     public void setup() {
     }
@@ -48,16 +51,17 @@ public class ObjectDocumentationTest {
                 .getTypeDefinitions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
+        Assert.assertEquals(dNode.documentationText.replaceAll(CR, EMPTY_STRING),
+                " Documentation for Test annotation\n");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.replaceAll(CR, EMPTY_STRING),
                 " annotation `field a` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.replaceAll(CR, EMPTY_STRING),
                 " annotation `field b` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.replaceAll(CR, EMPTY_STRING),
                 " annotation `field c` documentation");
         docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
         dNode = docNodes.get(0);
@@ -73,16 +77,16 @@ public class ObjectDocumentationTest {
                 .getTypeDefinitions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, " Documentation for Test struct\n");
+        Assert.assertEquals(dNode.documentationText.replaceAll(CR, EMPTY_STRING), " Documentation for Test struct\n");
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText,
+        Assert.assertEquals(dNode.getAttributes().get(0).documentationText.replaceAll(CR, EMPTY_STRING),
                 " struct `field a` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText,
+        Assert.assertEquals(dNode.getAttributes().get(1).documentationText.replaceAll(CR, EMPTY_STRING),
                 " struct `field b` documentation\n");
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText,
+        Assert.assertEquals(dNode.getAttributes().get(2).documentationText.replaceAll(CR, EMPTY_STRING),
                 " struct `field c` documentation");
     }
 

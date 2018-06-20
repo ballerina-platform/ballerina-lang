@@ -20,10 +20,7 @@ package org.ballerinalang.launcher.util;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.IOException;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.SimpleFileVisitor;
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
@@ -37,7 +34,7 @@ public class BFileUtil {
 
     /**
      * Copy a file or directory to a target location.
-     * 
+     *
      * @param sourcePath File or directory to be copied
      * @param targetPath Target location
      */
@@ -73,42 +70,25 @@ public class BFileUtil {
 
     /**
      * Delete a file or directory.
-     * 
+     *
      * @param path Path to the file or directory
      */
     public static void delete(Path path) {
         try {
-            Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
-
-                @Override
-                public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    if (Files.exists(dir)) {
-                        Files.list(dir).forEach(file -> delete(file));
+            if (!path.toFile().exists()) {
+                return;
+            } else if (path.toFile().isFile()) {
+                Files.delete(path);
+            } else if (path.toFile().isDirectory()) {
+                try (DirectoryStream<Path> ds = Files.newDirectoryStream(path)) {
+                    for (Path subPath : ds) {
+                        delete(subPath);
                     }
-                    return FileVisitResult.CONTINUE;
+                } catch (IOException e) {
+                    throw new BLangRuntimeException("error occured while deleting '" + path + "'", e);
                 }
+            }
 
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    if (Files.exists(file)) {
-                        Files.delete(file);
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-
-                @Override
-                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
-                    if (Files.exists(dir)) {
-                        Files.delete(dir);
-                    }
-                    return FileVisitResult.CONTINUE;
-                }
-            });
         } catch (IOException e) {
             throw new BLangRuntimeException("error occured while deleting '" + path + "'", e);
         }
