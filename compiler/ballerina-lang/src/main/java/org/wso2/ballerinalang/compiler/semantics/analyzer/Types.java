@@ -143,13 +143,6 @@ public class Types {
                            BType expType,
                            DiagnosticCode diagCode) {
 
-        // Check if sealed array is assignable
-        if (actualType.tag == TypeTags.ARRAY && expType.tag == TypeTags.ARRAY) {
-            if (!isSealedArrayAssignable((BArrayType) actualType, (BArrayType) expType)) {
-                dlog.error(expr.pos, DiagnosticCode.INVALID_ASSIGNMENT_FOR_SEALED_TYPE, expType, actualType);
-            }
-        }
-
         expr.type = checkType(expr.pos, actualType, expType, diagCode);
         if (expr.type.tag == TypeTags.ERROR) {
             return expr.type;
@@ -277,22 +270,19 @@ public class Types {
                 isArrayTypesAssignable(source, target);
     }
 
-    public boolean isSealedArrayAssignable(BArrayType rhsArrayType, BArrayType lhsArrayType) {
-        if (lhsArrayType.size == -1) {  // Not a sealed array
-            return true;
-        } else if (lhsArrayType.size == -2 && rhsArrayType.size >= -1) { // Array is sealed using keyword hence size -2
-            return true;
-        } else {
-            return lhsArrayType.size == rhsArrayType.size;
-        }
-    }
-
     public boolean isArrayTypesAssignable(BType source, BType target) {
         if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
             // Both types are array types
             BArrayType lhsArrayType = (BArrayType) target;
             BArrayType rhsArrayType = (BArrayType) source;
-            return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
+            if (lhsArrayType.size == -1) {
+                return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
+            }
+            if (checkSealedArrayEquality(rhsArrayType, lhsArrayType)) {
+                return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
+            } else {
+                return false;
+            }
 
         } else if (source.tag == TypeTags.ARRAY) {
             // Only the right-hand side is an array type
@@ -352,12 +342,27 @@ public class Types {
             // Both types are array types
             BArrayType lhrArrayType = (BArrayType) target;
             BArrayType rhsArrayType = (BArrayType) source;
-            return checkArrayEquality(lhrArrayType.eType, rhsArrayType.eType);
+            if (lhrArrayType.size == -1) {
+                return checkArrayEquality(lhrArrayType.eType, rhsArrayType.eType);
+            }
+            if (checkSealedArrayEquality(rhsArrayType, lhrArrayType)) {
+                return checkArrayEquality(lhrArrayType.eType, rhsArrayType.eType);
+            } else {
+                return false;
+            }
 
         }
 
         // Now one or both types are not array types and they have to be equal
         return isSameType(source, target);
+    }
+
+    public boolean checkSealedArrayEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
+        if (lhsArrayType.size == -2 && rhsArrayType.size >= -1) { // Array is sealed using keyword hence size -2
+            return true;
+        } else {
+            return lhsArrayType.size == rhsArrayType.size;
+        }
     }
 
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {

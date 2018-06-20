@@ -131,11 +131,9 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, 12, "size mismatch in sealed array. expected '3', but found '4'", 42, 25);
         BAssertUtil.validateError(
-                resultNegative, 13,
-                "invalid assignment of value to sealed type. expected 'int[3]', but found 'int[]'", 47, 21);
+                resultNegative, 13, "incompatible types: expected 'int[3]', found 'int[]'", 47, 21);
         BAssertUtil.validateError(
-                resultNegative, 14,
-                "invalid assignment of value to sealed type. expected 'int[3]', but found 'int[]'", 47, 25);
+                resultNegative, 14, "incompatible types: expected 'int[3]', found 'int[]'", 47, 25);
         BAssertUtil.validateError(
                 resultNegative, 15, "array index is out of bounds", 52, 11);
     }

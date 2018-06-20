@@ -195,14 +195,11 @@ public class SealedArrayTest {
         BAssertUtil.validateError(
                 resultNegative, 6, "invalid declaration of sealed type", 39, 5);
         BAssertUtil.validateError(
-                resultNegative, 7,
-                "invalid assignment of value to sealed type. expected 'int[3]', but found 'int[]'", 46, 17);
+                resultNegative, 7, "incompatible types: expected 'int[3]', found 'int[]'", 46, 17);
         BAssertUtil.validateError(
-                resultNegative, 8,
-                "invalid assignment of value to sealed type. expected 'boolean[4]', but found 'boolean[3]'", 52, 47);
+                resultNegative, 8, "incompatible types: expected 'boolean[4]', found 'boolean[3]'", 52, 47);
         BAssertUtil.validateError(
-                resultNegative, 9,
-                "invalid assignment of value to sealed type. expected 'string[2]', but found 'string[]'", 52, 34);
+                resultNegative, 9, "incompatible types: expected 'string[2]', found 'string[]'", 52, 34);
     }
 
 }
