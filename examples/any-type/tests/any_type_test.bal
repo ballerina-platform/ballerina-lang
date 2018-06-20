@@ -5,7 +5,7 @@ any[] outputs = [];
 int count = 0;
 // This is the mock function which will replace the real function
 @test:Mock {
-    packageName: "ballerina.io",
+    packageName: "ballerina/io",
     functionName: "println"
 }
 public function mockPrint(any... s) {
