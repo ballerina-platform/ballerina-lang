@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.compiler;
 
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.eclipse.lsp4j.SymbolInformation;
 import org.eclipse.lsp4j.TextDocumentPositionParams;
@@ -26,6 +27,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Text Document Service context keys for the completion operation context.
@@ -41,6 +43,8 @@ public class DocumentServiceKeys {
     public static final LSContext.Key<CompilerContext> COMPILER_CONTEXT_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<ParserRuleContext> PARSER_RULE_CONTEXT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Stack<Token>> PARSER_DROPPED_TOKENS_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<TokenStream> TOKEN_STREAM_KEY
             = new LSContext.Key<>();
