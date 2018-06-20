@@ -17,6 +17,8 @@
 package org.ballerinalang.net.grpc;
 
 import com.google.common.base.Preconditions;
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.HttpContent;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -57,7 +59,7 @@ public class MessageDeframer implements Closeable {
         void deframerClosed(boolean hasPartialMessage);
 
         /**
-         * Called when a {@link #deframe(ReadableBuffer)} operation failed.
+         * Called when a {@link #deframe(HttpContent)} operation failed.
          *
          * @param cause the actual failure
          */
@@ -110,7 +112,7 @@ public class MessageDeframer implements Closeable {
         this.decompressor = decompressor;
     }
 
-    public void deframe(ReadableBuffer data) {
+    public void deframe(HttpContent data) {
 
         if (data == null) {
             throw new RuntimeException("Data buffer is null");
@@ -120,23 +122,21 @@ public class MessageDeframer implements Closeable {
         try {
             if (!isClosedOrScheduledToClose()) {
 
-                unprocessed.addBuffer(data);
+                unprocessed.addBuffer(data.content());
                 needToCloseData = false;
                 deliver();
             }
         } finally {
-            if (needToCloseData) {
-                data.close();
+            if (needToCloseData && data.refCnt() != 0) {
+                data.release();
             }
         }
     }
 
     public void closeWhenComplete() {
-        if (isClosed()) {
-            return;
-        } else if (isStalled()) {
+        if (isStalled()) {
             close();
-        } else {
+        } else if (!isClosed()) {
             closeWhenComplete = true;
         }
     }
@@ -259,7 +259,11 @@ public class MessageDeframer implements Closeable {
                 return false;
             }
             int toRead = Math.min(missingBytes, unprocessed.readableBytes());
-            nextFrame.addBuffer(unprocessed.readBytes(toRead));
+            while (toRead > 0) {
+                ByteBuf buffer = unprocessed.readBuffer(toRead);
+                nextFrame.addBuffer(buffer);
+                toRead -= buffer.readableBytes();
+            }
 
         }
         return true;
@@ -325,9 +329,9 @@ public class MessageDeframer implements Closeable {
      * An {@link InputStream} that is backed by a {@link ReadableBuffer}.
      */
     private static final class BufferInputStream extends InputStream implements KnownLength {
-        final ReadableBuffer buffer;
+        final CompositeReadableBuffer buffer;
 
-        public BufferInputStream(ReadableBuffer buffer) {
+        public BufferInputStream(CompositeReadableBuffer buffer) {
             this.buffer = Preconditions.checkNotNull(buffer, "buffer");
         }
 

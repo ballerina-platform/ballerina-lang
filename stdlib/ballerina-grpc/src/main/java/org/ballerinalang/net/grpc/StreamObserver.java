@@ -38,7 +38,7 @@ public interface StreamObserver<V>  {
   /**
    * Receives a value from the stream.
    *
-   * <p>Can be called many times but is never called after {@link #onError(Throwable)} or {@link
+   * <p>Can be called many times but is never called after {@link #onError(V)} or {@link
    * #onCompleted()} are called.
    *
    * <p>Unary calls must invoke onNext at most once.  Clients may invoke onNext at most once for
@@ -46,7 +46,7 @@ public interface StreamObserver<V>  {
    * most once for client streaming calls, but may receive many onNext callbacks.
    *
    * <p>If an exception is thrown by an implementation the caller is expected to terminate the
-   * stream by calling {@link #onError(Throwable)} with the caught exception prior to
+   * stream by calling {@link #onError(V)} with the caught exception prior to
    * propagating it.
    *
    * @param value the value passed to the stream

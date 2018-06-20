@@ -1,20 +1,19 @@
 /*
- *  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- *  WSO2 Inc. licenses this file to you under the Apache License,
- *  Version 2.0 (the "License"); you may not use this file except
- *  in compliance with the License.
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
  *  You may obtain a copy of the License at
  *
  *  http://www.apache.org/licenses/LICENSE-2.0
  *
- *  Unless required by applicable law or agreed to in writing,
- *  software distributed under the License is distributed on an
- *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- *  KIND, either express or implied.  See the License for the
- *  specific language governing permissions and limitations
- *  under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
+
 package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.HttpContent;
@@ -97,7 +96,8 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
             try {
                 listener = startCall(inboundMessage, outboundMessage, method);
-                InboundStateListener stateListener = new InboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, listener);
+                InboundStateListener stateListener = new InboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, listener,
+                        inboundMessage);
                 stateListener.setDecompressor(inboundMessage.getMessageDecompressor());
 
                 HttpContent httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
@@ -107,19 +107,16 @@ public class ServerConnectorListener implements HttpConnectorListener {
                     }
                     // Exit the loop at the end of the content
                     if (httpContent instanceof LastHttpContent) {
-                        stateListener.inboundDataReceived(new NettyReadableBuffer(httpContent.content()),
-                                true);
+                        stateListener.inboundDataReceived(httpContent, true);
                         break;
                     } else {
-                        stateListener.inboundDataReceived(new NettyReadableBuffer(httpContent.content()),
-                                false);
+                        stateListener.inboundDataReceived(httpContent, false);
                     }
                     httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
                 }
             } catch (RuntimeException | Error e) {
                 HttpUtil.handleFailure(inboundMessage.getHttpCarbonMessage(), new BallerinaConnectorException(e
                         .getMessage(), e.getCause()));
-                throw e;
             }
         });
     }
@@ -187,7 +184,8 @@ public class ServerConnectorListener implements HttpConnectorListener {
         return true;
     }
 
-    private void handleFailure(HTTPCarbonMessage requestMessage, int status, Status.Code statusCode, String msg) {
+    private static void handleFailure(HTTPCarbonMessage requestMessage, int status,
+                                      Status.Code statusCode, String msg) {
 
         HTTPCarbonMessage responseMessage = HttpUtil.createErrorMessage(msg, status);
         responseMessage.setHeader("grpc-status", statusCode.toString());
@@ -199,11 +197,14 @@ public class ServerConnectorListener implements HttpConnectorListener {
     private static class InboundStateListener extends InboundMessage.InboundStateListener {
 
         final ServerStreamListener listener;
+        final InboundMessage inboundMessage;
 
-        protected InboundStateListener(int maxMessageSize, ServerStreamListener listener) {
+        protected InboundStateListener(int maxMessageSize, ServerStreamListener listener, InboundMessage
+                inboundMessage) {
 
             super(maxMessageSize);
             this.listener = listener;
+            this.inboundMessage = inboundMessage;
         }
 
         @Override
@@ -225,18 +226,23 @@ public class ServerConnectorListener implements HttpConnectorListener {
             listener.halfClosed();
         }
 
+        @Override
+        public void deframeFailed(Throwable cause) {
+            handleFailure(inboundMessage.getHttpCarbonMessage(), 500, Status.Code.INTERNAL, cause.getMessage());
+        }
+
         /**
          * Called in the transport thread to process the content of an inbound DATA frame from the
          * client.
          *
-         * @param frame       the inbound HTTP/2 DATA frame. If this buffer is not used immediately, it must
+         * @param httpContent       the inbound HTTP/2 DATA frame. If this buffer is not used immediately, it must
          *                    be retained.
          * @param endOfStream {@code true} if no more data will be received on the stream.
          */
-        public void inboundDataReceived(ReadableBuffer frame, boolean endOfStream) {
+        public void inboundDataReceived(HttpContent httpContent, boolean endOfStream) {
 
             // Deframe the message. If a failure occurs, deframeFailed will be called.
-            deframe(frame);
+            deframe(httpContent);
             if (endOfStream) {
                 closeDeframer(false);
             }

@@ -58,6 +58,8 @@ public class GrpcConstants {
     public static final String CALLER_ACTIONS = "CallerActions";
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
     public static final String MESSAGE_HEADERS = "MessageHeaders";
+    public static final int SERVICE_ENDPOINT_INDEX = 0;
+    public static final String CLIENT_END_POINT = "clientEndpoint";
 
 
     public static final String ENUM_KEY = "enum";

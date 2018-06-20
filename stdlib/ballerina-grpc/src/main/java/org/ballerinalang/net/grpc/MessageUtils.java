@@ -20,6 +20,7 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpRequest;
 import io.netty.handler.codec.http.DefaultHttpResponse;
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
@@ -698,20 +699,23 @@ public class MessageUtils {
      * Reads an entire {@link ReadableBuffer} to a new array. After calling this method, the buffer
      * will contain no readable bytes.
      */
-    public static byte[] readArray(ReadableBuffer buffer) {
-        Preconditions.checkNotNull(buffer, "buffer");
-        int length = buffer.readableBytes();
+    public static byte[] readArray(HttpContent httpContent) {
+
+        if (httpContent == null || httpContent.content() == null) {
+            throw new RuntimeException("Http content is null");
+        }
+        int length = httpContent.content().readableBytes();
         byte[] bytes = new byte[length];
-        buffer.readBytes(bytes, 0, length);
+        httpContent.content().readBytes(bytes, 0, length);
         return bytes;
     }
 
     /**
      * Reads the entire {@link ReadableBuffer} to a new {@link String} with the given charset.
      */
-    public static String readAsString(ReadableBuffer buffer, Charset charset) {
+    public static String readAsString(HttpContent httpContent, Charset charset) {
         Preconditions.checkNotNull(charset, "charset");
-        byte[] bytes = readArray(buffer);
+        byte[] bytes = readArray(httpContent);
         return new String(bytes, charset);
     }
 }

@@ -286,8 +286,9 @@ public class Message {
         StringBuilder payload = new StringBuilder("Message { fields: ");
         if (fields != null) {
             for (Map.Entry<String, Object> entry : fields.entrySet()) {
-                payload.append(entry.getKey()).append(":").append(entry.getValue()).append(",\n");
+                payload.append(entry.getKey()).append(":").append(entry.getValue()).append(",");
             }
+            payload.append("}");
         } else {
             payload.append("null");
         }

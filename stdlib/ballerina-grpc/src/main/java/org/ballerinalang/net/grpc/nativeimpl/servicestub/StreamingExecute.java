@@ -44,8 +44,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 
 import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
-import static org.ballerinalang.net.grpc.EndpointConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT;
+import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_END_POINT;
 import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_CLIENT;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.METHOD_DESCRIPTORS;

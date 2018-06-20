@@ -1,11 +1,25 @@
+/*
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
-import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +31,6 @@ import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_MAX_MESSAGE_SIZE;
 import static org.ballerinalang.net.grpc.MessageUtils.readAsString;
 
@@ -52,7 +65,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         if (isValid(inboundMessage)) {
             stateListener.inboundHeadersReceived(inboundMessage.getHeaders());
         }
-        //stateListener.setDecompressor(inboundMessage.getMessageDecompressor());
 
         final Executor wrappedExecutor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         wrappedExecutor.execute(() -> {
@@ -63,30 +75,33 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                     if (httpContent == null) {
                         break;
                     }
-                    ReadableBuffer buffer = new NettyReadableBuffer(httpContent.content());
                     if (transportError != null) {
-                        // We've already detected a transport error and now we're just accumulating more detail
-                        // for it.
-                        transportError = transportError.augmentDescription("DATA-----------------------------\n"
-                                + readAsString(buffer, Charset.forName("UTF-8")));
-                        buffer.close();
-                        if (transportError.getDescription().length() > 1000 ||
-                                (httpContent instanceof LastHttpContent)) {
+                        // Referenced from grpc-java, when transport error exists. we collect more details about the
+                        // error by augmenting the description.
+                        transportError = transportError.augmentDescription(
+                                "MESSAGE DATA: " + readAsString(httpContent, Charset.forName("UTF-8")));
+                        // Release content as we are not going to process it.
+                        httpContent.release();
+                        // Report transport error.
+                        if ((transportError.getDescription() != null && transportError.getDescription().length() >
+                                1000) || (httpContent instanceof LastHttpContent)) {
                             stateListener.transportReportStatus(transportError, false, transportErrorMetadata);
                             break;
                         }
                     } else {
-                        stateListener.inboundDataReceived(buffer);
+                        stateListener.inboundDataReceived(httpContent);
                         // Exit the loop at the end of the content
                         if (httpContent instanceof LastHttpContent) {
-                            // This is a protocol violation as we expect to receive trailers.
                             LastHttpContent lastHttpContent = (LastHttpContent) httpContent;
                             if (lastHttpContent.trailingHeaders().isEmpty()) {
+                                // This is a protocol violation as we expect to receive trailer headers with Last Http
+                                // content.
                                 transportError = Status.Code.INTERNAL.toStatus().withDescription("Received unexpected" +
                                         " EOS on DATA frame from server.");
                                 transportErrorMetadata = new DefaultHttpHeaders();
                                 stateListener.transportReportStatus(transportError, false, transportErrorMetadata);
                             } else {
+                                // Read Trailer header to get gRPC response status.
                                 transportTrailersReceived(lastHttpContent.trailingHeaders());
                             }
                             break;
@@ -95,16 +110,27 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                     httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
                 }
             } catch (RuntimeException | Error e) {
-                HttpUtil.handleFailure(inboundMessage.getHttpCarbonMessage(), new BallerinaConnectorException(e
-                        .getMessage(), e.getCause()));
-                throw e;
+
+                if (transportError != null) {
+                    // Already received a transport error so just augment it.
+                    transportError = transportError.augmentDescription(e.getMessage());
+                } else {
+                    transportError = Status.fromThrowable(e);
+                }
+                stateListener.transportReportStatus(transportError, false, transportErrorMetadata);
             }
         });
     }
 
     @Override
     public void onError(Throwable throwable) {
-
+        if (transportError != null) {
+            // Already received a transport error so just augment it.
+            transportError = transportError.augmentDescription(throwable.getMessage());
+        } else {
+            transportError = Status.fromThrowable(throwable);
+        }
+        stateListener.transportReportStatus(transportError, false, transportErrorMetadata);
     }
 
     /**
@@ -274,23 +300,22 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         /**
          * Processes the contents of a received data frame from the server.
          *
-         * @param frame the received data frame. Its ownership is transferred to this method.
+         * @param httpContent the received data frame. Its ownership is transferred to this method.
          */
-        public void inboundDataReceived(ReadableBuffer frame) {
+        public void inboundDataReceived(HttpContent httpContent) {
 
             try {
-                deframe(frame);
+                deframe(httpContent);
             } finally {
-                frame.close();
+                if (httpContent.refCnt() != 0) {
+                    httpContent.release();
+                }
             }
         }
 
         public final void transportReportStatus(final Status status, boolean stopDelivery,
                                                 final HttpHeaders trailers) {
 
-            checkNotNull(status, "status");
-            checkNotNull(trailers, "trailers");
-            // If stopDelivery, we continue in case previous invocation is waiting for stall
             if (statusReported && !stopDelivery) {
                 return;
             }

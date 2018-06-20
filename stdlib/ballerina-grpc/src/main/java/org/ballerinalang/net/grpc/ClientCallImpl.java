@@ -110,7 +110,6 @@ public final class ClientCallImpl<ReqT, RespT> extends ClientCall<ReqT, RespT> {
             compressor = Codec.Identity.NONE;
         }
         prepareHeaders(compressor);
-
         ClientStreamListener clientStreamListener = new ClientStreamListenerImpl(observer);
         connectorListener = new ClientConnectorListener(this, clientStreamListener);
 

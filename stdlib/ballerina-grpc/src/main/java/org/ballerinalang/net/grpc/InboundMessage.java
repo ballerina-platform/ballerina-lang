@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package org.ballerinalang.net.grpc;
 
+import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
@@ -200,10 +201,10 @@ public class InboundMessage {
          * Called to parse a received frame and attempt delivery of any completed messages. Must be
          * called from the transport thread.
          */
-        protected final void deframe(final ReadableBuffer frame) {
+        protected final void deframe(final HttpContent httpContent) {
 
             try {
-                deframer.deframe(frame);
+                deframer.deframe(httpContent);
             } catch (Throwable t) {
                 deframeFailed(t);
             }
@@ -212,11 +213,6 @@ public class InboundMessage {
         protected final void setDecompressor(Decompressor decompressor) {
 
             deframer.setDecompressor(decompressor);
-        }
-
-        public void deframeFailed(Throwable cause) {
-
-            throw new UnsupportedOperationException("Currently not supported.");
         }
 
     }
