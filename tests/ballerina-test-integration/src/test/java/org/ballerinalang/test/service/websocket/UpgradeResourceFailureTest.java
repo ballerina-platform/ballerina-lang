@@ -20,7 +20,6 @@ package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -32,35 +31,30 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test whether the errors are received correctly to the onError resource in WebSocket server.
+ * Test whether upgrade resource failure after handshake causes a close frame to be sent.
  */
-public class OnErrorWebSocketTest extends WebSocketIntegrationTest {
+public class UpgradeResourceFailureTest extends WebSocketIntegrationTest {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/error/ws";
-    private LogLeecher logLeecher;
+    private static final String URL = "ws://localhost:9090/simple";
 
-    @BeforeClass(description = "Initializes the Ballerina server with the error_log_service.bal file")
-    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
-        String expectingErrorLog = "error occurred: received continuation data frame outside fragmented message";
-        logLeecher = new LogLeecher(expectingErrorLog);
-        initBallerinaServer("error_log_service.bal", logLeecher);
-
+    @BeforeClass(description = "Initializes the Ballerina server with the resource_failure.bal file")
+    public void setup() throws BallerinaTestException, URISyntaxException {
+        initBallerinaServer("resource_failure.bal");
         client = new WebSocketTestClient(URL);
-        client.handshake();
     }
 
-    @Test
-    public void testOnError() throws InterruptedException, BallerinaTestException {
+    @Test(description = "Tests failure of upgrade resource")
+    public void testUpgradeResourceFailure() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
-        client.sendCorruptedFrame();
+        client.handshake();
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
         CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
 
         Assert.assertNotNull(closeWebSocketFrame);
-        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1002);
+        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
+        Assert.assertEquals(closeWebSocketFrame.reasonText(), "Unexpected condition");
 
         closeWebSocketFrame.release();
     }
