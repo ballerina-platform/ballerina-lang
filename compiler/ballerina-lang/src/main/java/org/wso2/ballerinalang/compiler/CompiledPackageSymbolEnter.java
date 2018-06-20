@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -370,15 +369,15 @@ public class CompiledPackageSymbolEnter {
             params.remove(0);
             funcType.paramTypes = params;
 
-            if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
+            if (attachedType.tag == TypeTags.OBJECT) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
-                BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
-                structureTypeSymbol.attachedFuncs.add(attachedFunc);
+                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) attachedType.tsymbol;
+                objectTypeSymbol.attachedFuncs.add(attachedFunc);
                 if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
                         || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                    structureTypeSymbol.initializerFunc = attachedFunc;
+                    objectTypeSymbol.initializerFunc = attachedFunc;
                 }
             }
         }
@@ -491,11 +490,18 @@ public class CompiledPackageSymbolEnter {
 
     private BRecordTypeSymbol readRecordTypeSymbol(DataInputStream dataInStream,
                                       String name, int flags) throws IOException {
-        BRecordTypeSymbol symbol = (BRecordTypeSymbol) Symbols.createRecordSymbol(flags, names.fromString(name),
-                    this.env.pkgSymbol.pkgID, null, this.env.pkgSymbol);
+        BRecordTypeSymbol symbol = Symbols.createRecordSymbol(flags, names.fromString(name),
+                                                              this.env.pkgSymbol.pkgID, null,
+                                                              this.env.pkgSymbol);
         symbol.scope = new Scope(symbol);
         BRecordType type = new BRecordType(symbol);
         symbol.type = type;
+
+        type.isSealed = dataInStream.readBoolean();
+        if (!type.isSealed) {
+            String restFieldTypeDesc = getUTF8CPEntryValue(dataInStream);
+            type.restFieldType = getBTypeFromDescriptor(restFieldTypeDesc);
+        }
 
         // Define Object Fields
         defineSymbols(dataInStream, rethrow(dataInputStream ->

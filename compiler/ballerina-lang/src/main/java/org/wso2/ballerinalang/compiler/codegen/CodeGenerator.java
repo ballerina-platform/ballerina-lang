@@ -44,6 +44,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -81,6 +82,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangDocumentationAttrib
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangRecordFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
@@ -98,7 +100,6 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangJSONLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangMapLiteral;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKey;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangRecordKeyValue;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStreamLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral.BLangStructLiteral;
@@ -219,19 +220,21 @@ import org.wso2.ballerinalang.programfile.cpentries.WorkerDataChannelRefCPEntry;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.FIELD;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.LOCAL;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.PACKAGE;
 import static org.wso2.ballerinalang.compiler.codegen.CodeGenerator.VariableIndex.Kind.REG;
+import static org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef.BLangTypeLoad;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BLOB_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.BOOL_OFFSET;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.FLOAT_OFFSET;
@@ -715,51 +718,39 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral structLiteral) {
-        BRecordTypeSymbol structSymbol = (BRecordTypeSymbol) structLiteral.type.tsymbol;
-        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, structSymbol.pkgID);
-        int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, structSymbol.name.value);
-        StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
-        Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
-
-        //Emit an instruction to create a new struct.
+        // Emit an instruction to create a new record.
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
-        emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
+        Operand typeCPIndex = getTypeCPIndex(symTable.mapType);
+        emit(InstructionCodes.NEWMAP, structRegIndex, typeCPIndex);
 
-        // Invoke the struct default values init function here.
-        if (structSymbol.defaultsValuesInitFunc != null) {
-            int funcRefCPIndex = getFuncRefCPIndex(structSymbol.defaultsValuesInitFunc.symbol);
-            // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[5];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = getOperand(false);
-            operands[2] = getOperand(1);
-            operands[3] = structRegIndex;
-            operands[4] = getOperand(0);
-            emit(InstructionCodes.CALL, operands);
-        }
+        BRecordType recordType = (BRecordType) structLiteral.type;
+        List<BField> recordFields = ((BRecordType) structLiteral.type).fields;
+        Set<String> fieldNames = recordFields.stream()
+                                            .map(f -> f.getName().value)
+                                            .collect(Collectors.toCollection(HashSet::new));
 
-        // Invoke the struct initializer here.
-        if (structLiteral.initializer != null) {
-            int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
-            // call funcRefCPIndex 1 structRegIndex 0
-            Operand[] operands = new Operand[5];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = getOperand(false);
-            operands[2] = getOperand(1);
-            operands[3] = structRegIndex;
-            operands[4] = getOperand(0);
-            emit(InstructionCodes.CALL, operands);
-        }
-
-        // Generate code the struct literal.
+        // Generate code for the record literal.
         for (BLangRecordKeyValue keyValue : structLiteral.keyValuePairs) {
-            BLangRecordKey key = keyValue.key;
-            Operand fieldIndex = key.fieldSymbol.varIndex;
+            BLangLiteral keyExpr = (BLangLiteral) keyValue.key.expr;
+            genNode(keyExpr, this.env);
 
-            genNode(keyValue.valueExpr, this.env);
+            BLangExpression valueExpr = keyValue.valueExpr;
+            genNode(valueExpr, this.env);
 
-            int opcode = getOpcode(key.fieldSymbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, structRegIndex, fieldIndex, keyValue.valueExpr.regIndex);
+            int opcode;
+            if (fieldNames.contains(keyExpr.value)) {
+                opcode = getValueToRefTypeCastOpcode(valueExpr.type.tag);
+            } else {
+                opcode = getValueToRefTypeCastOpcode(recordType.restFieldType.tag);
+            }
+
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.MAPSTORE, structRegIndex, keyExpr.regIndex, valueExpr.regIndex);
+            } else {
+                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
+                emit(opcode, valueExpr.regIndex, refRegMapValue);
+                emit(InstructionCodes.MAPSTORE, structRegIndex, keyExpr.regIndex, refRegMapValue);
+            }
         }
     }
 
@@ -839,9 +830,67 @@ public class CodeGenerator extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangSimpleVarRef.BLangTypeLoad typeLoad) {
+    public void visit(BLangTypeLoad typeLoad) {
         Operand typeCPIndex = getTypeCPIndex(typeLoad.symbol.type);
         emit(InstructionCodes.TYPELOAD, typeCPIndex, calcAndGetExprRegIndex(typeLoad));
+    }
+
+    @Override
+    public void visit(BLangRecordFieldAccessExpr fieldAccessExpr) {
+        boolean variableStore = this.varAssignment;
+        this.varAssignment = false;
+
+        genNode(fieldAccessExpr.expr, this.env);
+        Operand varRefRegIndex = fieldAccessExpr.expr.regIndex;
+
+        genNode(fieldAccessExpr.indexExpr, this.env);
+        Operand keyRegIndex = fieldAccessExpr.indexExpr.regIndex;
+
+        BRecordType recordType = (BRecordType) fieldAccessExpr.expr.type;
+        Map<String, BField> fieldsMap = recordType.fields.stream()
+                .collect(Collectors.toMap(fKey -> fKey.name.value, field -> field));
+
+        if (variableStore) {
+            int opcode;
+            BLangLiteral indexExpr = (BLangLiteral) fieldAccessExpr.indexExpr;
+            if (fieldsMap.containsKey(indexExpr.value)) {
+                BField field = fieldsMap.get(indexExpr.value);
+                opcode = getValueToRefTypeCastOpcode(field.type.tag);
+            } else {
+                opcode = getValueToRefTypeCastOpcode(recordType.restFieldType.tag);
+            }
+
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
+            } else {
+                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
+                emit(opcode, fieldAccessExpr.regIndex, refRegMapValue);
+                emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, refRegMapValue);
+            }
+        } else {
+            IntegerCPEntry exceptCPEntry = new IntegerCPEntry(fieldAccessExpr.except ? 1 : 0);
+            Operand except = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
+
+            int opcode;
+            BLangLiteral indexExpr = (BLangLiteral) fieldAccessExpr.indexExpr;
+            if (fieldsMap.containsKey(indexExpr.value)) {
+                BField field = fieldsMap.get(indexExpr.value);
+                opcode = getRefToValueTypeCastOpcode(field.type.tag);
+            } else {
+                opcode = getRefToValueTypeCastOpcode(recordType.restFieldType.tag);
+            }
+
+            if (opcode == InstructionCodes.NOP) {
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr),
+                     except);
+            } else {
+                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
+                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue, except);
+                emit(opcode, refRegMapValue, calcAndGetExprRegIndex(fieldAccessExpr));
+            }
+        }
+
+        this.varAssignment = variableStore;
     }
 
     @Override
@@ -1910,6 +1959,12 @@ public class CodeGenerator extends BLangNodeVisitor {
         // Add Struct name as an UTFCPEntry to the constant pool
         recordInfo.recordType = (BRecordType) recordSymbol.type;
 
+        if (recordInfo.recordType.restFieldType != null) {
+            recordInfo.restSigCPIndex = addUTF8CPEntry(currentPkgInfo, recordInfo.recordType.restFieldType.getDesc());
+        } else {
+            recordInfo.restSigCPIndex = -1; // TODO: Check if this is an appropriate value
+        }
+
         BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDefinition.typeNode;
 
         List<BLangVariable> recordFields = recordTypeNode.fields;
@@ -1942,18 +1997,6 @@ public class CodeGenerator extends BLangNodeVisitor {
                 fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
-
-        // ----- TODO remove below block once record init function removed ------------
-        BAttachedFunction attachedFunc = recordSymbol.initializerFunc;
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
-
-        // Remove the first type. The first type is always the type to which the function is attached to
-        BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
-        int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
-                generateFunctionSig(paramTypes, attachedFunc.type.retType));
-        int flags = attachedFunc.symbol.flags;
-        recordInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
-        // ------------- end of temp block--------------
 
         typeDefInfo.typeInfo = recordInfo;
     }
