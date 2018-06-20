@@ -1451,13 +1451,6 @@ public class PackageInfoReader {
             operands[1] = i;
             operands[2] = j;
             operands[3] = k;
-        } else if (k == 1) { // this is a object attached function invocation as function pointer, so read its index
-            operands = new int[5];
-            operands[0] = h;
-            operands[1] = i;
-            operands[2] = j;
-            operands[3] = k;
-            operands[4] = codeStream.readInt();
         } else { //this is a closure related scenario, so read the closure indexes
             operands = new int[4 + k];
             operands[0] = h;

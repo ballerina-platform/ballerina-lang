@@ -213,6 +213,7 @@ public class WebSocketDispatcher {
             @Override
             public void notifyFailure(BStruct error) {
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
         Executor.submit(onCloseResource, onCloseCallback, null, null, bValues);
@@ -284,6 +285,7 @@ public class WebSocketDispatcher {
             @Override
             public void notifyFailure(BStruct error) {
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
         Executor.submit(onIdleTimeoutResource, onIdleTimeoutCallback, null,

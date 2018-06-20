@@ -128,7 +128,7 @@ public class URITemplateParser<DataType, InboundMgsType> {
     private void createExpressionNode(String expression) throws URITemplateException {
         Node<DataType, InboundMgsType> node;
         node = new SimpleStringExpression<>(createElement(), expression);
-        if (expression.length() <= 1) {
+        if (expression.length() < 1) {
             throw new URITemplateException("Invalid template expression: {" + expression + "}");
         }
         addNode(node);
