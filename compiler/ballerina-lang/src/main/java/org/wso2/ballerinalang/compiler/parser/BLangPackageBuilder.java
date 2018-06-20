@@ -3138,7 +3138,7 @@ public class BLangPackageBuilder {
             }
             Arrays.fill(((BLangArrayType) typeNode).sizes, -2);
         } else {
-            dlog.error(pos, DiagnosticCode.INVALID_DECLARATION_OF_SEALED_TYPE);
+            dlog.error(pos, DiagnosticCode.INVALID_USAGE_OF_KEYWORD, "sealed");
         }
     }
 }

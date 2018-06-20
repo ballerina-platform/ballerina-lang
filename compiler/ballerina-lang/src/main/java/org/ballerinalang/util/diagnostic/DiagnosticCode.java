@@ -171,6 +171,7 @@ public enum DiagnosticCode {
     ARRAY_INDEX_OUT_OF_BOUNDS("array.index.out.of.bounds"),
     INVALID_ASSIGNMENT_FOR_SEALED_TYPE("invalid.assignment.for.sealed.type"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
+    INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
 
     INVALID_NAMESPACE_PREFIX("invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("mismatching.xml.start.end.tags"),
