@@ -4,7 +4,7 @@ import ballerina/log;
 import ballerina/grpc;
 
 // Server endpoint configuration with the SSL configurations.
-endpoint grpc:Listener ep {
+endpoint grpc:Listener listener {
     host: "localhost",
     port: 9090,
     secureSocket: {
@@ -25,7 +25,7 @@ endpoint grpc:Listener ep {
     }
 };
 
-service<grpc:Service> HelloWorld bind ep {
+service<grpc:Service> HelloWorld bind listener {
     hello(endpoint caller, string name) {
         io:println("name: " + name);
         string message = "Hello " + name;

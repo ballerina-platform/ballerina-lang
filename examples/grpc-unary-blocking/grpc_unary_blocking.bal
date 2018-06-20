@@ -3,12 +3,12 @@ import ballerina/io;
 import ballerina/grpc;
 
 // The server endpoint configuration.
-endpoint grpc:Listener ep {
+endpoint grpc:Listener listener {
     host:"localhost",
     port:9090
 };
 
-service HelloWorld bind ep {
+service HelloWorld bind listener {
 
     hello(endpoint caller, string name, grpc:Headers headers) {
         io:println("name: " + name);
