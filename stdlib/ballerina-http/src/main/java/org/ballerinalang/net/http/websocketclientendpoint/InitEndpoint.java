@@ -115,20 +115,26 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
                                                WebSocketClientConnectorConfig clientConnectorConfig) {
         clientConnectorConfig.setAutoRead(false); // Frames are read sequentially in ballerina.
         Value[] subProtocolValues = clientEndpointConfig
-                .getArrayField(WebSocketConstants.CLIENT_SUBPROTOCOLS_CONFIG);
+                .getArrayField(WebSocketConstants.CLIENT_SUB_PROTOCOLS_CONFIG);
         if (subProtocolValues != null) {
             clientConnectorConfig.setSubProtocols(Arrays.stream(subProtocolValues).map(Value::getStringValue)
                                                           .toArray(String[]::new));
         }
         Map<String, Value> headerValues = clientEndpointConfig.getMapField(
-                WebSocketConstants.CLIENT_CUSTOMHEADERS_CONFIG);
+                WebSocketConstants.CLIENT_CUSTOM_HEADERS_CONFIG);
         if (headerValues != null) {
             clientConnectorConfig.addHeaders(getCustomHeaders(headerValues));
         }
 
-        long idleTimeoutInSeconds = clientEndpointConfig.getIntField(WebSocketConstants.CLIENT_IDLETIMOUT_CONFIG);
+        long idleTimeoutInSeconds = clientEndpointConfig.getIntField(WebSocketConstants.CLIENT_IDLE_TIMOUT_CONFIG);
         if (idleTimeoutInSeconds > 0) {
             clientConnectorConfig.setIdleTimeoutInMillis((int) (idleTimeoutInSeconds * 1000));
+        }
+        Struct secureSocket = clientEndpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
+        if (secureSocket != null) {
+            HttpUtil.populateSSLConfiguration(clientConnectorConfig, secureSocket);
+        } else {
+            HttpUtil.setDefaultTrustStore(clientConnectorConfig);
         }
     }
 

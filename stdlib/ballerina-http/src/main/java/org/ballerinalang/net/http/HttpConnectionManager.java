@@ -29,7 +29,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -171,9 +170,7 @@ public class HttpConnectionManager {
 
         SenderConfiguration httpsSender = new SenderConfiguration("https-sender");
         httpsSender.setScheme("https");
-        httpsSender.setTrustStoreFile(String.valueOf(
-                Paths.get(System.getProperty("ballerina.home"), "bre", "security", "ballerinaTruststore.p12")));
-        httpsSender.setTrustStorePass("ballerina");
+        HttpUtil.setDefaultTrustStore(httpsSender);
 
         TransportProperty latencyMetrics = new TransportProperty();
         latencyMetrics.setName("latency.metrics.enabled");
