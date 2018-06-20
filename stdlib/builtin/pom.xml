@@ -46,58 +46,6 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-file</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-io</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-log-api</artifactId>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>com.zaxxer</groupId>
-            <artifactId>HikariCP</artifactId>
-        </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-system</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-time</artifactId>-->
-        <!--</dependency>-->
-        <dependency>
-            <groupId>javax.transaction</groupId>
-            <artifactId>javax.transaction-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.ws.commons.axiom</groupId>
-            <artifactId>axiom-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>jaxen</groupId>
-            <artifactId>jaxen</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.wso2.orbit.net.sf.saxon</groupId>
-            <artifactId>Saxon-HE</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.quartz-scheduler</groupId>
-            <artifactId>quartz-jobs</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-config</artifactId>
-        </dependency>
     </dependencies>
     
     <build>
@@ -108,12 +56,6 @@
                 <excludes>
                     <exclude>ballerina/**</exclude>
                 </excludes>
-            </resource>
-
-            <!-- copy built-in ballerina sources to the jar -->
-            <resource>
-                <directory>${ballerina.source.directory}</directory>
-                <targetPath>META-INF/ballerina</targetPath>
             </resource>
     	</resources>
         <plugins>
@@ -201,7 +143,6 @@
     </build>
 
     <properties>
-        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
     </properties>
