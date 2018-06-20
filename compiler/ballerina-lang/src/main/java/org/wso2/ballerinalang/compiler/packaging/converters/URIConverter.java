@@ -6,6 +6,7 @@ import org.ballerinalang.spi.EmbeddedExecutor;
 import org.ballerinalang.toml.model.Proxy;
 import org.ballerinalang.util.EmbeddedExecutorProvider;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
+import org.wso2.ballerinalang.compiler.packaging.repo.BinaryRepo;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 import org.wso2.ballerinalang.programfile.ProgramFileConstants;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -90,11 +91,13 @@ public class URIConverter implements Converter<URI> {
             executor.execute("packaging_pull/packaging_pull.balx", true, u.toString(), destDirPath.toString(),
                              fullPkgPath, File.separator, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
                              proxy.getPassword(), RepoUtils.getTerminalWidth(), supportedVersionRange);
-            // TODO Simplify using ZipRepo
-            Patten pattern = new Patten(Patten.LATEST_VERSION_DIR,
-                                        Patten.path(pkgName + ".zip"),
-                                        Patten.path("src"), Patten.WILDCARD_SOURCE);
-            return pattern.convertToSources(new ZipConverter(destDirPath), packageID);
+
+            BinaryRepo binaryRepo = new BinaryRepo(RepoUtils.createAndGetHomeReposPath()
+                                                            .resolve(Paths.get(ProjectDirConstants.CACHES_DIR_NAME,
+                                                                               ProjectDirConstants
+                                                                                     .BALLERINA_CENTRAL_DIR_NAME)), "");
+            Patten patten = binaryRepo.calculate(packageID);
+            return patten.convertToSources(binaryRepo.getConverterInstance(), packageID);
         } catch (Exception e) {
             outStream.println("Error occurred when pulling the remote artifact");
         }
