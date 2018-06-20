@@ -35,7 +35,6 @@ import java.util.List;
 public abstract class BLangStructureTypeNode extends BLangType implements StructureTypeNode {
 
     public List<BLangVariable> fields;
-    public BLangFunction initFunction;
     public boolean isAnonymous;
     public boolean isFieldAnalyseRequired;
 

@@ -30,6 +30,9 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  */
 public class BLangRecordTypeNode extends BLangStructureTypeNode implements RecordTypeNode {
 
+    public boolean isSealed;
+    public BLangType restFieldType;
+
     public BLangRecordTypeNode() {
     }
 
