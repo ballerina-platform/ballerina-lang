@@ -15,26 +15,19 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency;
+package org.ballerinalang.persistence.serializable.reftypes.impl;
 
-import org.ballerinalang.bre.bvm.WorkerDataChannel;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.bvm.WorkerResponseContext;
-import org.ballerinalang.bre.bvm.WorkerSignal;
+import org.ballerinalang.model.values.BString;
 
-public class DummyResponseContext implements WorkerResponseContext {
-    @Override
-    public WorkerExecutionContext signal(WorkerSignal signal) {
-        return null;
+public class SerializableBString {
+
+    private String value;
+
+    public SerializableBString(BString bString) {
+        this.value = bString.value();
     }
 
-    @Override
-    public WorkerExecutionContext joinTargetContextInfo(WorkerExecutionContext targetCtx, int[] retRegIndexes) {
-        return null;
-    }
-
-    @Override
-    public WorkerDataChannel getWorkerDataChannel(String name) {
-        return null;
+    public BString getBString() {
+        return new BString(value);
     }
 }

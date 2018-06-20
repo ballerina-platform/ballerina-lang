@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency;
+package org.ballerinalang.persistence.serializable;
 
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.util.codegen.CallableUnitInfo;

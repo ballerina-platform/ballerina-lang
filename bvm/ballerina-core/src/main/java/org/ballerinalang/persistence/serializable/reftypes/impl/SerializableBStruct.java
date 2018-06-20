@@ -15,11 +15,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency.reftypes;
+package org.ballerinalang.persistence.serializable.reftypes.impl;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import org.ballerinalang.bre.bvm.persistency.SerializableState;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.NativeDataKey;
+import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.persistence.StateStore;

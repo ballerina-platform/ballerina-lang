@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.persistence;
 
-import org.ballerinalang.bre.bvm.persistency.reftypes.DataMapper;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.codegen.ProgramFile;
 

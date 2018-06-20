@@ -14,10 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.bre.bvm.persistency;
+package org.ballerinalang.persistence.serializable;
 
 import org.ballerinalang.bre.bvm.WorkerData;
-import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableRefFields;
 import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;

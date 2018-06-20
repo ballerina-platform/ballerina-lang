@@ -18,7 +18,7 @@
 package org.ballerinalang.bre.bvm;
 
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.ballerinalang.bre.bvm.persistency.PendingCheckpoints;
+import org.ballerinalang.persistence.PendingCheckpoints;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BAttachedFunction;
 import org.ballerinalang.model.types.BField;

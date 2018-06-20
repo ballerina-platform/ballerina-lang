@@ -15,8 +15,9 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency.adapters;
+package org.ballerinalang.persistence.adapters;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -27,50 +28,44 @@ import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
 
-public class HashMapAdapter implements JsonSerializer<HashMap<String, Object>>, JsonDeserializer<HashMap<String, Object>> {
+public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, JsonDeserializer<ArrayList<Object>> {
 
-    public JsonElement serialize(HashMap<String, Object> map, Type type, JsonSerializationContext context) {
-        JsonObject result = new JsonObject();
-
-        for (String key : map.keySet()) {
-            Object v = map.get(key);
+    public JsonElement serialize(ArrayList<Object> list, Type type, JsonSerializationContext context) {
+        JsonArray result = new JsonArray();
+        for (Object o : list) {
             JsonObject wrapper = new JsonObject();
-            if (v != null) {
-                wrapper.add("objectClass", new JsonPrimitive(v.getClass().getName()));
-                wrapper.add("data", context.serialize(v, v.getClass()));
+            if (o != null) {
+                wrapper.add("objectClass", new JsonPrimitive(o.getClass().getName()));
+                wrapper.add("data", context.serialize(o, o.getClass()));
             } else {
                 wrapper.add("objectClass", new JsonPrimitive("NULL"));
             }
-            result.add(key, wrapper);
+            result.add(wrapper);
         }
-
         return result;
     }
 
-    public HashMap<String, Object> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        JsonObject jsonObject = json.getAsJsonObject();
-        HashMap<String, Object> map = new HashMap<String, Object>();
-        Set<Map.Entry<String, JsonElement>> entries = jsonObject.entrySet();
+    public ArrayList<Object> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+
+        JsonArray jsonObject = json.getAsJsonArray();
+        ArrayList<Object> list = new ArrayList<Object>();
         try {
-            for (Map.Entry<String, JsonElement> entry : entries) {
-                String key = entry.getKey();
-                JsonObject wrapper = entry.getValue().getAsJsonObject();
+            for (int i = 0; i < jsonObject.size(); i++) {
+                JsonObject wrapper = jsonObject.get(i).getAsJsonObject();
                 String className = wrapper.get("objectClass").getAsString();
                 if ("NULL".equals(className)) {
-                    map.put(key, null);
+                    list.add(i, null);
                 } else {
                     JsonElement data = wrapper.get("data");
                     Object o = context.deserialize(data, Class.forName(className));
-                    map.put(key, o);
+                    list.add(i, o);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return map;
+        return list;
     }
 }

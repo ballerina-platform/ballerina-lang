@@ -17,7 +17,7 @@
 */
 package org.ballerinalang;
 
-import org.ballerinalang.bre.bvm.persistency.RecoveryTask;
+import org.ballerinalang.persistence.RecoveryTask;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;

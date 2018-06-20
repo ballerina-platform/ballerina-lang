@@ -14,25 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.bre.bvm.persistency;
+package org.ballerinalang.persistence;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.ballerinalang.bre.bvm.CallableWorkerResponseContext;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
-import org.ballerinalang.bre.bvm.WorkerResponseContext;
-import org.ballerinalang.bre.bvm.persistency.adapters.ArrayListAdapter;
-import org.ballerinalang.bre.bvm.persistency.adapters.HashMapAdapter;
-import org.ballerinalang.bre.bvm.persistency.adapters.RefTypeAdaptor;
-import org.ballerinalang.bre.bvm.persistency.reftypes.GenericObjectAdaptor;
-import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableBJSON;
-import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableBStruct;
-import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.adapters.ArrayListAdapter;
+import org.ballerinalang.persistence.adapters.HashMapAdapter;
+import org.ballerinalang.persistence.adapters.RefTypeAdaptor;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBJSON;
+import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBStruct;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.persistence.serializable.SerializableState;
 
 import java.io.File;
 import java.io.FileNotFoundException;

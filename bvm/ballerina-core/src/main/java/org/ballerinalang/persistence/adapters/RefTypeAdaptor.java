@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency.adapters;
+package org.ballerinalang.persistence.adapters;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -25,7 +25,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import org.ballerinalang.bre.bvm.persistency.reftypes.SerializableRefType;
+import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
 
 import java.lang.reflect.Type;
 

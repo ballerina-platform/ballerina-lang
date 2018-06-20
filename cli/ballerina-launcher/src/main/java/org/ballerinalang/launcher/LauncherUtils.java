@@ -19,7 +19,7 @@ package org.ballerinalang.launcher;
 
 import org.ballerinalang.BLangProgramLoader;
 import org.ballerinalang.BLangProgramRunner;
-import org.ballerinalang.bre.bvm.persistency.PersistenceUtils;
+import org.ballerinalang.persistence.PersistenceUtils;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.connector.impl.ServerConnectorRegistry;

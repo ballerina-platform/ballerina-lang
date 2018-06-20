@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency.reftypes;
+package org.ballerinalang.persistence.serializable;
 
 public class LocalPropKey {
 

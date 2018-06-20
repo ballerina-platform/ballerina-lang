@@ -15,36 +15,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.bre.bvm.persistency;
+package org.ballerinalang.persistence.serializable.reftypes;
 
+import org.ballerinalang.persistence.serializable.SerializableState;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.util.codegen.ProgramFile;
 
-public class RefTypeCounter {
-
-    private int bStructCount;
-    private int bStringCount;
-
-    public RefTypeCounter(BRefType[] refTypes) {
-        if (refTypes == null) {
-            return;
-        }
-
-        for (BRefType refType : refTypes) {
-            if (refType instanceof BStruct) {
-                bStructCount++;
-            } else if (refType instanceof BString) {
-                bStringCount++;
-            }
-        }
-    }
-
-    public int getbStructCount() {
-        return bStructCount;
-    }
-
-    public int getbStringCount() {
-        return bStringCount;
-    }
+public interface SerializableRefType {
+    BRefType getBRefType(ProgramFile programFile, SerializableState state);
 }
