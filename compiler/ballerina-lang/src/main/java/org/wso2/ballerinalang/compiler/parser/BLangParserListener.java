@@ -39,7 +39,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
@@ -444,12 +443,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        boolean isAnonymous = !(ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
 
         boolean isFieldAnalyseRequired =
-                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
+                (ctx.parent.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                        ctx.parent.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
+                        ctx.parent.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
@@ -729,13 +728,19 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     @Override
+    public void exitSealedTypeName(BallerinaParser.SealedTypeNameContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+        this.pkgBuilder.markSealedNode(getCurrentPos(ctx), ctx);
+    }
+
+    @Override
     public void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx) {
         if (ctx.exception != null) {
             return;
         }
-        if (ctx.getParent().getChild(0) != null && "sealed".equals(ctx.getParent().getChild(0).getText())) {
-            return; // if sealed keyword used exitSealedArrayTypeNameLabel will parse the array
-        }
+
         int index = 1;
         int dimensions = 0;
         List<Integer> sizes = new ArrayList<>();
@@ -757,23 +762,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Collections.reverse(sizes);
         this.pkgBuilder.addArrayType(
                 getCurrentPos(ctx), getWS(ctx), dimensions, sizes.stream().mapToInt(val -> val).toArray());
-    }
-
-    @Override
-    public void exitSealedArrayTypeNameLabel(BallerinaParser.SealedArrayTypeNameLabelContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-        int childDimensions = 0;
-        if (ctx.children.get(1) instanceof BallerinaParser.ArrayTypeNameLabelContext) {
-            BallerinaParser.ArrayTypeNameLabelContext arrayTypeNameLabelContext
-                    = (BallerinaParser.ArrayTypeNameLabelContext) ctx.children.get(1);
-            childDimensions = (arrayTypeNameLabelContext.getChildCount() - 1) / 2;
-        }
-        int dimensions = (ctx.getChildCount() - 1) / 2 + childDimensions;
-        int[] intArray = new int[dimensions];
-        Arrays.fill(intArray, -2);
-        this.pkgBuilder.addArrayType(getCurrentPos(ctx), getWS(ctx), dimensions, intArray);
     }
 
     @Override
@@ -836,12 +824,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        boolean isAnonymous = !(ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
 
         boolean isFieldAnalyseRequired =
-                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
+                (ctx.parent.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                        ctx.parent.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
+                        ctx.parent.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
@@ -3020,7 +3008,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         String identifier = ctx.Identifier() != null ? ctx.Identifier().getText() : null;
-        this.pkgBuilder.addMatchExprPattaern(getCurrentPos(ctx), getWS(ctx), identifier);
+        this.pkgBuilder.addMatchExprPattern(getCurrentPos(ctx), getWS(ctx), identifier);
     }
 
     /**

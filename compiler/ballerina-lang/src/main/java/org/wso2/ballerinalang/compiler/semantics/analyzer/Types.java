@@ -142,16 +142,17 @@ public class Types {
                            BType actualType,
                            BType expType,
                            DiagnosticCode diagCode) {
+
+        // Check if sealed array is assignable
+        if (actualType.tag == TypeTags.ARRAY && expType.tag == TypeTags.ARRAY) {
+            if (!isSealedArrayAssignable((BArrayType) actualType, (BArrayType) expType)) {
+                dlog.error(expr.pos, DiagnosticCode.INVALID_ASSIGNMENT_FOR_SEALED_TYPE, expType, actualType);
+            }
+        }
+
         expr.type = checkType(expr.pos, actualType, expType, diagCode);
         if (expr.type.tag == TypeTags.ERROR) {
             return expr.type;
-        }
-
-        if (actualType.tag == TypeTags.ARRAY && expType.tag == TypeTags.ARRAY) {
-            if (!isSealedArrayInitialized((BArrayType) actualType, (BArrayType) expType)) {
-                dlog.error(expr.pos,
-                        DiagnosticCode.INVALID_ASSIGNMENT_FOR_SEALED_TYPE, expType, actualType);
-            }
         }
 
         // Set an implicit cast expression, if applicable
@@ -276,7 +277,7 @@ public class Types {
                 isArrayTypesAssignable(source, target);
     }
 
-    public boolean isSealedArrayInitialized(BArrayType rhsArrayType, BArrayType lhsArrayType) {
+    public boolean isSealedArrayAssignable(BArrayType rhsArrayType, BArrayType lhsArrayType) {
         if (lhsArrayType.size == -1) {  // Not a sealed array
             return true;
         } else if (lhsArrayType.size == -2 && rhsArrayType.size >= -1) { // Array is sealed using keyword hence size -2

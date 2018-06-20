@@ -193,15 +193,19 @@ finiteTypeUnit
     ;
 
 typeName
-    :   simpleTypeName                                                      # simpleTypeNameLabel
-    |   SEALED typeName (LEFT_BRACKET RIGHT_BRACKET)+                       # sealedArrayTypeNameLabel
-    |   typeName (LEFT_BRACKET integerLiteral? RIGHT_BRACKET)+              # arrayTypeNameLabel
-    |   typeName (PIPE typeName)+                                           # unionTypeNameLabel
-    |   typeName QUESTION_MARK                                              # nullableTypeNameLabel
-    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
-    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
-    |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   RECORD? LEFT_BRACE fieldDefinitionList RIGHT_BRACE                  # recordTypeNameLabel
+    :   SEALED typeNameList                                                         # sealedTypeName
+    |   typeNameList                                                                # unsealedTypeName
+    ;
+
+typeNameList
+    :   simpleTypeName                                                              # simpleTypeNameLabel
+    |   typeNameList (LEFT_BRACKET integerLiteral? RIGHT_BRACKET)+                  # arrayTypeNameLabel
+    |   typeNameList (PIPE typeName)+                                               # unionTypeNameLabel
+    |   typeNameList QUESTION_MARK                                                  # nullableTypeNameLabel
+    |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                                 # groupTypeNameLabel
+    |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS               # tupleTypeNameLabel
+    |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                                    # objectTypeNameLabel
+    |   RECORD? LEFT_BRACE fieldDefinitionList RIGHT_BRACE                          # recordTypeNameLabel
     ;
 
 fieldDefinitionList

@@ -630,8 +630,7 @@ public class CodeGenerator extends BLangNodeVisitor {
         arraySizeLiteral.pos = arrayLiteral.pos;
         if (arrayLiteral.type.tag == TypeTags.ARRAY) {
             BArrayType type = (BArrayType) arrayLiteral.type;
-            long size = (type.size);
-            arraySizeLiteral.value = (size == -2) ? -1L : size;
+            arraySizeLiteral.value = (type.size == -2) ? -1L : type.size;
         } else {
             arraySizeLiteral.value = -1L;
         }
@@ -1050,7 +1049,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         BLangLiteral sizeLiteral = new BLangLiteral();
         sizeLiteral.pos = bracedOrTupleExpr.pos;
-        sizeLiteral.value = -1L;
+        sizeLiteral.value = (long) bracedOrTupleExpr.expressions.size();
         sizeLiteral.type = symTable.intType;
         genNode(sizeLiteral, this.env);
 
