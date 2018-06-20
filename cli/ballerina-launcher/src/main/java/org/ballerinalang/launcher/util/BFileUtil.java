@@ -80,12 +80,9 @@ public class BFileUtil {
             } else if (path.toFile().isFile()) {
                 Files.delete(path);
             } else if (path.toFile().isDirectory()) {
-                try (DirectoryStream<Path> ds = Files.newDirectoryStream(path)) {
-                    for (Path subPath : ds) {
-                        delete(subPath);
-                    }
-                } catch (IOException e) {
-                    throw new BLangRuntimeException("error occured while deleting '" + path + "'", e);
+                DirectoryStream<Path> ds = Files.newDirectoryStream(path);
+                for (Path subPath : ds) {
+                    delete(subPath);
                 }
             }
 
