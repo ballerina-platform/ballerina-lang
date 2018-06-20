@@ -1435,7 +1435,7 @@
             <modules>
                 <module>compiler/ballerina-lang</module>
 
-                <module>stdlib/ballerina-builtin</module>
+                <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1505,7 +1505,7 @@
             <modules>
                 <module>compiler/ballerina-lang</module>
 
-                <module>stdlib/ballerina-builtin</module>
+                <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>
@@ -1571,7 +1571,7 @@
             <modules>
                 <module>compiler/ballerina-lang</module>
 
-                <module>stdlib/ballerina-builtin</module>
+                <module>stdlib/builtin</module>
                 <module>stdlib/runtime</module>
                 <module>stdlib/auth</module>
                 <module>stdlib/cache</module>

@@ -387,16 +387,6 @@ public class PackageLoader {
         return pkgNode.symbol;
     }
 
-    private BPackageSymbol define(BLangPackage pkgNode) {
-        // 2) Define all package-level symbols
-        this.symbolEnter.definePackage(pkgNode);
-        this.packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
-
-        // 3) Create the compiledPackage structure
-        pkgNode.symbol.compiledPackage = createInMemoryCompiledPackage(pkgNode);
-        return pkgNode.symbol;
-    }
-
     private BLangPackage loadPackageFromEntity(PackageID pkgId, PackageEntity pkgEntity) {
         if (pkgEntity == null) {
             return null;

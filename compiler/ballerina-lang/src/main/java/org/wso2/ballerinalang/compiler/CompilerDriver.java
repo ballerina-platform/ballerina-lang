@@ -120,13 +120,6 @@ public class CompilerDriver {
         updateErrorSymbol();
     }
 
-    public void loadRuntimePackage() {
-        // Load built-in packages.
-        if (LOAD_BUILTIN_FROM_SOURCE) {
-            getRuntimePackage();
-        }
-    }
-
     // Private methods
 
     private void compilePackageSymbol(BPackageSymbol packageSymbol) {
@@ -140,9 +133,9 @@ public class CompilerDriver {
             return;
         }
 
-//        pkgNode.imports.stream()
-//                .filter(pkg -> pkg.symbol != null)
-//                .forEach(importPkgNode -> this.compilePackageSymbol(importPkgNode.symbol));
+        pkgNode.imports.stream()
+                .filter(pkg -> pkg.symbol != null)
+                .forEach(importPkgNode -> this.compilePackageSymbol(importPkgNode.symbol));
         compile(pkgNode);
     }
 
@@ -230,11 +223,6 @@ public class CompilerDriver {
     private BLangPackage getBuiltInPackage() {
         return codegen(desugar(taintAnalyze(codeAnalyze(semAnalyzer.analyze(
                 pkgLoader.loadAndDefinePackage(SymbolTable.BUILTIN))))));
-    }
-
-    private BLangPackage getRuntimePackage() {
-        return codegen(desugar(taintAnalyze(codeAnalyze(semAnalyzer.analyze(
-                pkgLoader.loadAndDefinePackage(SymbolTable.RUNTIME))))));
     }
 
     private void updateErrorSymbol() {
