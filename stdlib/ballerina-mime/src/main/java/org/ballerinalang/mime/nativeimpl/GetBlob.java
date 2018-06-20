@@ -83,7 +83,7 @@ public class GetBlob extends BlockingNativeCallableUnit {
             EntityBodyHandler.addMessageDataSource(entityStruct, result);
             context.setReturnValues(new BBlob(result != null ? result.getValue() : new byte[0]));
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createEntityError
+            context.setReturnValues(MimeUtil.createError
                     (context, "Error occurred while extracting blob data from entity : " + e.getMessage()));
         }
     }

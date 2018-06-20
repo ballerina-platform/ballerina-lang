@@ -77,11 +77,11 @@ public class GetXml extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(result);
             } else {
-                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not xml " +
+                context.setReturnValues(MimeUtil.createError(context, "Entity body is not xml " +
                         "compatible since the received content-type is : " + baseType));
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while retrieving xml data from entity : " + e.getMessage()));
         }
     }

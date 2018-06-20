@@ -220,7 +220,6 @@ import static io.ballerina.plugins.idea.psi.BallerinaTypes.VERSION;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHERE_CLAUSE;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHILE;
-import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHILE_STATEMENT;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WHILE_STATEMENT_BODY;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WINDOW;
 import static io.ballerina.plugins.idea.psi.BallerinaTypes.WINDOW_CLAUSE;
@@ -538,6 +537,7 @@ public class BallerinaFormattingModelBuilder implements FormattingModelBuilder {
                 .betweenInside(EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
                 .betweenInside(SIMPLE_LITERAL_EXPRESSION, LEFT_BRACE, ELSE_IF_CLAUSE).spaceIf(true)
 
+                .before(WHILE_STATEMENT_BODY).spaceIf(true)
                 .between(EXPRESSION, WHILE_STATEMENT_BODY).spaceIf(true)
                 .between(SIMPLE_LITERAL_EXPRESSION, WHILE_STATEMENT_BODY).spaceIf(true)
 

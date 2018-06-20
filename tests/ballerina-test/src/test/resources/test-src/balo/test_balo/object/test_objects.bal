@@ -93,7 +93,7 @@ public type DustBin object {
 };
 
 public function testShadowingObjectField () returns (int, string) {
-    foo:Car p = new foo:Car(age = 50, name = "passed in name value");
+    foo:Car p = new foo:Car(a = 50, n = "passed in name value");
     return (p.age, p.name);
 }
 

@@ -25,8 +25,8 @@ public type Session object {
 
     documentation { Default constructor of the JMS session
     }
-    public new(Connection connection, SessionConfiguration config) {
-        self.config = config;
+    public new(Connection connection, SessionConfiguration c) {
+        self.config = c;
         self.initEndpoint(connection);
     }
 

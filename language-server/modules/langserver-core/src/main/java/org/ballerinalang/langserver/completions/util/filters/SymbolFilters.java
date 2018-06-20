@@ -26,8 +26,8 @@ import java.util.Map;
  */
 public enum SymbolFilters {
 
-    CONNECTOR_INIT_FILTER(ConnectorInitExpressionItemFilter.class, new ConnectorInitExpressionItemFilter()),
     ACTION_AND_FUNC_FILTER(PackageActionFunctionAndTypesFilter.class, new PackageActionFunctionAndTypesFilter()),
+
     STMT_TEMPLATE_FILTER(StatementTemplateFilter.class, new StatementTemplateFilter());
 
     private final Class context;

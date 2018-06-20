@@ -142,8 +142,7 @@ public class HttpConnectionManager {
         if (listenerConfiguration.getScheme().equalsIgnoreCase("https")) {
             ListenerConfiguration config = context.getListenerConfiguration();
             if (!listenerConfiguration.getKeyStoreFile().equals(config.getKeyStoreFile())
-                    || !listenerConfiguration.getKeyStorePass().equals(config.getKeyStorePass())
-                    || !listenerConfiguration.getCertPass().equals(config.getCertPass())) {
+                    || !listenerConfiguration.getKeyStorePass().equals(config.getKeyStorePass())) {
                 return true;
             }
         }

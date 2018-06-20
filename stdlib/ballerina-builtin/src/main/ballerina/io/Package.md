@@ -27,7 +27,8 @@ var readResult = byteChannel.read(100);
 }
 
 // Write some content to the beginning of the file.
-blob content = "some content".toBlob("UTF-8");
+string someContent = "some content";
+blob content = someContent.toBlob("UTF-8");
 var writeResult = byteChannel.write(content, 0);
 match writeResult {
     int numberOfBytesWritten => {
@@ -98,10 +99,6 @@ while (recordsChannel.hasNext()) {
         error err => {
             return err; // An IO error occurred when reading the records.
         }
-        () => {
-            error e = {message: "Record channel not initialized properly."};
-            return e;
-        }
     }
 }
 ```
@@ -109,7 +106,7 @@ while (recordsChannel.hasNext()) {
 A `.CSV` file can be read and written directly into a `CSVChannel`, as shown in this code snippet.
 
 ```ballerina
-var csvChannel = check io:openCsvFile("records.csv");
+var csvChannel = io:openCsvFile("records.csv");
 ```
 
 Records of the `.CSV` file can read directly into a table of a matching type.
@@ -129,7 +126,7 @@ match csvChannel.getTable(Employee) {
         foreach employee in employees {
             totalSalary += employee.salary;
         }
-        return total; // Return total of salaries of all employees.
+        return totalSalary; // Return total of salaries of all employees.
     }
     error err => {
         return err; // An IO error occurred when reading the records.

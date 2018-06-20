@@ -36,7 +36,7 @@ public class IdentifierLiteralPackageTest {
     @Test(description = "Test accessing variable in other packages defined with identifier literal")
     public void testAccessingVarsInOtherPackage() {
         CompileResult result = BCompileUtil.compile(this, "test-src/expressions/identifierliteral", "pkg.main");
-        BValue[] returns = BRunUtil.invoke(result, "pkg.main", "getVarsInOtherPkg");
+        BValue[] returns = BRunUtil.invoke(result, "pkg.main:0.0.0", "getVarsInOtherPkg");
         Assert.assertEquals(returns.length, 4);
         Assert.assertSame(returns[0].getClass(), BInteger.class);
         Assert.assertSame(returns[1].getClass(), BString.class);
@@ -51,7 +51,7 @@ public class IdentifierLiteralPackageTest {
     @Test(description = "Test accessing global vars with identifier literals defined in other packages")
     public void testAccessStructGlobalVarWithIdentifierLiteralInOtherPackage() {
         CompileResult result = BCompileUtil.compile(this, "test-src/expressions/identifierliteral", "pkg.main");
-        BValue[] returns = BRunUtil.invoke(result, "pkg.main", "accessStructWithIL");
+        BValue[] returns = BRunUtil.invoke(result, "pkg.main:0.0.0", "accessStructWithIL");
 
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BString.class);

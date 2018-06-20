@@ -21,7 +21,7 @@ executed. This function is responsible for handling errors that takes place whil
     (function() returns error?) onTriggerFunction = doTask;
     (function(error)) onErrorFunction = onError;
     timer = new task:Timer(onTriggerFunction, onErrorFunction, 500, delay = 1000);
-    _ = timer.start();
+    timer.start();
 
 ```
 
@@ -40,7 +40,7 @@ function is called.
     (function() returns error?) onTriggerFunction = onTrigger;
     (function (error)) onErrorFunction = cleanupError;
     app = new task:Appointment(onTriggerFunction, onErrorFunction, "0/05 * * * * ?");
-    _ = app.schedule();
+    app.schedule();
 ```
 
 ## Samples
@@ -53,9 +53,9 @@ returned from the `onTrigger` function. Further, the count variable is increment
 equal to 10, an error is returned. If the count is equal to 20, the task is stopped using the `stopTask()` function.
 
 ```ballerina
-import ballerina/task;
 import ballerina/io;
 import ballerina/runtime;
+import ballerina/task;
 
 int count;
 task:Timer? timer;
@@ -64,7 +64,7 @@ function main(string... args) {
     io:println("tasks sample is running");
     scheduleTimer(1000,1000);
     // Keep the program running for 100*1000 milliseconds.
-    runtime:sleepCurrentWorker(100*1000);
+    runtime:sleep(100*1000);
 }
 
 function scheduleTimer(int delay, int interval) {
@@ -72,10 +72,10 @@ function scheduleTimer(int delay, int interval) {
     (function() returns error?) onTriggerFunction = onTrigger;
     // Point to the error function.
     (function (error)) onErrorFunction = onError;
-    // Register a task with given ‘onTrigger’ and ‘onError’ functions, and with given ‘delay’ and ‘interval’ times. 
+    // Register a task with given ‘onTrigger’ and ‘onError’ functions, and with given ‘delay’ and ‘interval’ times.
     timer = new task:Timer(onTriggerFunction, onErrorFunction, interval, delay = delay);
     // Start the timer.
-    _ = timer.start();
+    timer.start();
 }
 
 // Define the ‘onError’ function for the task timer.
@@ -89,12 +89,17 @@ function onTrigger() returns error? {
     count = count + 1;
     if(count == 10) {
         error e = {message:"Task cannot be performed when the count is 10"};
-	    //The ‘onError’ function is called when the error is returned.
+        //The ‘onError’ function is called when the error is returned.
         return e;
     }
 
     if(count == 20) {
-        _ = stopTask();
+        match stopTask() {
+            error e => {
+                return e;
+            }
+            () => {}
+        }
     }
     io:println("on trigger : count value is: " + count);
     return ();
@@ -103,7 +108,7 @@ function onTrigger() returns error? {
 // Define the function to stop the task.
 function stopTask() returns error? {
     io:println("Stopping task");
-    _ = timer.stop();
+    timer.stop();
     count = -1;
     return ();
 }
@@ -119,9 +124,9 @@ error is returned. If the count is equal to 20, the task is stopped.
 
 
 ```ballerina
-import ballerina/task;
 import ballerina/io;
 import ballerina/runtime;
+import ballerina/task;
 
 int count;
 task:Appointment? app;
@@ -131,7 +136,7 @@ function main(string... args) {
     // To schedule the appointment with given cron expression.
     scheduleAppointment("0/05 * * * * ?");
     // Keep the program running for 100*1000 seconds
-    runtime:sleepCurrentWorker(100*1000);
+    runtime:sleep(100*1000);
 }
 function scheduleAppointment(string cronExpression) {
     // Define on trigger function
@@ -140,7 +145,7 @@ function scheduleAppointment(string cronExpression) {
     (function (error)) onErrorFunction = onError;
     // Schedule appointment.
     app = new task:Appointment(onTriggerFunction, onErrorFunction, cronExpression);
-    _ = app.schedule();
+    app.schedule();
 }
 
 function onTrigger() returns error? {
@@ -168,7 +173,7 @@ function onError(error e) {
 
 // Define the function to stop the task.
 function cancelAppointment() {
-    _ = app.cancel();
+    app.cancel();
     count = -1;
 }
 

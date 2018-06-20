@@ -20,6 +20,7 @@ package org.ballerinalang.net.grpc.proto;
 import org.ballerinalang.compiler.plugins.AbstractCompilerPlugin;
 import org.ballerinalang.compiler.plugins.SupportEndpointTypes;
 import org.ballerinalang.model.TreeBuilder;
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.ServiceNode;
@@ -102,7 +103,7 @@ public class ServiceProtoBuilder extends AbstractCompilerPlugin {
     }
 
     @Override
-    public void codeGenerated(Path binaryPath) {
+    public void codeGenerated(PackageID packageID, Path binaryPath) {
 
         Map<String, File> definitionMap = FileDefinitionHolder.getInstance().getDefinitionMap();
         if (definitionMap.size() == 0) {

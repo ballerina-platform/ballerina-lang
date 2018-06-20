@@ -34,20 +34,20 @@ public type SimpleTopicPublisher object {
     }
 
     documentation { Initialize SimpleTopicPublisher endpoint
-        P{{config}} Configurations related to SimpleTopicPublisher endpoint
+        P{{c}} Configurations related to SimpleTopicPublisher endpoint
     }
-    public function init(SimpleTopicPublisherEndpointConfiguration config) {
-        endpoint jms:SimpleTopicPublisher topicPublisher {
+    public function init(SimpleTopicPublisherEndpointConfiguration c) {
+        endpoint jms:SimpleTopicPublisher ep {
             initialContextFactory:"bmbInitialContextFactory",
-            providerUrl:getConnectionUrl(config),
+            providerUrl:getConnectionUrl(c),
             connectionFactoryName:"ConnectionFactory",
-            acknowledgementMode:config.acknowledgementMode,
-            properties:config.properties,
-            topicPattern:config.topicPattern
+            acknowledgementMode: c.acknowledgementMode,
+            properties: c.properties,
+            topicPattern: c.topicPattern
         };
-        self.publisher = topicPublisher;
-        self.producerActions = new TopicPublisherActions(topicPublisher);
-        self.config = config;
+        self.publisher = ep;
+        self.producerActions = new TopicPublisherActions(ep);
+        self.config = c;
     }
 
     documentation { Registers the endpoint in the service.

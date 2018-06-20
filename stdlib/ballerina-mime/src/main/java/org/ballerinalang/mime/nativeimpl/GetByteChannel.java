@@ -61,20 +61,20 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
                 context.setReturnValues(byteChannelStruct);
             } else {
                 if (EntityBodyHandler.getMessageDataSource(entityStruct) != null) {
-                    context.setReturnValues(MimeUtil.createEntityError(context,
+                    context.setReturnValues(MimeUtil.createError(context,
                             "Byte channel is not available but payload can be obtain either as xml, " +
                                     "json, string or blob type"));
                 } else if (EntityBodyHandler.getBodyPartArray(entityStruct) != null && EntityBodyHandler.
                         getBodyPartArray(entityStruct).size() != 0) {
-                    context.setReturnValues(MimeUtil.createEntityError(context,
+                    context.setReturnValues(MimeUtil.createError(context,
                             "Byte channel is not available since payload contains a set of body parts"));
                 } else {
-                    context.setReturnValues(MimeUtil.createEntityError(context,
+                    context.setReturnValues(MimeUtil.createError(context,
                             "Byte channel is not available as payload"));
                 }
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while constructing byte channel from entity body : " + e.getMessage()));
         }
     }

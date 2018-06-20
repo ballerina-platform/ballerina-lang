@@ -63,6 +63,7 @@ import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
@@ -490,7 +491,7 @@ public class CPU {
                         typeEntry = (TypeRefCPEntry) ctx.constPool[k];
                         BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry, typeEntry.getType());
                         sf.refRegs[j] = functionPointer;
-                        findAndAddClosureVarRegIndexes(ctx, operands, functionPointer);
+                        findAndAddAdditionalVarRegIndexes(ctx, operands, functionPointer);
                         break;
     
                     case InstructionCodes.I2ANY:
@@ -758,7 +759,7 @@ public class CPU {
         List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
-            argRegs = expandArgRegs(argRegs, functionInfo.getParamTypes());
+            argRegs = expandArgRegs(argRegs, functionInfo.getParamTypes(), fp);
             return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
         }
 
@@ -809,15 +810,14 @@ public class CPU {
         return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, funcCallCPEntry.getRetRegs(), false);
     }
 
-    private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes) {
+    private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes, BFunctionPointer fp) {
         if (paramTypes.length == 0 || paramTypes.length == argRegs.length ||
                 (TypeTags.OBJECT_TYPE_TAG != paramTypes[0].getTag()
                         && TypeTags.RECORD_TYPE_TAG != paramTypes[0].getTag())) {
             return argRegs;
         }
         int[] expandedArgs = new int[paramTypes.length];
-        // self object/struct param is always at the 0'th index
-        expandedArgs[0] = 0;
+        expandedArgs[0] = fp.getAttachedFunctionObjectIndex();
         System.arraycopy(argRegs, 0, expandedArgs, 1, argRegs.length);
         return expandedArgs;
     }
@@ -910,17 +910,25 @@ public class CPU {
         return refIndex;
     }
 
-    private static void findAndAddClosureVarRegIndexes(WorkerExecutionContext ctx, int[] operands,
-                                                       BFunctionPointer fp) {
+    private static void findAndAddAdditionalVarRegIndexes(WorkerExecutionContext ctx, int[] operands,
+                                                          BFunctionPointer fp) {
 
         int h = operands[3];
 
+        //if '0', then there are no additional indexes needs to be processed
         if (h == 0) {
             return;
         }
 
+        //if '1', then this is a object attached function invocation as function pointer
+        if (h == 1) {
+            fp.setAttachedFunctionObjectIndex(operands[4]);
+            return;
+        }
+
+        //if > 1, then this is a closure related scenario
         for (int i = 0; i < h; i++) {
-            int operandIndex = (i * 2) + 4;
+            int operandIndex = i + 4;
             int type = operands[operandIndex];
             int index = operands[++operandIndex];
             switch (type) {
@@ -947,6 +955,7 @@ public class CPU {
                 default:
                     fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index]), TypeTags.ANY_TAG);
             }
+            i++;
         }
     }
 
@@ -2081,7 +2090,7 @@ public class CPU {
             case InstructionCodes.ANY2F:
                 i = operands[0];
                 j = operands[1];
-                sf.doubleRegs[j] = ((BFloat) sf.refRegs[i]).floatValue();
+                sf.doubleRegs[j] = ((BValueType) sf.refRegs[i]).floatValue();
                 break;
             case InstructionCodes.ANY2S:
                 i = operands[0];
@@ -3147,6 +3156,10 @@ public class CPU {
         }
 
         if (rhsType.equals(lhsType)) {
+            return true;
+        }
+
+        if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.FLOAT_TAG) {
             return true;
         }
 

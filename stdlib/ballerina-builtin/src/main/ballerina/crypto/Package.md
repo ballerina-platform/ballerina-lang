@@ -14,13 +14,11 @@ The `crc32` function can be used to calculate CRC on input types such as string,
 
 ## Samples
 
-### Sample hash function
-
 ```ballerina
 import ballerina/io;
 import ballerina/crypto;
 
-function main(string[] args) {
+function main(string... args) {
      // The string content to be hashed.
      string input = "Hello Ballerina";
      // The key used for hashing when required.
