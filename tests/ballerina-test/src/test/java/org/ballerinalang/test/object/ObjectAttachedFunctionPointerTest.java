@@ -74,9 +74,16 @@ public class ObjectAttachedFunctionPointerTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 106);
     }
 
-    @Test(description = "Test invoke attached function as function pointer")
+    @Test(description = "Test invoke attached function as function pointer2")
     public void testInvokeAttachedFunctionAsFunctionPointer2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "test7");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 106);
+    }
+
+    @Test(description = "Test invoke attached function as function pointer3")
+    public void testInvokeAttachedFunctionAsFunctionPointer3() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test8");
+        Assert.assertEquals(returns[0].stringValue(), "A");
+        Assert.assertEquals(((BInteger) returns[1]).intValue(), 2);
     }
 }

@@ -101,3 +101,41 @@ function test7() returns (int) {
     var foo = p.attachedFn7;
     return foo(43, 10.8);
 }
+
+public type FooObj object {
+    private {
+        (function(string[]) returns string) fp1;
+        (function(int[]) returns int) fp2;
+    }
+    new (fp1, fp2){
+        string[] s = ["abc", "afg"];
+        int[] i = [1,2,3,4,5];
+        string a = fp1(s);
+        int b = fp2(i);
+    }
+
+    public function processStrArray(string[] vals) returns string{
+        return fp1(vals);
+    }
+
+    public function processIntArray(int[] vals) returns int{
+        return fp2(vals);
+    }
+};
+
+
+function test8() returns (string, int) {
+    string[] s = ["B", "A"];
+    int[] i = [1,2,3,4,5];
+    var foo = (string[] v) => string { return v[1];};
+    var bar = (int[] v) => int { return v[1];};
+    FooObj fooObj = new (foo, bar);
+    _ = fooObj.processStrArray(s);
+    var x = fooObj.processStrArray;
+    string q = x(s);
+    _ = fooObj.processIntArray(i);
+    var y = fooObj.processIntArray;
+    int r = y(i);
+
+    return(q, r);
+}

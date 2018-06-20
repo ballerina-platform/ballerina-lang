@@ -41,11 +41,6 @@ class DiagramMenu extends React.Component {
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: true }); }}>
                         <Icon name='fw fw-uneditable menu-icon' />
                     </Menu.Item>
-                </Menu.Menu>
-                }
-                { !this.props.fitToWidth &&
-                <Menu.Menu position='right'>
-                    <DefinitionViewMenu on model={this.props.model} width={this.props.width} />
                     { this.props.mode === 'action' &&
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'default', fitToWidth: false }); }}>
                         <Icon name='fw fw-zoom-in menu-icon-right' />
@@ -54,6 +49,11 @@ class DiagramMenu extends React.Component {
                     <Menu.Item onClick={() => { this.props.onModeChange({ mode: 'action', fitToWidth: false }); }}>
                         <Icon name='fw fw-zoom-out menu-icon-right' />
                     </Menu.Item>}
+                </Menu.Menu>
+                }
+                { !this.props.fitToWidth &&
+                <Menu.Menu position='right'>
+                    <DefinitionViewMenu on model={this.props.model} width={this.props.width} />
                 </Menu.Menu>
                 }
                 { this.props.fitToWidth &&
@@ -87,3 +87,4 @@ DiagramMenu.childContextTypes = {
 };
 
 export default DiagramMenu;
+

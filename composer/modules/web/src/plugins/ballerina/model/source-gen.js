@@ -1078,8 +1078,6 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Return':
             if (node.noExpressionAvailable) {
                 return dent() + w() + 'return' + a(' ') + w() + ';';
-            } else if (node.emptyBrackets) {
-                return w() + 'return' + a(' ') + w() + '();';
             } else {
                 return dent() + w() + 'return' + a(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda) + w() + ';';
@@ -1697,7 +1695,9 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
             return w() + node.operatorKind + b(' ')
                  + getSourceOf(node.expression, pretty, l, replaceLambda);
         case 'UnionTypeNode':
-            if (node.withParantheses && node.memberTypeNodes) {
+            if (node.emptyParantheses) {
+                return w() + '(' + w() + ')';
+            } else if (node.withParantheses && node.memberTypeNodes) {
                 return w() + '('
                  + join(node.memberTypeNodes, pretty, replaceLambda, l, w, '', '|') + w() + ')';
             } else {

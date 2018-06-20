@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.compiler.plugins;
 
+import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 import org.ballerinalang.model.tree.AnnotationNode;
@@ -85,6 +86,6 @@ public abstract class AbstractCompilerPlugin implements CompilerPlugin {
     }
 
     @Override
-    public void codeGenerated(Path binaryPath) {
+    public void codeGenerated(PackageID packageID, Path binaryPath) {
     }
 }
