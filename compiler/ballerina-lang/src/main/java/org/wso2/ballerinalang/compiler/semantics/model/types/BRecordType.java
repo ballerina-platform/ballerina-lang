@@ -19,7 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 
 import org.ballerinalang.model.types.RecordType;
 import org.ballerinalang.model.types.TypeKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -32,7 +32,10 @@ import java.util.ArrayList;
  */
 public class BRecordType extends BStructureType implements RecordType {
 
-    public BRecordType(BTypeSymbol tSymbol) {
+    public boolean isSealed;
+    public BType restFieldType;
+
+    public BRecordType(BRecordTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
         this.fields = new ArrayList<>();
     }

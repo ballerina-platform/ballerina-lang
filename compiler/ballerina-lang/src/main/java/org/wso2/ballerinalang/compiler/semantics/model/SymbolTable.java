@@ -149,7 +149,7 @@ public class SymbolTable {
         defineType(errType, errSymbol);
 
         // Initialize Ballerina error struct type temporally.
-        BTypeSymbol errorStructSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
+        BRecordTypeSymbol errorStructSymbol = new BRecordTypeSymbol(SymTag.RECORD, Flags.PUBLIC, Names.ERROR,
                 rootPkgSymbol.pkgID, null, rootPkgSymbol);
         this.errStructType = new BRecordType(errorStructSymbol);
         errorStructSymbol.type = this.errStructType;

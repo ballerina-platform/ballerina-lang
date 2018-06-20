@@ -60,11 +60,11 @@ public class Symbols {
         return typeSymbol;
     }
 
-    public static BTypeSymbol createRecordSymbol(int flags,
-                                                 Name name,
-                                                 PackageID pkgID,
-                                                 BType type,
-                                                 BSymbol owner) {
+    public static BRecordTypeSymbol createRecordSymbol(int flags,
+                                                       Name name,
+                                                       PackageID pkgID,
+                                                       BType type,
+                                                       BSymbol owner) {
         BRecordTypeSymbol typeSymbol = new BRecordTypeSymbol(SymTag.RECORD, flags, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.RECORD;
         return typeSymbol;
