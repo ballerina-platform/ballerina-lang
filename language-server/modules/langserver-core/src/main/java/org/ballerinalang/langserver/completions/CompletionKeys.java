@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.langserver.completions;
 
+import org.antlr.v4.runtime.Token;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.model.tree.Node;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 
 import java.util.List;
+import java.util.Stack;
 
 /**
  * Text Document Service context keys for the completion operation context.
@@ -52,6 +54,8 @@ public class CompletionKeys {
     public static final LSContext.Key<WorkspaceDocumentManager> DOC_MANAGER_KEY
             = new LSContext.Key<>();
     public static final LSContext.Key<String> CURRENT_LINE_SEGMENT_KEY
+            = new LSContext.Key<>();
+    public static final LSContext.Key<Stack<Token>> FORCE_CONSUMED_TOKENS_KEY
             = new LSContext.Key<>();
     
     // Meta context Keys
