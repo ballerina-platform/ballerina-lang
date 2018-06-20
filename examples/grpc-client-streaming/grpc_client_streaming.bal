@@ -3,7 +3,7 @@ import ballerina/io;
 import ballerina/grpc;
 
 // The server endpoint configuration.
-endpoint grpc:Listener ep {
+endpoint grpc:Listener listener {
     host: "localhost",
     port: 9090
 };
@@ -12,7 +12,7 @@ endpoint grpc:Listener ep {
     name: "lotsOfGreetings",
     clientStreaming: true
 }
-service<grpc:Service> HelloWorld bind ep {
+service<grpc:Service> HelloWorld bind listener {
 
     //This resource is triggered when a new caller connection is initialized.
     onOpen(endpoint caller) {

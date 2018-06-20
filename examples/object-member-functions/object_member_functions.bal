@@ -17,13 +17,13 @@ type Person object {
     }
 
     // Function declaration defined within the object.
-    function checkAndModifyAge(int condition, int age);
+    function checkAndModifyAge(int condition, int a);
 };
 
 // Implementation for the declared function.
-function Person::checkAndModifyAge(int condition, int age) {
+function Person::checkAndModifyAge(int condition, int a) {
     if (self.age < condition) {
-        self.age = age;
+        self.age = a;
     }
 }
 
