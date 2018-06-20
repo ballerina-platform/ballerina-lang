@@ -13,6 +13,8 @@ import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.nio.file.Paths;
+
 /**
  * Testcase for repo validation.
  */
@@ -61,7 +63,7 @@ public class RepoTest {
     @Test
     public void testCacheRepo() {
         PackageID pkg = newPackageID("nice_org", "any.pkg", "10.2.3");
-        CacheRepo subject = new CacheRepo((PathConverter) null, "test");
+        CacheRepo subject = new CacheRepo(Paths.get(null), "test");
 
         Patten patten = subject.calculate(pkg);
 
