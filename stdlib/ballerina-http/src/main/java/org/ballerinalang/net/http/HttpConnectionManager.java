@@ -25,7 +25,7 @@ import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
@@ -149,7 +149,7 @@ public class HttpConnectionManager {
         return false;
     }
 
-    public WebSocketClientConnector getWebSocketClientConnector(WsClientConnectorConfig configuration) {
+    public WebSocketClientConnector getWebSocketClientConnector(WebSocketClientConnectorConfig configuration) {
         return  httpConnectorFactory.createWsClientConnector(configuration);
     }
 
