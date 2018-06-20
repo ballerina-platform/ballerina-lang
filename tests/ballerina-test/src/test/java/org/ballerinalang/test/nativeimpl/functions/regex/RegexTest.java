@@ -35,7 +35,7 @@ public class RegexTest {
 
     private static final String s1 = "WSO2 Inc.";
     private CompileResult result;
-    private static final String CR = "\r";
+    private static final String CR = "\\\\r";
     private static final String EMPTY_STRING = "";
 
     @BeforeClass

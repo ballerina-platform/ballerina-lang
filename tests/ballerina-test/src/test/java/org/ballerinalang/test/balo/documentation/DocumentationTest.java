@@ -36,7 +36,7 @@ import org.wso2.ballerinalang.compiler.util.Name;
 public class DocumentationTest {
 
     CompileResult result;
-    private static final String CR = "\r";
+    private static final String CR = "\\\\r";
     private static final String EMPTY_STRING = "";
 
     @BeforeClass

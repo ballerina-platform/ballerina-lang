@@ -43,7 +43,6 @@ public class JwtTest {
     private String keyStorePath;
     private String trustStorePath;
 
-
     @BeforeClass
     public void setup() throws Exception {
         keyStorePath = getClass().getClassLoader().getResource(

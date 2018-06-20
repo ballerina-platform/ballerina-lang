@@ -43,7 +43,7 @@ import java.util.List;
  */
 public class DocumentationTest {
 
-    private static final String CR = "\r";
+    private static final String CR = "\\\\r";
     private static final String EMPTY_STRING = "";
 
     @BeforeClass
