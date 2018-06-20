@@ -76,7 +76,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
                 "decompressed is not available");
     }
@@ -90,7 +90,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path to place the decompressed " +
                 "file is not available");
     }
@@ -106,9 +106,9 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0).startsWith("Path of the folder to be " +
-                                                                "decompressed is not available"), true);
+                "decompressed is not available"), true);
     }
 
     @Test(description = "test unzipping/decompressing a compressed file with incorrect src directory path")
@@ -122,9 +122,9 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0).startsWith("Path to place the " +
-                                "decompressed file is not available"), true);
+                "decompressed file is not available"), true);
     }
 
     @Test(description = "test zipping/compressing a folder")
@@ -140,7 +140,7 @@ public class CompressionTest {
         Assert.assertEquals(f1.exists() && !f1.isDirectory(), true);
 
         ArrayList<String> filesInsideZip = getFilesInsideZip(destDirPath + File.separator
-                                                                     + "my.app.zip");
+                + "my.app.zip");
 
         Assert.assertEquals(filesInsideZip.size() > 0, true);
 
@@ -159,7 +159,7 @@ public class CompressionTest {
         Assert.assertEquals(f1.exists() && !f1.isDirectory(), true);
 
         ArrayList<String> filesInsideZip = getFilesInsideZip(destDirPath + File.separator
-                                                                     + "main.zip");
+                + "main.zip");
 
         Assert.assertEquals(filesInsideZip.size() > 0, true);
 
@@ -175,9 +175,9 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0).startsWith("Error occurred when " +
-               "compressing"), true);
+                "compressing"), true);
     }
 
     @Test(description = "test zipping/compressing a file without src directory path")
@@ -189,7 +189,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
                 "compressed is not available");
     }
@@ -203,9 +203,9 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Error occurred when " +
-                "compressing  (No such file or directory)");
+                "Invalid Return Values.");
+        Assert.assertTrue(((BStruct) returns[0]).getStringField(0)
+                .contains("Error occurred when compressing"));
     }
 
     @Test(description = "test zipping/compressing a file without destination directory path")
@@ -217,7 +217,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
                 "compressed is not available");
     }
@@ -227,7 +227,7 @@ public class CompressionTest {
     public void testDecompressBlob() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
-                                                                            File.separator + "test.zip").toPath());
+                File.separator + "test.zip").toPath());
         BString destDir = new BString(dirPath);
         BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
         BValue[] inputArg = {contentAsByteArray, destDir};
@@ -253,7 +253,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Length of the byte array is empty");
     }
 
@@ -261,14 +261,14 @@ public class CompressionTest {
     public void testDecompressBlobWithoutDestDirectory() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
-                                                                            File.separator + "test.zip").toPath());
+                File.separator + "test.zip").toPath());
         BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
         BValue[] inputArg = {contentAsByteArray, new BString("")};
         BValue[] returns = BRunUtil.invoke(compileResult, "decompressBlob", inputArg);
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path to place the decompressed " +
                 "file is not available");
     }
@@ -277,7 +277,7 @@ public class CompressionTest {
     public void testDecompressBlobWithIncorrectDestDir() throws IOException, URISyntaxException {
         String dirPath = getAbsoluteFilePath("datafiles/compression/");
         byte[] fileContentAsByteArray = Files.readAllBytes(new File(dirPath +
-                                                                            File.separator + "test.zip").toPath());
+                File.separator + "test.zip").toPath());
         BString destDir = new BString(dirPath + File.separator + "sample");
         BBlob contentAsByteArray = new BBlob(fileContentAsByteArray);
         BValue[] inputArg = {contentAsByteArray, destDir};
@@ -285,7 +285,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path to place the decompressed " +
                 "file is not available");
     }
@@ -316,7 +316,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
                 "compressed is not available");
     }
@@ -330,7 +330,7 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
-                           "Invalid Return Values.");
+                "Invalid Return Values.");
         Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Path of the folder to be " +
                 "compressed is not available");
 
