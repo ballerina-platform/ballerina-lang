@@ -73,10 +73,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void reportMatch(Parser recognizer) {
-//	    removePendingTokens(removeTokenCount, recognizer);
         super.reportMatch(recognizer);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
-            // -2 since Parser.match() consumes one extra + skip current token
             deleteTokensUpToCursor(recognizer, true);
         }
     }
@@ -85,10 +83,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     public void sync(Parser recognizer) throws RecognitionException {
 		removePendingTokens(recognizer);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInFirstTokenOfCursorLine(recognizer)) {
-            // -1 since skip current token
             deleteTokensUpToCursor(recognizer, false);
         } else if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
-            // -1 since skip current token
             deleteTokensUpToCursor(recognizer, true);
         }
         super.sync(recognizer);
