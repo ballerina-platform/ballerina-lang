@@ -172,7 +172,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         int tLine = beforeCursorToken.getLine();
         int tCol = beforeCursorToken.getCharPositionInLine();
 
-        if (cursorLine < tLine || (cursorLine == tLine && cursorCol < tCol)) {
+        if (cursorLine < tLine || (cursorLine == tLine && cursorCol <= tCol)) {
             return null;
         }
 
