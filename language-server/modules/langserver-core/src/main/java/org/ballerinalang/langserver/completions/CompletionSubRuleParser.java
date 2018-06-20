@@ -41,18 +41,14 @@ public class CompletionSubRuleParser {
         BallerinaLexer lexer = new BallerinaLexer(inputStream);
         CommonTokenStream commonTokenStream = new CommonTokenStream(lexer);
         BallerinaParser parser = new BallerinaParser(commonTokenStream);
-        parser.setErrorHandler(new SubRuleParserErrorStrategy(new LSServiceOperationContext()));
+        parser.setErrorHandler(new SubRuleParserErrorStrategy(context));
         parser.functionDefinition();
     }
-    
-//    public static void main(String[] args) {
-//        parseWithinFunctionDefinition("int a = ");
-//    }
     
     private static String getCombinedTokenString(LSContext context) {
         Stack<Token> tokens = context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY);
         StringBuilder tokenString = new StringBuilder();
-        tokens.forEach(token -> tokenString.append(token.getText()));
+        tokens.forEach(token -> tokenString.append(token.getText()).append(" "));
         
         return tokenString.toString();
     }
