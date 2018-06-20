@@ -57,19 +57,19 @@ public class DocumentationTest {
                 .getTypeDefinitions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
+        Assert.assertTrue(dNode.documentationText.contains("Documentation for Test annotation"));
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).docTag, DocTag.FIELD);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " annotation `field a` documentation\n");
+        Assert.assertTrue(dNode.getAttributes().get(0).documentationText.contains("annotation `field a` documentation"));
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText, " annotation `field b` documentation\n");
+        Assert.assertTrue(dNode.getAttributes().get(1).documentationText.contains(" annotation `field b` documentation"));
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText, " annotation `field c` documentation");
+        Assert.assertTrue(dNode.getAttributes().get(2).documentationText.contains("annotation `field c` documentation"));
         docNodes = ((BLangAnnotation) packageNode.getAnnotations().get(0)).docAttachments;
         dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, " Documentation for Test annotation\n");
+        Assert.assertTrue(dNode.documentationText.contains("Documentation for Test annotation"));
     }
 
 
@@ -82,11 +82,11 @@ public class DocumentationTest {
         List<BLangDocumentation> docNodes = ((BLangVariable) packageNode.getGlobalVariables().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, " Documentation for testConst constant\n");
+        Assert.assertTrue(dNode.documentationText.contains(" Documentation for testConst constant"));
         Assert.assertEquals(dNode.getAttributes().size(), 1);
         Assert.assertEquals(dNode.getAttributes().get(0).docTag, DocTag.VARIABLE);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "testConst");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " constant variable `testConst`");
+        Assert.assertTrue(dNode.getAttributes().get(0).documentationText.contains("constant variable `testConst`"));
     }
 
     @Test(description = "Test doc annotation enum.")
@@ -121,16 +121,15 @@ public class DocumentationTest {
                 .getTypeDefinitions().get(0)).docAttachments;
         BLangDocumentation dNode = docNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, " Documentation for Test type\n");
+        Assert.assertTrue(dNode.documentationText.contains("Documentation for Test type"));
         Assert.assertEquals(dNode.getAttributes().size(), 3);
         Assert.assertEquals(dNode.getAttributes().get(0).docTag, DocTag.FIELD);
         Assert.assertEquals(dNode.getAttributes().get(0).documentationField.getValue(), "a");
-        Assert.assertEquals(dNode.getAttributes().get(0).documentationText, " type `field a` documentation\n");
+        Assert.assertTrue(dNode.getAttributes().get(0).documentationText.contains("type `field a` documentation"));
         Assert.assertEquals(dNode.getAttributes().get(1).documentationField.getValue(), "b");
-        Assert.assertEquals(dNode.getAttributes().get(1).documentationText, " type `field b` documentation\n");
+        Assert.assertTrue(dNode.getAttributes().get(1).documentationText.contains("type `field b` documentation"));
         Assert.assertEquals(dNode.getAttributes().get(2).documentationField.getValue(), "c");
-        Assert.assertEquals(dNode.getAttributes().get(2).documentationText, " type `field c` documentation");
-
+        Assert.assertTrue(dNode.getAttributes().get(2).documentationText.contains("type `field c` documentation"));
     }
 
     @Test(description = "Test doc function.")
@@ -401,14 +400,14 @@ public class DocumentationTest {
         List<BLangDeprecatedNode> dNodes = ((BLangFunction) packageNode.getFunctions().get(0)).deprecatedAttachments;
         BLangDeprecatedNode dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, "\n" + "  This function is deprecated use `openFile(string " +
-                "accessMode){}` instead.\n");
+        Assert.assertTrue(dNode.documentationText.contains("This function is deprecated " +
+                "use `openFile(string accessMode){}` instead."));
 
         dNodes = ((BLangTypeDefinition) packageNode.getTypeDefinitions().stream()
                 .filter(node -> node.getName().getValue().equals("File")).findFirst().get()).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, "\n" + "  This Object is deprecated use `File2` instead.\n");
+        Assert.assertTrue(dNode.documentationText.contains( "This Object is deprecated use `File2` instead."));
 
 //        dNodes = ((BLangEnum) packageNode.getEnums().get(0)).deprecatedAttachments;
 //        dNode = dNodes.get(0);
@@ -444,8 +443,8 @@ public class DocumentationTest {
         dNodes = ((BLangService) packageNode.getServices().get(0)).deprecatedAttachments;
         dNode = dNodes.get(0);
         Assert.assertNotNull(dNode);
-        Assert.assertEquals(dNode.documentationText, "\n" + "  This Service is deprecated use `PizzaHutService{}` " +
-                "instead.\n");
+        Assert.assertTrue(dNode.documentationText.contains("This Service is deprecated " +
+                "use `PizzaHutService{}` instead."));
 
         dNodes = ((BLangService) packageNode.getServices().get(0)).getResources().get(0).deprecatedAttachments;
         dNode = dNodes.get(0);
