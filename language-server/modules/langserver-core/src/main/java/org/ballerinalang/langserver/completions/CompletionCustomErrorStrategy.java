@@ -90,7 +90,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void reportMatch(Parser recognizer) {
-	    removePendingTokens(removeTokenCount, recognizer);
+//	    removePendingTokens(removeTokenCount, recognizer);
         super.reportMatch(recognizer);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
             // -2 since Parser.match() consumes one extra + skip current token
@@ -100,7 +100,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void sync(Parser recognizer) throws RecognitionException {
-		removePendingTokens(removeTokenCount, recognizer);
+		removePendingTokens(recognizer);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInFirstTokenOfCursorLine(recognizer)) {
             // -1 since skip current token
             deleteTokensUpToCursor(recognizer, TokenRemovalStrategy.SYNC, false, true);
@@ -111,7 +111,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         super.sync(recognizer);
     }
 
-	private void removePendingTokens(int removeTokenCount, Parser recognizer) {
+	private void removePendingTokens(Parser recognizer) {
 		while (removeTokenCount > 0) {
 			forceConsumedTokens.push(recognizer.consume());
 			removeTokenCount--;
@@ -155,14 +155,8 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
         Stack<Token> tokenStack = new Stack<>();
 
-        if (tokenRemovalStrategy == TokenRemovalStrategy.MATCH && isInLastTermination && needToRemoveTokenCount > 0) {
+        if (isInLastTermination && needToRemoveTokenCount > 0) {
             removeTokenCount = needToRemoveTokenCount;
-        } else {
-            while (needToRemoveTokenCount > 0) {
-                tokenStack.push(recognizer.consume());
-                needToRemoveTokenCount--;
-            }
-	        this.context.put(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY, tokenStack);
         }
     }
 
