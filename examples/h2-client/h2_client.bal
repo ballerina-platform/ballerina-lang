@@ -3,7 +3,7 @@ import ballerina/h2;
 
 // Create an endpoint for h2 database. Change the path before running the sample.
 endpoint h2:Client testDB {
-    path: "./database/",
+    path: "./h2-client",
     name: "testdb",
     username: "SA",
     password: "",
