@@ -75,12 +75,13 @@ public class BArrayType extends BType implements ArrayType {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(eType.toString());
+        String tempSize = size == -2 ? "" : String.valueOf(size);
         if (sb.indexOf("[") != -1) {
             return size != -1 ?
-                    sb.insert(sb.indexOf("["), "[" + size + "]").toString() :
+                    sb.insert(sb.indexOf("["), "[" + tempSize + "]").toString() :
                     sb.insert(sb.indexOf("["), "[]").toString();
         } else {
-            return size != -1 ? sb.append("[").append(size).append("]").toString() : sb.append("[]").toString();
+            return size != -1 ? sb.append("[").append(tempSize).append("]").toString() : sb.append("[]").toString();
         }
     }
 }

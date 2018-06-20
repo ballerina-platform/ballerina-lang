@@ -73,6 +73,22 @@ public class GlobalVarServiceInBaloTest {
         Assert.assertEquals(bJson.value().get("serviceVarFloat").asText(), "99.34323");
     }
 
+    @Test(description = "Test accessing global arrays in resource level")
+    public void testGlobalArraysInResourceLevel() {
+        HTTPTestRequest cMsgChange = MessageUtils.generateHTTPMessage("/globalvar/arrays", "GET");
+        HTTPCarbonMessage response = Services.invokeNew(result, MOCK_ENDPOINT_NAME, cMsgChange);
+
+        Assert.assertNotNull(response);
+        //Expected Json message : {"glbArrayElement":1, "glbSealedArrayElement":0,
+        // "glbSealedArray2Element":3, "glbSealed2DArrayElement":0, "glbSealed2DArray2Element":2}
+        BJSON bJson = new BJSON(new HttpMessageDataStreamer(response).getInputStream());
+        Assert.assertEquals(bJson.value().get("glbArrayElement").asText(), "1");
+        Assert.assertEquals(bJson.value().get("glbSealedArrayElement").asText(), "0");
+        Assert.assertEquals(bJson.value().get("glbSealedArray2Element").asText(), "3");
+        Assert.assertEquals(bJson.value().get("glbSealed2DArrayElement").asText(), "0");
+        Assert.assertEquals(bJson.value().get("glbSealed2DArray2Element").asText(), "2");
+    }
+
     @Test(description = "Test changing global variables in resource level")
     public void testChangingGlobalVarInResourceLevel() {
         HTTPTestRequest cMsg = MessageUtils.generateHTTPMessage("/globalvar/change-resource-level", "GET");
