@@ -26,7 +26,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -343,8 +342,9 @@ public class Types {
     }
 
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {
-        if ((rhsType.tag != TypeTags.OBJECT && rhsType.tag != TypeTags.RECORD)
-                || (lhsType.tag != TypeTags.OBJECT && lhsType.tag != TypeTags.RECORD)) {
+        // For equivalency, both lhs and rhs types should be of the same type. Allowed types: objects and records.
+        if ((rhsType.tag != TypeTags.OBJECT || lhsType.tag != TypeTags.OBJECT)
+                && (rhsType.tag != TypeTags.RECORD || lhsType.tag != TypeTags.RECORD)) {
             return false;
         }
 
@@ -1045,16 +1045,21 @@ public class Types {
             return false;
         }
 
-        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
+        // Both lhsType and rhsType are verified to be records by this time.
+        if (lhsType.tag == TypeTags.RECORD) {
+            return true;
+        }
+
+        BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
         List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BObjectTypeSymbol) rhsType.tsymbol).attachedFuncs;
         int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
         if (lhsAttachedFuncCount > rhsFuncs.size()) {
             return false;
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 
@@ -1090,16 +1095,21 @@ public class Types {
             }
         }
 
-        BStructureTypeSymbol lhsStructSymbol = (BStructureTypeSymbol) lhsType.tsymbol;
+        // Both lhsType and rhsType are verified to be records by this time.
+        if (lhsType.tag == TypeTags.RECORD) {
+            return true;
+        }
+
+        BObjectTypeSymbol lhsStructSymbol = (BObjectTypeSymbol) lhsType.tsymbol;
         List<BAttachedFunction> lhsFuncs = lhsStructSymbol.attachedFuncs;
-        List<BAttachedFunction> rhsFuncs = ((BStructureTypeSymbol) rhsType.tsymbol).attachedFuncs;
+        List<BAttachedFunction> rhsFuncs = ((BObjectTypeSymbol) rhsType.tsymbol).attachedFuncs;
         int lhsAttachedFuncCount = lhsStructSymbol.initializerFunc != null ? lhsFuncs.size() - 1 : lhsFuncs.size();
         if (lhsAttachedFuncCount > rhsFuncs.size()) {
             return false;
         }
 
         for (BAttachedFunction lhsFunc : lhsFuncs) {
-            if (lhsFunc == lhsStructSymbol.initializerFunc || lhsFunc == lhsStructSymbol.defaultsValuesInitFunc) {
+            if (lhsFunc == lhsStructSymbol.initializerFunc) {
                 continue;
             }
 

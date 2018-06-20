@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -626,8 +627,9 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        BTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                Names.EMPTY, env.enclPkg.symbol.pkgID, null, env.scope.owner);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(EnumSet.of(Flag.PUBLIC)),
+                                                                    Names.EMPTY, env.enclPkg.symbol.pkgID, null,
+                                                                    env.scope.owner);
 
         BRecordType recordType = new BRecordType(recordSymbol);
         recordSymbol.type = recordType;

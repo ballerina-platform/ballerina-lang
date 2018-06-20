@@ -120,6 +120,7 @@ public enum DiagnosticCode {
     STRING_TEMPLATE_LIT_NOT_ALLOWED("string.template.literal.not.allowed"),
     INVALID_STRUCT_LITERAL_KEY("invalid.struct.literal.key"),
     INVALID_FIELD_NAME_RECORD_LITERAL("invalid.field.name.record.lit"),
+    REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS("rest.field.not.allowed"),
     AMBIGUOUS_TYPES("ambiguous.type"),
 
     NOT_ENOUGH_ARGS_FUNC_CALL("not.enough.args.call"),

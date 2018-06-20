@@ -29,15 +29,12 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.Types.RecordKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.iterable.IterableKind;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConversionOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -51,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BJSONType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -128,7 +126,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 /**
@@ -331,11 +328,6 @@ public class TypeChecker extends BLangNodeVisitor {
             recordLiteral.keyValuePairs
                     .forEach(keyValuePair -> checkRecLiteralKeyValue(keyValuePair, matchedTypeList.get(0)));
             actualType = matchedTypeList.get(0);
-
-            // TODO Following check can be moved the code analyzer.
-            if (expTypeTag == TypeTags.RECORD) {
-                validateStructInitalizer(recordLiteral.pos);
-            }
         }
 
         resultType = types.checkType(recordLiteral, actualType, expType);
@@ -505,7 +497,6 @@ public class TypeChecker extends BLangNodeVisitor {
         varRefType = getSafeType(varRefType, iExpr.safeNavigate, iExpr.pos);
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
-            case TypeTags.RECORD:
                 // Invoking a function bound to a struct
                 // First check whether there exist a function with this name
                 // Then perform arg and param matching
@@ -1233,16 +1224,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     iExpr.functionPointerInvocation = true;
                 }
             }
-        } else {
-            // Attached function found
-            // Check for the explicit initializer function invocation
-            if (structType.tag == TypeTags.RECORD) {
-                BAttachedFunction initializerFunc = ((BRecordTypeSymbol) structType.tsymbol).initializerFunc;
-                if (initializerFunc != null && initializerFunc.funcName.value.equals(iExpr.name.value)) {
-                    dlog.error(iExpr.pos, DiagnosticCode.STRUCT_INITIALIZER_INVOKED, structType.tsymbol.toString());
-                }
-            }
         }
+
         iExpr.symbol = funcSymbol;
         checkInvocationParamAndReturnType(iExpr);
     }
@@ -1493,16 +1476,18 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.errType;
         }
 
-        // Check weather the struct field exists
+        // Check whether the struct field exists
         BSymbol fieldSymbol = symResolver.resolveStructField(keyExpr.pos, this.env,
                 fieldName, recordType.tsymbol);
         if (fieldSymbol == symTable.notFoundSymbol) {
-            dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, recordType.tsymbol);
-            return symTable.errType;
+            if (((BRecordType) recordType).isSealed) {
+                dlog.error(keyExpr.pos, DiagnosticCode.UNDEFINED_STRUCT_FIELD, fieldName, recordType.tsymbol);
+                return symTable.errType;
+            }
+
+            return ((BRecordType) recordType).restFieldType;
         }
 
-        // Setting the struct field symbol for future use in Desugar and code generator.
-        key.fieldSymbol = (BVarSymbol) fieldSymbol;
         return fieldSymbol.type;
     }
 
@@ -1695,19 +1680,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
         checkExpr(expr, this.env, symTable.noType);
         return expr.type;
-    }
-
-    private void validateStructInitalizer(DiagnosticPos pos) {
-        BStructureType bStructType = (BStructureType) expType;
-        BStructureTypeSymbol bStructSymbol = (BStructureTypeSymbol) bStructType.tsymbol;
-        if (bStructSymbol.initializerFunc == null) {
-            return;
-        }
-
-        boolean samePkg = this.env.enclPkg.symbol.pkgID == bStructSymbol.pkgID;
-        if (!samePkg && Symbols.isPrivate(bStructSymbol.initializerFunc.symbol)) {
-            dlog.error(pos, DiagnosticCode.ATTEMPT_CREATE_NON_PUBLIC_INITIALIZER);
-        }
     }
 
     private BType getAccessExprFinalType(BLangAccessExpression accessExpr, BType actualType) {

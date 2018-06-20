@@ -43,7 +43,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEndpointVarSymbo
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -56,6 +55,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnnotationType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BEnumType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BServiceType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -95,7 +95,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
-import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -111,7 +110,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
@@ -850,7 +848,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (typeDef.typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
                 continue;
             }
-            if (typeDef.symbol.kind == SymbolKind.OBJECT || typeDef.symbol.kind == SymbolKind.RECORD) {
+            if (typeDef.symbol.kind == SymbolKind.OBJECT) {
                 // Create typeDef type
                 BStructureType structureType = (BStructureType) typeDef.symbol.type;
                 BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDef.typeNode;
@@ -858,8 +856,25 @@ public class SymbolEnter extends BLangNodeVisitor {
                 structureType.fields = structureTypeNode.fields.stream()
                         .peek(field -> defineNode(field, typeDefEnv))
                         .map(field -> new BField(names.fromIdNode(field.name),
-                                field.symbol, field.expr != null))
+                                                 field.symbol, field.expr != null))
                         .collect(Collectors.toList());
+            } else if (typeDef.symbol.kind == SymbolKind.RECORD) {
+                BRecordType recordType = (BRecordType) typeDef.symbol.type;
+                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
+                SymbolEnv typeDefEnv = SymbolEnv.createTypeDefEnv(typeDef, typeDef.symbol.scope, pkgEnv);
+                recordType.fields = recordTypeNode.fields.stream()
+                                                        .peek(field -> defineNode(field, typeDefEnv))
+                                                        .map(field -> new BField(names.fromIdNode(field.name),
+                                                                                 field.symbol,
+                                                                                 field.expr != null))
+                                                        .collect(Collectors.toList());
+                recordType.isSealed = recordTypeNode.isSealed;
+
+                if (recordTypeNode.restFieldType == null) {
+                    recordType.restFieldType = symTable.nilType;
+                } else {
+                    recordType.restFieldType = symResolver.resolveTypeNode(recordTypeNode.restFieldType, typeDefEnv);
+                }
             }
         }
     }
@@ -877,11 +892,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                     f.setReceiver(createReceiver(typeDef.pos, typeDef.symbol.type));
                     defineNode(f, objEnv);
                 });
-            } else if (typeDef.symbol.kind == SymbolKind.RECORD) {
-                // Create typeDef type
-                BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-                SymbolEnv typeDefEnv = SymbolEnv.createPkgLevelSymbolEnv(recordTypeNode, typeDef.symbol.scope, pkgEnv);
-                defineRecordInitFunction(typeDef, typeDefEnv);
             }
         }
     }
@@ -1040,19 +1050,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         return receiver;
     }
 
-    private void defineRecordInitFunction(BLangTypeDefinition typeDef, SymbolEnv conEnv) {
-        BLangRecordTypeNode recordTypeNode = (BLangRecordTypeNode) typeDef.typeNode;
-        recordTypeNode.initFunction = createInitFunction(typeDef.pos, "", Names.INIT_FUNCTION_SUFFIX);
-
-        recordTypeNode.initFunction.receiver = createReceiver(typeDef.pos, typeDef.name);
-        recordTypeNode.initFunction.attachedFunction = true;
-        recordTypeNode.initFunction.flagSet.add(Flag.ATTACHED);
-
-        // Adding record level variables to the init function is done at desugar phase
-
-        defineNode(recordTypeNode.initFunction, conEnv);
-    }
-
     private void defineServiceInitFunction(BLangService service, SymbolEnv conEnv) {
         BLangFunction initFunction = createInitFunction(service.pos, service.getName().getValue(),
                 Names.INIT_FUNCTION_SUFFIX);
@@ -1065,46 +1062,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         BTypeSymbol typeSymbol = funcNode.receiver.type.tsymbol;
 
         // Check whether there exists a struct field with the same name as the function name.
-        if (isValidAttachedFunc) {
-            if (typeSymbol.tag == SymTag.OBJECT) {
-                validateFunctionsAttachedToObject(funcNode, funcSymbol, invokableEnv);
-            } else if (typeSymbol.tag == SymTag.RECORD) {
-                validateFunctionsAttachedToRecords(funcNode, funcSymbol, invokableEnv);
-            }
+        if (isValidAttachedFunc && typeSymbol.tag == SymTag.OBJECT) {
+            validateFunctionsAttachedToObject(funcNode, funcSymbol, invokableEnv);
         }
 
         defineNode(funcNode.receiver, invokableEnv);
         funcSymbol.receiverSymbol = funcNode.receiver.symbol;
-    }
-
-    private void validateFunctionsAttachedToRecords(BLangFunction funcNode, BInvokableSymbol funcSymbol,
-                                                    SymbolEnv invokableEnv) {
-        BInvokableType funcType = (BInvokableType) funcSymbol.type;
-        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) funcNode.receiver.type.tsymbol;
-        BSymbol symbol = symResolver.lookupMemberSymbol(
-                funcNode.receiver.pos, recordSymbol.scope, invokableEnv,
-                names.fromIdNode(funcNode.name), SymTag.VARIABLE);
-        if (symbol != symTable.notFoundSymbol) {
-            dlog.error(funcNode.pos, DiagnosticCode.STRUCT_FIELD_AND_FUNC_WITH_SAME_NAME,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-            return;
-        }
-
-        BAttachedFunction attachedFunc = new BAttachedFunction(
-                names.fromIdNode(funcNode.name), funcSymbol, funcType);
-
-        // Check whether this attached function is a struct initializer.
-        if (!Names.INIT_FUNCTION_SUFFIX.value.equals(funcNode.name.value)) {
-            dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-            return;
-        }
-
-        if (!funcNode.requiredParams.isEmpty() || funcNode.returnTypeNode.type != symTable.nilType) {
-            dlog.error(funcNode.pos, DiagnosticCode.INVALID_STRUCT_INITIALIZER_FUNCTION,
-                    funcNode.name.value, funcNode.receiver.type.toString());
-        }
-        recordSymbol.initializerFunc = attachedFunc;
     }
 
     private void validateFunctionsAttachedToObject(BLangFunction funcNode, BInvokableSymbol funcSymbol,
@@ -1161,20 +1124,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         assignmentStmt.pos = variable.pos;
         assignmentStmt.setVariable(varRef);
         return assignmentStmt;
-    }
-
-    private BLangVariable createReceiver(DiagnosticPos pos, BLangIdentifier name) {
-        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
-        receiver.pos = pos;
-        IdentifierNode identifier = createIdentifier(Names.SELF.getValue());
-        receiver.setName(identifier);
-        receiver.docTag = DocTag.RECEIVER;
-
-        BLangUserDefinedType structTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        structTypeNode.pkgAlias = new BLangIdentifier();
-        structTypeNode.typeName = name;
-        receiver.setTypeNode(structTypeNode);
-        return receiver;
     }
 
     private void definePackageInitFunctions(BLangPackage pkgNode, SymbolEnv env) {
