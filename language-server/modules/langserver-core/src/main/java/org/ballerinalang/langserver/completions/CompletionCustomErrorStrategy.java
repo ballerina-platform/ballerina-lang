@@ -46,6 +46,10 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
 	private Stack<Token> forceConsumedTokens = new Stack<>();
 
+	private Token lastTerminationToken = null;
+
+	private Token firstTokenOfCursorLine = null;
+
     public CompletionCustomErrorStrategy(LSContext context) {
         super(context);
         this.context = context;
@@ -73,6 +77,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void reportMatch(Parser recognizer) {
+        removePendingTokensAfterThisToken(recognizer, lastTerminationToken);
         super.reportMatch(recognizer);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
             deleteTokensUpToCursor(recognizer, true);
@@ -81,7 +86,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void sync(Parser recognizer) throws RecognitionException {
-		removePendingTokens(recognizer);
+		removePendingTokensAfterThisToken(recognizer, lastTerminationToken);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInFirstTokenOfCursorLine(recognizer)) {
             deleteTokensUpToCursor(recognizer, false);
         } else if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
@@ -90,23 +95,31 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         super.sync(recognizer);
     }
 
-	private void removePendingTokens(Parser recognizer) {
-		while (removeTokenCount > 0) {
-			forceConsumedTokens.push(recognizer.consume());
-			removeTokenCount--;
-		}
-		this.context.put(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY, forceConsumedTokens);
-	}
+    private void removePendingTokensAfterThisToken(Parser recognizer, Token token) {
+        int currentTokenIndex = recognizer.getCurrentToken().getTokenIndex();
+        if (token != null && currentTokenIndex <= token.getTokenIndex()) {
+            return;
+        }
+        while (removeTokenCount > 0) {
+            forceConsumedTokens.push(recognizer.consume());
+            removeTokenCount--;
+        }
+        this.context.put(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY, forceConsumedTokens);
+    }
 
 	private boolean isInFirstTokenOfCursorLine(Parser recognizer) {
         Token currentToken = recognizer.getCurrentToken();
-        Token firstTokenOfCursorLine = getFirstTokenOfCursorLine(recognizer);
+        if (firstTokenOfCursorLine == null) {
+            firstTokenOfCursorLine = getFirstTokenOfCursorLine(recognizer);
+        }
         return firstTokenOfCursorLine != null && currentToken.getTokenIndex() == firstTokenOfCursorLine.getTokenIndex();
     }
 
     private boolean isInLastTermination(Parser recognizer) {
         Token currentToken = recognizer.getCurrentToken();
-        Token lastTerminationToken = getLastTerminationToken(recognizer.getInputStream());
+        if (lastTerminationToken == null) {
+            lastTerminationToken = getLastTerminationToken(recognizer.getInputStream());
+        }
         return lastTerminationToken != null && currentToken.getTokenIndex() == lastTerminationToken.getTokenIndex();
     }
 
