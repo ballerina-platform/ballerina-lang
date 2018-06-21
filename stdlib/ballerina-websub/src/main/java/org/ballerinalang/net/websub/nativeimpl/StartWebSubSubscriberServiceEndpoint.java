@@ -21,11 +21,11 @@ package org.ballerinalang.net.websub.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.HttpConnectorPortBindingListener;
+import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.serviceendpoint.AbstractHttpNativeFunction;
 import org.ballerinalang.net.websub.BallerinaWebSubConnectionListener;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
@@ -60,9 +60,9 @@ public class StartWebSubSubscriberServiceEndpoint extends AbstractHttpNativeFunc
         ServerConnectorFuture serverConnectorFuture = serverConnector.start();
         WebSubServicesRegistry webSubServicesRegistry = (WebSubServicesRegistry) serviceEndpoint.getNativeData(
                                                                 WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY);
-        Value[] filterHolder = getFilters(serviceEndpoint);
-        serverConnectorFuture.setHttpConnectorListener(new BallerinaWebSubConnectionListener(webSubServicesRegistry,
-                                                                                             filterHolder));
+        serverConnectorFuture.setHttpConnectorListener(
+                new BallerinaWebSubConnectionListener(webSubServicesRegistry, serviceEndpoint
+                        .getStructField(HttpConstants.SERVICE_ENDPOINT_CONFIG), context));
         serverConnectorFuture.setPortBindingEventListener(new HttpConnectorPortBindingListener());
 
         context.setReturnValues();

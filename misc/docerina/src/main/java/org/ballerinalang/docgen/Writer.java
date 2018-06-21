@@ -34,6 +34,7 @@ import org.ballerinalang.docgen.model.EndpointDoc;
 import org.ballerinalang.docgen.model.EnumDoc;
 import org.ballerinalang.docgen.model.FunctionDoc;
 import org.ballerinalang.docgen.model.GlobalVariableDoc;
+import org.ballerinalang.docgen.model.ObjectDoc;
 import org.ballerinalang.docgen.model.PrimitiveTypeDoc;
 import org.ballerinalang.docgen.model.RecordDoc;
 
@@ -91,25 +92,11 @@ public class Writer {
                             return context.stream().anyMatch(c -> c instanceof RecordDoc) ? options.fn(this) :
                                     options.inverse(this);
                         case "object":
-                            return context.stream().anyMatch(c -> {
-                                if (c instanceof EndpointDoc) {
-                                    EndpointDoc endpointDoc = (EndpointDoc) c;
-                                    if (endpointDoc.isObject) {
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            }) ? options.fn(this) : options.inverse(this);
+                            return context.stream().anyMatch(c -> c instanceof ObjectDoc) ? options.fn(this)
+                                                                                          : options.inverse(this);
                         case "endpoint":
-                            return context.stream().anyMatch(c -> {
-                                if (c instanceof EndpointDoc) {
-                                    EndpointDoc endpointDoc = (EndpointDoc) c;
-                                    if (endpointDoc.isConnector) {
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            }) ? options.fn(this) : options.inverse(this);
+                            return context.stream().anyMatch(c -> c instanceof EndpointDoc) ? options.fn(this) :
+                                   options.inverse(this);
                         case "function":
                             return context.stream().anyMatch(c -> c instanceof FunctionDoc) ? options.fn(this) :
                                     options.inverse(this);

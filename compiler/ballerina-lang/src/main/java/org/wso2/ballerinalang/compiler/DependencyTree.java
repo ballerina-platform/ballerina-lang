@@ -30,16 +30,6 @@ public class DependencyTree {
     }
 
     /**
-     * List dependency packages.
-     *
-     * @param packageNode package node
-     */
-    void listDependencyPackages(BLangPackage packageNode) {
-        outStream.println(packageNode.packageID.toString());
-        outStream.println(DependencyTree.renderDependencyTree(packageNode.symbol, 0));
-    }
-
-    /**
      * Render dependency tree of package.
      *
      * @param packageSymbol package symbol
@@ -106,5 +96,19 @@ public class DependencyTree {
         while (iterator.hasNext()) {
             result.add(iterator.next().insert(0, "    "));
         }
+    }
+
+    /**
+     * List dependency packages.
+     *
+     * @param packageNode package node
+     */
+    void listDependencyPackages(BLangPackage packageNode) {
+        String pkgIdAsStr = packageNode.symbol.pkgID.toString();
+        if (packageNode.symbol.pkgID.isUnnamed) {
+            pkgIdAsStr = packageNode.symbol.pkgID.sourceFileName.value;
+        }
+        outStream.println(pkgIdAsStr);
+        outStream.println(DependencyTree.renderDependencyTree(packageNode.symbol, 0));
     }
 }

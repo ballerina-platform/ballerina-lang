@@ -34,11 +34,11 @@ public type QueueSender object {
     }
 
     documentation { Initialize the consumer endpoint
-        P{{config}} Configurations related to the QueueSender endpoint
+        P{{c}} Configurations related to the QueueSender endpoint
     }
-    public function init(QueueSenderEndpointConfiguration config) {
-        self.config = config;
-        match (config.session) {
+    public function init(QueueSenderEndpointConfiguration c) {
+        self.config = c;
+        match (c.session) {
             Session s => self.initQueueSender(s);
             () => {}
         }

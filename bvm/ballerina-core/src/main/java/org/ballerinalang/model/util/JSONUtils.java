@@ -656,6 +656,10 @@ public class JSONUtils {
             return jsonNode.doubleValue();
         }
 
+        if (jsonNode.isLong()) {
+            return jsonNode.longValue();
+        }
+
         throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                 BTypes.typeFloat, getTypeName(jsonNode));
     }

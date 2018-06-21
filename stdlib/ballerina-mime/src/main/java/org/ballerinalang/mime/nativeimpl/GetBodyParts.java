@@ -76,11 +76,11 @@ public class GetBodyParts extends BlockingNativeCallableUnit {
                 }
                 context.setReturnValues(partsArray);
             } else {
-                context.setReturnValues(MimeUtil.createEntityError(context, "Entity body is not a type of " +
+                context.setReturnValues(MimeUtil.createError(context, "Entity body is not a type of " +
                         "composite media type. Received content-type : " + baseType));
             }
         } catch (Throwable e) {
-            context.setReturnValues(MimeUtil.createEntityError(context,
+            context.setReturnValues(MimeUtil.createError(context,
                     "Error occurred while extracting body parts from entity: " + e.getMessage()));
         }
     }

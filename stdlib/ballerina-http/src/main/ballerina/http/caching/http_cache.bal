@@ -86,7 +86,6 @@ public type HttpCache object {
         } catch (error e) {
             return ();
         }
-        return ();
     }
 
     function getAllByETag (string key, string etag) returns Response[] {

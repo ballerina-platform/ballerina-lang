@@ -104,7 +104,7 @@ class TreeBuilder {
                 node.ladderParent = true;
             }
 
-            if (node.ws && node.ws[0].text === 'else' && node.ws[1].text === 'if') {
+            if (node.ws && node.ws.length > 1 && node.ws[0].text === 'else' && node.ws[1].text === 'if') {
                 node.isElseIfBlock = true;
             }
         }
@@ -123,13 +123,14 @@ class TreeBuilder {
         if ((kind === 'XmlCommentLiteral' ||
                 kind === 'XmlElementLiteral' ||
                 kind === 'XmlTextLiteral' ||
-                kind === 'XmlPiLiteral') && node.ws && node.ws[0].text.includes('xml `')) {
+                kind === 'XmlPiLiteral') && node.ws && node.ws[0] &&
+            node.ws[0].text.includes('xml') && node.ws[0].text.includes('`')) {
             node.root = true;
             node.startLiteral = node.ws[0].text;
         }
 
-        if (parentKind === 'XmlElementLiteral' || parentKind === 'XmlCommentLiteral' ||
-            parentKind === 'StringTemplateLiteral' || parentKind === 'XmlTextLiteral' ||
+        if (parentKind === 'XmlElementLiteral' ||
+            parentKind === 'XmlTextLiteral' ||
             parentKind === 'XmlPiLiteral') {
             node.inTemplateLiteral = true;
         }
@@ -165,20 +166,6 @@ class TreeBuilder {
             }
         }
 
-        if (kind === 'XmlCommentLiteral' && node.ws) {
-            let length = node.ws.length;
-            for (let i = 0; i < length; i++) {
-                if (node.ws[i].text.includes('-->')) {
-                    let ws = {
-                        text: '-->',
-                        ws: '',
-                    };
-                    node.ws.splice(i + 1, 0, ws);
-                    break;
-                }
-            }
-        }
-
         if (kind === 'AnnotationAttachment' && node.packageAlias.value === 'builtin') {
             node.builtin = true;
         }
@@ -197,8 +184,10 @@ class TreeBuilder {
                     node.userDefinedAlias = true;
                 }
             }
-            if (node.packageName.length === 2
-                && node.packageName[0].value === 'transactions' && node.packageName[1].value === 'coordinator') {
+
+            if ((node.packageName.length === 2 && node.packageName[0].value === 'transactions' &&
+                    node.packageName[1].value === 'coordinator') || (node.alias && node.alias.value &&
+                    node.alias.value.startsWith('.'))) {
                 node.isInternal = true;
             }
         }
@@ -462,12 +451,16 @@ class TreeBuilder {
                 }
 
                 if (node.expression.value === 'null') {
-                    node.emptyBrackets = true;
+                    node.expression.emptyParantheses = true;
                 }
             }
         }
 
         if (node.kind === "Documentation") {
+            if (node.ws && node.ws.length > 1) {
+                node.startDoc = node.ws[0].text;
+            }
+
             for (let j = 0; j < node.attributes.length; j++) {
                 let attribute = node.attributes[j];
                 if (attribute.ws) {
@@ -531,9 +524,13 @@ class TreeBuilder {
             }
         }
 
-        if (node.kind === 'Literal') {
+        if (node.kind === 'Literal' && parentKind !== 'StringTemplateLiteral') {
+            if (node.ws && node.ws.length === 1 && node.ws[0] && node.ws[0].text) {
+                node.value = node.ws[0].text;
+            }
+
             if ((node.value === 'nil' || node.value === 'null') && node.ws
-                && node.ws.length < 3 && node.ws[0].text === '(') {
+                && node.ws.length < 3 && node.ws[0] && node.ws[0].text === '(') {
                 node.emptyParantheses = true;
             }
         }
@@ -571,12 +568,103 @@ class TreeBuilder {
             }
         }
 
-        if (node.kind === 'Block' && node.ws && node.ws[0].text === 'else') {
+        if (node.kind === 'Block' && node.ws && node.ws[0] && node.ws[0].text === 'else') {
             node.isElseBlock = true;
         }
 
-        if (node.kind === 'FieldBasedAccessExpr' && node.ws && node.ws[0].text === '!') {
+        if (node.kind === 'FieldBasedAccessExpr' && node.ws && node.ws[0] && node.ws[0].text === '!') {
             node.errorLifting = true;
+        }
+
+        // Function to assign ws for template literals.
+        let literalWSAssignForTemplates = function (currentWs, nextWs, literals, ws, wsStartLocation) {
+            if (literals.length === (ws.length - wsStartLocation)) {
+                for (let i = 0; i < literals.length; i++) {
+                    if (literals[i].kind === 'Literal') {
+                        if (!literals[i].ws) {
+                            literals[i].ws = [];
+                        }
+
+                        if (ws[currentWs].text.includes('{{')) {
+                            literals[i].ws.push(ws[currentWs]);
+                            literals[i].value = ws[currentWs].text;
+                            ws.splice(currentWs, 1);
+                            literals[i].startTemplateLiteral = true;
+                        } else if (ws[currentWs].text.includes('}}')) {
+                            literals[i].ws.push(ws[currentWs]);
+                            if (ws[nextWs].text.includes('{{')) {
+                                literals[i].ws.push(ws[nextWs]);
+                                literals[i].value = ws[nextWs].text;
+                                literals[i].startTemplateLiteral = true;
+                                ws.splice(nextWs, 1);
+                            }
+                            ws.splice(currentWs, 1);
+                            literals[i].endTemplateLiteral = true;
+                        }
+
+                        if (i === (literals.length - 1)) {
+                            literals[i].ws.push(ws[currentWs]);
+                            literals[i].value = ws[currentWs].text;
+                            literals[i].lastNodeValue = true;
+                            ws.splice(currentWs, 1);
+                        }
+                    }
+                }
+            } else if ((literals.length - 1) === (ws.length - wsStartLocation)) {
+                for (let i = 0; i < literals.length; i++) {
+                    if (literals[i].kind === 'Literal') {
+                        if (!literals[i].ws) {
+                            literals[i].ws = [];
+                        }
+
+                        if (ws[currentWs].text.includes('{{')) {
+                            literals[i].ws.push(ws[currentWs]);
+                            literals[i].value = ws[currentWs].text;
+                            ws.splice(currentWs, 1);
+                            literals[i].startTemplateLiteral = true;
+                        } else if (ws[currentWs].text.includes('}}')) {
+                            literals[i].ws.push(ws[currentWs]);
+                            if (ws[nextWs].text.includes('{{')) {
+                                literals[i].ws.push(ws[nextWs]);
+                                literals[i].value = ws[nextWs].text;
+                                literals[i].startTemplateLiteral = true;
+                                ws.splice(nextWs, 1);
+                            }
+                            ws.splice(currentWs, 1);
+                            literals[i].endTemplateLiteral = true;
+                        }
+                    }
+                }
+            }
+        };
+
+        if (node.kind === 'StringTemplateLiteral') {
+            if (node.ws && node.ws[0] &&
+                node.ws[0].text.includes('string') && node.ws[0].text.includes('`')) {
+                node.startTemplate = node.ws[0].text;
+                literalWSAssignForTemplates(1, 2, node.expressions, node.ws, 2);
+            }
+        }
+
+        if (kind === 'XmlCommentLiteral' && node.ws) {
+            let length = node.ws.length;
+            for (let i = 0; i < length; i++) {
+                if (node.ws[i].text.includes('-->') && node.ws[i].text.length > 3) {
+                    let ws = {
+                        text: '-->',
+                        ws: '',
+                    };
+                    node.ws[i].text = node.ws[i].text.replace('-->', '');
+                    node.ws.splice(i + 1, 0, ws);
+                    break;
+                }
+            }
+
+            if (node.root) {
+                literalWSAssignForTemplates(2, 3, node.textFragments, node.ws, 4);
+            } else {
+                literalWSAssignForTemplates(1, 2, node.textFragments, node.ws, 2);
+            }
         }
     }
 

@@ -22,12 +22,15 @@ import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.SymbolInfo;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
 import org.ballerinalang.langserver.completions.util.filters.PackageActionFunctionAndTypesFilter;
+import org.ballerinalang.langserver.completions.util.filters.SymbolFilters;
 import org.ballerinalang.langserver.completions.util.sorters.ActionAndFieldAccessContextItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
+import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Parser rule based variable definition statement context resolver.
@@ -37,16 +40,16 @@ public class ParserRuleVariableDefinitionStatementContextResolver extends Abstra
     @SuppressWarnings("unchecked")
     public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        PackageActionFunctionAndTypesFilter actionFunctionTypeFilter = new PackageActionFunctionAndTypesFilter();
 
         // Here we specifically need to check whether the statement is function invocation,
         // action invocation or worker invocation
         Class sorterKey;
         if (isInvocationOrFieldAccess(completionContext)) {
             sorterKey = ActionAndFieldAccessContextItemSorter.class;
-            ArrayList<SymbolInfo> actionAndFunctions = new ArrayList<>();
-            actionAndFunctions.addAll(actionFunctionTypeFilter.filterItems(completionContext));
-            this.populateCompletionItemList(actionAndFunctions, completionItems);
+            Either<List<CompletionItem>, List<SymbolInfo>> filteredList =
+                    SymbolFilters.getFilterByClass(PackageActionFunctionAndTypesFilter.class)
+                            .filterItems(completionContext);
+            this.populateCompletionItemList(filteredList, completionItems);
         } else {
             sorterKey = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getClass();
             completionItems.addAll(this.getVariableDefinitionCompletionItems(completionContext));

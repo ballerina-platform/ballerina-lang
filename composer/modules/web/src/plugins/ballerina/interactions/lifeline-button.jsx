@@ -15,6 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+import log from 'log';
 import React from 'react';
 import _ from 'lodash';
 import PropTypes from 'prop-types';
@@ -23,23 +24,19 @@ import Button from './button';
 import Menu from './menu';
 import Item from './item';
 import Search from './search';
+import FragmentUtils from '../utils/fragment-utils';
+import TreeBuilder from '../model/tree-builder';
 import DefaultNodeFactory from '../model/default-node-factory';
-import Endpoint from "../env/endpoint";
+import Endpoint from '../env/endpoint';
 
 // Use your imagination to render suggestions.
 const renderSuggestion = (suggestion, value) => {
     if (suggestion.addNewValue) {
         return (
-            <div className='add-new-connector-area'>
-                <a className='add-new-connector-button'>
-                    <i className='fw fw-connector'/>
-                    {' Create new endpoint "'}
-                    <b>{value.query + '"'}</b>
-                </a>
-            </div>
+            <span />
         );
     }
-    return (<div>
+    return (<div className='endpoint-item'>
         <div className='pkg-name'>{suggestion.pkg.getName()}</div>
         {suggestion.endpoint.getName()}
     </div>);
@@ -70,7 +67,7 @@ class LifelineButton extends React.Component {
 
     // Autosuggest will call this function every time you need to update suggestions.
     // You already implemented this logic above, so just use it.
-    onSuggestionsFetchRequested({value}) {
+    onSuggestionsFetchRequested({ value }) {
         const environment = this.context.editor.environment;
         const packages = environment.getFilteredPackages([]);
         const suggestionsMap = {};
@@ -98,14 +95,14 @@ class LifelineButton extends React.Component {
         const suggestions = _.values(suggestionsMap);
 
         if (value !== '') {
-            suggestions.push({addNewValue: true});
+            suggestions.push({ addNewValue: true });
         }
         this.setState({
             suggestions,
         });
     }
 
-    onChange(event, {newValue, method}) {
+    onChange(event, { newValue, method }) {
         this.setState({
             value: newValue,
         });
@@ -115,6 +112,25 @@ class LifelineButton extends React.Component {
         if (item.suggestion.addNewValue) {
             this.createEndpoint(item.suggestionValue);
         } else {
+            const existingImports = this.context.astRoot.getImports();
+            if (_.isArray(existingImports)) {
+                try {
+                    const orgName = item.suggestion.pkg.getOrg();
+                    const pkgName = item.suggestion.pkg.getName();
+                    const importFound = existingImports.find((importNode) => {
+                        return importNode.orgName.value === orgName
+                            && importNode.packageName[0].value === pkgName; // TODO: improve to support multipart pkgNames
+                    });
+                    if (!importFound) {
+                        const importNodeCode = `\nimport ${orgName}/${pkgName};`;
+                        const fragment = FragmentUtils.createTopLevelNodeFragment(importNodeCode);
+                        const newImportNode = FragmentUtils.parseFragment(fragment);
+                        this.context.astRoot.addImport(TreeBuilder.build(newImportNode));
+                    }
+                } catch (err) {
+                    log.error('Error while adding import', err);
+                }
+            }
             const node = DefaultNodeFactory.createEndpoint(item.suggestion);
             this.props.model.acceptDrop(node);
         }
@@ -153,15 +169,15 @@ class LifelineButton extends React.Component {
     }
 
     showEndpoints() {
-        this.setState({listEndpoints: true, suggestions: this.getAllSuggestions()});
+        this.setState({ listEndpoints: true, suggestions: this.getAllSuggestions() });
     }
 
     hideEndpoints() {
-        this.setState({listEndpoints: false});
+        this.setState({ listEndpoints: false });
     }
 
     createEndpoint(endpointName) {
-        const endpointNode = DefaultNodeFactory.createEndpoint({name:endpointName});
+        const endpointNode = DefaultNodeFactory.createEndpoint({ name: endpointName });
         this.props.model.acceptDrop(endpointNode);
         endpointNode.name.setValue(endpointName);
     }
@@ -171,7 +187,7 @@ class LifelineButton extends React.Component {
      * @return {object} button rendering object
      */
     render() {
-        const {value, suggestions} = this.state;
+        const { value, suggestions } = this.state;
 
         const inputProps = {
             placeholder: 'Search',
@@ -212,20 +228,22 @@ class LifelineButton extends React.Component {
                         >
                             <div className='endpoint-select-header'>
                                 <div className='connector-select-close'>
-                                    <i onClick={this.hideEndpoints} className='nav-button fw fw-left'/>
+                                    <i onClick={this.hideEndpoints} className='nav-button fw fw-left' />
                                     Select an endpoint
                                 </div>
                             </div>
-                            <Search
-                                suggestions={suggestions}
-                                onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
-                                onSuggestionSelected={this.onSuggestionSelected}
-                                getSuggestionValue={this.getSuggestionValue}
-                                renderSuggestion={renderSuggestion}
-                                alwaysRenderSuggestions
-                                inputProps={inputProps}
-                                ref={this.storeInputReference}
-                            />
+                            <div className='suggest-list'>
+                                <Search
+                                    suggestions={suggestions}
+                                    onSuggestionsFetchRequested={this.onSuggestionsFetchRequested}
+                                    onSuggestionSelected={this.onSuggestionSelected}
+                                    getSuggestionValue={this.getSuggestionValue}
+                                    renderSuggestion={renderSuggestion}
+                                    alwaysRenderSuggestions
+                                    inputProps={inputProps}
+                                    ref={this.storeInputReference}
+                                />
+                            </div>
                         </div>
                     </Menu>
                 </Button>
@@ -247,6 +265,7 @@ LifelineButton.defaultProps = {};
 
 LifelineButton.contextTypes = {
     editor: PropTypes.instanceOf(Object).isRequired,
+    astRoot: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default LifelineButton;

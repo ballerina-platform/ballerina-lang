@@ -484,4 +484,11 @@ public class BJSONValueTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAddToNull");
         Assert.assertEquals(returns[0].stringValue(), "{\"name\":\"Supun\",\"address\":{\"country\":\"SriLanka\"}}");
     }
+
+    @Test
+    public void testJsonIntToFloat() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testJsonIntToFloat");
+        Assert.assertNotNull(returns[0]);
+        Assert.assertEquals(((BFloat) returns[0]).floatValue(), 4.0);
+    }
 }

@@ -87,4 +87,11 @@ public class InvocationContextTest {
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
     }
+
+    @Test(description = "Test case for custom attributes in Invocation Context")
+    public void testCustomAttributes() throws Exception {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testAttributes");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
 }

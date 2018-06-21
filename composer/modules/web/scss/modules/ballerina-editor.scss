@@ -152,6 +152,7 @@
         .control-icons {
           fill: $gray07;
           font-size: 11px;
+          cursor: pointer;
         }
 
         .title-icon{
@@ -232,6 +233,7 @@
         }
         .property-pane-action-button-delete,
         .property-pane-action-button-jump {
+          cursor: pointer;
           opacity: 0.6;
           fill: $text-color;
           &:hover {
@@ -391,7 +393,7 @@ swagger-ui h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
 
 .top-menu {
   position: fixed;
-  padding: 3px 26px 6px !important;
+  padding: 3px 34px 6px 26px !important;
   height: 40px;
   &.hidden{
     display: none !important;
@@ -528,4 +530,7 @@ a.item.menu-button.ui.button.primary {
   font-weight: 300;
   line-height: 1.3em;
   color: #ccc;
+}
+.endpoint-item {
+  cursor: pointer;
 }

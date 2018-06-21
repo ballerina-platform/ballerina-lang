@@ -438,11 +438,10 @@ class PositioningUtil {
     positionServiceNode(node) {
         const viewState = node.viewState;
 
-        // Position the transport nodes
-        const transportLine = !_.isNil(viewState.components.transportLine) ?
-            viewState.components.transportLine : { x: 0, y: 0 };
-        transportLine.x = viewState.bBox.x - 5;
-        transportLine.y = viewState.bBox.y + viewState.components.annotation.h + viewState.components.heading.h;
+        // Position the connector nodes
+        node.viewState.components.serverConnector.x = viewState.bBox.x + viewState.titleWidth;
+        node.viewState.components.serverConnector.y = viewState.bBox.y + viewState.components.annotation.h
+            + viewState.components.heading.h;
 
         let children = [];
         let endpoints = [];

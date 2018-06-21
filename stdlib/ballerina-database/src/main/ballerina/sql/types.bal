@@ -134,7 +134,7 @@ public type Direction "IN"|"OUT"|"INOUT";
 @final public Direction DIRECTION_INOUT = "INOUT";
 
 documentation {
-    Parameter represents a parameter for the SQL actions when a variable parameter needs to pass to the action.
+    Parameter represents a parameter for the SQL actions when a variable parameter needs to be passed to the action.
 
     F{{sqlType}} The data type of the corresponding SQL parameter
     F{{value}} Value of paramter pass into the SQL statement

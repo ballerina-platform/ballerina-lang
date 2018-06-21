@@ -39,18 +39,18 @@ public type Client object {
     documentation {
         Called when the endpoint is being initialized during package initialization.
 
-        P{{config}} The configuration for the endpoint
+        P{{c}} The configuration for the endpoint
     }
-    public function init(HubClientEndpointConfig config) {
-        endpoint http:Client httpClientEndpoint {
-            url:config.url,
-            secureSocket:config.clientSecureSocket,
-            auth:config.auth,
-            followRedirects:config.followRedirects
+    public function init(HubClientEndpointConfig c) {
+        endpoint http:Client ep {
+            url: c.url,
+            secureSocket: c.clientSecureSocket,
+            auth: c.auth,
+            followRedirects: c.followRedirects
         };
 
-        self.httpClientEndpoint = httpClientEndpoint;
-        self.config = config;
+        self.httpClientEndpoint = ep;
+        self.config = c;
     }
 
     documentation {

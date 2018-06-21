@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import org.ballerinalang.model.elements.DocAttachment;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.Symbol;
@@ -43,6 +44,7 @@ public class BSymbol implements Symbol {
     public BSymbol owner;
     public boolean tainted;
     public boolean closure;
+    public DocAttachment documentation;
 
     /**
      * If a symbol has child symbols, then the scope will not be null.
@@ -56,6 +58,10 @@ public class BSymbol implements Symbol {
         this.pkgID = pkgID;
         this.type = type;
         this.owner = owner;
+    }
+
+    public DocAttachment getDocAttachment() {
+        return documentation;
     }
 
     @Override
