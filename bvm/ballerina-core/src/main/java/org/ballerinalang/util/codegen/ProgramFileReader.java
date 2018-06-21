@@ -29,6 +29,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
+import static org.ballerinalang.util.BLangConstants.BALLERINA_RUNTIME_PKG;
 import static org.ballerinalang.util.BLangConstants.MAGIC_NUMBER;
 import static org.ballerinalang.util.BLangConstants.VERSION_NUMBER;
 
@@ -65,6 +66,7 @@ public class ProgramFileReader {
 
     private ProgramFile readProgramInternal(DataInputStream dataInStream) throws IOException {
         loadBuiltinPackage();
+        loadRuntimePackage();
         PackageInfoReader pkgInfoReader = new PackageInfoReader(dataInStream, programFile);
         int magicNumber = dataInStream.readInt();
         if (magicNumber != MAGIC_NUMBER) {
@@ -101,5 +103,10 @@ public class ProgramFileReader {
     private void loadBuiltinPackage() throws IOException {
         PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
         pkgFileReader.readPackage(BALLERINA_BUILTIN_PKG);
+    }
+
+    private void loadRuntimePackage() throws IOException {
+        PackageFileReader pkgFileReader = new PackageFileReader(this.programFile);
+        pkgFileReader.readPackage(BALLERINA_RUNTIME_PKG);
     }
 }
