@@ -47,10 +47,6 @@
             <artifactId>ballerina-logging</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-builtin</artifactId>
-        </dependency>
-        <dependency>
             <groupId>javax.jms</groupId>
             <artifactId>javax.jms-api</artifactId>
         </dependency>
@@ -65,7 +61,17 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-mime</artifactId>
+            <artifactId>lib-creator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-builtin</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-log-api</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -78,12 +84,6 @@
                 <excludes>
                     <exclude>ballerina/**</exclude>
                 </excludes>
-            </resource>
-    
-            <!-- copy built-in ballerina sources to the jar -->
-            <resource>
-                <directory>${generated.ballerina.source.directory}</directory>
-                <targetPath>META-INF/ballerina</targetPath>
             </resource>
         </resources>
         <plugins>
@@ -187,8 +187,6 @@
     </build>
     
     <properties>
-        <!-- Path to the generated natives ballerina files temp directory -->
-        <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina</generated.ballerina.source.directory>
         <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
     </properties>

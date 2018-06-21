@@ -18,11 +18,11 @@
 
 package org.ballerinalang.stdlib.io.events.data;
 
-import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
-import org.ballerinalang.nativeimpl.io.events.Event;
-import org.ballerinalang.nativeimpl.io.events.EventContext;
-import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.result.AlphaResult;
+import org.ballerinalang.stdlib.io.channels.base.DataChannel;
+import org.ballerinalang.stdlib.io.events.Event;
+import org.ballerinalang.stdlib.io.events.EventContext;
+import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.result.AlphaResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

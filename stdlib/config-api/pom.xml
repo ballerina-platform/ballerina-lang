@@ -48,23 +48,23 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-system</artifactId>
+            <artifactId>lib-creator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>lib-creator</artifactId>
+            <artifactId>ballerina-builtin</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-system</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
         </dependency>
     </dependencies>
 
     <build>
-        <resources>
-            <!-- copy ballerina sources to the jar -->
-            <resource>
-                <directory>${ballerina.source.directory}</directory>
-                <targetPath>META-INF/ballerina</targetPath>
-            </resource>
-        </resources>
-
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -161,9 +161,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
-    </properties>
 
 </project>

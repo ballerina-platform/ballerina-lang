@@ -59,13 +59,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <!-- copy ballerina sources to the jar -->
-            <resource>
-                <directory>${ballerina.source.directory}</directory>
-                <targetPath>META-INF/ballerina</targetPath>
-            </resource>
-        </resources>
 
         <plugins>
             <plugin>
@@ -163,9 +156,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
-    </properties>
 
 </project>

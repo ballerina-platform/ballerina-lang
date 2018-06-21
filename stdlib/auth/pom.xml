@@ -36,7 +36,9 @@
     <dependencies>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-config-api</artifactId>
+            <artifactId>ballerina-builtin</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -46,11 +48,15 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-lang</artifactId>
+            <artifactId>ballerina-crypto</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-log-api</artifactId>
+            <artifactId>ballerina-cache</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -61,26 +67,20 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-runtime</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
+            <artifactId>ballerina-internal</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-system</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-system</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-time</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
@@ -91,13 +91,6 @@
     </dependencies>
 
     <build>
-        <resources>
-            <!-- copy ballerina sources to the jar -->
-            <resource>
-                <directory>${ballerina.source.directory}</directory>
-                <targetPath>META-INF/ballerina</targetPath>
-            </resource>
-        </resources>
 
         <plugins>
             <plugin>
@@ -166,38 +159,7 @@
                     </execution>
                 </executions>
             </plugin>
-
-            <!-- For ballerina annotation processing -->
-            <plugin>
-                <groupId>org.bsc.maven</groupId>
-                <artifactId>maven-processor-plugin</artifactId>
-                <version>${mvn.processor.plugin.version}</version>
-                <configuration>
-                    <processors>
-                        <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
-                    </processors>
-                    <options>
-                        <nativeEntityProviderPackage>
-                            org.ballerinalang.stdlib.auth.generated.providers
-                        </nativeEntityProviderPackage>
-                        <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
-                    </options>
-                </configuration>
-                <executions>
-                    <execution>
-                        <id>process</id>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <phase>generate-sources</phase>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
-    </properties>
 
 </project>

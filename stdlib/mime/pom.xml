@@ -40,27 +40,7 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-builtin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-file</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-file</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-io</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-io</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
         </dependency>
         <dependency>
             <groupId>org.wso2.transport.http</groupId>
@@ -72,7 +52,23 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
+            <artifactId>lib-creator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-file</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-io</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -85,12 +81,6 @@
                 <excludes>
                     <exclude>ballerina/**</exclude>
                 </excludes>
-            </resource>
-
-            <!-- copy built-in ballerina sources to the jar -->
-            <resource>
-                <directory>${generated.ballerina.source.directory}</directory>
-                <targetPath>META-INF/ballerina</targetPath>
             </resource>
         </resources>
         <plugins>
@@ -196,8 +186,6 @@
 
 
     <properties>
-        <!-- Path to the generated natives ballerina files temp directory -->
-        <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina</generated.ballerina.source.directory>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
     </properties>

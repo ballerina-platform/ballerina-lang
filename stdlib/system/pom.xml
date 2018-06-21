@@ -49,20 +49,6 @@
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-builtin</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-runtime</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -75,12 +61,6 @@
                 <excludes>
                     <exclude>ballerina/**</exclude>
                 </excludes>
-            </resource>
-
-            <!-- copy ballerina sources to the jar -->
-            <resource>
-                <directory>${ballerina.source.directory}</directory>
-                <targetPath>META-INF/ballerina</targetPath>
             </resource>
         </resources>
 
@@ -180,9 +160,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <properties>
-        <ballerina.source.directory>${project.build.directory}/../src/main/ballerina</ballerina.source.directory>
-    </properties>
 
 </project>
