@@ -99,7 +99,6 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
                 if (firstPart) {
                     firstPart = false;
                     writer.write(DASH_BOUNDARY);
-
                 } else {
                     writer.write(CRLF_POST_DASH);
                 }
