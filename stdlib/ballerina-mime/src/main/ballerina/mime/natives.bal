@@ -410,7 +410,7 @@ public type Entity object {
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
                          `multipart/form-data` is used as the default value.
     }
-    public native function setBodyParts(Entity[] bodyParts, @sensitive string contentType = "multipart/form-data");
+    public native function setBodyParts(@sensitive Entity[] bodyParts, @sensitive string contentType = "multipart/form-data");
 
     documentation {
         Gets the header value associated with the given header name.
