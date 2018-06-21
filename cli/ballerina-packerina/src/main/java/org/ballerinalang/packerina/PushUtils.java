@@ -353,14 +353,18 @@ public class PushUtils {
         manifest = readManifestConfigurations(sourceRootPath);
 
         try {
-            Files.list(sourceRootPath)
-                 .filter(path -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
-                 .map(ProjectDirs::getLastComp)
-                 .filter(dirName -> !isSpecialDirectory(dirName))
-                 .map(Path::toString)
-                 .forEach(path -> pushPackages(path, sourceRoot, home));
+            List<String> fileList = Files.list(sourceRootPath)
+                                         .filter(path -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
+                                         .map(ProjectDirs::getLastComp)
+                                         .filter(dirName -> !isSpecialDirectory(dirName))
+                                         .map(Path::toString).collect(Collectors.toList());
+            if (fileList.size() == 0) {
+                throw new BLangCompilerException("no packages found to push in " + sourceRootPath.toString());
+            }
+            fileList.forEach(path -> pushPackages(path, sourceRoot, home));
         } catch (IOException ex) {
-            throw new BLangCompilerException("error occured when pushing packages from " + sourceRoot, ex);
+            throw new BLangCompilerException("error occured when pushing packages from " + sourceRootPath.toString(),
+                                             ex);
         }
     }
 
