@@ -80,6 +80,8 @@ documentation {
     F{{httpVersion}} Highest HTTP version supported
     F{{requestLimits}} Request validation limits configuration
     F{{filters}} Filters to be applied to the request before being dispatched to the actual `resource`
+    F{{timeoutMillis}} Period of time in milliseconds that a connection waits for a read/write operation. Use value 0
+                       to disable timeout
     F{{authProviders}} The array of authentication providers which are used to authenticate the users
 }
 public type SecureEndpointConfiguration {
@@ -90,6 +92,7 @@ public type SecureEndpointConfiguration {
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
     Filter[] filters,
+    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
     AuthProvider[]? authProviders,
 };
 

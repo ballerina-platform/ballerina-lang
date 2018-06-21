@@ -86,6 +86,7 @@ documentation {
         F{{readyOnConnect}}
  true if the client is ready to recieve messages as soon as the connection is established. This is true by default. If changed to false the function ready() of the
 `WebSocketClient`needs to be called once to start receiving messages.
+        F{{secureSocket}} SSL/TLS related options
 }
 public type WebSocketClientEndpointConfig {
     string url,
@@ -93,5 +94,6 @@ public type WebSocketClientEndpointConfig {
     string[] subProtocols,
     map<string> customHeaders,
     int idleTimeoutInSeconds = -1,
-    boolean readyOnConnect = true;
+    boolean readyOnConnect = true,
+    SecureSocket? secureSocket,
 };
