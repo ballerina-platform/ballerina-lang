@@ -20,7 +20,12 @@ package org.ballerinalang.launcher.util;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.io.File;
+import java.nio.file.DirectoryStream;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 /**
@@ -64,7 +69,8 @@ public class BFileUtil {
                 }
             });
         } catch (IOException e) {
-            throw new BLangRuntimeException("error occured while copying '" + sourcePath + "'", e);
+            throw new BLangRuntimeException(
+                    "error occured while copying from '" + sourcePath + "' " + "to '" + targetPath + "'", e);
         }
     }
 
@@ -75,11 +81,13 @@ public class BFileUtil {
      */
     public static void delete(Path path) {
         try {
-            if (!path.toFile().exists()) {
+            File resource = path.toFile();
+            if (!resource.exists()) {
                 return;
-            } else if (path.toFile().isFile()) {
+            } else if (resource.isFile()) {
                 Files.delete(path);
-            } else if (path.toFile().isDirectory()) {
+                //if the resource is a directory, recursively deletes the sub directories/files accordingly
+            } else if (resource.isDirectory()) {
                 DirectoryStream<Path> ds = Files.newDirectoryStream(path);
                 for (Path subPath : ds) {
                     delete(subPath);
