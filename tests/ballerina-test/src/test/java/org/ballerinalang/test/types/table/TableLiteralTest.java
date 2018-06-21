@@ -49,6 +49,8 @@ import static java.util.concurrent.TimeUnit.SECONDS;
  */
 public class TableLiteralTest {
 
+    private static final String CR = "\r";
+    private static final String EMPTY_STRING = "";
     private CompileResult result;
     private CompileResult resultNegative;
     private CompileResult resultHelper;
@@ -108,7 +110,7 @@ public class TableLiteralTest {
         try {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintData");
-            Assert.assertEquals(outContent.toString(),
+            Assert.assertEquals(outContent.toString().replaceAll(CR, EMPTY_STRING),
                     "table<Person> {index: [\"id\", \"age\"], primaryKey: [\"id\", \"age\"], data: [{id:1, age:30, "
                             + "salary:300.5, name:\"jane\", married:true}, {id:2, age:20, salary:200.5, "
                             + "name:\"martin\", married:true}, {id:3, age:32, salary:100.5, name:\"john\", "
@@ -126,7 +128,7 @@ public class TableLiteralTest {
         try {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintDataEmptyTable");
-            Assert.assertEquals(outContent.toString(),
+            Assert.assertEquals(outContent.toString().replaceAll(CR, EMPTY_STRING),
                     "table<Person> {index: [], primaryKey: [], data: []}\n");
         } finally {
             outContent.close();
@@ -158,8 +160,8 @@ public class TableLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testToJson");
         Assert.assertEquals((returns[0]).stringValue(),
                 "[{\"id\":1,\"age\":30,\"salary\":300.5,\"name\":\"jane\","
-                + "\"married\":true},{\"id\":2,\"age\":20,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
-                + "{\"id\":3,\"age\":32,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
+                        + "\"married\":true},{\"id\":2,\"age\":20,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
+                        + "{\"id\":3,\"age\":32,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
     }
 
     @Test(priority = 1)
@@ -178,9 +180,9 @@ public class TableLiteralTest {
         Assert.assertTrue(returns[0] instanceof BJSON);
         Assert.assertEquals(returns[0].stringValue(),
                 "[{\"id\":1,\"jsonData\":{\"name\":\"apple\",\"color\":\"red\","
-                + "\"price\":30.3},\"xmlData\":\"<book>The Lost World</book>\"},{\"id\":2,\""
-                + "jsonData\":{\"name\":\"apple\",\"color\":\"red\",\"price\":30.3},"
-                + "\"xmlData\":\"<book>The Lost World</book>\"}]");
+                        + "\"price\":30.3},\"xmlData\":\"<book>The Lost World</book>\"},{\"id\":2,\""
+                        + "jsonData\":{\"name\":\"apple\",\"color\":\"red\",\"price\":30.3},"
+                        + "\"xmlData\":\"<book>The Lost World</book>\"}]");
     }
 
     @Test(priority = 1)
@@ -260,16 +262,16 @@ public class TableLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithArrayDataToXml");
         Assert.assertEquals((returns[0]).stringValue(),
                 "<results><result><id>1</id><intArrData><element>1</element>"
-                + "<element>2</element><element>3</element></intArrData>"
-                + "<floatArrData><element>11.1</element><element>22.2</element><element>33.3</element></floatArrData>"
-                + "<stringArrData><element>Hello</element><element>World</element></stringArrData>"
-                + "<booleanArrData><element>true</element><element>false</element><element>true</element>"
-                + "</booleanArrData></result>"
-                + "<result><id>2</id><intArrData><element>10</element><element>20</element><element>30</element>"
-                + "</intArrData><floatArrData><element>111.1</element><element>222.2</element><element>333.3</element>"
-                + "</floatArrData><stringArrData><element>Hello</element><element>World</element><element>test"
-                + "</element></stringArrData><booleanArrData><element>false</element><element>false</element>"
-                + "<element>true</element></booleanArrData></result></results>");
+                        + "<element>2</element><element>3</element></intArrData>"
+                        + "<floatArrData><element>11.1</element><element>22.2</element><element>33.3</element></floatArrData>"
+                        + "<stringArrData><element>Hello</element><element>World</element></stringArrData>"
+                        + "<booleanArrData><element>true</element><element>false</element><element>true</element>"
+                        + "</booleanArrData></result>"
+                        + "<result><id>2</id><intArrData><element>10</element><element>20</element><element>30</element>"
+                        + "</intArrData><floatArrData><element>111.1</element><element>222.2</element><element>333.3</element>"
+                        + "</floatArrData><stringArrData><element>Hello</element><element>World</element><element>test"
+                        + "</element></stringArrData><booleanArrData><element>false</element><element>false</element>"
+                        + "<element>true</element></booleanArrData></result></results>");
     }
 
     @Test(priority = 1)
@@ -319,25 +321,23 @@ public class TableLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testTableAddAndAccess");
         Assert.assertEquals((returns[0]).stringValue(),
                 "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
-                + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true}]");
+                        + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true}]");
         Assert.assertEquals((returns[1]).stringValue(),
                 "[{\"id\":1,\"age\":35,\"salary\":300.5,\"name\":\"jane\","
-                + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
-                + "{\"id\":3,\"age\":42,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
+                        + "\"married\":true},{\"id\":2,\"age\":40,\"salary\":200.5,\"name\":\"martin\",\"married\":true},"
+                        + "{\"id\":3,\"age\":42,\"salary\":100.5,\"name\":\"john\",\"married\":false}]");
     }
 
-    @Test(priority = 1,
-          description = "Test struct with any typed field",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: unsupported column type for table : any.*")
+    @Test(priority = 1, description = "Test struct with any typed field",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*message: unsupported column type for table : any.*")
     public void testTableWithAnyDataToJson() {
-       BRunUtil.invoke(result, "testTableWithAnyDataToJson");
+        BRunUtil.invoke(result, "testTableWithAnyDataToJson");
     }
 
-    @Test(priority = 1,
-          description = "Test invalid empty table create",
-          expectedExceptions = { BLangRuntimeException.class },
-          expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*")
+    @Test(priority = 1, description = "Test invalid empty table create",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*message: table cannot be created without a constraint.*")
     public void testEmptyTableCreateInvalid() {
         BRunUtil.invoke(result, "testEmptyTableCreateInvalid");
     }
@@ -375,7 +375,7 @@ public class TableLiteralTest {
     public void testTableReturnNegativeCases() {
         Assert.assertEquals(resultNegative.getErrorCount(), 1);
         BAssertUtil.validateError(resultNegative, 0,
-           "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
-           20, 33);
+                "incompatible types: expected 'function (any) returns (boolean)', found 'function (Person) returns (())'",
+                20, 33);
     }
 }
