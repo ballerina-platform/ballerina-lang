@@ -30,11 +30,10 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
  */
 public class GrpcConstants {
     public static final int MAX_MESSAGE_SIZE = 16 * 1024 * 1024;
-    public static final CallOptions.Key<String> COMPRESSOR_NAME = CallOptions.Key.of("compressor-name",
-            Codec.Identity.NONE.getMessageEncoding());
-//    public static final Metadata.Key<String> CONTENT_TYPE_MD_KEY = Metadata.Key.of("content-type",
-//            ASCII_STRING_MARSHALLER);
-    
+//    public static final CallOptions.Key<String> COMPRESSOR_NAME = CallOptions.Key.of("compressor-name",
+//            Codec.Identity.NONE.getMessageEncoding());
+
+
     //gRPC package name.
     public static final String PROTOCOL_PACKAGE_GRPC = "grpc";
     public static final String PROTOCOL_STRUCT_PACKAGE_GRPC = "ballerina" + ORG_NAME_SEPARATOR + "grpc";

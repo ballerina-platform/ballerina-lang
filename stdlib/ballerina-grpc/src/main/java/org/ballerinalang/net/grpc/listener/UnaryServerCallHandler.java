@@ -25,8 +25,8 @@ import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.Status;
 
 /**
- * Unary service call handler.
- * This is registered in Unary and server streaming services.
+ * Interface to initiate processing of incoming remote calls for unary services.
+ * This is used in unary and server streaming services.
  *
  * @param <ReqT> Request message type.
  * @param <RespT> Response message type.
@@ -42,7 +42,7 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
     }
 
     @Override
-    public ServerCall.Listener<ReqT> startCall(ServerCall<ReqT, RespT> call) {
+    public Listener<ReqT> startCall(ServerCall<ReqT, RespT> call) {
 
         if (!call.getMethodDescriptor().getType().clientSendsOneMessage()) {
             throw new RuntimeException("asyncUnaryRequestCall is only for clientSendsOneMessage methods");
@@ -53,14 +53,13 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
         return new UnaryServerCallListener(responseObserver, call);
     }
 
-    private final class UnaryServerCallListener extends ServerCall.Listener<ReqT> {
+    private final class UnaryServerCallListener extends Listener<ReqT> {
 
         private final ServerCall<ReqT, RespT> call;
         private final ServerCallStreamObserver<RespT> responseObserver;
         private boolean canInvoke = true;
         private ReqT request;
 
-        // Non private to avoid synthetic class
         UnaryServerCallListener(
                 ServerCallStreamObserver<RespT> responseObserver,
                 ServerCall<ReqT, RespT> call) {
@@ -71,9 +70,7 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
 
         @Override
         public void onMessage(ReqT request) {
-
             if (this.request != null) {
-                // Safe to close the call, because the application has not yet been invoked
                 call.close(
                         Status.Code.INTERNAL.toStatus().withDescription(TOO_MANY_REQUESTS), new
                                 DefaultHttpHeaders());
@@ -86,12 +83,10 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
 
         @Override
         public void onHalfClose() {
-
             if (!canInvoke) {
                 return;
             }
             if (request == null) {
-                // Safe to close the call, because the application has not yet been invoked
                 call.close(
                         Status.Code.INTERNAL.toStatus().withDescription(MISSING_REQUEST), new DefaultHttpHeaders());
                 return;
@@ -102,7 +97,6 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
 
         @Override
         public void onCancel() {
-
             responseObserver.cancelled = true;
         }
 

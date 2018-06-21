@@ -1,81 +1,57 @@
 /*
- * Copyright 2014, gRPC Authors All rights reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
 /**
  * Receives notifications from an observable stream of messages.
- *
+ * <p>
+ * Referenced from grpc-java implementation.
+ * <p>
  * <p>It is used by both the client stubs and service implementations for sending or receiving
- * stream messages. It is used for all {@link MethodDescriptor.MethodType}, including
- * {@code UNARY} calls.  For outgoing messages, a {@code StreamObserver} is provided by the GRPC
- * library to the application. For incoming messages, the application implements the
- * {@code StreamObserver} and passes it to the GRPC library for receiving.
+ * stream messages. It is used for all {@link MethodDescriptor.MethodType}.
  *
- * <p>Implementations are not required to be thread-safe (but should be
- * <a href="http://www.ibm.com/developerworks/library/j-jtp09263/">thread-compatible</a>).
- * Separate {@code StreamObserver}s do
- * not need to be synchronized together; incoming and outgoing directions are independent.
- * Since individual {@code StreamObserver}s are not thread-safe, if multiple threads will be
- * writing to a {@code StreamObserver} concurrently, the application must synchronize calls.
- *
- * @param <V> Message Type.
+ * @param <V> Request/Response Message Type.
  */
-public interface StreamObserver<V>  {
-  /**
-   * Receives a value from the stream.
-   *
-   * <p>Can be called many times but is never called after {@link #onError(V)} or {@link
-   * #onCompleted()} are called.
-   *
-   * <p>Unary calls must invoke onNext at most once.  Clients may invoke onNext at most once for
-   * server streaming calls, but may receive many onNext callbacks.  Servers may invoke onNext at
-   * most once for client streaming calls, but may receive many onNext callbacks.
-   *
-   * <p>If an exception is thrown by an implementation the caller is expected to terminate the
-   * stream by calling {@link #onError(V)} with the caught exception prior to
-   * propagating it.
-   *
-   * @param value the value passed to the stream
-   */
-  void onNext(V value);
+public interface StreamObserver<V> {
 
-  /**
-   * Receives a terminating error from the stream.
-   *
-   * <p>May only be called once and if called it must be the last method called. In particular if an
-   * exception is thrown by an implementation of {@code onError} no further calls to any method are
-   * allowed.
-   *
-   * <p>{@code t} should be a {@link StatusException} or {@link
-   * StatusRuntimeException}, but other {@code Throwable} types are possible. Callers should
-   * generally convert from a {@link Status} via {@link Status#asException()} or
-   * {@link Status#asRuntimeException()}. Implementations should generally convert to a
-   * {@code Status} via {@link Status#fromThrowable(Throwable)}.
-   *
-   * @param t the error occurred on the stream
-   */
-  void onError(V t);
+    /**
+     * Receives a value from the stream.
+     * <p>
+     * <p>For unary, called only one time in both client and server side.<p>
+     * <p>For server streaming, called only one time in server side and multiple times in client side.<p>
+     * <p>For client streaming, called only one time in client side and multiple times in server side.<p>
+     * <p>For bidirectional streaming, called multiple times in both client and server side.
+     *
+     * @param value Request/Response value.
+     */
+    void onNext(V value);
 
-  /**
-   * Receives a notification of successful stream completion.
-   *
-   * <p>May only be called once and if called it must be the last method called. In particular if an
-   * exception is thrown by an implementation of {@code onCompleted} no further calls to any method
-   * are allowed.
-   */
-  void onCompleted();
+    /**
+     * Receives a terminating error from the stream.
+     * <p>
+     * <p>Called when there is an error processing. once called, connection is closed.
+     *
+     * @param t the error occurred on the stream
+     */
+    void onError(V t);
+
+    /**
+     * Receives a notification of successful stream completion.
+     */
+    void onCompleted();
 }

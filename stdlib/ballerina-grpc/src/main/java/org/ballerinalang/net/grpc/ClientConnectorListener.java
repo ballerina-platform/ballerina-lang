@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
@@ -46,7 +45,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
     private boolean headersReceived;
     private InboundStateListener stateListener;
 
-    ClientConnectorListener(ClientCall call, ClientStreamListener streamListener) {
+    ClientConnectorListener(ClientCall call, ClientCall.ClientStreamListener streamListener) {
 
         this.call = call;
         this.stateListener = new InboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, streamListener);
@@ -227,7 +226,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
 
     private static class InboundStateListener extends InboundMessage.InboundStateListener {
 
-        final ClientStreamListener listener;
+        final ClientCall.ClientStreamListener listener;
         private DecompressorRegistry decompressorRegistry = DecompressorRegistry.getDefaultInstance();
 
         private boolean deframerClosed = false;
@@ -236,7 +235,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         private boolean statusReported;
         private boolean listenerClosed;
 
-        protected InboundStateListener(int maxMessageSize, ClientStreamListener listener) {
+        protected InboundStateListener(int maxMessageSize, ClientCall.ClientStreamListener listener) {
 
             super(maxMessageSize);
             this.listener = listener;
@@ -248,7 +247,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         }
 
         @Override
-        protected ClientStreamListener listener() {
+        protected ClientCall.ClientStreamListener listener() {
 
             return listener;
         }

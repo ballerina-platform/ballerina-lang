@@ -24,7 +24,6 @@ import java.util.Map;
 /**
  * Proto Message Registry.
  * Contains message descriptor against message name.
- * Contains method descriptor against method name.
  *
  * @since 1.0.0
  */

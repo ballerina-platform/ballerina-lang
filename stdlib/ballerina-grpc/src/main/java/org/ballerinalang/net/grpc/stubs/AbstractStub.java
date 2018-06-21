@@ -1,29 +1,30 @@
 /*
- * Copyright 2014, gRPC Authors All rights reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
-
 package org.ballerinalang.net.grpc.stubs;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.net.grpc.CallOptions;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.GrpcConstants;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.OutboundMessage;
+import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.Constants;
@@ -35,28 +36,22 @@ import java.net.URL;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.annotation.concurrent.ThreadSafe;
 
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
- * Common base type for stub implementations. Stub configuration is immutable; changing the
- * configuration returns a new stub with updated configuration. Changing the configuration is cheap
- * and may be done before every RPC.
+ * Abstract class for stub implementations.
  * <p>
- * <p>Configuration is stored in {@link CallOptions} and is passed to the {@link HttpClientConnector} when
- * performing an RPC.
+ * Referenced from grpc-java implementation.
+ * <p>
  *
  * @param <S> the concrete type of this stub.
- * @since 1.0.0
  */
-@ThreadSafe
 public abstract class AbstractStub<S extends AbstractStub<S>> {
 
     private static final Logger logger = Logger.getLogger(AbstractStub.class.getName());
 
     private final HttpClientConnector connector;
-    private final CallOptions callOptions;
     private final Struct endpointConfig;
 
     private static final String CACHE_BALLERINA_VERSION;
@@ -66,82 +61,30 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
     }
 
     /**
-     * Constructor for use by subclasses, with the default {@code CallOptions}.
+     * Constructor for use by subclasses.
      *
-     * @param connector the channel that this stub will use to do communications
-     * @since 1.0.0
+     * @param connector the client connector which use to communicate.
      */
     protected AbstractStub(HttpClientConnector connector, Struct endpointConfig) {
-
-        this(connector, endpointConfig, CallOptions.DEFAULT);
-    }
-
-    /**
-     * Constructor for use by subclasses, with the default {@code CallOptions}.
-     *
-     * @param connector   the channel that this stub will use to do communications
-     * @param callOptions the runtime call options to be applied to every call on this stub
-     * @since 1.0.0
-     */
-    protected AbstractStub(HttpClientConnector connector, Struct endpointConfig, CallOptions callOptions) {
-
         this.connector = connector;
-        this.callOptions = callOptions;
         this.endpointConfig = endpointConfig;
     }
 
     /**
      * The underlying connector of the stub.
-     *
-     * @since 1.0.0
      */
     public final HttpClientConnector getConnector() {
-
         return connector;
     }
 
     /**
      * Returns remote endpoint config.
-     *
-     * @since 1.0.0
      */
-    public final Struct getEndpointConfig() {
-
+    private Struct getEndpointConfig() {
         return endpointConfig;
     }
 
-    /**
-     * The {@code CallOptions} of the stub.
-     *
-     * @since 1.0.0
-     */
-    public final CallOptions getCallOptions() {
-
-        return callOptions;
-    }
-
-    /**
-     * Returns a new stub with the given channel for the provided method configurations.
-     *
-     * @param connector   the connector that this stub will use to do communications
-     * @param callOptions the runtime call options to be applied to every call on this stub
-     * @since 1.0.0
-     */
-    protected abstract S build(HttpClientConnector connector, Struct endpointConfig, CallOptions callOptions);
-
-    /**
-     * Sets a custom option to be passed to client interceptors on the channel via the CallOptions parameter.
-     *
-     * @param key   the option being set
-     * @param value the value for the key
-     * @since 1.0.0
-     */
-    public final <T> S withOption(CallOptions.Key<T> key, T value) {
-
-        return build(connector, endpointConfig, callOptions.withOption(key, value));
-    }
-
-    protected OutboundMessage createOutboundRequest(HttpHeaders httpHeaders) {
+    OutboundMessage createOutboundRequest(HttpHeaders httpHeaders) {
 
         try {
             HTTPCarbonMessage carbonMessage = MessageUtils.createHttpCarbonMessage(true);
@@ -224,9 +167,10 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
     }
 
     /**
-     * Cancels a call, and throws the exception.
+     * Cancel the call, and throws the exception.
      *
-     * @param t must be a RuntimeException or Error
+     * @param call client call.
+     * @param t RuntimeException/Error.
      */
     public static RuntimeException cancelThrow(ClientCall<?, ?> call, Throwable t) {
 
@@ -240,7 +184,54 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
         } else if (t instanceof Error) {
             throw (Error) t;
         }
-        // should be impossible
-        throw new AssertionError(t);
+        throw new RuntimeException(t);
+    }
+
+    /**
+     * Callbacks for receiving headers, response messages and completion status from the server.
+     * <p>
+     * Referenced from grpc-java implementation.
+     * <p>
+     *
+     * @param <T> message Type
+     */
+    public abstract static class Listener<T> {
+
+        /**
+         * Calls when response headers is received.
+         *
+         * @param headers response headers.
+         */
+        public void onHeaders(HttpHeaders headers) {
+
+        }
+
+        /**
+         * Calls when response message is received.
+         *
+         * @param message response message.
+         */
+        public void onMessage(T message) {
+
+        }
+
+        /**
+         *  Calls when call is closed.
+         * <p>
+         * <p>If {@code status} returns false for {@link Status#isOk()}, then the call failed.
+         *
+         * @param status   the result of the remote call.
+         * @param trailers headers sent at call completion.
+         */
+        public void onClose(Status status, HttpHeaders trailers) {
+
+        }
+
+        /**
+         * Indicates whether ClientCall is capable of sending additional messages.
+         */
+        public void onReady() {
+
+        }
     }
 }

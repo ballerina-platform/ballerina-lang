@@ -15,29 +15,33 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc;
+package org.ballerinalang.net.grpc.exception;
 
-import java.io.InputStream;
+import org.ballerinalang.net.grpc.Status;
 
 /**
- * An observer of Stream events. It is guaranteed to only have one concurrent callback at a
- * time.
- * <p>
+ * {@link Status} in Exception form, for propagating Status information via exceptions.
+ *
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
  */
-public interface StreamListener {
+public class StatusException extends Exception {
+  private static final long serialVersionUID = -660954903976144640L;
+  private final Status status;
 
-    /**
-     * Called upon receiving a message from the remote end-point.
-     *
-     * @param inputStream deframed message stream.
-     */
-    void messagesAvailable(InputStream inputStream);
+  /**
+   * Constructs an exception with both a status and trailers.
+   */
+  public StatusException(Status status) {
+    super(Status.formatThrowableMessage(status), status.getCause());
+    this.status = status;
+  }
 
-    /**
-     * This indicates that the transport is now capable of sending messages.
-     */
-    void onReady();
+  /**
+   * Returns the status code as a {@link Status} object.
+   */
+  public final Status getStatus() {
+    return status;
+  }
 }

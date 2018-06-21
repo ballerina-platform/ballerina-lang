@@ -55,7 +55,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
 
-
 /**
  * Native function for initializing gRPC client endpoint.
  *
@@ -73,7 +72,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 public class Init extends BlockingNativeCallableUnit {
 
     private HttpWsConnectorFactory httpConnectorFactory = MessageUtils.createHttpWsConnectionFactory();
-    
+
     @Override
     public void execute(Context context) {
 
@@ -112,8 +111,9 @@ public class Init extends BlockingNativeCallableUnit {
         clientEndpoint.addNativeData(CLIENT_ENDPOINT_CONFIG, endpointConfig);
 
     }
-    
+
     private SenderConfiguration populateSenderConfigurationOptions(Struct clientEndpointConfig, String scheme) {
+
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setScheme(scheme);
         Struct secureSocket = clientEndpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
@@ -143,7 +143,8 @@ public class Init extends BlockingNativeCallableUnit {
                     senderConfiguration.setKeyStorePassword(keyStorePassword);
                 }
             }
-            senderConfiguration.setTLSStoreType(GrpcConstants.PKCS_STORE_TYPE);;
+            senderConfiguration.setTLSStoreType(GrpcConstants.PKCS_STORE_TYPE);
+            ;
             if (protocols != null) {
                 List<Value> sslEnabledProtocolsValueList = Arrays
                         .asList(protocols.getArrayField(GrpcConstants.ENABLED_PROTOCOLS));
@@ -159,7 +160,7 @@ public class Init extends BlockingNativeCallableUnit {
                     senderConfiguration.setSSLProtocol(sslProtocol);
                 }
             }
-            
+
             if (validateCert != null) {
                 boolean validateCertEnabled = validateCert.getBooleanField(GrpcConstants.ENABLE);
                 int cacheSize = (int) validateCert.getIntField(GrpcConstants.SSL_CONFIG_CACHE_SIZE);
@@ -178,7 +179,7 @@ public class Init extends BlockingNativeCallableUnit {
             boolean ocspStaplingEnabled = secureSocket.getBooleanField(GrpcConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
             senderConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
             senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
-            
+
             List<Value> ciphersValueList = Arrays
                     .asList(secureSocket.getArrayField(GrpcConstants.SSL_CONFIG_CIPHERS));
             if (ciphersValueList.size() > 0) {
@@ -198,5 +199,5 @@ public class Init extends BlockingNativeCallableUnit {
         }
         return senderConfiguration;
     }
-    
+
 }

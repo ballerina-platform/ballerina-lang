@@ -30,18 +30,22 @@ import java.util.Map;
 
 /**
  * Definition of a service to be exposed via a Server.
+ * <p>
+ * Referenced from grpc-java implementation.
+ * <p>
+ *
  */
 public final class ServerServiceDefinition {
 
     /**
-     * Convenience that constructs a {@link ServiceDescriptor} simultaneously.
+     * Create service definition builder with service name.
+     *
+     * @param serviceName Service name.
+     * @return a new builder instance.
+     * @throws GrpcServerException if failed.
      */
     public static Builder builder(String serviceName) throws GrpcServerException {
         return new Builder(serviceName);
-    }
-
-    public static Builder builder(ServiceDescriptor serviceDescriptor) throws GrpcServerException {
-        return new Builder(serviceDescriptor);
     }
 
     private final ServiceDescriptor serviceDescriptor;
@@ -58,7 +62,9 @@ public final class ServerServiceDefinition {
     }
 
     /**
-     * The descriptor for the service.
+     * Returns the descriptor of the service.
+     *
+     * @return service descriptor instance.
      */
     public ServiceDescriptor getServiceDescriptor() {
         return serviceDescriptor;
@@ -66,6 +72,8 @@ public final class ServerServiceDefinition {
 
     /**
      * Gets all the methods of service.
+     *
+     * @return Collection of method definitions.
      */
     public Collection<ServerMethodDefinition<?, ?>> getMethods() {
         return methods.values();
@@ -112,7 +120,7 @@ public final class ServerServiceDefinition {
          * @param method  the {@link MethodDescriptor} of this method.
          * @param handler handler for incoming calls
          */
-        public <ReqT, RespT> Builder addMethod(
+        public <ReqT, RespT> void addMethod(
                 MethodDescriptor<ReqT, RespT> method, ServerCallHandler<ReqT, RespT> handler) throws
                 GrpcServerException {
             if (method == null) {
@@ -121,13 +129,18 @@ public final class ServerServiceDefinition {
             if (handler == null) {
                 throw new GrpcServerException("Service Descriptor cannot be null");
             }
-            return addMethod(ServerMethodDefinition.create(method, handler));
+            addMethod(ServerMethodDefinition.create(method, handler));
         }
 
         /**
          * Add a method to be supported by the service.
+         *
+         * @param def Service method definition.
+         * @param <ReqT> Request Message type.
+         * @param <RespT> Reponse Message type.
+         * @throws GrpcServerException if failed.
          */
-        public <ReqT, RespT> Builder addMethod(ServerMethodDefinition<ReqT, RespT> def) throws GrpcServerException {
+        <ReqT, RespT> void addMethod(ServerMethodDefinition<ReqT, RespT> def) throws GrpcServerException {
 
             MethodDescriptor<ReqT, RespT> method = def.getMethodDescriptor();
             if (!serviceName.equals(MethodDescriptor.extractFullServiceName(method.getFullMethodName()))) {
@@ -141,11 +154,13 @@ public final class ServerServiceDefinition {
             }
 
             methods.put(name, def);
-            return this;
         }
 
         /**
          * Construct new ServerServiceDefinition.
+         *
+         * @return a new instance.
+         * @throws GrpcServerException if failed
          */
         public ServerServiceDefinition build() throws GrpcServerException {
 
@@ -156,10 +171,9 @@ public final class ServerServiceDefinition {
                 for (ServerMethodDefinition<?, ?> serverMethod : methods.values()) {
                     methodDescriptors.add(serverMethod.getMethodDescriptor());
                 }
-                serviceDescriptor = new ServiceDescriptor(serviceName, methodDescriptors);
+                serviceDescriptor = ServiceDescriptor.newBuilder(serviceName).addAllMethods(methodDescriptors).build();
             }
-            Map<String, ServerMethodDefinition<?, ?>> tmpMethods =
-                    new HashMap<>(methods);
+            Map<String, ServerMethodDefinition<?, ?>> tmpMethods = new HashMap<>(methods);
             for (MethodDescriptor<?, ?> descriptorMethod : serviceDescriptor.getMethods()) {
                 ServerMethodDefinition<?, ?> removed = tmpMethods.remove(
                         descriptorMethod.getFullMethodName());

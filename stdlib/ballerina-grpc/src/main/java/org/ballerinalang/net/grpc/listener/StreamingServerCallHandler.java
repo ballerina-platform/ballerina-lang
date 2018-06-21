@@ -32,8 +32,8 @@ import org.ballerinalang.net.grpc.StreamObserver;
 import java.util.Map;
 
 /**
- * Streaming service call handler.
- * This is registered in client and bidirectional streaming services.
+ * Interface to initiate processing of incoming remote calls for streaming services.
+ * This is used in client and bidirectional streaming services.
  *
  * @param <ReqT> Request message type.
  * @param <RespT> Response message type.
@@ -50,7 +50,7 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
     }
 
     @Override
-    public ServerCall.Listener<ReqT> startCall(ServerCall<ReqT, RespT> call) {
+    public Listener<ReqT> startCall(ServerCall<ReqT, RespT> call) {
 
         ServerCallStreamObserver<RespT> responseObserver = new ServerCallStreamObserver<>(call);
         StreamObserver<ReqT> requestObserver = invoke(responseObserver);
@@ -93,7 +93,7 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
         };
     }
 
-    private final class StreamingServerCallListener extends ServerCall.Listener<ReqT> {
+    private final class StreamingServerCallListener extends Listener<ReqT> {
 
         private final StreamObserver<ReqT> requestObserver;
         private final ServerCallStreamObserver<RespT> responseObserver;

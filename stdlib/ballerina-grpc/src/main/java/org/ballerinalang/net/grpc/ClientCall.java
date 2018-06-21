@@ -1,224 +1,297 @@
 /*
- * Copyright 2014, gRPC Authors All rights reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
 
+import org.ballerinalang.net.grpc.stubs.AbstractStub;
+import org.wso2.transport.http.netty.common.Constants;
+import org.wso2.transport.http.netty.contract.HttpClientConnector;
+import org.wso2.transport.http.netty.contract.HttpResponseFuture;
+
+import java.io.InputStream;
+import java.util.concurrent.CancellationException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static com.google.common.base.Preconditions.checkState;
+
 /**
- * An instance of a call to a remote method. A call will send zero or more
- * request messages to the server and receive zero or more response messages back.
- * <p>
- * <p>
- * <p>More advanced usages may consume this interface directly as opposed to using a stub. Common
- * reasons for doing so would be the need to interact with flow-control or when acting as a generic
- * proxy for arbitrary operations.
- * <p>
- * <p>{@link #start} must be called prior to calling any other methods, with the exception of
- * {@link #cancel}. Whereas {@link #cancel} must not be followed by any other methods,
- * but can be called more than once, while only the first one has effect.
- * <p>
- * <p>No generic method for determining message receipt or providing acknowledgement is provided.
- * Applications are expected to utilize normal payload messages for such signals, as a response
- * naturally acknowledges its request.
- * <p>
- * <p>Methods are guaranteed to be non-blocking. Implementations are not required to be thread-safe.
- * <p>
- * <p>There is no interaction between the states on the {@link Listener Listener} and {@link
- * ClientCall}, i.e., if {@link Listener#onClose Listener.onClose()} is called, it has no bearing on
- * the permitted operations on {@code ClientCall} (but it may impact whether they do anything).
- * <p>
- * <p>There is a race between {@link #cancel} and the completion/failure of the RPC in other ways.
- * If {@link #cancel} won the race, {@link Listener#onClose Listener.onClose()} is called with
- * {@link Status CANCELLED}. Otherwise, {@link Listener#onClose Listener.onClose()} is
- * called with whatever status the RPC was finished. We ensure that at most one is called.
- * <p>
- * <h3>Usage examples</h3>
- * <h4>Simple Unary (1 request, 1 response) RPC</h4>
- * <pre>
- *   call = channel.newCall(unaryMethod, callOptions);
- *   call.start(listener, headers);
- *   call.sendMessage(message);
- *   call.halfClose();
- *   call.request(1);
- *   // wait for listener.onMessage()
- * </pre>
- * <p>
- * <h4>Flow-control in Streaming RPC</h4>
- * <p>
- * <p>The following snippet demonstrates a bi-directional streaming case, where the client sends
- * requests produced by a fictional <code>makeNextRequest()</code> in a flow-control-compliant
- * manner, and notifies gRPC library to receive additional response after one is consumed by
- * a fictional <code>processResponse()</code>.
- * <p>
- * <p><pre>
- *   call = channel.newCall(bidiStreamingMethod, callOptions);
- *   listener = new ClientCall.Listener&lt;FooResponse&gt;() {
- *     &#64;Override
- *     public void onMessage(FooResponse response) {
- *       processResponse(response);
- *       // Notify gRPC to receive one additional response.
- *       call.request(1);
- *     }
- * <p>
- *     &#64;Override
- *     public void onReady() {
- *       while (call.isReady()) {
- *         FooRequest nextRequest = makeNextRequest();
- *         if (nextRequest == null) {  // No more requests to send
- *           call.halfClose();
- *           return;
- *         }
- *         call.sendMessage(nextRequest);
- *       }
- *     }
- *   }
- *   call.start(listener, headers);
- *   // Notify gRPC to receive one response. Without this line, onMessage() would never be called.
- *   call.request(1);
- * </pre>
+ * This class handles a call to a remote method.
+ * A call will send zero or more request messages to the server and receive zero or more response messages back.
  *
- * @param <ReqT>  type of message sent one or more times to the server.
- * @param <RespT> type of message received one or more times from the server.
+ * <p>
+ * Referenced from grpc-java implementation.
+ * <p>
+ *
+ * @param <ReqT> Request Message Type.
+ * @param <RespT> Response Message Type.
  */
-public abstract class ClientCall<ReqT, RespT> {
+public final class ClientCall<ReqT, RespT> {
 
-    /**
-     * Callbacks for receiving metadata, response messages and completion status from the server.
-     * <p>
-     * <p>Implementations are free to block for extended periods of time. Implementations are not
-     * required to be thread-safe.
-     *
-     * @param <T> message Type
-     */
-    public abstract static class Listener<T> {
+    private static final Logger log = Logger.getLogger(ClientCall.class.getName());
 
-        /**
-         * The response headers have been received. Headers always precede messages.
-         *
-         * @param headers containing metadata sent by the server at the start of the response.
-         */
-        public void onHeaders(HttpHeaders headers) {
+    private final MethodDescriptor<ReqT, RespT> method;
+    private final boolean unaryRequest;
+    private HttpClientConnector connector;
+    private final OutboundMessage outboundMessage;
+    private String compressorName;
 
+    private ClientConnectorListener connectorListener;
+    private boolean cancelCalled;
+    private boolean halfCloseCalled;
+    private DecompressorRegistry decompressorRegistry = DecompressorRegistry.getDefaultInstance();
+    private CompressorRegistry compressorRegistry = CompressorRegistry.getDefaultInstance();
+
+    public ClientCall(HttpClientConnector connector, OutboundMessage outboundMessage, MethodDescriptor<ReqT, RespT>
+            method) {
+
+        this.method = method;
+        this.unaryRequest = method.getType() == MethodDescriptor.MethodType.UNARY
+                || method.getType() == MethodDescriptor.MethodType.SERVER_STREAMING;
+        this.connector = connector;
+        this.outboundMessage = outboundMessage;
+    }
+
+    private void prepareHeaders(
+            Compressor compressor) {
+
+        outboundMessage.removeHeader("grpc-encoding");
+        if (compressor != Codec.Identity.NONE) {
+            outboundMessage.setHeader("grpc-encoding", compressor.getMessageEncoding());
         }
 
-        /**
-         * A response message has been received. May be called zero or more times depending on whether
-         * the call response is empty, a single message or a stream of messages.
-         *
-         * @param message returned by the server
-         */
-        public void onMessage(T message) {
-
+        outboundMessage.removeHeader("grpc-accept-encoding");
+        String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
+        if (advertisedEncodings != null) {
+            outboundMessage.setHeader("grpc-accept-encoding", advertisedEncodings);
         }
 
-        /**
-         * The ClientCall has been closed. Any additional calls to the {@code ClientCall} will not be
-         * processed by the server. No further receiving will occur and no further notifications will be
-         * made.
-         * <p>
-         * <p>If {@code status} returns false for {@link Status#isOk()}, then the call failed.
-         * An additional block of trailer metadata may be received at the end of the call from the
-         * server. An empty {@link HttpHeaders} object is passed if no trailers are received.
-         *
-         * @param status   the result of the remote call.
-         * @param trailers metadata provided at call completion.
-         */
-        public void onClose(Status status, HttpHeaders trailers) {
-
-        }
-
-        /**
-         * This indicates that the ClientCall is now capable of sending additional messages (via
-         * {@link #sendMessage}) without requiring excessive buffering internally. This event is
-         * just a suggestion and the application is free to ignore it, however doing so may
-         * result in excessive buffering within the ClientCall.
-         */
-        public void onReady() {
-
-        }
+        outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
+        outboundMessage.setProperty(Constants.HTTP_METHOD, GrpcConstants.HTTP_METHOD);
+        outboundMessage.setProperty(Constants.HTTP_VERSION, "2.0");
+        outboundMessage.setHeader("content-type", GrpcConstants.CONTENT_TYPE_GRPC);
+        outboundMessage.setHeader("te", GrpcConstants.TE_TRAILERS);
     }
 
     /**
      * Start a call, using {@code responseListener} for processing response messages.
-     * <p>
-     * <p>It must be called prior to any other method on this class, except for {@link #cancel} which
-     * may be called at any time. Since {@link HttpHeaders} is not thread-safe, the caller must not
-     * access {@code headers} after this point.
      *
-     * @param responseListener receives response messages
-     * @throws IllegalStateException if a method (including {@code start()}) on this class has been
-     *                               called.
+     * @param observer response listener instance
      */
-    public abstract void start(Listener<RespT> responseListener);
+    public void start(final AbstractStub.Listener<RespT> observer) {
 
-    /**
-     * Prevent any further processing for this {@code ClientCall}. No further messages may be sent or
-     * will be received. The server is informed of cancellations, but may not stop processing the
-     * call. Cancellation is permitted if previously {@link #halfClose}d. Cancelling an already {@code
-     * cancel()}ed {@code ClientCall} has no effect.
-     * <p>
-     * <p>No other methods on this class can be called after this method has been called.
-     * <p>
-     * <p>It is recommended that at least one of the arguments to be non-{@code null}, to provide
-     * useful debug information. Both argument being null may log warnings and result in suboptimal
-     * performance. Also note that the provided information will not be sent to the server.
-     *
-     * @param message if not {@code null}, will appear as the description of the CANCELLED status
-     * @param cause   if not {@code null}, will appear as the cause of the CANCELLED status
-     */
-    public abstract void cancel(String message, Throwable cause);
+        if (connectorListener != null) {
+            throw new IllegalStateException(String.valueOf("Client connection us already setup."));
+        }
 
-    /**
-     * Close the call for request message sending. Incoming response messages are unaffected.  This
-     * should be called when no more messages will be sent from the client.
-     *
-     * @throws IllegalStateException if call is already {@code halfClose()}d or {@link #cancel}ed
-     */
-    public abstract void halfClose();
+        if (cancelCalled) {
+            throw new IllegalStateException(String.valueOf("Client call was cancelled."));
+        }
 
-    /**
-     * Send a request message to the server. May be called zero or more times depending on how many
-     * messages the server is willing to accept for the operation.
-     *
-     * @param message message to be sent to the server.
-     * @throws IllegalStateException if call is {@link #halfClose}d or explicitly {@link #cancel}ed
-     */
-    public abstract void sendMessage(ReqT message);
+        Compressor compressor;
+        String compressorName = outboundMessage.getHeader("grpc-encoding");
+        if (compressorName != null) {
+            compressor = compressorRegistry.lookupCompressor(compressorName);
+            if (compressor == null) {
+                closeObserver(
+                        observer,
+                        Status.Code.INTERNAL.toStatus().withDescription(
+                                String.format("Unable to find compressor by name %s", compressorName)),
+                        new DefaultHttpHeaders());
 
-    /**
-     * If {@code true}, indicates that the call is capable of sending additional messages
-     * without requiring excessive buffering internally. This event is
-     * just a suggestion and the application is free to ignore it, however doing so may
-     * result in excessive buffering within the call.
-     * <p>
-     * <p>This abstract class's implementation always returns {@code true}. Implementations generally
-     * override the method.
-     */
-    public boolean isReady() {
+                return;
+            }
+        } else {
+            compressor = Codec.Identity.NONE;
+        }
+        prepareHeaders(compressor);
+        ClientStreamListener clientStreamListener = new ClientStreamListener(observer);
+        connectorListener = new ClientConnectorListener(this, clientStreamListener);
 
-        return true;
+        outboundMessage.framer().setCompressor(compressor);
+        connectorListener.setDecompressorRegistry(decompressorRegistry);
+        HttpResponseFuture responseFuture = connector.send(outboundMessage.getResponseMessage());
+        responseFuture.setHttpConnectorListener(connectorListener);
     }
 
     /**
-     * Enables per-message compression, if an encoding type has been negotiated.  If no message
-     * encoding has been negotiated, this is a no-op. By default per-message compression is enabled,
-     * but may not have any effect if compression is not enabled on the call.
+     * Prevent any further processing for the remote call.
+     *
+     * @param message error message
+     * @param cause Throwable
+     */
+    public void cancel(String message, Throwable cause) {
+
+        if (message == null && cause == null) {
+            cause = new CancellationException("Cancelled without a message or cause");
+            log.log(Level.WARNING, "Cancelling without a message or cause is suboptimal", cause);
+        }
+        if (cancelCalled) {
+            return;
+        }
+        cancelCalled = true;
+
+        if (outboundMessage != null) {
+            Status status = Status.Code.CANCELLED.toStatus();
+            if (message != null) {
+                status = status.withDescription(message);
+            } else {
+                status = status.withDescription("Call cancelled without message");
+            }
+            if (cause != null) {
+                status = status.withCause(cause);
+            }
+            outboundMessage.complete(status, new DefaultHttpHeaders());
+        }
+    }
+
+    /**
+     * Close the call for request message sending. Incoming response messages are unaffected.
+     */
+    public void halfClose() {
+
+        checkState(outboundMessage != null, "Not started");
+        checkState(!cancelCalled, "call was cancelled");
+        checkState(!halfCloseCalled, "call already half-closed");
+        halfCloseCalled = true;
+        outboundMessage.halfClose();
+    }
+
+    /**
+     * Send a request message to the server.
+     *
+     * @param message Request message.
+     */
+    public void sendMessage(ReqT message) {
+
+        checkState(connectorListener != null, "Not started");
+        checkState(!cancelCalled, "call was cancelled");
+        checkState(!halfCloseCalled, "call was half-closed");
+        try {
+            InputStream resp = method.streamRequest(message);
+            outboundMessage.sendMessage(resp);
+
+        } catch (RuntimeException e) {
+            throw Status.Code.CANCELLED.toStatus().withCause(e).withDescription("Failed to stream message")
+                    .asRuntimeException();
+        } catch (Error e) {
+            throw Status.Code.CANCELLED.toStatus().withDescription("Client sendMessage() failed with Error")
+                    .asRuntimeException();
+        }
+        // For unary requests, halfClose call should be coming soon.
+        if (!unaryRequest) {
+            outboundMessage.flush();
+        }
+    }
+
+    /**
+     * Enables per-message compression.
+     *
+     * @param enabled enable flag
      */
     public void setMessageCompression(boolean enabled) {
-        // noop
+
+        checkState(outboundMessage != null, "Not started");
+        outboundMessage.setMessageCompression(enabled);
+    }
+
+    private void closeObserver(AbstractStub.Listener<RespT> observer, Status status, HttpHeaders trailers) {
+
+        observer.onClose(status, trailers);
+    }
+
+    public boolean isReady() {
+        return outboundMessage.isReady();
+    }
+
+    /**
+     * Client Stream Listener instance.
+     */
+    public class ClientStreamListener implements StreamListener {
+
+        private final AbstractStub.Listener<RespT> observer;
+        private boolean closed;
+        private HttpHeaders responseHeaders;
+
+        ClientStreamListener(AbstractStub.Listener<RespT> observer) {
+            this.observer = observer;
+        }
+
+        public void headersRead(final HttpHeaders headers) {
+            try {
+                if (closed) {
+                    return;
+                }
+                responseHeaders = headers;
+                observer.onHeaders(headers);
+            } catch (Throwable t) {
+                Status status =
+                        Status.Code.CANCELLED.toStatus().withCause(t).withDescription("Failed to read headers");
+                close(status, new DefaultHttpHeaders());
+            }
+
+        }
+
+        @Override
+        public void messagesAvailable(final InputStream message) {
+            if (closed) {
+                MessageUtils.closeQuietly(message);
+                return;
+            }
+
+            try {
+                Message responseMessage = (Message) method.parseResponse(message);
+                responseMessage.setHeaders(responseHeaders);
+                observer.onMessage((RespT) responseMessage);
+                message.close();
+            } catch (Throwable t) {
+                MessageUtils.closeQuietly(message);
+                Status status =
+                        Status.Code.CANCELLED.toStatus().withCause(t).withDescription("Failed to read message.");
+                close(status, new DefaultHttpHeaders());
+            }
+        }
+
+        private void close(Status status, HttpHeaders trailers) {
+            closed = true;
+            closeObserver(observer, status, trailers);
+        }
+
+        public void closed(Status status, HttpHeaders trailers) {
+            if (closed) {
+                return;
+            }
+            close(status, trailers);
+        }
+
+        @Override
+        public void onReady() {
+
+            try {
+                observer.onReady();
+            } catch (Throwable t) {
+                Status status =
+                        Status.Code.CANCELLED.toStatus().withCause(t).withDescription("Failed to call onReady.");
+                close(status, new DefaultHttpHeaders());
+            }
+
+        }
     }
 }

@@ -1,19 +1,20 @@
 /*
- * Copyright 2014, gRPC Authors All rights reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.CodedOutputStream;
@@ -26,13 +27,14 @@ import java.io.OutputStream;
 import static com.google.protobuf.CodedOutputStream.DEFAULT_BUFFER_SIZE;
 
 /**
- * An {@link InputStream} backed by a protobuf.
+ * Protobuf input stream.
+ *
+ * <p>
+ * Referenced from grpc-java implementation.
+ * <p>
  */
 class ProtoInputStream extends InputStream  implements Drainable, KnownLength {
 
-  // ProtoInputStream is first initialized with a *message*. *partial* is initially null.
-  // Once there has been a read operation on this stream, *message* is serialized to *partial* and
-  // set to null.
   private Message message;
   private ByteArrayInputStream partial;
 
@@ -62,7 +64,6 @@ class ProtoInputStream extends InputStream  implements Drainable, KnownLength {
         return -1;
       }
       if (len >= size) {
-        // This is the only case that is zero-copy.
         CodedOutputStream stream = CodedOutputStream.newInstance(b, off, size);
         message.writeTo(stream);
         stream.flush();
@@ -83,7 +84,7 @@ class ProtoInputStream extends InputStream  implements Drainable, KnownLength {
   }
 
   @Override
-  public int available() throws IOException {
+  public int available() {
     if (message != null) {
       return message.getSerializedSize();
     } else if (partial != null) {

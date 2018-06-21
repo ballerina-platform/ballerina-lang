@@ -1,19 +1,20 @@
 /*
- * Copyright 2014, gRPC Authors All rights reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
 import com.google.protobuf.CodedInputStream;
@@ -24,10 +25,12 @@ import java.io.OutputStream;
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
 /**
  * Utility methods for using protobuf with grpc.
+ *
+ * <p>
+ * Referenced from grpc-java implementation.
+ * <p>
  */
 public class ProtoUtils {
 
@@ -36,28 +39,24 @@ public class ProtoUtils {
     private static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
 
     private static final ThreadLocal<Reference<byte[]>> bufs = ThreadLocal.withInitial(() -> {
-
-        return new WeakReference<>(new byte[4096]); // Picked at random.
+        return new WeakReference<>(new byte[4096]);
     });
 
     /**
      * Create a {@code Marshaller} for protos of the same type as {@code defaultInstance}.
      */
     public static MethodDescriptor.Marshaller<Message> marshaller(Message defaultInstance) {
-
         final MessageParser parser = defaultInstance.getParserForType();
+
         return new MethodDescriptor.Marshaller<Message>() {
-            @SuppressWarnings("unchecked")
 
             @Override
             public InputStream stream(Message value) {
-
                 return new ProtoInputStream(value);
             }
 
             @Override
             public Message parse(InputStream stream) {
-
                 CodedInputStream cis = null;
                 try {
                     int size = stream.available();
@@ -93,8 +92,6 @@ public class ProtoUtils {
                 if (cis == null) {
                     cis = CodedInputStream.newInstance(stream);
                 }
-                // Pre-create the CodedInputStream so that we can remove the size limit restriction
-                // when parsing.
                 cis.setSizeLimit(Integer.MAX_VALUE);
 
                 try {
@@ -118,9 +115,6 @@ public class ProtoUtils {
      * Copies the data from input stream to output stream.
      */
     static long copy(InputStream from, OutputStream to) throws IOException {
-        // Copied from guava com.google.common.io.ByteStreams because its API is unstable (beta)
-        checkNotNull(from);
-        checkNotNull(to);
         byte[] buf = new byte[BUF_SIZE];
         long total = 0;
         while (true) {

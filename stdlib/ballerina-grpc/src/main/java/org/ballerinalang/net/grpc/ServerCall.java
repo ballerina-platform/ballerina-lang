@@ -1,194 +1,278 @@
 /*
- * Copyright 2014, gRPC Authors All rights reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.net.grpc.listener.ServerCallHandler;
+import org.wso2.transport.http.netty.contract.ServerConnectorException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
 
 /**
- * Encapsulates a single call received from a remote client. Calls may not simply be unary
- * request-response even though this is the most common pattern. Calls may stream any number of
- * requests and responses. This API is generally intended for use by generated handlers,
- * but applications may use it directly if they need to.
- * <p>
- * <p>Headers must be sent before any messages, which must be sent before closing.
- * <p>
- * <p>No generic method for determining message receipt or providing acknowledgement is provided.
- * Applications are expected to utilize normal messages for such signals, as a response
- * naturally acknowledges its request.
- * <p>
- * <p>Methods are guaranteed to be non-blocking. Implementations are not required to be thread-safe.
+ * Encapsulates a single call received from a remote client.
+ * A call will receive zero or more request messages from the client and send zero or more response messages back.
  *
- * @param <ReqT>  parsed type of request message.
- * @param <RespT> parsed type of response message.
+ * <p>
+ * Referenced from grpc-java implementation.
+ * <p>
+ *
+ * @param <ReqT> Request Message Type.
+ * @param <RespT> Response Message Type.
  */
-public abstract class ServerCall<ReqT, RespT> {
+public final class ServerCall<ReqT, RespT> {
 
     /**
-     * Callbacks for consuming incoming RPC messages.
-     * <p>
-     * <p>Any contexts are guaranteed to arrive before any messages, which are guaranteed before half
-     * close, which is guaranteed before completion.
-     * <p>
-     * <p>Implementations are free to block for extended periods of time. Implementations are not
-     * required to be thread-safe.
-     *
-     * @param <ReqT> parsed type of request message.
+     * The accepted message encodings (i.e. compression) that can be used in the stream.
      */
-    public abstract static class Listener<ReqT> {
+    private static final String MESSAGE_ACCEPT_ENCODING = "grpc-accept-encoding";
 
-        /**
-         * A request message has been received. For streaming calls, there may be zero or more request
-         * messages.
-         *
-         * @param message a received request message.
-         */
-        public void onMessage(ReqT message) {
+    private static final String TOO_MANY_RESPONSES = "Too many responses";
+    private static final String MISSING_RESPONSE = "Completed without a response";
 
+    private final InboundMessage inboundMessage;
+    private final OutboundMessage outboundMessage;
+    private final MethodDescriptor<ReqT, RespT> method;
+
+    private volatile boolean cancelled;
+    private boolean sendHeadersCalled;
+    private boolean closeCalled;
+    private boolean messageSent;
+    private Compressor compressor;
+    private final String messageAcceptEncoding;
+
+    private DecompressorRegistry decompressorRegistry;
+    private CompressorRegistry compressorRegistry;
+
+    ServerCall(InboundMessage inboundMessage, OutboundMessage outboundMessage, MethodDescriptor<ReqT, RespT>
+            method, DecompressorRegistry decompressorRegistry, CompressorRegistry compressorRegistry) {
+
+        this.inboundMessage = inboundMessage;
+        this.outboundMessage = outboundMessage;
+        this.method = method;
+        this.decompressorRegistry = decompressorRegistry;
+        this.compressorRegistry = compressorRegistry;
+        this.messageAcceptEncoding = inboundMessage.getHeader(MESSAGE_ACCEPT_ENCODING);
+    }
+
+    public void sendHeaders(HttpHeaders headers) {
+
+        if (sendHeadersCalled) {
+            throw new IllegalStateException("sendHeaders has already been called");
         }
 
-        /**
-         * The client completed all message sending. However, the call may still be cancelled.
-         */
-        public void onHalfClose() {
-
+        if (closeCalled) {
+            throw new IllegalStateException("call is closed");
         }
 
-        /**
-         * The call was cancelled and the server is encouraged to abort processing to save resources,
-         * since the client will not process any further messages. Cancellations can be caused by
-         * timeouts, explicit cancellation by the client, network errors, etc.
-         * <p>
-         * <p>There will be no further callbacks for the call.
-         */
-        public void onCancel() {
-
+        outboundMessage.removeHeader(MESSAGE_ENCODING);
+        if (compressor == null) {
+            compressor = Codec.Identity.NONE;
+        } else {
+            if (messageAcceptEncoding != null) {
+                List<String> acceptEncodings = Arrays.stream(messageAcceptEncoding.split("\\s*,\\s*"))
+                        .map(mediaType -> mediaType.split("\\s*;\\s*")[0])
+                        .collect(Collectors.toList());
+                if (!acceptEncodings.contains(compressor.getMessageEncoding())) {
+                    // resort to using no compression.
+                    compressor = Codec.Identity.NONE;
+                }
+            } else {
+                compressor = Codec.Identity.NONE;
+            }
         }
 
-        /**
-         * The call is considered complete and {@link #onCancel} is guaranteed not to be called.
-         * However, the client is not guaranteed to have received all messages.
-         * <p>
-         * <p>There will be no further callbacks for the call.
-         */
-        public void onComplete() {
+        // Always put compressor, even if it's identity.
+        outboundMessage.setHeader(MESSAGE_ENCODING, compressor.getMessageEncoding());
+        outboundMessage.framer().setCompressor(compressor);
 
+        outboundMessage.removeHeader(MESSAGE_ACCEPT_ENCODING);
+        String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
+
+        if (advertisedEncodings != null) {
+            outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
         }
 
-        /**
-         * This indicates that the call is now capable of sending additional messages (via
-         * {@link #sendMessage}) without requiring excessive buffering internally. This event is
-         * just a suggestion and the application is free to ignore it, however doing so may
-         * result in excessive buffering within the call.
-         */
+        if (headers != null) {
+            for (Map.Entry<String, String> headerEntry : headers.entries()) {
+                outboundMessage.setHeader(headerEntry.getKey(), headerEntry.getValue());
+            }
+        }
+
+        try {
+            // Send response headers.
+            inboundMessage.respond(outboundMessage.getResponseMessage());
+        } catch (ServerConnectorException e) {
+            throw new RuntimeException("Error while sending the response.", e);
+        }
+        sendHeadersCalled = true;
+    }
+
+    public void sendMessage(RespT message) {
+
+        if (!sendHeadersCalled) {
+            throw new IllegalStateException("sendHeaders has not been called");
+        }
+
+        if (closeCalled) {
+            throw new IllegalStateException("call is closed");
+        }
+
+        if (method.getType().serverSendsOneMessage() && messageSent) {
+            outboundMessage.complete(Status.Code.INTERNAL.toStatus().withDescription(TOO_MANY_RESPONSES), new
+                    DefaultHttpHeaders());
+            return;
+        }
+
+        messageSent = true;
+        try {
+            InputStream resp = method.streamResponse(message);
+            outboundMessage.sendMessage(resp);
+        } catch (RuntimeException e) {
+            close(Status.fromThrowable(e), new DefaultHttpHeaders());
+        } catch (Error e) {
+            close(Status.Code.CANCELLED.toStatus().withDescription("Server sendMessage() failed with Error"), new
+                            DefaultHttpHeaders());
+        }
+    }
+
+    public void setCompression(String compressorName) {
+        // Added here to give a better error message.
+        if (sendHeadersCalled) {
+            throw new IllegalStateException("sendHeaders has been called");
+        }
+
+        compressor = compressorRegistry.lookupCompressor(compressorName);
+        if (compressor == null) {
+            throw new IllegalArgumentException("Unable to find compressor by name " + compressorName);
+        }
+    }
+
+    public void setMessageCompression(boolean enable) {
+        outboundMessage.setMessageCompression(enable);
+    }
+
+    public boolean isReady() {
+        return outboundMessage.isReady();
+    }
+
+    public void close(Status status, HttpHeaders trailers) {
+
+        if (closeCalled) {
+            throw new RuntimeException("call already closed");
+        }
+        closeCalled = true;
+
+        if (status.isOk() && method.getType().serverSendsOneMessage() && !messageSent) {
+            outboundMessage.complete(Status.Code.INTERNAL.toStatus().withDescription(MISSING_RESPONSE), new
+                    DefaultHttpHeaders());
+            return;
+        }
+
+        outboundMessage.complete(status, trailers);
+    }
+
+    public boolean isCancelled() {
+        return cancelled;
+    }
+
+    ServerStreamListener newServerStreamListener(ServerCallHandler.Listener<ReqT> listener) {
+        return new ServerStreamListener<>(this, listener);
+    }
+
+    public MethodDescriptor<ReqT, RespT> getMethodDescriptor() {
+        return method;
+    }
+
+    /**
+     * Server Stream Listener instance.
+     *
+     * @param <ReqT> Request message type.
+     */
+    public static final class ServerStreamListener<ReqT> implements StreamListener {
+
+        private final ServerCall<ReqT, ?> call;
+        private final ServerCallHandler.Listener<ReqT> listener;
+
+        ServerStreamListener(
+                ServerCall<ReqT, ?> call, ServerCallHandler.Listener<ReqT> listener) {
+
+            this.call = call;
+            this.listener = listener;
+        }
+
+        @Override
+        public void messagesAvailable(final InputStream message) {
+
+            if (call.cancelled) {
+                MessageUtils.closeQuietly(message);
+                return;
+            }
+
+            try {
+                Message request = (Message) call.method.parseRequest(message);
+                request.setHeaders(call.inboundMessage.getHeaders());
+                listener.onMessage((ReqT) request);
+            } catch (Throwable t) {
+                MessageUtils.closeQuietly(message);
+                throw new RuntimeException(t);
+            } finally {
+                try {
+                    message.close();
+                } catch (IOException ignore) {
+                    // ignore the error.
+                }
+            }
+        }
+
+        public void halfClosed() {
+
+            if (call.cancelled) {
+                return;
+            }
+
+            listener.onHalfClose();
+        }
+
+        public void closed(Status status) {
+
+            if (status.isOk()) {
+                listener.onComplete();
+            } else {
+                call.cancelled = true;
+                listener.onCancel();
+            }
+        }
+
+        @Override
         public void onReady() {
 
+            if (call.cancelled) {
+                return;
+            }
+            listener.onReady();
         }
     }
-
-    /**
-     * Send response header metadata prior to sending a response message. This method may
-     * only be called once and cannot be called after calls to {@link #sendMessage} or {@link #close}.
-     * <p>
-     * <p>Since {@link HttpHeaders} is not thread-safe, the caller must not access {@code headers} after
-     * this point.
-     *
-     * @throws IllegalStateException if {@code close} has been called, a message has been sent, or
-     *                               headers have already been sent
-     */
-    public abstract void sendHeaders(HttpHeaders headers);
-
-    /**
-     * Send a response message. Messages are the primary form of communication associated with
-     * RPCs. Multiple response messages may exist for streaming calls.
-     *
-     * @param message response message.
-     * @throws IllegalStateException if headers not sent or call is {@link #close}d
-     */
-    public abstract void sendMessage(RespT message);
-
-    /**
-     * Sets the compression algorithm for this call.  If the server does not support the compression
-     * algorithm, the call will fail.  This method may only be called before {@link #sendHeaders}.
-     * The compressor to use will be looked up in the {@link CompressorRegistry}.  Default gRPC
-     * servers support the "gzip" compressor.
-     *
-     * @param compressor the name of the compressor to use.
-     * @throws IllegalArgumentException if the compressor name can not be found.
-     */
-    public void setCompression(String compressor) {
-        // noop
-    }
-
-    /**
-     * If {@code true}, indicates that the call is capable of sending additional messages
-     * without requiring excessive buffering internally. This event is
-     * just a suggestion and the application is free to ignore it, however doing so may
-     * result in excessive buffering within the call.
-     * <p>
-     * <p>This implementation always returns {@code true}.
-     */
-    public boolean isReady() {
-
-        return true;
-    }
-
-    /**
-     * Close the call with the provided status. No further sending or receiving will occur. If {@link
-     * Status#isOk} is {@code false}, then the call is said to have failed.
-     * <p>
-     * <p>If no errors or cancellations are known to have occurred, then a {@link Listener#onComplete}
-     * notification should be expected, independent of {@code status}. Otherwise {@link
-     * Listener#onCancel} has been or will be called.
-     *
-     * @throws IllegalStateException if call is already {@code close}d
-     */
-    public abstract void close(Status status, HttpHeaders trailer);
-
-    /**
-     * Returns {@code true} when the call is cancelled and the server is encouraged to abort
-     * processing to save resources, since the client will not be processing any further methods.
-     * Cancellations can be caused by timeouts, explicit cancel by client, network errors, and
-     * similar.
-     * <p>
-     * <p>This method may safely be called concurrently from multiple threads.
-     */
-    public abstract boolean isCancelled();
-
-    /**
-     * Enables per-message compression, if an encoding type has been negotiated.  If no message
-     * encoding has been negotiated, this is a no-op. By default per-message compression is enabled,
-     * but may not have any effect if compression is not enabled on the call.
-     */
-    public void setMessageCompression(boolean enabled) {
-        // noop
-    }
-
-    /**
-     * Gets the authority this call is addressed to.
-     *
-     * @return the authority string. {@code null} if not available.
-     */
-    public String getAuthority() {
-
-        return null;
-    }
-
-    /**
-     * The {@link MethodDescriptor} for the call.
-     */
-    public abstract MethodDescriptor<ReqT, RespT> getMethodDescriptor();
 }

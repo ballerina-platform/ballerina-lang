@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.HttpContent;
@@ -29,7 +28,7 @@ import java.util.Map;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
 
 /**
- * Class that represents an HTTP request in MSF4J level.
+ * Class that represents an gRPC inbound message.
  */
 public class InboundMessage {
 
@@ -155,13 +154,16 @@ public class InboundMessage {
 
     /**
      * Inbound Message state listener.
+     *
+     * <p>
+     * Referenced from grpc-java implementation.
+     * <p>
      */
     public abstract static class InboundStateListener implements MessageDeframer.Listener {
 
         private MessageDeframer deframer;
 
         protected InboundStateListener(int maxMessageSize) {
-
             deframer = new MessageDeframer(
                     this,
                     Codec.Identity.NONE,
@@ -174,7 +176,6 @@ public class InboundMessage {
         protected abstract StreamListener listener();
 
         public void messagesAvailable(InputStream inputStream) {
-
             listener().messagesAvailable(inputStream);
         }
 
@@ -189,7 +190,6 @@ public class InboundMessage {
          * @param stopDelivery interrupt pending deliveries and close immediately
          */
         protected final void closeDeframer(boolean stopDelivery) {
-
             if (stopDelivery) {
                 deframer.close();
             } else {
@@ -202,7 +202,6 @@ public class InboundMessage {
          * called from the transport thread.
          */
         protected final void deframe(final HttpContent httpContent) {
-
             try {
                 deframer.deframe(httpContent);
             } catch (Throwable t) {
@@ -211,7 +210,6 @@ public class InboundMessage {
         }
 
         protected final void setDecompressor(Decompressor decompressor) {
-
             deframer.setDecompressor(decompressor);
         }
 

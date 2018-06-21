@@ -29,14 +29,11 @@ import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.net.grpc.CallOptions;
 import org.ballerinalang.net.grpc.ClientCall;
-import org.ballerinalang.net.grpc.ClientCallImpl;
 import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.Status;
-import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.http.DataContext;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 
@@ -61,17 +58,6 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
         super(clientConnector, endpointConfig);
     }
 
-    private BlockingStub(HttpClientConnector connector, Struct endpointConfig, CallOptions callOptions) {
-
-        super(connector, endpointConfig, callOptions);
-    }
-
-    @Override
-    protected BlockingStub build(HttpClientConnector connector, Struct endpointConfig, CallOptions callOptions) {
-
-        return new BlockingStub(connector, endpointConfig, callOptions);
-    }
-
     /**
      * Executes a unary call and blocks on the response.
      *
@@ -81,10 +67,10 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
     public <ReqT, RespT> void executeUnary(ReqT request, MethodDescriptor<ReqT, RespT> methodDescriptor,
                                            DataContext dataContext) {
 
-        ClientCall<ReqT, RespT> call = new ClientCallImpl<>(getConnector(), createOutboundRequest(((Message) request)
-                .getHeaders()), methodDescriptor, getCallOptions());
+        ClientCall<ReqT, RespT> call = new ClientCall<>(getConnector(), createOutboundRequest(((Message) request)
+                .getHeaders()), methodDescriptor);
 
-        call.start(new CallBlockingListener<>(dataContext, methodDescriptor.getSchemaDescriptor()
+        call.start(new CallBlockingListener<RespT>(dataContext, methodDescriptor.getSchemaDescriptor()
                 .getOutputType()));
         try {
             call.sendMessage(request);
@@ -95,9 +81,9 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
     }
 
     /**
-     * Complete a GrpcFuture using {@link StreamObserver} events.
+     *  Callbacks for receiving headers, response messages and completion status in blocking calls.
      */
-    private static final class CallBlockingListener<RespT> extends ClientCall.Listener<RespT> {
+    private static final class CallBlockingListener<RespT> extends Listener<RespT> {
 
         private final DataContext dataContext;
         private final Descriptors.Descriptor outputDescriptor;

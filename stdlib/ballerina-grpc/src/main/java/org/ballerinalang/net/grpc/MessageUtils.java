@@ -46,6 +46,7 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import org.ballerinalang.net.grpc.exception.UnsupportedFieldTypeException;
 import org.ballerinalang.net.grpc.proto.ServiceProtoConstants;
 import org.ballerinalang.services.ErrorHandlerUtils;
@@ -115,30 +116,6 @@ public class MessageUtils {
         }
         return total;
     }
-
-//    public static io.grpc.Context getContextHeader(BValue headerValues) {
-//
-//        // Set response headers.
-//        if (headerValues instanceof BStruct) {
-//            MessageHeaders metadata = (MessageHeaders) ((BStruct) headerValues).getNativeData(METADATA_KEY);
-//            if (metadata != null) {
-//                return io.grpc.Context.current().withValue(MessageHeaders.DATA_KEY, metadata);
-//            }
-//        }
-//        return null;
-//    }
-
-
-
-//    public static MessageHeaders getMessageHeaders(BValue headerValues) {
-//
-//        // Set request headers.
-//        MessageHeaders metadata = null;
-//        if (headerValues instanceof BStruct) {
-//            metadata = (MessageHeaders) ((BStruct) headerValues).getNativeData(METADATA_KEY);
-//        }
-//        return metadata;
-//    }
 
     public static StreamObserver<Message> getResponseObserver(BRefType refType) {
         Object observerObject = null;
@@ -600,14 +577,6 @@ public class MessageUtils {
         return false;
     }
 
-    /** Quietly closes all messages in MessageProducer. */
-    static void closeQuietly(StreamListener.MessageProducer producer) {
-        InputStream message;
-        while ((message = producer.next()) != null) {
-            closeQuietly(message);
-        }
-    }
-
     /** Closes an InputStream, ignoring IOExceptions. */
     static void closeQuietly(InputStream message) {
         try {
@@ -619,6 +588,10 @@ public class MessageUtils {
 
     /**
      * Indicates whether or not the given value is a valid gRPC content-type.
+     *
+     * <p>
+     * Referenced from grpc-java implementation.
+     * <p>
      */
     public static boolean isGrpcContentType(String contentType) {
         if (contentType == null) {
@@ -631,7 +604,6 @@ public class MessageUtils {
 
         contentType = contentType.toLowerCase(Locale.ENGLISH);
         if (!contentType.startsWith(CONTENT_TYPE_GRPC)) {
-            // Not a gRPC content-type.
             return false;
         }
 
@@ -641,8 +613,7 @@ public class MessageUtils {
         }
 
         // The contentType matches, but is longer than the expected string.
-        // We need to support variations on the content-type (e.g. +proto, +json) as defined by the
-        // gRPC wire spec.
+        // We need to support variations on the content-type (e.g. +proto, +json) as defined by the gRPC wire spec.
         char nextChar = contentType.charAt(CONTENT_TYPE_GRPC.length());
         return nextChar == '+' || nextChar == ';';
     }
@@ -660,7 +631,6 @@ public class MessageUtils {
             httpCarbonMessage = new HTTPCarbonMessage(
                     new DefaultHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK));
         }
-        //httpCarbonMessage.completeMessage();
         return httpCarbonMessage;
     }
 
@@ -676,8 +646,7 @@ public class MessageUtils {
         }
         switch (httpStatusCode) {
             case HttpURLConnection.HTTP_BAD_REQUEST:  // 400
-            case 431: // Request Header Fields Too Large
-                // TODO(carl-mastrangelo): this should be added to the http-grpc-status-mapping.md doc.
+            case 431:
                 return Status.Code.INTERNAL;
             case HttpURLConnection.HTTP_UNAUTHORIZED:  // 401
                 return Status.Code.UNAUTHENTICATED;
@@ -685,7 +654,7 @@ public class MessageUtils {
                 return Status.Code.PERMISSION_DENIED;
             case HttpURLConnection.HTTP_NOT_FOUND:  // 404
                 return Status.Code.UNIMPLEMENTED;
-            case 429:  // Too Many Requests
+            case 429:
             case HttpURLConnection.HTTP_BAD_GATEWAY:  // 502
             case HttpURLConnection.HTTP_UNAVAILABLE:  // 503
             case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:  // 504
@@ -696,7 +665,7 @@ public class MessageUtils {
     }
 
     /**
-     * Reads an entire {@link ReadableBuffer} to a new array. After calling this method, the buffer
+     * Reads an entire {@link HttpContent} to a new array. After calling this method, the buffer
      * will contain no readable bytes.
      */
     public static byte[] readArray(HttpContent httpContent) {
@@ -711,7 +680,7 @@ public class MessageUtils {
     }
 
     /**
-     * Reads the entire {@link ReadableBuffer} to a new {@link String} with the given charset.
+     * Reads the entire {@link HttpContent} to a new {@link String} with the given charset.
      */
     public static String readAsString(HttpContent httpContent, Charset charset) {
         Preconditions.checkNotNull(charset, "charset");

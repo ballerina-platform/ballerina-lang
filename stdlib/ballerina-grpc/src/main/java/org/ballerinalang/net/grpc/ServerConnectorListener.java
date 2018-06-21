@@ -92,7 +92,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
         final Executor wrappedExecutor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         wrappedExecutor.execute(() -> {
-            ServerStreamListener listener;
+            ServerCall.ServerStreamListener listener;
 
             try {
                 listener = startCall(inboundMessage, outboundMessage, method);
@@ -122,18 +122,18 @@ public class ServerConnectorListener implements HttpConnectorListener {
     }
 
 
-    private <ReqT, RespT> ServerStreamListener startCall(InboundMessage inboundMessage, OutboundMessage
+    private <ReqT, RespT> ServerCall.ServerStreamListener startCall(InboundMessage inboundMessage, OutboundMessage
             outboundMessage, String fullMethodName) {
         // Get method definition of the inboundMessage.
         ServerMethodDefinition<ReqT, RespT> methodDefinition = (ServerMethodDefinition<ReqT, RespT>)
                 servicesRegistry.lookupMethod(fullMethodName);
         // Create service call instance for the inboundMessage.
-        ServerCallImpl<ReqT, RespT> call = new ServerCallImpl<>(inboundMessage, outboundMessage, methodDefinition
+        ServerCall<ReqT, RespT> call = new ServerCall<>(inboundMessage, outboundMessage, methodDefinition
                 .getMethodDescriptor(), DecompressorRegistry.getDefaultInstance(), CompressorRegistry
                 .getDefaultInstance());;
         ServerCallHandler<ReqT, RespT> callHandler = methodDefinition.getServerCallHandler();
 
-        ServerCall.Listener<ReqT> listener = callHandler.startCall(call);
+        ServerCallHandler.Listener<ReqT> listener = callHandler.startCall(call);
         if (listener == null) {
             throw new NullPointerException(
                     "startCall() returned a null listener for method " + fullMethodName);
@@ -196,10 +196,10 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
     private static class InboundStateListener extends InboundMessage.InboundStateListener {
 
-        final ServerStreamListener listener;
+        final ServerCall.ServerStreamListener listener;
         final InboundMessage inboundMessage;
 
-        protected InboundStateListener(int maxMessageSize, ServerStreamListener listener, InboundMessage
+        protected InboundStateListener(int maxMessageSize, ServerCall.ServerStreamListener listener, InboundMessage
                 inboundMessage) {
 
             super(maxMessageSize);
@@ -208,7 +208,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
         }
 
         @Override
-        protected ServerStreamListener listener() {
+        protected ServerCall.ServerStreamListener listener() {
 
             return listener;
         }

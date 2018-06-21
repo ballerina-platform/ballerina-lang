@@ -15,13 +15,11 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
 import org.ballerinalang.net.grpc.exception.GrpcServerException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -31,7 +29,9 @@ import java.util.Set;
 /**
  * Descriptor for a service.
  *
- * @since 1.0.0
+ * <p>
+ * Referenced from grpc-java implementation.
+ * <p>
  */
 public final class ServiceDescriptor {
 
@@ -39,44 +39,23 @@ public final class ServiceDescriptor {
     private final Collection<MethodDescriptor<?, ?>> methods;
 
     /**
-     * Constructs a new Service Descriptor.  Users are encouraged to use {@link #newBuilder}
-     * instead.
+     * Constructs a new Service Descriptor.
      *
      * @param name    The name of the service
      * @param methods The methods that are part of the service
-     * @since 1.0.0
      */
-    public ServiceDescriptor(String name, MethodDescriptor<?, ?>... methods) throws GrpcServerException {
-
-        this(name, Arrays.asList(methods));
-    }
-
-    /**
-     * Constructs a new Service Descriptor.  Users are encouraged to use {@link #newBuilder}
-     * instead.
-     *
-     * @param name    The name of the service
-     * @param methods The methods that are part of the service
-     * @since 1.0.0
-     */
-    public ServiceDescriptor(String name, Collection<MethodDescriptor<?, ?>> methods) throws GrpcServerException {
-        this(newBuilder(name).addAllMethods(methods));
-    }
-
-    private ServiceDescriptor(Builder b) throws GrpcServerException {
-
-        this.name = b.name;
-        validateMethodNames(name, b.methods);
-        this.methods = Collections.unmodifiableList(new ArrayList<>(b.methods));
+    private ServiceDescriptor(String name, Collection<MethodDescriptor<?, ?>> methods) throws GrpcServerException {
+        this.name = name;
+        validateMethodNames(name, methods);
+        this.methods = Collections.unmodifiableList(new ArrayList<>(methods));
     }
 
     /**
      * Simple name of the service. It is not an absolute path.
      *
-     * @since 1.0.0
+     * @return Service name.
      */
     public String getName() {
-
         return name;
     }
 
@@ -84,10 +63,9 @@ public final class ServiceDescriptor {
      * A collection of {@link MethodDescriptor} instances describing the methods exposed by the
      * service.
      *
-     * @since 1.0.0
+     * @return list of service methods.
      */
     public Collection<MethodDescriptor<?, ?>> getMethods() {
-
         return methods;
     }
 
@@ -113,49 +91,36 @@ public final class ServiceDescriptor {
     /**
      * Creates a new builder for a {@link ServiceDescriptor}.
      *
-     * @since 1.1.0
+     * @param name Service name.
+     * @return new ServiceDescriptor.Builder instance.
+     * @throws GrpcServerException if failed.
      */
     public static Builder newBuilder(String name) throws GrpcServerException {
-
         return new Builder(name);
     }
 
     /**
      * A builder for a {@link ServiceDescriptor}.
-     *
-     * @since 1.1.0
+     * <p>
+     * Referenced from grpc-java implementation.
+     * <p>
      */
     public static final class Builder {
-
-        private Builder(String name) throws GrpcServerException {
-
-            setName(name);
-        }
-
         private String name;
         private List<MethodDescriptor<?, ?>> methods = new ArrayList<>();
 
-        /**
-         * Sets the name.  This should be non-{@code null}.
-         *
-         * @param name The name of the service.
-         * @return this builder.
-         * @since 1.1.0
-         */
-        public Builder setName(String name) throws GrpcServerException {
+        private Builder(String name) throws GrpcServerException {
             if (name == null) {
                 throw new GrpcServerException("name cannot be null");
             }
             this.name = name;
-            return this;
         }
 
         /**
-         * Adds a method to this service.  This should be non-{@code null}.
+         * Adds a method to this service.
          *
          * @param method the method to add to the descriptor.
          * @return this builder.
-         * @since 1.1.0
          */
         public Builder addMethod(MethodDescriptor<?, ?> method) throws GrpcServerException {
             if (method == null) {
@@ -166,27 +131,25 @@ public final class ServiceDescriptor {
         }
 
         /**
-         * Currently not exposed.  Bulk adds methods to this builder.
+         * Bulk adds methods to this builder.
          *
-         * @param methods the methods to add.
+         * @param methods collection of methods.
          * @return this builder.
          */
-        private Builder addAllMethods(Collection<MethodDescriptor<?, ?>> methods) {
+        public Builder addAllMethods(Collection<MethodDescriptor<?, ?>> methods) {
 
             this.methods.addAll(methods);
             return this;
         }
 
         /**
-         * Constructs a new {@link ServiceDescriptor}.  {@link #setName} should have been called with a
-         * non-{@code null} value before calling this.
+         * Constructs a new {@link ServiceDescriptor}.
          *
-         * @return a new ServiceDescriptor
-         * @since 1.1.0
+         * @return a new instance.
          */
         public ServiceDescriptor build() throws GrpcServerException {
 
-            return new ServiceDescriptor(this);
+            return new ServiceDescriptor(name, methods);
         }
     }
 }

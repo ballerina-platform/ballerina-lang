@@ -27,14 +27,13 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 
 /**
- * Class that represents an HTTP response in MSF4J level.
+ * Class that represents an GRPC outbound message.
  */
 public class OutboundMessage {
 
-    private static final String COMMA_SEPARATOR = ", ";
     private static final int NULL_STATUS_CODE = -1;
-    public static final int NO_CHUNK = 0;
-    public static final int DEFAULT_CHUNK_SIZE = -1;
+    private static final String GRPC_STATUS_KEY = "grpc-status";
+    private static final String GRPC_MESSAGE_KEY = "grpc-message";
 
     private final HTTPCarbonMessage responseMessage;
     private int statusCode = NULL_STATUS_CODE;
@@ -182,6 +181,12 @@ public class OutboundMessage {
         }
     }
 
+    /**
+     * Close the stream by sending trailer header with gRPC status code.
+     *
+     * @param status gRPC status
+     * @param trailers trailer headers
+     */
     public void complete(Status status, io.netty.handler.codec.http.HttpHeaders trailers) {
 
         framer().flush();
@@ -193,14 +198,17 @@ public class OutboundMessage {
     }
 
     private void addStatusToTrailers(Status status, io.netty.handler.codec.http.HttpHeaders trailers) {
-        trailers.remove("grpc-status");
-        trailers.remove("grpc-message");
-        trailers.add("grpc-status", status);
+        trailers.remove(GRPC_STATUS_KEY);
+        trailers.remove(GRPC_MESSAGE_KEY);
+        trailers.add(GRPC_STATUS_KEY, status);
         if (status.getDescription() != null) {
-            trailers.add("grpc-message", status.getDescription());
+            trailers.add(GRPC_MESSAGE_KEY, status.getDescription());
         }
     }
 
+    /**
+     * Invoked when stream is closed by other parties.
+     */
     public final void halfClose() {
         if (!outboundClosed) {
             outboundClosed = true;
@@ -213,7 +221,6 @@ public class OutboundMessage {
     }
 
     public boolean isReady() {
-
         return !framer().isClosed();
     }
 

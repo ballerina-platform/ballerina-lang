@@ -1,19 +1,20 @@
 /*
- * Copyright 2014, gRPC Authors All rights reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
  */
-
 package org.ballerinalang.net.grpc.listener;
 
 import com.google.protobuf.Descriptors;
@@ -46,8 +47,10 @@ import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
 import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
 
 /**
- * Interface to initiate processing of incoming remote calls. Advanced applications and generated
- * code will implement this interface to allows servers to invoke service methods.
+ * Interface to initiate processing of incoming remote calls.
+ * <p>
+ * Referenced from grpc-java implementation.
+ * <p>
  *
  * @param <RequestT>  InboundMessage Message
  * @param <ResponseT> OutboundMessage Message
@@ -58,21 +61,24 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
     static final String TOO_MANY_REQUESTS = "Too many requests";
     static final String MISSING_REQUEST = "Half-closed without a request";
 
+    private Descriptors.MethodDescriptor methodDescriptor;
+    private static final Logger LOG = LoggerFactory.getLogger(ServerCallHandler.class);
+
+    ServerCallHandler(Descriptors.MethodDescriptor methodDescriptor) {
+        this.methodDescriptor = methodDescriptor;
+    }
+
     /**
-     * Produce a non-{@code null} listener for the incoming call. Implementations are free to call
-     * methods on {@code call} before this method has returned.
-     * <p>
-     * <p>If the implementation throws an exception, {@code call} will be closed with an error.
-     * Implementations must not throw an exception if they started processing that may use {@code
-     * call} on another thread.
+     * Returns a listener for the incoming call.
      *
      * @param call object for responding to the remote client.
      * @return listener for processing incoming request messages for {@code call}
      */
-    public abstract ServerCall.Listener<RequestT> startCall(ServerCall<RequestT, ResponseT> call);
+    public abstract Listener<RequestT> startCall(ServerCall<RequestT, ResponseT> call);
 
     /**
-     * Server call stream observer.
+     * Receives notifications from an observable stream of response messages from server side.
+     *
      * @param <RespT> Response message type.
      */
     public static final class ServerCallStreamObserver<RespT> extends CallStreamObserver<RespT> {
@@ -81,7 +87,6 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         volatile boolean cancelled;
         private boolean sentHeaders;
 
-        // Non private to avoid synthetic class
         ServerCallStreamObserver(ServerCall<?, RespT> call) {
 
             this.call = call;
@@ -142,15 +147,8 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         }
     }
 
-    private Descriptors.MethodDescriptor methodDescriptor;
-    private static final Logger LOG = LoggerFactory.getLogger(ServerCallHandler.class);
-
-    ServerCallHandler(Descriptors.MethodDescriptor methodDescriptor) {
-        this.methodDescriptor = methodDescriptor;
-    }
-
     /**
-     * Returns endpoint instance which is used to respond to the client.
+     * Returns endpoint instance which is used to respond to the caller.
      *
      * @param responseObserver client responder instance.
      * @return instance of endpoint type.
@@ -200,7 +198,7 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
      *
      * @return true if method response is empty, false otherwise
      */
-    boolean isEmptyResponse() {
+    private boolean isEmptyResponse() {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
 
@@ -249,5 +247,67 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
             signatureParams[signatureParams.length - 1] = headerStruct;
         }
         return signatureParams;
+    }
+
+    /**
+     * Callbacks for consuming incoming RPC messages.
+     * <p>
+     * <p>Any contexts are guaranteed to arrive before any messages, which are guaranteed before half
+     * close, which is guaranteed before completion.
+     * <p>
+     * <p>Implementations are free to block for extended periods of time. Implementations are not
+     * required to be thread-safe.
+     *
+     * @param <ReqT> parsed type of request message.
+     */
+    public abstract static class Listener<ReqT> {
+
+        /**
+         * A request message has been received. For streaming calls, there may be zero or more request
+         * messages.
+         *
+         * @param message a received request message.
+         */
+        public void onMessage(ReqT message) {
+
+        }
+
+        /**
+         * The client completed all message sending. However, the call may still be cancelled.
+         */
+        public void onHalfClose() {
+
+        }
+
+        /**
+         * The call was cancelled and the server is encouraged to abort processing to save resources,
+         * since the client will not process any further messages. Cancellations can be caused by
+         * timeouts, explicit cancellation by the client, network errors, etc.
+         * <p>
+         * <p>There will be no further callbacks for the call.
+         */
+        public void onCancel() {
+
+        }
+
+        /**
+         * The call is considered complete and {@link #onCancel} is guaranteed not to be called.
+         * However, the client is not guaranteed to have received all messages.
+         * <p>
+         * <p>There will be no further callbacks for the call.
+         */
+        public void onComplete() {
+
+        }
+
+        /**
+         * This indicates that the call is now capable of sending additional messages (via
+         * {@link #sendMessage}) without requiring excessive buffering internally. This event is
+         * just a suggestion and the application is free to ignore it, however doing so may
+         * result in excessive buffering within the call.
+         */
+        public void onReady() {
+
+        }
     }
 }

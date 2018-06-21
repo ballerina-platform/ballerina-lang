@@ -326,7 +326,7 @@ public class MessageDeframer implements Closeable {
     }
 
     /**
-     * An {@link InputStream} that is backed by a {@link ReadableBuffer}.
+     * Buffer Input Stream.
      */
     private static final class BufferInputStream extends InputStream implements KnownLength {
         final CompositeReadableBuffer buffer;

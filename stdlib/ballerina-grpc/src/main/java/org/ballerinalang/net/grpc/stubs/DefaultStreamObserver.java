@@ -70,10 +70,6 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BStruct headerStruct = getHeaderStruct(resource);
-//        Metadata respMetadata = headerCapture.get();
-//        if (headerStruct != null && respMetadata != null) {
-//            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
-//        }
         BValue requestParam = getRequestParameter(resource, value, headerStruct != null);
         if (requestParam != null) {
             signatureParams[0] = requestParam;
@@ -99,10 +95,6 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, error.getError());
         signatureParams[0] = errorStruct;
         BStruct headerStruct = getHeaderStruct(onError);
-//        Metadata respMetadata = headerCapture.get();
-//        if (headerStruct != null && respMetadata != null) {
-//            headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
-//        }
         
         if (headerStruct != null && signatureParams.length == 2) {
             signatureParams[1] = headerStruct;
