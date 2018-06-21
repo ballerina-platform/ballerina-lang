@@ -151,7 +151,7 @@ service<http:Service> testService bind { port: 9090 } {
     testPostWithByteChannel(endpoint client, http:Request req) {
         string value;
         io:ByteChannel byteChannel = check req.getByteChannel();
-        http:Response res = check clientEP->post("/test1/byteChannel", byteChannel);
+        http:Response res = check clientEP->post("/test1/byteChannel", untaint byteChannel);
         value = check res.getPayloadAsString();
 
         _ = client->respond(untaint value);
