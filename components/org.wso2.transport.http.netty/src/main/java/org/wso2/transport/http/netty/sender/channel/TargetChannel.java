@@ -77,7 +77,7 @@ public class TargetChannel {
     private List<HttpContent> contentList = new ArrayList<>();
     private long contentLength = 0;
     private final ConnectionAvailabilityFuture connectionAvailabilityFuture;
-    private TargetErrorHandler targetErrorHandler = new TargetErrorHandler();
+    private TargetErrorHandler targetErrorHandler;
 
     public TargetChannel(HttpClientChannelInitializer httpClientChannelInitializer, ChannelFuture channelFuture,
                          HttpRoute httpRoute, ConnectionAvailabilityFuture connectionAvailabilityFuture) {
@@ -158,6 +158,7 @@ public class TargetChannel {
         targetHandler.setOutboundRequestMsg(httpCarbonMessage);
         targetHandler.setConnectionManager(connectionManager);
         targetHandler.setTargetChannel(this);
+        targetErrorHandler = new TargetErrorHandler(httpInboundResponseFuture);
         targetHandler.setTargetErrorHandler(targetErrorHandler);
 
         this.httpInboundResponseFuture = httpInboundResponseFuture;
@@ -213,6 +214,7 @@ public class TargetChannel {
     }
 
     private void writeOutboundRequest(HTTPCarbonMessage httpOutboundRequest, HttpContent httpContent) throws Exception {
+        System.out.println(SENDING_ENTITY_BODY);
         targetErrorHandler.setState(SENDING_ENTITY_BODY);
         if (Util.isLastHttpContent(httpContent)) {
             if (!this.requestHeaderWritten) {
@@ -288,6 +290,7 @@ public class TargetChannel {
                 log.error(Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST, throwable);
                 httpInboundResponseFuture.notifyHttpListener(throwable);
             } else {
+                System.out.println("ENTITY_BODY_SENT");
                 targetErrorHandler.setState(ENTITY_BODY_SENT);
             }
         });

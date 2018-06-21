@@ -99,7 +99,7 @@ public class Http2ClientTimeoutTestCase {
             assertTrue(error instanceof EndpointTimeOutException,
                        "Exception is not an instance of EndpointTimeOutException");
             String result = error.getMessage();
-            assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE,
+            assertEquals(result, Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
                          "Expected error message not received");
         } catch (Exception e) {
             TestUtil.handleException("Exception occurred while running testHttp2ClientTimeout test case", e);

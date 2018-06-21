@@ -277,16 +277,19 @@ public final class Constants {
             = "Idle timeout triggered before initiating inbound request";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST
             = "Idle timeout triggered while reading inbound request";
-
-    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_READING_INBOUND_RESPONSE
-            = "Idle timeout triggered before reading inbound response";
-    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE
-            = "Idle timeout triggered while reading inbound response";
-
     public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE
             = "Idle timeout triggered before initiating outbound response";
     public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE
                 = "Idle timeout triggered while writing outbound response";
+
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST
+            = "Idle timeout triggered before initiating outbound request";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST
+            = "Idle timeout triggered while writing outbound request";
+    public static final String IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE
+            = "Idle timeout triggered before initiating inbound response";
+    public static final String IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE
+            = "Idle timeout triggered while reading inbound response";
 
     public static final String EXCEPTION_CAUGHT_WHILE_READING_REQUEST
             = "Exception caught while reading inbound request";
@@ -298,7 +301,6 @@ public final class Constants {
             = "Remote client closed connection before initiating inbound request";
     public static final String REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST
             = "Remote client closed connection while reading inbound request";
-
     public static final String REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE
             = "Remote client closed connection before initiating outbound response";
     public static final String REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE

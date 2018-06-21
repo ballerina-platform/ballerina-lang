@@ -21,20 +21,26 @@ package org.wso2.transport.http.netty.sender;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.SourceInteractiveState;
+import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
+import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
 
 /**
  * Handle all the errors related to target-handler.
@@ -45,18 +51,28 @@ public class TargetErrorHandler {
     private HttpResponseFuture httpResponseFuture;
     private SourceInteractiveState state;
 
-    protected void handleErrorCloseScenario(HTTPCarbonMessage inboundResponseMsg, HttpResponseFuture httpOutRespStatusFuture) {
+    public TargetErrorHandler(HttpResponseFuture httpResponseFuture) {
+        this.httpResponseFuture = httpResponseFuture;
+        this.state = CONNECTED;
+    }
+
+    protected void handleErrorCloseScenario(HTTPCarbonMessage inboundResponseMsg) {
+        System.out.print("handleErrorCloseScenario :");
+        System.out.println(state);
         switch (state) {
             case CONNECTED:
                 httpResponseFuture.notifyHttpListener(
                         new ServerConnectorException(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST));
-                // Error is notified to server connector. Debug log is to make transport layer aware
-                log.debug(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST);
+                log.error(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST);
                 break;
             case SENDING_ENTITY_BODY:
+                httpResponseFuture.notifyHttpListener(
+                        new ServerConnectorException(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST));
                 log.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST);
                 break;
             case ENTITY_BODY_SENT:
+                httpResponseFuture.notifyHttpListener(
+                        new ServerConnectorException(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE));
                 log.error(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE);
                 break;
             case RECEIVING_ENTITY_BODY:
@@ -70,11 +86,49 @@ public class TargetErrorHandler {
         }
     }
 
+    protected void handleErrorIdleScenarios(HTTPCarbonMessage inboundResponseMsg, String channelID) {
+        System.out.print("handleErrorIdleScenarios :");
+        System.out.println(state);
+        switch (state) {
+            case CONNECTED:
+                httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
+                        IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST,
+                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                // Error is notified to server connector. Debug log is to make transport layer aware
+                log.debug(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST);
+                break;
+            case SENDING_ENTITY_BODY:
+                httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
+                        IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST,
+                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST);
+                break;
+            case ENTITY_BODY_SENT:
+                httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
+                        IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
+                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                log.error(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE);
+                break;
+            case RECEIVING_ENTITY_BODY:
+                handleIncompleteInboundResponse(inboundResponseMsg,
+                        IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
+                break;
+            case ENTITY_BODY_RECEIVED:
+                break;
+            default:
+                log.error("Unexpected state detected ", state);
+        }
+    }
+
     private void handleIncompleteInboundResponse(HTTPCarbonMessage inboundResponseMsg, String errorMessage) {
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
         inboundResponseMsg.addHttpContent(lastHttpContent);
         log.warn(errorMessage);
+    }
+
+    public void exceptionCaught(Throwable cause) {
+        log.warn("Exception occurred in TargetHandler : "+ cause.getMessage());
     }
 
     public void setState(SourceInteractiveState state) {
