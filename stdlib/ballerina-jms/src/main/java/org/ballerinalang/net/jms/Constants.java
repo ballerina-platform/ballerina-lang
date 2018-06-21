@@ -92,6 +92,8 @@ public class Constants {
      * Connection property providerUrl parameter name.
      */
     public static final String ALIAS_PROVIDER_URL = "providerUrl";
+    public static final String ALIAS_USERNAME = "username";
+    public static final String ALIAS_PASSWORD = "password";
     public static final String ALIAS_ACK_MODE = "acknowledgementMode";
     public static final String ALIAS_CLIENT_ID = "clientId";
     public static final String ALIAS_DURABLE_SUBSCRIBER_ID = "subscriptionId";
