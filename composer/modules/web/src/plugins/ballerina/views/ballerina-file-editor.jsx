@@ -620,6 +620,7 @@ class BallerinaFileEditor extends React.Component {
             this.state.splitSize;
         const designWidth = (this.state.activeView === DESIGN_VIEW) ? this.props.width :
             this.props.width - this.state.splitSize;
+        const height = this.props.height - 10; //height is reduced to accommodate scroll bars
 
         const sourceView = (
             <SourceView
@@ -630,7 +631,7 @@ class BallerinaFileEditor extends React.Component {
                 show={showSourceView}
                 panelResizeInProgress={this.props.panelResizeInProgress}
                 width={sourceWidth}
-                height={this.props.height}
+                height={height}
             />
         );
 
@@ -653,7 +654,7 @@ class BallerinaFileEditor extends React.Component {
                     file={this.props.file}
                     commandProxy={this.props.commandProxy}
                     width={designWidth}
-                    height={this.props.height}
+                    height={height}
                     panelResizeInProgress={this.props.panelResizeInProgress}
                     disabled={this.state.parseFailed}
                     onModeChange={this.onModeChange}
