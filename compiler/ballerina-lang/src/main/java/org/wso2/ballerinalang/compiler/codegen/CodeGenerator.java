@@ -3066,12 +3066,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
                     typeCPIndex);
         } else if (NodeKind.FIELD_BASED_ACCESS_EXPR == fpExpr.getKind()) {
-            operands = new Operand[5];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = nextIndex;
-            operands[2] = typeCPIndex;
-            operands[3] = getOperand(1);
-            operands[4] = getObjectArgIndex(((BLangStructFunctionVarRef) fpExpr));
+            operands = calcObjectAttachedFPOperands((BLangStructFunctionVarRef) fpExpr, typeCPIndex, funcRefCPIndex,
+                    nextIndex);
         } else {
             operands = new Operand[4];
             operands[0] = getOperand(funcRefCPIndex);
@@ -3082,13 +3078,25 @@ public class CodeGenerator extends BLangNodeVisitor {
         emit(InstructionCodes.FPLOAD, operands);
     }
 
-    private Operand getObjectArgIndex(BLangStructFunctionVarRef fpExpr) {
-        return new Operand(((BVarSymbol) fpExpr.expr.symbol).varIndex.value);
+    /**
+     * This is a helper method which calculate the required additional indexes needed for object attached function
+     * invoked as a function pointer scenario.
+     */
+    private Operand[] calcObjectAttachedFPOperands(BLangStructFunctionVarRef fpExpr, Operand typeCPIndex,
+                                                   int funcRefCPIndex, RegIndex nextIndex) {
+        Operand[] operands = new Operand[6];
+        operands[0] = getOperand(funcRefCPIndex);
+        operands[1] = nextIndex;
+        operands[2] = typeCPIndex;
+        operands[3] = getOperand(2);
+        operands[4] = getOperand(((BVarSymbol) fpExpr.expr.symbol).tag);
+        operands[5] = getOperand(((BVarSymbol) fpExpr.expr.symbol).varIndex.value);
+        return operands;
     }
 
     /**
      * This is a helper method which calculate the required additional indexes needed for closure scenarios.
-     * If there are no closure variables found, then this method will just add -1 as the termination index
+     * If there are no closure variables found, then this method will just add 0 as the termination index
      * which is used at runtime.
      */
     private Operand[] calcClosureOperands(BLangFunction function, int funcRefCPIndex, RegIndex nextIndex,

@@ -213,6 +213,7 @@ public class WebSocketDispatcher {
             @Override
             public void notifyFailure(BStruct error) {
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
         Executor.submit(onCloseResource, onCloseCallback, null, null, bValues);
@@ -284,6 +285,7 @@ public class WebSocketDispatcher {
             @Override
             public void notifyFailure(BStruct error) {
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
         Executor.submit(onIdleTimeoutResource, onIdleTimeoutCallback, null,
@@ -292,7 +294,7 @@ public class WebSocketDispatcher {
 
     private static void pingAutomatically(WebSocketControlMessage controlMessage) {
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
-        webSocketConnection.pong(controlMessage.getPayload()).addListener(future -> {
+        webSocketConnection.pong(controlMessage.getByteBuffer()).addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
                 ErrorHandlerUtils.printError(cause);

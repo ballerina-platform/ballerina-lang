@@ -54,13 +54,6 @@ public type WebSocketClient object {
     public native function initEndpoint();
 
     documentation {
-        Gets called every time a service attaches itself to this endpoint - also happens at package init time.
-
-        P{{serviceType}} The service type
-    }
-    public native function register(typedesc serviceType);
-
-    documentation {
         Allows access to connector that the client endpoint uses.
 
         R{{}} The connector that client endpoint uses
@@ -70,16 +63,15 @@ public type WebSocketClient object {
     }
 
     documentation {
-        Starts the registered service.
-    }
-    public native function start();
-
-    documentation {
         Stops the registered service.
     }
     public function stop() {
         WebSocketConnector webSocketConnector = getCallerActions();
-        error|() ignoredValue = webSocketConnector.close(1001, "The connection has been stopped");
+        error|() value = webSocketConnector.close(1001, "going away");
+        match value {
+            error err => throw err;
+            () => {}
+        }
     }
 };
 
@@ -94,6 +86,7 @@ documentation {
         F{{readyOnConnect}}
  true if the client is ready to recieve messages as soon as the connection is established. This is true by default. If changed to false the function ready() of the
 `WebSocketClient`needs to be called once to start receiving messages.
+        F{{secureSocket}} SSL/TLS related options
 }
 public type WebSocketClientEndpointConfig {
     string url,
@@ -101,5 +94,6 @@ public type WebSocketClientEndpointConfig {
     string[] subProtocols,
     map<string> customHeaders,
     int idleTimeoutInSeconds = -1,
-    boolean readyOnConnect = true;
+    boolean readyOnConnect = true,
+    SecureSocket? secureSocket,
 };
