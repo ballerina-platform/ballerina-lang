@@ -54,7 +54,7 @@ public abstract class WebSocketUtil {
         return resource.getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
     }
 
-    public static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
+    static Annotation getServiceConfigAnnotation(Service service, String pkgPath) {
         List<Annotation> annotationList = service
                 .getAnnotationList(pkgPath, WebSocketConstants.WEBSOCKET_ANNOTATION_CONFIGURATION);
 
@@ -123,8 +123,8 @@ public abstract class WebSocketUtil {
         });
     }
 
-    public static void executeOnOpenResource(Resource onOpenResource, BStruct webSocketEndpoint,
-                                             WebSocketConnection webSocketConnection) {
+    static void executeOnOpenResource(Resource onOpenResource, BStruct webSocketEndpoint,
+                                      WebSocketConnection webSocketConnection) {
         List<ParamDetail> paramDetails =
                 onOpenResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
@@ -141,10 +141,8 @@ public abstract class WebSocketUtil {
 
             @Override
             public void notifyFailure(BStruct error) {
-                if (webSocketConnector.getBooleanField(WebSocketConstants.CONNECTOR_IS_READY_INDEX) == 0) {
-                    readFirstFrame(webSocketConnection, webSocketConnector);
-                }
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                closeDuringUnexpectedCondition(webSocketConnection);
             }
         };
         //TODO handle BallerinaConnectorException
@@ -194,5 +192,14 @@ public abstract class WebSocketUtil {
     public static void readFirstFrame(WebSocketConnection webSocketConnection, BStruct webSocketConnector) {
         webSocketConnection.readNextFrame();
         webSocketConnector.setBooleanField(WebSocketConstants.CONNECTOR_IS_READY_INDEX, 1);
+    }
+
+    /**
+     * Closes the connection with the unexpected failure status code.
+     * @param webSocketConnection the websocket connection to be closed.
+     */
+    static void closeDuringUnexpectedCondition(WebSocketConnection webSocketConnection) {
+        webSocketConnection.terminateConnection(1011, "Unexpected condition");
+
     }
 }
