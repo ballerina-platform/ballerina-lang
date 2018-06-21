@@ -82,7 +82,7 @@ documentation {
     F{{filters}} Filters to be applied to the request before being dispatched to the actual `resource`
     F{{authProviders}} The array of authentication providers which are used to authenticate the users
 }
-public type SecureEndpointConfiguration {
+public type SecureEndpointConfiguration record {
     string host,
     int port = 9090,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
@@ -111,7 +111,7 @@ documentation {
     F{{signingAlg}} The signing algorithm which is used to sign the JWT token
     F{{propagateToken}} `true` if propagating authentication info as JWT
 }
-public type AuthProvider {
+public type AuthProvider record {
     string scheme,
     string id,
     string authStoreProvider,

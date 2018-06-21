@@ -20,7 +20,7 @@ documentation {
     F{{message}} error message
     F{{cause}} optional error cause
 }
-public type NullReferenceException {
+public type NullReferenceException record {
     string message;
     error? cause;
 };
@@ -31,7 +31,7 @@ documentation {
     F{{message}} error message
     F{{cause}} optional error cause
 }
-public type IllegalStateException {
+public type IllegalStateException record {
     string message;
     error? cause;
 };
@@ -44,7 +44,7 @@ documentation {
     F{{fileName}} File name
     F{{lineNumber}} Line number
 }
-public type CallStackElement {
+public type CallStackElement record {
     string callableName;
     string packageName;
     string fileName;
@@ -73,7 +73,7 @@ documentation {
     F{{cause}} optional `error` instance
     F{{causes}} optional array of `error` instances
 }
-public type CallFailedException {
+public type CallFailedException record {
     string message;
     error? cause;
     error[]? causes;

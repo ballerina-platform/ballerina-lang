@@ -87,7 +87,7 @@ documentation {
  true if the client is ready to recieve messages as soon as the connection is established. This is true by default. If changed to false the function ready() of the
 `WebSocketClient`needs to be called once to start receiving messages.
 }
-public type WebSocketClientEndpointConfig {
+public type WebSocketClientEndpointConfig record {
     string url,
     typedesc? callbackService,
     string[] subProtocols,

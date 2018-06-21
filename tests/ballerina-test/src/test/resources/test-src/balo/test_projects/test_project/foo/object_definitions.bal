@@ -224,7 +224,7 @@ public type Dog object {
     }
 };
 
-public type Lion {
+public type Lion record {
     int barVal,
     string name,
     Tiger? person,

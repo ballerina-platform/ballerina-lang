@@ -9,7 +9,7 @@ function testUndeclaredAttributeAccess() {
     dpt["id"] = "HR";       
 }     
       
-type Department {
+type Department record {
     string dptName;     
     int count;      
 };
