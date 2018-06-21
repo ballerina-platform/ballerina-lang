@@ -22,10 +22,12 @@ import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.model.Whitespace;
+import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Hover;
 import org.eclipse.lsp4j.MarkedString;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangDocumentation;
@@ -42,6 +44,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
@@ -410,14 +413,22 @@ public class HoverUtil {
             BLangType typeNode = varNode.getTypeNode();
             int beforeIdentifierWSLength = getLowestIndexedWS(wsSet).getWs().length();
             if (varNode.symbol.type != null && varNode.symbol.type.tsymbol != null) {
+                BTypeSymbol bTypeSymbol = varNode.symbol.type.tsymbol;
+                PackageID pkgID = bTypeSymbol.pkgID;
+                int packagePrefixLen = (pkgID != PackageID.DEFAULT
+                        && pkgID.name != Names.BUILTIN_PACKAGE
+                        && pkgID.name != Names.DEFAULT_PACKAGE)
+                        ? (pkgID.name.value + ":").length()
+                        : 0;
                 if (typeNode instanceof BLangConstrainedType) {
                     int typeSpecifierSymbolLength = 2;
                     int typeSpecifierLength = typeSpecifierSymbolLength + getTotalWhitespaceLen(typeNode.getWS());
-                    position.sCol += ((BLangConstrainedType) typeNode).type.type.tsymbol.name.value.length() +
-                            ((BLangConstrainedType) typeNode).constraint.type.tsymbol.name.value.length() +
-                            typeSpecifierLength + beforeIdentifierWSLength;
+                    position.sCol +=
+                            packagePrefixLen + ((BLangConstrainedType) typeNode).type.type.tsymbol.name.value.length() +
+                                    ((BLangConstrainedType) typeNode).constraint.type.tsymbol.name.value.length() +
+                                    typeSpecifierLength + beforeIdentifierWSLength;
                 } else {
-                    position.sCol += varNode.symbol.type.tsymbol.name.value.length() + beforeIdentifierWSLength;
+                    position.sCol += packagePrefixLen + bTypeSymbol.name.value.length() + beforeIdentifierWSLength;
                 }
             } else if (typeNode != null && typeNode instanceof BLangArrayType && typeNode.type instanceof BArrayType) {
                 int arraySpecifierSymbolLength = 2;

@@ -779,7 +779,6 @@ public class CPU {
         List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
-            argRegs = expandArgRegs(argRegs, functionInfo.getParamTypes(), fp);
             return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
         }
 
@@ -835,17 +834,6 @@ public class CPU {
         return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, funcCallCPEntry.getRetRegs(), false);
     }
 
-    private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes, BFunctionPointer fp) {
-        if (paramTypes.length == 0 || paramTypes.length == argRegs.length ||
-                (TypeTags.OBJECT_TYPE_TAG != paramTypes[0].getTag()
-                        && TypeTags.RECORD_TYPE_TAG != paramTypes[0].getTag())) {
-            return argRegs;
-        }
-        int[] expandedArgs = new int[paramTypes.length];
-        expandedArgs[0] = fp.getAttachedFunctionObjectIndex();
-        System.arraycopy(argRegs, 0, expandedArgs, 1, argRegs.length);
-        return expandedArgs;
-    }
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
         int longIndex = 0;
@@ -947,13 +935,7 @@ public class CPU {
             return;
         }
 
-        //if '1', then this is a object attached function invocation as function pointer
-        if (h == 1) {
-            fp.setAttachedFunctionObjectIndex(operands[4]);
-            return;
-        }
-
-        //if > 1, then this is a closure related scenario
+        //or else, this is a closure related scenario
         for (int i = 0; i < h; i++) {
             int operandIndex = i + 4;
             int type = operands[operandIndex];
@@ -1753,7 +1735,6 @@ public class CPU {
         int i;
         int j;
         int k;
-        int l;
         switch (opcode) {
             case InstructionCodes.IADD:
                 i = operands[0];
