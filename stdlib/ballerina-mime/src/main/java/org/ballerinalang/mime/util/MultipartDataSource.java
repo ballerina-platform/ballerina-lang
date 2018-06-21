@@ -92,12 +92,12 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
             if (childParts == null) {
                 return;
             }
-            boolean isFirst = true;
+            boolean firstPart = true;
             for (int i = 0; i < childParts.size(); i++) {
                 BStruct childPart = (BStruct) childParts.get(i);
                 // Write leading boundary string
-                if (isFirst) {
-                    isFirst = false;
+                if (firstPart) {
+                    firstPart = false;
                     writer.write(DASH_BOUNDARY);
 
                 } else {
