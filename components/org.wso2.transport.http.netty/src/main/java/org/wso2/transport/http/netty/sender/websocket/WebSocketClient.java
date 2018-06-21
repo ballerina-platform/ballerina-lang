@@ -107,7 +107,7 @@ public class WebSocketClient {
             clientHandshakeHandler = new WebSocketClientHandshakeHandler(webSocketHandshaker, handshakeFuture,
                     messageQueueHandler, ssl, autoRead, url, handshakeFuture);
             Bootstrap clientBootstrap = initClientBootstrap(host, port, handshakeFuture);
-            clientBootstrap.connect(uri.getHost(), port);
+            clientBootstrap.connect(uri.getHost(), port).sync();
         } catch (Throwable throwable) {
             handleHandshakeError(handshakeFuture, throwable);
         }

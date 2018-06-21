@@ -165,6 +165,19 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
     }
 
     @Test
+    public void testNonExistingValidUrl() throws InterruptedException {
+        String nonExistingUrl = "ws://localhost:14900/websocket";
+        WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(nonExistingUrl);
+        HandshakeResult result = connectAndGetHandshakeResult(clientConnectorConfig);
+        Throwable throwable = result.getThrowable();
+
+        Assert.assertNull(result.getWebSocketConnection());
+        Assert.assertNull(result.getHandshakeResponse());
+        Assert.assertNotNull(throwable);
+        Assert.assertEquals(throwable.getMessage(), "Connection refused: localhost/127.0.0.1:14900");
+    }
+
+    @Test
     public void testWssCallWithoutSslConfig() throws InterruptedException {
         String url = "wss://localhost:9090/websocket";
         WebSocketClientConnectorConfig clientConnectorConfig = new WebSocketClientConnectorConfig(url);
