@@ -75,10 +75,6 @@ public class WebSocketServiceCompilerPlugin extends AbstractCompilerPlugin {
                 resources.forEach(res -> WebSocketResourceValidator
                         .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog, false));
             } else if (WEBSOCKET_CLIENT_SERVICE.equals(serviceType.getTypeName().getValue())) {
-                if (serviceNode.getBoundEndpoints().size() > 0) {
-                    dlog.logDiagnostic(Diagnostic.Kind.ERROR, serviceNode.getPosition(),
-                                       WEBSOCKET_CLIENT_SERVICE + " cannot be bound to an endpoint");
-                }
                 List<BLangResource> resources = (List<BLangResource>) serviceNode.getResources();
                 resources.forEach(res -> WebSocketResourceValidator
                         .validate(((BLangService) serviceNode).symbol.getName().value, res, dlog, true));
