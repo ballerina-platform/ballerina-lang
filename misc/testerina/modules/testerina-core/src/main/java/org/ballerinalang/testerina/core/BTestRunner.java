@@ -86,8 +86,6 @@ public class BTestRunner {
         compileAndBuildSuites(sourceRoot, sourceFilePaths, buildWithTests);
         // execute the test programs
         execute(buildWithTests);
-        // print the report
-        // tReport.printSummary();
     }
 
     /**
@@ -200,14 +198,9 @@ public class BTestRunner {
         Collections.sort(keys);
 
         outStream.println();
-        outStream.println("Running Tests");
-//        outStream.println();
+        outStream.println("Running tests");
         keys.forEach(packageName -> {
             TestSuite suite = testSuites.get(packageName);
-
-            // outStream.println("---------------------------------------------------------------------------");
-//            outStream.println();
-//            outStream.println("Running Tests");
             if (!packageName.equals(Names.DOT.value)) {
                 outStream.println("    " + packageName);
             }

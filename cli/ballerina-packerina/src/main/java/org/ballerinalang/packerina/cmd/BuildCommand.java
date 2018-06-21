@@ -23,7 +23,6 @@ import com.beust.jcommander.Parameters;
 import org.ballerinalang.launcher.BLauncherCmd;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.packerina.BuilderUtils;
-import org.ballerinalang.testerina.util.Utils;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
@@ -81,12 +80,7 @@ public class BuildCommand implements BLauncherCmd {
         Path sourceRootPath = Paths.get(System.getProperty(USER_DIR));
         if (argList == null || argList.size() == 0) {
             // ballerina build
-            BuilderUtils.compile(sourceRootPath, offline, lockEnabled, skiptests);
-
-            if (!skiptests) {
-                Utils.testWithBuild(sourceRootPath, argList);
-                BuilderUtils.write(sourceRootPath, offline, lockEnabled);
-            }
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, offline, lockEnabled, skiptests);
         } else {
             // ballerina build pkgName [-o outputFileName]
             String targetFileName;
@@ -100,12 +94,8 @@ public class BuildCommand implements BLauncherCmd {
                 targetFileName = pkgName;
             }
 
-            BuilderUtils.compile(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline, lockEnabled,
-                                 skiptests);
-            if (!skiptests) {
-                Utils.testWithBuild(sourceRootPath, argList);
-                BuilderUtils.write(sourceRootPath, targetFileName, buildCompiledPkg, offline, lockEnabled);
-            }
+            BuilderUtils.compileWithTestsAndWrite(sourceRootPath, pkgName, targetFileName, buildCompiledPkg, offline,
+                                                  lockEnabled, skiptests);
         }
         Runtime.getRuntime().exit(0);
     }

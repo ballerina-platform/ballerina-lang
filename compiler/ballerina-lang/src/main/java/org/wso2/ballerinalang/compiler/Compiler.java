@@ -24,20 +24,15 @@ import org.ballerinalang.toml.parser.ManifestProcessor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.ProgramFile;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
  * @since 0.94
@@ -47,9 +42,7 @@ public class Compiler {
     private static final CompilerContext.Key<Compiler> COMPILER_KEY =
             new CompilerContext.Key<>();
     private static PrintStream outStream = System.out;
-    private final CompilerOptions options;
-    private final CompiledPackages compiledPackages;
-    private final boolean skiptests;
+
     private final SourceDirectoryManager sourceDirectoryManager;
     private final CompilerDriver compilerDriver;
     private final BinaryFileWriter binaryFileWriter;
@@ -61,8 +54,6 @@ public class Compiler {
 
     private Compiler(CompilerContext context) {
         context.put(COMPILER_KEY, this);
-
-        this.options = CompilerOptions.getInstance(context);
         this.sourceDirectoryManager = SourceDirectoryManager.getInstance(context);
         this.compilerDriver = CompilerDriver.getInstance(context);
         this.binaryFileWriter = BinaryFileWriter.getInstance(context);
@@ -71,8 +62,6 @@ public class Compiler {
         this.dlog = BLangDiagnosticLog.getInstance(context);
         this.pkgLoader = PackageLoader.getInstance(context);
         this.manifest = ManifestProcessor.getInstance(context).getManifest();
-        this.skiptests = Boolean.parseBoolean(options.get(SKIP_TESTS));
-        this.compiledPackages = CompiledPackages.getInstance();
     }
 
     public static Compiler getInstance(CompilerContext context) {
@@ -92,46 +81,32 @@ public class Compiler {
         return compilePackage(packageID, isBuild);
     }
 
-    public void build() {
-        this.compiledPackages.setPkgList(compilePackages());
-        if (skiptests) {
-            outStream.println();
-            write();
-        }
+    public List<BLangPackage> compile() {
+        return compilePackages();
     }
 
-    public void build(String sourcePackage, String targetFileName) {
+    public BLangPackage compile(String sourcePackage) {
         outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage, true);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
         }
-        this.compiledPackages.setPkgList(Collections.singletonList(bLangPackage));
-        if (skiptests) {
-            outStream.println();
-            write(targetFileName);
-        }
+        return bLangPackage;
     }
 
-    public void write() {
-        List<BLangPackage> packageList = this.compiledPackages.getPkgList();
+    public void write(List<BLangPackage> packageList) {
         if (packageList.stream().anyMatch(bLangPackage -> bLangPackage.symbol.entryPointExists)) {
             outStream.println("Generating executables");
         }
         packageList.forEach(this.binaryFileWriter::write);
         packageList.forEach(bLangPackage -> lockFileWriter.addEntryPkg(bLangPackage.symbol));
         this.lockFileWriter.writeLockFile(this.manifest);
-        this.compiledPackages.clearPkgs();
     }
 
-    public void write(String targetFileName) {
-        Optional<BLangPackage> bLangPackage = this.compiledPackages.getPkgList().stream().findFirst();
-        if (bLangPackage.isPresent()) {
-            this.binaryFileWriter.write(bLangPackage.get(), targetFileName);
-            this.lockFileWriter.addEntryPkg(bLangPackage.get().symbol);
-        }
+    public void write(BLangPackage bLangPackage, String targetFileName) {
+        this.binaryFileWriter.write(bLangPackage, targetFileName);
+        this.lockFileWriter.addEntryPkg(bLangPackage.symbol);
         this.lockFileWriter.writeLockFile(this.manifest);
-        this.compiledPackages.clearPkgs();
     }
 
     public void list() {
@@ -172,7 +147,8 @@ public class Compiler {
         packages.stream()
 //                .filter(pkgNode -> !pkgNode.diagCollector.hasErrors())
                 .filter(pkgNode -> pkgNode.symbol != null)
-                .forEach(this.compilerDriver::compilePackage);
+                .forEach(this.compilerDriver::compilePackage
+                );
         return packages;
     }
 

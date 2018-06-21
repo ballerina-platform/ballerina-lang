@@ -51,7 +51,7 @@ public class GenerateBalx {
         options.put(SKIP_TESTS, Boolean.toString(true));
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.build();
+        compiler.write(compiler.compile());
 
         BLangDiagnosticLog diagnosticLog = BLangDiagnosticLog.getInstance(context);
         if (diagnosticLog.errorCount > 0) {
