@@ -1121,19 +1121,20 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
         case 'Service':
             if (node.isServiceTypeUnavailable && node.bindNotAvailable
                          && node.annotationAttachments && node.documentationAttachments
-                         && node.deprecatedAttachments && node.name.valueWithBar && node.variables
-                         && node.resources) {
+                         && node.deprecatedAttachments && node.name.valueWithBar && node.endpointNodes
+                         && node.variables && node.resources) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + 'service' + a(' ') + w(' ')
                  + node.name.valueWithBar + a(' ') + w(' ') + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
                  + join(node.variables, pretty, replaceLambda, l, w, '')
                  + join(node.resources, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else if (node.isServiceTypeUnavailable && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
                          && node.name.valueWithBar && node.anonymousEndpointBind
-                         && node.boundEndpoints && node.variables && node.resources) {
+                         && node.boundEndpoints && node.endpointNodes && node.variables && node.resources) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
@@ -1142,38 +1143,41 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + getSourceOf(node.anonymousEndpointBind, pretty, l, replaceLambda)
                  + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ')
                  + '{' + indent()
-                 + join(node.variables, pretty, replaceLambda, l, w, '') + join(node.resources, pretty, replaceLambda, l, w, '')
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + join(node.variables, pretty, replaceLambda, l, w, '')
+                 + join(node.resources, pretty, replaceLambda, l, w, '')
                  + outdent() + w() + '}';
             } else if (node.isServiceTypeUnavailable && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
-                         && node.name.valueWithBar && node.boundEndpoints && node.variables
-                         && node.resources) {
+                         && node.name.valueWithBar && node.boundEndpoints && node.endpointNodes
+                         && node.variables && node.resources) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + 'service' + a(' ') + w(' ')
                  + node.name.valueWithBar + a(' ') + w() + 'bind' + a(' ')
                  + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{'
-                 + indent() + join(node.variables, pretty, replaceLambda, l, w, '')
-                 + join(node.resources, pretty, replaceLambda, l, w, '')
-                 + outdent() + w() + '}';
+                 + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + join(node.variables, pretty, replaceLambda, l, w, '')
+                 + join(node.resources, pretty, replaceLambda, l, w, '') + outdent()
+                 + w() + '}';
             } else if (node.bindNotAvailable && node.annotationAttachments
                          && node.documentationAttachments && node.deprecatedAttachments
-                         && node.serviceTypeStruct && node.name.valueWithBar && node.variables
-                         && node.resources) {
+                         && node.serviceTypeStruct && node.name.valueWithBar && node.endpointNodes
+                         && node.variables && node.resources) {
                 return dent()
                  + join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + w() + 'service' + a(' ') + w() + '<'
                  + getSourceOf(node.serviceTypeStruct, pretty, l, replaceLambda) + w()
                  + '>' + w(' ') + node.name.valueWithBar + a(' ') + w(' ') + '{'
-                 + indent() + join(node.variables, pretty, replaceLambda, l, w, '')
-                 + join(node.resources, pretty, replaceLambda, l, w, '')
-                 + outdent() + w() + '}';
+                 + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '') + join(node.variables, pretty, replaceLambda, l, w, '')
+                 + join(node.resources, pretty, replaceLambda, l, w, '') + outdent()
+                 + w() + '}';
             } else if (node.annotationAttachments && node.documentationAttachments
                          && node.deprecatedAttachments && node.serviceTypeStruct
                          && node.name.valueWithBar && node.anonymousEndpointBind && node.boundEndpoints
-                         && node.variables && node.resources) {
+                         && node.endpointNodes && node.variables && node.resources) {
                 return join(node.annotationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.documentationAttachments, pretty, replaceLambda, l, w, '')
                  + join(node.deprecatedAttachments, pretty, replaceLambda, l, w, '') + dent() + w() + 'service' + a(' ') + w() + '<'
@@ -1182,6 +1186,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + a(' ')
                  + getSourceOf(node.anonymousEndpointBind, pretty, l, replaceLambda)
                  + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
                  + join(node.variables, pretty, replaceLambda, l, w, '')
                  + join(node.resources, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             } else {
@@ -1192,6 +1197,7 @@ export default function getSourceOf(node, pretty = false, l = 0, replaceLambda) 
                  + '>' + w(' ') + node.name.valueWithBar + a(' ') + w() + 'bind'
                  + a(' ')
                  + join(node.boundEndpoints, pretty, replaceLambda, l, w, '', ',') + w(' ') + '{' + indent()
+                 + join(node.endpointNodes, pretty, replaceLambda, l, w, '')
                  + join(node.variables, pretty, replaceLambda, l, w, '')
                  + join(node.resources, pretty, replaceLambda, l, w, '') + outdent() + w() + '}';
             }

@@ -20,7 +20,6 @@ package org.ballerinalang.test.service.websocket;
 
 import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.util.websocket.client.WebSocketTestClient;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -32,35 +31,30 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Test whether the errors are received correctly to the onError resource in WebSocket server.
+ * Test whether resource failure during client initialization causes a close frame to be sent.
  */
-public class OnErrorWebSocketTest extends WebSocketIntegrationTest {
+public class ClientInitializationFailureTest extends WebSocketIntegrationTest {
 
     private WebSocketTestClient client;
-    private static final String URL = "ws://localhost:9090/error/ws";
-    private LogLeecher logLeecher;
+    private static final String URL = "ws://localhost:9090/client/failure";
 
-    @BeforeClass(description = "Initializes the Ballerina server with the error_log_service.bal file")
-    public void setup() throws InterruptedException, BallerinaTestException, URISyntaxException {
-        String expectingErrorLog = "error occurred: received continuation data frame outside fragmented message";
-        logLeecher = new LogLeecher(expectingErrorLog);
-        initBallerinaServer("error_log_service.bal", logLeecher);
-
+    @BeforeClass(description = "Initializes the Ballerina server with the client_failure.bal file")
+    public void setup() throws BallerinaTestException, URISyntaxException {
+        initBallerinaServer("client_failure.bal");
         client = new WebSocketTestClient(URL);
-        client.handshake();
     }
 
-    @Test
-    public void testOnError() throws InterruptedException, BallerinaTestException {
+    @Test(description = "Tests the client initialization failing in a resource")
+    public void testClientEndpointFailureInResource() throws InterruptedException {
         CountDownLatch countDownLatch = new CountDownLatch(1);
         client.setCountDownLatch(countDownLatch);
-        client.sendCorruptedFrame();
+        client.handshake();
         countDownLatch.await(TIMEOUT_IN_SECS, TimeUnit.SECONDS);
-        logLeecher.waitForText(TIMEOUT_IN_SECS * 1000);
         CloseWebSocketFrame closeWebSocketFrame = client.getReceivedCloseFrame();
 
         Assert.assertNotNull(closeWebSocketFrame);
-        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1002);
+        Assert.assertEquals(closeWebSocketFrame.statusCode(), 1011);
+        Assert.assertEquals(closeWebSocketFrame.reasonText(), "Unexpected condition");
 
         closeWebSocketFrame.release();
     }
