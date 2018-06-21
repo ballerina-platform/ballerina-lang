@@ -64,6 +64,7 @@ public class DataChannel {
             buf.flip();
             byte b = buf.get(bufferLimit - 1);
             if ((b & 0x80) >> 7 == 0) {
+                //We identify whether there're bytes remaining to be read
                 hasRemainingBytes = false;
             }
             //This means we could read more bytes
@@ -97,6 +98,16 @@ public class DataChannel {
         return deriveLong(representation, buffer);
     }
 
+    private long convertVarLongToLong(long value, int nBytes) {
+        int nBits = nBytes * Representation.VARIABLE.getBase() - 1;
+        if (value >> nBits == 1) {
+            long intercept = 0xFFFFFFFFFFFFFFFFL << nBits;
+            //This means it would be a sign representation
+            value = value | intercept;
+        }
+        return value;
+    }
+
     /**
      * Merge bytes and encodes long.
      *
@@ -107,7 +118,8 @@ public class DataChannel {
     private long deriveLong(Representation representation, ByteBuffer buffer) {
         long value = 0;
         int maxNumberOfBits = 0xFFFF;
-        int totalNumberOfBits = (buffer.limit() - 1) * representation.getBase();
+        int byteLimit = buffer.limit();
+        int totalNumberOfBits = (byteLimit - 1) * representation.getBase();
         do {
             long shiftedValue = 0L;
             if (Representation.BIT_64.equals(representation)) {
@@ -127,6 +139,9 @@ public class DataChannel {
             value = value + shiftedValue;
             totalNumberOfBits = totalNumberOfBits - representation.getBase();
         } while (buffer.hasRemaining());
+        if (Representation.VARIABLE.equals(representation)) {
+            value = convertVarLongToLong(value, byteLimit);
+        }
         return value;
     }
 
@@ -143,7 +158,7 @@ public class DataChannel {
         int totalNumberOfBits;
         if (Representation.VARIABLE.equals(representation)) {
             nBytes = (int) Math.abs(Math.round((Math.log(Math.abs(value)) / Math.log(2)) / representation.getBase()))
-                    +1;
+                    + 1;
             content = new byte[nBytes];
         } else {
             nBytes = representation.getNumberOfBytes();

@@ -68,9 +68,8 @@ public class DataInputOutputTest {
         Assert.assertEquals(readInt, value);
     }
 
-    @Test(description = "Test signed var long")
-    public void testSingedVarLong() throws IOException {
-        long value = 4;
+    @Test(description = "Test signed var long", dataProvider = "SignedVarLongValues")
+    public void testSingedVarLong(long value) throws IOException {
         String filePath = currentDirectoryPath + "/sample.bin";
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
         Channel channel = new MockByteChannel(byteChannel);
@@ -166,6 +165,19 @@ public class DataInputOutputTest {
                 {Integer.MIN_VALUE, BIT_32}, {Integer.MIN_VALUE, BIT_64},
                 {Integer.MAX_VALUE, BIT_32}, {Integer.MAX_VALUE, BIT_64},
                 {Long.MIN_VALUE, BIT_64}, {Long.MAX_VALUE, BIT_64}
+        };
+    }
+
+    @DataProvider(name = "SignedVarLongValues")
+    public static Object[][] signedVarLongValues() {
+        return new Object[][]{
+                {0}, {0}, {0},
+                {-1}, {-1}, {-1},
+                {Short.MIN_VALUE}, {Short.MIN_VALUE},
+                {Short.MIN_VALUE}, {Short.MAX_VALUE},
+                {Short.MAX_VALUE}, {Short.MAX_VALUE},
+                {Integer.MIN_VALUE}, {Integer.MIN_VALUE},
+                {Integer.MAX_VALUE}, {Integer.MAX_VALUE},
         };
     }
 
