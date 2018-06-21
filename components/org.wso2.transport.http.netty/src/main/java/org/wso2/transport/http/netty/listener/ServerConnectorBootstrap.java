@@ -128,7 +128,7 @@ public class ServerConnectorBootstrap {
         }
     }
 
-    public void addIdleTimeout(int socketIdleTimeout) {
+    public void addIdleTimeout(long socketIdleTimeout) {
         httpServerChannelInitializer.setIdleTimeout(socketIdleTimeout);
     }
 
