@@ -73,11 +73,11 @@ public class PushCommand implements BLauncherCmd {
 
         if (argList == null || argList.size() == 0) {
             PushUtils.pushAllPackages(sourceRoot, repositoryHome);
-        } else if (argList.size() > 1) {
-            throw new BLangCompilerException("too many arguments");
-        } else {
+        } else if (argList.size() == 1) {
             String packageName = argList.get(0);
             PushUtils.pushPackages(packageName, sourceRoot, repositoryHome);
+        } else {
+            throw new BLangCompilerException("too many arguments");
         }
         Runtime.getRuntime().exit(0);
     }
