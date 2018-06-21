@@ -28,6 +28,9 @@ public class RecordTypeInfo extends StructureTypeInfo {
 
     private BRecordType recordType;
 
+    private int restFieldSigCPIndex;
+    private String restFieldTypeSignature;
+
     public RecordTypeInfo() {
     }
 
@@ -39,4 +42,19 @@ public class RecordTypeInfo extends StructureTypeInfo {
         this.recordType = structType;
     }
 
+    public int getRestFieldSignatureCPIndex() {
+        return restFieldSigCPIndex;
+    }
+
+    public void setRestFieldSignatureCPIndex(int restFieldSigCPIndex) {
+        this.restFieldSigCPIndex = restFieldSigCPIndex;
+    }
+
+    public String getRestFieldTypeSignature() {
+        return restFieldTypeSignature;
+    }
+
+    public void setRestFieldTypeSignature(String restFieldTypeSignature) {
+        this.restFieldTypeSignature = restFieldTypeSignature;
+    }
 }
