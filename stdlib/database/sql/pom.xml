@@ -24,9 +24,9 @@
         <relativePath>../../../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>ballerina-h2</artifactId>
+    <artifactId>ballerina-sql</artifactId>
     <packaging>jar</packaging>
-    <name>Ballerina - h2</name>
+    <name>Ballerina - sql</name>
     <url>http://ballerinalang.org</url>
 
     <dependencies>
@@ -38,19 +38,14 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
         </dependency>
+        <!-- TODO check whether below dependency can be removed -->
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-sql</artifactId>
+            <artifactId>ballerina-time</artifactId>
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
-            <type>zip</type>
-            <classifier>ballerina-binary-repo</classifier>
-        </dependency>
-        <dependency>
-            <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-sql</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>
@@ -63,6 +58,12 @@
                 <excludes>
                     <exclude>ballerina/**</exclude>
                 </excludes>
+            </resource>
+
+            <!-- copy built-in ballerina sources to the jar -->
+            <resource>
+                <directory>${generated.ballerina.source.directory}</directory>
+                <targetPath>META-INF/ballerina</targetPath>
             </resource>
         </resources>
         <plugins>
@@ -162,6 +163,8 @@
 
 
     <properties>
+        <!-- Path to the generated natives ballerina files temp directory -->
+        <generated.ballerina.source.directory>${project.build.directory}/../src/main/ballerina</generated.ballerina.source.directory>
         <maven.spotbugsplugin.exclude.file>spotbugs-exclude.xml</maven.spotbugsplugin.exclude.file>
         <maven.checkstyleplugin.excludes>**/generated/**</maven.checkstyleplugin.excludes>
     </properties>

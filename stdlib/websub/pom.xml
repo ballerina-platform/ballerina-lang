@@ -43,26 +43,14 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-lang</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-builtin</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-mime</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-logging</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.wso2.transport.http</groupId>
             <artifactId>org.wso2.transport.http.netty</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-http</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-http</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-builtin</artifactId>
@@ -113,7 +101,13 @@
         </dependency>
         <dependency>
             <groupId>org.ballerinalang</groupId>
-            <artifactId>ballerina-database</artifactId>
+            <artifactId>ballerina-sql</artifactId>
+            <type>zip</type>
+            <classifier>ballerina-binary-repo</classifier>
+        </dependency>
+        <dependency>
+            <groupId>org.ballerinalang</groupId>
+            <artifactId>ballerina-jdbc</artifactId>
             <type>zip</type>
             <classifier>ballerina-binary-repo</classifier>
         </dependency>

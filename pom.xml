@@ -485,12 +485,6 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-builtin</artifactId>
-                <version>${ballerina.version}</version>
-                <type>zip</type>
-            </dependency>
-            <dependency>
-                <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-launcher</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -552,18 +546,48 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-database</artifactId>
+                <artifactId>ballerina-h2</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-database</artifactId>
+                <artifactId>ballerina-jdbc</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mysql</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-sql</artifactId>
+                <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-h2</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-binary-repo</classifier>
                 <type>zip</type>
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
-                <artifactId>ballerina-database</artifactId>
+                <artifactId>ballerina-jdbc</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-binary-repo</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-mysql</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-binary-repo</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-sql</artifactId>
                 <version>${ballerina.version}</version>
                 <classifier>ballerina-binary-repo</classifier>
                 <type>zip</type>
