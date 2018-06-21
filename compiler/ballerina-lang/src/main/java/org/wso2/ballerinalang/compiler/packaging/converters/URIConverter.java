@@ -25,6 +25,8 @@ import java.util.stream.Stream;
  */
 public class URIConverter implements Converter<URI> {
 
+    private static CacheRepo binaryRepo = new CacheRepo(RepoUtils.createAndGetHomeReposPath(),
+                                                        ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
     private final URI base;
     private PrintStream outStream = System.err;
 
@@ -91,9 +93,7 @@ public class URIConverter implements Converter<URI> {
             executor.execute("packaging_pull/packaging_pull.balx", true, u.toString(), destDirPath.toString(),
                              fullPkgPath, File.separator, proxy.getHost(), proxy.getPort(), proxy.getUserName(),
                              proxy.getPassword(), RepoUtils.getTerminalWidth(), supportedVersionRange);
-
-            CacheRepo binaryRepo = new CacheRepo(RepoUtils.createAndGetHomeReposPath(),
-                                                 ProjectDirConstants.BALLERINA_CENTRAL_DIR_NAME);
+            
             Patten patten = binaryRepo.calculate(packageID);
             return patten.convertToSources(binaryRepo.getConverterInstance(), packageID);
         } catch (Exception e) {

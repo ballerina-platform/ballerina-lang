@@ -5,15 +5,12 @@ import org.testng.Assert;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.converters.PathConverter;
-import org.wso2.ballerinalang.compiler.packaging.repo.CacheRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.NonSysRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ObjRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.ProjectSourceRepo;
 import org.wso2.ballerinalang.compiler.packaging.repo.Repo;
 import org.wso2.ballerinalang.compiler.util.Name;
-
-import java.nio.file.Paths;
 
 /**
  * Testcase for repo validation.
@@ -58,17 +55,6 @@ public class RepoTest {
         Patten patten = subject.calculate(pkg);
 
         Assert.assertEquals(patten.toString(), "$/repo/my_org/my.pkg/10.2.3/src/**~resources/*.bal");
-    }
-
-    @Test
-    public void testCacheRepo() {
-        PackageID pkg = newPackageID("nice_org", "any.pkg", "10.2.3");
-        CacheRepo subject = new CacheRepo(Paths.get(null), "test");
-
-        Patten patten = subject.calculate(pkg);
-
-        Assert.assertEquals(patten.toString(), "$/caches/test/nice_org/any.pkg/10.2.3/any.pkg.zip/src/" +
-                "**~resources/*.bal");
     }
 
     @Test
