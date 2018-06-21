@@ -15,54 +15,35 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.util.metrics.noop;
+package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
 import org.ballerinalang.util.metrics.AbstractMetric;
-import org.ballerinalang.util.metrics.Gauge;
 import org.ballerinalang.util.metrics.MetricId;
-import org.ballerinalang.util.metrics.Snapshot;
+import org.ballerinalang.util.metrics.PolledGauge;
+
+import java.lang.ref.WeakReference;
+import java.util.function.ToDoubleFunction;
 
 /**
- * Implementation of No-Op {@link Gauge}.
+ * An implementation of {@link PolledGauge}.
+ *
+ * @param <T> The type of the object used to poll the gauge's value.
  */
-public class NoOpGauge extends AbstractMetric implements Gauge {
+public class DefaultPolledGauge<T> extends AbstractMetric implements PolledGauge {
 
-    public NoOpGauge(MetricId id) {
+    private final WeakReference<T> ref;
+    private final ToDoubleFunction<T> toDoubleFunction;
+
+    public DefaultPolledGauge(MetricId id, T obj, ToDoubleFunction<T> toDoubleFunction) {
         super(id);
+        this.ref = new WeakReference<>(obj);
+        this.toDoubleFunction = toDoubleFunction;
     }
 
-    @Override
-    public void increment(double amount) {
-        // Do nothing
-    }
-
-    @Override
-    public void decrement(double amount) {
-        // Do nothing
-    }
-
-    @Override
-    public void setValue(double value) {
-        // Do nothing
-    }
 
     @Override
     public double getValue() {
-        return 0;
-    }
-
-    @Override
-    public long getCount() {
-        return 0;
-    }
-
-    @Override
-    public double getSum() {
-        return 0;
-    }
-
-    @Override
-    public Snapshot[] getSnapshots() {
-        return new Snapshot[0];
+        T obj = ref.get();
+        return obj != null ? toDoubleFunction.applyAsDouble(obj) : Double.NaN;
     }
 }

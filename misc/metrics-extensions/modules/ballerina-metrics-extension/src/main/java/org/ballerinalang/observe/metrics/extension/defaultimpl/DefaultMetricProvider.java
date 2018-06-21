@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.util.metrics.noop;
+package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.util.metrics.Counter;
@@ -28,34 +28,36 @@ import org.ballerinalang.util.metrics.spi.MetricProvider;
 import java.util.function.ToDoubleFunction;
 
 /**
- * Provide No-Op implementations of metrics.
+ * {@link MetricProvider} implementation to provide default Ballerina implementations.
  */
 @JavaSPIService("org.ballerinalang.util.metrics.spi.MetricProvider")
-public class NoOpMetricProvider implements MetricProvider {
+public class DefaultMetricProvider implements MetricProvider {
+
+    public DefaultMetricProvider() {
+    }
 
     @Override
     public String getName() {
-        return "NoOp";
+        return "Default";
     }
 
     @Override
     public void initialize() {
-        // Do nothing
     }
 
     @Override
     public Counter newCounter(MetricId metricId) {
-        return new NoOpCounter(metricId);
+        return new DefaultCounter(metricId);
     }
 
     @Override
     public Gauge newGauge(MetricId metricId, StatisticConfig... statisticConfigs) {
-        return new NoOpGauge(metricId);
+        return new DefaultGauge(metricId, statisticConfigs);
     }
 
     @Override
     public <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction) {
-        return new NoOpPolledGauge(metricId);
+        return new DefaultPolledGauge(metricId, obj, toDoubleFunction);
     }
 
 }

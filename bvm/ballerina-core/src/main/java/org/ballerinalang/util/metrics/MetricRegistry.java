@@ -58,11 +58,12 @@ public class MetricRegistry {
     /**
      * Use {@link Gauge#builder(String)}.
      *
-     * @param id The {@link MetricId}.
+     * @param id               The {@link MetricId}.
+     * @param statisticConfigs {@link StatisticConfig statistic configurations} to summarize gauge values.
      * @return A existing or a new {@link Gauge} metric.
      */
-    public Gauge gauge(MetricId id) {
-        return getOrCreate(id, Gauge.class, () -> metricProvider.newGauge(id));
+    public Gauge gauge(MetricId id, StatisticConfig... statisticConfigs) {
+        return getOrCreate(id, Gauge.class, () -> metricProvider.newGauge(id, statisticConfigs));
     }
 
     /**
@@ -76,28 +77,6 @@ public class MetricRegistry {
      */
     public <T> PolledGauge polledGauge(MetricId id, T obj, ToDoubleFunction<T> valueFunction) {
         return getOrCreate(id, PolledGauge.class, () -> metricProvider.newPolledGauge(id, obj, valueFunction));
-    }
-
-    /**
-     * Use {@link Summary#builder(String)}.
-     *
-     * @param id              The {@link MetricId}.
-     * @param statisticConfig Configuration for published distribution statistics.
-     * @return A existing or a new {@link Summary} metric.
-     */
-    public Summary summary(MetricId id, StatisticConfig statisticConfig) {
-        return getOrCreate(id, Summary.class, () -> metricProvider.newSummary(id, statisticConfig));
-    }
-
-    /**
-     * Use {@link Timer#builder(String)}.
-     *
-     * @param id              The {@link MetricId}.
-     * @param statisticConfig Configuration for published distribution statistics.
-     * @return A existing or a new {@link Timer} metric.
-     */
-    public Timer timer(MetricId id, StatisticConfig statisticConfig) {
-        return getOrCreate(id, Timer.class, () -> metricProvider.newTimer(id, statisticConfig));
     }
 
     private <M extends Metric> M getOrCreate(MetricId id, Class<M> metricClass, Supplier<M> metricSupplier) {
@@ -144,7 +123,7 @@ public class MetricRegistry {
         try {
             List<MetricId> ids = metrics.keySet().stream()
                     .filter(id -> id.getName().equals(name)).collect(Collectors.toList());
-            ids.forEach(id -> metrics.remove(id));
+            ids.forEach(metrics::remove);
         } finally {
             stampedLock.unlockWrite(stamp);
         }

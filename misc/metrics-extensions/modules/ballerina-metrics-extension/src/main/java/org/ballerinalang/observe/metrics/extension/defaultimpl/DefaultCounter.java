@@ -15,54 +15,40 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.util.metrics.noop;
+package org.ballerinalang.observe.metrics.extension.defaultimpl;
 
 import org.ballerinalang.util.metrics.AbstractMetric;
-import org.ballerinalang.util.metrics.Gauge;
+import org.ballerinalang.util.metrics.Counter;
 import org.ballerinalang.util.metrics.MetricId;
-import org.ballerinalang.util.metrics.Snapshot;
+
+import java.util.concurrent.atomic.LongAdder;
 
 /**
- * Implementation of No-Op {@link Gauge}.
+ * An implementation of {@link Counter}.
  */
-public class NoOpGauge extends AbstractMetric implements Gauge {
+public class DefaultCounter extends AbstractMetric implements Counter {
 
-    public NoOpGauge(MetricId id) {
+    private final LongAdder count = new LongAdder();
+
+    public DefaultCounter(MetricId id) {
         super(id);
     }
 
     @Override
-    public void increment(double amount) {
-        // Do nothing
+    public void increment() {
+        count.increment();
     }
 
     @Override
-    public void decrement(double amount) {
-        // Do nothing
+    public void increment(long amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("Amount to increment must be non-negative.");
+        }
+        count.add(amount);
     }
 
     @Override
-    public void setValue(double value) {
-        // Do nothing
-    }
-
-    @Override
-    public double getValue() {
-        return 0;
-    }
-
-    @Override
-    public long getCount() {
-        return 0;
-    }
-
-    @Override
-    public double getSum() {
-        return 0;
-    }
-
-    @Override
-    public Snapshot[] getSnapshots() {
-        return new Snapshot[0];
+    public long getValue() {
+        return count.sum();
     }
 }

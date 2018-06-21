@@ -17,80 +17,41 @@
  */
 package org.ballerinalang.util.metrics;
 
-import org.ballerinalang.config.ConfigRegistry;
-
-import java.io.PrintStream;
 import java.time.Duration;
 import java.util.Arrays;
-
-import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_TABLE_METRICS;
+import java.util.Objects;
 
 /**
  * Configures the distribution statistics.
  */
 public class StatisticConfig {
 
-    public static final StatisticConfig DEFAULT;
-
-    private static final String METRICS_STATISTIC_CONFIGS = CONFIG_TABLE_METRICS + ".statistic";
-    private static final String METRICS_STATISTIC_PERCENTILES = METRICS_STATISTIC_CONFIGS + ".percentiles";
-    private static final String METRICS_STATISTIC_EXPIRY = METRICS_STATISTIC_CONFIGS + ".expiry";
-
-    static {
-        final PrintStream consoleErr = System.err;
-        // Get defaults from config registry
-        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-        double[] percentiles = null;
-        Duration expiry = null;
-        try {
-            String configPercentiles = configRegistry.getAsString(METRICS_STATISTIC_PERCENTILES);
-            if (configPercentiles != null) {
-                if (configPercentiles.contains(",")) {
-                    percentiles = Arrays.stream(configPercentiles.split(","))
-                            .map(s -> s.trim())
-                            .mapToDouble(Double::parseDouble)
-                            .toArray();
-                } else {
-                    percentiles = new double[]{Double.parseDouble(configPercentiles.trim())};
-                }
-            }
-        } catch (RuntimeException e) {
-            consoleErr.println("ballerina: error parsing percentiles for Metrics statistic configuration");
-        }
-        try {
-            String configExpiry = configRegistry.getAsString(METRICS_STATISTIC_EXPIRY);
-            if (configExpiry != null) {
-                expiry = Duration.parse(configExpiry);
-            }
-        } catch (RuntimeException e) {
-            consoleErr.println("ballerina: error parsing expiry for Metrics statistic configuration");
-        }
-        StatisticConfig.Builder builder = builder();
-        if (percentiles != null) {
-            builder.percentiles(percentiles);
-        } else {
-            builder.percentiles(new double[]{0.5, 0.75, 0.98, 0.99, 0.999});
-        }
-        if (expiry != null) {
-            builder.expiry(expiry);
-        } else {
-            builder.expiry(Duration.ofMinutes(1));
-        }
-        DEFAULT = builder.build();
-    }
+    public static final StatisticConfig DEFAULT = StatisticConfig.builder()
+            // Compute 50th, 75th, 98th, 99th and 99.9th percentiles.
+            .percentiles(0.5, 0.75, 0.98, 0.99, 0.999).build();
 
     private StatisticConfig() {
     }
 
     /**
-     * Compute 50th, 75th, 98th, 99th and 99.9th percentiles by default.
+     * Percentiles to compute and publish.
      */
-    private double[] percentiles = new double[]{0.5, 0.75, 0.98, 0.99, 0.999};
+    private double[] percentiles;
 
     /**
-     * Expire statistics after two minutes.
+     * Precision of percentiles.
      */
-    private Duration expiry = Duration.ofMinutes(2);
+    private int percentilePrecision = 2;
+
+    /**
+     * Expire statistics after ten minutes.
+     */
+    private Duration expiry = Duration.ofMinutes(10);
+
+    /**
+     * The number of buckets used to implement the sliding time window.
+     */
+    private int buckets = 5;
 
     /**
      * Get percentiles.
@@ -99,7 +60,17 @@ public class StatisticConfig {
      * @see Builder#percentiles(double...)
      */
     public double[] getPercentiles() {
-        return percentiles;
+        return percentiles != null ? Arrays.copyOf(percentiles, percentiles.length) : percentiles;
+    }
+
+    /**
+     * Get the precision to used to maintain on the dynamic range histogram used to compute
+     * percentile approximations.
+     *
+     * @return The digits of precision to maintain for percentile approximations.
+     */
+    public Integer getPercentilePrecision() {
+        return percentilePrecision;
     }
 
     /**
@@ -110,6 +81,15 @@ public class StatisticConfig {
      */
     public Duration getExpiry() {
         return expiry;
+    }
+
+    /**
+     * Get the number of buckets used to implement the sliding time window.
+     *
+     * @return The number of buckets
+     */
+    public int getBuckets() {
+        return buckets;
     }
 
     public static Builder builder() {
@@ -124,27 +104,73 @@ public class StatisticConfig {
         private StatisticConfig config = new StatisticConfig();
 
         /**
-         * Percentiles to compute and publish from a summary metric. The percentiles are computed locally, and
-         * these percentile values cannot be aggregated with percentiles computed across other dimensions
-         * (e.g. in a different instance).
+         * Percentiles to compute and publish. Percentile is in the domain [0,1].
+         * For example, the 95th percentile should be expressed as {@code 0.95}. The percentiles are computed locally,
+         * and these percentile values cannot be aggregated with percentiles computed across other dimensions
+         * (e.g. in a different instance). Default percentiles are 0.5, 0.75, 0.98, 0.99, and 0.999
          *
          * @param percentiles Percentiles to compute and publish.
          * @return This builder.
          */
         public Builder percentiles(double... percentiles) {
+            percentiles = Objects.requireNonNull(percentiles, "percentiles array should not be null.");
+            if (percentiles.length == 0) {
+                throw new IllegalArgumentException("percentiles array should not be empty.");
+            }
+            for (double quantile : percentiles) {
+                if (quantile < 0.0 || quantile > 1.0) {
+                    throw new IllegalArgumentException("Quantile " + quantile + " invalid: " +
+                            "Expected number between 0.0 and 1.0.");
+                }
+            }
             config.percentiles = percentiles;
             return this;
         }
 
         /**
+         * Specify the number of digits of precision to maintain on the dynamic range histogram used to compute
+         * percentile approximations.
+         *
+         * @param digitsOfPrecision The digits of precision to maintain for percentile approximations.
+         * @return This builder.
+         */
+        public Builder percentilePrecision(int digitsOfPrecision) {
+            if ((digitsOfPrecision < 0) || (digitsOfPrecision > 5)) {
+                throw new IllegalArgumentException("precision cannot be " + digitsOfPrecision +
+                        ". It must be a non-negative integer between 0 and 5");
+            }
+            config.percentilePrecision = digitsOfPrecision;
+            return this;
+        }
+
+        /**
          * Duration to expire statistics. Statistics like max and percentile decay over time to give greater weight to
-         * recent samples.
+         * recent samples. Default value is 10 minutes.
          *
          * @param expiry The duration of samples used to compute statistics.
          * @return This builder.
          */
         public Builder expiry(Duration expiry) {
+            if (expiry.getSeconds() <= 0) {
+                throw new IllegalArgumentException("expiry cannot be " + expiry + ". It must be greater than zero.");
+            }
             config.expiry = expiry;
+            return this;
+        }
+
+        /**
+         * Set the number of buckets used to implement the sliding time window. If the time window is 10 minutes, and
+         * buckets=5, buckets will be switched every 2 minutes. The value is a trade-off between resources
+         * (memory and cpu for maintaining the bucket) and how smooth the time window is moved. Default value is 5.
+         *
+         * @param buckets number of buckets used to implement the sliding time window
+         * @return This builder.
+         */
+        public Builder buckets(int buckets) {
+            if (buckets <= 0) {
+                throw new IllegalArgumentException("buckets cannot be " + buckets + ". It must be greater than zero.");
+            }
+            config.buckets = buckets;
             return this;
         }
 
@@ -152,12 +178,6 @@ public class StatisticConfig {
          * @return A new immutable statistic configuration.
          */
         public StatisticConfig build() {
-            if (config.percentiles == null) {
-                config.percentiles = DEFAULT.getPercentiles();
-            }
-            if (config.expiry == null) {
-                config.expiry = DEFAULT.getExpiry();
-            }
             return config;
         }
     }

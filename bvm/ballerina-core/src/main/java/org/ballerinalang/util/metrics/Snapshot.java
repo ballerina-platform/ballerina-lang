@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.util.metrics;
 
+import java.time.Duration;
 import java.util.Arrays;
 
 /**
@@ -25,27 +26,55 @@ import java.util.Arrays;
 public class Snapshot {
     private static final PercentileValue[] EMPTY_PERCENTILE_VALUES = new PercentileValue[0];
 
+    private final Duration expiry;
+    private final double min;
     private final double mean;
-    private final long max;
+    private final double stdDev;
+    private final double max;
     private final PercentileValue[] percentileValues;
 
-    public Snapshot(double mean, long max, PercentileValue[] percentileValues) {
+    public Snapshot(Duration expiry, double min, double mean, double stdDev, double max,
+                    PercentileValue[] percentileValues) {
+        this.expiry = expiry;
+        this.min = min;
         this.mean = mean;
+        this.stdDev = stdDev;
         this.max = max;
         this.percentileValues = percentileValues;
     }
 
     /**
-     * @return The distribution average for all recorded events.
+     * @return The expiry used to calculate statistics in this {@link Snapshot}.
+     */
+    public Duration getExpiry() {
+        return expiry;
+    }
+
+    /**
+     * @return The minimum value of a single event.
+     */
+    public double getMin() {
+        return min;
+    }
+
+    /**
+     * @return The distribution average for recorded events.
      */
     public double getMean() {
         return mean;
     }
 
     /**
+     * @return The distribution standard deviation for recorded events.
+     */
+    public double getStdDev() {
+        return stdDev;
+    }
+
+    /**
      * @return The maximum value of a single event.
      */
-    public long getMax() {
+    public double getMax() {
         return max;
     }
 

@@ -23,8 +23,6 @@ import org.ballerinalang.util.metrics.MetricId;
 import org.ballerinalang.util.metrics.MetricRegistry;
 import org.ballerinalang.util.metrics.PolledGauge;
 import org.ballerinalang.util.metrics.StatisticConfig;
-import org.ballerinalang.util.metrics.Summary;
-import org.ballerinalang.util.metrics.Timer;
 
 import java.util.function.ToDoubleFunction;
 
@@ -48,12 +46,8 @@ public interface MetricProvider {
 
     Counter newCounter(MetricId metricId);
 
-    Gauge newGauge(MetricId metricId);
+    Gauge newGauge(MetricId metricId, StatisticConfig... statisticConfigs);
 
     <T> PolledGauge newPolledGauge(MetricId metricId, T obj, ToDoubleFunction<T> toDoubleFunction);
-
-    Summary newSummary(MetricId metricId, StatisticConfig statisticConfig);
-
-    Timer newTimer(MetricId metricId, StatisticConfig statisticConfig);
 
 }
