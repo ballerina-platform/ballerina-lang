@@ -95,6 +95,6 @@ public final class BByte extends BValueType implements BRefType<Byte> {
 
     @Override
     public int hashCode() {
-        return Integer.hashCode(value);
+        return Byte.hashCode(value);
     }
 }
