@@ -97,7 +97,7 @@ public class PushUtils {
                                             ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME, orgName,
                                             packageName, version, packageName + ".zip");
         if (Files.notExists(pkgPathFromPrjtDir)) {
-            throw new BLangCompilerException("Package doesn't exist. Did you run `ballerina build`?");
+            BuilderUtils.compileAndWrite(prjDirPath, packageName, packageName, false, false, false);
         }
 
         if (installToRepo == null) {
