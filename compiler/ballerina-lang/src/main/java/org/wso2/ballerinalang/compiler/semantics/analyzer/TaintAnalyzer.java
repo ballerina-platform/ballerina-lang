@@ -1728,18 +1728,15 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         TaintedStatus returnTaintedStatus = TaintedStatus.UNTAINTED;
         TaintRecord allParamsUntaintedRecord = taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
         if (allParamsUntaintedRecord == null) {
-            // Current condition occurs when there is a taint error regardless of tainted status of parameters.
+            // When there is a taint error regardless of tainted status of parameters in a function read by BALO.
             // (Tainted value returned by a function invocation is passed to another functions's sensitive parameter)
             returnTaintedStatus = TaintedStatus.TAINTED;
-        } else {
-            if (allParamsUntaintedRecord.taintError != null && allParamsUntaintedRecord.taintError.size() > 0) {
-                addTaintError(allParamsUntaintedRecord.taintError);
-            } else {
-                if (allParamsUntaintedRecord.retParamTaintedStatus.size() > 0) {
-                    returnTaintedStatus = allParamsUntaintedRecord.retParamTaintedStatus
-                            .get(RETURN_TAINTED_STATUS_COLUMN_INDEX) ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED;
-                }
-            }
+        } else if (allParamsUntaintedRecord.taintError != null && allParamsUntaintedRecord.taintError.size() > 0) {
+            // When there is a taint error regardless of tainted status of parameters in a function read by source.
+            addTaintError(allParamsUntaintedRecord.taintError);
+        } else if (allParamsUntaintedRecord.retParamTaintedStatus.size() > 0) {
+            returnTaintedStatus = allParamsUntaintedRecord.retParamTaintedStatus
+                    .get(RETURN_TAINTED_STATUS_COLUMN_INDEX) ? TaintedStatus.TAINTED : TaintedStatus.UNTAINTED;
         }
         if (invocationExpr.argExprs != null) {
             int requiredParamCount = invokableSymbol.params.size();
