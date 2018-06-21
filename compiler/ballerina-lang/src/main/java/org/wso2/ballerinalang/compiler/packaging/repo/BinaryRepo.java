@@ -25,8 +25,12 @@ public class BinaryRepo implements Repo<Path> {
         this(pathToHiddenDir, Paths.get(ProjectDirConstants.DOT_BALLERINA_REPO_DIR_NAME));
     }
 
+    public BinaryRepo(ZipConverter converter) {
+        this.converter = converter;
+    }
+
     public BinaryRepo(Path pathToHiddenDir, Path subDir) {
-        this.converter = new ZipConverter(pathToHiddenDir.resolve(subDir));
+        this(new ZipConverter(pathToHiddenDir.resolve(subDir)));
     }
 
     @Override
