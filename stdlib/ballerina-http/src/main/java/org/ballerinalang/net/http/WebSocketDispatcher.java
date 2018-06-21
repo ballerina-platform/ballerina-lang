@@ -294,7 +294,7 @@ public class WebSocketDispatcher {
 
     private static void pingAutomatically(WebSocketControlMessage controlMessage) {
         WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
-        webSocketConnection.pong(controlMessage.getPayload()).addListener(future -> {
+        webSocketConnection.pong(controlMessage.getByteBuffer()).addListener(future -> {
             Throwable cause = future.cause();
             if (!future.isSuccess() && cause != null) {
                 ErrorHandlerUtils.printError(cause);
