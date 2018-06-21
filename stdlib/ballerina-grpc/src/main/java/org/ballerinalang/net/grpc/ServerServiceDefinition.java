@@ -30,10 +30,10 @@ import java.util.Map;
 
 /**
  * Definition of a service to be exposed via a Server.
+ *
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
- *
  */
 public final class ServerServiceDefinition {
 
@@ -90,6 +90,10 @@ public final class ServerServiceDefinition {
 
     /**
      * Builder for constructing Service instances.
+     *
+     * <p>
+     * Referenced from grpc-java implementation.
+     * <p>
      */
     public static final class Builder {
 

@@ -30,9 +30,6 @@ import static org.ballerinalang.util.BLangConstants.ORG_NAME_SEPARATOR;
  */
 public class GrpcConstants {
     public static final int MAX_MESSAGE_SIZE = 16 * 1024 * 1024;
-//    public static final CallOptions.Key<String> COMPRESSOR_NAME = CallOptions.Key.of("compressor-name",
-//            Codec.Identity.NONE.getMessageEncoding());
-
 
     //gRPC package name.
     public static final String PROTOCOL_PACKAGE_GRPC = "grpc";
@@ -60,6 +57,14 @@ public class GrpcConstants {
     public static final int SERVICE_ENDPOINT_INDEX = 0;
     public static final String CLIENT_END_POINT = "clientEndpoint";
 
+    //Header keys
+    public static final String GRPC_STATUS_KEY = "grpc-status";
+    public static final String GRPC_MESSAGE_KEY = "grpc-message";
+    public static final String CONTENT_ENCODING_KEY = "content-encoding";
+    public static final String GRPC_ENCODING_KEY = "grpc-encoding";
+    public static final String GRPC_ACCEPT_ENCODING_KEY = "grpc-accept-encoding";
+    public static final String CONTENT_TYPE_KEY = "content-type";
+    public static final String TE_KEY = "te";
 
     public static final String ENUM_KEY = "enum";
     public static final String SERVICE_STUB = "Stub";

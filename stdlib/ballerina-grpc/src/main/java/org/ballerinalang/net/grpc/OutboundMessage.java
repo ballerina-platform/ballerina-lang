@@ -26,14 +26,15 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_MESSAGE_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_STATUS_KEY;
+
 /**
  * Class that represents an GRPC outbound message.
  */
 public class OutboundMessage {
 
     private static final int NULL_STATUS_CODE = -1;
-    private static final String GRPC_STATUS_KEY = "grpc-status";
-    private static final String GRPC_MESSAGE_KEY = "grpc-message";
 
     private final HTTPCarbonMessage responseMessage;
     private int statusCode = NULL_STATUS_CODE;

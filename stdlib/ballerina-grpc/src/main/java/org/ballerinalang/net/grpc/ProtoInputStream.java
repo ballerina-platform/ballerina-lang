@@ -28,98 +28,98 @@ import static com.google.protobuf.CodedOutputStream.DEFAULT_BUFFER_SIZE;
 
 /**
  * Protobuf input stream.
- *
+ * <p>
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
  */
-class ProtoInputStream extends InputStream  implements Drainable, KnownLength {
+class ProtoInputStream extends InputStream implements Drainable, KnownLength {
 
-  private Message message;
-  private ByteArrayInputStream partial;
+    private Message message;
+    private ByteArrayInputStream partial;
 
-  public ProtoInputStream(Message message) {
-    this.message = message;
-  }
-
-  @Override
-  public int read() {
-    if (message != null) {
-      partial = new ByteArrayInputStream(message.toByteArray());
-      message = null;
+    public ProtoInputStream(Message message) {
+        this.message = message;
     }
-    if (partial != null) {
-      return partial.read();
-    }
-    return -1;
-  }
 
-  @Override
-  public int read(byte[] b, int off, int len) throws IOException {
-    if (message != null) {
-      int size = message.getSerializedSize();
-      if (size == 0) {
-        message = null;
-        partial = null;
+    @Override
+    public int read() {
+        if (message != null) {
+            partial = new ByteArrayInputStream(message.toByteArray());
+            message = null;
+        }
+        if (partial != null) {
+            return partial.read();
+        }
         return -1;
-      }
-      if (len >= size) {
-        CodedOutputStream stream = CodedOutputStream.newInstance(b, off, size);
-        message.writeTo(stream);
-        stream.flush();
-        stream.checkNoSpaceLeft();
-
-        message = null;
-        partial = null;
-        return size;
-      }
-
-      partial = new ByteArrayInputStream(message.toByteArray());
-      message = null;
     }
-    if (partial != null) {
-      return partial.read(b, off, len);
-    }
-    return -1;
-  }
 
-  @Override
-  public int available() {
-    if (message != null) {
-      return message.getSerializedSize();
-    } else if (partial != null) {
-      return partial.available();
-    }
-    return 0;
-  }
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+        if (message != null) {
+            int size = message.getSerializedSize();
+            if (size == 0) {
+                message = null;
+                partial = null;
+                return -1;
+            }
+            if (len >= size) {
+                CodedOutputStream stream = CodedOutputStream.newInstance(b, off, size);
+                message.writeTo(stream);
+                stream.flush();
+                stream.checkNoSpaceLeft();
 
-  Message message() {
-    if (message == null) {
-      throw new IllegalStateException("message not available");
-    }
-    return message;
-  }
+                message = null;
+                partial = null;
+                return size;
+            }
 
-  @Override
-  public int drainTo(OutputStream target) throws IOException {
-    int written;
-    if (message != null) {
-      written = message.getSerializedSize();
-
-      if (written > DEFAULT_BUFFER_SIZE) {
-        written = DEFAULT_BUFFER_SIZE;
-      }
-      final CodedOutputStream codedOutput =
-              CodedOutputStream.newInstance(target, written);
-      message.writeTo(codedOutput);
-      codedOutput.flush();
-      message = null;
-    } else if (partial != null) {
-      written = (int) ProtoUtils.copy(partial, target);
-      partial = null;
-    } else {
-      written = 0;
+            partial = new ByteArrayInputStream(message.toByteArray());
+            message = null;
+        }
+        if (partial != null) {
+            return partial.read(b, off, len);
+        }
+        return -1;
     }
-    return written;
-  }
+
+    @Override
+    public int available() {
+        if (message != null) {
+            return message.getSerializedSize();
+        } else if (partial != null) {
+            return partial.available();
+        }
+        return 0;
+    }
+
+    Message message() {
+        if (message == null) {
+            throw new IllegalStateException("message not available");
+        }
+        return message;
+    }
+
+    @Override
+    public int drainTo(OutputStream target) throws IOException {
+        int written;
+        if (message != null) {
+            written = message.getSerializedSize();
+
+            if (written > DEFAULT_BUFFER_SIZE) {
+                written = DEFAULT_BUFFER_SIZE;
+            }
+            final CodedOutputStream codedOutput =
+                    CodedOutputStream.newInstance(target, written);
+            message.writeTo(codedOutput);
+            codedOutput.flush();
+            message = null;
+        } else if (partial != null) {
+            written = (int) ProtoUtils.copy(partial, target);
+            partial = null;
+        } else {
+            written = 0;
+        }
+        return written;
+    }
 }

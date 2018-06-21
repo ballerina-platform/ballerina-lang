@@ -1,19 +1,18 @@
 /*
- * Copyright 2014, gRPC Authors All rights reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
 import io.netty.buffer.ByteBuf;
@@ -31,11 +30,14 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.lang.Math.min;
 
 /**
- * Encodes gRPC messages to be delivered via the transport layer which implements.
+ * Framer for gRPC messages to be delivered via the transport layer.
+ *
+ * <p>
+ * Referenced from grpc-java implementation.
+ * <p>
  */
 public class MessageFramer {
 
@@ -45,7 +47,6 @@ public class MessageFramer {
     private static final byte UNCOMPRESSED = 0;
     private static final byte COMPRESSED = 1;
 
-    // effectively final.  Can only be set once.
     private int maxOutboundMessageSize = NO_MAX_OUTBOUND_MESSAGE_SIZE;
     private ByteBuffer buffer;
     private Compressor compressor = Codec.Identity.NONE;
@@ -53,34 +54,26 @@ public class MessageFramer {
     private final OutputStreamAdapter outputStreamAdapter = new OutputStreamAdapter();
     private final byte[] headerScratch = new byte[HEADER_LENGTH];
     private final HTTPCarbonMessage carbonMessage;
-
-    // transportTracer is nullable until it is integrated with client transports
     private boolean closed;
 
     /**
-     * Creates a {@code MessageFramer}.
+     * Creates new {@link MessageFramer} instance.
      *
-     * @param carbonMessage            the sink used to deliver frames to the transport
+     * @param carbonMessage response carbon message to be delivered.
      */
     public MessageFramer(HTTPCarbonMessage carbonMessage) {
-
         this.carbonMessage = carbonMessage;
     }
 
-    public MessageFramer setCompressor(Compressor compressor) {
-
+    public void setCompressor(Compressor compressor) {
         this.compressor = compressor;
-        return this;
     }
 
-    public MessageFramer setMessageCompression(boolean enable) {
-
+    public void setMessageCompression(boolean enable) {
         messageCompression = enable;
-        return this;
     }
 
     public void setMaxOutboundMessageSize(int maxSize) {
-
         if (maxSize > 0) {
             maxOutboundMessageSize = maxSize;
         }
@@ -89,10 +82,9 @@ public class MessageFramer {
     /**
      * Writes out a payload message.
      *
-     * @param message contains the message to be written out. It will be completely consumed.
+     * @param message message to be written in form of input stream.
      */
     public void writePayload(InputStream message) {
-
         verifyNotClosed();
         boolean compressed = messageCompression && compressor != Codec.Identity.NONE;
         int written = -1;
@@ -105,7 +97,6 @@ public class MessageFramer {
                 written = writeUncompressed(message, messageLength);
             }
         } catch (IOException | RuntimeException | ServerConnectorException e) {
-            // This should not be possible, since sink#deliverFrame doesn't throw.
             throw Status.Code.INTERNAL.toStatus()
                     .withDescription("Failed to frame message")
                     .withCause(e)
@@ -119,7 +110,6 @@ public class MessageFramer {
     }
 
     private int writeUncompressed(InputStream message, int messageLength) throws IOException, ServerConnectorException {
-
         if (messageLength != -1) {
             return writeKnownLengthUncompressed(message, messageLength);
         }
@@ -136,7 +126,6 @@ public class MessageFramer {
     }
 
     private int writeCompressed(InputStream message) throws IOException, ServerConnectorException {
-
         BufferChainOutputStream bufferChain = new BufferChainOutputStream();
 
         int written;
@@ -155,7 +144,6 @@ public class MessageFramer {
     }
 
     private int getKnownLength(InputStream inputStream) throws IOException {
-
         if (inputStream instanceof KnownLength || inputStream instanceof ByteArrayInputStream) {
             return inputStream.available();
         }
@@ -163,11 +151,10 @@ public class MessageFramer {
     }
 
     /**
-     * Write an unserialized message with a known length, uncompressed.
+     * Write an unserialized/uncompressed message with a known length.
      */
     private int writeKnownLengthUncompressed(InputStream message, int messageLength)
-            throws IOException, ServerConnectorException {
-
+            throws IOException {
         if (maxOutboundMessageSize >= 0 && messageLength > maxOutboundMessageSize) {
             throw Status.Code.RESOURCE_EXHAUSTED.toStatus()
                     .withDescription(
@@ -178,7 +165,6 @@ public class MessageFramer {
         header.put(UNCOMPRESSED);
         header.putInt(messageLength);
         // Allocate the initial buffer chunk based on frame header + payload length.
-        // Note that the allocator may allocate a buffer larger or smaller than this length
         if (buffer == null) {
             buffer = ByteBuffer.allocate(header.position() + messageLength);
         }
@@ -190,7 +176,6 @@ public class MessageFramer {
      * Write a message that has been serialized to a sequence of buffers.
      */
     private void writeBufferChain(BufferChainOutputStream bufferChain, boolean compressed) {
-
         ByteBuffer header = ByteBuffer.wrap(headerScratch);
         header.put(compressed ? COMPRESSED : UNCOMPRESSED);
         int messageLength = bufferChain.readableBytes();
@@ -198,17 +183,11 @@ public class MessageFramer {
         ByteBuffer writeableHeader = ByteBuffer.allocate(HEADER_LENGTH);
         writeableHeader.put(headerScratch, 0, header.position());
         if (messageLength == 0) {
-            // the payload had 0 length so make the header the current buffer.
             buffer = writeableHeader;
             return;
         }
-        // Note that we are always delivering a small message to the transport here which
-        // may incur transport framing overhead as it may be sent separately to the contents
-        // of the GRPC frame.
-        // The final message may not be completely written because we do not flush the last buffer.
-        // Do not report the last message as sent.
+        // Write content as default http content.
         carbonMessage.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(writeableHeader)));
-        // Commit all except the last buffer to the sink
         List<ByteBuffer> bufferList = bufferChain.bufferList;
         for (int i = 0; i < bufferList.size(); i++) {
             carbonMessage.addHttpContent(new DefaultHttpContent((Unpooled.wrappedBuffer(bufferList.get(i)))));
@@ -220,20 +199,14 @@ public class MessageFramer {
 
     private static int writeToOutputStream(InputStream message, OutputStream outputStream)
             throws IOException {
-
         if (message instanceof Drainable) {
             return ((Drainable) message).drainTo(outputStream);
         } else {
-            // This makes an unnecessary copy of the bytes when bytebuf supports array(). However, we
-            // expect performance-critical code to support flushTo().
-            long written = MessageUtils.copy(message, outputStream);
-            checkArgument(written <= Integer.MAX_VALUE, "Message size overflow: %s", written);
-            return (int) written;
+            return (int) MessageUtils.copy(message, outputStream);
         }
     }
 
-    private void writeRaw(byte[] b, int off, int len) throws ServerConnectorException {
-
+    private void writeRaw(byte[] b, int off, int len) {
         while (len > 0) {
             if (buffer != null && buffer.limit() == 0) {
                 commitToSink(false);
@@ -250,34 +223,28 @@ public class MessageFramer {
     }
 
     /**
-     * Flushes any buffered data in the framer to the sink.
+     * Writes any pending buffered data in the framer to carbon message.
      */
     public void flush() {
-
         if (buffer != null && buffer.limit() > 0) {
             commitToSink(false);
         }
     }
 
     /**
-     * Indicates whether or not this framer has been closed via a call to either
-     * {@link #close()} or {@link #dispose()}.
+     * Returns whether this framer has been closed or not.
      */
     public boolean isClosed() {
-
         return closed;
     }
 
     /**
-     * Flushes and closes the framer and releases any buffers. After the framer is closed or
-     * disposed, additional calls to this method will have no affect.
+     * Flushes and closes the framer and releases any buffers.
      */
     public void close() {
-
         if (!isClosed()) {
             closed = true;
-            // With the current code we don't expect readableBytes > 0 to be possible here, added
-            // defensively to prevent buffer leak issues if the framer code changes later.
+            //Release all the pending buffer before close.
             if (buffer != null && buffer.limit() == 0) {
                 releaseBuffer();
             }
@@ -286,17 +253,14 @@ public class MessageFramer {
     }
 
     /**
-     * Closes the framer and releases any buffers, but does not flush. After the framer is
-     * closed or disposed, additional calls to this method will have no affect.
+     * Closes the framer and releases any buffers, but does not flush.
      */
     public void dispose() {
-
         closed = true;
         releaseBuffer();
     }
 
     private void releaseBuffer() {
-
         if (buffer != null) {
             buffer.clear();
             buffer = null;
@@ -317,7 +281,6 @@ public class MessageFramer {
     }
 
     private void verifyNotClosed() {
-
         if (isClosed()) {
             throw new IllegalStateException("Framer already closed");
         }
@@ -325,6 +288,10 @@ public class MessageFramer {
 
     /**
      * OutputStream whose write()s are passed to the framer.
+     *
+     * <p>
+     * Referenced from grpc-java implementation.
+     * <p>
      */
     private class OutputStreamAdapter extends OutputStream {
 
@@ -335,28 +302,23 @@ public class MessageFramer {
          */
         @Override
         public void write(int b) {
-
             byte[] singleByte = new byte[]{(byte) b};
             write(singleByte, 0, 1);
         }
 
         @Override
         public void write(byte[] b, int off, int len) {
-
-            try {
-                writeRaw(b, off, len);
-            } catch (ServerConnectorException e) {
-                throw Status.Code.INTERNAL.toStatus()
-                        .withDescription("Failed to frame message")
-                        .withCause(e)
-                        .asRuntimeException();
-            }
+            writeRaw(b, off, len);
         }
     }
 
     /**
      * Produce a collection of ByteBuffer instances from the data written to an
      * {@link OutputStream}.
+     *
+     * <p>
+     * Referenced from grpc-java implementation.
+     * <p>
      */
     private static final class BufferChainOutputStream extends OutputStream {
 
@@ -369,7 +331,7 @@ public class MessageFramer {
          * {@link #write(byte[], int, int)}.
          */
         @Override
-        public void write(int b) throws IOException {
+        public void write(int b) {
 
             if (current != null && current.limit() > 0) {
                 current.put((byte) b);

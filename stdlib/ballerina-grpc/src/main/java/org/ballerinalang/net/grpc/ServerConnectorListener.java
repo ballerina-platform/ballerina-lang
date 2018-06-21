@@ -13,7 +13,6 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.HttpContent;
@@ -33,14 +32,15 @@ import java.io.PrintStream;
 import java.util.concurrent.Executor;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_MAX_MESSAGE_SIZE;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_MESSAGE_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_STATUS_KEY;
 
 /**
- * HTTP connector listener for Ballerina.
+ * gRPC connector listener for Ballerina.
  */
 public class ServerConnectorListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(ServerConnectorListener.class);
-    protected static final String HTTP_RESOURCE = "httpResource";
     private static final PrintStream console = System.out;
 
     private final ServicesRegistry servicesRegistry;
@@ -188,8 +188,8 @@ public class ServerConnectorListener implements HttpConnectorListener {
                                       Status.Code statusCode, String msg) {
 
         HTTPCarbonMessage responseMessage = HttpUtil.createErrorMessage(msg, status);
-        responseMessage.setHeader("grpc-status", statusCode.toString());
-        responseMessage.setHeader("grpc-message", msg);
+        responseMessage.setHeader(GRPC_STATUS_KEY, statusCode.toString());
+        responseMessage.setHeader(GRPC_MESSAGE_KEY, msg);
 
         HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
     }
@@ -235,8 +235,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
          * Called in the transport thread to process the content of an inbound DATA frame from the
          * client.
          *
-         * @param httpContent       the inbound HTTP/2 DATA frame. If this buffer is not used immediately, it must
-         *                    be retained.
+         * @param httpContent Http content.
          * @param endOfStream {@code true} if no more data will be received on the stream.
          */
         public void inboundDataReceived(HttpContent httpContent, boolean endOfStream) {

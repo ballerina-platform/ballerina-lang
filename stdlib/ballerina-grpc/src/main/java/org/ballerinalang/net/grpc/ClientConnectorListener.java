@@ -30,7 +30,11 @@ import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_ENCODING_KEY;
 import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_MAX_MESSAGE_SIZE;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_ENCODING_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_MESSAGE_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_STATUS_KEY;
 import static org.ballerinalang.net.grpc.MessageUtils.readAsString;
 
 /**
@@ -206,7 +210,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
      */
     private Status statusFromTrailers(HttpHeaders trailers) {
 
-        String statusString = trailers.get("grpc-status");
+        String statusString = trailers.get(GRPC_STATUS_KEY);
         Status status = null;
         if (statusString != null) {
             Pattern statusCodePattern = Pattern.compile("Status\\{ code (.*?),");
@@ -218,7 +222,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
             }
         }
         if (status != null) {
-            return status.withDescription(trailers.get("grpc-message"));
+            return status.withDescription(trailers.get(GRPC_MESSAGE_KEY));
         } else {
             return Status.Code.UNKNOWN.toStatus().withDescription("missing GRPC status in response");
         }
@@ -269,7 +273,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
          */
         protected void inboundHeadersReceived(HttpHeaders headers) {
 
-            String streamEncoding = headers.get("content-encoding");
+            String streamEncoding = headers.get(CONTENT_ENCODING_KEY);
             if (streamEncoding != null) {
                 deframeFailed(
                         Status.Code.INTERNAL.toStatus()
@@ -279,7 +283,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                 return;
             }
 
-            String messageEncoding = headers.get("grpc-encoding");
+            String messageEncoding = headers.get(GRPC_ENCODING_KEY);
             if (messageEncoding != null) {
                 Decompressor decompressor = decompressorRegistry.lookupDecompressor(messageEncoding);
                 if (decompressor == null) {

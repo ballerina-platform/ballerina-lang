@@ -1,19 +1,18 @@
 /*
- * Copyright 2014, gRPC Authors All rights reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
 import com.google.common.base.Preconditions;
@@ -23,45 +22,44 @@ import io.netty.handler.codec.http.HttpContent;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.annotation.concurrent.NotThreadSafe;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Deframer for GRPC frames.
+ *
  * <p>
- * <p>This class is not thread-safe. Unless otherwise stated, all calls to public methods should be
- * made in the deframing thread.
+ * Referenced from grpc-java implementation.
+ * <p>
  */
-@NotThreadSafe
 public class MessageDeframer implements Closeable {
     private static final int HEADER_LENGTH = 5;
     private static final int COMPRESSED_FLAG_MASK = 1;
     private static final int RESERVED_MASK = 0xFE;
 
     /**
-     * A listener of deframing events. These methods will be invoked from the deframing thread.
+     * A listener of deframing events.
      */
     public interface Listener {
 
         /**
-         * Called to deliver the next complete message.
+         * Invoked to deliver the next complete message as input stream.
          *
-         * @param inputStream single message producer wrapping the message.
+         * @param inputStream single message as input stream.
          */
         void messagesAvailable(InputStream inputStream);
 
         /**
-         * Called when the deframer closes.
+         * Invoked when the deframer closes.
          *
-         * @param hasPartialMessage whether the deframer contained an incomplete message at closing.
+         * @param hasPartialMessage indicates whether the deframer has incomplete message.
          */
         void deframerClosed(boolean hasPartialMessage);
 
         /**
-         * Called when a {@link #deframe(HttpContent)} operation failed.
+         * Invoked when a {@link #deframe(HttpContent)} operation failed.
          *
-         * @param cause the actual failure
+         * @param cause of the failure.
          */
         void deframeFailed(Throwable cause);
     }
@@ -87,8 +85,7 @@ public class MessageDeframer implements Closeable {
      * Create a deframer.
      *
      * @param listener listener for deframer events.
-     * @param decompressor the compression used if a compressed frame is encountered, with
-     *  {@code NONE} meaning unsupported
+     * @param decompressor the compression used if a compressed frame is encountered.
      * @param maxMessageSize the maximum allowed size for received messages.
      */
     public MessageDeframer(
@@ -113,7 +110,6 @@ public class MessageDeframer implements Closeable {
     }
 
     public void deframe(HttpContent data) {
-
         if (data == null) {
             throw new RuntimeException("Data buffer is null");
         }
@@ -141,16 +137,6 @@ public class MessageDeframer implements Closeable {
         }
     }
 
-    /**
-     * Sets a flag to interrupt delivery of any currently queued messages. This may be invoked outside
-     * of the deframing thread, and must be followed by a call to {@link #close()} in the deframing
-     * thread. Without a subsequent call to {@link #close()}, the deframer may hang waiting for
-     * additional messages before noticing that the {@code stopDelivery} flag has been set.
-     */
-    void stopDelivery() {
-        stopDelivery = true;
-    }
-
     @Override
     public void close() {
         if (isClosed()) {
@@ -172,35 +158,43 @@ public class MessageDeframer implements Closeable {
     }
 
     /**
-     * Indicates whether or not this deframer has been closed.
+     * Indicates whether deframer has been closed or not.
+     *
+     * @return true, if deframer is closed, false otherwise.
      */
     public boolean isClosed() {
         return unprocessed == null;
     }
 
-    /** Returns true if this deframer has already been closed or scheduled to close. */
+    /**
+     * Indicates whether deframer is closed or about to close.
+     *
+     * @return true, if deframer is closed or about to close. false otherwise
+     */
     private boolean isClosedOrScheduledToClose() {
         return isClosed() || closeWhenComplete;
     }
 
+    /**
+     * Indicates whether deframer is completed processing all bytes.
+     *
+     * @return true, if deframer is completed processing. false otherwise
+     */
     private boolean isStalled() {
-
         return unprocessed.readableBytes() == 0;
     }
 
     /**
-     * Reads and delivers as many messages to the listener as possible.
+     * Reads and delivers message frames.
      */
     private void deliver() {
-        // We can have reentrancy here when using a direct executor, triggered by calls to
-        // request more messages. This is safe as we simply loop until pendingDelivers = 0
         if (inDelivery) {
             return;
         }
         inDelivery = true;
         try {
             // Process the uncompressed bytes.
-            while (!stopDelivery /*&& pendingDeliveries > 0*/ && readRequiredBytes()) {
+            while (readRequiredBytes()) {
                 switch (state) {
                     case HEADER:
                         processHeader();
@@ -208,29 +202,12 @@ public class MessageDeframer implements Closeable {
                     case BODY:
                         // Read the body and deliver the message.
                         processBody();
-
-                        // Since we've delivered a message, decrement the number of pending
-                        // deliveries remaining.
-/*                        pendingDeliveries--;*/
                         break;
                     default:
-                        throw new AssertionError("Invalid state: " + state);
+                        throw new IllegalStateException("Invalid state: " + state);
                 }
             }
 
-            if (stopDelivery) {
-                close();
-                return;
-            }
-
-            /*
-             * We are stalled when there are no more bytes to process. This allows delivering errors as
-             * soon as the buffered input has been consumed, independent of whether the application
-             * has requested another message.  At this point in the function, either all frames have been
-             * delivered, or unprocessed is empty.  If there is a partial message, it will be inside next
-             * frame and not in unprocessed.  If there is extra data but no pending deliveries, it will
-             * be in unprocessed.
-             */
             if (closeWhenComplete && isStalled()) {
                 close();
             }
@@ -240,9 +217,9 @@ public class MessageDeframer implements Closeable {
     }
 
     /**
-     * Attempts to read the required bytes into nextFrame.
+     * Prepare next message frame to be processed.
      *
-     * @return {@code true} if all of the required bytes have been read.
+     * @return true if there are pending messages to read.
      */
     private boolean readRequiredBytes() {
 
@@ -270,8 +247,7 @@ public class MessageDeframer implements Closeable {
     }
 
     /**
-     * Processes the GRPC compression header which is composed of the compression flag and the outer
-     * frame length.
+     * Processes headers bytes of message frames.
      */
     private void processHeader() {
         int type = nextFrame.readUnsignedByte();
@@ -294,7 +270,7 @@ public class MessageDeframer implements Closeable {
     }
 
     /**
-     * Processes the GRPC message body, which depending on frame header flags may be compressed.
+     * Processes message body.
      */
     private void processBody() {
 
@@ -327,6 +303,10 @@ public class MessageDeframer implements Closeable {
 
     /**
      * Buffer Input Stream.
+     *
+     * <p>
+     * Referenced from grpc-java implementation.
+     * <p>
      */
     private static final class BufferInputStream extends InputStream implements KnownLength {
         final CompositeReadableBuffer buffer;
@@ -343,7 +323,6 @@ public class MessageDeframer implements Closeable {
         @Override
         public int read() {
             if (buffer.readableBytes() == 0) {
-                // EOF.
                 return -1;
             }
             return buffer.readUnsignedByte();

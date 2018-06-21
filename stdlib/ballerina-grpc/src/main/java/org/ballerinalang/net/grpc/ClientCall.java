@@ -31,6 +31,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import static com.google.common.base.Preconditions.checkState;
+import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_ACCEPT_ENCODING_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_ENCODING_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.TE_KEY;
 
 /**
  * This class handles a call to a remote method.
@@ -51,7 +55,6 @@ public final class ClientCall<ReqT, RespT> {
     private final boolean unaryRequest;
     private HttpClientConnector connector;
     private final OutboundMessage outboundMessage;
-    private String compressorName;
 
     private ClientConnectorListener connectorListener;
     private boolean cancelCalled;
@@ -61,7 +64,6 @@ public final class ClientCall<ReqT, RespT> {
 
     public ClientCall(HttpClientConnector connector, OutboundMessage outboundMessage, MethodDescriptor<ReqT, RespT>
             method) {
-
         this.method = method;
         this.unaryRequest = method.getType() == MethodDescriptor.MethodType.UNARY
                 || method.getType() == MethodDescriptor.MethodType.SERVER_STREAMING;
@@ -71,23 +73,22 @@ public final class ClientCall<ReqT, RespT> {
 
     private void prepareHeaders(
             Compressor compressor) {
-
-        outboundMessage.removeHeader("grpc-encoding");
+        outboundMessage.removeHeader(GRPC_ENCODING_KEY);
         if (compressor != Codec.Identity.NONE) {
-            outboundMessage.setHeader("grpc-encoding", compressor.getMessageEncoding());
+            outboundMessage.setHeader(GRPC_ENCODING_KEY, compressor.getMessageEncoding());
         }
 
-        outboundMessage.removeHeader("grpc-accept-encoding");
+        outboundMessage.removeHeader(GRPC_ACCEPT_ENCODING_KEY);
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
         if (advertisedEncodings != null) {
-            outboundMessage.setHeader("grpc-accept-encoding", advertisedEncodings);
+            outboundMessage.setHeader(GRPC_ACCEPT_ENCODING_KEY, advertisedEncodings);
         }
 
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
         outboundMessage.setProperty(Constants.HTTP_METHOD, GrpcConstants.HTTP_METHOD);
         outboundMessage.setProperty(Constants.HTTP_VERSION, "2.0");
-        outboundMessage.setHeader("content-type", GrpcConstants.CONTENT_TYPE_GRPC);
-        outboundMessage.setHeader("te", GrpcConstants.TE_TRAILERS);
+        outboundMessage.setHeader(CONTENT_TYPE_KEY, GrpcConstants.CONTENT_TYPE_GRPC);
+        outboundMessage.setHeader(TE_KEY, GrpcConstants.TE_TRAILERS);
     }
 
     /**
