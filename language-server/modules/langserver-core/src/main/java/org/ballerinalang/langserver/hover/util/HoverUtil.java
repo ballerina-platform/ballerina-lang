@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -398,6 +399,39 @@ public class HoverUtil {
                                                     List<BLangAnnotationAttachment> annotationDocs) {
         return (mdDocs.size() > 0) ? getDocumentationContent(mdDocs)
                 : getAnnotationContent(annotationDocs);
+    }
+
+    /**
+     * Calculate and returns identifier position of this BLangEndpoint.
+     *
+     * @param endpointNode BLangEndpoint
+     * @return position
+     */
+    public static DiagnosticPos getIdentifierPosition(BLangEndpoint endpointNode) {
+        DiagnosticPos epPosition = endpointNode.getPosition();
+        DiagnosticPos position = new DiagnosticPos(epPosition.src, epPosition.sLine, epPosition.eLine, epPosition.sCol,
+                                                   epPosition.eCol);
+        Set<Whitespace> wsSet = endpointNode.getWS();
+        if (wsSet != null && wsSet.size() > 1) {
+            Whitespace[] wsArray = new Whitespace[wsSet.size()];
+            wsSet.toArray(wsArray);
+            Arrays.sort(wsArray);
+            int endpointKeywordLength = wsArray[0].getPrevious().length();
+            int beforeIdentifierWSLength = wsArray[1].getWs().length();
+            if (endpointNode.symbol.type != null && endpointNode.symbol.type.tsymbol != null) {
+                BTypeSymbol bTypeSymbol = endpointNode.symbol.type.tsymbol;
+                PackageID pkgID = bTypeSymbol.pkgID;
+                int packagePrefixLen = (pkgID != PackageID.DEFAULT
+                        && pkgID.name != Names.BUILTIN_PACKAGE
+                        && pkgID.name != Names.DEFAULT_PACKAGE)
+                        ? (pkgID.name.value + ":").length()
+                        : 0;
+                position.sCol += (beforeIdentifierWSLength + packagePrefixLen + bTypeSymbol.name.value.length() +
+                        endpointKeywordLength);
+            }
+            position.eCol += position.sCol + endpointNode.symbol.name.value.length();
+        }
+        return position;
     }
 
     /**
