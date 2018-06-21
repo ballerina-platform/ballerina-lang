@@ -63,7 +63,6 @@ public class MultipartDataSource extends BallerinaMessageDataSource {
     private static final String CRLF_POST_DASH = "\r\n--";
     private static final String CRLF_PRE_DASH = "--\r\n";
     private static final String CRLF = "\r\n";
-    private static final char COMMA = ',';
     private static final char COLON = ':';
     private static final char SPACE = ' ';
 
