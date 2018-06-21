@@ -95,6 +95,8 @@ public class TestUtil {
     public static final TimeUnit HTTP2_RESPONSE_TIME_UNIT = TimeUnit.SECONDS;
     public static final String WEBSOCKET_REMOTE_SERVER_URL =
             String.format("ws://%s:%d/%s", TEST_HOST, WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
+    public static final String WEBSOCKET_SECURE_REMOTE_SERVER_URL =
+            String.format("wss://%s:%d/%s", TEST_HOST, WEBSOCKET_REMOTE_SERVER_PORT, "websocket");
     private static final DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
     public static HttpServer startHTTPServer(int port, ChannelInitializer channelInitializer) {

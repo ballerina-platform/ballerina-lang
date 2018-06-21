@@ -47,7 +47,7 @@ import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSo
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
 import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
-import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
+import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
 import java.net.InetSocketAddress;
 
@@ -63,17 +63,17 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private final boolean securedConnection;
     private final String target;
     private final String interfaceId;
-    private final WebSocketFramesBlockingHandler blockingHandler;
     private DefaultWebSocketConnection webSocketConnection;
     private ChannelHandlerContext ctx;
     private ChannelPromise closePromise;
     private WebSocketFrameType continuationFrameType;
+    private final MessageQueueHandler blockingHandler;
     private boolean caughtException;
     private boolean closeFrameReceived;
     private boolean closeInitialized;
 
     public WebSocketInboundFrameHandler(WebSocketConnectorFuture connectorFuture,
-                                        WebSocketFramesBlockingHandler blockingHandler, boolean isServer,
+                                        MessageQueueHandler blockingHandler, boolean isServer,
                                         boolean securedConnection, String target, String interfaceId) {
         this.connectorFuture = connectorFuture;
         this.blockingHandler = blockingHandler;
@@ -147,7 +147,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
-        if (closePromise != null && !closePromise.isDone()) {
+        if (closePromise != null && !closeFrameReceived) {
             String errMsg = "Connection is closed by remote endpoint without echoing a close frame";
             ctx.close().addListener(closeFuture -> closePromise.setFailure(new IllegalStateException(errMsg)));
         }
@@ -175,6 +175,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             }
             notifyBinaryMessage(binaryFrame, binaryFrame.content(), binaryFrame.isFinalFragment());
         } else if (msg instanceof CloseWebSocketFrame) {
+            closeFrameReceived = true;
             notifyCloseMessage((CloseWebSocketFrame) msg);
         } else if (msg instanceof PingWebSocketFrame) {
             notifyPingMessage((PingWebSocketFrame) msg);
@@ -228,7 +229,6 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
         if (closePromise == null) {
             DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage);
-            closeFrameReceived = true;
             connectorFuture.notifyWebSocketListener((WebSocketCloseMessage) webSocketCloseMessage);
         } else {
             if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
@@ -267,9 +267,9 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private void setupCommonProperties(DefaultWebSocketMessage webSocketMessage) {
         webSocketMessage.setTarget(target);
         webSocketMessage.setListenerInterface(interfaceId);
-        webSocketMessage.setIsConnectionSecured(securedConnection);
+        webSocketMessage.setIsSecureConnection(securedConnection);
         webSocketMessage.setWebSocketConnection(webSocketConnection);
-        webSocketMessage.setSessionlID(webSocketConnection.getId());
+        webSocketMessage.setSessionID(webSocketConnection.getId());
         webSocketMessage.setIsServerMessage(isServer);
         webSocketMessage.setProperty(Constants.LISTENER_PORT,
                                      ((InetSocketAddress) ctx.channel().localAddress()).getPort());

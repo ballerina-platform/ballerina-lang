@@ -75,13 +75,15 @@
             <class name="org.wso2.transport.http.netty.forwardedextension.ForwardedDisableTestCase" />
         </classes>
     </test>
-    <test name="Websocket Tests" parallel="false">
+    <test name="WebSocket Tests" parallel="false">
         <classes>
             <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerHandshakeFunctionalityTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.server.WebSocketServerFunctionalityTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientHandshakeFunctionalityTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.client.WebSocketClientFunctionalityTestCase"/>
             <class name="org.wso2.transport.http.netty.websocket.passthrough.WebSocketPassThroughTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeSuccessfulTestCase"/>
+            <class name="org.wso2.transport.http.netty.websocket.ssl.WebSocketSSLHandshakeFailureTestCase"/>
         </classes>
     </test>
     <test name="HTTP2 Tests" parallel="false">

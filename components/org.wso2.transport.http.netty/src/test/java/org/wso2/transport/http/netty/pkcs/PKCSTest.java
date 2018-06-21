@@ -61,8 +61,6 @@ public class PKCSTest {
 
     @BeforeClass
     public void setup() throws InterruptedException {
-
-        //set PKCS12 truststore to ballerina client.
         httpConnectorFactory = new DefaultHttpWsConnectorFactory();
 
         ListenerConfiguration listenerConfiguration = getListenerConfiguration();

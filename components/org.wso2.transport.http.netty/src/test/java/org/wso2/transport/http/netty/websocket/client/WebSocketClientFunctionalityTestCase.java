@@ -29,11 +29,12 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
@@ -62,7 +63,8 @@ public class WebSocketClientFunctionalityTestCase {
     public void setup() throws InterruptedException {
         remoteServer = new WebSocketRemoteServer(WEBSOCKET_REMOTE_SERVER_PORT, "xml, json");
         remoteServer.run();
-        WsClientConnectorConfig configuration = new WsClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
+        WebSocketClientConnectorConfig configuration = new WebSocketClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
+        configuration.setAutoRead(true);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
     }
 
@@ -129,9 +131,10 @@ public class WebSocketClientFunctionalityTestCase {
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         WebSocketTestClientConnectorListener connectorListener = handshakeAndSendBinaryMessage(bufferSent);
-        ByteBuffer bufferReceived = connectorListener.getReceivedByteBufferToClient();
+        WebSocketBinaryMessage receivedBinaryMessage = connectorListener.getReceivedBinaryMessageToClient();
 
-        Assert.assertEquals(bufferReceived, bufferSent);
+        Assert.assertEquals(receivedBinaryMessage.getByteBuffer(), bufferSent);
+        Assert.assertEquals(receivedBinaryMessage.getByteArray(), bytes);
     }
 
     private WebSocketTestClientConnectorListener handshakeAndSendBinaryMessage(ByteBuffer bufferSent)

@@ -140,7 +140,7 @@ public class WebSocketServerHandshakeHandler extends ChannelInboundHandlerAdapte
         initMessage.setIsServerMessage(true);
         initMessage.setTarget(fullHttpRequest.uri());
         initMessage.setListenerInterface(interfaceId);
-        initMessage.setIsConnectionSecured(ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null);
+        initMessage.setIsSecureConnection(ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null);
 
         initMessage.setHttpCarbonRequest(setupHttpCarbonRequest(fullHttpRequest, ctx));
 

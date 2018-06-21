@@ -27,7 +27,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorFuture
 public interface ServerConnectorFuture extends HttpConnectorFuture, WebSocketConnectorFuture {
 
     /**
-     * Set life cycle event listener for the HTTP/WS connector
+     * Set life cycle event listener for the HTTP/WS_SCHEME connector
      *
      * @param portBindingEventListener The PortBindingEventListener implementation
      */

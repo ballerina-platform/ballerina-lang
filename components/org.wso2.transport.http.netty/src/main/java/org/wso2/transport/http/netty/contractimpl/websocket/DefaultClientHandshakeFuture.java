@@ -42,8 +42,7 @@ public class DefaultClientHandshakeFuture extends DefaultWebSocketConnectorFutur
         this.clientHandshakeListener = clientHandshakeListener;
         if (throwable != null) {
             clientHandshakeListener.onError(throwable, response);
-        }
-        if (webSocketConnection != null && response != null) {
+        } else if (webSocketConnection != null && response != null) {
             clientHandshakeListener.onSuccess(webSocketConnection, response);
         }
     }

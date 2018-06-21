@@ -19,12 +19,10 @@
 
 package org.wso2.transport.http.netty.contract.websocket;
 
-import java.nio.ByteBuffer;
-
 /**
- * This message contains the details of WebSocket bong message.
+ * This message contains the details of WebSocket control message.
  */
-public interface WebSocketControlMessage extends WebSocketMessage {
+public interface WebSocketControlMessage extends WebSocketBinaryMessage {
 
     /**
      * Get the control signal.
@@ -32,18 +30,4 @@ public interface WebSocketControlMessage extends WebSocketMessage {
      * @return the control signal as a {@link WebSocketControlSignal}.
      */
     WebSocketControlSignal getControlSignal();
-
-    /**
-     * Get the payload of the control signal.
-     *
-     * @return the payload of the control signal.
-     */
-    ByteBuffer getPayload();
-
-    /**
-     * Get the binary data as a byte array.
-     *
-     * @return the binary data as a byte array.
-     */
-    byte[] getByteArray();
 }
