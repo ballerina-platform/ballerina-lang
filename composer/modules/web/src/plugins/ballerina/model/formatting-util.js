@@ -17,10 +17,28 @@
  */
 
 import _ from 'lodash';
-import TreeUtil from './../../../model/tree-util';
+
+const TAB = "\t";
+const SPACE_TAB = "   ";
+const TOPLEVEL_BLOCK_SPACE = "\r\n\r\n";
+const SINGLE_SPACE = " ";
+const NEW_LINE = "\r\n";
+const EMPTY_SPACE = "";
 
 class FormattingUtil {
 
+    getWhiteSpaces(column) {
+        let whiteSpaces = "";
+        for (let i = 0; i < column; i++) {
+            whiteSpaces += SINGLE_SPACE;
+        }
+        return whiteSpaces;
+    }
+
+    getWhiteSpaceCount(ws) {
+        let whiteSpaces = ws.split(SINGLE_SPACE);
+        return whiteSpaces.length - 1;
+    }
 
     /**
      * format Action nodes.
@@ -84,7 +102,9 @@ class FormattingUtil {
      *
      */
     formatCompilationUnitNode(node) {
-        // Not implemented.
+        if (node.ws) {
+            node.ws[0].ws = NEW_LINE;
+        }
     }
 
 
@@ -117,7 +137,63 @@ class FormattingUtil {
      *
      */
     formatEndpointNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        if (node.parent.kind === 'CompilationUnit') {
+            let findIndex = function (topLevelNode) {
+                return topLevelNode.id === node.id;
+            };
+            let endpointIndex = node.parent.topLevelNodes.findIndex(findIndex);
+
+            // Add ws according to the position and sorted order.
+            if (endpointIndex > 0) {
+                node.position.endColumn = 1;
+                node.position.startColumn = 1;
+
+                node.ws[0].ws = TOPLEVEL_BLOCK_SPACE;
+                if (node.configurationExpression) {
+                    node.configurationExpression.ws[0].ws = SINGLE_SPACE;
+                    if (node.configurationExpression.keyValuePairs.length <= 0) {
+                        node.configurationExpression.ws[node.configurationExpression.ws.length - 1].ws =
+                            NEW_LINE + SPACE_TAB + NEW_LINE;
+                    } else {
+                        node.configurationExpression.ws[node.configurationExpression.ws.length - 1].ws = NEW_LINE;
+                    }
+                }
+            } else {
+                node.position.endColumn = 1;
+                node.position.startColumn = 1;
+
+                node.ws[0].ws = EMPTY_SPACE;
+                if (node.configurationExpression) {
+                    node.configurationExpression.ws[0].ws = SINGLE_SPACE;
+                    if (node.configurationExpression.keyValuePairs.length <= 0) {
+                        node.configurationExpression.ws[node.configurationExpression.ws.length - 1].ws =
+                            NEW_LINE + SPACE_TAB + NEW_LINE;
+                    } else {
+                        node.configurationExpression.ws[node.configurationExpression.ws.length - 1].ws = NEW_LINE;
+                    }
+                }
+            }
+        } else {
+            node.position.startColumn = node.parent.position.startColumn + this.getWhiteSpaceCount(SPACE_TAB);
+
+            node.ws[0].ws = TOPLEVEL_BLOCK_SPACE + this.getWhiteSpaces(node.position.startColumn);
+            if (node.configurationExpression) {
+                node.configurationExpression.ws[0].ws = SINGLE_SPACE;
+
+                if (node.configurationExpression.keyValuePairs.length <= 0) {
+                    node.configurationExpression.ws[node.configurationExpression.ws.length - 1].ws =
+                        NEW_LINE + this.getWhiteSpaces(node.position.startColumn) + NEW_LINE +
+                        this.getWhiteSpaces(node.position.startColumn);
+                } else {
+                    node.configurationExpression.ws[node.configurationExpression.ws.length - 1].ws =
+                        NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                }
+            }
+        }
     }
 
 
@@ -139,9 +215,69 @@ class FormattingUtil {
      *
      */
     formatFunctionNode(node) {
-        // Not implemented.
-    }
+        if (!node.ws) {
+            return;
+        }
 
+        let findIndex = function (topLevelNode) {
+            return topLevelNode.id === node.id;
+        };
+
+        if (node.parent.kind === 'CompilationUnit') {
+            let functionIndex = node.parent.topLevelNodes.findIndex(findIndex);
+
+            // Add ws according to the position and sorted order.
+            if (functionIndex > 0) {
+                node.position.endColumn = 1;
+                node.position.startColumn = 1;
+
+                node.ws[0].ws = TOPLEVEL_BLOCK_SPACE;
+                node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
+
+                if (node.body.statements.length <= 0 && node.endpointNodes.length <= 0 && node.workers.length <= 0) {
+                    node.ws[node.ws.length - 1].ws = NEW_LINE + SPACE_TAB + NEW_LINE;
+                } else {
+                    node.ws[node.ws.length - 1].ws = NEW_LINE;
+                }
+            } else {
+                node.position.endColumn = 1;
+                node.position.startColumn = 1;
+
+                node.ws[0].ws = EMPTY_SPACE;
+                node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
+
+                if (node.body.statements.length <= 0 && node.endpointNodes.length <= 0 && node.workers.length <= 0) {
+                    node.ws[node.ws.length - 1].ws = NEW_LINE + SPACE_TAB + NEW_LINE;
+                } else {
+                    node.ws[node.ws.length - 1].ws = NEW_LINE;
+                }
+            }
+        } else {
+            node.position.startColumn = node.parent.position.startColumn + this.getWhiteSpaceCount(SPACE_TAB);
+
+            node.ws[0].ws = TOPLEVEL_BLOCK_SPACE + this.getWhiteSpaces(node.position.startColumn);
+            node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
+
+            if (node.body.statements.length <= 0 && node.endpointNodes.length <= 0 && node.workers.length <= 0) {
+                node.ws[node.ws.length - 1].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn) + NEW_LINE +
+                    this.getWhiteSpaces(node.position.startColumn);
+            } else {
+                node.ws[node.ws.length - 1].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+            }
+        }
+
+        if (node.parameters) {
+            for (let i = 0; i < node.parameters.length; i++) {
+                if (node.parameters[i].typeNode) {
+                    if (i === 0) {
+                        node.parameters[i].typeNode.ws[0].ws = EMPTY_SPACE;
+                    } else {
+                        node.parameters[i].typeNode.ws[0].ws = SINGLE_SPACE;
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * format Identifier nodes.
@@ -161,7 +297,21 @@ class FormattingUtil {
      *
      */
     formatImportNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        let findIndex = function (topLevelNode) {
+            return topLevelNode.id === node.id;
+        };
+
+        let importIndex = node.parent.topLevelNodes.findIndex(findIndex);
+
+        if (importIndex > 0) {
+            node.ws[0].ws = NEW_LINE;
+        } else {
+            node.ws[0].ws = EMPTY_SPACE;
+        }
     }
 
 
@@ -194,7 +344,33 @@ class FormattingUtil {
      *
      */
     formatResourceNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        node.position.startColumn = node.parent.position.startColumn + this.getWhiteSpaceCount(SPACE_TAB);
+
+        node.ws[0].ws = TOPLEVEL_BLOCK_SPACE + this.getWhiteSpaces(node.position.startColumn);
+        node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
+
+        if (node.body.statements.length <= 0 && node.workers.length <= 0 && node.endpointNodes.length <= 0) {
+            node.ws[node.ws.length - 1].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn) + NEW_LINE +
+                this.getWhiteSpaces(node.position.startColumn);
+        } else {
+            node.ws[node.ws.length - 1].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+        }
+
+        if (node.parameters) {
+            for (let i = 0; i < node.parameters.length; i++) {
+                if (node.parameters[i].typeNode) {
+                    if (i === 0) {
+                        node.parameters[i].typeNode.ws[0].ws = EMPTY_SPACE;
+                    } else {
+                        node.parameters[i].typeNode.ws[0].ws = SINGLE_SPACE;
+                    }
+                }
+            }
+        }
     }
 
 
@@ -205,7 +381,44 @@ class FormattingUtil {
      *
      */
     formatServiceNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        let findIndex = function (topLevelNode) {
+            return topLevelNode.id === node.id;
+        };
+
+        let serviceIndex = node.parent.topLevelNodes.findIndex(findIndex);
+
+        // Add ws according to the position and sorted order.
+        if (serviceIndex > 0) {
+            node.position.endColumn = 1;
+            node.position.startColumn = 1;
+
+            node.ws[0].ws = TOPLEVEL_BLOCK_SPACE;
+            node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
+
+            if (node.resources.length <= 0 && node.variables.length <= 0 && node.endpointNodes.length <= 0 &&
+                node.namespaceDeclarations.length <= 0) {
+                node.ws[node.ws.length - 1].ws = NEW_LINE + SPACE_TAB + NEW_LINE;
+            } else {
+                node.ws[node.ws.length - 1].ws = NEW_LINE;
+            }
+        } else {
+            node.position.endColumn = 1;
+            node.position.startColumn = 1;
+
+            node.ws[0].ws = EMPTY_SPACE;
+            node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
+
+            if (node.resources.length <= 0 && node.variables.length <= 0 && node.endpointNodes.length <= 0 &&
+                node.namespaceDeclarations.length <= 0) {
+                node.ws[node.ws.length - 1].ws = NEW_LINE + SPACE_TAB + NEW_LINE;
+            } else {
+                node.ws[node.ws.length - 1].ws = NEW_LINE;
+            }
+        }
     }
 
 
@@ -227,7 +440,25 @@ class FormattingUtil {
      *
      */
     formatVariableNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        if (node.parent.kind === 'VariableDef') {
+            if (node.typeNode && node.typeNode.ws) {
+                node.typeNode.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.parent.position.startColumn);
+            }
+        } else if (node.parent.kind === "CompilationUnit") {
+            let findIndex = function (topLevelNode) {
+                return topLevelNode.id === node.id;
+            };
+            let variableIndex = node.parent.topLevelNodes.findIndex(findIndex);
+            if (variableIndex > 0) {
+                node.typeNode.ws[0].ws = NEW_LINE;
+            } else {
+                node.typeNode.ws[0].ws = EMPTY_SPACE;
+            }
+        }
     }
 
 
@@ -370,7 +601,35 @@ class FormattingUtil {
      *
      */
     formatInvocationNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        if (node.parent.kind === 'ExpressionStatement') {
+            if (node.expression && node.expression.ws) {
+                node.expression.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.parent.position.startColumn);
+            } else {
+                node.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.parent.position.startColumn);
+            }
+        } else {
+            if (node.expression && node.expression.ws) {
+                node.expression.ws[0].ws = SINGLE_SPACE;
+            } else {
+                node.ws[0].ws = SINGLE_SPACE;
+            }
+        }
+
+        if (node.argumentExpressions) {
+            for (let i = 0; i < node.argumentExpressions.length; i++) {
+                if (node.argumentExpressions[i]) {
+                    if (i === 0) {
+                        node.argumentExpressions[i].ws[0].ws = EMPTY_SPACE;
+                    } else {
+                        node.argumentExpressions[i].ws[0].ws = SINGLE_SPACE;
+                    }
+                }
+            }
+        }
     }
 
 
@@ -403,7 +662,24 @@ class FormattingUtil {
      *
      */
     formatRecordLiteralExprNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        if (node.parent.kind === 'Endpoint') {
+            node.position.startColumn = node.parent.position.startColumn + this.getWhiteSpaceCount(SPACE_TAB);
+            for (let i = 0; i < node.keyValuePairs.length; i++) {
+                node.keyValuePairs[i].key.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                node.keyValuePairs[i].value.ws[0].ws = SINGLE_SPACE;
+                node.keyValuePairs[i].ws = EMPTY_SPACE;
+            }
+
+            for (let j = 0; j < node.ws.length; j++) {
+                if (node.ws[j].text === ',') {
+                    node.ws[j].ws = EMPTY_SPACE;
+                }
+            }
+        }
     }
 
 
@@ -414,7 +690,7 @@ class FormattingUtil {
      *
      */
     formatSimpleVariableRefNode(node) {
-        // Not implemented.
+
     }
 
 
@@ -612,7 +888,24 @@ class FormattingUtil {
      *
      */
     formatAssignmentNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        node.position.startColumn = node.parent.position.startColumn + this.getWhiteSpaceCount(SPACE_TAB);
+
+        if (node.variable && node.variable.ws) {
+            node.variable.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+        }
+
+        if (node.expression && node.variable.ws) {
+            node.expression.ws[0].ws = SINGLE_SPACE;
+        }
+
+        if (node.ws) {
+            node.ws[0].ws = SINGLE_SPACE;
+            node.ws[1].ws = EMPTY_SPACE;
+        }
     }
 
 
@@ -656,7 +949,10 @@ class FormattingUtil {
      *
      */
     formatBlockNode(node) {
-        // Not implemented.
+        node.position = {
+            endColumn: node.parent.position.endColumn,
+            startColumn: node.parent.position.startColumn,
+        }
     }
 
 
@@ -678,7 +974,15 @@ class FormattingUtil {
      *
      */
     formatExpressionStatementNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        node.position.startColumn = node.parent.position.startColumn + this.getWhiteSpaceCount(SPACE_TAB);
+
+        if (node.ws) {
+            node.ws[0].ws = EMPTY_SPACE;
+        }
     }
 
 
@@ -810,7 +1114,20 @@ class FormattingUtil {
      *
      */
     formatVariableDefNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        if (node.parent.kind !== 'CompilationUnit') {
+            node.position.startColumn = node.parent.position.startColumn + this.getWhiteSpaceCount(SPACE_TAB);
+        } else {
+            node.position.endColumn = 1;
+            node.position.startColumn = 1;
+        }
+
+        if (node.ws) {
+            node.ws[0].ws = EMPTY_SPACE;
+        }
     }
 
 
@@ -1153,7 +1470,6 @@ class FormattingUtil {
     formatForeverNode(node) {
         // Not implemented.
     }
-
 
 }
 
