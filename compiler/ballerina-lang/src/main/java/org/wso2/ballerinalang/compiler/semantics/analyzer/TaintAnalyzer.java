@@ -1728,11 +1728,11 @@ public class TaintAnalyzer extends BLangNodeVisitor {
         TaintedStatus returnTaintedStatus = TaintedStatus.UNTAINTED;
         TaintRecord allParamsUntaintedRecord = taintTable.get(ALL_UNTAINTED_TABLE_ENTRY_INDEX);
         if (allParamsUntaintedRecord == null) {
+            // Current condition occurs when there is a taint error regardless of tainted status of parameters.
+            // (Tainted value returned by a function invocation is passed to another functions's sensitive parameter)
             returnTaintedStatus = TaintedStatus.TAINTED;
         } else {
             if (allParamsUntaintedRecord.taintError != null && allParamsUntaintedRecord.taintError.size() > 0) {
-                // This can occur when there is a error regardless of tainted status of parameters.
-                // Example: Tainted value returned by function is passed to another functions's sensitive parameter.
                 addTaintError(allParamsUntaintedRecord.taintError);
             } else {
                 if (allParamsUntaintedRecord.retParamTaintedStatus.size() > 0) {
