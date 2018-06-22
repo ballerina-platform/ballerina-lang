@@ -102,8 +102,11 @@ class ControllerOverlay extends React.Component {
                         </Menu>
                     </HoverButton>,
                     actionBox: <ActionBox
-                        onDelete={() => { }}
-                        onJumptoCodeLine={() => { }}
+                        onDelete={() => { node.remove(); }}
+                        onJumptoCodeLine={() => { 
+                            const { editor } = this.context;
+                            editor.goToSource(node);
+                        }}
                         show
                         style={{ top: 50 }}
                     />,
@@ -133,7 +136,7 @@ ControllerOverlay.defaultProps = {
 };
 
 ControllerOverlay.contextTypes = {
-
+    editor: PropTypes.instanceOf(Object).isRequired,
 };
 
 export default ControllerOverlay;

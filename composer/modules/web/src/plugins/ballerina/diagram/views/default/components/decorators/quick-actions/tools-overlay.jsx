@@ -20,29 +20,6 @@ import React from 'react';
 import ToolsPortal from './tools-portal';
 
 class ToolsOverlay extends React.Component {
-    constructor() {
-        super();
-        this.handleClickOutside = this.handleClickOutside.bind(this);
-    }
-    /**
-     * Bind mouse down event to handle out side click events
-     */
-    componentDidMount() {
-        document.addEventListener('mousedown', this.handleClickOutside);
-    }
-    /**
-     * remove mouse down event bound  when mounting component
-     */
-    componentWillUnmount() {
-        document.removeEventListener('mousedown', this.handleClickOutside);
-    }
-
-    handleClickOutside(event) {
-        if (this.wrapperRef && !this.wrapperRef.contains(event.target)) {
-            this.props.hide();
-        }
-    }
-
     render() {
         return (
             <ToolsPortal>
