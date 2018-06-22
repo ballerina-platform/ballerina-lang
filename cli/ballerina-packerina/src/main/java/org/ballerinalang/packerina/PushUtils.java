@@ -360,7 +360,7 @@ public class PushUtils {
             }
             fileList.forEach(path -> pushPackages(path, sourceRoot, home));
         } catch (IOException ex) {
-            throw new BLangCompilerException("error occured when pushing packages from " + sourceRootPath.toString(),
+            throw new BLangCompilerException("error occurred when pushing packages from " + sourceRootPath.toString(),
                                              ex);
         }
     }
