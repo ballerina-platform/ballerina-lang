@@ -33,6 +33,9 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Testing actual runtime behaviour of the XML parser from security point of view.
+ */
 public class HTTPResponseXMLSecurityTestCase  extends IntegrationTestCase {
 
     private ServerInstance ballerinaServer;
@@ -78,6 +81,7 @@ public class HTTPResponseXMLSecurityTestCase  extends IntegrationTestCase {
         HttpResponse response = sendXmlPayload(xmlString);
         Assert.assertNotNull(response);
         Assert.assertEquals(response.getResponseCode(), 500, "Response code mismatched");
+        //TODO: Introduce validation of error message once GitHub issue #4533 is fixed.
     }
 
     private HttpResponse sendXmlPayload(String requestMsg) throws Exception {
