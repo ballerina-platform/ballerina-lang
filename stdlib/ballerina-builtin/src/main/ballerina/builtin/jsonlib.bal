@@ -41,7 +41,7 @@ documentation {
     P{{options}} jsonOptions struct for JSON to XML conversion properties
     R{{}} The XML representation of the JSON
 }
-public native function json::toXML({
-                                         string attributePrefix = "@";
-                                         string arrayEntryTag = "item";
+public native function json::toXML(record {
+                                         string attributePrefix = "@",
+                                         string arrayEntryTag = "item",
                                      } options) returns (xml|error);

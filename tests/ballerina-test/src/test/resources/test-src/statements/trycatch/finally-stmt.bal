@@ -45,7 +45,7 @@ function test3() returns (string){
     }
 }
 
-type Test4Val {
+type Test4Val record {
     string value;
 };
 

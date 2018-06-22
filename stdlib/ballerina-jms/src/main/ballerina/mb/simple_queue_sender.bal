@@ -130,7 +130,7 @@ documentation { Configurations related to SimpleQueueSender endpoint
     F{{properties}} Additional properties use in initializing the initial context
     F{{queueName}} Name of the target queue
 }
-public type SimpleQueueSenderEndpointConfiguration {
+public type SimpleQueueSenderEndpointConfiguration record {
     string username = "admin",
     string password = "admin",
     string host = "localhost",

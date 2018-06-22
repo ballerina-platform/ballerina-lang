@@ -2,7 +2,7 @@ import ballerina/h2;
 import ballerina/sql;
 import ballerina/io;
 
-public type Customer {
+public type Customer record {
     int customerId,
     string name,
     float creditLimit,
