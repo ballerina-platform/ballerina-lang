@@ -1,12 +1,12 @@
 import ballerina/io;
 
-type Employee {
+type Employee record {
     int id,
     string name,
     float salary,
 };
 
-type EmployeeSalary {
+type EmployeeSalary record {
     int id,
     float salary,
 };

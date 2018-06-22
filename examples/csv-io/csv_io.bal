@@ -1,7 +1,7 @@
 import ballerina/io;
 import ballerina/log;
 
-type Employee {
+type Employee record {
     string id,
     string name,
     float salary,

@@ -2,7 +2,7 @@ import ballerina/http;
 import ballerina/io;
 import ballerina/log;
 
-type Student {
+type Student record {
     string Name;
     int Grade;
     map Marks;

@@ -1,11 +1,11 @@
 import ballerina/io;
 
-type Person {
+type Person record {
     string name;
     Address? address;
 };
 
-type Address {
+type Address record {
     string street;
     string city;
 };

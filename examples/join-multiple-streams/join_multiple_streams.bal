@@ -2,12 +2,12 @@ import ballerina/http;
 import ballerina/mime;
 import ballerina/io;
 
-type ProductMaterial {
+type ProductMaterial record {
     string name;
     float amount;
 };
 
-type MaterialUsage {
+type MaterialUsage record {
     string name;
     float totalRawMaterial;
     float totalConsumption;

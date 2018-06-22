@@ -1,6 +1,6 @@
 import ballerina/io;
 
-type address {
+type address record {
     string line01;
     string line02;
     string city;
@@ -9,7 +9,7 @@ type address {
 };
 
 // According to this, `addr` and `guardian` fields may or may not contain a value.
-type person {
+type person record {
     string name;
     int age;
     address? addr;

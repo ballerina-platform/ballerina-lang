@@ -1,10 +1,10 @@
 import ballerina/io;
 
-type Response {
+type Response record {
     Status|error status;
 };
 
-type Status {
+type Status record {
     string message;
     int code;
 };

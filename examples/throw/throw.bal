@@ -1,6 +1,6 @@
 import ballerina/io;
 
-type Record {
+type Record record {
     int id;
     string name;
 };
