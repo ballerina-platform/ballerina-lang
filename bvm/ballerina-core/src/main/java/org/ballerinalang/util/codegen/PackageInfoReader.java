@@ -1128,19 +1128,7 @@ public class PackageInfoReader {
                     break;
 
                 case InstructionCodes.FPLOAD: {
-                    h = codeStream.readInt();
-                    i = codeStream.readInt();
-                    j = codeStream.readInt();
-                    k = codeStream.readInt();
-                    int[] operands = new int[4 + (k * 2)];
-                    operands[0] = h;
-                    operands[1] = i;
-                    operands[2] = j;
-                    operands[3] = k;
-                    for (int x = 0; x < (k * 2); x++) {
-                        operands[x + 4] = codeStream.readInt();
-                    }
-                    packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
+                    readFunctionPointerLoadInstruction(packageInfo, codeStream, opcode);
                     break;
                 }
                 case InstructionCodes.ICONST:
@@ -1444,6 +1432,36 @@ public class PackageInfoReader {
                             " in package " + packageInfo.getPkgPath());
             }
         }
+    }
+
+    private void readFunctionPointerLoadInstruction(PackageInfo packageInfo, DataInputStream codeStream, int opcode)
+            throws IOException {
+        int h;
+        int i;
+        int j;
+        int k;
+        h = codeStream.readInt();
+        i = codeStream.readInt();
+        j = codeStream.readInt();
+        k = codeStream.readInt();
+        int[] operands;
+        if (k == 0) { // no additional reading is needed
+            operands = new int[4];
+            operands[0] = h;
+            operands[1] = i;
+            operands[2] = j;
+            operands[3] = k;
+        } else { //this is a closure related scenario, so read the closure indexes
+            operands = new int[4 + k];
+            operands[0] = h;
+            operands[1] = i;
+            operands[2] = j;
+            operands[3] = k;
+            for (int x = 0; x < k; x++) {
+                operands[x + 4] = codeStream.readInt();
+            }
+        }
+        packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
     }
 
     private void resolveCPEntries(PackageInfo currentPackageInfo) {

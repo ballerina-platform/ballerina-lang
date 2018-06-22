@@ -30,7 +30,7 @@ public class WebSocketResourceCallableUnitCallback implements CallableUnitCallba
 
     private final WebSocketConnection webSocketConnection;
 
-    public WebSocketResourceCallableUnitCallback(WebSocketConnection webSocketConnection) {
+    WebSocketResourceCallableUnitCallback(WebSocketConnection webSocketConnection) {
         this.webSocketConnection = webSocketConnection;
     }
 
@@ -42,7 +42,7 @@ public class WebSocketResourceCallableUnitCallback implements CallableUnitCallba
     @Override
     public void notifyFailure(BStruct error) {
         ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
-        webSocketConnection.readNextFrame();
+        WebSocketUtil.closeDuringUnexpectedCondition(webSocketConnection);
     }
 
 }

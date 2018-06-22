@@ -38,8 +38,7 @@ public class WebSocketCompilationTest {
 
     @Test(description = "Successfully compiling WebSocketClientService")
     public void testSuccessClient() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup(
-                "test-src/net/websocket/compilation/success_client.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/net/websocket/compilation/success_client.bal");
 
         Assert.assertEquals(compileResult.toString(), "Compilation Successful");
     }
@@ -62,7 +61,7 @@ public class WebSocketCompilationTest {
         BAssertUtil.validateError(compileResult, 1, "Invalid resource signature for onIdleTimeout resource in " +
                 "service echo: Expected parameter count = 1", 32, 5);
         BAssertUtil.validateError(compileResult, 2, "Invalid resource signature for onIdleTimeout resource in " +
-                "service echo: The first parameter should be an endpoint", 32 , 5);
+                "service echo: The first parameter should be an endpoint", 32, 5);
     }
 
     @Test(description = "Invalid parameter count for onText resource")
@@ -140,7 +139,7 @@ public class WebSocketCompilationTest {
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0, "onOpen resource is not supported for WebSocketClientService echo",
-                26, 5);
+                                  26, 5);
     }
 
     @Test(description = "WebSocketClientService is bound to an endpoint")
@@ -149,7 +148,8 @@ public class WebSocketCompilationTest {
                 "test-src/net/websocket/compilation/fail_client_bound_to_endpoint.bal");
 
         assertExpectedDiagnosticsLength(compileResult, 1);
-        BAssertUtil.validateError(compileResult, 0, "WebSocketClientService cannot be bound to an endpoint", 25, 1);
+        BAssertUtil.validateError(compileResult, 0, "endpoint type wsClientEp does not support service registration",
+                                  25, 48);
     }
 
     @Test(description = "WebSocket upgrade resource config has a no upgradeService")
@@ -159,7 +159,7 @@ public class WebSocketCompilationTest {
 
         assertExpectedDiagnosticsLength(compileResult, 1);
         BAssertUtil.validateError(compileResult, 0,
-                "An upgradeService need to be specified for the WebSocket upgrade resource", 28, 5);
+                                  "An upgradeService need to be specified for the WebSocket upgrade resource", 28, 5);
     }
 
     private void assertExpectedDiagnosticsLength(CompileResult compileResult, int expectedLength) {
