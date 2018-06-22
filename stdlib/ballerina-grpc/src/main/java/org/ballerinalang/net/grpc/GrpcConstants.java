@@ -57,15 +57,6 @@ public class GrpcConstants {
     public static final int SERVICE_ENDPOINT_INDEX = 0;
     public static final String CLIENT_END_POINT = "clientEndpoint";
 
-    //Header keys
-    public static final String GRPC_STATUS_KEY = "grpc-status";
-    public static final String GRPC_MESSAGE_KEY = "grpc-message";
-    public static final String CONTENT_ENCODING_KEY = "content-encoding";
-    public static final String GRPC_ENCODING_KEY = "grpc-encoding";
-    public static final String GRPC_ACCEPT_ENCODING_KEY = "grpc-accept-encoding";
-    public static final String CONTENT_TYPE_KEY = "content-type";
-    public static final String TE_KEY = "te";
-
     public static final String ENUM_KEY = "enum";
     public static final String SERVICE_STUB = "Stub";
     public static final String METHOD_DESCRIPTORS = "MethodDescriptors";
@@ -191,49 +182,37 @@ public class GrpcConstants {
     
     public static final String CLIENT_ENDPOINT_URL = "url";
 
-    /**
-     * Content-Type used for GRPC-over-HTTP/2.
-     */
+    //Header keys
+    public static final String GRPC_STATUS_KEY = "grpc-status";
+    public static final String GRPC_MESSAGE_KEY = "grpc-message";
+    public static final String CONTENT_TYPE_KEY = "content-type";
+    public static final String TE_KEY = "te";
+
+
+    //Content-Type used for GRPC-over-HTTP/2.
     public static final String CONTENT_TYPE_GRPC = "application/grpc";
 
-    /**
-     * The HTTP method used for GRPC requests.
-     */
+
+    //The HTTP method used for GRPC requests.
     public static final String HTTP_METHOD = "POST";
 
-    /**
-     * The TE (transport encoding) header for requests over HTTP/2.
-     */
+
+    //The TE (transport encoding) header for requests over HTTP/2.
     public static final String TE_TRAILERS = "trailers";
 
-    /**
-     * The Timeout header name.
-     */
-    public static final String TIMEOUT = "grpc-timeout";
-
-    /**
-     * The message encoding (i.e. compression) that can be used in the stream.
-     */
+    //The message encoding (i.e. compression) that can be used in the stream.
     public static final String MESSAGE_ENCODING = "grpc-encoding";
 
-    /**
-     * The accepted message encodings (i.e. compression) that can be used in the stream.
-     */
+
+    //The accepted message encodings (i.e. compression) that can be used in the stream.
     public static final String MESSAGE_ACCEPT_ENCODING = "grpc-accept-encoding";
 
-    /**
-     * The content-encoding used to compress the full gRPC stream.
-     */
+
+    //The content-encoding used to compress the full gRPC stream.
     public static final String CONTENT_ENCODING = "content-encoding";
 
-    /**
-     * The accepted content-encodings that can be used to compress the full gRPC stream.
-     */
-    public static final String CONTENT_ACCEPT_ENCODING = "accept-encoding";
 
-    /**
-     * The default maximum uncompressed size (in bytes) for inbound messages. Defaults to 4 MiB.
-     */
+    //The default maximum uncompressed size (in bytes) for inbound messages. Defaults to 4 MiB.
     public static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
 
 }

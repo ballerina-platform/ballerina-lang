@@ -1,19 +1,18 @@
 /*
- * Copyright 2014, gRPC Authors All rights reserved.
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *  http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
  */
-
 package org.ballerinalang.net.grpc;
 
 import io.netty.buffer.ByteBuf;
@@ -23,14 +22,12 @@ import java.util.ArrayDeque;
 import java.util.Queue;
 
 /**
- * A {@link CompositeReadableBuffer} that is composed of 0 or more {@link CompositeReadableBuffer}s. This provides a
- * facade that allows multiple buffers to be treated as one.
+ * A {@link CompositeContent} that is composed of 0 or more {@link ByteBuf} contents.
  * <p>
- * <p>When a buffer is added to a composite, its life cycle is controlled by the composite. Once
- * the composite has read past the end of a given buffer, that buffer is automatically closed and
- * removed from the composite.
+ * Referenced from grpc-java implementation.
+ * <p>
  */
-public class CompositeReadableBuffer {
+public class CompositeContent {
 
     private int readableBytes;
     private final Queue<ByteBuf> buffers = new ArrayDeque<>();
@@ -51,10 +48,7 @@ public class CompositeReadableBuffer {
     }
 
     /**
-     * Adds a new {@link CompositeReadableBuffer} at the end of the buffer list. After a buffer is added, it is
-     * expected that this {@code CompositeBuffer} has complete ownership. Any attempt to modify the
-     * buffer (i.e. modifying the readable bytes) may result in corruption of the internal state of
-     * this {@code CompositeBuffer}.
+     * Adds a new {@link ByteBuf} at the end of the buffer list.
      */
     public void addBuffer(ByteBuf buffer) {
 
@@ -129,8 +123,7 @@ public class CompositeReadableBuffer {
     }
 
     /**
-     * Executes the given {@link ReadOperation} against the {@link CompositeReadableBuffer}s required to
-     * satisfy the requested {@code length}.
+     * Executes the given {@link ReadOperation} against the {@link CompositeContent}.
      */
     private void execute(ReadOperation op, int length) {
 
@@ -172,13 +165,15 @@ public class CompositeReadableBuffer {
     }
 
     /**
-     * A simple read operation to perform on a single {@link CompositeReadableBuffer}. All state management for
-     * the buffers is done by {@link CompositeReadableBuffer#execute(ReadOperation, int)}.
+     * A simple read operation to perform on a single {@link CompositeContent}.
+     * <p>
+     * Referenced from grpc-java implementation.
+     * <p>
      */
     private abstract static class ReadOperation {
 
         /**
-         * Only used by {@link CompositeReadableBuffer#readUnsignedByte()}.
+         * Only used by {@link CompositeContent#readUnsignedByte()}.
          */
         int value;
 

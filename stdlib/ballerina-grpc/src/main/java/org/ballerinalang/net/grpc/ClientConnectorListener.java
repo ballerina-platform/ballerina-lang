@@ -30,11 +30,11 @@ import java.util.concurrent.Executor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_ENCODING_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_ENCODING;
 import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_MAX_MESSAGE_SIZE;
-import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_ENCODING_KEY;
 import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_MESSAGE_KEY;
 import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_STATUS_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
 import static org.ballerinalang.net.grpc.MessageUtils.readAsString;
 
 /**
@@ -273,7 +273,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
          */
         protected void inboundHeadersReceived(HttpHeaders headers) {
 
-            String streamEncoding = headers.get(CONTENT_ENCODING_KEY);
+            String streamEncoding = headers.get(CONTENT_ENCODING);
             if (streamEncoding != null) {
                 deframeFailed(
                         Status.Code.INTERNAL.toStatus()
@@ -283,7 +283,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                 return;
             }
 
-            String messageEncoding = headers.get(GRPC_ENCODING_KEY);
+            String messageEncoding = headers.get(MESSAGE_ENCODING);
             if (messageEncoding != null) {
                 Decompressor decompressor = decompressorRegistry.lookupDecompressor(messageEncoding);
                 if (decompressor == null) {

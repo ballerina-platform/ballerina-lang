@@ -32,8 +32,8 @@ import java.util.logging.Logger;
 
 import static com.google.common.base.Preconditions.checkState;
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_KEY;
-import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_ACCEPT_ENCODING_KEY;
-import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_ENCODING_KEY;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ACCEPT_ENCODING;
+import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
 import static org.ballerinalang.net.grpc.GrpcConstants.TE_KEY;
 
 /**
@@ -73,15 +73,15 @@ public final class ClientCall<ReqT, RespT> {
 
     private void prepareHeaders(
             Compressor compressor) {
-        outboundMessage.removeHeader(GRPC_ENCODING_KEY);
+        outboundMessage.removeHeader(MESSAGE_ENCODING);
         if (compressor != Codec.Identity.NONE) {
-            outboundMessage.setHeader(GRPC_ENCODING_KEY, compressor.getMessageEncoding());
+            outboundMessage.setHeader(MESSAGE_ENCODING, compressor.getMessageEncoding());
         }
 
-        outboundMessage.removeHeader(GRPC_ACCEPT_ENCODING_KEY);
+        outboundMessage.removeHeader(MESSAGE_ACCEPT_ENCODING);
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
         if (advertisedEncodings != null) {
-            outboundMessage.setHeader(GRPC_ACCEPT_ENCODING_KEY, advertisedEncodings);
+            outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
         }
 
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());

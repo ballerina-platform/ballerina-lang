@@ -74,8 +74,8 @@ public class MessageDeframer implements Closeable {
     private MessageDeframer.State state = MessageDeframer.State.HEADER;
     private int requiredLength = HEADER_LENGTH;
     private boolean compressedFlag;
-    private CompositeReadableBuffer nextFrame;
-    private CompositeReadableBuffer unprocessed = new CompositeReadableBuffer();
+    private CompositeContent nextFrame;
+    private CompositeContent unprocessed = new CompositeContent();
     private boolean inDelivery = false;
 
     private boolean closeWhenComplete = false;
@@ -224,7 +224,7 @@ public class MessageDeframer implements Closeable {
     private boolean readRequiredBytes() {
 
         if (nextFrame == null) {
-            nextFrame = new CompositeReadableBuffer();
+            nextFrame = new CompositeContent();
         }
 
         // Read until the buffer contains all the required bytes.
@@ -310,9 +310,9 @@ public class MessageDeframer implements Closeable {
      * <p>
      */
     private static final class BufferInputStream extends InputStream implements KnownLength {
-        final CompositeReadableBuffer buffer;
+        final CompositeContent buffer;
 
-        public BufferInputStream(CompositeReadableBuffer buffer) {
+        public BufferInputStream(CompositeContent buffer) {
             this.buffer = Preconditions.checkNotNull(buffer, "buffer");
         }
 
