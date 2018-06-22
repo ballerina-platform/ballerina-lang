@@ -111,7 +111,7 @@ class ControllerOverlay extends React.Component {
                         style={{ top: 50 }}
                     />,
                 });
-            } else if (node.kind === 'Assignment') {
+            } else if (node.kind === 'Assignment' || node.kind === 'VariableDef' || node.kind === 'ExpressionStatement') {
                 this.renderToRegions(node, {
                     main: <HoverButton size='mini' style={{ top: -5, left: -20 }}>
                         <Menu vertical>

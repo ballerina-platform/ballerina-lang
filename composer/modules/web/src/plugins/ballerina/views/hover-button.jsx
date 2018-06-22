@@ -47,7 +47,6 @@ class Tools extends React.Component {
                     compact
                     onClick={() => {
                         this.setMenuVisibility(true);
-                        this.setButtonVisibility(false);
                     }}
                 ><i className='fw'>{ImageUtils.getCodePoint('add')}</i>
 
