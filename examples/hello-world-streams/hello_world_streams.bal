@@ -2,13 +2,13 @@ import ballerina/io;
 import ballerina/runtime;
 
 // Create a record type named `StatusCount`.
-type StatusCount {
+type StatusCount record {
     string status;
     int totalCount;
 };
 
 // Create a record type named `Teacher` and define the attributes.
-type Teacher {
+type Teacher record {
     string name;
     int age;
     string status;

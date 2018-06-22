@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // Defining Person type.
-type Person {
+type Person record {
     string name;
     int age;
     string city;

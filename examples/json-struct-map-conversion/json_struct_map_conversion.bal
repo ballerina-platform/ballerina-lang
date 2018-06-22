@@ -1,13 +1,13 @@
 import ballerina/io;
 
 // This is a Ballerina struct.
-type person {
+type person record {
     string fname;
     string lname;
     int age;
 };
 
-type movie {
+type movie record {
     string title;
     string year;
     string released;

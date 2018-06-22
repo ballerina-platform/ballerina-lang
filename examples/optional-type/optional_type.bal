@@ -10,7 +10,7 @@ function getValue(string key) returns string|() {
     return ();
 }
 
-type address {
+type address record {
     string line01;
     string line02;
     string city;
@@ -19,7 +19,7 @@ type address {
 };
 
 // Here, the `addr` and `guardian` fields may or may not contain values.
-type person {
+type person record {
     string name;
     int age;
     address? addr;

@@ -2,14 +2,14 @@ import ballerina/runtime;
 import ballerina/io;
 
 // Create a record type that represents the device temperature reading.
-type DeviceTempInfo {
+type DeviceTempInfo record {
     int deviceID;
     int roomNo;
     float temp;
 };
 
 // Create a record type that represents the initial temperature and the peak temperature.
-type TempDiffInfo {
+type TempDiffInfo record {
     float initialTemp;
     float peakTemp;
 };

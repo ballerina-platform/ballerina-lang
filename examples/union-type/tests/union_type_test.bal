@@ -26,7 +26,7 @@ function testFunc() {
     //test:assertEquals(expectedError, outputs[3]);
 }
 
-type ExpectedRecordType {
+type ExpectedRecordType record {
     string message;
     error? cause;
     string key;

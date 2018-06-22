@@ -55,7 +55,7 @@ public type ChatClient object {
     }
 };
 
-type ChatMsg {
+type ChatMsg record {
     string name;
     string message;
 };

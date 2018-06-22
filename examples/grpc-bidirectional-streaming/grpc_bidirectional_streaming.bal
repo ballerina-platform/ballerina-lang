@@ -66,7 +66,7 @@ service<grpc:Service> Chat bind listener {
     }
 }
 
-type ChatMessage {
+type ChatMessage record {
     string name;
     string message;
 };

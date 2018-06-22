@@ -6,7 +6,7 @@ function userDefinedSecureOperation(@sensitive string secureParameter) {
 
 }
 
-type Student {
+type Student record {
     string firstname,
 };
 

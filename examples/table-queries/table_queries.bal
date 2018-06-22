@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // This type represents a person.
-type Person {
+type Person record {
     int id,
     int age = -1,
     float salary,
@@ -10,7 +10,7 @@ type Person {
 };
 
 // This type represents an order.
-type Order {
+type Order record {
     int personId,
     int orderId,
     string items,
@@ -18,14 +18,14 @@ type Order {
 };
 
 // This type represents the summed up order details.
-type SummedOrder {
+type SummedOrder record {
     int personId,
     float amount,
 };
 
 // This type represents order details (this is derived by joining the person details
 //and the order details).
-type OrderDetails {
+type OrderDetails record {
     int orderId,
     string personName,
     string items,
@@ -33,7 +33,7 @@ type OrderDetails {
 };
 
 // This type represents the Person public profile.
-type PersonPublicProfile {
+type PersonPublicProfile record {
     string knownName,
     int age = -1,
 };

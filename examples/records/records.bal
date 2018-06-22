@@ -1,7 +1,7 @@
 import ballerina/io;
 
 // This defines a new record named `Person`.
-type Person {
+type Person record {
     string name;
     int age;
     Person? parent;
