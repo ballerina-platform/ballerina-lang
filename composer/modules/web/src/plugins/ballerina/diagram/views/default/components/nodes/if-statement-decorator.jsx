@@ -255,7 +255,6 @@ class IfStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <HoverGroup model={this.props.model}>
                 <polyline
                     points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y}`}
                     className='flowchart-background-empty-rect'
@@ -316,20 +315,23 @@ class IfStatementDecorator extends React.Component {
                 >
                     false
                 </text>
-                <g>
-                    <rect
-                        x={p2X}
-                        y={p9Y}
-                        width={titleW}
-                        height={titleH}
-                        className='invisible-rect'
-                    />
-                    {expression && <title> {expression.text} </title>}
-                </g>
+                <HoverGroup model={this.props.model} region='actionBox'>
+                    <g>
+                        <rect
+                            x={p2X}
+                            y={p9Y}
+                            width={titleW}
+                            height={titleH}
+                            className='invisible-rect'
+                        />
+                        {expression && <title> {expression.text} </title>}
+                    </g>
+                </HoverGroup>
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
-                {body}
-                </HoverGroup>
+                {/* <HoverGroup model={this.props.model} region='main'> */}
+                    {body}
+                {/* </HoverGroup> */}
                 {elseComp && <ElseStatementDecorator
                     dropTarget={model}
                     bBox={elseComp.viewState.bBox}

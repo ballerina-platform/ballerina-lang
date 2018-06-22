@@ -47,8 +47,6 @@ class ControllerOverlay extends React.Component {
     componentDidMount() {
         this.props.model.on('mouse-enter', this.onMouseEnter);
         this.props.model.on('mouse-leave', this.onMouseLeave);
-        const element = ReactDOM.findDOMNode(this);
-        console.log(element);
     }
     componentWillReceiveProps(nextProps) {
         if (this.props.model !== nextProps.model) {
@@ -62,7 +60,10 @@ class ControllerOverlay extends React.Component {
         this.props.model.off('mouse-enter', this.onMouseEnter);
         this.props.model.off('mouse-leave', this.onMouseLeave);
     }
-    onMouseEnter({ origin }) {
+    onMouseEnter({ origin, region }) {
+        this.setState({
+            region,
+        });
         this.forceUpdate();
     }
     onMouseLeave({ origin }) {
@@ -75,6 +76,13 @@ class ControllerOverlay extends React.Component {
         model.trigger('render-menu', { content: controllers });
     }
 
+    renderToRegions(node, regionToComponent = {}) {
+        if (!this.state.region) {
+            return;
+        }
+        const component = regionToComponent[this.state.region];
+        this.renderControllers(node, component);
+    }
     /**
      * Renders view for a controller overlay.
      *
@@ -85,27 +93,29 @@ class ControllerOverlay extends React.Component {
         const hoverItemVisiter = new HoverItemVisiter();
         this.props.model.accept(hoverItemVisiter);
         const nodes = hoverItemVisiter.getHoveredItems();
-
         nodes.forEach((node) => {
             if (node.kind === 'If') {
-                this.renderControllers(node, [<HoverButton style={{ top: 120 }}>
-                    <Menu vertical>
-                        {ControllerUtil.convertToAddItems(WorkerTools, node.getBody())}
-                    </Menu>
-                </HoverButton>,
-                    <ActionBox
+                this.renderToRegions(node, {
+                    main: <HoverButton style={{ top: 120 }}>
+                        <Menu vertical>
+                            {ControllerUtil.convertToAddItems(WorkerTools, node.getBody())}
+                        </Menu>
+                    </HoverButton>,
+                    actionBox: <ActionBox
                         onDelete={() => { }}
                         onJumptoCodeLine={() => { }}
                         show
-                        style={{ top: 70 }}
+                        style={{ top: 50 }}
                     />,
-                ]);
+                });
             } else if (node.kind === 'Assignment') {
-                this.renderControllers(node, <HoverButton size='mini' >
-                    <Menu vertical>
-                        {ControllerUtil.convertToAddItems(WorkerTools, node)}
-                    </Menu>
-                </HoverButton>);
+                this.renderToRegions(node, {
+                    main: <HoverButton size='mini' style={{ top: -5, left: -20 }}>
+                        <Menu vertical>
+                            {ControllerUtil.convertToAddItems(WorkerTools, node)}
+                        </Menu>
+                    </HoverButton>
+                });
             } else {
                 console.log('Could not render ctrl for', node);
             }

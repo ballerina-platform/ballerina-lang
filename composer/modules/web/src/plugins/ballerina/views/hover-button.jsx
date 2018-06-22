@@ -39,7 +39,6 @@ class Tools extends React.Component {
         return (
             <div style={{
                 position: 'relative',
-                left: -15,
                 ...this.props.style,
             }}
             >

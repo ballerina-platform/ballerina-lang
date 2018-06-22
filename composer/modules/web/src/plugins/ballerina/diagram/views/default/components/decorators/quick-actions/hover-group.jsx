@@ -45,12 +45,14 @@ class HoverGroup extends React.Component {
                     this.props.model.viewState.hovered = true;
                     this.props.model.trigger('mouse-enter', {
                         origin: this.props.model,
+                        region: this.props.region,
                     });
                 }}
                 onMouseLeave={(e) => {
                     this.props.model.viewState.hovered = false;
                     this.props.model.trigger('mouse-leave', {
                         origin: this.props.model,
+                        region: this.props.region,
                     });
                 }}
             >

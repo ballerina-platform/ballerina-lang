@@ -172,7 +172,7 @@ class StatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
-                <HoverGroup model={this.props.model}>
+                <HoverGroup model={this.props.model} region='main'>
                     <line
                         x1={bBox.getCenterX()}
                         y1={hiderTop}
