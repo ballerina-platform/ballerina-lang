@@ -37,7 +37,7 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
                                       MessageQueueHandler messageQueueHandler, boolean secure,
                                       String negotiatedSubProtocol) {
         this.ctx = ctx;
-        this.id = WebSocketUtil.generateId(ctx);
+        this.id = WebSocketUtil.getChannelId(ctx);
         this.frameHandler = frameHandler;
         this.messageQueueHandler = messageQueueHandler;
         this.secure = secure;
@@ -49,7 +49,8 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
         return this.id;
     }
 
-    @Override public boolean isOpen() {
+    @Override
+    public boolean isOpen() {
         return this.ctx.channel().isOpen();
     }
 

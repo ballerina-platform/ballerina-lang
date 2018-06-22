@@ -34,7 +34,7 @@ import java.nio.ByteBuffer;
  */
 public class WebSocketUtil {
 
-    public static String generateId(ChannelHandlerContext ctx) {
+    public static String getChannelId(ChannelHandlerContext ctx) {
         return ctx.channel().id().asLongText();
     }
 

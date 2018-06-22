@@ -65,7 +65,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         this.connectorFuture = connectorFuture;
         this.secureConnection = ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null;
         this.httpRequest = httpRequest;
-        this.sessionID = WebSocketUtil.generateId(ctx);
+        this.sessionID = WebSocketUtil.getChannelId(ctx);
     }
 
     @Override

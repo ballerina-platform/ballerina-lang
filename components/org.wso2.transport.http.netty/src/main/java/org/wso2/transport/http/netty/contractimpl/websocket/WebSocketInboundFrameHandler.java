@@ -58,7 +58,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private Logger log = LoggerFactory.getLogger(WebSocketInboundFrameHandler.class);
 
     private final boolean isServer;
-    private final boolean securedConnection;
+    private final boolean secureConnection;
     private final String target;
     private final String interfaceId;
     private final String negotiatedSubProtocol;
@@ -72,11 +72,11 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private ChannelPromise closePromise;
     private WebSocketFrameType continuationFrameType;
 
-    public WebSocketInboundFrameHandler(boolean isServer, boolean securedConnection, String target, String interfaceId,
+    public WebSocketInboundFrameHandler(boolean isServer, boolean secureConnection, String target, String interfaceId,
                                         String negotiatedSubProtocol, WebSocketConnectorFuture connectorFuture,
                                         MessageQueueHandler messageQueueHandler) {
         this.isServer = isServer;
-        this.securedConnection = securedConnection;
+        this.secureConnection = secureConnection;
         this.target = target;
         this.interfaceId = interfaceId;
         this.negotiatedSubProtocol = negotiatedSubProtocol;
@@ -122,7 +122,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
         this.ctx = ctx;
-        webSocketConnection = new DefaultWebSocketConnection(ctx, this, messageQueueHandler, securedConnection,
+        webSocketConnection = new DefaultWebSocketConnection(ctx, this, messageQueueHandler, secureConnection,
                                                              negotiatedSubProtocol);
     }
 
@@ -268,7 +268,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private void setupCommonProperties(DefaultWebSocketMessage webSocketMessage) {
         webSocketMessage.setTarget(target);
         webSocketMessage.setListenerInterface(interfaceId);
-        webSocketMessage.setIsSecureConnection(securedConnection);
+        webSocketMessage.setIsSecureConnection(secureConnection);
         webSocketMessage.setWebSocketConnection(webSocketConnection);
         webSocketMessage.setSessionID(webSocketConnection.getId());
         webSocketMessage.setIsServerMessage(isServer);
