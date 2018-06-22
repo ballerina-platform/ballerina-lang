@@ -16,10 +16,10 @@
 
 import ballerina/http;
 
-public type Participant2pcClientConfig {
+public type Participant2pcClientConfig record {
     string participantURL;
     int timeoutMillis;
-    {
+    record {
         int count;
         int interval;
     } retryConfig;

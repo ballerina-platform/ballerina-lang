@@ -83,7 +83,7 @@ function finiteAssignmentStateSameTypeComparisonCaseTwo() returns State {
 
 type POrInt Person|int;
 
-type Person {
+type Person record {
    string name;
 };
 

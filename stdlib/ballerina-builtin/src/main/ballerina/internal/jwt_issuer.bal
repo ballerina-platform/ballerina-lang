@@ -19,7 +19,7 @@ import ballerina/io;
 documentation {
     Represents JWT issuer configurations.
 }
-public type JWTIssuerConfig {
+public type JWTIssuerConfig record {
     string keyAlias,
     string keyPassword,
     string keyStoreFilePath,

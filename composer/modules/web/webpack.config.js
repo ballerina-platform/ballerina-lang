@@ -36,6 +36,8 @@ const { env: { NODE_ENV }} = process;
 const isElectronBuild = NODE_ENV === 'electron' || NODE_ENV === 'electron-dev';
 const isProductionBuild = NODE_ENV === 'production' || NODE_ENV === 'electron';
 const target = isElectronBuild ? 'electron-renderer' : 'web';
+const outputPath = isElectronBuild && isProductionBuild ? path.resolve(__dirname, 'dist-electron')
+                        : path.resolve(__dirname, 'dist');
 
 const extractThemes = new ExtractTextPlugin({ filename: './[name].css', allChunks: true });
 const extractCSSBundle = new ExtractTextPlugin({ filename: './bundle-[name]-[hash].css', allChunks: true });
@@ -54,7 +56,7 @@ const config = [{
     },
     output: {
         filename: '[name]-[hash].js',
-        path: path.resolve(__dirname, 'dist'),
+        path: outputPath,
     },
     module: {
         rules: [
@@ -146,7 +148,7 @@ const config = [{
     },
     plugins: [
         new ProgressBarPlugin(),
-        new CleanWebpackPlugin(['dist'], {watch: true, exclude:['themes', 'workers']}),
+        new CleanWebpackPlugin([outputPath], {watch: true, exclude:['themes', 'workers']}),
         new webpack.optimize.CommonsChunkPlugin({
             name: 'tree',
             chunks: ['bundle', 'tree', 'testable'],
@@ -259,7 +261,7 @@ const config = [{
     },
     output: {
         filename: '[name].css',
-        path: path.resolve(__dirname, 'dist/themes/'),
+        path: path.resolve(outputPath, 'themes'),
     },
     module: {
         rules: [
@@ -299,7 +301,7 @@ const config = [{
     },
     output: {
         filename: '[name].worker.bundle.js',
-        path: path.resolve(__dirname, 'dist/workers/'),
+        path: path.resolve(outputPath, 'workers'),
     },
     module: {
 		rules: [

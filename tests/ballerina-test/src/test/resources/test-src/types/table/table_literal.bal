@@ -2,7 +2,7 @@ import ballerina/io;
 import ballerina/jdbc;
 import ballerina/sql;
 
-type Person {
+type Person record {
     int id,
     int age,
     float salary,
@@ -10,28 +10,28 @@ type Person {
     boolean married,
 };
 
-type Company {
+type Company record {
     int id,
     string name,
 };
 
-type TypeTest {
+type TypeTest record {
     int id,
     json jsonData,
     xml xmlData,
 };
 
-type BlobTypeTest {
+type BlobTypeTest record {
     int id,
     blob blobData,
 };
 
-type AnyTypeTest {
+type AnyTypeTest record {
     int id,
     any anyData,
 };
 
-type ArraTypeTest {
+type ArraTypeTest record {
     int id,
     int[] intArrData,
     float[] floatArrData,
@@ -39,7 +39,7 @@ type ArraTypeTest {
     boolean[] booleanArrData,
 };
 
-type ResultCount {
+type ResultCount record {
     int COUNTVAL,
 };
 

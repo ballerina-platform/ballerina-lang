@@ -110,9 +110,9 @@ documentation {
     P{{options}} xmlOptions struct for XML to JSON conversion properties
     R{{}} JSON representation of the given XML
 }
-public native function xml::toJSON({
-                                         string attributePrefix = "@";
-                                         boolean preserveNamespaces = true;
+public native function xml::toJSON(record {
+                                         string attributePrefix = "@",
+                                         boolean preserveNamespaces = true,
                                      } options) returns (json);
 
 documentation {

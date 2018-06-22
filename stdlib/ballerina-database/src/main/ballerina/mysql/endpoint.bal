@@ -27,7 +27,7 @@ documentation {
     F{{poolOptions}} Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
     F{{dbOptions}} A map of DB specific properties
 }
-public type ClientEndpointConfiguration {
+public type ClientEndpointConfiguration record {
     string host,
     int port = 3306,
     string name,

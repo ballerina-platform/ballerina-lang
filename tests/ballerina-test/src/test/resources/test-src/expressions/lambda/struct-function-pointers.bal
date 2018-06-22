@@ -1,4 +1,4 @@
-type Person {
+type Person record {
     string fname;
     string lname;
     function (string, string) returns (string) getName;

@@ -17,95 +17,95 @@
 import ballerina/jdbc;
 import ballerina/time;
 
-type NonNillableInt {
+type NonNillableInt record {
     int val;
 };
 
-type NonNillableLong {
+type NonNillableLong record {
     int val;
 };
 
-type NonNillableFloat {
+type NonNillableFloat record {
     float val;
 };
 
-type NonNillableDouble {
+type NonNillableDouble record {
     float val;
 };
 
-type NonNillableBoolean {
+type NonNillableBoolean record {
     boolean val;
 };
 
-type NonNillableString {
+type NonNillableString record {
     string val;
 };
 
-type NonNillableNumeric {
+type NonNillableNumeric record {
     float val;
 };
 
-type NonNillableTinyInt {
+type NonNillableTinyInt record {
     int val;
 };
 
-type NonNillableSmallInt {
+type NonNillableSmallInt record {
     int val;
 };
 
-type NonNillableDecimal {
+type NonNillableDecimal record {
     float val;
 };
 
-type NonNillableReal {
+type NonNillableReal record {
     float val;
 };
 
-type NonNillableClob {
+type NonNillableClob record {
     string val;
 };
 
-type NonNillableBlob {
+type NonNillableBlob record {
     blob val;
 };
 
-type NonNillableBinary {
+type NonNillableBinary record {
     blob val;
 };
 
-type NonNillableDate {
+type NonNillableDate record {
     time:Time val;
 };
 
-type NonNillableTime {
+type NonNillableTime record {
     time:Time val;
 };
 
-type NonNillableDateTime {
+type NonNillableDateTime record {
     time:Time val;
 };
 
-type NonNillableTimeStamp {
+type NonNillableTimeStamp record {
     time:Time val;
 };
 
-type InvalidUnion {
+type InvalidUnion record {
     (int|string) val;
 };
 
-type InvalidUnionArrayElement {
+type InvalidUnionArrayElement record {
     (int|string)[] val,
 };
 
-type InvalidUnionArray {
+type InvalidUnionArray record {
     int[]|string val,
 };
 
-type InvalidUnionArray2 {
+type InvalidUnionArray2 record {
     string?[] val,
 };
 
-type ResultMap {
+type ResultMap record {
     int[] INT_ARRAY,
     int[] LONG_ARRAY,
     float[] FLOAT_ARRAY,
@@ -113,7 +113,7 @@ type ResultMap {
     string[] STRING_ARRAY,
 };
 
-type ResultMapNonNillableTypeNillableElements {
+type ResultMapNonNillableTypeNillableElements record {
     int?[] INT_ARRAY,
     int?[] LONG_ARRAY,
     float?[] FLOAT_ARRAY,
@@ -121,7 +121,7 @@ type ResultMapNonNillableTypeNillableElements {
     string?[] STRING_ARRAY,
 };
 
-type ResultMapNillable {
+type ResultMapNillable record {
     int?[]? INT_ARRAY,
     int?[]? LONG_ARRAY,
     float?[]? FLOAT_ARRAY,
@@ -129,7 +129,7 @@ type ResultMapNillable {
     string?[]? STRING_ARRAY,
 };
 
-type ResultMapNillableTypeNonNillableElements {
+type ResultMapNillableTypeNonNillableElements record {
     int[]? INT_ARRAY;
     int[]? LONG_ARRAY;
     float[]? FLOAT_ARRAY;

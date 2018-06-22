@@ -80,7 +80,7 @@ documentation {
     F{{host}} The remote host name/IP
     F{{port}} The remote port
 }
-public type Remote {
+public type Remote record {
     @readonly string host;
     @readonly int port;
 };
@@ -91,7 +91,7 @@ documentation {
     F{{host}} The local host name/IP
     F{{port}} The local port
 }
-public type Local {
+public type Local record {
     @readonly string host;
     @readonly int port;
 };
@@ -106,7 +106,7 @@ documentation {
     F{{maxEntityBodySize}} Maximum allowed size for the entity body. Exceeding this limit will result in a
                            `413 - Payload Too Large` response.
 }
-public type RequestLimits {
+public type RequestLimits record {
     int maxUriLength = -1;
     int maxHeaderSize = -1;
     int maxEntityBodySize = -1;
@@ -128,7 +128,7 @@ documentation {
     F{{timeoutMillis}} Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
                        disable timeout
 }
-public type ServiceEndpointConfiguration {
+public type ServiceEndpointConfiguration record {
     string host,
     int port,
     KeepAlive keepAlive = KEEPALIVE_AUTO,
@@ -152,7 +152,7 @@ documentation {
     F{{shareSession}} Enable/disable new SSL session creation
     F{{ocspStapling}} Enable/disable OCSP stapling
 }
-public type ServiceSecureSocket {
+public type ServiceSecureSocket record {
     TrustStore? trustStore,
     KeyStore? keyStore,
     Protocols? protocol,
