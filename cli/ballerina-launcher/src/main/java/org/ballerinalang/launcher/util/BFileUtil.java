@@ -19,8 +19,8 @@ package org.ballerinalang.launcher.util;
 
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
-import java.io.IOException;
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
