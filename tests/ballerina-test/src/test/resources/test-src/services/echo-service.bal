@@ -4,7 +4,7 @@ import ballerina/io;
 
 @final string constPath = getConstPath();
 
-type Person {
+type Person record {
     string name,
     int age,
 };

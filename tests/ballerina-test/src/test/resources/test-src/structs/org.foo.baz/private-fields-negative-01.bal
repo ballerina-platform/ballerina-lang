@@ -1,14 +1,14 @@
 
-public type ParentFoo {
+public type ParentFoo record {
     int i;
     ChildFoo c;
 };
 
-type ChildFoo {
+type ChildFoo record {
     string name;
 };
 
-type privatePerson {
+type privatePerson record {
     int age;
     string name;
 };

@@ -158,7 +158,8 @@ public class HtmlDocTest {
 
     @Test(description = "Connectors in a package should be shown in the constructs with new docerina syntax")
     public void testConnectorsWithNewSyntax() throws Exception {
-        BLangPackage bLangPackage = createPackage("import ballerina/http;\n public type GitHubClientConfig {\n" + " "
+        BLangPackage bLangPackage = createPackage(
+                "import ballerina/http;\n public type GitHubClientConfig record {\n" + " "
                 + "   " + "    " + "http:ClientEndpointConfig clientEndpointConfiguration = {};\n" + "};\n" + "\n" +
                 "documentation { " + "GitHub client\n" + "    E{{}}\n" + "    F{{githubClientConfiguration}} - GitHub" +
                 " client " + "configurations (Access token, Client endpoint configurations)\n" + "    " +
@@ -366,7 +367,7 @@ public class HtmlDocTest {
 
     @Test(description = "Structs in a package should be shown in the constructs")
     public void testStructs() throws Exception {
-        BLangPackage bLangPackage = createPackage("public type Message {string message; error? cause;};");
+        BLangPackage bLangPackage = createPackage("public type Message record {string message; error? cause;};");
         Page page = generatePage(bLangPackage);
         Assert.assertEquals(page.constructs.size(), 1);
         Assert.assertEquals(page.constructs.get(0).name, "Message");

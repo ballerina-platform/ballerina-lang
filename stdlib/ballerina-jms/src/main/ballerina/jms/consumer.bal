@@ -87,7 +87,7 @@ documentation { Configurations related to a JMS consumer object
     F{{session}} JMS session used to create the consumer
     F{{identifier}} Unique identifier of the consumer
 }
-public type ConsumerEndpointConfiguration {
+public type ConsumerEndpointConfiguration record {
     Session? session;
     string identifier;
 };

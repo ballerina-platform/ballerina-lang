@@ -697,7 +697,7 @@ documentation {
     F{{topic}} The topic for which notification would happen
     F{{secret}} The secret if specified by the topic's publisher
 }
-type TopicRegistration {
+type TopicRegistration record {
     string topic,
     string secret,
 };
