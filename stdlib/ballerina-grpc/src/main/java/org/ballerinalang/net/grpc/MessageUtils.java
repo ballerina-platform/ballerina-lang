@@ -103,7 +103,6 @@ public class MessageUtils {
     }
 
     public static long copy(InputStream from, OutputStream to) throws IOException {
-        // Copied from guava com.google.common.io.ByteStreams because its API is unstable (beta)
         byte[] buf = new byte[MAX_BUFFER_LENGTH];
         long total = 0;
         while (true) {
