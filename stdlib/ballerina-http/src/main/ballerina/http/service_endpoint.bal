@@ -125,6 +125,8 @@ documentation {
     F{{requestLimits}} Configures the parameters for request validation
     F{{filters}} If any pre-processing needs to be done to the request before dispatching the request to the
                  resource, filters can applied
+    F{{timeoutMillis}} Period of time in milliseconds that a connection waits for a read/write operation. Use value 0 to
+                       disable timeout
 }
 public type ServiceEndpointConfiguration {
     string host,
@@ -134,6 +136,7 @@ public type ServiceEndpointConfiguration {
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
     Filter[] filters,
+    int timeoutMillis = DEFAULT_LISTENER_TIMEOUT,
 };
 
 documentation {

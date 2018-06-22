@@ -93,13 +93,13 @@ public class Init extends BlockingNativeCallableUnit {
             scheme = url.getProtocol();
             SenderConfiguration configuration = populateSenderConfigurationOptions(endpointConfig, scheme);
             ManagedChannel channel;
-            if (configuration.getSSLConfig() == null) {
+            if (configuration.generateSSLConfig() == null) {
                 channel = ManagedChannelBuilder.forAddress(url.getHost(), url.getPort())
                         .usePlaintext(true)
                         .build();
             } else {
                 try {
-                    SslContext sslContext = new SSLHandlerFactory(configuration.getSSLConfig())
+                    SslContext sslContext = new SSLHandlerFactory(configuration.generateSSLConfig())
                             .createHttp2TLSContextForClient();
                     channel = NettyChannelBuilder
                             .forAddress(generateSocketAddress(url.getHost(), url.getPort()))
