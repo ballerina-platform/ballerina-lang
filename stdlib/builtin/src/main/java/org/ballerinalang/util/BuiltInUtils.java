@@ -27,9 +27,6 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -74,24 +71,6 @@ public class BuiltInUtils {
         StructureTypeInfo entityErrInfo = filePkg.getStructInfo(isEncoder ? BASE64_ENCODE_ERROR : BASE64_DECODE_ERROR);
         return BLangVMStructs.createBStruct(entityErrInfo, msg);
     }
-
-    /**
-     * Given an input stream, get a byte array.
-     *
-     * @param input Represent an input stream
-     * @return A byte array
-     * @throws IOException In case an error occurs while reading input stream
-     */
-    private static byte[] getByteArray(InputStream input) throws IOException {
-        try (ByteArrayOutputStream output = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[READABLE_BUFFER_SIZE];
-            for (int len; (len = input.read(buffer)) != -1; ) {
-                output.write(buffer, 0, len);
-            }
-            return output.toByteArray();
-        }
-    }
-
 
     /**
      * Encode a given BValue using Base64 encoding scheme.

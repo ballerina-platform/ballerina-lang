@@ -20,7 +20,7 @@
 package org.ballerinalang.test.nativeimpl.functions.io.data;
 
 import org.apache.commons.codec.CharEncoding;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;

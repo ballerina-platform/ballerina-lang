@@ -167,7 +167,7 @@
                         <processor>org.ballerinalang.codegen.BallerinaAnnotationProcessor</processor>
                     </processors>
                     <options>
-                        <nativeEntityProviderPackage>org.ballerinalang.net.grpc.generated.providers</nativeEntityProviderPackage>
+                        <nativeEntityProviderPackage>org.ballerinalang.stdlib.grpc.generated.providers</nativeEntityProviderPackage>
                         <nativeEntityProviderClass>StandardNativeElementProvider</nativeEntityProviderClass>
                     </options>
                 </configuration>

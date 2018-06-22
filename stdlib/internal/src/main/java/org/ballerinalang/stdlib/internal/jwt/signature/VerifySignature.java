@@ -24,12 +24,12 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.stdlib.internal.jwt.crypto.JWSVerifier;
-import org.ballerinalang.stdlib.internal.jwt.crypto.RSAVerifier;
-import org.ballerinalang.stdlib.internal.jwt.crypto.TrustStoreHolder;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.internal.jwt.crypto.JWSVerifier;
+import org.ballerinalang.stdlib.internal.jwt.crypto.RSAVerifier;
+import org.ballerinalang.stdlib.internal.jwt.crypto.TrustStoreHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

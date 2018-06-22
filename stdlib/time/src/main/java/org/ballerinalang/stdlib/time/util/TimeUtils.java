@@ -56,8 +56,8 @@ public class TimeUtils {
         }
     }
 
-    public static BStruct createTimeStruct(StructureTypeInfo timezoneStructInfo, StructureTypeInfo timeStructInfo, long millis,
-                                           String zoneIdName) {
+    public static BStruct createTimeStruct(StructureTypeInfo timezoneStructInfo, StructureTypeInfo timeStructInfo,
+                                           long millis, String zoneIdName) {
         BStruct timezone = createTimeZone(timezoneStructInfo, zoneIdName);
         return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
     }

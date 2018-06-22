@@ -20,10 +20,10 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.stdlib.internal.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.internal.utils.Constants;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
