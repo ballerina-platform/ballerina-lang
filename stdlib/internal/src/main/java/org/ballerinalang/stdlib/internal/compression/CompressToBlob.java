@@ -68,7 +68,7 @@ public class CompressToBlob extends BlockingNativeCallableUnit {
         Path dirPath = (Path) dirPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         if (!dirPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
-                    "compressed is not available"));
+                    "compressed is not available: " + dirPath));
         } else {
             try {
                 byte[] compressedBytes = compressToBlob(dirPath);

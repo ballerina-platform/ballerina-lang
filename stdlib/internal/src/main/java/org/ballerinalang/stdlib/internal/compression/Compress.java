@@ -135,15 +135,14 @@ public class Compress extends BlockingNativeCallableUnit {
         Path destPath = (Path) destPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         if (!srcPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
-                    "compressed is not available"));
+                    "compressed is not available: " + srcPath));
         } else {
             try {
                 compress(srcPath, destPath);
                 context.setReturnValues();
             } catch (IOException | BLangRuntimeException e) {
                 context.setReturnValues(CompressionUtils.createCompressionError(context,
-                        "Error occurred when compressing "
-                                + e.getMessage()));
+                        "Error occurred when compressing " + e.getMessage()));
             }
         }
     }

@@ -86,11 +86,10 @@ public class Decompress extends BlockingNativeCallableUnit {
 
         if (!srcPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +
-                    "decompressed is not available"));
+                    "decompressed is not available: " + srcPath));
         } else if (!destPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context,
-                    "Path to place the decompressed file " +
-                            "is not available"));
+                    "Path to place the decompressed file is not available: " + destPath));
         } else {
             decompress(srcPath, destPath, context);
             if (context.getReturnValues() == null) {
