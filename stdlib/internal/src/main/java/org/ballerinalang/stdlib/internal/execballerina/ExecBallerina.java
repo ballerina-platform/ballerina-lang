@@ -52,15 +52,15 @@ import java.util.Properties;
 public class ExecBallerina extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-
+        
         Properties property = System.getProperties();
         String path = (String) property.get("ballerina.home");
-
+        
         String command = context.getRefArgument(0).stringValue();
         String packagePath = context.getStringArgument(0);
-
+        
         String balCommand = Paths.get(path, "bin", "ballerina ") + command + " " + packagePath;
-
+        
         Process process;
         BufferedReader reader = null;
         BufferedReader readerEr = null;
@@ -72,17 +72,17 @@ public class ExecBallerina extends BlockingNativeCallableUnit {
                     new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.UTF_8));
             readerEr =
                     new BufferedReader(new InputStreamReader(process.getErrorStream(), StandardCharsets.UTF_8));
-
+            
             String lineEr;
             while ((lineEr = readerEr.readLine()) != null) {
                 output.append(lineEr).append("\n");
             }
-
+            
             String line;
             while ((line = reader.readLine()) != null) {
                 output.append(line).append("\n");
             }
-
+            
             String adjusted = output.toString().replaceAll("(?m)^[ \t]*\r?\n", "");
             context.setReturnValues(new BString(adjusted));
         } catch (InterruptedException e) {
@@ -110,6 +110,6 @@ public class ExecBallerina extends BlockingNativeCallableUnit {
                         "Error occurred closing standard error output: " + e.getMessage()));
             }
         }
-
+        
     }
 }
