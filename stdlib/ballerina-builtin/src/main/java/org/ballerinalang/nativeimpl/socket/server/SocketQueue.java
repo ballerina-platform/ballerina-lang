@@ -24,6 +24,11 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+/**
+ * This queue will hold all the newly accepted socket until it start to use.
+ *
+ * @since 0.975.1
+ */
 public class SocketQueue {
 
     private static Map<Integer, Queue<SocketChannel>> clientSockets = new HashMap<>();

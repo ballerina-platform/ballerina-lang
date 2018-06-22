@@ -39,7 +39,8 @@ import java.nio.channels.ServerSocketChannel;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io", functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ServerSocket", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ServerSocket",
+                             structPackage = SocketConstants.SOCKET_PACKAGE),
         returnType = { @ReturnType(type = TypeKind.OBJECT, structType = "error")},
         isPublic = true
 )

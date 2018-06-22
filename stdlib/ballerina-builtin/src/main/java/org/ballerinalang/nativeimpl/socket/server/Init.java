@@ -39,7 +39,8 @@ import java.nio.channels.ServerSocketChannel;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io", functionName = "init",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ServerSocket", structPackage = "ballerina/io"),
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ServerSocket",
+                             structPackage = SocketConstants.SOCKET_PACKAGE),
         isPublic = true
 )
 public class Init extends BlockingNativeCallableUnit {

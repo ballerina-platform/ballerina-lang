@@ -22,6 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.socket.SelectorManager;
 import org.ballerinalang.nativeimpl.socket.SocketConstants;
@@ -44,9 +45,10 @@ import java.nio.channels.ServerSocketChannel;
  */
 @BallerinaFunction(
         orgName = "ballerina", packageName = "io", functionName = "bindAddress",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ServerSocket", structPackage = "ballerina/io"),
-        args = {@Argument(name = "interface", type = TypeKind.STRING),
-                @Argument(name = "port", type = TypeKind.INT)
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ServerSocket",
+                             structPackage = SocketConstants.SOCKET_PACKAGE),
+        args = {@Argument(name = "port", type = TypeKind.INT),
+                @Argument(name = "interface", type = TypeKind.STRING)
         },
         isPublic = true
 )
@@ -59,14 +61,14 @@ public class BindAddress extends BlockingNativeCallableUnit {
         BStruct serverSocketStruct;
         try {
             serverSocketStruct = (BStruct) context.getRefArgument(0);
-            String networkInterface = context.getNullableStringArgument(0);
+            BValue networkInterface = context.getNullableRefArgument(1);
             int port = (int) context.getIntArgument(0);
             ServerSocketChannel serverSocket = (ServerSocketChannel) serverSocketStruct
                     .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
-            if (networkInterface == null || networkInterface.isEmpty()) {
+            if (networkInterface == null) {
                 serverSocket.bind(new InetSocketAddress(port));
             } else {
-                serverSocket.bind(new InetSocketAddress(networkInterface, port));
+                serverSocket.bind(new InetSocketAddress(networkInterface.stringValue(), port));
             }
             final Selector selector = SelectorManager.getInstance();
             serverSocket.register(selector, SelectionKey.OP_ACCEPT, serverSocket);

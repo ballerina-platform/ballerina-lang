@@ -30,7 +30,6 @@ import org.ballerinalang.nativeimpl.socket.SocketConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
@@ -39,8 +38,6 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
-
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.LOCAL_PORT_OPTION_FIELD_INDEX;
 
 /**
  * Native function to open a Client socket connection.
@@ -67,7 +64,6 @@ public class Connect extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         final String host = context.getStringArgument(0);
         final int port = (int) context.getIntArgument(0);
-        final BStruct options = (BStruct) context.getRefArgument(0);
         if (log.isDebugEnabled()) {
             log.debug("Remote host: " + host);
             log.debug("Remote port: " + port);

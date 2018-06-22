@@ -30,15 +30,28 @@ import java.io.IOException;
 import java.net.Socket;
 import java.nio.channels.SocketChannel;
 
+/**
+ * Util class for ServerSocket related operation.
+ *
+ * @since 0.975.1
+ */
 public class ServerSocketUtils {
 
     private static final String SOCKET_STRUCT_TYPE = "Socket";
     private static final String BYTE_CHANNEL_STRUCT_TYPE = "ByteChannel";
 
+    /**
+     * Create new socket struct.
+     *
+     * @param socketChannel Java ServerSocket channel.
+     * @param ioPackageInfo {@link PackageInfo} instance that contains the IO package.
+     * @return Ballerina socket struct.
+     * @throws IOException Throws if unable to create a Java socket from SocketChannel.
+     */
     public static BStruct getSocketStruct(SocketChannel socketChannel, PackageInfo ioPackageInfo) throws IOException {
         StructureTypeInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
-        BStruct socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
         Socket socket = socketChannel.socket();
+        BStruct socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
         socketStruct.setRefField(0, getByteChannelStruct(socketChannel, ioPackageInfo));
         socketStruct.setIntField(0, socket.getPort());
         socketStruct.setIntField(1, socket.getLocalPort());

@@ -23,6 +23,12 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 
+/**
+ * This is the Socket accept callback queue where, ballerina socket accept function register a callback to execute
+ * once new socket accept.
+ *
+ * @since 0.975.1
+ */
 public class SocketAcceptCallbackQueue {
 
     private static Map<Integer, Queue<SocketAcceptCallback>> callbackRegistry = new HashMap<>();

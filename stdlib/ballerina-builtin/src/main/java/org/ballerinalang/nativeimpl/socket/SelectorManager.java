@@ -38,7 +38,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 
 /**
- * @since 0.971.1
+ * This will manage the Selector instance and handle the accept, read and write operations.
+ *
+ * @since 0.975.1
  */
 public class SelectorManager {
 
@@ -49,7 +51,7 @@ public class SelectorManager {
     private static ThreadFactory factory = new BLangThreadFactory("socket-select");
     private static ExecutorService executor = Executors.newSingleThreadExecutor(factory);
 
-    public static Selector getInstance() throws IOException {
+    public static synchronized Selector getInstance() throws IOException {
         if (selector == null) {
             selector = Selector.open();
         }
@@ -74,6 +76,7 @@ public class SelectorManager {
                             handleAccept(key);
                         }
                         if (key.isReadable()) {
+                            log.info("currently do nothing.");
                         }
                         iter.remove();
                     }
@@ -95,7 +98,9 @@ public class SelectorManager {
                     .getCallbackQueue(serverSocketHash);
             if (callbackQueue != null) {
                 final SocketAcceptCallback callback = callbackQueue.poll();
-                callback.notifyAccept();
+                if (callback != null) {
+                    callback.notifyAccept();
+                }
             }
         } catch (IOException e) {
             log.error("Unable to accept new client socket connection: " + e.getMessage(), e);

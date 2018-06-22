@@ -31,6 +31,11 @@ import java.io.IOException;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 
+/**
+ * This represent Socket accept callback where once the socket is accept and task that need to perform.
+ *
+ * @since 0.975.1
+ */
 public class SocketAcceptCallback {
 
     private static final Logger log = LoggerFactory.getLogger(SocketAcceptCallback.class);
