@@ -113,7 +113,7 @@ public class JMSUtils {
             String username = connectionConfig.getStringField(Constants.ALIAS_USERNAME);
             String password = connectionConfig.getStringField(Constants.ALIAS_PASSWORD);
 
-            if (username != null && password != null) {
+            if (!username.isEmpty() && !password.isEmpty()) {
                 return connectionFactory.createConnection(username, password);
             } else {
                 return connectionFactory.createConnection();
