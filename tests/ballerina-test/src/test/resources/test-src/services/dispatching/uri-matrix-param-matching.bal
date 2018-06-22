@@ -39,7 +39,7 @@ service<http:Service> testService bind testEP {
         string y = queryParams["y"];
         outJson.queryParams = string `x={{x}}&y={{y}}`;
 
-        res.setJsonPayload(outJson);
+        res.setJsonPayload(untaint outJson);
         _ = caller -> respond(res);
     }
 
@@ -58,7 +58,7 @@ service<http:Service> testService bind testEP {
         map fooMParams = req.getMatrixParams(string `/hello/t2/{{person}}/foo`);
         outJson.fooParamSize = lengthof fooMParams;
 
-        res.setJsonPayload(outJson);
+        res.setJsonPayload(untaint outJson);
         _ = caller -> respond(res);
     }
 }

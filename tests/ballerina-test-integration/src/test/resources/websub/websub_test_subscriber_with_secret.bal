@@ -23,7 +23,7 @@ service<websub:Service> websubSubscriber bind websubEP {
         } else {
             io:println("Intent verification for subscription request denied");
         }
-        _ = caller->respond(response);
+        _ = caller->respond(untaint response);
     }
 
     onNotification (websub:Notification notification) {
