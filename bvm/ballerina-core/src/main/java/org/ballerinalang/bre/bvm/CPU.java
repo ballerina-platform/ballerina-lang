@@ -117,7 +117,6 @@ import org.ballerinalang.util.transactions.TransactionResourceManager;
 import org.ballerinalang.util.transactions.TransactionUtils;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -746,23 +745,22 @@ public class CPU {
                             return;
                         }
                         break;
+                    case InstructionCodes.SCOPE_END:
+                        Instruction.InstructionScopeEnd scopeEnd = (Instruction.InstructionScopeEnd) instruction;
+                        addToCompensationTable(scopeEnd, ctx);
+                        break;
                     case InstructionCodes.COMPENSATE:
                         Instruction.InstructionCompensate compIn = (Instruction.InstructionCompensate) instruction;
                         CompensationTable table = (CompensationTable) ctx.globalProps.get(Constants.COMPENSATION_TABLE);
                         int index = --table.index;
                         if (index >= 0 && (table.compensations.get(index).scope.equals(compIn
                                 .scopeName) || compIn.childScopes.contains(table.compensations.get(index).scope))) {
-                            ctx = handleCompensate(ctx, compIn.scopeName, table.compensations.get(index).functionInfo,
-                                    compIn.childScopes);
+                            ctx = handleCompensate(ctx, table.compensations.get(index).functionInfo);
 
                         }
                         if (ctx == null) {
                             return;
                         }
-                        break;
-                    case InstructionCodes.SCOPE_END:
-                        Instruction.InstructionScopeEnd scopeEnd = (Instruction.InstructionScopeEnd) instruction;
-                        addToCompensationTable(scopeEnd, ctx);
                         break;
                     case InstructionCodes.LOOP_COMPENSATE:
                         i = operands[0];
@@ -4092,14 +4090,12 @@ public class CPU {
     /**
      * Invokes a callable after marking it as a compensate function. This is a non native, sync call.
      * @param ctx
-     * @param scopeName scope to compensate
      * @param funcInfo
-     * @param childScopes
      * @return
      */
-    private static WorkerExecutionContext handleCompensate (WorkerExecutionContext ctx, String scopeName,
+    private static WorkerExecutionContext handleCompensate (WorkerExecutionContext ctx,
             CallableUnitInfo
-                    funcInfo, ArrayList<String> childScopes) {
+                    funcInfo) {
         int flags = 0;
         flags = FunctionFlags.markCompensate(flags);
 

@@ -158,6 +158,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.AnnotationInfo;
@@ -1292,7 +1293,7 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         // generating scope end instruction
         int pkgRefCPIndex = addPackageRefCPEntry(currentPkgInfo, currentPkgID);
-        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, scopeNode.name.getValue());
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, Names.GEN_VAR_PREFIX + scopeNode.name.getValue());
         FunctionRefCPEntry funcRefCPEntry = new FunctionRefCPEntry(pkgRefCPIndex, funcNameCPIndex);
         int funcRefCPIndex =  currentPkgInfo.addCPEntry(funcRefCPEntry);
         int i = 0;

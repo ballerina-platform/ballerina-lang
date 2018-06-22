@@ -3023,6 +3023,11 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     }
 
+    @Override
+    public void exitScopeClause(BallerinaParser.ScopeClauseContext ctx) {
+        this.pkgBuilder.addScopeBlock(getCurrentPos(ctx));
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -3031,7 +3036,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-        this.pkgBuilder.addScopeBlock(getCurrentPos(ctx));
         this.pkgBuilder.startOnCompensationBlock();
     }
 
@@ -3147,10 +3151,8 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     private BLangFunction getFunctionDefinition(BallerinaParser.ScopeStatementContext ctx) {
-        //Always considered as a native function
-        int nativeKWTokenIndex = 0;
         boolean publicFunc = true;
-        boolean nativeFunc = KEYWORD_NATIVE.equals(ctx.getChild(nativeKWTokenIndex).getText());
+        boolean nativeFunc = false;
         boolean bodyExists = ctx.compensationClause().callableUnitBody() != null;
 
         boolean isReceiverAttached = false;

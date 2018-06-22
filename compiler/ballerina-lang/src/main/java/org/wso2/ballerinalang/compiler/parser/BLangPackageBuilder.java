@@ -3153,29 +3153,14 @@ public class BLangPackageBuilder {
             function.body = null;
         }
 
-        if (isReceiverAttached) {
-            BLangVariable receiver = (BLangVariable) this.varStack.pop();
-            receiver.docTag = DocTag.RECEIVER;
-            function.receiver = receiver;
-            function.flagSet.add(Flag.ATTACHED);
-        }
-
-        if (!function.deprecatedAttachments.isEmpty()) {
-            function.flagSet.add(Flag.DEPRECATED);
-        }
-
         BLangIdentifier nameId = new BLangIdentifier();
-        nameId.setValue(name);
+        nameId.setValue(Names.GEN_VAR_PREFIX + name);
         function.name = nameId;
 
         BLangValueType typeNode = (BLangValueType) TreeBuilder.createValueTypeNode();
         typeNode.pos = pos;
         typeNode.typeKind = TypeKind.NIL;
         function.returnTypeNode = typeNode;
-
-        //Create and add receiver to attached functions
-        BLangVariable receiver = (BLangVariable) TreeBuilder.createVariableNode();
-        receiver.pos = pos;
 
         function.receiver = null;
         return function;

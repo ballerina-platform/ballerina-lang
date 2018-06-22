@@ -48,5 +48,6 @@ public enum SymbolKind {
     CONVERSION_OPERATOR,
 
     XMLNS,
+    SCOPE,
     OTHER
 }
