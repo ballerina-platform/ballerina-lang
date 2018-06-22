@@ -660,10 +660,11 @@ public class XMLUtils {
 
     /**
      * Create an OMElement from an XML fragment given as a string.
+     * Generously borrowed from Apache Axiom (org.apache.axiom.om.util.AXIOMUtil).
      *
      * @param xmlFragment the well-formed XML fragment
      * @return The OMElement created out of the string XML fragment.
-     * @throws XMLStreamException
+     * @throws XMLStreamException when unexpected processing error occur while parsing.
      */
     public static OMElement stringToOM(String xmlFragment) throws XMLStreamException {
         return stringToOM(OMAbstractFactory.getOMFactory(), xmlFragment);
@@ -671,11 +672,12 @@ public class XMLUtils {
 
     /**
      * Create an OMElement from an XML fragment given as a string.
+     * Generously borrowed and improved from Apache Axiom (org.apache.axiom.om.util.AXIOMUtil).
      *
      * @param omFactory the factory used to build the object model
      * @param xmlFragment the well-formed XML fragment
      * @return The OMElement created out of the string XML fragment.
-     * @throws XMLStreamException
+     * @throws XMLStreamException when unexpected processing error occur while parsing.
      */
     public static OMElement stringToOM(OMFactory omFactory, String xmlFragment) throws XMLStreamException {
         return xmlFragment != null ? OMXMLBuilderFactory.createOMBuilder(omFactory, STAX_PARSER_CONFIGURATION,
