@@ -14,14 +14,14 @@ service<http:Service> xmlParserService bind { port: 9090 } {
         match (payload) {
             xml xmlPayload => {
                 res.statusCode = 200;
-                res.setTextPayload(xmlPayload.getTextValue());
+                res.setTextPayload(untaint xmlPayload.getTextValue());
                 caller->respond(res) but {
                     error e => log:printError("Error sending response", err = e)
                 };
             }
             error err => {
                 res.statusCode = 500;
-                res.setTextPayload(err.message);
+                res.setTextPayload(untaint err.message);
                 caller->respond(res) but {
                     error e => log:printError("Error sending response", err = e)
                 };
