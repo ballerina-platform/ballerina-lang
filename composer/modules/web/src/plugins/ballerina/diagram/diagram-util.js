@@ -227,8 +227,8 @@ export class DiagramUtil {
             // see: https://facebook.githubg.io/react/docs/lists-and-keys.html#keys
             key: node.getID(),
         };
-
-        return DiagramUtil.createComponent(components, mode, compName, props);
+        // TODO: clean up old, controller overlay code
+        return null;
     }
 
     static createComponent(comps, mode, name, props) {

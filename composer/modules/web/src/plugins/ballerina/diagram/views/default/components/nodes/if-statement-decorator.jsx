@@ -20,14 +20,13 @@ import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
 import Node from '../../../../../model/tree/node';
-import DropZone from '../../../../../drag-drop/DropZone';
 import './compound-statement-decorator.css';
-import ActionBox from '../decorators/action-box';
 import ActiveArbiter from '../decorators/active-arbiter';
 import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import ElseStatementDecorator from './else-statement-decorator';
 import ArrowDecorator from '../decorators/arrow-decorator';
+import HoverGroup from '../decorators/quick-actions/hover-group';
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -241,12 +240,6 @@ class IfStatementDecorator extends React.Component {
         this.conditionBox = new SimpleBBox(p2X, (p2Y - (this.context.designer.config.statement.height / 2)),
             statementBBox.w, this.context.designer.config.statement.height);
 
-        const actionBoxBbox = new SimpleBBox();
-        actionBoxBbox.w = (3 * designer.config.actionBox.width) / 4;
-        actionBoxBbox.h = designer.config.actionBox.height;
-        actionBoxBbox.x = p8X - (actionBoxBbox.w / 2);
-        actionBoxBbox.y = p8Y;
-
         let statementRectClass = 'statement-title-rect';
         if (isDebugHit) {
             statementRectClass = `${statementRectClass} debug-hit`;
@@ -254,7 +247,6 @@ class IfStatementDecorator extends React.Component {
 
         const body = getComponentForNodeArray(this.props.model.body);
         const elseComp = model.elseStatement;
-
         return (
             <g
                 onMouseOut={this.setActionVisibilityFalse}
@@ -263,6 +255,7 @@ class IfStatementDecorator extends React.Component {
                     this.myRoot = group;
                 }}
             >
+                <HoverGroup model={this.props.model}>
                 <polyline
                     points={`${p3X},${p3Y} ${p4X},${p4Y} ${p5X},${p5Y}`}
                     className='flowchart-background-empty-rect'
@@ -333,18 +326,10 @@ class IfStatementDecorator extends React.Component {
                     />
                     {expression && <title> {expression.text} </title>}
                 </g>
-                { isBreakpoint && this.renderBreakpointIndicator() }
+                {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
                 {body}
-                <ActionBox
-                    bBox={actionBoxBbox}
-                    show={this.state.active}
-                    isBreakpoint={isBreakpoint}
-                    onDelete={() => this.onDelete()}
-                    onJumptoCodeLine={() => this.onJumpToCodeLine()}
-                    onBreakpointClick={() => this.props.onBreakpointClick()}
-                    disableButtons={this.props.disableButtons}
-                />
+                </HoverGroup>
                 {elseComp && <ElseStatementDecorator
                     dropTarget={model}
                     bBox={elseComp.viewState.bBox}

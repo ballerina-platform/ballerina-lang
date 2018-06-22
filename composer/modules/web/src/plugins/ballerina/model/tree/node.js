@@ -40,6 +40,18 @@ class Node extends EventChannel {
             }
         });
 
+        this.on('mouse-enter', function (event = {}) {
+            if (!_.isNil(this.parent)) {
+                this.parent.trigger('mouse-enter', event);
+            }
+        });
+
+        this.on('mouse-leave', function (event = {}) {
+            if (!_.isNil(this.parent)) {
+                this.parent.trigger('mouse-leave', event);
+            }
+        });
+
         /**
          * View State Object to keep track of the model's view properties
          * @type {{bBox: SimpleBBox, components: {}, dimensionsSynced: boolean}}
