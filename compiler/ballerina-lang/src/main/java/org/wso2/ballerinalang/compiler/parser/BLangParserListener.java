@@ -1894,7 +1894,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
 
     @Override
-    public void exitShiftExpression(BallerinaParser.ShiftExpressionContext ctx) {
+    public void exitBitwiseShiftExpression(BallerinaParser.BitwiseShiftExpressionContext ctx) {
         if (ctx.exception != null) {
             return;
         }

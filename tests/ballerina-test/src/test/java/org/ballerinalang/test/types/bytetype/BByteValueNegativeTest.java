@@ -28,7 +28,7 @@ import org.testng.annotations.Test;
  */
 public class BByteValueNegativeTest {
 
-    @Test(description = "Test blob value negative")
+    @Test(description = "Test byte value negative")
     public void testBlobValueNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-value-negative.bal");
         Assert.assertEquals(result.getErrorCount(), 18);
@@ -53,5 +53,20 @@ public class BByteValueNegativeTest {
         BAssertUtil.validateError(result, 15, msg1 , 15, 14);
         BAssertUtil.validateError(result, 16, msg2 , 18, 14);
         BAssertUtil.validateError(result, 17, msg3 , 21, 14);
+    }
+
+    @Test(description = "Test byte shift operators negative")
+    public void invalidByteShiftOperators() {
+        CompileResult result = BCompileUtil.compile("test-src/types/byte/byte-shift-operators-negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 8);
+        String msg = "invalid shift operator";
+        BAssertUtil.validateError(result, 0, msg , 2, 18);
+        BAssertUtil.validateError(result, 1, msg , 3, 18);
+        BAssertUtil.validateError(result, 2, msg , 4, 18);
+        BAssertUtil.validateError(result, 3, msg , 5, 19);
+        BAssertUtil.validateError(result, 4, msg , 6, 18);
+        BAssertUtil.validateError(result, 5, msg , 6, 20);
+        BAssertUtil.validateError(result, 6, msg , 7, 21);
+        BAssertUtil.validateError(result, 7, msg , 7, 27);
     }
 }

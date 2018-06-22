@@ -595,13 +595,21 @@ expression
     |	CHECK expression										            # checkedExpression
     |   expression ELVIS expression                                         # elvisExpression
     |   expression (BITAND | PIPE | BITXOR) expression                      # bitwiseExpression
-    |   expression (GT GT | LT LT | GT GT GT) expression                    # shiftExpression
+    |   expression (shiftExpression) expression                             # bitwiseShiftExpression
     |   typeName                                                            # typeAccessExpression
     ;
 
 awaitExpression
     :   AWAIT expression                                                    # awaitExpr
     ;
+
+shiftExpression
+    : GT shiftExprPredicate GT
+    | LT shiftExprPredicate LT
+    | GT shiftExprPredicate GT shiftExprPredicate GT
+    ;
+
+shiftExprPredicate : {_input.get(_input.index() -1).getType() != WS}? ;
 
 matchExpression
     :   BUT LEFT_BRACE matchExpressionPatternClause (COMMA matchExpressionPatternClause)* RIGHT_BRACE
