@@ -43,9 +43,15 @@ let win,
     balHome = path.join(appDir, '..', '..', '..', '..', '..', '..')
                     .replace('app.asar', 'app.asar.unpacked');
 
-balHome = process.platform === 'darwin'
-            ? process.env.BALLERINA_HOME
-            : balHome;
+if (process.platform === 'darwin') {
+    const isDirectory = source => fs.lstatSync(source).isDirectory()
+    const getDirectories = source =>
+        fs.readdirSync(source).map(name => path.join(source, name)).filter(isDirectory)
+    const balHomes = getDirectories('/Library/Ballerina');
+    if (balHomes && balHomes.length > 0) {
+        balHome = balHomes[0];
+    }
+}
 
 let composerHome = path.join(balHome, 'lib', 'resources', 'composer'),
     composerPublicPath = path.join(composerHome, 'web', 'app'),
