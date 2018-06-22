@@ -22,7 +22,7 @@ documentation {
     F{{message}} The error message
     F{{cause}} The error which caused the compression error
 }
-public type CompressionError  {
+public type CompressionError record {
     string message,
     error? cause,
 };

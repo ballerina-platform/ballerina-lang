@@ -56,6 +56,6 @@ documentation { Configurations related to a JMS session
     F{{acknowledgementMode}}  specifies the session mode that will be used. Legal values are "AUTO_ACKNOWLEDGE",
     "CLIENT_ACKNOWLEDGE", "SESSION_TRANSACTED" and "DUPS_OK_ACKNOWLEDGE"
 }
-public type SessionConfiguration {
+public type SessionConfiguration record {
     string acknowledgementMode = "AUTO_ACKNOWLEDGE";
 };

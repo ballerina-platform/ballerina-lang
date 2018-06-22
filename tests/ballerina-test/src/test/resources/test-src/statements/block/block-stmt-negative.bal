@@ -94,7 +94,7 @@ function testUnreachableBreak() returns (string){
     return "done";
 }
 
-public type testError {
+public type testError record {
     string message;
     error? cause;
     string code;

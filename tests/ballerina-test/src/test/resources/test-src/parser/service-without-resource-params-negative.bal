@@ -8,6 +8,5 @@ service<http:Service> HelloService {
     }
     tweet {
         int b;
-        return m;
     }
 }
