@@ -25,7 +25,7 @@ documentation {
     F{{failoverCodes}} Array of HTTP response status codes for which the failover mechanism triggers
     F{{interval}} Failover delay interval in milliseconds
 }
-public type FailoverConfig {
+public type FailoverConfig record {
     int[] failoverCodes,
     int interval,
 };
@@ -38,7 +38,7 @@ documentation {
     F{{statusCode}} HTTP status code to be sent to the caller
     F{{httpActionErr}} Errors which occurred at each endpoint during the failover
 }
-public type FailoverActionError {
+public type FailoverActionError record {
     string message,
     error? cause,
     int statusCode,
@@ -54,7 +54,7 @@ documentation {
     F{{failoverCodesIndex}} An indexed array of HTTP response status codes for which the failover mechanism triggers
     F{{failoverInterval}} Failover delay interval in milliseconds
 }
-public type FailoverInferredConfig {
+public type FailoverInferredConfig record {
     CallerActions[] failoverClientsArray,
     boolean[] failoverCodesIndex,
     int failoverInterval,

@@ -4,7 +4,7 @@ import ballerina/mime;
 
 function setErrorResponse(http:Response response,  error err) {
     response.statusCode = 500;
-    response.setTextPayload(err.message);
+    response.setTextPayload(untaint err.message);
 }
 
 endpoint http:NonListener mockEP {
@@ -31,7 +31,7 @@ service<http:Service> test bind mockEP {
                     }
                     string textPayload => {
                             mime:Entity entity = new;
-                            entity.setText(textPayload);
+                            entity.setText(untaint textPayload);
                             response.setEntity(entity);
                     }
                 }
@@ -55,7 +55,7 @@ service<http:Service> test bind mockEP {
                     error err => {
                         setErrorResponse(response, err);
                     }
-                    json jsonContent => {response.setJsonPayload(jsonContent);}
+                    json jsonContent => {response.setJsonPayload(untaint jsonContent);}
                 }
             }
         }
@@ -74,7 +74,7 @@ service<http:Service> test bind mockEP {
             }
             mime:Entity[] bodyParts => {
                match bodyParts[0].getXml() {
-                    xml xmlContent => {response.setXmlPayload(xmlContent);}
+                    xml xmlContent => {response.setXmlPayload(untaint xmlContent);}
                     error err => {
                         setErrorResponse(response, err);
                     }
@@ -96,7 +96,7 @@ service<http:Service> test bind mockEP {
             }
             mime:Entity[] bodyParts => {
             match bodyParts[0].getBlob() {
-                  blob blobContent => {response.setBinaryPayload(blobContent);}
+                  blob blobContent => {response.setBinaryPayload(untaint blobContent);}
                   error err => {
                         setErrorResponse(response, err);
                   }
@@ -124,7 +124,7 @@ service<http:Service> test bind mockEP {
                     content = content + " -- " + handleContent(part);
                     i = i + 1;
                 }
-                response.setTextPayload(content);
+                response.setTextPayload(untaint content);
             }
         }
         _ = caller -> respond(response);
@@ -138,7 +138,7 @@ service<http:Service> test bind mockEP {
         http:Response response = new;
         match (request.getBodyParts()) {
             error err => {
-                response.setTextPayload(err.message);
+                response.setTextPayload(untaint err.message);
             }
             mime:Entity[] entity => {
                 response.setTextPayload("Body parts detected!");
@@ -165,7 +165,7 @@ service<http:Service> test bind mockEP {
                     payload = handleNestedParts(part);
                     i = i + 1;
                 }
-                response.setTextPayload(payload);
+                response.setTextPayload(untaint payload);
             }
         }
         _ = caller -> respond(response);

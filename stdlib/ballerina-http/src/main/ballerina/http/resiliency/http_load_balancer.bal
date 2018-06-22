@@ -211,7 +211,7 @@ documentation {
     F{{statusCode}} HTTP status code of the LoadBalanceActionError
     F{{httpActionErr}} Array of errors occurred at each endpoint
 }
-public type LoadBalanceActionError {
+public type LoadBalanceActionError record {
     string message,
     error? cause,
     int statusCode,

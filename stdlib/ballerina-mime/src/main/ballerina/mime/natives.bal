@@ -173,7 +173,7 @@ public type Entity object {
 
         P{{mediaType}} Content type that needs to be set to the entity
     }
-    public function setContentType(string mediaType) {
+    public function setContentType(@sensitive string mediaType) {
         self.cType = check getMediaType(mediaType);
         self.setHeader(CONTENT_TYPE, mediaType);
     }
@@ -196,7 +196,7 @@ public type Entity object {
 
         P{{contentId}} Content ID that needs to be set to entity
     }
-    public function setContentId(string contentId) {
+    public function setContentId(@sensitive string contentId) {
         self.cId = contentId;
         self.setHeader(CONTENT_ID, contentId);
     }
@@ -219,7 +219,7 @@ public type Entity object {
 
         P{{contentLength}} Content length that needs to be set to entity
     }
-    public function setContentLength(int contentLength) {
+    public function setContentLength(@sensitive int contentLength) {
         self.cLength = contentLength;
         var contentLengthStr = <string>contentLength;
         self.setHeader(CONTENT_LENGTH, contentLengthStr);
@@ -270,7 +270,7 @@ public type Entity object {
 
         P{{entityBody}} Entity body can be of type `string`,`xml`,`json`,`blob`,`io:ByteChannel` or `Entity[]`
     }
-    public function setBody(string|xml|json|blob|io:ByteChannel|Entity[] entityBody);
+    public function setBody(@sensitive string|xml|json|blob|io:ByteChannel|Entity[] entityBody);
 
     documentation {
         Sets the entity body with a given file. This method overrides any existing `content-type` headers
@@ -292,7 +292,7 @@ public type Entity object {
         P{{contentType}} Content type to be used with the payload. This is an optional parameter. `application/json`
                          is used as the default value.
     }
-    public native function setJson(json jsonContent, string contentType = "application/json");
+    public native function setJson(@sensitive json jsonContent, @sensitive string contentType = "application/json");
 
     documentation {
         Extracts JSON body from the entity. If the entity body is not a JSON, an error is returned.
@@ -311,7 +311,7 @@ public type Entity object {
         P{{contentType}} Content type to be used with the payload. This is an optional parameter. `application/xml`
                          is used as the default value.
     }
-    public native function setXml(xml xmlContent, string contentType = "application/xml");
+    public native function setXml(@sensitive xml xmlContent, @sensitive string contentType = "application/xml");
 
     documentation {
         Extracts `xml` body from the entity. If the entity body is not an XML, an error is returned.
@@ -330,7 +330,7 @@ public type Entity object {
         P{{contentType}} Content type to be used with the payload. This is an optional parameter. `text/plain`
                          is used as the default value.
     }
-    public native function setText(string textContent, string contentType = "text/plain");
+    public native function setText(@sensitive string textContent, @sensitive string contentType = "text/plain");
 
     documentation {
         Extracts text body from the entity. If the entity body is not text compatible an error is returned.
@@ -357,7 +357,7 @@ public type Entity object {
         P{{contentType}} Content type to be used with the payload. This is an optional parameter.
                          `application/octet-stream` is used as the default value.
     }
-    public native function setBlob(blob blobContent, string contentType = "application/octet-stream");
+    public native function setBlob(@sensitive blob blobContent, @sensitive string contentType = "application/octet-stream");
 
     documentation {
         Given an entity, gets the entity body as a `blob`. If the entity size is considerably large consider
@@ -377,7 +377,7 @@ public type Entity object {
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
                          `application/octet-stream` is used as the default value.
     }
-    public native function setByteChannel(io:ByteChannel byteChannel, string contentType = "application/octet-stream");
+    public native function setByteChannel(io:ByteChannel byteChannel, @sensitive string contentType = "application/octet-stream");
 
     documentation {
         Given an entity, gets the entity body as a byte channel.
@@ -410,7 +410,7 @@ public type Entity object {
         P{{contentType}} Content-type to be used with the payload. This is an optional parameter.
                          `multipart/form-data` is used as the default value.
     }
-    public native function setBodyParts(Entity[] bodyParts, string contentType = "multipart/form-data");
+    public native function setBodyParts(@sensitive Entity[] bodyParts, @sensitive string contentType = "multipart/form-data");
 
     documentation {
         Gets the header value associated with the given header name.
@@ -477,12 +477,12 @@ public type Entity object {
 };
 
 public function Entity::setFileAsEntityBody(@sensitive string filePath,
-                                            string contentType = "application/octet-stream") {
+                                            @sensitive string contentType = "application/octet-stream") {
     io:ByteChannel channel = io:openFile(filePath, READ_PERMISSION);
     self.setByteChannel(channel, contentType = contentType);
 }
 
-public function Entity::setBody((string|xml|json|blob|io:ByteChannel|Entity[]) entityBody) {
+public function Entity::setBody(@sensitive (string|xml|json|blob|io:ByteChannel|Entity[]) entityBody) {
     match entityBody {
         string textContent => self.setText(textContent);
         xml xmlContent => self.setXml(xmlContent);

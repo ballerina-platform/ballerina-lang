@@ -74,7 +74,7 @@ documentation {
     F{{auth}} Authentication mechanism for the underlying HTTP Client
     F{{followRedirects}} HTTP redirect related configuration
 }
-public type HubClientEndpointConfig {
+public type HubClientEndpointConfig record {
     string url,
     http:SecureSocket? clientSecureSocket,
     http:AuthConfig? auth,

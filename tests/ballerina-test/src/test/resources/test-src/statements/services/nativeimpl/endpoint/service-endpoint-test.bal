@@ -14,7 +14,7 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         json connectionJson = {protocol:caller.protocol};
         res.statusCode = 200;
-        res.setJsonPayload(connectionJson);
+        res.setJsonPayload(untaint connectionJson);
         _ = caller -> respond(res);
     }
 
@@ -26,7 +26,7 @@ service<http:Service> hello bind mockEP {
         http:Response res = new;
         json connectionJson = {local:{host:caller.local.host, port:caller.local.port}};
         res.statusCode = 200;
-        res.setJsonPayload(connectionJson);
+        res.setJsonPayload(untaint connectionJson);
         _ = caller -> respond(res);
     }
 }
