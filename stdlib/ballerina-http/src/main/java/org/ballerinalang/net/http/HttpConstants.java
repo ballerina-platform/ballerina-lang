@@ -283,6 +283,7 @@ public class HttpConstants {
     public static final String ENDPOINT_CONFIG_HOST = "host";
     public static final String ENDPOINT_CONFIG_PORT = "port";
     public static final String ENDPOINT_CONFIG_KEEP_ALIVE = "keepAlive";
+    public static final String ENDPOINT_CONFIG_TIMEOUT = "timeoutMillis";
     public static final String ENDPOINT_CONFIG_CHUNKING = "chunking";
     public static final String ENDPOINT_CONFIG_VERSION = "httpVersion";
     public static final String ENDPOINT_REQUEST_LIMITS = "requestLimits";

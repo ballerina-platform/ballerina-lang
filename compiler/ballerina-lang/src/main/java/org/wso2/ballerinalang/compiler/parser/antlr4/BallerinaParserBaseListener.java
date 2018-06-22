@@ -1024,18 +1024,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterCompensateStatement(BallerinaParser.CompensateStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterScopeStatement(BallerinaParser.ScopeStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -1067,6 +1055,18 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCompensationClause(BallerinaParser.CompensationClauseContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterCompensateStatement(BallerinaParser.CompensateStatementContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

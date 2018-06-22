@@ -864,16 +864,6 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 */
 	void exitBreakStatement(BallerinaParser.BreakStatementContext ctx);
 	/**
-	 * Enter a parse tree produced by {@link BallerinaParser#compensateStatement}.
-	 * @param ctx the parse tree
-	 */
-	void enterCompensateStatement(BallerinaParser.CompensateStatementContext ctx);
-	/**
-	 * Exit a parse tree produced by {@link BallerinaParser#compensateStatement}.
-	 * @param ctx the parse tree
-	 */
-	void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#scopeStatement}.
 	 * @param ctx the parse tree
 	 */
@@ -903,6 +893,16 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCompensationClause(BallerinaParser.CompensationClauseContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link BallerinaParser#compensateStatement}.
+	 * @param ctx the parse tree
+	 */
+	void enterCompensateStatement(BallerinaParser.CompensateStatementContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link BallerinaParser#compensateStatement}.
+	 * @param ctx the parse tree
+	 */
+	void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link BallerinaParser#forkJoinStatement}.
 	 * @param ctx the parse tree
