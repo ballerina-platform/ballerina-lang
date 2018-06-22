@@ -78,8 +78,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
-                "Path of the folder to be decompressed is not available");
+        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+                .contains("Path of the folder to be decompressed is not available"));
     }
 
     @Test(description = "test unzipping/decompressing a compressed file without destination directory path")
@@ -92,8 +92,8 @@ public class CompressionTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null,
                            "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
-                "Path to place the decompressed file is not available");
+        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+                .contains("Path to place the decompressed file is not available"));
     }
 
     @Test(description = "test unzipping/decompressing a compressed file with incorrect src directory path")
@@ -189,8 +189,8 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
-                "Path of the folder to be compressed is not available");
+        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+                .contains("Path of the folder to be compressed is not available"));
     }
 
     @Test(description = "test zipping/compressing a file without destination directory path")
@@ -215,8 +215,8 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
-                "Path of the folder to be compressed is not available");
+        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue().contains("Path of the folder to be " +
+                                                                            "compressed is not available"));
     }
 
 
@@ -311,8 +311,8 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
-                "Path of the folder to be compressed is not available");
+        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+                .contains("Path of the folder to be compressed is not available"));
     }
 
     @Test(description = "test zipping/compressing a file to a byte array when an incorrect src directory is given")
@@ -324,8 +324,8 @@ public class CompressionTest {
         Assert.assertNotNull(returns);
         Assert.assertEquals(returns.length, 1);
         Assert.assertFalse(returns == null || returns.length == 0 || returns[0] == null, "Invalid Return Values.");
-        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
-                "Path of the folder to be compressed is not available");
+        Assert.assertTrue(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue()
+                .contains("Path of the folder to be compressed is not available"));
 
     }
 
