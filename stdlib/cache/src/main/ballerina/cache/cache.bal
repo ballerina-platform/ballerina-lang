@@ -36,7 +36,7 @@ documentation {
     F{{value}} cache value
     F{{lastAccessedTime}} last accessed time in ms of this value which is used to remove LRU cached values
 }
-type CacheEntry {
+type CacheEntry record {
     any value;
     int lastAccessedTime;
 };

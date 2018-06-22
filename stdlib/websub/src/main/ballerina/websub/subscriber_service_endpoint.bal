@@ -205,7 +205,7 @@ documentation {
     F{{topicPayloadKeys}} The payload keys to consider if required with dispatching for custom services
     F{{topicResourceMap}} The mapping between topics and resources if required for custom services
 }
-public type SubscriberServiceEndpointConfiguration {
+public type SubscriberServiceEndpointConfiguration record {
     string host;
     int port;
     http:ServiceSecureSocket? httpServiceSecureSocket;

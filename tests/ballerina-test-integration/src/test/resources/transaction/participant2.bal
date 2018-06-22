@@ -116,7 +116,7 @@ service<http:Service> participant2 bind participant2EP {
     }
 }
 
-type Registration {
+type Registration record {
     string REGISTRATIONID;
 };
 

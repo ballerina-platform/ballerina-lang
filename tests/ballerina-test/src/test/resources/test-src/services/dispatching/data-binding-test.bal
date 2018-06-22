@@ -4,7 +4,7 @@ endpoint http:NonListener testEP {
     port:9090
 };
 
-type Person {
+type Person record {
     string name,
     int age,
 };

@@ -60,7 +60,7 @@ documentation {
     F{{path}} Path to the trust store file
     F{{password}} Trust store password
 }
-public type TrustStore {
+public type TrustStore record {
     string path,
     string password,
 };
@@ -71,7 +71,7 @@ documentation {
     F{{path}} Path to the key store file
     F{{password}} Key store password
 }
-public type KeyStore {
+public type KeyStore record {
     string path,
     string password,
 };
@@ -82,7 +82,7 @@ documentation {
     F{{name}} SSL Protocol to be used (e.g.: TLS1.2)
     F{{versions}} SSL/TLS protocols to be enabled (e.g.: TLSv1,TLSv1.1,TLSv1.2)
 }
-public type Protocols {
+public type Protocols record {
     string name,
     string[] versions,
 };
@@ -94,7 +94,7 @@ documentation {
     F{{cacheSize}} Maximum size of the cache
     F{{cacheValidityPeriod}} The time period for which a cache entry is valid
 }
-public type ValidateCert {
+public type ValidateCert record {
     boolean enable,
     int cacheSize,
     int cacheValidityPeriod,
@@ -107,7 +107,7 @@ documentation {
     F{{cacheSize}} Maximum size of the cache
     F{{cacheValidityPeriod}} The time period for which a cache entry is valid
 }
-public type ServiceOcspStapling {
+public type ServiceOcspStapling record {
     boolean enable,
     int cacheSize,
     int cacheValidityPeriod,
