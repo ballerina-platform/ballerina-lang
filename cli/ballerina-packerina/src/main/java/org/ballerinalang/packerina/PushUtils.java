@@ -66,7 +66,6 @@ public class PushUtils {
     private static final Path BALLERINA_HOME_PATH = RepoUtils.createAndGetHomeReposPath();
     private static final Path SETTINGS_TOML_FILE_PATH = BALLERINA_HOME_PATH.resolve(
             ProjectDirConstants.SETTINGS_FILE_NAME);
-    private static Manifest manifest = new Manifest();
     private static PrintStream outStream = System.err;
     private static EmbeddedExecutor executor = EmbeddedExecutorProvider.getInstance().getExecutor();
 
@@ -79,7 +78,7 @@ public class PushUtils {
      */
     public static void pushPackages(String packageName, String sourceRoot, String installToRepo) {
         Path prjDirPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        manifest = readManifestConfigurations(prjDirPath);
+        Manifest manifest = readManifestConfigurations(prjDirPath);
         if (manifest.getName().isEmpty()) {
             throw new BLangCompilerException("An org-name is required when pushing. This is not specified in " +
                                                      "Ballerina.toml inside the project");
@@ -350,8 +349,6 @@ public class PushUtils {
      */
     public static void pushAllPackages(String sourceRoot, String home) {
         Path sourceRootPath = LauncherUtils.getSourceRootPath(sourceRoot);
-        manifest = readManifestConfigurations(sourceRootPath);
-
         try {
             List<String> fileList = Files.list(sourceRootPath)
                                          .filter(path -> Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS))
