@@ -190,7 +190,7 @@ public class WebSocketDispatcher {
         int closeCode = closeMessage.getCloseCode();
         String closeReason = closeMessage.getCloseReason();
         if (onCloseResource == null) {
-            if (webSocketConnection.getSession().isOpen()) {
+            if (webSocketConnection.isOpen()) {
                 webSocketConnection.finishConnectionClosure(closeCode, null);
             }
             return;
@@ -204,7 +204,7 @@ public class WebSocketDispatcher {
             @Override
             public void notifySuccess() {
                 if (closeMessage.getCloseCode() != WebSocketConstants.STATUS_CODE_ABNORMAL_CLOSURE
-                        && webSocketConnection.getSession().isOpen()) {
+                        && webSocketConnection.isOpen()) {
                     webSocketConnection.finishConnectionClosure(closeCode, null).addListener(
                             closeFuture -> connectionInfo.getWebSocketEndpoint().setBooleanField(0, 0));
                 }
