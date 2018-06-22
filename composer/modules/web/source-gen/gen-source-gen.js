@@ -20,7 +20,7 @@
 import fs from 'fs';
 import path from 'path';
 import _ from 'lodash';
-import defaultWS from './defualt-ws.json';
+import defaultWS from './default-ws.json';
 
 const tab = i => _.repeat('    ', i + 2);
 const tab1 = tab(1);
