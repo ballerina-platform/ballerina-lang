@@ -31,15 +31,15 @@ string weekday = time.weekday(); // Day of the week. E.g., “TUESDAY”.
 ```ballerina
 // Create an object of type ‘Time’ with time zone.
 time:Timezone zoneIdValue = {zoneId:"America/Panama"};
-time:Time time1 = new (1498488382000, zoneValue);
+time:Time time1 = new (1498488382000, zoneIdValue);
 
 // Create an object of type ‘Time’ with the time zone offset.
 time:Timezone zoneOffsetValue = {zoneId:"-05:00"};
-time:Time time2 =new (1498488382000, zoneValue);
+time:Time time2 =new (1498488382000, zoneOffsetValue);
 
 // Create an object of type ‘Time’ without the time zone.
 time:Timezone noZoneValue = {zoneId:""};
-time:Time time3 = new (1498488382000, zoneValue);
+time:Time time3 = new (1498488382000, noZoneValue);
 
 // Create an object of type ‘Time’ with time and date. E.g., 2018-03-28T23:42:45.554-05:00  
 time:Time dateTime = time:createTime(2018, 3, 28, 23, 42, 45, 554, "America/Panama");
