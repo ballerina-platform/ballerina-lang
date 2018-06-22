@@ -37,7 +37,7 @@ documentation {
     F{{followRedirects}} The HTTP redirect related configuration specifying if subscription requests should be sent
                             to redirected hubs/topics
 }
-public type SubscriberServiceConfiguration {
+public type SubscriberServiceConfiguration record {
     Listener[] endpoints,
     string path,
     boolean subscribeOnStartUp,

@@ -108,7 +108,7 @@ documentation { Configurations related to SimpleQueueReceiver endpoint
     F{{queueName}} Name of the target queue
 
 }
-public type SimpleQueueListenerEndpointConfiguration {
+public type SimpleQueueListenerEndpointConfiguration record {
     string username = "admin",
     string password = "admin",
     string host = "localhost",

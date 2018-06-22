@@ -62,7 +62,7 @@ function testNullableTypeBasics2() returns (int|boolean|()) {
 
 }
 
-public type ParamAny {
+public type ParamAny record {
     any value,
 };
 

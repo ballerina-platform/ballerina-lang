@@ -1,14 +1,14 @@
-type Department {
+type Department record {
     string dptName;
     boolean y;
 };
 
-type Department {
+type Department record {
     string name;
     int[] a1;
 };
 
-type Department2 {
+type Department2 record {
     string dptName;
     int id;
     string id;

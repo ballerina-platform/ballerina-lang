@@ -126,26 +126,26 @@ service HelloWorld bind ep {
     }
 }
 
-type TestInt {
+type TestInt record {
     int[] values;
 };
 
-type TestString {
+type TestString record {
     string[] values;
 };
 
-type TestFloat {
+type TestFloat record {
     float[] values;
 };
 
-type TestBoolean {
+type TestBoolean record {
     boolean[] values;
 };
 
-type TestStruct {
+type TestStruct record {
     A[] values;
 };
 
-type A {
+type A record {
     string name;
 };

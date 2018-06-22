@@ -41,7 +41,7 @@ service<http:Service> metricsTest bind testEp {
         json jData = check <json>dbTable;
         string result = jData.toString();
         http:Response resp = new;
-        resp.setTextPayload(result);
+        resp.setTextPayload(untaint result);
         _ = caller -> respond(resp);
     }
 }

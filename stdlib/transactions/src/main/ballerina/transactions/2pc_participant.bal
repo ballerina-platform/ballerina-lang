@@ -21,7 +21,7 @@ documentation {
 
     F{{name}} - protocol name
 }
-type Protocol {
+type Protocol record {
     @readonly string name;
 };
 
@@ -30,7 +30,7 @@ documentation {
 
     F{{name}} - protocol name
 }
-type LocalProtocol {
+type LocalProtocol record {
     @readonly string name;
 };
 
@@ -41,7 +41,7 @@ documentation {
     F{{url}}  - protocol URL. This URL will have a value only if the participant is remote. If the participant is local,
                 the `protocolFn` will be called
 }
-public type RemoteProtocol {
+public type RemoteProtocol record {
     @readonly string name;
     @readonly string url;
 };

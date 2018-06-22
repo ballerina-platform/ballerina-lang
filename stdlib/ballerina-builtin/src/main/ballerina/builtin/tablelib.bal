@@ -81,7 +81,7 @@ documentation {
     F{{index}} An array of index columns
     F{{data}} An array of record data
 }
-type TableConfig {
+type TableConfig record {
     string[] primaryKey;
     string[] index;
     any[] data;

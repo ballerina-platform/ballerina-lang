@@ -1,6 +1,6 @@
 import ballerina/io;
 
-type Person {
+type Person record {
     string name;
     int age;
     Person | () parent;
