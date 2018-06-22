@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.xmlsecurity;
+package org.ballerinalang.test.security;
 
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.test.IntegrationTestCase;
