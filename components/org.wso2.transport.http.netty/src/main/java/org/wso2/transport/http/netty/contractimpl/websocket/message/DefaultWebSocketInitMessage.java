@@ -38,10 +38,9 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultServerHandshakeFuture;
-import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
+import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 
@@ -66,7 +65,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         this.connectorFuture = connectorFuture;
         this.secureConnection = ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null;
         this.httpRequest = httpRequest;
-        this.sessionID = WebSocketUtil.getSessionID(ctx);
+        this.sessionID = WebSocketUtil.generateId(ctx);
     }
 
     @Override
@@ -164,13 +163,11 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
                 handshaker.handshake(ctx.channel(), httpRequest, headers, ctx.channel().newPromise());
         channelFuture.addListener(future -> {
             if (future.isSuccess() && future.cause() == null) {
-                String selectedSubProtocol = handshaker.selectedSubprotocol();
                 MessageQueueHandler messageQueueHandler = new MessageQueueHandler();
-                WebSocketInboundFrameHandler frameHandler = new WebSocketInboundFrameHandler(connectorFuture,
-                        messageQueueHandler, true, secureConnection, target, listenerInterface);
+                WebSocketInboundFrameHandler frameHandler = new WebSocketInboundFrameHandler(true, secureConnection,
+                        target, listenerInterface, handshaker.selectedSubprotocol(), connectorFuture,
+                        messageQueueHandler);
                 configureFrameHandlingPipeline(idleTimeout, messageQueueHandler, frameHandler);
-                DefaultWebSocketConnection webSocketConnection = frameHandler.getWebSocketConnection();
-                webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(selectedSubProtocol);
                 handshakeFuture.notifySuccess(frameHandler.getWebSocketConnection());
             } else {
                 handshakeFuture.notifyError(future.cause());

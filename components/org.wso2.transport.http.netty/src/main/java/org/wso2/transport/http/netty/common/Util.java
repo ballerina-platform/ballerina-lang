@@ -424,6 +424,9 @@ public class Util {
      * Set configurations to create ssl engine.
      *
      * @param sslConfig ssl related configurations
+     * @param host host of the connection
+     * @param port port of the connection
+     * @param hostNameVerificationEnabled true if host name verification is enabled
      * @return ssl engine
      */
     public static SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig, String host, int port,

@@ -87,7 +87,8 @@ public class WebSocketClientHandshakeFunctionalityTestCase {
 
         Assert.assertNull(result.getThrowable());
         Assert.assertNotNull(webSocketConnection);
-        Assert.assertEquals(webSocketConnection.getSession().getNegotiatedSubprotocol(), "json");
+        Assert.assertEquals(webSocketConnection.getNegotiatedSubProtocol(), "json");
+        Assert.assertTrue(webSocketConnection.isOpen());
     }
 
     @Test(description = "Test the sub protocol negotiation with the remote server")

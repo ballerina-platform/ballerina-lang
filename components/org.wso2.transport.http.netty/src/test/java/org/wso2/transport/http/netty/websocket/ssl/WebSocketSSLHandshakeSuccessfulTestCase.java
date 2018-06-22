@@ -115,7 +115,7 @@ public class WebSocketSSLHandshakeSuccessfulTestCase {
 
         Assert.assertNull(throwableAtomicReference.get());
         Assert.assertNotNull(webSocketConnection);
-        Assert.assertTrue(webSocketConnection.getSession().isSecure());
+        Assert.assertTrue(webSocketConnection.isSecure());
 
         // Test whether message can be received after a successful handshake.
         webSocketConnection.startReadingFrames();

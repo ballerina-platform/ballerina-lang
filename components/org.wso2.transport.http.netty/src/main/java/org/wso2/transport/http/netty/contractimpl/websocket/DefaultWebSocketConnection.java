@@ -14,41 +14,53 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
-import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
 import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
 import java.nio.ByteBuffer;
-import javax.websocket.Session;
 
 /**
  * Default implementation of {@link WebSocketConnection}.
  */
 public class DefaultWebSocketConnection implements WebSocketConnection {
 
-    private final WebSocketInboundFrameHandler frameHandler;
     private final ChannelHandlerContext ctx;
-    private final DefaultWebSocketSession session;
+    private final WebSocketInboundFrameHandler frameHandler;
     private MessageQueueHandler messageQueueHandler;
+    private final boolean secure;
     private WebSocketFrameType continuationFrameType;
     private boolean closeFrameSent;
     private int closeInitiatedStatusCode;
+    private String id;
+    private String negotiatedSubProtocol;
 
     public DefaultWebSocketConnection(ChannelHandlerContext ctx, WebSocketInboundFrameHandler frameHandler,
-                                      MessageQueueHandler messageQueueHandler, DefaultWebSocketSession session) {
+                                      MessageQueueHandler messageQueueHandler, boolean secure,
+                                      String negotiatedSubProtocol) {
         this.ctx = ctx;
+        this.id = WebSocketUtil.generateId(ctx);
         this.frameHandler = frameHandler;
         this.messageQueueHandler = messageQueueHandler;
-        this.session = session;
+        this.secure = secure;
+        this.negotiatedSubProtocol = negotiatedSubProtocol;
     }
 
     @Override
     public String getId() {
-        return session.getId();
+        return this.id;
+    }
+
+    @Override public boolean isOpen() {
+        return this.ctx.channel().isOpen();
     }
 
     @Override
-    public Session getSession() {
-        return session;
+    public boolean isSecure() {
+        return this.secure;
+    }
+
+    @Override
+    public String getNegotiatedSubProtocol() {
+        return negotiatedSubProtocol;
     }
 
     @Override
@@ -196,11 +208,6 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     int getCloseInitiatedStatusCode() {
         return this.closeInitiatedStatusCode;
-    }
-
-    @Deprecated
-    public DefaultWebSocketSession getDefaultWebSocketSession() {
-        return session;
     }
 
     private ByteBuf getNettyBuf(ByteBuffer buffer) {
