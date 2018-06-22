@@ -22,7 +22,7 @@ service<http:Service> helloContinue bind { port: 9090 } {
         match request.getTextPayload() {
             string payload => {
                 res.statusCode = 200;
-                res.setPayload(payload);
+                res.setPayload(untaint payload);
                 caller->respond(res) but {
                     error e => log:printError("Error sending response", err = e)
                 };
@@ -30,7 +30,7 @@ service<http:Service> helloContinue bind { port: 9090 } {
 
             error err => {
                 res.statusCode = 500;
-                res.setPayload(err.message);
+                res.setPayload(untaint err.message);
                 log:printError("Failed to retrieve payload from request: " + err.message);
                 caller->respond(res) but {
                     error e => log:printError("Error sending response", err = e)

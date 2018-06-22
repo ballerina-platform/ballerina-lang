@@ -49,7 +49,7 @@ service<DummyService> myService {
 }
 
 type DummyEndpoint object {
-    function init ({} conf)  {
+    function init(record {} conf)  {
     }
 };
 

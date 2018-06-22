@@ -99,6 +99,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
         Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
+        long idleTimeout = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
@@ -120,6 +121,12 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (requestLimits != null) {
             setRequestSizeValidationConfig(requestLimits, listenerConfiguration);
         }
+
+        if (idleTimeout < 0) {
+            throw new BallerinaConnectorException("Idle timeout cannot be negative. If you want to disable the " +
+                    "timeout please use value 0");
+        }
+        listenerConfiguration.setSocketIdleTimeout(Math.toIntExact(idleTimeout));
 
         // Set HTTP version
         if (httpVersion != null) {

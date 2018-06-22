@@ -489,7 +489,7 @@ public class CPU {
                         typeEntry = (TypeRefCPEntry) ctx.constPool[k];
                         BFunctionPointer functionPointer = new BFunctionPointer(funcRefCPEntry, typeEntry.getType());
                         sf.refRegs[j] = functionPointer;
-                        findAndAddClosureVarRegIndexes(ctx, operands, functionPointer);
+                        findAndAddAdditionalVarRegIndexes(ctx, operands, functionPointer);
                         break;
     
                     case InstructionCodes.I2ANY:
@@ -757,7 +757,6 @@ public class CPU {
         List<BClosure> closureVars = fp.getClosureVars();
         int[] argRegs = funcCallCPEntry.getArgRegs();
         if (closureVars.isEmpty()) {
-            argRegs = expandArgRegs(argRegs, functionInfo.getParamTypes());
             return BLangFunctions.invokeCallable(functionInfo, ctx, argRegs, funcCallCPEntry.getRetRegs(), false);
         }
 
@@ -808,18 +807,6 @@ public class CPU {
         return BLangFunctions.invokeCallable(functionInfo, ctx, newArgRegs, funcCallCPEntry.getRetRegs(), false);
     }
 
-    private static int[] expandArgRegs(int[] argRegs, BType[] paramTypes) {
-        if (paramTypes.length == 0 || paramTypes.length == argRegs.length ||
-                (TypeTags.OBJECT_TYPE_TAG != paramTypes[0].getTag()
-                        && TypeTags.RECORD_TYPE_TAG != paramTypes[0].getTag())) {
-            return argRegs;
-        }
-        int[] expandedArgs = new int[paramTypes.length];
-        // self object/struct param is always at the 0'th index
-        expandedArgs[0] = 0;
-        System.arraycopy(argRegs, 0, expandedArgs, 1, argRegs.length);
-        return expandedArgs;
-    }
 
     private static int expandLongRegs(WorkerData sf, BFunctionPointer fp) {
         int longIndex = 0;
@@ -909,17 +896,19 @@ public class CPU {
         return refIndex;
     }
 
-    private static void findAndAddClosureVarRegIndexes(WorkerExecutionContext ctx, int[] operands,
-                                                       BFunctionPointer fp) {
+    private static void findAndAddAdditionalVarRegIndexes(WorkerExecutionContext ctx, int[] operands,
+                                                          BFunctionPointer fp) {
 
         int h = operands[3];
 
+        //if '0', then there are no additional indexes needs to be processed
         if (h == 0) {
             return;
         }
 
+        //or else, this is a closure related scenario
         for (int i = 0; i < h; i++) {
-            int operandIndex = (i * 2) + 4;
+            int operandIndex = i + 4;
             int type = operands[operandIndex];
             int index = operands[++operandIndex];
             switch (type) {
@@ -946,6 +935,7 @@ public class CPU {
                 default:
                     fp.addClosureVar(new BClosure(ctx.workerLocal.refRegs[index]), TypeTags.ANY_TAG);
             }
+            i++;
         }
     }
 

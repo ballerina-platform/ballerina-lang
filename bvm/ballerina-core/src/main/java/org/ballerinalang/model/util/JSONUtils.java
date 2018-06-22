@@ -732,41 +732,29 @@ public class JSONUtils {
                     getComplexObjectTypeName(Type.OBJECT), getTypeName(jsonNode));
         }
 
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int refRegIndex = -1;
-        int blobRegIndex = -1;
-
         BMap<String, BValue> bStruct = new BMap<>(structType);
         StructureTypeInfo structInfo = (StructureTypeInfo) structType.getTypeInfo();
-        boolean fieldExists;
         for (StructFieldInfo fieldInfo : structInfo.getFieldInfoEntries()) {
             BType fieldType = fieldInfo.getFieldType();
             String fieldName = fieldInfo.getName();
             try {
-                fieldExists = jsonNode.has(fieldName);
+                // If the field does not exists in the JSON, set the default value for that struct field.
+                if (!jsonNode.has(fieldName)) {
+                    bStruct.put(fieldName, fieldType.getZeroValue());
+                    continue;
+                }
+
                 JsonNode jsonValue = jsonNode.get(fieldName);
                 switch (fieldType.getTag()) {
                     case TypeTags.INT_TAG:
-                        longRegIndex++;
-                        if (fieldExists) {
-                            bStruct.put(fieldName, jsonNodeToInt(jsonValue));
-                        }
+                        bStruct.put(fieldName, jsonNodeToInt(jsonValue));
                         break;
                     case TypeTags.FLOAT_TAG:
-                        doubleRegIndex++;
-                        if (fieldExists) {
-                            bStruct.put(fieldName, jsonNodeToFloat(jsonValue));
-                        }
+                        bStruct.put(fieldName, jsonNodeToFloat(jsonValue));
                         break;
                     case TypeTags.STRING_TAG:
-                        stringRegIndex++;
                         String stringVal;
-                        if (!fieldExists) {
-                            stringVal = "";
-                        } else if (jsonValue.isString()) {
+                        if (jsonValue.isString()) {
                             stringVal = jsonValue.stringValue();
                         } else {
                             stringVal = jsonValue.toString();
@@ -774,10 +762,7 @@ public class JSONUtils {
                         bStruct.put(fieldName, new BString(stringVal));
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        booleanRegIndex++;
-                        if (fieldExists) {
-                            bStruct.put(fieldName, jsonNodeToBool(jsonValue));
-                        }
+                        bStruct.put(fieldName, jsonNodeToBool(jsonValue));
                         break;
                     case TypeTags.UNION_TAG:
                     case TypeTags.OBJECT_TYPE_TAG:
@@ -787,19 +772,11 @@ public class JSONUtils {
                     case TypeTags.ARRAY_TAG:
                     case TypeTags.MAP_TAG:
                     case TypeTags.NULL_TAG:
-                        refRegIndex++;
-                        if (fieldExists) {
-                            bStruct.put(fieldName, (BRefType<?>) convertJSON(jsonValue, fieldType));
-                        }
+                        bStruct.put(fieldName, (BRefType<?>) convertJSON(jsonValue, fieldType));
                         break;
                     case TypeTags.FUNCTION_POINTER_TAG:
-                        if (fieldExists) {
-                            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
-                                    fieldName, getTypeName(jsonValue));
-                        }
-                        // TODO: set the default value
-                        bStruct.put(fieldName, null);
-                        break;
+                        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING,
+                                fieldName, getTypeName(jsonValue));
                     case TypeTags.BLOB_TAG:
                         bStruct.put(fieldName, new BBlob(new byte[0]));
                         break;

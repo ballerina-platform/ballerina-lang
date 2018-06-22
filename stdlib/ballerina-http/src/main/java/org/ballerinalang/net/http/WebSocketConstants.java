@@ -56,9 +56,9 @@ public class WebSocketConstants {
 
     public static final String CLIENT_URL_CONFIG = "url";
     public static final String CLIENT_SERVICE_CONFIG = "callbackService";
-    public static final String CLIENT_SUBPROTOCOLS_CONFIG = "subProtocols";
-    public static final String CLIENT_CUSTOMHEADERS_CONFIG = "customHeaders";
-    public static final String CLIENT_IDLETIMOUT_CONFIG = "idleTimeoutInSeconds";
+    public static final String CLIENT_SUB_PROTOCOLS_CONFIG = "subProtocols";
+    public static final String CLIENT_CUSTOM_HEADERS_CONFIG = "customHeaders";
+    public static final String CLIENT_IDLE_TIMOUT_CONFIG = "idleTimeoutInSeconds";
     public static final String CLIENT_READY_ON_CONNECT = "readyOnConnect";
     public static final String CLIENT_CONNECTOR_CONFIGS = "clientEndpointConfigs";
     public static final String WEBSOCKET_UPGRADE_SERVICE_CONFIG = "upgradeService";

@@ -3,12 +3,12 @@ function foo (string args) {
     // do nothing
 }
 
-type Arguments {
+type Arguments record {
     string value;
     Property prop;
 };
 
-type Property {
+type Property record {
     string name;
 };
 

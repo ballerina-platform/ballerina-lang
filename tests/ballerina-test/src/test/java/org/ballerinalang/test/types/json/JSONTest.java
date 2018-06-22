@@ -298,7 +298,7 @@ public class JSONTest {
         Assert.assertTrue(returns[0] instanceof BXML);
 
         OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<foo key=\"value\"/>");
+        Assert.assertEquals(returnElement.toString(), "<foo key=\"value\"></foo>");
     }
 
     @Test(description = "Convert json object with attribute and value")
@@ -346,7 +346,7 @@ public class JSONTest {
 
         String textValue = returns[0].stringValue();
         Assert.assertEquals(textValue, "<name>John</name><age>30</age>"
-                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>");
+                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></car>");
     }
 
     @Test(description = "Convert a json object with null object elements")
@@ -358,7 +358,7 @@ public class JSONTest {
 
         OMNode returnElement = ((BXMLItem) returns[0]).value();
         Assert.assertEquals(returnElement.toString(), "<Person><name>John</name><age>30</age>"
-                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/></Person>");
+                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></car></Person>");
     }
 
     @Test(description = "Convert a json object with empty elements")
@@ -369,7 +369,8 @@ public class JSONTest {
         Assert.assertTrue(returns[0] instanceof BString);
 
         String textValue = returns[0].stringValue();
-        Assert.assertEquals(textValue, "<address/><homeAddresses/><phoneNumbers/>");
+        Assert.assertEquals(textValue, "<address></address><homeAddresses></homeAddresses>" +
+                "<phoneNumbers></phoneNumbers>");
     }
 
     @Test(description = "Convert a json object with empty elements and non emepty elements")
@@ -379,8 +380,8 @@ public class JSONTest {
 
         Assert.assertTrue(returns[0] instanceof BXML);
         OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<info><address/><homeAddresses><item>a</item><item>b</item>"
-                + "</homeAddresses><phoneNumbers/></info>");
+        Assert.assertEquals(returnElement.toString(), "<info><address></address><homeAddresses><item>a</item>"
+                + "<item>b</item></homeAddresses><phoneNumbers></phoneNumbers></info>");
     }
 
     @Test(description = "Convert a simple json object with attributes")

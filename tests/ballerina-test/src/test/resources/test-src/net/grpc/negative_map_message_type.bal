@@ -42,7 +42,7 @@ service UnsupportedMapType bind ep {
     }
 }
 
-type MapMessage {
+type MapMessage record {
     map payload;
 };
 

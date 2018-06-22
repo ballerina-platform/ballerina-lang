@@ -2247,30 +2247,18 @@ public class Desugar extends BLangNodeVisitor {
         BType type = varNode.type;
         // Don't need to create an empty init expressions if the type allows null.
         if (type.isNullable()) {
-            return null;
+            return getNullLiteral();
         }
 
         switch (type.tag) {
             case TypeTags.INT:
-                BLangLiteral intDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                intDefault.value = Long.parseLong("0");
-                intDefault.type = symTable.intType;
-                return intDefault;
+                return getIntLiteral(0);
             case TypeTags.FLOAT:
-                BLangLiteral floatDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                floatDefault.value = Double.parseDouble("0");
-                floatDefault.type = symTable.floatType;
-                return floatDefault;
+                return getFloatLiteral(0);
             case TypeTags.BOOLEAN:
-                BLangLiteral booleanDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                booleanDefault.value = Boolean.parseBoolean("false");
-                booleanDefault.type = symTable.booleanType;
-                return booleanDefault;
+                return getBooleanLiteral(false);
             case TypeTags.STRING:
-                BLangLiteral stringDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                stringDefault.value = "";
-                stringDefault.type = symTable.stringType;
-                return stringDefault;
+                return getStringLiteral("");
             case TypeTags.BLOB:
                 BLangLiteral blobDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
                 blobDefault.value = new byte[0];

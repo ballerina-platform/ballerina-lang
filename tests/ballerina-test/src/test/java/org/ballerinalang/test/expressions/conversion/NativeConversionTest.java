@@ -508,7 +508,7 @@ public class NativeConversionTest {
         Assert.assertEquals(bValue.get("s").stringValue(), "");
         Assert.assertEquals(((BInteger) bValue.get("a")).intValue(), 0);
         Assert.assertEquals(((BFloat) bValue.get("f")).floatValue(), 0.0);
-        Assert.assertEquals(((BBoolean) bValue.get("b")).booleanValue(), 0);
+        Assert.assertEquals(((BBoolean) bValue.get("b")).booleanValue(), false);
         Assert.assertEquals(bValue.get("j"), null);
         Assert.assertEquals(((BBlob) bValue.get("blb")).blobValue().length, 0);
     }
@@ -564,7 +564,7 @@ public class NativeConversionTest {
         long age = ((BInteger) struct.get("age")).intValue();
         Assert.assertEquals(age, 30);
 
-        BValue address = struct.get("address");
+        BValue address = struct.get("adrs");
         Assert.assertTrue(address instanceof BMap);
         BMap<String, BValue> addressStruct = (BMap<String, BValue>) address;
         Assert.assertEquals(addressStruct.get("street").stringValue(), "20 Palm Grove");

@@ -4,7 +4,7 @@ import ballerina/io;
 
 @readonly string lastName;
 
-type Employee {
+type Employee record {
     string name;
     int age;
     string address;

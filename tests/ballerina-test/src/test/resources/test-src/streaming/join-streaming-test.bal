@@ -17,19 +17,19 @@
 import ballerina/runtime;
 import ballerina/io;
 
-type Stock {
+type Stock record {
     string symbol;
     float price;
     int volume;
 };
 
-type Twitter {
+type Twitter record {
     string user;
     string tweet;
     string company;
 };
 
-type StockWithPrice {
+type StockWithPrice record {
     string symbol;
     string tweet;
     float price;

@@ -334,7 +334,7 @@ public class BTable implements BRefType<Object>, BCollection {
     private void insertInitialData(BRefValueArray data) {
         int count = (int) data.size();
         for (int i = 0; i < count; i++) {
-            if (!(data.get(i) instanceof BStruct)) {
+            if (!(data.get(i) instanceof BMap)) {
                 throw new BallerinaException("initial data should be in struct type");
             }
             addData((BMap<String, BValue>) data.get(i));

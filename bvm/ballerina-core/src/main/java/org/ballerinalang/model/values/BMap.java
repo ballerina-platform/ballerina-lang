@@ -230,10 +230,9 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     @Override
     public String stringValue() {
         readLock.lock();
-        String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
         try {
+            String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
             StringJoiner sj = new StringJoiner(", ", "{", "}");
-    
             for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
     
                 String key;
@@ -257,7 +256,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         } finally {
             readLock.unlock();
         }
-
     }
 
     @Override
