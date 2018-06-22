@@ -1,9 +1,9 @@
-type Department {
+type Department record {
     string dptName;
     Person[] employees;
 };
 
-type Person {
+type Person record {
     string name = "default first name";
     string lname;
     map adrs;
@@ -11,7 +11,7 @@ type Person {
     Family family;
 };
 
-type Family {
+type Family record {
     string spouse;
     int noOfChildren;
     string[] children;

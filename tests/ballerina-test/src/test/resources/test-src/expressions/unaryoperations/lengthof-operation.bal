@@ -119,7 +119,7 @@ function arrayLengthAccessTestStructFieldAccessCase (int x, int y) returns (int)
     }
 }
 
-type Person {
+type Person record {
     string name;
     int[] days;
 };

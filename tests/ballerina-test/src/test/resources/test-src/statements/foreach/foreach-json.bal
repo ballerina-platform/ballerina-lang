@@ -71,12 +71,12 @@ function testJSONNull () returns (string) {
     return output;
 }
 
-type Protocols {
+type Protocols record {
     string data;
     Protocol[] plist;
 };
 
-type Protocol {
+type Protocol record {
     string name;
     string url;
 };

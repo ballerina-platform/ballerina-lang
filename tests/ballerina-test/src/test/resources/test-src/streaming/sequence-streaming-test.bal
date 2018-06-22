@@ -17,13 +17,13 @@
 import ballerina/runtime;
 import ballerina/io;
 
-type DeviceTempInfo {
+type DeviceTempInfo record {
     int deviceID;
     int roomNo;
     float temp;
 };
 
-type TempDiffInfo {
+type TempDiffInfo record {
     float initialTemp;
     float peakTemp;
 };

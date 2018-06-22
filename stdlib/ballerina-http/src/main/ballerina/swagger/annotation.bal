@@ -27,7 +27,7 @@ documentation {
     F{{tags}} A list of tags used by the specification with additional metadata
     F{{security}} Security requirements for this service
 }
-public type ServiceInformation {
+public type ServiceInformation record {
     string title,
     string serviceVersion,
     string description,
@@ -46,7 +46,7 @@ documentation {
     F{{email}} Contact email
     F{{url}} Contact web address/page
 }
-public type Contact {
+public type Contact record {
     string name,
     string email,
     string url,
@@ -58,7 +58,7 @@ documentation {
     F{{name}} License name
     F{{url}} License url
 }
-public type License {
+public type License record {
     string name,
     string url,
 };
@@ -69,7 +69,7 @@ documentation {
     F{{description}} Documentation description
     F{{url}} External documentation url
 }
-public type DocumentationInformation {
+public type DocumentationInformation record {
     string description,
     string url,
 };
@@ -81,7 +81,7 @@ documentation {
     F{{description}} Tag decription
     F{{externalDocs}} Optional documentation on the tag
 }
-public type Tag {
+public type Tag record {
     string name,
     string description,
     DocumentationInformation externalDocs,
@@ -93,7 +93,7 @@ documentation {
     F{{name}} Security scheme name
     F{{requirements}} Array of security requirements
 }
-public type SecurityRequirement {
+public type SecurityRequirement record {
     string name,
     string[] requirements,
 };
@@ -109,7 +109,7 @@ documentation {
     F{{allowEmptyValue}} Is an empty value allowed for this parameter. Valid only for query parameters
     F{{schema}} Parameter data type
 }
-public type ParameterInformation {
+public type ParameterInformation record {
     string inInfo,
     string name,
     string description,
@@ -126,7 +126,7 @@ documentation {
     F{{isArray}} Is this an array type schema
     F{{ref}} Schema reference if this schema definition is a reference type definition
 }
-public type Schema {
+public type Schema record {
     string format,
     boolean isArray,
     string ref,
@@ -141,7 +141,7 @@ documentation {
     F{{externalDocs}} Additional documentation for this operation
     F{{parameters}} A list of parameters that are applicable for this operation
 }
-public type ResourceInformation {
+public type ResourceInformation record {
     string[] tags,
     string summary,
     string description,
@@ -158,7 +158,7 @@ documentation {
     F{{headers}} Response headers
     F{{examples}} Examples for this response
 }
-public type Response {
+public type Response record {
     string code,
     string description,
     string response,
@@ -173,7 +173,7 @@ documentation {
     F{{discontinued}} Is this header deprecated
     F{{description}} Header description
 }
-public type Header {
+public type Header record {
     boolean required,
     boolean discontinued,
     string description,
@@ -187,7 +187,7 @@ documentation {
     F{{value}} Any example value
     F{{externalValue}} A URL that points to the literal example
 }
-public type Example {
+public type Example record {
     string summary,
     string description,
     any value,
@@ -204,7 +204,7 @@ documentation {
     F{{schema}} The schema defining the type used for the request body
     F{{encoding}} Encoding and content type details
 }
-public type requestBody {
+public type requestBody record {
     string description,
     boolean required,
     string example,
@@ -222,7 +222,7 @@ documentation {
     F{{explode}} Should property values of array or object generate separate parameters for each value of the array
     F{{allowReserved}} Determines whether the parameter value SHOULD allow reserved characters
 }
-public type Encoding {
+public type Encoding record {
     ParameterInformation[] headers,
     string contentType,
     string style,
@@ -235,7 +235,7 @@ documentation {
 
     F{{generate}} generates client code if set to true
 }
-public type ClientInformation {
+public type ClientInformation record {
     boolean generate = true,
 };
 

@@ -67,7 +67,7 @@ documentation {
                 `CACHE_CONTROL_AND_VALIDATORS`. The default behaviour is to allow caching only when the `cache-control`
                 header and either the `etag` or `last-modified` header are present.
 }
-public type CacheConfig {
+public type CacheConfig record {
     boolean enabled = true,
     boolean isShared = false,
     int expiryTimeMillis = 86400,

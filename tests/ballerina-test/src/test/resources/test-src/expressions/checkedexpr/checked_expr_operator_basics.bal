@@ -48,7 +48,7 @@ function testSafeAssignOpInAssignmentStatement3 () returns (boolean|error) {
     return fos.status;
 }
 
-type FileOpenStatus {
+type FileOpenStatus record {
     boolean status = false;
 };
 
@@ -71,17 +71,17 @@ function testSafeAssignOpInAssignmentStatement6 () returns boolean {
     return statusFailure;
 }
 
-type person {
+type person record {
     string name;
 };
 
-public type myerror {
+public type myerror record {
     string message;
     error? cause;
     int code;
 };
 
-public type customError {
+public type customError record {
     string message;
     error? cause;
     int code;
