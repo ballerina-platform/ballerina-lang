@@ -23,35 +23,31 @@ import org.ballerinalang.net.grpc.exception.StatusRuntimeException;
 import java.io.PrintWriter;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeMap;
-import javax.annotation.Nullable;
 
 /**
- * Defines the status of an operation by providing a standard {@link Code} in conjunction with an
- * optional descriptive message. Instances of {@code Status} are created by starting with the
- * template for the appropriate {@link Status.Code} and supplementing it with additional
- * information: {@code Status.NOT_FOUND.withDescription("Could not find 'important_file.txt'");}
+ * Status of an operation by providing a standard {@link Code} in conjunction with an optional descriptive message.
+ *
  * <p>
- * <p>For clients, every remote call will return a status on completion. In the case of errors this
- * status may be propagated to blocking stubs as a {@link RuntimeException} or to a listener as an
- * explicit parameter.
+ * Referenced from grpc-java implementation.
  * <p>
- * <p>Similarly servers can report a status by throwing {@link StatusRuntimeException}
- * or by passing the status to a callback.
- * <p>
- * <p>Utility functions are provided to convert a status to an exception and to extract them
- * back out.
  */
 public final class Status implements Serializable {
 
     private static final long serialVersionUID = -1L;
+    public static final StatusMessageMarshaller MESSAGE_MARSHALLER = new StatusMessageMarshaller();
+    public static final StatusCodeMarshaller CODE_MARSHALLER = new StatusCodeMarshaller();
+
+    private final Code code;
+    private final String description;
+    private final Throwable cause;
 
     /**
-     * The set of canonical status codes. If new codes are added over time they must choose
-     * a numerical value that does not collide with any previously used value.
+     * The set of canonical status codes.
      */
     public enum Code {
         /**
@@ -65,28 +61,17 @@ public final class Status implements Serializable {
         CANCELLED(1),
 
         /**
-         * Unknown error.  An example of where this error may be returned is
-         * if a Status value received from another address space belongs to
-         * an error-space that is not known in this address space.  Also
-         * errors raised by APIs that do not return enough error information
-         * may be converted to this error.
+         * Unknown error.
          */
         UNKNOWN(2),
 
         /**
-         * Client specified an invalid argument.  Note that this differs
-         * from FAILED_PRECONDITION.  INVALID_ARGUMENT indicates arguments
-         * that are problematic regardless of the state of the system
-         * (e.g., a malformed file name).
+         * Client specified an invalid argument.
          */
         INVALID_ARGUMENT(3),
 
         /**
-         * Deadline expired before operation could complete.  For operations
-         * that change the state of the system, this error may be returned
-         * even if the operation has completed successfully.  For example, a
-         * successful response from a server could have been delayed long
-         * enough for the deadline to expire.
+         * Deadline expired before operation could complete.
          */
         DEADLINE_EXCEEDED(4),
 
@@ -101,64 +86,27 @@ public final class Status implements Serializable {
         ALREADY_EXISTS(6),
 
         /**
-         * The caller does not have permission to execute the specified
-         * operation.  PERMISSION_DENIED must not be used for rejections
-         * caused by exhausting some resource (use RESOURCE_EXHAUSTED
-         * instead for those errors).  PERMISSION_DENIED must not be
-         * used if the caller cannot be identified (use UNAUTHENTICATED
-         * instead for those errors).
+         * The caller does not have permission to execute the specified operation.
          */
         PERMISSION_DENIED(7),
 
         /**
-         * Some resource has been exhausted, perhaps a per-user quota, or
-         * perhaps the entire file system is out of space.
+         * Some resource has been exhausted.
          */
         RESOURCE_EXHAUSTED(8),
 
         /**
-         * Operation was rejected because the system is not in a state
-         * required for the operation's execution.  For example, directory
-         * to be deleted may be non-empty, an rmdir operation is applied to
-         * a non-directory, etc.
-         * <p>
-         * <p>A litmus test that may help a service implementor in deciding
-         * between FAILED_PRECONDITION, ABORTED, and UNAVAILABLE:
-         * (a) Use UNAVAILABLE if the client can retry just the failing call.
-         * (b) Use ABORTED if the client should retry at a higher-level
-         * (e.g., restarting a read-modify-write sequence).
-         * (c) Use FAILED_PRECONDITION if the client should not retry until
-         * the system state has been explicitly fixed.  E.g., if an "rmdir"
-         * fails because the directory is non-empty, FAILED_PRECONDITION
-         * should be returned since the client should not retry unless
-         * they have first fixed up the directory by deleting files from it.
+         * Operation was rejected because the system is not in a state required for the operation's execution.
          */
         FAILED_PRECONDITION(9),
 
         /**
-         * The operation was aborted, typically due to a concurrency issue
-         * like sequencer check failures, transaction aborts, etc.
-         * <p>
-         * <p>See litmus test above for deciding between FAILED_PRECONDITION,
-         * ABORTED, and UNAVAILABLE.
+         * The operation was aborted.
          */
         ABORTED(10),
 
         /**
-         * Operation was attempted past the valid range.  E.g., seeking or
-         * reading past end of file.
-         * <p>
-         * <p>Unlike INVALID_ARGUMENT, this error indicates a problem that may
-         * be fixed if the system state changes. For example, a 32-bit file
-         * system will generate INVALID_ARGUMENT if asked to read at an
-         * offset that is not in the range [0,2^32-1], but it will generate
-         * OUT_OF_RANGE if asked to read from an offset past the current
-         * file size.
-         * <p>
-         * <p>There is a fair bit of overlap between FAILED_PRECONDITION and OUT_OF_RANGE.
-         * We recommend using OUT_OF_RANGE (the more specific error) when it applies
-         * so that callers who are iterating through
-         * a space can easily look for an OUT_OF_RANGE error to detect when they are done.
+         * Operation was attempted past the valid range.
          */
         OUT_OF_RANGE(11),
 
@@ -168,19 +116,12 @@ public final class Status implements Serializable {
         UNIMPLEMENTED(12),
 
         /**
-         * Internal errors.  Means some invariants expected by underlying
-         * system has been broken.  If you see one of these errors,
-         * something is very broken.
+         * Internal errors.
          */
         INTERNAL(13),
 
         /**
-         * The service is currently unavailable.  This is a most likely a
-         * transient condition and may be corrected by retrying with
-         * a backoff.
-         * <p>
-         * <p>See litmus test above for deciding between FAILED_PRECONDITION,
-         * ABORTED, and UNAVAILABLE.
+         * The service is currently unavailable.
          */
         UNAVAILABLE(14),
 
@@ -190,23 +131,22 @@ public final class Status implements Serializable {
         DATA_LOSS(15),
 
         /**
-         * The request does not have valid authentication credentials for the
-         * operation.
+         * The request does not have valid authentication credentials for the operation.
          */
         UNAUTHENTICATED(16);
 
         private final int value;
+        private final byte[] valueAscii;
 
         Code(int value) {
-
             this.value = value;
+            this.valueAscii = Integer.toString(value).getBytes(Charset.forName("US-ASCII"));
         }
 
         /**
          * The numerical value of the code.
          */
         public int value() {
-
             return value;
         }
 
@@ -214,8 +154,11 @@ public final class Status implements Serializable {
          * Returns a {@link Status} object corresponding to this status code.
          */
         public Status toStatus() {
-
             return STATUS_LIST.get(value);
+        }
+
+        private byte[] valueAscii() {
+            return valueAscii;
         }
     }
 
@@ -223,7 +166,6 @@ public final class Status implements Serializable {
     private static final List<Status> STATUS_LIST = buildStatusList();
 
     private static List<Status> buildStatusList() {
-
         TreeMap<Integer, Status> canonicalizer = new TreeMap<Integer, Status>();
         for (Code code : Code.values()) {
             Status replaced = canonicalizer.put(code.value(), new Status(code));
@@ -239,7 +181,6 @@ public final class Status implements Serializable {
      * Return a {@link Status} given a canonical error {@link Code} value.
      */
     public static Status fromCodeValue(int codeValue) {
-
         if (codeValue < 0 || codeValue > STATUS_LIST.size()) {
             return Status.Code.UNKNOWN.toStatus().withDescription("Unknown code " + codeValue);
         } else {
@@ -247,23 +188,63 @@ public final class Status implements Serializable {
         }
     }
 
+    private static Status fromCodeValue(byte[] asciiCodeValue) {
+        if (asciiCodeValue.length == 1 && asciiCodeValue[0] == '0') {
+            return Status.Code.OK.toStatus();
+        }
+        return fromCodeValueSlow(asciiCodeValue);
+    }
+
+    private static Status fromCodeValueSlow(byte[] asciiCodeValue) {
+        int index = 0;
+        int codeValue = 0;
+        switch (asciiCodeValue.length) {
+            case 2:
+                if (asciiCodeValue[index] < '0' || asciiCodeValue[index] > '9') {
+                    break;
+                }
+                codeValue += (asciiCodeValue[index++] - '0') * 10;
+                codeValue += asciiCodeValue[index] - '0';
+                if (codeValue < STATUS_LIST.size()) {
+                    return STATUS_LIST.get(codeValue);
+                }
+                break;
+            case 1:
+                if (asciiCodeValue[index] < '0' || asciiCodeValue[index] > '9') {
+                    break;
+                }
+                codeValue += asciiCodeValue[index] - '0';
+                if (codeValue < STATUS_LIST.size()) {
+                    return STATUS_LIST.get(codeValue);
+                }
+                break;
+            default:
+                break;
+        }
+        return Status.Code.UNKNOWN.toStatus().withDescription("Unknown code " + new String(asciiCodeValue, Charset
+                .forName("US-ASCII")));
+    }
+
     /**
      * Return a {@link Status} given a canonical error {@link Code} object.
+     *
+     * @param code Status code.
+     * @return Status instance.
      */
     public static Status fromCode(Code code) {
-
         return code.toStatus();
     }
 
     /**
-     * Extract an error {@link Status} from the causal chain of a {@link Throwable}.
-     * If no status can be found, a status is created with {@link Code#UNKNOWN} as its code and
-     * {@code t} as its cause.
+     * Extract an error from the causal chain of a {@link Throwable}.
      *
-     * @return non-{@code null} status
+     * @param t {@link Throwable} instance.
+     * @return status
      */
     public static Status fromThrowable(Throwable t) {
-
+        if (t == null) {
+            throw new IllegalArgumentException("Cause is null");
+        }
         Throwable cause = t;
         while (cause != null) {
             if (cause instanceof StatusException) {
@@ -273,12 +254,10 @@ public final class Status implements Serializable {
             }
             cause = cause.getCause();
         }
-        // Couldn't find a cause with a Status
         return Status.Code.UNKNOWN.toStatus().withCause(t);
     }
 
     public static String formatThrowableMessage(Status status) {
-
         if (status.description == null) {
             return status.code.toString();
         } else {
@@ -286,17 +265,11 @@ public final class Status implements Serializable {
         }
     }
 
-    private final Code code;
-    private final String description;
-    private final Throwable cause;
-
     private Status(Code code) {
-
         this(code, null, null);
     }
 
     private Status(Code code, String description, Throwable cause) {
-
         this.code = code;
         this.description = description;
         this.cause = cause;
@@ -304,10 +277,11 @@ public final class Status implements Serializable {
 
     /**
      * Create a derived instance of {@link Status} with the given cause.
-     * However, the cause is not transmitted from server to client.
+     *
+     * @param cause {@link Throwable} instance.
+     * @return status instance.
      */
     public Status withCause(Throwable cause) {
-
         if (java.util.Objects.equals(this.cause, cause)) {
             return this;
         }
@@ -315,11 +289,12 @@ public final class Status implements Serializable {
     }
 
     /**
-     * Create a derived instance of {@link Status} with the given description.  Leading and trailing
-     * whitespace may be removed; this may change in the future.
+     * Create a derived instance of {@link Status} with the given description.
+     *
+     * @param description error description.
+     * @return status instance.
      */
     public Status withDescription(String description) {
-
         if (java.util.Objects.equals(this.description, description)) {
             return this;
         }
@@ -327,12 +302,12 @@ public final class Status implements Serializable {
     }
 
     /**
-     * Create a derived instance of {@link Status} augmenting the current description with
-     * additional detail.  Leading and trailing whitespace may be removed; this may change in the
-     * future.
+     * Create a derived instance of {@link Status} augmenting the current description with additional detail.
+     *
+     * @param additionalDetail error description.
+     * @return status instance.
      */
     public Status augmentDescription(String additionalDetail) {
-
         if (additionalDetail == null) {
             return this;
         } else if (this.description == null) {
@@ -344,60 +319,58 @@ public final class Status implements Serializable {
 
     /**
      * The canonical status code.
+     *
+     * @return status code.
      */
     public Code getCode() {
-
         return code;
     }
 
     /**
-     * A description of this status for human consumption.
+     * A description of the status.
+     *
+     * @return status description.
      */
-    @Nullable
     public String getDescription() {
-
         return description;
     }
 
     /**
-     * The underlying cause of an error.
-     * Note that the cause is not transmitted from server to client.
+     * The underlying cause of the error.
+     *
+     * @return cause of the error.
      */
-    @Nullable
     public Throwable getCause() {
-
         return cause;
     }
 
     /**
-     * Is this status OK, i.e., not an error.
+     * Returns whether status is OK.
+     *
+     * @return true, if status is ok. false otherwise.
      */
     public boolean isOk() {
-
         return Code.OK == code;
     }
 
     /**
-     * Convert this {@link Status} to a {@link RuntimeException}. Use {@link #fromThrowable}
-     * to recover this {@link Status} instance when the returned exception is in the causal chain.
+     * Convert this {@link Status} to a {@link RuntimeException}.
+     *
+     * @return StatusRuntimeException instance.
      */
     public StatusRuntimeException asRuntimeException() {
-
         return new StatusRuntimeException(this);
     }
 
     /**
-     * Convert this {@link Status} to an {@link Exception}. Use {@link #fromThrowable}
-     * to recover this {@link Status} instance when the returned exception is in the causal chain.
+     * Convert this {@link Status} to an {@link Exception}.
+     *
+     * @return StatusException instance.
      */
     public StatusException asException() {
-
         return new StatusException(this);
     }
 
-    /**
-     * A string representation of the status useful for debugging.
-     */
     @Override
     public String toString() {
 
@@ -413,4 +386,73 @@ public final class Status implements Serializable {
         return stringWriter.toString();
     }
 
+    /**
+     * Status Code Marshaller.
+     */
+    protected static final class StatusCodeMarshaller {
+
+        public byte[] toAsciiString(Status status) {
+
+            return status.getCode().valueAscii();
+        }
+
+        public Status parseAsciiString(byte[] serialized) {
+
+            return fromCodeValue(serialized);
+        }
+    }
+
+    /**
+     * Status Message Marshaller.
+     */
+    protected static final class StatusMessageMarshaller {
+
+        private static final byte[] HEX =
+                {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+        public byte[] toAsciiString(String value) {
+            byte[] valueBytes = value.getBytes(Charset.forName("UTF-8"));
+            for (int i = 0; i < valueBytes.length; i++) {
+                byte b = valueBytes[i];
+                // If there are only non escaping characters, skip the slow path.
+                if (isEscapingChar(b)) {
+                    return toAsciiStringSlow(valueBytes, i);
+                }
+            }
+            return valueBytes;
+        }
+
+        private static boolean isEscapingChar(byte b) {
+            return b < ' ' || b >= '~' || b == '%';
+        }
+
+        /**
+         * @param valueBytes the UTF-8 bytes
+         * @param ri The reader index, pointed at the first byte that needs escaping.
+         */
+        private static byte[] toAsciiStringSlow(byte[] valueBytes, int ri) {
+            byte[] escapedBytes = new byte[ri + (valueBytes.length - ri) * 3];
+            // copy over the good bytes
+            if (ri != 0) {
+                System.arraycopy(valueBytes, 0, escapedBytes, 0, ri);
+            }
+            int wi = ri;
+            for (; ri < valueBytes.length; ri++) {
+                byte b = valueBytes[ri];
+                // Manually implement URL encoding, per the gRPC spec.
+                if (isEscapingChar(b)) {
+                    escapedBytes[wi] = '%';
+                    escapedBytes[wi + 1] = HEX[(b >> 4) & 0xF];
+                    escapedBytes[wi + 2] = HEX[b & 0xF];
+                    wi += 3;
+                    continue;
+                }
+                escapedBytes[wi++] = b;
+            }
+            byte[] dest = new byte[wi];
+            System.arraycopy(escapedBytes, 0, dest, 0, wi);
+
+            return dest;
+        }
+    }
 }

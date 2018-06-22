@@ -27,8 +27,6 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.nio.charset.Charset;
 import java.util.concurrent.Executor;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_ENCODING;
 import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_MAX_MESSAGE_SIZE;
@@ -213,13 +211,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         String statusString = trailers.get(GRPC_STATUS_KEY);
         Status status = null;
         if (statusString != null) {
-            Pattern statusCodePattern = Pattern.compile("Status\\{ code (.*?),");
-            Matcher m = statusCodePattern.matcher(statusString);
-            while (m.find()) {
-                String sCode = m.group(1);
-                Status.Code code = Status.Code.valueOf(sCode);
-                status = Status.fromCode(code);
-            }
+            status = Status.CODE_MARSHALLER.parseAsciiString(statusString.getBytes(Charset.forName("US-ASCII")));
         }
         if (status != null) {
             return status.withDescription(trailers.get(GRPC_MESSAGE_KEY));

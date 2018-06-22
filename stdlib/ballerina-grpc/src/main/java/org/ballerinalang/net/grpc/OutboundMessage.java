@@ -25,6 +25,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.InputStream;
 import java.nio.ByteBuffer;
+import java.nio.charset.Charset;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_MESSAGE_KEY;
@@ -199,12 +200,14 @@ public class OutboundMessage {
         responseMessage.addHttpContent(lastHttpContent);
     }
 
-    private void addStatusToTrailers(Status status, io.netty.handler.codec.http.HttpHeaders trailers) {
+    private void addStatusToTrailers(Status status, HttpHeaders trailers) {
         trailers.remove(GRPC_STATUS_KEY);
         trailers.remove(GRPC_MESSAGE_KEY);
-        trailers.add(GRPC_STATUS_KEY, status);
+        byte[] bytes = Status.CODE_MARSHALLER.toAsciiString(status);
+        trailers.add(GRPC_STATUS_KEY, new String(bytes, Charset.forName("US-ASCII")));
         if (status.getDescription() != null) {
-            trailers.add(GRPC_MESSAGE_KEY, status.getDescription());
+            trailers.add(GRPC_MESSAGE_KEY, new String(Status.MESSAGE_MARSHALLER.toAsciiString(status.getDescription()
+            ), Charset.forName("US-ASCII")));
         }
     }
 
