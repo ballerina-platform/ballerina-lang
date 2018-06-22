@@ -306,14 +306,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
          * @param httpContent the received data frame. Its ownership is transferred to this method.
          */
         public void inboundDataReceived(HttpContent httpContent) {
-
-            try {
-                deframe(httpContent);
-            } finally {
-                if (httpContent.refCnt() != 0) {
-                    httpContent.release();
-                }
-            }
+            deframe(httpContent);
         }
 
         public final void transportReportStatus(final Status status, boolean stopDelivery,

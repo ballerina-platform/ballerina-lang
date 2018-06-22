@@ -175,11 +175,6 @@ public class MessageDeframer implements Closeable {
         return isClosed() || closeWhenComplete;
     }
 
-    /**
-     * Indicates whether deframer is completed processing all bytes.
-     *
-     * @return true, if deframer is completed processing. false otherwise
-     */
     private boolean isStalled() {
         return unprocessed.readableBytes() == 0;
     }
@@ -194,7 +189,7 @@ public class MessageDeframer implements Closeable {
         inDelivery = true;
         try {
             // Process the uncompressed bytes.
-            while (readRequiredBytes()) {
+            while (!stopDelivery && readRequiredBytes()) {
                 switch (state) {
                     case HEADER:
                         processHeader();
@@ -206,6 +201,11 @@ public class MessageDeframer implements Closeable {
                     default:
                         throw new IllegalStateException("Invalid state: " + state);
                 }
+            }
+
+            if (stopDelivery) {
+                close();
+                return;
             }
 
             if (closeWhenComplete && isStalled()) {
@@ -275,12 +275,13 @@ public class MessageDeframer implements Closeable {
     private void processBody() {
 
         InputStream stream = compressedFlag ? getCompressedBody() : getUncompressedBody();
-        nextFrame = null;
         listener.messagesAvailable(stream);
 
         // Done with this frame, begin processing the next header.
         state = MessageDeframer.State.HEADER;
         requiredLength = HEADER_LENGTH;
+        nextFrame.close();
+        nextFrame = null;
     }
 
     private InputStream getUncompressedBody() {

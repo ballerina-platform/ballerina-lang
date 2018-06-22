@@ -19,8 +19,6 @@ package org.ballerinalang.net.grpc;
 import io.netty.buffer.ByteBuf;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.ByteBuffer;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
@@ -109,41 +107,6 @@ public class CompositeReadableBuffer {
         }, length);
     }
 
-    public void readBytes(final ByteBuffer dest) {
-
-        execute(new ReadOperation() {
-            @Override
-            public int readInternal(ByteBuf buffer, int length) {
-                // Change the limit so that only lengthToCopy bytes are available.
-                int prevLimit = dest.limit();
-                dest.limit(dest.position() + length);
-
-                // Write the bytes and restore the original limit.
-                buffer.readBytes(dest);
-                dest.limit(prevLimit);
-                return 0;
-            }
-        }, dest.remaining());
-    }
-
-    public void readBytes(final OutputStream dest, int length) throws IOException {
-
-        ReadOperation op = new ReadOperation() {
-            @Override
-            public int readInternal(ByteBuf buffer, int length) throws IOException {
-
-                buffer.readBytes(dest, length);
-                return 0;
-            }
-        };
-        execute(op, length);
-
-        // If an exception occurred, throw it.
-        if (op.isError()) {
-            throw op.ex;
-        }
-    }
-
     public ByteBuf readBuffer(int length) {
         ByteBuf buffer = buffers.peek();
         if (buffer.readableBytes() > length) {
@@ -219,9 +182,6 @@ public class CompositeReadableBuffer {
          */
         int value;
 
-        /**
-         * Only used by {@link CompositeReadableBuffer#readBytes(OutputStream, int)}.
-         */
         IOException ex;
 
         final void read(ByteBuf buffer, int length) {
