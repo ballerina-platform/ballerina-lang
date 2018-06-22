@@ -3025,6 +3025,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
 
     @Override
     public void exitScopeClause(BallerinaParser.ScopeClauseContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
         this.pkgBuilder.addScopeBlock(getCurrentPos(ctx));
     }
 
