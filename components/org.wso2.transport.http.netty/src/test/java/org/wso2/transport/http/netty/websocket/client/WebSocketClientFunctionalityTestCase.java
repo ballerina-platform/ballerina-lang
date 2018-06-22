@@ -86,7 +86,9 @@ public class WebSocketClientFunctionalityTestCase {
         Assert.assertEquals(closeMessage.getCloseCode(), 1000);
         Assert.assertEquals(closeMessage.getCloseReason(), "Close on request");
 
-        closeMessage.getWebSocketConnection().finishConnectionClosure(closeMessage.getCloseCode(), null);
+        WebSocketConnection webSocketConnection = closeMessage.getWebSocketConnection();
+        webSocketConnection.finishConnectionClosure(closeMessage.getCloseCode(), null).sync();
+        Assert.assertFalse(webSocketConnection.isOpen());
     }
 
     @Test
@@ -97,6 +99,7 @@ public class WebSocketClientFunctionalityTestCase {
         Assert.assertEquals(closeMessage.getCloseCode(), 1006);
         Assert.assertNull(closeMessage.getCloseReason());
         Assert.assertTrue(connectorListener.isClosed());
+        Assert.assertFalse(closeMessage.getWebSocketConnection().isOpen());
     }
 
     @Test(description = "Test ping received from the server.")
@@ -199,6 +202,7 @@ public class WebSocketClientFunctionalityTestCase {
         Assert.assertNull(closeFuture.cause());
         Assert.assertTrue(closeFuture.isDone());
         Assert.assertTrue(closeFuture.isSuccess());
+        Assert.assertFalse(webSocketConnection.isOpen());
     }
 
     @Test(description = "Test connection termination using WebSocketConnection with a close frame.")
@@ -213,6 +217,7 @@ public class WebSocketClientFunctionalityTestCase {
         Assert.assertNull(closeFuture.cause());
         Assert.assertTrue(closeFuture.isDone());
         Assert.assertTrue(closeFuture.isSuccess());
+        Assert.assertFalse(webSocketConnection.isOpen());
     }
 
     @Test
@@ -253,9 +258,11 @@ public class WebSocketClientFunctionalityTestCase {
         countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
         Throwable throwable = connectorListener.getError();
 
+        Assert.assertNotNull(webSocketConnection);
         Assert.assertNotNull(throwable);
         Assert.assertTrue(throwable instanceof CorruptedFrameException);
         Assert.assertEquals(throwable.getMessage(), "received continuation data frame outside fragmented message");
+        Assert.assertFalse(webSocketConnection.isOpen());
     }
 
     @AfterClass

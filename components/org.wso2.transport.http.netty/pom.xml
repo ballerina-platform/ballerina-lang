@@ -96,11 +96,6 @@
         </dependency>
 
         <dependency>
-            <groupId>javax.websocket</groupId>
-            <artifactId>javax.websocket-api</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
             <scope>test</scope>
@@ -219,7 +214,6 @@
             org.slf4j.*;version="${slf4j.logging.package.import.version.range}",
             javax.xml.bind.*;version="${javax.xml.bind.import.version.range}",
             javax.net.ssl.*;version="${javax.net.ssl.import.version.range}",javax.management,
-            javax.websocket.*;version="${javax.websocket.version.range}",
             org.yaml.snakeyaml.*;version="${org.snakeyaml.package.import.version.range}",
             org.wso2.carbon.messaging.*;version="${carbon.messaging.package.import.version.range}",
             org.apache.commons.pool.*;version="${commons.pool.package.import.version.range}",

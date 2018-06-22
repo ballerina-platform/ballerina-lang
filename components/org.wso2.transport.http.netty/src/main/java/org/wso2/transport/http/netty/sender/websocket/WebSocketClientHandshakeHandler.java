@@ -44,7 +44,7 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
 
     private final WebSocketClientHandshaker handshaker;
     private final MessageQueueHandler messageQueueHandler;
-    private final boolean isSecure;
+    private final boolean secure;
     private final boolean autoRead;
     private final String requestedUri;
     private final DefaultClientHandshakeFuture handshakeFuture;
@@ -53,10 +53,10 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
 
     public WebSocketClientHandshakeHandler(WebSocketClientHandshaker handshaker,
             DefaultClientHandshakeFuture handshakeFuture, MessageQueueHandler messageQueueHandler,
-            boolean isSecure, boolean autoRead, String requestedUri, WebSocketConnectorFuture connectorFuture) {
+            boolean secure, boolean autoRead, String requestedUri, WebSocketConnectorFuture connectorFuture) {
         this.handshaker = handshaker;
         this.messageQueueHandler = messageQueueHandler;
-        this.isSecure = isSecure;
+        this.secure = secure;
         this.autoRead = autoRead;
         this.requestedUri = requestedUri;
         this.connectorFuture = connectorFuture;
@@ -87,14 +87,12 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
             if (!autoRead) {
                 channel.pipeline().addLast(Constants.MESSAGE_QUEUE_HANDLER, messageQueueHandler);
             }
-            WebSocketInboundFrameHandler inboundFrameHandler = new WebSocketInboundFrameHandler(connectorFuture,
-                    messageQueueHandler, false, isSecure, requestedUri, null);
+            WebSocketInboundFrameHandler inboundFrameHandler = new WebSocketInboundFrameHandler(false, secure,
+                    requestedUri, null,  handshaker.actualSubprotocol(), connectorFuture, messageQueueHandler);
             channel.pipeline().addLast(Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);
             channel.pipeline().remove(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER);
             ctx.fireChannelActive();
             DefaultWebSocketConnection webSocketConnection = inboundFrameHandler.getWebSocketConnection();
-            String actualSubProtocol = handshaker.actualSubprotocol();
-            webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(actualSubProtocol);
             handshakeFuture.notifySuccess(webSocketConnection, httpCarbonResponse);
             channel.config().setAutoRead(autoRead);
             log.debug("WebSocket Client connected");

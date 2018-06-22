@@ -46,7 +46,6 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketCloseMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
 import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
 import java.net.InetSocketAddress;
@@ -58,30 +57,32 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
     private Logger log = LoggerFactory.getLogger(WebSocketInboundFrameHandler.class);
 
-    private final WebSocketConnectorFuture connectorFuture;
     private final boolean isServer;
-    private final boolean securedConnection;
+    private final boolean secureConnection;
     private final String target;
     private final String interfaceId;
+    private final String negotiatedSubProtocol;
+    private final WebSocketConnectorFuture connectorFuture;
+    private final MessageQueueHandler messageQueueHandler;
+    private boolean caughtException;
+    private boolean closeFrameReceived;
+    private boolean closeInitialized;
     private DefaultWebSocketConnection webSocketConnection;
     private ChannelHandlerContext ctx;
     private ChannelPromise closePromise;
     private WebSocketFrameType continuationFrameType;
-    private final MessageQueueHandler blockingHandler;
-    private boolean caughtException;
-    private boolean closeFrameReceived;
-    private boolean closeInitialized;
 
-    public WebSocketInboundFrameHandler(WebSocketConnectorFuture connectorFuture,
-                                        MessageQueueHandler blockingHandler, boolean isServer,
-                                        boolean securedConnection, String target, String interfaceId) {
-        this.connectorFuture = connectorFuture;
-        this.blockingHandler = blockingHandler;
+    public WebSocketInboundFrameHandler(boolean isServer, boolean secureConnection, String target, String interfaceId,
+                                        String negotiatedSubProtocol, WebSocketConnectorFuture connectorFuture,
+                                        MessageQueueHandler messageQueueHandler) {
         this.isServer = isServer;
-        this.securedConnection = securedConnection;
+        this.secureConnection = secureConnection;
         this.target = target;
         this.interfaceId = interfaceId;
-        closeInitialized = false;
+        this.negotiatedSubProtocol = negotiatedSubProtocol;
+        this.connectorFuture = connectorFuture;
+        this.messageQueueHandler = messageQueueHandler;
+        this.closeInitialized = false;
     }
 
     /**
@@ -119,10 +120,10 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+    public void handlerAdded(ChannelHandlerContext ctx) {
         this.ctx = ctx;
-        webSocketConnection =
-                WebSocketUtil.getWebSocketConnection(ctx, this, blockingHandler, securedConnection, target);
+        webSocketConnection = new DefaultWebSocketConnection(ctx, this, messageQueueHandler, secureConnection,
+                                                             negotiatedSubProtocol);
     }
 
     @Override
@@ -267,7 +268,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private void setupCommonProperties(DefaultWebSocketMessage webSocketMessage) {
         webSocketMessage.setTarget(target);
         webSocketMessage.setListenerInterface(interfaceId);
-        webSocketMessage.setIsSecureConnection(securedConnection);
+        webSocketMessage.setIsSecureConnection(secureConnection);
         webSocketMessage.setWebSocketConnection(webSocketConnection);
         webSocketMessage.setSessionID(webSocketConnection.getId());
         webSocketMessage.setIsServerMessage(isServer);
