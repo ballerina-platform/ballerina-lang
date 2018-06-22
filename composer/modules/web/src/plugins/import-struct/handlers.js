@@ -65,7 +65,7 @@ function jsonPathToValue(jsonData, path) {
     return jsonData;
 }  
 
-function processJSONSchema(schema, rootRecord, schemaPath = '', rootExpr, useDefaults = true) {
+function processJSONSchema(schema, rootRecord, schemaPath = '', rootExpr, useDefaults = false) {
     let success = true;
     if (typeof schema === 'object' && !Array.isArray(schema)) {
         for (const key in schema) {
@@ -75,7 +75,7 @@ function processJSONSchema(schema, rootRecord, schemaPath = '', rootExpr, useDef
                     const curObj = schemaObj[objProp];
                     if (curObj.type === 'object' || curObj.type === 'array') {
                         const childRecord = DefaultNodeFactory.createStruct(true);
-                        success = processJSONSchema(schemaObj[objProp], childRecord, schemaPath + '/' + objProp, rootExpr, useDefaults = true);
+                        success = processJSONSchema(schemaObj[objProp], childRecord, schemaPath + '/' + objProp, rootExpr, useDefaults = false);
                         if (success) {
                             rootRecord.typeNode.fields.push(childRecord);
                         }
@@ -108,7 +108,7 @@ function processJSONSchema(schema, rootRecord, schemaPath = '', rootExpr, useDef
                     }
                 }
             } else if (key === 'items') {
-                processJSONSchema(schemaObj, rootRecord, schemaPath, rootExpr, useDefaults = true);
+                processJSONSchema(schemaObj, rootRecord, schemaPath, rootExpr, useDefaults = false);
             }
         }
     }
