@@ -679,7 +679,7 @@ public class XMLUtils {
      * @return The OMElement created out of the string XML fragment.
      * @throws XMLStreamException when unexpected processing error occur while parsing.
      */
-    public static OMElement stringToOM(OMFactory omFactory, String xmlFragment) throws XMLStreamException {
+    private static OMElement stringToOM(OMFactory omFactory, String xmlFragment) throws XMLStreamException {
         return xmlFragment != null ? OMXMLBuilderFactory.createOMBuilder(omFactory, STAX_PARSER_CONFIGURATION,
                 new StringReader(xmlFragment)).getDocumentElement() : null;
     }
