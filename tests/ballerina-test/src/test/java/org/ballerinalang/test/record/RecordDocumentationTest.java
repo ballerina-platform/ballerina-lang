@@ -35,7 +35,7 @@ import java.util.List;
  */
 public class RecordDocumentationTest {
 
-    private static final String CR = "\\\\r";
+    private static final String CR = "\r";
     private static final String EMPTY_STRING = "";
 
     @BeforeClass
