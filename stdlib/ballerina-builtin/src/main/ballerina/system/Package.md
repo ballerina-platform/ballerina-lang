@@ -1,21 +1,27 @@
 ## Package overview
 
-This package contains functions to retrieve information about the system and the current users of the system. It provides information such as environment variables, username, user home directory path, and the current working directory.
+This package contains functions to retrieve information about the system and the current users of the system. It 
+provides information such as environment variables, username, user home directory path, and the current working directory.
 
 ## Samples
 
 The sample given below uses the functions in the package to get the system-level information.
 
 ```ballerina
-//Get environment variables.
-string balHome = system:getEnv("HTTP_PORT"); // Eg. “80”
+import ballerina/io;
+import ballerina/system;
 
-// Get the user account name.
-string username = user:getName();  //Eg. “john”
+function main(string... args) {
+    //Get environment variables.
+    io:println("Envirionment variable: " + system:getEnv("HTTP_PORT")); // Eg. “80”
 
-// Get the user home path.
-string userHome = user:getUserHome();  //Eg. “/home/john”
+    // Get the user account name.
+    io:println("Username: " + system:getUsername());  //Eg. “john”
 
-// Get the current directory path.
-string currentDir = user:getCurrentDirectory();  //Eg. “/home/john/work”
+    // Get the user home path.
+    io:println("User home: " + system:getUserHome());  //Eg. “/home/john”
+
+    // Get the current directory path.
+    io:println("Current directory: " + system:getCurrentDirectory());  //Eg. “/home/john/work”
+}
 ```

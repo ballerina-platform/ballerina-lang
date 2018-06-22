@@ -327,9 +327,8 @@ Retry
    ;
 
 Return
-   : <noExpressionAvailable?> return                       ;
-   | <emptyBrackets?>         return                     ();
-   |                          return <expression.source>   ;
+   : <noExpressionAvailable?> return                     ;
+   |                          return <expression.source> ;
    ;
 
 SelectClause
@@ -349,12 +348,12 @@ SelectExpression
    ;
 
 Service
-   | <isServiceTypeUnavailable?> <bindNotAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value>                                                                  { <variables>* <resources>* }
-   : <isServiceTypeUnavailable?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind <anonymousEndpointBind.source> <boundEndpoints-joined-by,>* { <variables>* <resources>* }
-   | <isServiceTypeUnavailable?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind                                <boundEndpoints-joined-by,>* { <variables>* <resources>* }
-   |                             <bindNotAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value>                                                                  { <variables>* <resources>* }
-   |                                                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind <anonymousEndpointBind.source> <boundEndpoints-joined-by,>* { <variables>* <resources>* }
-   |                                                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind                                <boundEndpoints-joined-by,>* { <variables>* <resources>* }
+   | <isServiceTypeUnavailable?> <bindNotAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value>                                                                  { <endpointNodes>* <variables>* <resources>* }
+   : <isServiceTypeUnavailable?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind <anonymousEndpointBind.source> <boundEndpoints-joined-by,>* { <endpointNodes>* <variables>* <resources>* }
+   | <isServiceTypeUnavailable?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service                                <name.value> bind                                <boundEndpoints-joined-by,>* { <endpointNodes>* <variables>* <resources>* }
+   |                             <bindNotAvailable?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value>                                                                  { <endpointNodes>* <variables>* <resources>* }
+   |                                                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind <anonymousEndpointBind.source> <boundEndpoints-joined-by,>* { <endpointNodes>* <variables>* <resources>* }
+   |                                                 <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* service < <serviceTypeStruct.source> > <name.value> bind                                <boundEndpoints-joined-by,>* { <endpointNodes>* <variables>* <resources>* }
    ;
 
 SimpleVariableRef
@@ -520,8 +519,9 @@ UnaryExpr
    ;
 
 UnionTypeNode
-   : <withParantheses?> ( <memberTypeNodes-joined-by|>* )
-   |                      <memberTypeNodes-joined-by|>*
+   : <emptyParantheses?> (                               )
+   | <withParantheses?>  ( <memberTypeNodes-joined-by|>* )
+   |                       <memberTypeNodes-joined-by|>*
    ;
 
 UserDefinedType

@@ -19,16 +19,16 @@ import ballerina/sql;
 documentation {
     The Client endpoint configuration for h2 databases.
 
-    F{{host}} The host name of the database to connect (in case of server baased DB)
-    F{{path}} The path of the database connection (in case of file baased DB)
-    F{{port}} The port of the database to connect (in case of server baased DB)
+    F{{host}} The host name of the database to connect (in case of server based DB)
+    F{{path}} The path of the database connection (in case of file based DB)
+    F{{port}} The port of the database to connect (in case of server based DB)
     F{{name}} The name of the database to connect
     F{{username}} Username for the database connection
     F{{password}} Password for the database connection
     F{{poolOptions}} Properties for the connection pool configuration. Refer `sql:PoolOptions` for more details
     F{{dbOptions}} A map of DB specific properties
 }
-public type ClientEndpointConfiguration {
+public type ClientEndpointConfiguration record {
     string host,
     string path,
     int port = 9092,

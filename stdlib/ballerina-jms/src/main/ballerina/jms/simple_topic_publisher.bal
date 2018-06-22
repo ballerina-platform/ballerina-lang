@@ -121,7 +121,7 @@ documentation { Configuration related to simple topic publisher endpoint
     F{{properties}} JMS message properties
     F{{topicPattern}} name of the target topic
 }
-public type SimpleTopicPublisherEndpointConfiguration {
+public type SimpleTopicPublisherEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";

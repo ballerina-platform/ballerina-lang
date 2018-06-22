@@ -1,4 +1,4 @@
-type Student {
+type Student record {
     string name;
     string address;
 };

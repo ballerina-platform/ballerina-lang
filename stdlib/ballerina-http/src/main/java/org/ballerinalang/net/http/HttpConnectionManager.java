@@ -25,11 +25,10 @@ import org.wso2.transport.http.netty.config.TransportsConfiguration;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
 import org.wso2.transport.http.netty.contract.ServerConnector;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
-import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.listener.ServerBootstrapConfiguration;
 import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -142,15 +141,14 @@ public class HttpConnectionManager {
         if (listenerConfiguration.getScheme().equalsIgnoreCase("https")) {
             ListenerConfiguration config = context.getListenerConfiguration();
             if (!listenerConfiguration.getKeyStoreFile().equals(config.getKeyStoreFile())
-                    || !listenerConfiguration.getKeyStorePass().equals(config.getKeyStorePass())
-                    || !listenerConfiguration.getCertPass().equals(config.getCertPass())) {
+                    || !listenerConfiguration.getKeyStorePass().equals(config.getKeyStorePass())) {
                 return true;
             }
         }
         return false;
     }
 
-    public WebSocketClientConnector getWebSocketClientConnector(WsClientConnectorConfig configuration) {
+    public WebSocketClientConnector getWebSocketClientConnector(WebSocketClientConnectorConfig configuration) {
         return  httpConnectorFactory.createWsClientConnector(configuration);
     }
 
@@ -172,9 +170,7 @@ public class HttpConnectionManager {
 
         SenderConfiguration httpsSender = new SenderConfiguration("https-sender");
         httpsSender.setScheme("https");
-        httpsSender.setTrustStoreFile(String.valueOf(
-                Paths.get(System.getProperty("ballerina.home"), "bre", "security", "ballerinaTruststore.p12")));
-        httpsSender.setTrustStorePass("ballerina");
+        HttpUtil.setDefaultTrustStore(httpsSender);
 
         TransportProperty latencyMetrics = new TransportProperty();
         latencyMetrics.setName("latency.metrics.enabled");

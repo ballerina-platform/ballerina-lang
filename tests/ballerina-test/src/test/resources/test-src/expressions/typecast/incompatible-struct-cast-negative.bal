@@ -1,4 +1,4 @@
-type Person {
+type Person record {
     string name;
     int age;
     Person? parent;
@@ -8,7 +8,7 @@ type Person {
 };
 
 
-type Student {
+type Student record {
     string name;
     int age;
     map address;

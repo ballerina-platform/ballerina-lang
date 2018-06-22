@@ -125,7 +125,7 @@ public type JWTAuthProvider object {
 documentation {
     Represents JWT validator configurations
 }
-public type JWTAuthProviderConfig {
+public type JWTAuthProviderConfig record {
     string issuer,
     string audience,
     int clockSkew,
@@ -134,7 +134,7 @@ public type JWTAuthProviderConfig {
     string trustStorePassword,
 };
 
-type CachedJWTAuthContext {
+type CachedJWTAuthContext record {
     internal:JwtPayload jwtPayload,
     int expiryTime;
 };

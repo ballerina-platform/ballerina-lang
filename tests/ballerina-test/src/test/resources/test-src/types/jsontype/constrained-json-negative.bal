@@ -1,10 +1,10 @@
-type Person {
+type Person record {
     string name;
     int age;
     string address;
 };
 
-type Student {
+type Student record {
     string name;
     int age;
     string address;
@@ -34,21 +34,21 @@ function testConstraintJSONIndexing() returns (json){
     return j["bus"];
 }
 
-type Employee {
+type Employee record {
     string first_name;
     string last_name;
     int age;
     Address address;
 };
 
-type Address {
+type Address record {
     string number;
     string street;
     string city;
     PhoneNumber phoneNumber;
 };
 
-type PhoneNumber {
+type PhoneNumber record {
     string areaCode;
     string number;
 };

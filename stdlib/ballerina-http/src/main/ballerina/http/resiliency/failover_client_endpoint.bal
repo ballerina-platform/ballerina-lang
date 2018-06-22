@@ -70,7 +70,7 @@ documentation {
     F{{failoverCodes}} Array of HTTP response status codes for which the failover behaviour should be triggered
     F{{intervalMillis}} Failover delay interval in milliseconds
 }
-public type FailoverClientEndpointConfiguration {
+public type FailoverClientEndpointConfiguration record {
     CircuitBreakerConfig? circuitBreaker,
     int timeoutMillis = 60000,
     string httpVersion = "1.1",

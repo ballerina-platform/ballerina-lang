@@ -23,8 +23,8 @@ service<http:Service> testService_1 bind testEP {
         http:Response firstResponse = check clientEP -> get("", message = clientReq);
         http:Response secondResponse = check clientEP -> get("", message = clientReq);
         http:Response testResponse = new;
-        string firstVal = check firstResponse.getTextPayload();
-        string secondVal = check secondResponse.getTextPayload();
+        string firstVal = untaint check firstResponse.getTextPayload();
+        string secondVal = untaint check secondResponse.getTextPayload();
         testResponse.setTextPayload(firstVal + secondVal);
         _ = outboundEP -> respond(testResponse);
     }
@@ -40,8 +40,8 @@ service<http:Service> testService_1 bind testEP {
         http:Response firstResponse = check clientEP -> get("", message = clientReq);
         http:Response secondResponse = check clientEP -> get("", message = clientReq);
         http:Response testResponse = new;
-        string firstVal = check firstResponse.getTextPayload();
-        string secondVal = check secondResponse.getTextPayload();
+        string firstVal = untaint check firstResponse.getTextPayload();
+        string secondVal = untaint check secondResponse.getTextPayload();
         testResponse.setTextPayload(firstVal + secondVal);
         _ = outboundEP -> respond(testResponse);
     }
@@ -60,8 +60,8 @@ service<http:Service> testService_1 bind testEP {
         newRequest.setHeader("test2", "value2");
         http:Response secondResponse = check clientEP -> get("", message = newRequest);
         http:Response testResponse = new;
-        string firstVal = check firstResponse.getTextPayload();
-        string secondVal = check secondResponse.getTextPayload();
+        string firstVal = untaint check firstResponse.getTextPayload();
+        string secondVal = untaint check secondResponse.getTextPayload();
         testResponse.setTextPayload(firstVal + secondVal);
         _ = outboundEP -> respond(testResponse);
     }
@@ -76,8 +76,8 @@ service<http:Service> testService_1 bind testEP {
         http:Response firstResponse = check clientEP -> post("/datasource", clientReq);
         http:Response secondResponse = check clientEP -> post("/datasource", clientReq);
         http:Response testResponse = new;
-        string firstVal = check firstResponse.getTextPayload();
-        string secondVal = check secondResponse.getTextPayload();
+        string firstVal = untaint check firstResponse.getTextPayload();
+        string secondVal = untaint check secondResponse.getTextPayload();
         testResponse.setTextPayload(firstVal + secondVal);
         _ = outboundEP -> respond(testResponse);
     }
@@ -103,7 +103,7 @@ service<http:Service> testService_1 bind testEP {
             }
         }
         string firstVal = check firstResponse.getTextPayload();
-        testResponse.setTextPayload(firstVal + secondVal);
+        testResponse.setTextPayload(untaint firstVal + untaint secondVal);
         _ = outboundEP -> respond(testResponse);
     }
 }
@@ -140,10 +140,10 @@ service<http:Service> testService_2 bind testEP {
         var stringPayload = clientRequest.getTextPayload();
         match stringPayload {
             string receivedVal => {
-                response.setTextPayload(receivedVal);
+                response.setTextPayload(untaint receivedVal);
             }
             error err => {
-                response.setTextPayload(err.message);
+                response.setTextPayload(untaint err.message);
             }
         }
         _ = outboundEP -> respond(response);

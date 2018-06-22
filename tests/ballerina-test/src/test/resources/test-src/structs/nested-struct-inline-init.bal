@@ -1,6 +1,6 @@
 string child = "Bob";
 
-type Person {
+type Person record {
     string name = "default first name";
     string fname;
     string lname;
@@ -10,7 +10,7 @@ type Person {
     Family family = {spouse : "Jane"};
 };
 
-type Family {
+type Family record {
     string spouse;
     int noOfChildren;
     string[] children = ["Alex", child];
