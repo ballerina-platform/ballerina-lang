@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.nativeimpl.observe.tracing;
+package org.ballerinalang.tracing.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -28,15 +28,13 @@ import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 
-import static org.ballerinalang.nativeimpl.observe.tracing.OpenTracerBallerinaWrapper.ROOT_SPAN_INDICATOR;
-
 /**
  * This function which implements the startSpan method for tracing.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "startRootSpan",
+        functionName = "startSpan",
         args = {
                 @Argument(name = "serviceName", type = TypeKind.STRING),
                 @Argument(name = "spanName", type = TypeKind.STRING),
@@ -45,16 +43,24 @@ import static org.ballerinalang.nativeimpl.observe.tracing.OpenTracerBallerinaWr
         returnType = @ReturnType(type = TypeKind.STRING),
         isPublic = true
 )
-public class StartRootSpan extends BlockingNativeCallableUnit {
+public class StartSpan extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
         String spanName = context.getStringArgument(0);
         BMap tags = (BMap) context.getNullableRefArgument(0);
-        int spanId = OpenTracerBallerinaWrapper
-                .getInstance().startSpan(spanName, Utils.toStringMap(tags), ROOT_SPAN_INDICATOR, context);
-
-        context.setReturnValues(new BInteger(spanId));
+        int parentSpanId = (int) context.getIntArgument(0);
+        if (parentSpanId < -1) {
+            context.setReturnValues(Utils
+                    .createErrorStruct(context, "The given parent span ID " + parentSpanId + " is invalid."));
+        } else {
+            int spanId = OpenTracerBallerinaWrapper.getInstance()
+                    .startSpan(spanName, Utils.toStringMap(tags), parentSpanId, context);
+            if (spanId == -1) {
+                context.setReturnValues(Utils.createErrorStruct(context,
+                        "No parent span for ID " + parentSpanId + " found. Please recheck the parent span Id"));
+            }
+            context.setReturnValues(new BInteger(spanId));
+        }
     }
 }

@@ -34,7 +34,7 @@ _ = observe:finishSpan(spanId);
 
 #### Start a span attached to a system trace
 
-If no parent span id is given to the `observe:startSpan()` api, the span will attach itself as a child span to the currently active span of the system trace.
+When no parentSpanId is given or a parentSpanId of -1 is given, a span is started as a child span to the current active span in the ootb system trace.
 
 ``` ballerina
 int spanId = check observe:startSpan("Child Span");

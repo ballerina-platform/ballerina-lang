@@ -318,6 +318,19 @@
             </dependency>
             <dependency>
                 <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
+                <classifier>ballerina-binary-repo</classifier>
+                <type>zip</type>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
                 <artifactId>strip-bouncycastle</artifactId>
                 <version>${ballerina.version}</version>
             </dependency>
@@ -1192,6 +1205,7 @@
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
+                <module>stdlib/ballerina-observability</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>misc/lib-creator</module>
@@ -1248,6 +1262,7 @@
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
+                <module>stdlib/ballerina-observability</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>misc/lib-creator</module>
@@ -1300,6 +1315,7 @@
                 <module>stdlib/ballerina-websub</module>
                 <module>stdlib/ballerina-jms</module>
                 <module>stdlib/ballerina-database</module>
+                <module>stdlib/ballerina-observability</module>
                 <module>stdlib/strip-bouncycastle</module>
 
                 <module>misc/lib-creator</module>
