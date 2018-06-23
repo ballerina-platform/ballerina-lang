@@ -278,7 +278,6 @@ public class PackageInfoReader {
 
     public void readPackageInfo() throws IOException {
         PackageInfo packageInfo = new PackageInfo();
-        packageInfo.pkgIndex = programFile.currentPkgIndex++;
 
         // Read constant pool in the package.
         readConstantPool(packageInfo);
@@ -304,10 +303,13 @@ public class PackageInfoReader {
                 getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue());
 
         packageInfo.setProgramFile(programFile);
-        programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read import package entries
         readImportPackageInfoEntries(packageInfo);
+
+        packageInfo.pkgIndex = programFile.currentPkgIndex++;
+
+        programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
