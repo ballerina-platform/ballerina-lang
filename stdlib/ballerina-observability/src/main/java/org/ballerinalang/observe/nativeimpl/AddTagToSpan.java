@@ -17,31 +17,42 @@
  *
  */
 
-package org.ballerinalang.tracing.nativeimpl;
+package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
+import org.ballerinalang.natives.annotations.ReturnType;
 
 /**
- * This function which implements the finishSpan method for tracing.
+ * This function adds tags to a span.
  */
 @BallerinaFunction(
         orgName = "ballerina",
         packageName = "observe",
-        functionName = "finishSpan",
+        functionName = "addTagToSpan",
+        args = {
+                @Argument(name = "spanId", type = TypeKind.INT),
+                @Argument(name = "tagKey", type = TypeKind.STRING),
+                @Argument(name = "tagValue", type = TypeKind.STRING)
+        },
+        returnType = @ReturnType(type = TypeKind.BOOLEAN),
         isPublic = true
 )
-public class FinishSpan extends BlockingNativeCallableUnit {
-
+public class AddTagToSpan extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         int spanId = (int) context.getIntArgument(0);
-        boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(spanId);
+        String tagKey = context.getStringArgument(0);
+        String tagValue = context.getStringArgument(1);
 
-        if (!isFinished) {
+        boolean tagAdded = OpenTracerBallerinaWrapper.getInstance().addTag(tagKey, tagValue, spanId);
+
+        if (!tagAdded) {
             context.setReturnValues(Utils.createErrorStruct(context,
-                    "Can not finish span with id " + spanId + ". Span already finished"));
+                    "Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}"));
         }
     }
 }

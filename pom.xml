@@ -320,6 +320,11 @@
                 <groupId>org.ballerinalang</groupId>
                 <artifactId>ballerina-observability</artifactId>
                 <version>${ballerina.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ballerinalang</groupId>
+                <artifactId>ballerina-observability</artifactId>
+                <version>${ballerina.version}</version>
                 <type>zip</type>
             </dependency>
             <dependency>

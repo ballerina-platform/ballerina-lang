@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.tracing.nativeimpl;
+package org.ballerinalang.observe.nativeimpl;
 
 import io.opentracing.Tracer;
 import org.ballerinalang.bre.Context;

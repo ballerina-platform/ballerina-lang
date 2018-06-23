@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerinalang.tracing.nativeimpl;
+package org.ballerinalang.observe.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
@@ -34,7 +34,7 @@ import static org.ballerinalang.bre.bvm.BLangVMErrors.STRUCT_GENERIC_ERROR;
 import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 
 /**
- * This provides the util functions to tracing related functions.
+ * This provides the util functions to observe related functions.
  */
 public class Utils {
 

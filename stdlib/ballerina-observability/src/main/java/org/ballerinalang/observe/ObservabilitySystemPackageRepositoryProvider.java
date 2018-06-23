@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-package org.ballerinalang.tracing;
+package org.ballerinalang.observe;
 
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.spi.SystemPackageRepositoryProvider;
