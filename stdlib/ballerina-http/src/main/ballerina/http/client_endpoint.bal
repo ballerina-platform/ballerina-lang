@@ -62,7 +62,7 @@ documentation {
     F{{url}} URL of the target service
     F{{secureSocket}} Configurations for secure communication with the remote HTTP endpoint
 }
-public type TargetService {
+public type TargetService record {
     string url,
     SecureSocket? secureSocket,
 };
@@ -86,7 +86,7 @@ documentation {
     F{{compression}} Specifies the way of handling compression (`accept-encoding`) header
     F{{auth}} HTTP authentication releated configurations
 }
-public type ClientEndpointConfig {
+public type ClientEndpointConfig record {
     string url,
     CircuitBreakerConfig? circuitBreaker,
     int timeoutMillis = 60000,
@@ -116,7 +116,7 @@ documentation {
     F{{backOffFactor}} Multiplier of the retry interval to exponentailly increase retry interval
     F{{maxWaitInterval}} Maximum time of the retry interval in milliseconds
 }
-public type RetryConfig {
+public type RetryConfig record {
     int count,
     int interval,
     float backOffFactor,
@@ -136,7 +136,7 @@ documentation {
     F{{shareSession}} Enable/disable new SSL session creation
     F{{ocspStapling}} Enable/disable OCSP stapling
 }
-public type SecureSocket {
+public type SecureSocket record {
     TrustStore? trustStore,
     KeyStore? keyStore,
     Protocols? protocol,
@@ -153,7 +153,7 @@ documentation {
     F{{enabled}} Enable/disable redirection
     F{{maxCount}} Maximum number of redirects to follow
 }
-public type FollowRedirects {
+public type FollowRedirects record {
     boolean enabled = false,
     int maxCount = 5,
 };
@@ -166,7 +166,7 @@ documentation {
     F{{userName}} Proxy server username
     F{{password}} proxy server password
 }
-public type ProxyConfig {
+public type ProxyConfig record {
     string host,
     int port,
     string userName,
@@ -181,7 +181,7 @@ documentation {
     F{{waitTime}} Maximum waiting time for a request to grab an idle connection from the client
     F{{maxActiveStreamsPerConnection}} Maximum number of active streams allowed per an HTTP/2 connection
 }
-public type ConnectionThrottling {
+public type ConnectionThrottling record {
     int maxActiveConnections = -1,
     int waitTime = 60000,
     int maxActiveStreamsPerConnection = -1,
@@ -202,7 +202,7 @@ documentation {
     F{{clientId}} Clietnt ID for OAuth2 authentication
     F{{clientSecret}} Client secret for OAuth2 authentication
 }
-public type AuthConfig {
+public type AuthConfig record {
     AuthScheme scheme,
     string username,
     string password,

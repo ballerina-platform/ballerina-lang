@@ -115,6 +115,11 @@ public class WebSocketServerConnectorListener implements WebSocketConnectorListe
                 @Override
                 public void notifyFailure(BStruct error) {
                     ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
+                    WebSocketOpenConnectionInfo connectionInfo =
+                            connectionManager.getConnectionInfo(webSocketInitMessage.getSessionID());
+                    if (connectionInfo != null) {
+                        WebSocketUtil.closeDuringUnexpectedCondition(connectionInfo.getWebSocketConnection());
+                    }
                 }
             }, null, observerContext.orElse(null), signatureParams);
 

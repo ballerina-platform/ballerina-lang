@@ -70,81 +70,81 @@ export default {
     "createHTTPServiceDef": {
         "ws": [
             {
-                "ws": "\n            ",
-                "i": 2,
+                "ws": "",
+                "i": 0,
                 "text": "service",
                 "static": true
             },
             {
                 "ws": "",
-                "i": 3,
+                "i": 1,
                 "text": "<",
                 "static": true
             },
             {
                 "ws": "",
-                "i": 7,
+                "i": 5,
                 "text": ">",
                 "static": true
             },
             {
                 "ws": " ",
-                "i": 9,
+                "i": 7,
                 "text": "serviceName",
                 "static": false
             },
             {
                 "ws": " ",
-                "i": 11,
+                "i": 9,
                 "text": "bind",
                 "static": true
             },
             {
                 "ws": " ",
-                "i": 15,
+                "i": 13,
                 "text": "{",
                 "static": true
             },
             {
-                "ws": "\n            ",
-                "i": 67,
+                "ws": "",
+                "i": 53,
                 "text": "}",
                 "static": true
             }
         ],
         "position": {
-            "startColumn": 13,
-            "startLine": 2,
-            "endColumn": 13,
-            "endLine": 8
+            "startColumn": 1,
+            "startLine": 1,
+            "endColumn": 163,
+            "endLine": 1
         },
         "annotationAttachments": [],
         "serviceTypeStruct": {
             "ws": [
                 {
                     "ws": "",
-                    "i": 4,
+                    "i": 2,
                     "text": "http",
                     "static": false
                 },
                 {
                     "ws": "",
-                    "i": 5,
+                    "i": 3,
                     "text": ":",
                     "static": true
                 },
                 {
                     "ws": "",
-                    "i": 6,
+                    "i": 4,
                     "text": "Service",
                     "static": false
                 }
             ],
             "position": {
-                "startColumn": 13,
-                "startLine": 2,
-                "endColumn": 13,
-                "endLine": 8
+                "startColumn": 1,
+                "startLine": 1,
+                "endColumn": 163,
+                "endLine": 1
             },
             "symbolType": [
                 "other"
@@ -165,10 +165,10 @@ export default {
         },
         "initFunction": {
             "position": {
-                "startColumn": 13,
-                "startLine": 2,
-                "endColumn": 13,
-                "endLine": 8
+                "startColumn": 1,
+                "startLine": 1,
+                "endColumn": 163,
+                "endLine": 1
             },
             "workers": [],
             "returnTypeAnnotationAttachments": [],
@@ -181,10 +181,10 @@ export default {
             "documentationAttachments": [],
             "returnTypeNode": {
                 "position": {
-                    "startColumn": 13,
-                    "startLine": 2,
-                    "endColumn": 13,
-                    "endLine": 8
+                    "startColumn": 1,
+                    "startLine": 1,
+                    "endColumn": 163,
+                    "endLine": 1
                 },
                 "symbolType": [
                     "null"
@@ -198,10 +198,10 @@ export default {
             "deprecatedAttachments": [],
             "body": {
                 "position": {
-                    "startColumn": 13,
-                    "startLine": 2,
-                    "endColumn": 13,
-                    "endLine": 8
+                    "startColumn": 1,
+                    "startLine": 1,
+                    "endColumn": 163,
+                    "endLine": 1
                 },
                 "statements": [],
                 "kind": "Block"
@@ -231,41 +231,41 @@ export default {
             {
                 "ws": [
                     {
-                        "ws": "\n                ",
-                        "i": 18,
+                        "ws": "",
+                        "i": 14,
                         "text": "getAction",
                         "static": false
                     },
                     {
                         "ws": " ",
-                        "i": 20,
+                        "i": 16,
                         "text": "(",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 24,
+                        "i": 20,
                         "text": ")",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 25,
+                        "i": 21,
                         "text": "{",
                         "static": true
                     },
                     {
-                        "ws": "\n                ",
-                        "i": 64,
+                        "ws": "",
+                        "i": 52,
                         "text": "}",
                         "static": true
                     }
                 ],
                 "position": {
-                    "startColumn": 17,
-                    "startLine": 3,
-                    "endColumn": 17,
-                    "endLine": 7
+                    "startColumn": 54,
+                    "startLine": 1,
+                    "endColumn": 162,
+                    "endLine": 1
                 },
                 "workers": [],
                 "returnTypeAnnotationAttachments": [],
@@ -278,10 +278,10 @@ export default {
                 "documentationAttachments": [],
                 "returnTypeNode": {
                     "position": {
-                        "startColumn": 17,
-                        "startLine": 3,
-                        "endColumn": 17,
-                        "endLine": 7
+                        "startColumn": 54,
+                        "startLine": 1,
+                        "endColumn": 162,
+                        "endLine": 1
                     },
                     "symbolType": [
                         "null"
@@ -299,37 +299,37 @@ export default {
                             "ws": [
                                 {
                                     "ws": "",
-                                    "i": 37,
+                                    "i": 31,
                                     "text": ";",
                                     "static": true
                                 }
                             ],
                             "position": {
-                                "startColumn": 21,
-                                "startLine": 4,
-                                "endColumn": 44,
-                                "endLine": 4
+                                "startColumn": 82,
+                                "startLine": 1,
+                                "endColumn": 105,
+                                "endLine": 1
                             },
                             "variable": {
                                 "ws": [
                                     {
                                         "ws": " ",
-                                        "i": 32,
+                                        "i": 26,
                                         "text": "res",
                                         "static": false
                                     },
                                     {
                                         "ws": " ",
-                                        "i": 34,
+                                        "i": 28,
                                         "text": "=",
                                         "static": true
                                     }
                                 ],
                                 "position": {
-                                    "startColumn": 21,
-                                    "startLine": 4,
-                                    "endColumn": 44,
-                                    "endLine": 4
+                                    "startColumn": 82,
+                                    "startLine": 1,
+                                    "endColumn": 105,
+                                    "endLine": 1
                                 },
                                 "symbolType": [
                                     "other"
@@ -338,29 +338,29 @@ export default {
                                 "typeNode": {
                                     "ws": [
                                         {
-                                            "ws": "\n                    ",
-                                            "i": 28,
+                                            "ws": "",
+                                            "i": 22,
                                             "text": "http",
                                             "static": false
                                         },
                                         {
                                             "ws": "",
-                                            "i": 29,
+                                            "i": 23,
                                             "text": ":",
                                             "static": true
                                         },
                                         {
                                             "ws": "",
-                                            "i": 30,
+                                            "i": 24,
                                             "text": "Response",
                                             "static": false
                                         }
                                     ],
                                     "position": {
-                                        "startColumn": 21,
-                                        "startLine": 4,
-                                        "endColumn": 26,
-                                        "endLine": 4
+                                        "startColumn": 82,
+                                        "startLine": 1,
+                                        "endColumn": 87,
+                                        "endLine": 1
                                     },
                                     "symbolType": [
                                         "other"
@@ -390,16 +390,16 @@ export default {
                                     "ws": [
                                         {
                                             "ws": " ",
-                                            "i": 36,
+                                            "i": 30,
                                             "text": "new",
                                             "static": true
                                         }
                                     ],
                                     "position": {
-                                        "startColumn": 41,
-                                        "startLine": 4,
-                                        "endColumn": 41,
-                                        "endLine": 4
+                                        "startColumn": 102,
+                                        "startLine": 1,
+                                        "endColumn": 102,
+                                        "endLine": 1
                                     },
                                     "symbolType": [
                                         "other"
@@ -430,49 +430,49 @@ export default {
                             "ws": [
                                 {
                                     "ws": "",
-                                    "i": 46,
+                                    "i": 38,
                                     "text": ";",
                                     "static": true
                                 }
                             ],
                             "position": {
-                                "startColumn": 21,
-                                "startLine": 5,
-                                "endColumn": 49,
-                                "endLine": 5
+                                "startColumn": 106,
+                                "startLine": 1,
+                                "endColumn": 134,
+                                "endLine": 1
                             },
                             "expression": {
                                 "ws": [
                                     {
                                         "ws": "",
-                                        "i": 41,
+                                        "i": 33,
                                         "text": ".",
                                         "static": true
                                     },
                                     {
                                         "ws": "",
-                                        "i": 42,
+                                        "i": 34,
                                         "text": "setPayload",
                                         "static": false
                                     },
                                     {
                                         "ws": "",
-                                        "i": 43,
+                                        "i": 35,
                                         "text": "(",
                                         "static": true
                                     },
                                     {
                                         "ws": "",
-                                        "i": 45,
+                                        "i": 37,
                                         "text": ")",
                                         "static": true
                                     }
                                 ],
                                 "position": {
-                                    "startColumn": 21,
-                                    "startLine": 5,
-                                    "endColumn": 48,
-                                    "endLine": 5
+                                    "startColumn": 106,
+                                    "startLine": 1,
+                                    "endColumn": 133,
+                                    "endLine": 1
                                 },
                                 "symbolType": [
                                     "other"
@@ -483,28 +483,28 @@ export default {
                                         "ws": [
                                             {
                                                 "ws": "",
-                                                "i": 44,
+                                                "i": 36,
                                                 "text": "\"Successful\"",
                                                 "static": false
                                             }
                                         ],
                                         "position": {
-                                            "startColumn": 36,
-                                            "startLine": 5,
-                                            "endColumn": 36,
-                                            "endLine": 5
+                                            "startColumn": 121,
+                                            "startLine": 1,
+                                            "endColumn": 121,
+                                            "endLine": 1
                                         },
                                         "value": "\"Successful\"",
                                         "unescapedValue": "Successful",
                                         "kind": "Literal"
                                     }
                                 ],
-                                "async": false,
                                 "packageAlias": {
                                     "literal": false,
                                     "value": "",
                                     "kind": "Identifier"
                                 },
+                                "async": false,
                                 "actionInvocation": false,
                                 "name": {
                                     "literal": false,
@@ -514,17 +514,17 @@ export default {
                                 "expression": {
                                     "ws": [
                                         {
-                                            "ws": "\n                    ",
-                                            "i": 40,
+                                            "ws": "",
+                                            "i": 32,
                                             "text": "res",
                                             "static": false
                                         }
                                     ],
                                     "position": {
-                                        "startColumn": 21,
-                                        "startLine": 5,
-                                        "endColumn": 21,
-                                        "endLine": 5
+                                        "startColumn": 106,
+                                        "startLine": 1,
+                                        "endColumn": 106,
+                                        "endLine": 1
                                     },
                                     "symbolType": [
                                         "other"
@@ -549,37 +549,37 @@ export default {
                             "ws": [
                                 {
                                     "ws": " ",
-                                    "i": 51,
+                                    "i": 41,
                                     "text": "=",
                                     "static": true
                                 },
                                 {
                                     "ws": "",
-                                    "i": 61,
+                                    "i": 51,
                                     "text": ";",
                                     "static": true
                                 }
                             ],
                             "position": {
-                                "startColumn": 21,
-                                "startLine": 6,
-                                "endColumn": 47,
-                                "endLine": 6
+                                "startColumn": 135,
+                                "startLine": 1,
+                                "endColumn": 161,
+                                "endLine": 1
                             },
                             "variable": {
                                 "ws": [
                                     {
-                                        "ws": "\n                    ",
-                                        "i": 49,
+                                        "ws": "",
+                                        "i": 39,
                                         "text": "_",
                                         "static": false
                                     }
                                 ],
                                 "position": {
-                                    "startColumn": 21,
-                                    "startLine": 6,
-                                    "endColumn": 21,
-                                    "endLine": 6
+                                    "startColumn": 135,
+                                    "startLine": 1,
+                                    "endColumn": 135,
+                                    "endLine": 1
                                 },
                                 "symbolType": [
                                     "other"
@@ -600,34 +600,34 @@ export default {
                                 "ws": [
                                     {
                                         "ws": " ",
-                                        "i": 55,
+                                        "i": 45,
                                         "text": "->",
                                         "static": true
                                     },
                                     {
                                         "ws": " ",
-                                        "i": 57,
+                                        "i": 47,
                                         "text": "respond",
                                         "static": false
                                     },
                                     {
                                         "ws": "",
-                                        "i": 58,
+                                        "i": 48,
                                         "text": "(",
                                         "static": true
                                     },
                                     {
                                         "ws": "",
-                                        "i": 60,
+                                        "i": 50,
                                         "text": ")",
                                         "static": true
                                     }
                                 ],
                                 "position": {
-                                    "startColumn": 25,
-                                    "startLine": 6,
-                                    "endColumn": 46,
-                                    "endLine": 6
+                                    "startColumn": 139,
+                                    "startLine": 1,
+                                    "endColumn": 160,
+                                    "endLine": 1
                                 },
                                 "symbolType": [
                                     "other"
@@ -638,16 +638,16 @@ export default {
                                         "ws": [
                                             {
                                                 "ws": "",
-                                                "i": 59,
+                                                "i": 49,
                                                 "text": "res",
                                                 "static": false
                                             }
                                         ],
                                         "position": {
-                                            "startColumn": 43,
-                                            "startLine": 6,
-                                            "endColumn": 43,
-                                            "endLine": 6
+                                            "startColumn": 157,
+                                            "startLine": 1,
+                                            "endColumn": 157,
+                                            "endLine": 1
                                         },
                                         "variableName": {
                                             "literal": false,
@@ -662,12 +662,12 @@ export default {
                                         "kind": "SimpleVariableRef"
                                     }
                                 ],
-                                "async": false,
                                 "packageAlias": {
                                     "literal": false,
                                     "value": "",
                                     "kind": "Identifier"
                                 },
+                                "async": false,
                                 "actionInvocation": true,
                                 "name": {
                                     "literal": false,
@@ -678,16 +678,16 @@ export default {
                                     "ws": [
                                         {
                                             "ws": " ",
-                                            "i": 53,
+                                            "i": 43,
                                             "text": "client",
                                             "static": false
                                         }
                                     ],
                                     "position": {
-                                        "startColumn": 25,
-                                        "startLine": 6,
-                                        "endColumn": 25,
-                                        "endLine": 6
+                                        "startColumn": 139,
+                                        "startLine": 1,
+                                        "endColumn": 139,
+                                        "endLine": 1
                                     },
                                     "symbolType": [
                                         "other"
@@ -718,22 +718,22 @@ export default {
                         "ws": [
                             {
                                 "ws": "",
-                                "i": 21,
+                                "i": 17,
                                 "text": "endpoint",
                                 "static": true
                             },
                             {
                                 "ws": " ",
-                                "i": 23,
+                                "i": 19,
                                 "text": "client",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 28,
-                            "startLine": 3,
-                            "endColumn": 37,
-                            "endLine": 3
+                            "startColumn": 65,
+                            "startLine": 1,
+                            "endColumn": 74,
+                            "endLine": 1
                         },
                         "symbolType": [
                             "other"
@@ -786,16 +786,16 @@ export default {
                 "ws": [
                     {
                         "ws": " ",
-                        "i": 13,
+                        "i": 11,
                         "text": "endpointName",
                         "static": false
                     }
                 ],
                 "position": {
-                    "startColumn": 52,
-                    "startLine": 2,
-                    "endColumn": 52,
-                    "endLine": 2
+                    "startColumn": 40,
+                    "startLine": 1,
+                    "endColumn": 40,
+                    "endLine": 1
                 },
                 "symbolType": [
                     "other"
@@ -825,29 +825,29 @@ export default {
     "createHTTPEndpointDef": {
         "ws": [
             {
-                "ws": "\n            ",
-                "i": 2,
+                "ws": "",
+                "i": 0,
                 "text": "endpoint",
                 "static": true
             },
             {
                 "ws": " ",
-                "i": 8,
+                "i": 6,
                 "text": "endpointName",
                 "static": false
             },
             {
                 "ws": "",
-                "i": 19,
+                "i": 13,
                 "text": ";",
                 "static": true
             }
         ],
         "position": {
-            "startColumn": 13,
-            "startLine": 2,
-            "endColumn": 14,
-            "endLine": 4
+            "startColumn": 1,
+            "startLine": 1,
+            "endColumn": 48,
+            "endLine": 1
         },
         "symbolType": [
             "other"
@@ -856,22 +856,22 @@ export default {
             "ws": [
                 {
                     "ws": " ",
-                    "i": 10,
+                    "i": 8,
                     "text": "{",
                     "static": true
                 },
                 {
-                    "ws": "\n            ",
-                    "i": 18,
+                    "ws": "",
+                    "i": 12,
                     "text": "}",
                     "static": true
                 }
             ],
             "position": {
-                "startColumn": 49,
-                "startLine": 2,
-                "endColumn": 13,
-                "endLine": 4
+                "startColumn": 37,
+                "startLine": 1,
+                "endColumn": 47,
+                "endLine": 1
             },
             "symbolType": [
                 "other"
@@ -881,7 +881,7 @@ export default {
                     "ws": [
                         {
                             "ws": "",
-                            "i": 14,
+                            "i": 10,
                             "text": ":",
                             "static": true
                         }
@@ -890,16 +890,16 @@ export default {
                         "ws": [
                             {
                                 "ws": "",
-                                "i": 15,
+                                "i": 11,
                                 "text": "9095",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 22,
-                            "startLine": 3,
-                            "endColumn": 22,
-                            "endLine": 3
+                            "startColumn": 43,
+                            "startLine": 1,
+                            "endColumn": 43,
+                            "endLine": 1
                         },
                         "value": "9095",
                         "kind": "Literal"
@@ -907,17 +907,17 @@ export default {
                     "key": {
                         "ws": [
                             {
-                                "ws": "\n                ",
-                                "i": 13,
+                                "ws": "",
+                                "i": 9,
                                 "text": "port",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 17,
-                            "startLine": 3,
-                            "endColumn": 17,
-                            "endLine": 3
+                            "startColumn": 38,
+                            "startLine": 1,
+                            "endColumn": 38,
+                            "endLine": 1
                         },
                         "variableName": {
                             "literal": false,
@@ -947,28 +947,28 @@ export default {
             "ws": [
                 {
                     "ws": " ",
-                    "i": 4,
+                    "i": 2,
                     "text": "http",
                     "static": false
                 },
                 {
                     "ws": "",
-                    "i": 5,
+                    "i": 3,
                     "text": ":",
                     "static": true
                 },
                 {
                     "ws": "",
-                    "i": 6,
+                    "i": 4,
                     "text": "Listener",
                     "static": false
                 }
             ],
             "position": {
-                "startColumn": 22,
-                "startLine": 2,
-                "endColumn": 27,
-                "endLine": 2
+                "startColumn": 10,
+                "startLine": 1,
+                "endColumn": 15,
+                "endLine": 1
             },
             "symbolType": [
                 "other"
@@ -1005,127 +1005,127 @@ export default {
     "createWSServiceDef": {
         "ws": [
             {
-                "ws": "\n            ",
-                "i": 35,
+                "ws": "\n",
+                "i": 31,
                 "text": "service",
                 "static": true
             },
             {
                 "ws": "",
-                "i": 36,
+                "i": 32,
                 "text": "<",
                 "static": true
             },
             {
                 "ws": "",
-                "i": 40,
+                "i": 36,
                 "text": ">",
                 "static": true
             },
             {
                 "ws": " ",
-                "i": 42,
+                "i": 38,
                 "text": "WSServer",
                 "static": false
             },
             {
                 "ws": " ",
-                "i": 44,
+                "i": 40,
                 "text": "bind",
                 "static": true
             },
             {
                 "ws": " ",
-                "i": 48,
+                "i": 44,
                 "text": "{",
                 "static": true
             },
             {
-                "ws": "\n            ",
-                "i": 119,
+                "ws": "",
+                "i": 98,
                 "text": "}",
                 "static": true
             }
         ],
         "position": {
-            "startColumn": 13,
-            "startLine": 7,
-            "endColumn": 13,
-            "endLine": 20
+            "startColumn": 1,
+            "startLine": 6,
+            "endColumn": 58,
+            "endLine": 11
         },
         "annotationAttachments": [
             {
                 "ws": [
                     {
-                        "ws": "\n            ",
-                        "i": 2,
+                        "ws": "",
+                        "i": 0,
                         "text": "@",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 3,
+                        "i": 1,
                         "text": "http",
                         "static": false
                     },
                     {
                         "ws": "",
-                        "i": 4,
+                        "i": 2,
                         "text": ":",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 5,
+                        "i": 3,
                         "text": "WebSocketServiceConfig",
                         "static": false
                     }
                 ],
                 "position": {
-                    "startColumn": 13,
-                    "startLine": 2,
-                    "endColumn": 13,
-                    "endLine": 6
+                    "startColumn": 1,
+                    "startLine": 1,
+                    "endColumn": 1,
+                    "endLine": 5
                 },
                 "expression": {
                     "ws": [
                         {
                             "ws": " ",
-                            "i": 7,
+                            "i": 5,
                             "text": "{",
                             "static": true
                         },
                         {
                             "ws": "",
-                            "i": 13,
+                            "i": 11,
                             "text": ",",
                             "static": true
                         },
                         {
                             "ws": "",
-                            "i": 24,
+                            "i": 22,
                             "text": ",",
                             "static": true
                         },
                         {
-                            "ws": "\n            ",
-                            "i": 32,
+                            "ws": "\n",
+                            "i": 29,
                             "text": "}",
                             "static": true
                         }
                     ],
                     "position": {
-                        "startColumn": 42,
-                        "startLine": 2,
-                        "endColumn": 13,
-                        "endLine": 6
+                        "startColumn": 30,
+                        "startLine": 1,
+                        "endColumn": 1,
+                        "endLine": 5
                     },
                     "keyValuePairs": [
                         {
                             "ws": [
                                 {
                                     "ws": "",
-                                    "i": 11,
+                                    "i": 9,
                                     "text": ":",
                                     "static": true
                                 }
@@ -1134,16 +1134,16 @@ export default {
                                 "ws": [
                                     {
                                         "ws": "",
-                                        "i": 12,
+                                        "i": 10,
                                         "text": "\"/basic/ws\"",
                                         "static": false
                                     }
                                 ],
                                 "position": {
-                                    "startColumn": 22,
-                                    "startLine": 3,
-                                    "endColumn": 22,
-                                    "endLine": 3
+                                    "startColumn": 10,
+                                    "startLine": 2,
+                                    "endColumn": 10,
+                                    "endLine": 2
                                 },
                                 "value": "\"/basic/ws\"",
                                 "unescapedValue": "/basic/ws",
@@ -1152,17 +1152,17 @@ export default {
                             "key": {
                                 "ws": [
                                     {
-                                        "ws": "\n                ",
-                                        "i": 10,
+                                        "ws": "\n    ",
+                                        "i": 8,
                                         "text": "path",
                                         "static": false
                                     }
                                 ],
                                 "position": {
-                                    "startColumn": 17,
-                                    "startLine": 3,
-                                    "endColumn": 17,
-                                    "endLine": 3
+                                    "startColumn": 5,
+                                    "startLine": 2,
+                                    "endColumn": 5,
+                                    "endLine": 2
                                 },
                                 "variableName": {
                                     "literal": false,
@@ -1182,7 +1182,7 @@ export default {
                             "ws": [
                                 {
                                     "ws": "",
-                                    "i": 17,
+                                    "i": 15,
                                     "text": ":",
                                     "static": true
                                 }
@@ -1191,44 +1191,44 @@ export default {
                                 "ws": [
                                     {
                                         "ws": "",
-                                        "i": 18,
+                                        "i": 16,
                                         "text": "[",
                                         "static": true
                                     },
                                     {
                                         "ws": "",
-                                        "i": 20,
+                                        "i": 18,
                                         "text": ",",
                                         "static": true
                                     },
                                     {
                                         "ws": "",
-                                        "i": 23,
+                                        "i": 21,
                                         "text": "]",
                                         "static": true
                                     }
                                 ],
                                 "position": {
-                                    "startColumn": 30,
-                                    "startLine": 4,
-                                    "endColumn": 44,
-                                    "endLine": 4
+                                    "startColumn": 18,
+                                    "startLine": 3,
+                                    "endColumn": 32,
+                                    "endLine": 3
                                 },
                                 "expressions": [
                                     {
                                         "ws": [
                                             {
                                                 "ws": "",
-                                                "i": 19,
+                                                "i": 17,
                                                 "text": "\"xml\"",
                                                 "static": false
                                             }
                                         ],
                                         "position": {
-                                            "startColumn": 31,
-                                            "startLine": 4,
-                                            "endColumn": 31,
-                                            "endLine": 4
+                                            "startColumn": 19,
+                                            "startLine": 3,
+                                            "endColumn": 19,
+                                            "endLine": 3
                                         },
                                         "value": "\"xml\"",
                                         "unescapedValue": "xml",
@@ -1238,16 +1238,16 @@ export default {
                                         "ws": [
                                             {
                                                 "ws": " ",
-                                                "i": 22,
+                                                "i": 20,
                                                 "text": "\"json\"",
                                                 "static": false
                                             }
                                         ],
                                         "position": {
-                                            "startColumn": 38,
-                                            "startLine": 4,
-                                            "endColumn": 38,
-                                            "endLine": 4
+                                            "startColumn": 26,
+                                            "startLine": 3,
+                                            "endColumn": 26,
+                                            "endLine": 3
                                         },
                                         "value": "\"json\"",
                                         "unescapedValue": "json",
@@ -1259,17 +1259,17 @@ export default {
                             "key": {
                                 "ws": [
                                     {
-                                        "ws": "\n                ",
-                                        "i": 16,
+                                        "ws": "\n    ",
+                                        "i": 14,
                                         "text": "subProtocols",
                                         "static": false
                                     }
                                 ],
                                 "position": {
-                                    "startColumn": 17,
-                                    "startLine": 4,
-                                    "endColumn": 17,
-                                    "endLine": 4
+                                    "startColumn": 5,
+                                    "startLine": 3,
+                                    "endColumn": 5,
+                                    "endLine": 3
                                 },
                                 "variableName": {
                                     "literal": false,
@@ -1289,7 +1289,7 @@ export default {
                             "ws": [
                                 {
                                     "ws": "",
-                                    "i": 28,
+                                    "i": 26,
                                     "text": ":",
                                     "static": true
                                 }
@@ -1298,16 +1298,16 @@ export default {
                                 "ws": [
                                     {
                                         "ws": "",
-                                        "i": 29,
+                                        "i": 27,
                                         "text": "120",
                                         "static": false
                                     }
                                 ],
                                 "position": {
-                                    "startColumn": 38,
-                                    "startLine": 5,
-                                    "endColumn": 38,
-                                    "endLine": 5
+                                    "startColumn": 26,
+                                    "startLine": 4,
+                                    "endColumn": 26,
+                                    "endLine": 4
                                 },
                                 "value": "120",
                                 "kind": "Literal"
@@ -1315,17 +1315,17 @@ export default {
                             "key": {
                                 "ws": [
                                     {
-                                        "ws": "\n                ",
-                                        "i": 27,
+                                        "ws": "\n    ",
+                                        "i": 25,
                                         "text": "idleTimeoutInSeconds",
                                         "static": false
                                     }
                                 ],
                                 "position": {
-                                    "startColumn": 17,
-                                    "startLine": 5,
-                                    "endColumn": 17,
-                                    "endLine": 5
+                                    "startColumn": 5,
+                                    "startLine": 4,
+                                    "endColumn": 5,
+                                    "endLine": 4
                                 },
                                 "variableName": {
                                     "literal": false,
@@ -1362,28 +1362,28 @@ export default {
             "ws": [
                 {
                     "ws": "",
-                    "i": 37,
+                    "i": 33,
                     "text": "http",
                     "static": false
                 },
                 {
                     "ws": "",
-                    "i": 38,
+                    "i": 34,
                     "text": ":",
                     "static": true
                 },
                 {
                     "ws": "",
-                    "i": 39,
+                    "i": 35,
                     "text": "WebSocketService",
                     "static": false
                 }
             ],
             "position": {
-                "startColumn": 13,
-                "startLine": 7,
-                "endColumn": 13,
-                "endLine": 20
+                "startColumn": 1,
+                "startLine": 6,
+                "endColumn": 58,
+                "endLine": 11
             },
             "symbolType": [
                 "other"
@@ -1404,10 +1404,10 @@ export default {
         },
         "initFunction": {
             "position": {
-                "startColumn": 13,
-                "startLine": 7,
-                "endColumn": 13,
-                "endLine": 20
+                "startColumn": 1,
+                "startLine": 6,
+                "endColumn": 58,
+                "endLine": 11
             },
             "workers": [],
             "returnTypeAnnotationAttachments": [],
@@ -1420,10 +1420,10 @@ export default {
             "documentationAttachments": [],
             "returnTypeNode": {
                 "position": {
-                    "startColumn": 13,
-                    "startLine": 7,
-                    "endColumn": 13,
-                    "endLine": 20
+                    "startColumn": 1,
+                    "startLine": 6,
+                    "endColumn": 58,
+                    "endLine": 11
                 },
                 "symbolType": [
                     "null"
@@ -1437,10 +1437,10 @@ export default {
             "deprecatedAttachments": [],
             "body": {
                 "position": {
-                    "startColumn": 13,
-                    "startLine": 7,
-                    "endColumn": 13,
-                    "endLine": 20
+                    "startColumn": 1,
+                    "startLine": 6,
+                    "endColumn": 58,
+                    "endLine": 11
                 },
                 "statements": [],
                 "kind": "Block"
@@ -1470,41 +1470,41 @@ export default {
             {
                 "ws": [
                     {
-                        "ws": "\n            \n                ",
-                        "i": 53,
+                        "ws": "\n",
+                        "i": 46,
                         "text": "onOpen",
                         "static": false
                     },
                     {
                         "ws": " ",
-                        "i": 55,
+                        "i": 48,
                         "text": "(",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 59,
+                        "i": 52,
                         "text": ")",
                         "static": true
                     },
                     {
                         "ws": " ",
-                        "i": 61,
+                        "i": 54,
                         "text": "{",
                         "static": true
                     },
                     {
-                        "ws": "\n\n                ",
-                        "i": 64,
+                        "ws": "",
+                        "i": 55,
                         "text": "}",
                         "static": true
                     }
                 ],
                 "position": {
-                    "startColumn": 17,
-                    "startLine": 9,
-                    "endColumn": 17,
-                    "endLine": 11
+                    "startColumn": 1,
+                    "startLine": 7,
+                    "endColumn": 25,
+                    "endLine": 7
                 },
                 "workers": [],
                 "returnTypeAnnotationAttachments": [],
@@ -1517,10 +1517,10 @@ export default {
                 "documentationAttachments": [],
                 "returnTypeNode": {
                     "position": {
-                        "startColumn": 17,
-                        "startLine": 9,
-                        "endColumn": 17,
-                        "endLine": 11
+                        "startColumn": 1,
+                        "startLine": 7,
+                        "endColumn": 25,
+                        "endLine": 7
                     },
                     "symbolType": [
                         "null"
@@ -1542,22 +1542,22 @@ export default {
                         "ws": [
                             {
                                 "ws": "",
-                                "i": 56,
+                                "i": 49,
                                 "text": "endpoint",
                                 "static": true
                             },
                             {
                                 "ws": " ",
-                                "i": 58,
+                                "i": 51,
                                 "text": "conn",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 25,
-                            "startLine": 9,
-                            "endColumn": 34,
-                            "endLine": 9
+                            "startColumn": 9,
+                            "startLine": 7,
+                            "endColumn": 18,
+                            "endLine": 7
                         },
                         "symbolType": [
                             "other"
@@ -1607,53 +1607,53 @@ export default {
             {
                 "ws": [
                     {
-                        "ws": "\n            \n\n                ",
-                        "i": 69,
+                        "ws": "\n\n",
+                        "i": 57,
                         "text": "onText",
                         "static": false
                     },
                     {
                         "ws": " ",
-                        "i": 71,
+                        "i": 59,
                         "text": "(",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 75,
+                        "i": 63,
                         "text": ",",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 80,
+                        "i": 68,
                         "text": ",",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 85,
+                        "i": 73,
                         "text": ")",
                         "static": true
                     },
                     {
                         "ws": " ",
-                        "i": 87,
+                        "i": 75,
                         "text": "{",
                         "static": true
                     },
                     {
-                        "ws": "\n\n                ",
-                        "i": 90,
+                        "ws": "",
+                        "i": 76,
                         "text": "}",
                         "static": true
                     }
                 ],
                 "position": {
-                    "startColumn": 17,
-                    "startLine": 14,
-                    "endColumn": 17,
-                    "endLine": 16
+                    "startColumn": 1,
+                    "startLine": 9,
+                    "endColumn": 52,
+                    "endLine": 9
                 },
                 "workers": [],
                 "returnTypeAnnotationAttachments": [],
@@ -1666,10 +1666,10 @@ export default {
                 "documentationAttachments": [],
                 "returnTypeNode": {
                     "position": {
-                        "startColumn": 17,
-                        "startLine": 14,
-                        "endColumn": 17,
-                        "endLine": 16
+                        "startColumn": 1,
+                        "startLine": 9,
+                        "endColumn": 52,
+                        "endLine": 9
                     },
                     "symbolType": [
                         "null"
@@ -1691,22 +1691,22 @@ export default {
                         "ws": [
                             {
                                 "ws": "",
-                                "i": 72,
+                                "i": 60,
                                 "text": "endpoint",
                                 "static": true
                             },
                             {
                                 "ws": " ",
-                                "i": 74,
+                                "i": 62,
                                 "text": "conn",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 25,
-                            "startLine": 14,
-                            "endColumn": 61,
-                            "endLine": 14
+                            "startColumn": 9,
+                            "startLine": 9,
+                            "endColumn": 45,
+                            "endLine": 9
                         },
                         "symbolType": [
                             "other"
@@ -1740,16 +1740,16 @@ export default {
                         "ws": [
                             {
                                 "ws": " ",
-                                "i": 79,
+                                "i": 67,
                                 "text": "text",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 40,
-                            "startLine": 14,
-                            "endColumn": 47,
-                            "endLine": 14
+                            "startColumn": 24,
+                            "startLine": 9,
+                            "endColumn": 31,
+                            "endLine": 9
                         },
                         "symbolType": [
                             "string"
@@ -1759,16 +1759,16 @@ export default {
                             "ws": [
                                 {
                                     "ws": " ",
-                                    "i": 77,
+                                    "i": 65,
                                     "text": "string",
                                     "static": true
                                 }
                             ],
                             "position": {
-                                "startColumn": 40,
-                                "startLine": 14,
-                                "endColumn": 40,
-                                "endLine": 14
+                                "startColumn": 24,
+                                "startLine": 9,
+                                "endColumn": 24,
+                                "endLine": 9
                             },
                             "symbolType": [
                                 "string"
@@ -1806,16 +1806,16 @@ export default {
                         "ws": [
                             {
                                 "ws": " ",
-                                "i": 84,
+                                "i": 72,
                                 "text": "more",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 53,
-                            "startLine": 14,
-                            "endColumn": 61,
-                            "endLine": 14
+                            "startColumn": 37,
+                            "startLine": 9,
+                            "endColumn": 45,
+                            "endLine": 9
                         },
                         "symbolType": [
                             "boolean"
@@ -1825,16 +1825,16 @@ export default {
                             "ws": [
                                 {
                                     "ws": " ",
-                                    "i": 82,
+                                    "i": 70,
                                     "text": "boolean",
                                     "static": true
                                 }
                             ],
                             "position": {
-                                "startColumn": 53,
-                                "startLine": 14,
-                                "endColumn": 53,
-                                "endLine": 14
+                                "startColumn": 37,
+                                "startLine": 9,
+                                "endColumn": 37,
+                                "endLine": 9
                             },
                             "symbolType": [
                                 "boolean"
@@ -1888,53 +1888,53 @@ export default {
             {
                 "ws": [
                     {
-                        "ws": "\n            \n                ",
-                        "i": 95,
+                        "ws": "\n\n",
+                        "i": 78,
                         "text": "onClose",
                         "static": false
                     },
                     {
                         "ws": " ",
-                        "i": 97,
+                        "i": 80,
                         "text": "(",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 101,
+                        "i": 84,
                         "text": ",",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 106,
+                        "i": 89,
                         "text": ",",
                         "static": true
                     },
                     {
                         "ws": "",
-                        "i": 111,
+                        "i": 94,
                         "text": ")",
                         "static": true
                     },
                     {
                         "ws": " ",
-                        "i": 113,
+                        "i": 96,
                         "text": "{",
                         "static": true
                     },
                     {
-                        "ws": "\n                ",
-                        "i": 116,
+                        "ws": "",
+                        "i": 97,
                         "text": "}",
                         "static": true
                     }
                 ],
                 "position": {
-                    "startColumn": 17,
-                    "startLine": 18,
-                    "endColumn": 17,
-                    "endLine": 19
+                    "startColumn": 1,
+                    "startLine": 11,
+                    "endColumn": 57,
+                    "endLine": 11
                 },
                 "workers": [],
                 "returnTypeAnnotationAttachments": [],
@@ -1947,10 +1947,10 @@ export default {
                 "documentationAttachments": [],
                 "returnTypeNode": {
                     "position": {
-                        "startColumn": 17,
-                        "startLine": 18,
-                        "endColumn": 17,
-                        "endLine": 19
+                        "startColumn": 1,
+                        "startLine": 11,
+                        "endColumn": 57,
+                        "endLine": 11
                     },
                     "symbolType": [
                         "null"
@@ -1972,22 +1972,22 @@ export default {
                         "ws": [
                             {
                                 "ws": "",
-                                "i": 98,
+                                "i": 81,
                                 "text": "endpoint",
                                 "static": true
                             },
                             {
                                 "ws": " ",
-                                "i": 100,
+                                "i": 83,
                                 "text": "conn",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 26,
-                            "startLine": 18,
-                            "endColumn": 64,
-                            "endLine": 18
+                            "startColumn": 10,
+                            "startLine": 11,
+                            "endColumn": 48,
+                            "endLine": 11
                         },
                         "symbolType": [
                             "other"
@@ -2021,16 +2021,16 @@ export default {
                         "ws": [
                             {
                                 "ws": " ",
-                                "i": 105,
+                                "i": 88,
                                 "text": "statusCode",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 41,
-                            "startLine": 18,
-                            "endColumn": 45,
-                            "endLine": 18
+                            "startColumn": 25,
+                            "startLine": 11,
+                            "endColumn": 29,
+                            "endLine": 11
                         },
                         "symbolType": [
                             "int"
@@ -2040,16 +2040,16 @@ export default {
                             "ws": [
                                 {
                                     "ws": " ",
-                                    "i": 103,
+                                    "i": 86,
                                     "text": "int",
                                     "static": true
                                 }
                             ],
                             "position": {
-                                "startColumn": 41,
-                                "startLine": 18,
-                                "endColumn": 41,
-                                "endLine": 18
+                                "startColumn": 25,
+                                "startLine": 11,
+                                "endColumn": 25,
+                                "endLine": 11
                             },
                             "symbolType": [
                                 "int"
@@ -2087,16 +2087,16 @@ export default {
                         "ws": [
                             {
                                 "ws": " ",
-                                "i": 110,
+                                "i": 93,
                                 "text": "reason",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 57,
-                            "startLine": 18,
-                            "endColumn": 64,
-                            "endLine": 18
+                            "startColumn": 41,
+                            "startLine": 11,
+                            "endColumn": 48,
+                            "endLine": 11
                         },
                         "symbolType": [
                             "string"
@@ -2106,16 +2106,16 @@ export default {
                             "ws": [
                                 {
                                     "ws": " ",
-                                    "i": 108,
+                                    "i": 91,
                                     "text": "string",
                                     "static": true
                                 }
                             ],
                             "position": {
-                                "startColumn": 57,
-                                "startLine": 18,
-                                "endColumn": 57,
-                                "endLine": 18
+                                "startColumn": 41,
+                                "startLine": 11,
+                                "endColumn": 41,
+                                "endLine": 11
                             },
                             "symbolType": [
                                 "string"
@@ -2172,16 +2172,16 @@ export default {
                 "ws": [
                     {
                         "ws": " ",
-                        "i": 46,
+                        "i": 42,
                         "text": "wsEnpointName",
                         "static": false
                     }
                 ],
                 "position": {
-                    "startColumn": 58,
-                    "startLine": 7,
-                    "endColumn": 58,
-                    "endLine": 7
+                    "startColumn": 46,
+                    "startLine": 6,
+                    "endColumn": 46,
+                    "endLine": 6
                 },
                 "symbolType": [
                     "other"
@@ -2211,29 +2211,29 @@ export default {
     "createWSEndpointDef": {
         "ws": [
             {
-                "ws": "\n            ",
-                "i": 2,
+                "ws": "",
+                "i": 0,
                 "text": "endpoint",
                 "static": true
             },
             {
                 "ws": " ",
-                "i": 8,
+                "i": 6,
                 "text": "wsEnpointName",
                 "static": false
             },
             {
                 "ws": "",
-                "i": 19,
+                "i": 13,
                 "text": ";",
                 "static": true
             }
         ],
         "position": {
-            "startColumn": 13,
-            "startLine": 2,
-            "endColumn": 14,
-            "endLine": 4
+            "startColumn": 1,
+            "startLine": 1,
+            "endColumn": 49,
+            "endLine": 1
         },
         "symbolType": [
             "other"
@@ -2242,22 +2242,22 @@ export default {
             "ws": [
                 {
                     "ws": " ",
-                    "i": 10,
+                    "i": 8,
                     "text": "{",
                     "static": true
                 },
                 {
-                    "ws": "\n            ",
-                    "i": 18,
+                    "ws": "",
+                    "i": 12,
                     "text": "}",
                     "static": true
                 }
             ],
             "position": {
-                "startColumn": 50,
-                "startLine": 2,
-                "endColumn": 13,
-                "endLine": 4
+                "startColumn": 38,
+                "startLine": 1,
+                "endColumn": 48,
+                "endLine": 1
             },
             "symbolType": [
                 "other"
@@ -2267,7 +2267,7 @@ export default {
                     "ws": [
                         {
                             "ws": "",
-                            "i": 14,
+                            "i": 10,
                             "text": ":",
                             "static": true
                         }
@@ -2276,16 +2276,16 @@ export default {
                         "ws": [
                             {
                                 "ws": "",
-                                "i": 15,
+                                "i": 11,
                                 "text": "9090",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 22,
-                            "startLine": 3,
-                            "endColumn": 22,
-                            "endLine": 3
+                            "startColumn": 44,
+                            "startLine": 1,
+                            "endColumn": 44,
+                            "endLine": 1
                         },
                         "value": "9090",
                         "kind": "Literal"
@@ -2293,17 +2293,17 @@ export default {
                     "key": {
                         "ws": [
                             {
-                                "ws": "\n                ",
-                                "i": 13,
+                                "ws": "",
+                                "i": 9,
                                 "text": "port",
                                 "static": false
                             }
                         ],
                         "position": {
-                            "startColumn": 17,
-                            "startLine": 3,
-                            "endColumn": 17,
-                            "endLine": 3
+                            "startColumn": 39,
+                            "startLine": 1,
+                            "endColumn": 39,
+                            "endLine": 1
                         },
                         "variableName": {
                             "literal": false,
@@ -2333,28 +2333,28 @@ export default {
             "ws": [
                 {
                     "ws": " ",
-                    "i": 4,
+                    "i": 2,
                     "text": "http",
                     "static": false
                 },
                 {
                     "ws": "",
-                    "i": 5,
+                    "i": 3,
                     "text": ":",
                     "static": true
                 },
                 {
                     "ws": "",
-                    "i": 6,
+                    "i": 4,
                     "text": "Listener",
                     "static": false
                 }
             ],
             "position": {
-                "startColumn": 22,
-                "startLine": 2,
-                "endColumn": 27,
-                "endLine": 2
+                "startColumn": 10,
+                "startLine": 1,
+                "endColumn": 15,
+                "endLine": 1
             },
             "symbolType": [
                 "other"
@@ -3046,8 +3046,893 @@ export default {
         "variables": [],
         "kind": "Service"
     },
+    "createMainFunction": {
+        "ws": [
+            {
+                "ws": "",
+                "i": 0,
+                "text": "function",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 2,
+                "text": "main",
+                "static": false
+            },
+            {
+                "ws": "",
+                "i": 3,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 8,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 10,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 11,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 1,
+            "startLine": 1,
+            "endColumn": 32,
+            "endLine": 1
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "main",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 10,
+                "startLine": 1,
+                "endColumn": 29,
+                "endLine": 1
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [],
+        "restParameters": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 5,
+                    "text": "...",
+                    "static": true
+                },
+                {
+                    "ws": " ",
+                    "i": 7,
+                    "text": "args",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 15,
+                "startLine": 1,
+                "endColumn": 25,
+                "endLine": 1
+            },
+            "symbolType": [
+                "[]"
+            ],
+            "safeAssignment": false,
+            "typeNode": {
+                "symbolType": [
+                    "[]"
+                ],
+                "dimensions": 1,
+                "elementType": {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 4,
+                            "text": "string",
+                            "static": true
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 15,
+                        "startLine": 1,
+                        "endColumn": 15,
+                        "endLine": 1
+                    },
+                    "symbolType": [
+                        "string"
+                    ],
+                    "typeKind": "string",
+                    "grouped": false,
+                    "nullable": false,
+                    "kind": "ValueType"
+                },
+                "grouped": false,
+                "nullable": false,
+                "kind": "ArrayType"
+            },
+            "deprecatedAttachments": [],
+            "annotationAttachments": [],
+            "name": {
+                "literal": false,
+                "value": "args",
+                "kind": "Identifier"
+            },
+            "documentationAttachments": [],
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false,
+            "defaultable_checked": false,
+            "defaultable": false,
+            "record": false
+        },
+        "kind": "Function",
+        "public": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "defaultable_checked": false,
+        "defaultable": false,
+        "record": false
+    },
+    "createFunction": {
+        "ws": [
+            {
+                "ws": "",
+                "i": 0,
+                "text": "function",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 2,
+                "text": "function1",
+                "static": false
+            },
+            {
+                "ws": "",
+                "i": 3,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 4,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 6,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 7,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 1,
+            "startLine": 1,
+            "endColumn": 23,
+            "endLine": 1
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "function1",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 10,
+                "startLine": 1,
+                "endColumn": 20,
+                "endLine": 1
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [],
+        "kind": "Function",
+        "public": false,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "defaultable_checked": false,
+        "defaultable": false,
+        "record": false
+    },
+    "createHTTPResource": {
+        "ws": [
+            {
+                "ws": "\n",
+                "i": 14,
+                "text": "echo1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 16,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 22,
+                "text": ",",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 29,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 31,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 32,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 1,
+            "startLine": 2,
+            "endColumn": 49,
+            "endLine": 2
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "echo1",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 1,
+                "startLine": 2,
+                "endColumn": 49,
+                "endLine": 2
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [
+            {
+                "ws": [
+                    {
+                        "ws": " ",
+                        "i": 21,
+                        "text": "conn",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 8,
+                    "startLine": 2,
+                    "endColumn": 24,
+                    "endLine": 2
+                },
+                "symbolType": [
+                    "other"
+                ],
+                "safeAssignment": false,
+                "typeNode": {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 17,
+                            "text": "http",
+                            "static": false
+                        },
+                        {
+                            "ws": "",
+                            "i": 18,
+                            "text": ":",
+                            "static": true
+                        },
+                        {
+                            "ws": "",
+                            "i": 19,
+                            "text": "Connection",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 8,
+                        "startLine": 2,
+                        "endColumn": 13,
+                        "endLine": 2
+                    },
+                    "symbolType": [
+                        "other"
+                    ],
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "http",
+                        "kind": "Identifier"
+                    },
+                    "grouped": false,
+                    "typeName": {
+                        "literal": false,
+                        "value": "Connection",
+                        "kind": "Identifier"
+                    },
+                    "nullable": false,
+                    "kind": "UserDefinedType"
+                },
+                "deprecatedAttachments": [],
+                "annotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "conn",
+                    "kind": "Identifier"
+                },
+                "documentationAttachments": [],
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false,
+                "defaultable_checked": false,
+                "defaultable": false,
+                "record": false
+            },
+            {
+                "ws": [
+                    {
+                        "ws": " ",
+                        "i": 28,
+                        "text": "req",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 30,
+                    "startLine": 2,
+                    "endColumn": 43,
+                    "endLine": 2
+                },
+                "symbolType": [
+                    "other"
+                ],
+                "safeAssignment": false,
+                "typeNode": {
+                    "ws": [
+                        {
+                            "ws": " ",
+                            "i": 24,
+                            "text": "http",
+                            "static": false
+                        },
+                        {
+                            "ws": "",
+                            "i": 25,
+                            "text": ":",
+                            "static": true
+                        },
+                        {
+                            "ws": "",
+                            "i": 26,
+                            "text": "Request",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 30,
+                        "startLine": 2,
+                        "endColumn": 35,
+                        "endLine": 2
+                    },
+                    "symbolType": [
+                        "other"
+                    ],
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "http",
+                        "kind": "Identifier"
+                    },
+                    "grouped": false,
+                    "typeName": {
+                        "literal": false,
+                        "value": "Request",
+                        "kind": "Identifier"
+                    },
+                    "nullable": false,
+                    "kind": "UserDefinedType"
+                },
+                "deprecatedAttachments": [],
+                "annotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "req",
+                    "kind": "Identifier"
+                },
+                "documentationAttachments": [],
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false,
+                "defaultable_checked": false,
+                "defaultable": false,
+                "record": false
+            }
+        ],
+        "kind": "Resource",
+        "public": true,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "defaultable_checked": false,
+        "defaultable": false,
+        "record": false
+    },
     "createJMSServiceDef": {
         "error": "Index: 0, Size: 0"
+    },
+    "createFSResource": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 15,
+                "text": "echo1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 17,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 23,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 25,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 28,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 5
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "echo1",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 5
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [
+            {
+                "ws": [
+                    {
+                        "ws": " ",
+                        "i": 22,
+                        "text": "m",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 20,
+                    "startLine": 3,
+                    "endColumn": 39,
+                    "endLine": 3
+                },
+                "symbolType": [
+                    "other"
+                ],
+                "safeAssignment": false,
+                "typeNode": {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 18,
+                            "text": "fs",
+                            "static": false
+                        },
+                        {
+                            "ws": "",
+                            "i": 19,
+                            "text": ":",
+                            "static": true
+                        },
+                        {
+                            "ws": "",
+                            "i": 20,
+                            "text": "FileSystemEvent",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 20,
+                        "startLine": 3,
+                        "endColumn": 23,
+                        "endLine": 3
+                    },
+                    "symbolType": [
+                        "other"
+                    ],
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "fs",
+                        "kind": "Identifier"
+                    },
+                    "grouped": false,
+                    "typeName": {
+                        "literal": false,
+                        "value": "FileSystemEvent",
+                        "kind": "Identifier"
+                    },
+                    "nullable": false,
+                    "kind": "UserDefinedType"
+                },
+                "deprecatedAttachments": [],
+                "annotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "m",
+                    "kind": "Identifier"
+                },
+                "documentationAttachments": [],
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false,
+                "defaultable_checked": false,
+                "defaultable": false,
+                "record": false
+            }
+        ],
+        "kind": "Resource",
+        "public": true,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "defaultable_checked": false,
+        "defaultable": false,
+        "record": false
+    },
+    "createFTPResource": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 15,
+                "text": "echo1",
+                "static": false
+            },
+            {
+                "ws": " ",
+                "i": 17,
+                "text": "(",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 23,
+                "text": ")",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 25,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 28,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 5
+        },
+        "workers": [],
+        "returnTypeAnnotationAttachments": [],
+        "name": {
+            "literal": false,
+            "value": "echo1",
+            "kind": "Identifier"
+        },
+        "annotationAttachments": [],
+        "documentationAttachments": [],
+        "returnTypeNode": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 5
+            },
+            "symbolType": [
+                "null"
+            ],
+            "typeKind": "nil",
+            "grouped": false,
+            "nullable": false,
+            "kind": "ValueType"
+        },
+        "defaultableParameters": [],
+        "deprecatedAttachments": [],
+        "body": {
+            "statements": [],
+            "kind": "Block"
+        },
+        "endpointNodes": [],
+        "parameters": [
+            {
+                "ws": [
+                    {
+                        "ws": " ",
+                        "i": 22,
+                        "text": "m",
+                        "static": false
+                    }
+                ],
+                "position": {
+                    "startColumn": 20,
+                    "startLine": 3,
+                    "endColumn": 39,
+                    "endLine": 3
+                },
+                "symbolType": [
+                    "other"
+                ],
+                "safeAssignment": false,
+                "typeNode": {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 18,
+                            "text": "ftp",
+                            "static": false
+                        },
+                        {
+                            "ws": "",
+                            "i": 19,
+                            "text": ":",
+                            "static": true
+                        },
+                        {
+                            "ws": "",
+                            "i": 20,
+                            "text": "FTPServerEvent",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 20,
+                        "startLine": 3,
+                        "endColumn": 24,
+                        "endLine": 3
+                    },
+                    "symbolType": [
+                        "other"
+                    ],
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "ftp",
+                        "kind": "Identifier"
+                    },
+                    "grouped": false,
+                    "typeName": {
+                        "literal": false,
+                        "value": "FTPServerEvent",
+                        "kind": "Identifier"
+                    },
+                    "nullable": false,
+                    "kind": "UserDefinedType"
+                },
+                "deprecatedAttachments": [],
+                "annotationAttachments": [],
+                "name": {
+                    "literal": false,
+                    "value": "m",
+                    "kind": "Identifier"
+                },
+                "documentationAttachments": [],
+                "kind": "Variable",
+                "public": false,
+                "native": false,
+                "final": false,
+                "attached": false,
+                "lambda": false,
+                "parallel": false,
+                "connector": false,
+                "deprecated": false,
+                "readonly": false,
+                "function_final": false,
+                "interface": false,
+                "defaultable_checked": false,
+                "defaultable": false,
+                "record": false
+            }
+        ],
+        "kind": "Resource",
+        "public": true,
+        "native": false,
+        "final": false,
+        "attached": false,
+        "lambda": false,
+        "parallel": false,
+        "connector": false,
+        "deprecated": false,
+        "readonly": false,
+        "function_final": false,
+        "interface": false,
+        "defaultable_checked": false,
+        "defaultable": false,
+        "record": false
     },
     "createJMSResource": {
         "ws": [
@@ -3305,702 +4190,70 @@ export default {
         "defaultable": false,
         "record": false
     },
-    "createMainFunction": {
+    "createStruct": {
         "ws": [
             {
-                "ws": "\n            ",
-                "i": 2,
-                "text": "function",
+                "ws": "\n",
+                "i": 1,
+                "text": "type",
                 "static": true
             },
             {
                 "ws": " ",
-                "i": 4,
-                "text": "main",
+                "i": 3,
+                "text": "record1",
                 "static": false
             },
             {
-                "ws": "",
-                "i": 5,
-                "text": "(",
-                "static": true
-            },
-            {
-                "ws": "",
-                "i": 10,
-                "text": ")",
-                "static": true
-            },
-            {
                 "ws": " ",
-                "i": 12,
+                "i": 5,
                 "text": "{",
                 "static": true
             },
             {
-                "ws": "\n\n            ",
-                "i": 15,
+                "ws": "\n",
+                "i": 7,
                 "text": "}",
                 "static": true
-            }
-        ],
-        "position": {
-            "startColumn": 13,
-            "startLine": 2,
-            "endColumn": 13,
-            "endLine": 4
-        },
-        "workers": [],
-        "returnTypeAnnotationAttachments": [],
-        "name": {
-            "literal": false,
-            "value": "main",
-            "kind": "Identifier"
-        },
-        "annotationAttachments": [],
-        "documentationAttachments": [],
-        "returnTypeNode": {
-            "position": {
-                "startColumn": 22,
-                "startLine": 2,
-                "endColumn": 41,
-                "endLine": 2
-            },
-            "symbolType": [
-                "null"
-            ],
-            "typeKind": "nil",
-            "grouped": false,
-            "nullable": false,
-            "kind": "ValueType"
-        },
-        "defaultableParameters": [],
-        "deprecatedAttachments": [],
-        "body": {
-            "statements": [],
-            "kind": "Block"
-        },
-        "endpointNodes": [],
-        "parameters": [],
-        "restParameters": {
-            "ws": [
-                {
-                    "ws": "",
-                    "i": 7,
-                    "text": "...",
-                    "static": true
-                },
-                {
-                    "ws": " ",
-                    "i": 9,
-                    "text": "args",
-                    "static": false
-                }
-            ],
-            "position": {
-                "startColumn": 27,
-                "startLine": 2,
-                "endColumn": 37,
-                "endLine": 2
-            },
-            "symbolType": [
-                "[]"
-            ],
-            "safeAssignment": false,
-            "typeNode": {
-                "symbolType": [
-                    "[]"
-                ],
-                "dimensions": 1,
-                "elementType": {
-                    "ws": [
-                        {
-                            "ws": "",
-                            "i": 6,
-                            "text": "string",
-                            "static": true
-                        }
-                    ],
-                    "position": {
-                        "startColumn": 27,
-                        "startLine": 2,
-                        "endColumn": 27,
-                        "endLine": 2
-                    },
-                    "symbolType": [
-                        "string"
-                    ],
-                    "typeKind": "string",
-                    "grouped": false,
-                    "nullable": false,
-                    "kind": "ValueType"
-                },
-                "grouped": false,
-                "nullable": false,
-                "kind": "ArrayType"
-            },
-            "deprecatedAttachments": [],
-            "annotationAttachments": [],
-            "name": {
-                "literal": false,
-                "value": "args",
-                "kind": "Identifier"
-            },
-            "documentationAttachments": [],
-            "kind": "Variable",
-            "public": false,
-            "native": false,
-            "final": false,
-            "attached": false,
-            "lambda": false,
-            "parallel": false,
-            "connector": false,
-            "deprecated": false,
-            "readonly": false,
-            "function_final": false,
-            "interface": false,
-            "defaultable_checked": false,
-            "defaultable": false,
-            "record": false
-        },
-        "kind": "Function",
-        "public": false,
-        "native": false,
-        "final": false,
-        "attached": false,
-        "lambda": false,
-        "parallel": false,
-        "connector": false,
-        "deprecated": false,
-        "readonly": false,
-        "function_final": false,
-        "interface": false,
-        "defaultable_checked": false,
-        "defaultable": false,
-        "record": false
-    },
-    "createFunction": {
-        "ws": [
-            {
-                "ws": "\n            ",
-                "i": 2,
-                "text": "function",
-                "static": true
-            },
-            {
-                "ws": " ",
-                "i": 4,
-                "text": "function1",
-                "static": false
             },
             {
                 "ws": "",
-                "i": 5,
-                "text": "(",
-                "static": true
-            },
-            {
-                "ws": "",
-                "i": 6,
-                "text": ")",
-                "static": true
-            },
-            {
-                "ws": " ",
                 "i": 8,
-                "text": "{",
-                "static": true
-            },
-            {
-                "ws": "\n\n            ",
-                "i": 11,
-                "text": "}",
+                "text": ";",
                 "static": true
             }
         ],
         "position": {
-            "startColumn": 13,
+            "startColumn": 1,
             "startLine": 2,
-            "endColumn": 13,
-            "endLine": 4
+            "endColumn": 2,
+            "endLine": 3
         },
-        "workers": [],
-        "returnTypeAnnotationAttachments": [],
         "name": {
             "literal": false,
-            "value": "function1",
+            "value": "record1",
             "kind": "Identifier"
         },
+        "deprecatedAttachments": [],
         "annotationAttachments": [],
-        "documentationAttachments": [],
-        "returnTypeNode": {
+        "typeNode": {
             "position": {
-                "startColumn": 22,
-                "startLine": 2,
-                "endColumn": 32,
+                "startColumn": 1,
+                "startLine": 3,
+                "endColumn": 14,
                 "endLine": 2
             },
             "symbolType": [
-                "null"
+                "record"
             ],
-            "typeKind": "nil",
+            "fields": [],
             "grouped": false,
             "nullable": false,
-            "kind": "ValueType"
+            "kind": "RecordType"
         },
-        "defaultableParameters": [],
-        "deprecatedAttachments": [],
-        "body": {
-            "statements": [],
-            "kind": "Block"
-        },
-        "endpointNodes": [],
-        "parameters": [],
-        "kind": "Function",
+        "documentationAttachments": [],
+        "kind": "TypeDefinition",
         "public": false,
-        "native": false,
-        "final": false,
-        "attached": false,
-        "lambda": false,
-        "parallel": false,
-        "connector": false,
-        "deprecated": false,
-        "readonly": false,
-        "function_final": false,
-        "interface": false,
-        "defaultable_checked": false,
-        "defaultable": false,
-        "record": false
-    },
-    "createFSResource": {
-        "ws": [
-            {
-                "ws": "\n\n            ",
-                "i": 15,
-                "text": "echo1",
-                "static": false
-            },
-            {
-                "ws": " ",
-                "i": 17,
-                "text": "(",
-                "static": true
-            },
-            {
-                "ws": "",
-                "i": 23,
-                "text": ")",
-                "static": true
-            },
-            {
-                "ws": " ",
-                "i": 25,
-                "text": "{",
-                "static": true
-            },
-            {
-                "ws": "\n\n            ",
-                "i": 28,
-                "text": "}",
-                "static": true
-            }
-        ],
-        "position": {
-            "startColumn": 13,
-            "startLine": 3,
-            "endColumn": 13,
-            "endLine": 5
-        },
-        "workers": [],
-        "returnTypeAnnotationAttachments": [],
-        "name": {
-            "literal": false,
-            "value": "echo1",
-            "kind": "Identifier"
-        },
-        "annotationAttachments": [],
-        "documentationAttachments": [],
-        "returnTypeNode": {
-            "position": {
-                "startColumn": 13,
-                "startLine": 3,
-                "endColumn": 13,
-                "endLine": 5
-            },
-            "symbolType": [
-                "null"
-            ],
-            "typeKind": "nil",
-            "grouped": false,
-            "nullable": false,
-            "kind": "ValueType"
-        },
-        "defaultableParameters": [],
-        "deprecatedAttachments": [],
-        "body": {
-            "statements": [],
-            "kind": "Block"
-        },
-        "endpointNodes": [],
-        "parameters": [
-            {
-                "ws": [
-                    {
-                        "ws": " ",
-                        "i": 22,
-                        "text": "m",
-                        "static": false
-                    }
-                ],
-                "position": {
-                    "startColumn": 20,
-                    "startLine": 3,
-                    "endColumn": 39,
-                    "endLine": 3
-                },
-                "symbolType": [
-                    "other"
-                ],
-                "safeAssignment": false,
-                "typeNode": {
-                    "ws": [
-                        {
-                            "ws": "",
-                            "i": 18,
-                            "text": "fs",
-                            "static": false
-                        },
-                        {
-                            "ws": "",
-                            "i": 19,
-                            "text": ":",
-                            "static": true
-                        },
-                        {
-                            "ws": "",
-                            "i": 20,
-                            "text": "FileSystemEvent",
-                            "static": false
-                        }
-                    ],
-                    "position": {
-                        "startColumn": 20,
-                        "startLine": 3,
-                        "endColumn": 23,
-                        "endLine": 3
-                    },
-                    "symbolType": [
-                        "other"
-                    ],
-                    "packageAlias": {
-                        "literal": false,
-                        "value": "fs",
-                        "kind": "Identifier"
-                    },
-                    "grouped": false,
-                    "typeName": {
-                        "literal": false,
-                        "value": "FileSystemEvent",
-                        "kind": "Identifier"
-                    },
-                    "nullable": false,
-                    "kind": "UserDefinedType"
-                },
-                "deprecatedAttachments": [],
-                "annotationAttachments": [],
-                "name": {
-                    "literal": false,
-                    "value": "m",
-                    "kind": "Identifier"
-                },
-                "documentationAttachments": [],
-                "kind": "Variable",
-                "public": false,
-                "native": false,
-                "final": false,
-                "attached": false,
-                "lambda": false,
-                "parallel": false,
-                "connector": false,
-                "deprecated": false,
-                "readonly": false,
-                "function_final": false,
-                "interface": false,
-                "defaultable_checked": false,
-                "defaultable": false,
-                "record": false
-            }
-        ],
-        "kind": "Resource",
-        "public": true,
-        "native": false,
-        "final": false,
-        "attached": false,
-        "lambda": false,
-        "parallel": false,
-        "connector": false,
-        "deprecated": false,
-        "readonly": false,
-        "function_final": false,
-        "interface": false,
-        "defaultable_checked": false,
-        "defaultable": false,
-        "record": false
-    },
-    "createHTTPResource": {
-        "ws": [
-            {
-                "ws": "\n\n            ",
-                "i": 15,
-                "text": "echo1",
-                "static": false
-            },
-            {
-                "ws": " ",
-                "i": 17,
-                "text": "(",
-                "static": true
-            },
-            {
-                "ws": "",
-                "i": 23,
-                "text": ",",
-                "static": true
-            },
-            {
-                "ws": "",
-                "i": 30,
-                "text": ")",
-                "static": true
-            },
-            {
-                "ws": " ",
-                "i": 32,
-                "text": "{",
-                "static": true
-            },
-            {
-                "ws": "\n\n            ",
-                "i": 35,
-                "text": "}",
-                "static": true
-            }
-        ],
-        "position": {
-            "startColumn": 13,
-            "startLine": 3,
-            "endColumn": 13,
-            "endLine": 5
-        },
-        "workers": [],
-        "returnTypeAnnotationAttachments": [],
-        "name": {
-            "literal": false,
-            "value": "echo1",
-            "kind": "Identifier"
-        },
-        "annotationAttachments": [],
-        "documentationAttachments": [],
-        "returnTypeNode": {
-            "position": {
-                "startColumn": 13,
-                "startLine": 3,
-                "endColumn": 13,
-                "endLine": 5
-            },
-            "symbolType": [
-                "null"
-            ],
-            "typeKind": "nil",
-            "grouped": false,
-            "nullable": false,
-            "kind": "ValueType"
-        },
-        "defaultableParameters": [],
-        "deprecatedAttachments": [],
-        "body": {
-            "statements": [],
-            "kind": "Block"
-        },
-        "endpointNodes": [],
-        "parameters": [
-            {
-                "ws": [
-                    {
-                        "ws": " ",
-                        "i": 22,
-                        "text": "conn",
-                        "static": false
-                    }
-                ],
-                "position": {
-                    "startColumn": 20,
-                    "startLine": 3,
-                    "endColumn": 36,
-                    "endLine": 3
-                },
-                "symbolType": [
-                    "other"
-                ],
-                "safeAssignment": false,
-                "typeNode": {
-                    "ws": [
-                        {
-                            "ws": "",
-                            "i": 18,
-                            "text": "http",
-                            "static": false
-                        },
-                        {
-                            "ws": "",
-                            "i": 19,
-                            "text": ":",
-                            "static": true
-                        },
-                        {
-                            "ws": "",
-                            "i": 20,
-                            "text": "Connection",
-                            "static": false
-                        }
-                    ],
-                    "position": {
-                        "startColumn": 20,
-                        "startLine": 3,
-                        "endColumn": 25,
-                        "endLine": 3
-                    },
-                    "symbolType": [
-                        "other"
-                    ],
-                    "packageAlias": {
-                        "literal": false,
-                        "value": "http",
-                        "kind": "Identifier"
-                    },
-                    "grouped": false,
-                    "typeName": {
-                        "literal": false,
-                        "value": "Connection",
-                        "kind": "Identifier"
-                    },
-                    "nullable": false,
-                    "kind": "UserDefinedType"
-                },
-                "deprecatedAttachments": [],
-                "annotationAttachments": [],
-                "name": {
-                    "literal": false,
-                    "value": "conn",
-                    "kind": "Identifier"
-                },
-                "documentationAttachments": [],
-                "kind": "Variable",
-                "public": false,
-                "native": false,
-                "final": false,
-                "attached": false,
-                "lambda": false,
-                "parallel": false,
-                "connector": false,
-                "deprecated": false,
-                "readonly": false,
-                "function_final": false,
-                "interface": false,
-                "defaultable_checked": false,
-                "defaultable": false,
-                "record": false
-            },
-            {
-                "ws": [
-                    {
-                        "ws": " ",
-                        "i": 29,
-                        "text": "req",
-                        "static": false
-                    }
-                ],
-                "position": {
-                    "startColumn": 42,
-                    "startLine": 3,
-                    "endColumn": 55,
-                    "endLine": 3
-                },
-                "symbolType": [
-                    "other"
-                ],
-                "safeAssignment": false,
-                "typeNode": {
-                    "ws": [
-                        {
-                            "ws": " ",
-                            "i": 25,
-                            "text": "http",
-                            "static": false
-                        },
-                        {
-                            "ws": "",
-                            "i": 26,
-                            "text": ":",
-                            "static": true
-                        },
-                        {
-                            "ws": "",
-                            "i": 27,
-                            "text": "Request",
-                            "static": false
-                        }
-                    ],
-                    "position": {
-                        "startColumn": 42,
-                        "startLine": 3,
-                        "endColumn": 47,
-                        "endLine": 3
-                    },
-                    "symbolType": [
-                        "other"
-                    ],
-                    "packageAlias": {
-                        "literal": false,
-                        "value": "http",
-                        "kind": "Identifier"
-                    },
-                    "grouped": false,
-                    "typeName": {
-                        "literal": false,
-                        "value": "Request",
-                        "kind": "Identifier"
-                    },
-                    "nullable": false,
-                    "kind": "UserDefinedType"
-                },
-                "deprecatedAttachments": [],
-                "annotationAttachments": [],
-                "name": {
-                    "literal": false,
-                    "value": "req",
-                    "kind": "Identifier"
-                },
-                "documentationAttachments": [],
-                "kind": "Variable",
-                "public": false,
-                "native": false,
-                "final": false,
-                "attached": false,
-                "lambda": false,
-                "parallel": false,
-                "connector": false,
-                "deprecated": false,
-                "readonly": false,
-                "function_final": false,
-                "interface": false,
-                "defaultable_checked": false,
-                "defaultable": false,
-                "record": false
-            }
-        ],
-        "kind": "Resource",
-        "public": true,
         "native": false,
         "final": false,
         "attached": false,
@@ -4095,6 +4348,90 @@ export default {
         "defaultable_checked": false,
         "defaultable": false,
         "record": false
+    },
+    "createAssignmentStmt": {
+        "ws": [
+            {
+                "ws": "\n",
+                "i": 7,
+                "text": "var",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 11,
+                "text": "=",
+                "static": true
+            },
+            {
+                "ws": "",
+                "i": 14,
+                "text": ";",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 1,
+            "startLine": 2,
+            "endColumn": 10,
+            "endLine": 2
+        },
+        "variable": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 9,
+                    "text": "a",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 5,
+                "startLine": 2,
+                "endColumn": 5,
+                "endLine": 2
+            },
+            "symbolType": [
+                "int"
+            ],
+            "variableName": {
+                "literal": false,
+                "value": "a",
+                "kind": "Identifier"
+            },
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
+            },
+            "kind": "SimpleVariableRef"
+        },
+        "expression": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 13,
+                    "text": "1",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 9,
+                "startLine": 2,
+                "endColumn": 9,
+                "endLine": 2
+            },
+            "symbolType": [
+                "int"
+            ],
+            "value": "1",
+            "kind": "Literal"
+        },
+        "declaredWithVar": true,
+        "kind": "Assignment"
+    },
+    "createBindStmt": {
+        "error": "Index: 0, Size: 0"
     },
     "createVarDefStmt": {
         "ws": [
@@ -4205,90 +4542,6 @@ export default {
             "record": false
         },
         "kind": "VariableDef"
-    },
-    "createAssignmentStmt": {
-        "ws": [
-            {
-                "ws": "\n",
-                "i": 7,
-                "text": "var",
-                "static": true
-            },
-            {
-                "ws": " ",
-                "i": 11,
-                "text": "=",
-                "static": true
-            },
-            {
-                "ws": "",
-                "i": 14,
-                "text": ";",
-                "static": true
-            }
-        ],
-        "position": {
-            "startColumn": 1,
-            "startLine": 2,
-            "endColumn": 10,
-            "endLine": 2
-        },
-        "variable": {
-            "ws": [
-                {
-                    "ws": " ",
-                    "i": 9,
-                    "text": "a",
-                    "static": false
-                }
-            ],
-            "position": {
-                "startColumn": 5,
-                "startLine": 2,
-                "endColumn": 5,
-                "endLine": 2
-            },
-            "symbolType": [
-                "int"
-            ],
-            "variableName": {
-                "literal": false,
-                "value": "a",
-                "kind": "Identifier"
-            },
-            "packageAlias": {
-                "literal": false,
-                "value": "",
-                "kind": "Identifier"
-            },
-            "kind": "SimpleVariableRef"
-        },
-        "expression": {
-            "ws": [
-                {
-                    "ws": " ",
-                    "i": 13,
-                    "text": "1",
-                    "static": false
-                }
-            ],
-            "position": {
-                "startColumn": 9,
-                "startLine": 2,
-                "endColumn": 9,
-                "endLine": 2
-            },
-            "symbolType": [
-                "int"
-            ],
-            "value": "1",
-            "kind": "Literal"
-        },
-        "declaredWithVar": true,
-        "kind": "Assignment"
-    },
-    "createBindStmt": {
-        "error": "Index: 0, Size: 0"
     },
     "createIf": {
         "ws": [
@@ -4401,181 +4654,6 @@ export default {
             "kind": "Block"
         },
         "kind": "If"
-    },
-    "createFTPResource": {
-        "ws": [
-            {
-                "ws": "\n\n            ",
-                "i": 15,
-                "text": "echo1",
-                "static": false
-            },
-            {
-                "ws": " ",
-                "i": 17,
-                "text": "(",
-                "static": true
-            },
-            {
-                "ws": "",
-                "i": 23,
-                "text": ")",
-                "static": true
-            },
-            {
-                "ws": " ",
-                "i": 25,
-                "text": "{",
-                "static": true
-            },
-            {
-                "ws": "\n\n            ",
-                "i": 28,
-                "text": "}",
-                "static": true
-            }
-        ],
-        "position": {
-            "startColumn": 13,
-            "startLine": 3,
-            "endColumn": 13,
-            "endLine": 5
-        },
-        "workers": [],
-        "returnTypeAnnotationAttachments": [],
-        "name": {
-            "literal": false,
-            "value": "echo1",
-            "kind": "Identifier"
-        },
-        "annotationAttachments": [],
-        "documentationAttachments": [],
-        "returnTypeNode": {
-            "position": {
-                "startColumn": 13,
-                "startLine": 3,
-                "endColumn": 13,
-                "endLine": 5
-            },
-            "symbolType": [
-                "null"
-            ],
-            "typeKind": "nil",
-            "grouped": false,
-            "nullable": false,
-            "kind": "ValueType"
-        },
-        "defaultableParameters": [],
-        "deprecatedAttachments": [],
-        "body": {
-            "statements": [],
-            "kind": "Block"
-        },
-        "endpointNodes": [],
-        "parameters": [
-            {
-                "ws": [
-                    {
-                        "ws": " ",
-                        "i": 22,
-                        "text": "m",
-                        "static": false
-                    }
-                ],
-                "position": {
-                    "startColumn": 20,
-                    "startLine": 3,
-                    "endColumn": 39,
-                    "endLine": 3
-                },
-                "symbolType": [
-                    "other"
-                ],
-                "safeAssignment": false,
-                "typeNode": {
-                    "ws": [
-                        {
-                            "ws": "",
-                            "i": 18,
-                            "text": "ftp",
-                            "static": false
-                        },
-                        {
-                            "ws": "",
-                            "i": 19,
-                            "text": ":",
-                            "static": true
-                        },
-                        {
-                            "ws": "",
-                            "i": 20,
-                            "text": "FTPServerEvent",
-                            "static": false
-                        }
-                    ],
-                    "position": {
-                        "startColumn": 20,
-                        "startLine": 3,
-                        "endColumn": 24,
-                        "endLine": 3
-                    },
-                    "symbolType": [
-                        "other"
-                    ],
-                    "packageAlias": {
-                        "literal": false,
-                        "value": "ftp",
-                        "kind": "Identifier"
-                    },
-                    "grouped": false,
-                    "typeName": {
-                        "literal": false,
-                        "value": "FTPServerEvent",
-                        "kind": "Identifier"
-                    },
-                    "nullable": false,
-                    "kind": "UserDefinedType"
-                },
-                "deprecatedAttachments": [],
-                "annotationAttachments": [],
-                "name": {
-                    "literal": false,
-                    "value": "m",
-                    "kind": "Identifier"
-                },
-                "documentationAttachments": [],
-                "kind": "Variable",
-                "public": false,
-                "native": false,
-                "final": false,
-                "attached": false,
-                "lambda": false,
-                "parallel": false,
-                "connector": false,
-                "deprecated": false,
-                "readonly": false,
-                "function_final": false,
-                "interface": false,
-                "defaultable_checked": false,
-                "defaultable": false,
-                "record": false
-            }
-        ],
-        "kind": "Resource",
-        "public": true,
-        "native": false,
-        "final": false,
-        "attached": false,
-        "lambda": false,
-        "parallel": false,
-        "connector": false,
-        "deprecated": false,
-        "readonly": false,
-        "function_final": false,
-        "interface": false,
-        "defaultable_checked": false,
-        "defaultable": false,
-        "record": false
     },
     "createIfElse": {
         "ws": [
@@ -4777,83 +4855,184 @@ export default {
         },
         "kind": "If"
     },
-    "createStruct": {
+    "createInvocation": {
         "ws": [
             {
-                "ws": "\n",
-                "i": 1,
-                "text": "type",
-                "static": true
-            },
-            {
-                "ws": " ",
-                "i": 3,
-                "text": "record1",
-                "static": false
-            },
-            {
-                "ws": " ",
-                "i": 5,
-                "text": "{",
-                "static": true
-            },
-            {
-                "ws": "\n",
-                "i": 7,
-                "text": "}",
-                "static": true
-            },
-            {
                 "ws": "",
-                "i": 8,
+                "i": 12,
                 "text": ";",
                 "static": true
             }
         ],
         "position": {
-            "startColumn": 1,
-            "startLine": 2,
-            "endColumn": 2,
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 33,
             "endLine": 3
         },
-        "name": {
-            "literal": false,
-            "value": "record1",
-            "kind": "Identifier"
-        },
-        "deprecatedAttachments": [],
-        "annotationAttachments": [],
-        "typeNode": {
+        "expression": {
+            "ws": [
+                {
+                    "ws": "\n\n            ",
+                    "i": 8,
+                    "text": "invokeFunction",
+                    "static": false
+                },
+                {
+                    "ws": "",
+                    "i": 9,
+                    "text": "(",
+                    "static": true
+                },
+                {
+                    "ws": "",
+                    "i": 11,
+                    "text": ")",
+                    "static": true
+                }
+            ],
             "position": {
-                "startColumn": 1,
+                "startColumn": 13,
                 "startLine": 3,
-                "endColumn": 14,
-                "endLine": 2
+                "endColumn": 32,
+                "endLine": 3
             },
             "symbolType": [
-                "record"
+                "other"
             ],
-            "fields": [],
-            "grouped": false,
-            "nullable": false,
-            "kind": "RecordType"
+            "iterableOperation": false,
+            "argumentExpressions": [
+                {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 10,
+                            "text": "arg1",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 28,
+                        "startLine": 3,
+                        "endColumn": 28,
+                        "endLine": 3
+                    },
+                    "variableName": {
+                        "literal": false,
+                        "value": "arg1",
+                        "kind": "Identifier"
+                    },
+                    "packageAlias": {
+                        "literal": false,
+                        "value": "",
+                        "kind": "Identifier"
+                    },
+                    "kind": "SimpleVariableRef"
+                }
+            ],
+            "packageAlias": {
+                "literal": false,
+                "value": "",
+                "kind": "Identifier"
+            },
+            "async": false,
+            "actionInvocation": false,
+            "name": {
+                "literal": false,
+                "value": "invokeFunction",
+                "kind": "Identifier"
+            },
+            "kind": "Invocation"
         },
-        "documentationAttachments": [],
-        "kind": "TypeDefinition",
-        "public": false,
-        "native": false,
-        "final": false,
-        "attached": false,
-        "lambda": false,
-        "parallel": false,
-        "connector": false,
-        "deprecated": false,
-        "readonly": false,
-        "function_final": false,
-        "interface": false,
-        "defaultable_checked": false,
-        "defaultable": false,
-        "record": false
+        "kind": "ExpressionStatement"
+    },
+    "createWhile": {
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "while",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 13,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 16,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 5
+        },
+        "condition": {
+            "ws": [
+                {
+                    "ws": "",
+                    "i": 9,
+                    "text": "(",
+                    "static": true
+                },
+                {
+                    "ws": "",
+                    "i": 11,
+                    "text": ")",
+                    "static": true
+                }
+            ],
+            "position": {
+                "startColumn": 18,
+                "startLine": 3,
+                "endColumn": 23,
+                "endLine": 3
+            },
+            "symbolType": [
+                "boolean"
+            ],
+            "expressions": [
+                {
+                    "ws": [
+                        {
+                            "ws": "",
+                            "i": 10,
+                            "text": "true",
+                            "static": false
+                        }
+                    ],
+                    "position": {
+                        "startColumn": 19,
+                        "startLine": 3,
+                        "endColumn": 19,
+                        "endLine": 3
+                    },
+                    "symbolType": [
+                        "boolean"
+                    ],
+                    "value": "true",
+                    "kind": "Literal"
+                }
+            ],
+            "kind": "BracedTupleExpr"
+        },
+        "kind": "While",
+        "body": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 5
+            },
+            "statements": [],
+            "kind": "Block"
+        }
     },
     "createTry": {
         "ws": [
@@ -5043,185 +5222,6 @@ export default {
             }
         ],
         "kind": "Try"
-    },
-    "createInvocation": {
-        "ws": [
-            {
-                "ws": "",
-                "i": 12,
-                "text": ";",
-                "static": true
-            }
-        ],
-        "position": {
-            "startColumn": 13,
-            "startLine": 3,
-            "endColumn": 33,
-            "endLine": 3
-        },
-        "expression": {
-            "ws": [
-                {
-                    "ws": "\n\n            ",
-                    "i": 8,
-                    "text": "invokeFunction",
-                    "static": false
-                },
-                {
-                    "ws": "",
-                    "i": 9,
-                    "text": "(",
-                    "static": true
-                },
-                {
-                    "ws": "",
-                    "i": 11,
-                    "text": ")",
-                    "static": true
-                }
-            ],
-            "position": {
-                "startColumn": 13,
-                "startLine": 3,
-                "endColumn": 32,
-                "endLine": 3
-            },
-            "symbolType": [
-                "other"
-            ],
-            "iterableOperation": false,
-            "argumentExpressions": [
-                {
-                    "ws": [
-                        {
-                            "ws": "",
-                            "i": 10,
-                            "text": "arg1",
-                            "static": false
-                        }
-                    ],
-                    "position": {
-                        "startColumn": 28,
-                        "startLine": 3,
-                        "endColumn": 28,
-                        "endLine": 3
-                    },
-                    "variableName": {
-                        "literal": false,
-                        "value": "arg1",
-                        "kind": "Identifier"
-                    },
-                    "packageAlias": {
-                        "literal": false,
-                        "value": "",
-                        "kind": "Identifier"
-                    },
-                    "kind": "SimpleVariableRef"
-                }
-            ],
-            "async": false,
-            "packageAlias": {
-                "literal": false,
-                "value": "",
-                "kind": "Identifier"
-            },
-            "actionInvocation": false,
-            "name": {
-                "literal": false,
-                "value": "invokeFunction",
-                "kind": "Identifier"
-            },
-            "kind": "Invocation"
-        },
-        "kind": "ExpressionStatement"
-    },
-    "createWhile": {
-        "ws": [
-            {
-                "ws": "\n\n            ",
-                "i": 8,
-                "text": "while",
-                "static": true
-            },
-            {
-                "ws": " ",
-                "i": 13,
-                "text": "{",
-                "static": true
-            },
-            {
-                "ws": "\n\n            ",
-                "i": 16,
-                "text": "}",
-                "static": true
-            }
-        ],
-        "position": {
-            "startColumn": 13,
-            "startLine": 3,
-            "endColumn": 13,
-            "endLine": 5
-        },
-        "condition": {
-            "ws": [
-                {
-                    "ws": "",
-                    "i": 9,
-                    "text": "(",
-                    "static": true
-                },
-                {
-                    "ws": "",
-                    "i": 11,
-                    "text": ")",
-                    "static": true
-                }
-            ],
-            "position": {
-                "startColumn": 18,
-                "startLine": 3,
-                "endColumn": 23,
-                "endLine": 3
-            },
-            "symbolType": [
-                "boolean"
-            ],
-            "expressions": [
-                {
-                    "ws": [
-                        {
-                            "ws": "",
-                            "i": 10,
-                            "text": "true",
-                            "static": false
-                        }
-                    ],
-                    "position": {
-                        "startColumn": 19,
-                        "startLine": 3,
-                        "endColumn": 19,
-                        "endLine": 3
-                    },
-                    "symbolType": [
-                        "boolean"
-                    ],
-                    "value": "true",
-                    "kind": "Literal"
-                }
-            ],
-            "kind": "BracedTupleExpr"
-        },
-        "kind": "While",
-        "body": {
-            "position": {
-                "startColumn": 13,
-                "startLine": 3,
-                "endColumn": 13,
-                "endLine": 5
-            },
-            "statements": [],
-            "kind": "Block"
-        }
     },
     "createThrow": {
         "ws": [
@@ -5459,7 +5459,71 @@ export default {
         "kind": "WorkerReceive"
     },
     "createTransaction": {
-        "error": null
+        "ws": [
+            {
+                "ws": "\n\n            ",
+                "i": 8,
+                "text": "transaction",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 10,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n\n            ",
+                "i": 13,
+                "text": "}",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 15,
+                "text": "onretry",
+                "static": true
+            },
+            {
+                "ws": " ",
+                "i": 17,
+                "text": "{",
+                "static": true
+            },
+            {
+                "ws": "\n        \n            ",
+                "i": 22,
+                "text": "}",
+                "static": true
+            }
+        ],
+        "position": {
+            "startColumn": 13,
+            "startLine": 3,
+            "endColumn": 13,
+            "endLine": 7
+        },
+        "onRetryBody": {
+            "position": {
+                "startColumn": 15,
+                "startLine": 5,
+                "endColumn": 13,
+                "endLine": 7
+            },
+            "statements": [],
+            "kind": "Block"
+        },
+        "transactionBody": {
+            "position": {
+                "startColumn": 13,
+                "startLine": 3,
+                "endColumn": 13,
+                "endLine": 5
+            },
+            "statements": [],
+            "kind": "Block"
+        },
+        "kind": "Transaction"
     },
     "createAbort": {
         "ws": [
@@ -5689,73 +5753,6 @@ export default {
             "defaultable": false,
             "record": false
         },
-        "joinedWorkerIdentifiers": [],
-        "joinResultVar": {
-            "ws": [
-                {
-                    "ws": " ",
-                    "i": 42,
-                    "text": "results",
-                    "static": false
-                }
-            ],
-            "position": {
-                "startColumn": 25,
-                "startLine": 8,
-                "endColumn": 25,
-                "endLine": 8
-            },
-            "symbolType": [
-                "map"
-            ],
-            "safeAssignment": false,
-            "typeNode": {
-                "ws": [
-                    {
-                        "ws": "",
-                        "i": 40,
-                        "text": "map",
-                        "static": true
-                    }
-                ],
-                "position": {
-                    "startColumn": 25,
-                    "startLine": 8,
-                    "endColumn": 25,
-                    "endLine": 8
-                },
-                "symbolType": [
-                    "map"
-                ],
-                "grouped": false,
-                "typeKind": "map",
-                "nullable": false,
-                "kind": "BuiltInRefType"
-            },
-            "deprecatedAttachments": [],
-            "annotationAttachments": [],
-            "name": {
-                "literal": false,
-                "value": "results",
-                "kind": "Identifier"
-            },
-            "documentationAttachments": [],
-            "kind": "Variable",
-            "public": false,
-            "native": false,
-            "final": false,
-            "attached": false,
-            "lambda": false,
-            "parallel": false,
-            "connector": false,
-            "deprecated": false,
-            "readonly": false,
-            "function_final": false,
-            "interface": false,
-            "defaultable_checked": false,
-            "defaultable": false,
-            "record": false
-        },
         "workers": [
             {
                 "ws": [
@@ -5890,6 +5887,73 @@ export default {
                 "record": false
             }
         ],
+        "joinedWorkerIdentifiers": [],
+        "joinResultVar": {
+            "ws": [
+                {
+                    "ws": " ",
+                    "i": 42,
+                    "text": "results",
+                    "static": false
+                }
+            ],
+            "position": {
+                "startColumn": 25,
+                "startLine": 8,
+                "endColumn": 25,
+                "endLine": 8
+            },
+            "symbolType": [
+                "map"
+            ],
+            "safeAssignment": false,
+            "typeNode": {
+                "ws": [
+                    {
+                        "ws": "",
+                        "i": 40,
+                        "text": "map",
+                        "static": true
+                    }
+                ],
+                "position": {
+                    "startColumn": 25,
+                    "startLine": 8,
+                    "endColumn": 25,
+                    "endLine": 8
+                },
+                "symbolType": [
+                    "map"
+                ],
+                "grouped": false,
+                "typeKind": "map",
+                "nullable": false,
+                "kind": "BuiltInRefType"
+            },
+            "deprecatedAttachments": [],
+            "annotationAttachments": [],
+            "name": {
+                "literal": false,
+                "value": "results",
+                "kind": "Identifier"
+            },
+            "documentationAttachments": [],
+            "kind": "Variable",
+            "public": false,
+            "native": false,
+            "final": false,
+            "attached": false,
+            "lambda": false,
+            "parallel": false,
+            "connector": false,
+            "deprecated": false,
+            "readonly": false,
+            "function_final": false,
+            "interface": false,
+            "defaultable_checked": false,
+            "defaultable": false,
+            "record": false
+        },
         "joinBody": {
             "statements": [],
             "kind": "Block"

@@ -1,17 +1,17 @@
 import ballerina/jdbc;
 
-type ResultCount {
+type ResultCount record {
     int COUNTVAL,
 };
 
-type CustomersTrx {
+type CustomersTrx record {
     int customerId,
     string name,
     float creditLimit,
     string country,
 };
 
-type SalaryTrx {
+type SalaryTrx record {
     int id,
     float value,
 };

@@ -62,8 +62,7 @@ resourceParameterList
     ;
 
 callableUnitBody
-    : LEFT_BRACE endpointDeclaration* statement* RIGHT_BRACE
-    | LEFT_BRACE endpointDeclaration* workerDeclaration+ RIGHT_BRACE
+    : LEFT_BRACE endpointDeclaration* (statement* | workerDeclaration+) RIGHT_BRACE
     ;
 
 
@@ -200,7 +199,7 @@ typeName
     |   LEFT_PARENTHESIS typeName RIGHT_PARENTHESIS                         # groupTypeNameLabel
     |   LEFT_PARENTHESIS typeName (COMMA typeName)* RIGHT_PARENTHESIS       # tupleTypeNameLabel
     |   OBJECT LEFT_BRACE objectBody RIGHT_BRACE                            # objectTypeNameLabel
-    |   RECORD? LEFT_BRACE fieldDefinitionList RIGHT_BRACE                  # recordTypeNameLabel
+    |   RECORD LEFT_BRACE fieldDefinitionList RIGHT_BRACE                  # recordTypeNameLabel
     ;
 
 fieldDefinitionList

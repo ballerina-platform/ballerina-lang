@@ -18,7 +18,7 @@ deprecated {}
 public annotation Description docData;
 
 deprecated {}
-type docData {
+type docData record {
     string value;
 };
 

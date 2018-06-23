@@ -106,7 +106,7 @@ documentation { Configuration related to simple topic subscriber endpoint
     F{{properties}} JMS message properties
     F{{topicPattern}} Topic name pattern
 }
-public type SimpleDurableTopicSubscriberEndpointConfiguration {
+public type SimpleDurableTopicSubscriberEndpointConfiguration record {
     string username = "admin",
     string password = "admin",
     string host = "localhost",

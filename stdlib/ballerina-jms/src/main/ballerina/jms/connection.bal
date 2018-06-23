@@ -48,7 +48,7 @@ documentation { Configurations related to a JMS connection
     F{{connectionFactoryName}} JMS connection factory to be used in creating JMS connections
     F{{properties}} Additional properties use in initializing the initial context
 }
-public type ConnectionConfiguration {
+public type ConnectionConfiguration record {
     string initialContextFactory = "wso2mbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";

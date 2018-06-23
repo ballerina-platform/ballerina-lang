@@ -21,7 +21,7 @@ documentation {
     F{{name}} Absolute file URI for triggerd event
     F{{operation}} Triggered event action. This can be create, delete or modify
 }
-public type FileEvent {
+public type FileEvent record {
     string name,
     string operation,
 };

@@ -107,7 +107,10 @@ public class ServerLauncher {
         // give precedence to command line arg for port
         if (cmdLineArgs.port != null) {
             config.setPort(cmdLineArgs.port);
+        } else {
+            config.setPort(DEFAULT_PORT);
         }
+        
         // if no port is provided via cmd args or config file, try to grab an open port
         if (config.getPort() == 0) {
             config.setPort(getAvailablePort(DEFAULT_PORT));

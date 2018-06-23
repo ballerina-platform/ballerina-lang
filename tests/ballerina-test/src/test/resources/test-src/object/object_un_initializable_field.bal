@@ -36,7 +36,7 @@ type Foo object {
     }
 };
 
-type Bar {
+type Bar record {
     int barVal,
     string name,
 };
