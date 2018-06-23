@@ -110,7 +110,14 @@ public class GrpcServicesBuilder {
         if (ServiceProtoConstants.CLASSPATH_SYMBOL.equals(service.getPackage())) {
             serviceName = service.getName();
         } else {
-            serviceName = service.getPackage() + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
+            String servicePackage = service.getPackage();
+            String serviceVersion = service.getPackageVersion();
+            if (servicePackage != null && servicePackage.endsWith(serviceVersion)) {
+                String[] pkgInfo = servicePackage.split(":");
+                servicePackage = pkgInfo.length > 1 ? pkgInfo[0] : servicePackage;
+            }
+
+            serviceName = servicePackage + ServiceProtoConstants.CLASSPATH_SYMBOL + service.getName();
         }
         // Server Definition Builder for the service.
         Builder serviceDefBuilder = ServerServiceDefinition.builder(serviceName);
