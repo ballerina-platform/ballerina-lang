@@ -468,7 +468,7 @@ public function Response::setBodyParts(mime:Entity[] bodyParts, string contentTy
     self.setEntity(entity);
 }
 
-public function Response::setFileAsPayload(string filePath, @sensitive string contentType = "application/octet-stream")
+public function Response::setFileAsPayload(string filePath, string contentType = "application/octet-stream")
 {
     mime:Entity entity = self.getEntityWithoutBody();
     entity.setFileAsEntityBody(filePath, contentType = contentType);
