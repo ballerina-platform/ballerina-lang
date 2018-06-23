@@ -14,9 +14,7 @@
  * KIND, either express or implied. See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
-
 package org.ballerinalang.util.observability;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -44,7 +42,7 @@ import static org.ballerinalang.util.tracer.TraceConstants.TRACE_HEADER;
  */
 public class TracingUtils {
 
-    public static final String SEPARATOR = ":";
+    private static final String SEPARATOR = ":";
 
     private TracingUtils() {
     }
@@ -58,7 +56,7 @@ public class TracingUtils {
     public static void startObservation(ObserverContext observerContext, boolean isClient) {
         BSpan span = new BSpan(observerContext, isClient);
         span.setConnectorName(observerContext.getServiceName() != null ?
-                observerContext.getServiceName() : "Unknown Service");
+                observerContext.getServiceName() : ObservabilityConstants.UNKNOWN_SERVICE);
 
         if (isClient) {
             span.setActionName(observerContext.getConnectorName() != null ?
@@ -86,7 +84,6 @@ public class TracingUtils {
      * @param observerContext context that holds the span to be finished
      */
     public static void stopObservation(ObserverContext observerContext) {
-
         BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
         if (span != null) {
             Boolean error = (Boolean) observerContext.getProperty(PROPERTY_ERROR);

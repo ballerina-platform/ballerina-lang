@@ -39,7 +39,8 @@ public class FinishSpan extends BlockingNativeCallableUnit {
         boolean isFinished = OpenTracerBallerinaWrapper.getInstance().finishSpan(spanId);
 
         if (!isFinished) {
-            context.setReturnValues(Utils.createErrorStruct(context, "Can not finish already finished span"));
+            context.setReturnValues(Utils.createErrorStruct(context,
+                    "Can not finish span with id " + spanId + ". Span already finished"));
         }
     }
 }

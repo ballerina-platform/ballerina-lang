@@ -46,7 +46,6 @@ public class StartSpan extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
         String spanName = context.getStringArgument(0);
         BMap tags = (BMap) context.getNullableRefArgument(0);
         int parentSpanId = (int) context.getIntArgument(0);

@@ -96,10 +96,8 @@ public class TracingTestCase {
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
         Assert.assertEquals(mockSpans.size(), 5, "Mismatch in number of spans reported.");
-
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 2, "Mismatch in number of root spans.");
-
     }
 
     @Test
@@ -115,11 +113,9 @@ public class TracingTestCase {
         List<BMockSpan> mockSpans = new Gson().fromJson(data, type);
 
         Assert.assertEquals(mockSpans.size(), 7, "Mismatch in number of spans reported.");
-
         Assert.assertEquals(mockSpans.stream()
                 .filter(bMockSpan ->
                         bMockSpan.getParentId() == 0).count(), 2, "Mismatch in number of root spans.");
-
     }
 
     @Test
@@ -148,7 +144,6 @@ public class TracingTestCase {
             Assert.assertEquals(bMockSpan.getTags().get("Allowed"), "Successful", "Tag not found");
             Assert.assertNull(bMockSpan.getTags().get("Disallowed"), "Unexpected tag found");
         });
-
     }
 
     private static void copyFile(File source, File dest) throws IOException {

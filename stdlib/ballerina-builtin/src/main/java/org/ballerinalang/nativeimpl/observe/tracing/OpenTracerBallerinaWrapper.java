@@ -46,12 +46,12 @@ public class OpenTracerBallerinaWrapper {
     private final boolean enabled;
     private Map<Integer, ObserverContext> observerContextList = new HashMap<>();
     private AtomicInteger spanId = new AtomicInteger();
+    private static final int SYSTEM_TRACE_INDICATOR = -1;
 
-    public static final int SYSTEM_TRACE_INDICATOR = -1;
-    public static final int ROOT_SPAN_INDICATOR = -2;
+    static final int ROOT_SPAN_INDICATOR = -2;
 
 
-    public OpenTracerBallerinaWrapper() {
+    private OpenTracerBallerinaWrapper() {
         enabled = ConfigRegistry.getInstance().getAsBoolean(CONFIG_TRACING_ENABLED);
         tracerStore = TracersStore.getInstance();
     }
@@ -70,7 +70,6 @@ public class OpenTracerBallerinaWrapper {
      * @return unique id of the created span
      */
     public int startSpan(String spanName, Map<String, String> tags, int parentSpanId, Context context) {
-
         if (!enabled) {
             return -1;
         }
@@ -114,6 +113,7 @@ public class OpenTracerBallerinaWrapper {
      * Method to mark a span as finished.
      *
      * @param spanId id of the Span
+     * @return boolean to indicate if span was finished
      */
     public boolean finishSpan(int spanId) {
         if (!enabled) {
@@ -136,6 +136,7 @@ public class OpenTracerBallerinaWrapper {
      * @param tagKey   the key of the tag
      * @param tagValue the value of the tag
      * @param spanId   id of the Span
+     * @return boolean to indicate if tag was added to the span
      */
     public boolean addTag(String tagKey, String tagValue, int spanId) {
         if (!enabled) {

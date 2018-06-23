@@ -37,10 +37,6 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
  */
 public class Utils {
 
-    private Utils() {
-        //Do nothing
-    }
-
     public static Map<String, String> toStringMap(BMap map) {
         Map<String, String> returnMap = new HashMap<>();
         if (map != null) {
