@@ -38,7 +38,6 @@ import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSE
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
 
 /**
  * Handle all the errors related to source-handler.
@@ -53,7 +52,6 @@ public class SourceErrorHandler {
 
     public SourceErrorHandler(ServerConnectorFuture serverConnectorFuture) {
         this.serverConnectorFuture = serverConnectorFuture;
-        this.state = CONNECTED;
     }
 
     void handleErrorCloseScenario(HTTPCarbonMessage inboundRequestMsg, HttpResponseFuture httpOutRespStatusFuture) {

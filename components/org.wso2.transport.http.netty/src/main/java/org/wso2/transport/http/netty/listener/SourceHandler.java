@@ -93,6 +93,8 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         this.idleTimeout = false;
         this.serverName = serverName;
         this.allChannels = allChannels;
+        this.sourceErrorHandler = new SourceErrorHandler(serverConnectorFuture);
+
     }
 
     @Override
@@ -109,7 +111,7 @@ public class SourceHandler extends ChannelInboundHandlerAdapter {
         }
         this.ctx = ctx;
         this.remoteAddress = ctx.channel().remoteAddress();
-        sourceErrorHandler = new SourceErrorHandler(serverConnectorFuture);
+        sourceErrorHandler.setState(CONNECTED);
     }
 
     @Override

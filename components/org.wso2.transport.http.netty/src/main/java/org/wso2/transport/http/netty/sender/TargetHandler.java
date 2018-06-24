@@ -20,7 +20,6 @@ import io.netty.channel.socket.ChannelInputShutdownReadComplete;
 import io.netty.handler.codec.http.HttpClientUpgradeHandler;
 import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http2.Http2CodecUtil;
 import io.netty.handler.codec.http2.Http2ConnectionPrefaceAndSettingsFrameWrittenEvent;
 import io.netty.handler.ssl.SslCloseCompletionEvent;
@@ -33,7 +32,6 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
-import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.internal.HTTPTransportContextHolder;
 import org.wso2.transport.http.netty.internal.HandlerExecutor;
 import org.wso2.transport.http.netty.message.DefaultListener;
@@ -49,10 +47,8 @@ import org.wso2.transport.http.netty.sender.http2.TimeoutHandler;
 
 import java.io.IOException;
 
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_RECEIVED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.RECEIVING_ENTITY_BODY;
-import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 import static org.wso2.transport.http.netty.common.Util.safelyRemoveHandlers;
 
 /**
@@ -89,7 +85,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
         if (targetChannel.isRequestHeaderWritten()) {
             if (msg instanceof HttpResponse) {
-                System.out.println(RECEIVING_ENTITY_BODY);
                 targetErrorHandler.setState(RECEIVING_ENTITY_BODY);
                 HttpResponse httpInboundResponse = (HttpResponse) msg;
                 inboundResponseMsg = setUpCarbonMessage(ctx, msg);
@@ -123,7 +118,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                         }
                         this.inboundResponseMsg = null;
                         targetChannel.getChannel().pipeline().remove(Constants.IDLE_STATE_HANDLER);
-                        System.out.println(ENTITY_BODY_RECEIVED);
                         targetErrorHandler.setState(ENTITY_BODY_RECEIVED);
                         if (!isKeepAlive(keepAliveConfig)) {
                             closeChannel(ctx);
@@ -164,10 +158,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        if (log.isDebugEnabled()) {
-            log.debug("Channel " + ctx.channel().id() + " got inactive so closing it from TargetHandler");
-        }
-
         closeChannel(ctx);
         if (!idleTimeoutTriggered) {
             targetErrorHandler.handleErrorCloseScenario(inboundResponseMsg);
@@ -181,25 +171,8 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
         }
     }
 
-//    private void handleErrorCloseScenarios(String channelID) {
-//        if (!idleTimeoutTriggered) {
-//            if (targetChannel.isRequestHeaderWritten()) {
-//                httpResponseFuture.notifyHttpListener(new ClientConnectorException(channelID,
-//                        Constants.REMOTE_SERVER_CLOSED_BEFORE_INITIATING_INBOUND_RESPONSE));
-//            } else if (inboundResponseMsg != null) {
-//                handleIncompleteInboundResponse(Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE);
-//            }
-//        }
-//    }
-
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-//        log.error("Exception occurred in TargetHandler for channel " + ctx.channel().id().asLongText(), cause);
-
-//        httpResponseFuture.notifyHttpListener(cause);
-//        if (inboundResponseMsg != null) {
-//            handleIncompleteInboundResponse(Constants.EXCEPTION_CAUGHT_WHILE_READING_RESPONSE);
-//        }
         closeChannel(ctx);
         targetErrorHandler.exceptionCaught(cause);
     }
@@ -213,8 +186,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 this.idleTimeoutTriggered = true;
                 this.channelInactive(ctx);
                 this.targetErrorHandler.handleErrorIdleScenarios(inboundResponseMsg, ctx.channel().id().asLongText());
-
-                log.warn("Idle timeout has reached hence closing the connection {}", ctx.channel().id());
             }
         } else if (evt instanceof HttpClientUpgradeHandler.UpgradeEvent) {
             HttpClientUpgradeHandler.UpgradeEvent upgradeEvent = (HttpClientUpgradeHandler.UpgradeEvent) evt;
@@ -262,16 +233,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
                 addHttp2ClientChannel(targetChannel.getHttpRoute(), targetChannel.getHttp2ClientChannel());
     }
 
-    private void handleErrorIdleScenarios(String channelID) {
-//        if (inboundResponseMsg == null) {
-//            httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
-//                    Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE,
-//                    HttpResponseStatus.GATEWAY_TIMEOUT.code()));
-//        } else {
-//            handleIncompleteInboundResponse(Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE);
-//        }
-    }
-
     private void closeChannel(ChannelHandlerContext ctx) throws Exception {
         // The if condition here checks if the connection has already been closed by either the client or the backend.
         // If it was the backend which closed the connection, the channel inactive event will be triggered and
@@ -280,8 +241,6 @@ public class TargetHandler extends ChannelInboundHandlerAdapter {
             ctx.close();
         }
     }
-
-
 
     public void setHttpResponseFuture(HttpResponseFuture httpResponseFuture) {
         this.httpResponseFuture = httpResponseFuture;

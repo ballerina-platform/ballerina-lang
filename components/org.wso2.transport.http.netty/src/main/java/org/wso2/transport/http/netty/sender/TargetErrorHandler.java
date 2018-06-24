@@ -18,19 +18,23 @@
 
 package org.wso2.transport.http.netty.sender;
 
+import io.netty.channel.ChannelFuture;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.SourceInteractiveState;
-import org.wso2.transport.http.netty.contract.ClientConnectorException;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.exception.EndpointTimeOutException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
+
+import java.io.IOException;
+import java.nio.channels.ClosedChannelException;
 
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST;
@@ -41,6 +45,7 @@ import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSE
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.CONNECTED;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
 
 /**
  * Handle all the errors related to target-handler.
@@ -57,8 +62,6 @@ public class TargetErrorHandler {
     }
 
     protected void handleErrorCloseScenario(HTTPCarbonMessage inboundResponseMsg) {
-        System.out.print("handleErrorCloseScenario :");
-        System.out.println(state);
         switch (state) {
             case CONNECTED:
                 httpResponseFuture.notifyHttpListener(
@@ -87,8 +90,6 @@ public class TargetErrorHandler {
     }
 
     protected void handleErrorIdleScenarios(HTTPCarbonMessage inboundResponseMsg, String channelID) {
-        System.out.print("handleErrorIdleScenarios :");
-        System.out.println(state);
         switch (state) {
             case CONNECTED:
                 httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
@@ -128,7 +129,7 @@ public class TargetErrorHandler {
     }
 
     public void exceptionCaught(Throwable cause) {
-        log.warn("Exception occurred in TargetHandler : "+ cause.getMessage());
+        log.warn("Exception occurred in TargetHandler : " + cause.getMessage());
     }
 
     public void setState(SourceInteractiveState state) {
@@ -137,6 +138,33 @@ public class TargetErrorHandler {
 
     public void setResponseFuture(HttpResponseFuture httpResponseFuture) {
         this.httpResponseFuture = httpResponseFuture;
+    }
+
+    public void checkForRequestWriteStatus(ChannelFuture outboundRequestChannelFuture) {
+        outboundRequestChannelFuture.addListener(writeOperationPromise -> {
+            if (writeOperationPromise.cause() != null) {
+                notifyResponseFutureListener(writeOperationPromise);
+            } else {
+                this.setState(ENTITY_BODY_SENT);
+            }
+        });
+    }
+
+    public void notifyIfHeaderFailure(ChannelFuture outboundRequestChannelFuture) {
+        outboundRequestChannelFuture.addListener(writeOperationPromise -> {
+            if (writeOperationPromise.cause() != null) {
+                notifyResponseFutureListener(writeOperationPromise);
+            }
+        });
+    }
+
+    private void notifyResponseFutureListener(Future<? super Void> writeOperationPromise) {
+        Throwable throwable = writeOperationPromise.cause();
+        if (throwable instanceof ClosedChannelException) {
+            throwable = new IOException(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST);
+        }
+        log.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST, throwable);
+        httpResponseFuture.notifyHttpListener(throwable);
     }
 }
 
