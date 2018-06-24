@@ -1,29 +1,31 @@
 import ballerina/io;
 
-type Employee record {
+type Employee {
     int id,
     string name,
     float salary,
 };
 
-type EmployeeSalary record {
+type EmployeeSalary {
     int id,
     float salary,
 };
 
 function main(string... args) {
-    // This creates an in-memory table constrained by the employee type and with ID as the primary key.
-    table<Employee> tb = table {
-        primaryKey: ["id"]
-    };
-
     // Create Employee records.
     Employee e1 = { id: 1, name: "Jane", salary: 300.50 };
     Employee e2 = { id: 2, name: "Anne", salary: 100.50 };
     Employee e3 = { id: 3, name: "John", salary: 400.50 };
     Employee e4 = { id: 4, name: "Peter", salary: 150.0 };
-    Employee[] employees = [e1, e2, e3, e4];
 
+    // This creates an in-memory table constrained by the `Employee` type with id as the primary key.
+    // Two records are inserted to the table.
+    table<Employee> tb = table {
+        primaryKey: ["id"],
+        data: [e1, e2]
+    };
+
+    Employee[] employees = [e3, e4];
     // This adds the created records to the table.
     foreach (emp in employees) {
         var ret = tb.add(emp);
