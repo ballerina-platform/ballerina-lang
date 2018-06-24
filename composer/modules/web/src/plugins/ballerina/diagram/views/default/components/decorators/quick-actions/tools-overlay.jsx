@@ -25,12 +25,11 @@ class ToolsOverlay extends React.Component {
             <ToolsPortal>
                 <div
                     style={{
-                        position: 'absolute',
+                        position: 'static',
                         zIndex: 10,
-                        left: this.props.bBox.x,
-                        top: this.props.bBox.y,
+                        height: 0,
+                        width: 0,
                     }}
-                    ref={(wrapperRef) => { this.wrapperRef = wrapperRef; }}
                 >
                     {this.props.children}
                 </div>

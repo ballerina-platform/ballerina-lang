@@ -249,8 +249,6 @@ class IfStatementDecorator extends React.Component {
         const elseComp = model.elseStatement;
         return (
             <g
-                onMouseOut={this.setActionVisibilityFalse}
-                onMouseOver={this.setActionVisibilityTrue}
                 ref={(group) => {
                     this.myRoot = group;
                 }}
@@ -329,9 +327,7 @@ class IfStatementDecorator extends React.Component {
                 </HoverGroup>
                 {isBreakpoint && this.renderBreakpointIndicator()}
                 {this.props.children}
-                {/* <HoverGroup model={this.props.model} region='main'> */}
-                    {body}
-                {/* </HoverGroup> */}
+                {body}
                 {elseComp && <ElseStatementDecorator
                     dropTarget={model}
                     bBox={elseComp.viewState.bBox}
@@ -339,6 +335,15 @@ class IfStatementDecorator extends React.Component {
                     model={elseComp}
                     body={elseComp}
                 />}
+                <HoverGroup model={this.props.model} region='main'>
+                    <rect
+                        x={p8X - 25}
+                        y={p8Y + 5}
+                        width={50}
+                        height={25}
+                        className='invisible-rect'
+                    />
+                </HoverGroup>
             </g>);
     }
 }

@@ -38,7 +38,7 @@ class Tools extends React.Component {
         const { children, size } = this.props;
         return (
             <div style={{
-                position: 'relative',
+                position: 'absolute',
                 ...this.props.style,
             }}
             >

@@ -66,23 +66,22 @@ class ControllerOverlay extends React.Component {
         });
         this.forceUpdate();
     }
-    onMouseLeave({ origin }) {
+    onMouseLeave({ origin, region }) {
         // clean up previous menu items
-        origin.trigger('render-menu', { content: null });
+        origin.trigger('render-menu', { content: null, region });
         this.forceUpdate();
     }
 
-    renderControllers(model, controllers) {
-        model.trigger('render-menu', { content: controllers });
+    renderControllers(model, controllers, region) {
+        model.trigger('render-menu', { content: controllers, region });
     }
 
     renderToRegions(node, regionToComponent = {}) {
-        if (!this.state.region) {
-            return;
-        }
-        const component = regionToComponent[this.state.region];
-        this.renderControllers(node, component);
+        const region = node.viewState.hoveredRegion;
+        const component = regionToComponent[region];
+        this.renderControllers(node, component, region);
     }
+
     /**
      * Renders view for a controller overlay.
      *
@@ -93,22 +92,31 @@ class ControllerOverlay extends React.Component {
         const hoverItemVisiter = new HoverItemVisiter();
         this.props.model.accept(hoverItemVisiter);
         const nodes = hoverItemVisiter.getHoveredItems();
+        
         nodes.forEach((node) => {
             if (node.kind === 'If') {
                 this.renderToRegions(node, {
-                    main: <HoverButton style={{ top: 120 }}>
+                    main: <HoverButton
+                        style={{
+                            top: node.viewState.components['statement-box'].y - 10,
+                            left: node.viewState.components['statement-box'].x - 15,
+                        }}
+                    >
                         <Menu vertical>
                             {ControllerUtil.convertToAddItems(WorkerTools, node.getBody())}
                         </Menu>
                     </HoverButton>,
                     actionBox: <ActionBox
                         onDelete={() => { node.remove(); }}
-                        onJumptoCodeLine={() => { 
+                        onJumptoCodeLine={() => {
                             const { editor } = this.context;
                             editor.goToSource(node);
                         }}
                         show
-                        style={{ top: 50 }}
+                        style={{
+                            top: node.viewState.components['statement-box'].y - 50,
+                            left: node.viewState.components['statement-box'].x - 38,
+                        }}
                     />,
                 });
             } else if (node.kind === 'Assignment' || node.kind === 'VariableDef' || node.kind === 'ExpressionStatement') {

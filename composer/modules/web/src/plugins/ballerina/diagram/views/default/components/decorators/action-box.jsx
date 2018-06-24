@@ -40,7 +40,7 @@ class ActionBox extends React.Component {
     render() {
         const iconSize = 38;
 
-        return (<div style={{ position: 'absolute', left: -iconSize, ...this.props.style }}>
+        return (<div style={{ position: 'absolute', left: -iconSize, ...this.props.style }} onMouseOver={() => console.log('adadad')}>
             <Button.Group>
                 <Button
                     onClick={this.props.disableButtons.delete ? () => {} : this.props.onDelete}

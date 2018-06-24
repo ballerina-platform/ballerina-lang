@@ -27,10 +27,12 @@ class HoverGroup extends React.Component {
         };
     }
     componentDidMount() {
-        this.props.model.on('render-menu', ({ content }) => {
-            this.setState({
-                content,
-            });
+        this.props.model.on('render-menu', ({ content, region }) => {
+            if (region === this.props.region) {
+                this.setState({
+                    content,
+                });
+            } 
         });
     }
     componentWillUnmount() {
@@ -43,6 +45,7 @@ class HoverGroup extends React.Component {
                 className='hover-group'
                 onMouseEnter={() => {
                     this.props.model.viewState.hovered = true;
+                    this.props.model.viewState.hoveredRegion = this.props.region;
                     this.props.model.trigger('mouse-enter', {
                         origin: this.props.model,
                         region: this.props.region,
@@ -50,6 +53,7 @@ class HoverGroup extends React.Component {
                 }}
                 onMouseLeave={(e) => {
                     this.props.model.viewState.hovered = false;
+                    this.props.model.viewState.hoveredRegion = undefined;
                     this.props.model.trigger('mouse-leave', {
                         origin: this.props.model,
                         region: this.props.region,
@@ -57,11 +61,9 @@ class HoverGroup extends React.Component {
                 }}
             >
                 {children}
-                <ToolsOverlay
-                    bBox={this.props.model.viewState.bBox}
-                >
+                {this.state.content ? <ToolsOverlay>
                     {this.state.content}
-                </ToolsOverlay>
+                </ToolsOverlay> : null}
             </g>
         );
     }
