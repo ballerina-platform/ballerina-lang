@@ -1,2 +1,2 @@
 // In Ballerina, error handling can be performed either by returning a value of type `error`, or by throwing an exception.
-// An `error` type in Ballerina should be structurally equivalent to the `error` struct.
+// An `error` type in Ballerina should be structurally equivalent to the built-in `error` type.
