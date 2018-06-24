@@ -348,39 +348,7 @@ public class CommonUtil {
      * @return {@link Boolean}  Whether the cursor is within the brackets or not
      */
     public static boolean isWithinBrackets(LSServiceOperationContext context, List<String> terminalTokens) {
-//        int currentTokenIndex = context.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
-//        TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-//        Token previousToken = tokenStream.get(currentTokenIndex);
-//        Token currentToken;
-//        while (true) {
-//            if (currentTokenIndex < 0) {
-//                break;
-//            }
-//            currentToken = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex);
-//            if (terminalTokens.contains(currentToken.getText())) {
-//                break;
-//            }
-//            previousToken = currentToken;
-//            currentTokenIndex = currentToken.getTokenIndex();
-//        }
-//
-//        if (previousToken != null && previousToken.getText().equals(OPEN_BRACKET_KEY_WORD)) {
-//            Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-//            Token closeBracket = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY)
-//                    .get(context.get(DocumentServiceKeys.TOKEN_INDEX_KEY));
-//            int cursorLine = position.getLine();
-//            int cursorCol = position.getCharacter();
-//            int startBracketLine = previousToken.getLine() - 1;
-//            int startBracketCol = previousToken.getCharPositionInLine();
-//            int closeBracketLine = closeBracket.getLine() - 1;
-//            int closeBracketCol = closeBracket.getCharPositionInLine();
-//
-//            return (cursorLine >= startBracketLine && cursorLine < closeBracketLine)
-//                    || (cursorLine > startBracketLine && cursorLine <= closeBracketLine)
-//                    || (cursorLine == startBracketLine && cursorLine == closeBracketLine
-//                    && cursorCol > startBracketCol && cursorCol <= closeBracketCol);
-//        }
-
+        // TODO: Revamp implementation
         return false;
     }
 
@@ -577,15 +545,6 @@ public class CommonUtil {
     public static ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(LSServiceOperationContext context,
                                                                          String variableName, String delimiter) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
-//        String lineSegment = context.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
-//        TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-//        if (tokenStream == null) {
-//            variableName = CompletionUtil.getPreviousTokenFromLineSegment(lineSegment, delimiterIndex);
-//            delimiter = CompletionUtil.getDelimiterTokenFromLineSegment(context, lineSegment);
-//        } else {
-//            variableName = CommonUtil.getPreviousDefaultToken(tokenStream, delimiterIndex).getText();
-//            delimiter = tokenStream.get(delimiterIndex).getText();
-//        }
         List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
         SymbolInfo variable = CommonUtil.getVariableByName(variableName, symbols);

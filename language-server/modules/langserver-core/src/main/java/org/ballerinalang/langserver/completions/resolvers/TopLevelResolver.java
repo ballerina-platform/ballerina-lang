@@ -61,18 +61,6 @@ public class TopLevelResolver extends AbstractItemResolver {
             } else {
                 completionItems.addAll(errorContextResolver.resolveItems(ctx));
             }
-//            if (errorContextResolver instanceof PackageNameContextResolver
-//                    || errorContextResolver instanceof ParserRuleServiceEndpointAttachmentContextResolver
-//                    || errorContextResolver instanceof EndpointDeclarationContext) {
-//                completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-//            } else if (errorContextResolver instanceof ParserRuleGlobalVariableDefinitionContextResolver
-//                    || errorContextResolver instanceof ParserRuleTypeNameContextResolver) {
-//                addTopLevelItems(completionItems);
-//                this.populateBasicTypes(completionItems, completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));
-//                completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-//            } else if (errorContextResolver instanceof ParserRuleExpressionContextResolver) {
-//                completionItems.addAll(errorContextResolver.resolveItems(completionContext));
-//            }
         }
 
         ItemSorters.getSorterByClass(DefaultItemSorter.class).sortItems(ctx, completionItems);

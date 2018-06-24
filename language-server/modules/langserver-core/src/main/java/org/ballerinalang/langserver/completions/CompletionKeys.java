@@ -64,10 +64,4 @@ public class CompletionKeys {
             = new LSContext.Key<>();
     public static final LSContext.Key<AnnotationAttachmentMetaInfo> ANNOTATION_ATTACHMENT_META_KEY
             = new LSContext.Key<>();
-    
-    // TODO: Remove Meta context Keys
-    public static final LSContext.Key<Boolean> META_CONTEXT_IS_ENDPOINT_KEY
-            = new LSContext.Key<>();
-    public static final LSContext.Key<String> META_CONTEXT_ENDPOINT_NAME_KEY
-            = new LSContext.Key<>();
 }

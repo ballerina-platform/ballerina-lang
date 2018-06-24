@@ -685,7 +685,7 @@ public class TreeVisitor extends LSNodeVisitor {
             SymbolEnv epEnv = SymbolEnv
                     .createPkgLevelSymbolEnv(endpointNode, symbolEnv.scope, symbolEnv);
             endpointNode.annAttachments.forEach(annotationAttachment -> this.acceptNode(annotationAttachment, epEnv));
-            this.isWithinEndpointContext(endpointNode.getPosition(), epEnv, endpointNode.getName().getValue());
+            this.isWithinEndpointContext(endpointNode.getPosition(), epEnv);
         }
     }
 
@@ -872,29 +872,8 @@ public class TreeVisitor extends LSNodeVisitor {
         return false;
     }
 
-    private boolean isWithinEndpointContext(DiagnosticPos diagnosticPos, SymbolEnv symbolEnv, String epName) {
-        if (documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
-                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY) == null) {
-            // No syntax errors has occurred
-            return this.isCursorWithinBlock(diagnosticPos, symbolEnv);
-        } else if (documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
-                .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY)) {
-            // Syntax errors has occurred
-            boolean isWithinEndpoint = documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
-                    .get(CompletionKeys.META_CONTEXT_IS_ENDPOINT_KEY);
-            String name = documentServiceContext.get(DocumentServiceKeys.OPERATION_META_CONTEXT_KEY)
-                    .get(CompletionKeys.META_CONTEXT_ENDPOINT_NAME_KEY);
-
-            if (isWithinEndpoint && epName.equals(name)) {
-                // Evaluating the particular Endpoint
-                this.populateSymbols(new HashMap<>(), symbolEnv);
-                this.setTerminateVisitor(true);
-
-                return true;
-            }
-        }
-
-        return false;
+    private boolean isWithinEndpointContext(DiagnosticPos diagnosticPos, SymbolEnv symbolEnv) {
+        return this.isCursorWithinBlock(diagnosticPos, symbolEnv);
     }
 
     /**

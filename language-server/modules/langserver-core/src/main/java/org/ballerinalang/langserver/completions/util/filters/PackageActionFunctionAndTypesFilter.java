@@ -100,16 +100,7 @@ public class PackageActionFunctionAndTypesFilter extends AbstractSymbolFilter {
     private Either<List<CompletionItem>, List<SymbolInfo>> getActionsFunctionsAndTypes(
             LSServiceOperationContext completionContext, String packageName) {
 
-//        String packageName;
-//        String lineSegment = completionContext.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
-//        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
         List<SymbolInfo> symbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        
-//        if (tokenStream == null) {
-//            packageName = CompletionUtil.getPreviousTokenFromLineSegment(lineSegment, delimiterIndex);
-//        } else {
-//            packageName = tokenStream.get(delimiterIndex - 1).getText();
-//        }
 
         // Extract the package symbol
         SymbolInfo packageSymbolInfo = symbols.stream().filter(item -> {

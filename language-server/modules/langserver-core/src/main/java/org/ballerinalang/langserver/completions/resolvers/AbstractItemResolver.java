@@ -247,9 +247,6 @@ public abstract class AbstractItemResolver {
     protected List<CompletionItem> getVariableDefinitionCompletionItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredList;
-//        String tokenString = CommonUtil.getPreviousDefaultToken(
-//                completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY),
-//                completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY)).getText();
         String tokenString = "";
         if (ItemResolverConstants.NEW.equals(tokenString)) {
             filteredList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
