@@ -49,7 +49,7 @@ public class BLangEndpointContextResolver extends AbstractItemResolver {
     
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         BLangNode bLangEndpoint = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<BAttachedFunction> attachedFunctions = new ArrayList<>();

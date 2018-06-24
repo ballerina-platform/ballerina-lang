@@ -55,14 +55,7 @@ public class ResourceDefinition extends CompletionTest {
                 {"actionInvocationSuggestion2.json", "resource"},
                 {"completionBeforeUnderscore1.json", "resource"},
                 {"completionBeforeUnderscore2.json", "resource"},
-                {"completionBeforeUnderscore3.json", "resource"},
-//                {"enumSuggestAssignment1.json", "resource"},
-//                {"enumSuggestAssignment2.json", "resource"},
-//                {"enumSuggestVarDef1.json", "resource"},
-//                {"enumSuggestVarDef2.json", "resource"},
-//                {"structFields.json", "resource"},
-//                {"structBoundFunctionsAndFields.json", "resource"},
-//                {"packageContentWithSucceedingCharacter1.json", "resource"}
+                {"completionBeforeUnderscore3.json", "resource"}
         };
     }
 }

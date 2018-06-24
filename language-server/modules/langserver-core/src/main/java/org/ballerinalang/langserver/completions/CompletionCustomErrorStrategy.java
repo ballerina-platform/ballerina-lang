@@ -42,13 +42,13 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     private LSContext context;
 
-	private int removeTokenCount = 0;
+    private int removeTokenCount = 0;
 
-	private Stack<Token> forceConsumedTokens = new Stack<>();
+    private Stack<Token> forceConsumedTokens = new Stack<>();
 
-	private Token lastTerminationToken = null;
+    private Token lastTerminationToken = null;
 
-	private Token firstTokenOfCursorLine = null;
+    private Token firstTokenOfCursorLine = null;
 
     public CompletionCustomErrorStrategy(LSContext context) {
         super(context);
@@ -57,22 +57,22 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void reportInputMismatch(Parser parser, InputMismatchException e) {
-        logError(e.getMessage());
+        this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
     }
 
     @Override
     public void reportMissingToken(Parser parser) {
-        logError("");
+        this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
     }
 
     @Override
     public void reportNoViableAlternative(Parser parser, NoViableAltException e) {
-        logError(e.getMessage());
+        this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
     }
 
     @Override
     public void reportUnwantedToken(Parser parser) {
-        logError("");
+        this.context.put(CompletionKeys.TOKEN_STREAM_KEY, parser.getTokenStream());
     }
 
     @Override
@@ -86,7 +86,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
 
     @Override
     public void sync(Parser recognizer) throws RecognitionException {
-		removePendingTokensAfterThisToken(recognizer, lastTerminationToken);
+        removePendingTokensAfterThisToken(recognizer, lastTerminationToken);
         if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInFirstTokenOfCursorLine(recognizer)) {
             deleteTokensUpToCursor(recognizer, false);
         } else if (recognizer.getCurrentToken().getType() != BallerinaParser.EOF && isInLastTermination(recognizer)) {
@@ -107,7 +107,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
         this.context.put(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY, forceConsumedTokens);
     }
 
-	private boolean isInFirstTokenOfCursorLine(Parser recognizer) {
+    private boolean isInFirstTokenOfCursorLine(Parser recognizer) {
         Token currentToken = recognizer.getCurrentToken();
         if (firstTokenOfCursorLine == null) {
             firstTokenOfCursorLine = getFirstTokenOfCursorLine(recognizer);
@@ -124,7 +124,7 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
     }
 
     private void deleteTokensUpToCursor(Parser recognizer, boolean isInLastTermination) {
-	    Position cursorPosition = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Position cursorPosition = this.context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         int cursorLine = cursorPosition.getLine() + 1;
         int cursorCol = cursorPosition.getCharacter() + 1;
 
@@ -204,9 +204,5 @@ public class CompletionCustomErrorStrategy extends LSCustomErrorStrategy {
             tCol = beforeCursorToken.getCharPositionInLine();
         }
         return lastTerminationToken;
-    }
-
-    private void logError(String message) {
-        logger.error("Invalid Source Fragment found: [" + message + " ]");
     }
 }
