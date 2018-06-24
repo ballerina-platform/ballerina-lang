@@ -25,7 +25,7 @@ function testEnumAsParameter(state st) returns (boolean) {
     }
 }
 
-type person {
+type person record {
         string name;
         int age;
         state st;

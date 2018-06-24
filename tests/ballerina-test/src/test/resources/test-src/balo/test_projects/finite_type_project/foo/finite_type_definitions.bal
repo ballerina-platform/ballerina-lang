@@ -8,7 +8,7 @@ public type Int int;
 
 public type POrInt Person|int;
 
-public type Person {
+public type Person record {
    string name;
 };
 

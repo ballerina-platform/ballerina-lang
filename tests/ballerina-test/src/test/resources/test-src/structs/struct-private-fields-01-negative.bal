@@ -1,12 +1,12 @@
 
 import org.foo;
 
-public type userA {
+public type userA record {
     int age;
     string name;
 };
 
-public type userB {
+public type userB record {
     int age;
     string name;
     string address;

@@ -2,7 +2,7 @@
 
 import ballerina/io;
 
-type Person {
+type Person record {
     string name;
     int id;
     int age;

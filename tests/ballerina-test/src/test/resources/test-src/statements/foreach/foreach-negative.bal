@@ -31,7 +31,7 @@ function test4(){
     }
 }
 
-type person {
+type person record {
     int id;
 };
 

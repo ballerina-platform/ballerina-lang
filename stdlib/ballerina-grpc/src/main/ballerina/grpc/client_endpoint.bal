@@ -60,7 +60,7 @@ documentation {
     F{{url}} - The server url.
     F{{secureSocket}} - The SSL configurations for the client endpoint.
 }
-public type ClientEndpointConfig {
+public type ClientEndpointConfig record {
     string url,
     SecureSocket? secureSocket,
 };
@@ -78,7 +78,7 @@ documentation {
     F{{shareSession}} - Enable/disable new ssl session creation.
     F{{ocspStapling}} - Enable/disable ocsp stapling.
 }
-public type SecureSocket {
+public type SecureSocket record {
     TrustStore? trustStore,
     KeyStore? keyStore,
     Protocols? protocol,
