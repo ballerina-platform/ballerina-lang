@@ -44,6 +44,8 @@ public abstract class CompletionTest {
 
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) {
+        System.setProperty("ballerina.home", "/media/nadeeshaan/f6e45128-5272-4b10-99c9-b5dc9990d202" +
+                "/nadeeshaan/Development/NextGen_ESB/Bal_Workspace/ballerina-tools-0.975.1-SNAPSHOT");
         String configJsonPath = "completion" + File.separator + configPath + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         List<CompletionItem> responseItemList = getResponseItemList(configJsonObject);

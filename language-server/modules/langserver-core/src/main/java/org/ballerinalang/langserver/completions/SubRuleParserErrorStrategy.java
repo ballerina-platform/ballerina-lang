@@ -1,5 +1,5 @@
 /*
-*  Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 *
 *  WSO2 Inc. licenses this file to you under the Apache License,
 *  Version 2.0 (the "License"); you may not use this file except
@@ -21,8 +21,8 @@ import org.antlr.v4.runtime.DefaultErrorStrategy;
 import org.antlr.v4.runtime.InputMismatchException;
 import org.antlr.v4.runtime.NoViableAltException;
 import org.antlr.v4.runtime.Parser;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSContext;
+import org.wso2.ballerinalang.compiler.parser.antlr4.BallerinaParser;
 
 /**
  * Capture possible errors from source.
@@ -56,6 +56,8 @@ public class SubRuleParserErrorStrategy extends DefaultErrorStrategy {
     }
 
     private void fillContext(Parser parser) {
-        this.context.put(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY, parser.getContext());
+        if (!(parser.getContext() instanceof BallerinaParser.CallableUnitBodyContext)) {
+            this.context.put(CompletionKeys.PARSER_RULE_CONTEXT_KEY, parser.getContext());
+        }
     }
 }

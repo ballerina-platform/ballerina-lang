@@ -19,7 +19,6 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -36,12 +35,12 @@ import java.util.stream.Collectors;
 public class GlobalScopeResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
 
-        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
 
         if (parserRuleContext == null) {
             // If the parser rule context is null we don't have any errors. In this case we add the types

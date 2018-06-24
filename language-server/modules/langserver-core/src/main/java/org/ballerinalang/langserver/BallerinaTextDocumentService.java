@@ -140,15 +140,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
                                                                        false).get(0);
                 completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                                       bLangPackage.symbol.getName().getValue());
-                CompletionSubRuleParser.parseWithinFunctionDefinition(completionContext);
                 CompletionUtil.resolveSymbols(completionContext, bLangPackage);
+                CompletionSubRuleParser.parse(completionContext);
             } catch (Exception | AssertionError e) {
                 if (CommonUtil.LS_DEBUG_ENABLED) {
                     String msg = e.getMessage();
                     logger.error("Error while resolving symbols" + ((msg != null) ? ": " + msg : ""), e);
                 }
-                // Fallback procedure in an exception. Currently supports the match statement only
-                CompletionUtil.resolveSymbols(completionContext, null);
             } finally {
                 lock.ifPresent(Lock::unlock);
                 completions = CompletionUtil.getCompletionItems(completionContext);
