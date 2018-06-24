@@ -30,7 +30,7 @@ function foo (int a, string b, boolean c) returns (string) {
     return a + b + c;
 }
 
-type Person {
+type Person record {
     string name;
     string location;
 };

@@ -91,7 +91,7 @@ function createJWTIssueConfig(ConfigJwtAuthProviderConfig authConfig) returns (i
     return config;
 }
 
-public type ConfigJwtAuthProviderConfig {
+public type ConfigJwtAuthProviderConfig record {
     string issuer,
     string audience,
     int expTime,

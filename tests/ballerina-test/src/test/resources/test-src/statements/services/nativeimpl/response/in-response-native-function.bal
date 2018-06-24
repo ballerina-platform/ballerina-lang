@@ -102,7 +102,7 @@ service<http:Service> hello bind mockEP {
     echo2 (endpoint conn, http:Request req, string phase) {
         http:Response res = new;
         res.reasonPhrase = phase;
-        _ = conn -> respond(res);
+        _ = conn -> respond(untaint res);
     }
 
     @http:ResourceConfig {
@@ -120,7 +120,7 @@ service<http:Service> hello bind mockEP {
     addheader (endpoint conn, http:Request req, string key, string value) {
         http:Response res = new;
         res.addHeader(untaint key, value);
-        string result = res.getHeader(untaint key);
+        string result = untaint res.getHeader(untaint key);
         res.setJsonPayload({lang:result});
         _ = conn -> respond(res);
     }
@@ -131,7 +131,7 @@ service<http:Service> hello bind mockEP {
     getHeader (endpoint conn, http:Request req, string header, string value) {
         http:Response res = new;
         res.setHeader(untaint header, value);
-        string result = res.getHeader(untaint header);
+        string result = untaint res.getHeader(untaint header);
         res.setJsonPayload({value:result});
         _ = conn -> respond(res);
     }
@@ -142,7 +142,7 @@ service<http:Service> hello bind mockEP {
     GetJsonPayload(endpoint conn, http:Request req, string value) {
         http:Response res = new;
         json jsonStr = {lang:value};
-        res.setJsonPayload(jsonStr);
+        res.setJsonPayload(untaint jsonStr);
         var returnResult = res.getJsonPayload();
         match returnResult {
             error err => {
@@ -150,7 +150,7 @@ service<http:Service> hello bind mockEP {
                 res.statusCode = 500;
             }
             json payload => {
-                res.setJsonPayload(payload.lang);
+                res.setJsonPayload(untaint payload.lang);
             }
         }
         _ = conn -> respond(res);
@@ -161,10 +161,10 @@ service<http:Service> hello bind mockEP {
     }
     GetTextPayload(endpoint conn, http:Request req, string valueStr) {
         http:Response res = new;
-        res.setTextPayload(valueStr);
+        res.setTextPayload(untaint valueStr);
         match res.getTextPayload() {
             error err => {res.setTextPayload("Error occurred"); res.statusCode =500;}
-            string payload =>  res.setTextPayload(payload);
+            string payload =>  res.setTextPayload(untaint payload);
         }
         _ = conn -> respond(res);
     }
@@ -183,7 +183,7 @@ service<http:Service> hello bind mockEP {
            }
            xml xmlPayload => {
                 var name = xmlPayload.getTextValue();
-                res.setTextPayload(name);
+                res.setTextPayload(untaint name);
            }
         }
         _ = conn -> respond(res);

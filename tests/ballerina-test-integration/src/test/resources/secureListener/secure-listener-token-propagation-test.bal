@@ -32,7 +32,7 @@ service<http:Service> passthroughService bind listener {
         path:"/"
     }
     passthrough (endpoint caller, http:Request clientRequest) {
-        var response = nyseEP -> get("/nyseStock/stocks", message = clientRequest);
+        var response = nyseEP -> get("/nyseStock/stocks", message = untaint clientRequest);
         match response {
             http:Response httpResponse => {
                 _ = caller -> respond(httpResponse);

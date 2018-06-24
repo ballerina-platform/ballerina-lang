@@ -263,6 +263,7 @@ class TreeNode extends React.Component {
             onNodeUpdate,
             onNodeRefresh,
             onNodeDelete,
+            enableContextMenu
         } = this.props;
         const treeNodeHeader = (
             <div
@@ -292,8 +293,11 @@ class TreeNode extends React.Component {
                         classnames(
                             'tree-node-icon',
                             'fw',
-                            { 'fw-folder': type === NODE_TYPES.FOLDER },
-                            { 'fw-document': type === NODE_TYPES.FILE }
+                            { 'fw-ballerina-package-fill': enableContextMenu && type === NODE_TYPES.FOLDER },
+                            { 'fw-folder-open': !collapsed && !enableContextMenu && type === NODE_TYPES.FOLDER },
+                            { 'fw-folder': collapsed && !enableContextMenu && type === NODE_TYPES.FOLDER },
+                            { 'fw-ballerina': id.endsWith('bal') && type === NODE_TYPES.FILE },
+                            { 'fw-document': !id.endsWith('bal') && type === NODE_TYPES.FILE }
                         )
                     }
                 />

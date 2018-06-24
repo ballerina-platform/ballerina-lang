@@ -88,7 +88,7 @@ documentation {
 `WebSocketClient`needs to be called once to start receiving messages.
         F{{secureSocket}} SSL/TLS related options
 }
-public type WebSocketClientEndpointConfig {
+public type WebSocketClientEndpointConfig record {
     string url,
     typedesc? callbackService,
     string[] subProtocols,
