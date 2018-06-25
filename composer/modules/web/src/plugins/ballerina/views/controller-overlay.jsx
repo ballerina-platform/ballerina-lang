@@ -82,6 +82,31 @@ class ControllerOverlay extends React.Component {
         this.renderControllers(node, component, region);
     }
 
+    renderMain({ left, top }, items) {
+        return (<HoverButton
+            style={{
+                top,
+                left,
+            }}
+        >
+            <Menu vertical>
+                {items}
+            </Menu>
+        </HoverButton>);
+    }
+    renderActionBox({ left, top }, onDelete, onJumptoCodeLine) {
+        return (
+            <ActionBox
+                onDelete={onDelete}
+                onJumptoCodeLine={onJumptoCodeLine}
+                show
+                style={{
+                    top,
+                    left,
+                }}
+            />
+        );
+    }
     /**
      * Renders view for a controller overlay.
      *
@@ -92,40 +117,35 @@ class ControllerOverlay extends React.Component {
         const hoverItemVisiter = new HoverItemVisiter();
         this.props.model.accept(hoverItemVisiter);
         const nodes = hoverItemVisiter.getHoveredItems();
-        
+
         nodes.forEach((node) => {
             if (node.kind === 'If') {
                 this.renderToRegions(node, {
-                    main: <HoverButton
-                        style={{
-                            top: node.viewState.components['statement-box'].y - 10,
-                            left: node.viewState.components['statement-box'].x - 15,
-                        }}
-                    >
-                        <Menu vertical>
-                            {ControllerUtil.convertToAddItems(WorkerTools, node.getBody())}
-                        </Menu>
-                    </HoverButton>,
-                    actionBox: <ActionBox
-                        onDelete={() => { node.remove(); }}
-                        onJumptoCodeLine={() => {
+                    main: this.renderMain({
+                        top: node.viewState.components['statement-box'].y - 10,
+                        left: node.viewState.components['statement-box'].x - 15,
+                    },
+                        ControllerUtil.convertToAddItems(WorkerTools, node.getBody())
+                    ),
+                    actionBox: this.renderActionBox({
+                        top: node.viewState.components['statement-box'].y - 50,
+                        left: node.viewState.components['statement-box'].x - 38,
+                    },
+                        () => { node.remove(); },
+                        () => {
                             const { editor } = this.context;
                             editor.goToSource(node);
-                        }}
-                        show
-                        style={{
-                            top: node.viewState.components['statement-box'].y - 50,
-                            left: node.viewState.components['statement-box'].x - 38,
-                        }}
-                    />,
+                        }
+                    ),
                 });
             } else if (node.kind === 'Assignment' || node.kind === 'VariableDef' || node.kind === 'ExpressionStatement') {
                 this.renderToRegions(node, {
-                    main: <HoverButton size='mini' style={{ top: -5, left: -20 }}>
-                        <Menu vertical>
-                            {ControllerUtil.convertToAddItems(WorkerTools, node)}
-                        </Menu>
-                    </HoverButton>
+                    main: this.renderMain({
+                        top: node.viewState.components['statement-box'].y - 5,
+                        left: node.viewState.components['statement-box'].x - 20,
+                    },
+                        ControllerUtil.convertToAddItems(WorkerTools, node)
+                    ),
                 });
             } else {
                 console.log('Could not render ctrl for', node);
