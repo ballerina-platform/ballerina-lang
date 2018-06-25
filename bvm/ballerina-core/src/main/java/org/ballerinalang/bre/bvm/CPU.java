@@ -25,7 +25,6 @@ import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
-import org.ballerinalang.model.types.BObjectType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -3275,20 +3274,15 @@ public class CPU {
             return false;
         }
 
-        if (lhsType.getTypeInfo().getType().getTag() == TypeTags.OBJECT_TYPE_TAG
-                && rhsType.getTypeInfo().getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-            // Adjust the number of the attached functions of the lhs struct based on
-            //  the availability of the initializer function.
-            BObjectType lhsObjectType = (BObjectType) lhsType;
-            BObjectType rhsObjectType = (BObjectType) rhsType;
-            int lhsAttachedFunctionCount = lhsObjectType.initializer != null ?
-                    lhsObjectType.getAttachedFunctions().length - 1 :
-                    lhsObjectType.getAttachedFunctions().length;
+        // Adjust the number of the attached functions of the lhs struct based on
+        //  the availability of the initializer function.
+        int lhsAttachedFunctionCount = lhsType.initializer != null ?
+                lhsType.getAttachedFunctions().length - 1 :
+                lhsType.getAttachedFunctions().length;
 
-            if (lhsObjectType.getFields().length > rhsObjectType.getFields().length ||
-                    lhsAttachedFunctionCount > rhsObjectType.getAttachedFunctions().length) {
-                return false;
-            }
+        if (lhsType.getFields().length > rhsType.getFields().length ||
+                lhsAttachedFunctionCount > rhsType.getAttachedFunctions().length) {
+            return false;
         }
 
         return !Flags.isFlagOn(lhsType.flags, Flags.PUBLIC) &&
@@ -3306,11 +3300,6 @@ public class CPU {
                 continue;
             }
             return false;
-        }
-
-        // Both lhsType and rhsType are verified to be records by this time.
-        if (lhsType.getTypeInfo().getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
-            return true;
         }
 
         BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();
@@ -3351,11 +3340,6 @@ public class CPU {
             if (!Flags.isFlagOn(rhsType.getFields()[fieldCounter].flags, Flags.PUBLIC)) {
                 return false;
             }
-        }
-
-        // Both lhsType and rhsType are verified to be records by this time.
-        if (lhsType.getTypeInfo().getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
-            return true;
         }
 
         BAttachedFunction[] lhsFuncs = lhsType.getAttachedFunctions();

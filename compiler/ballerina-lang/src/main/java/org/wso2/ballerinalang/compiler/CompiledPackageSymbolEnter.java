@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -369,15 +370,15 @@ public class CompiledPackageSymbolEnter {
             params.remove(0);
             funcType.paramTypes = params;
 
-            if (attachedType.tag == TypeTags.OBJECT) {
+            if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
                 scopeToDefine = attachedType.tsymbol.scope;
                 BAttachedFunction attachedFunc =
                         new BAttachedFunction(names.fromString(funcName), invokableSymbol, funcType);
-                BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) attachedType.tsymbol;
-                objectTypeSymbol.attachedFuncs.add(attachedFunc);
+                BStructureTypeSymbol structureTypeSymbol = (BStructureTypeSymbol) attachedType.tsymbol;
+                structureTypeSymbol.attachedFuncs.add(attachedFunc);
                 if (Names.OBJECT_INIT_SUFFIX.value.equals(funcName)
                         || funcName.equals(Names.INIT_FUNCTION_SUFFIX.value)) {
-                    objectTypeSymbol.initializerFunc = attachedFunc;
+                    structureTypeSymbol.initializerFunc = attachedFunc;
                 }
             }
         }

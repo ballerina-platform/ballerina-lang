@@ -23,9 +23,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * {@code BStructSymbol} represents a struct symbol in a scope.
  *
@@ -33,13 +30,9 @@ import java.util.List;
  */
 public class BObjectTypeSymbol extends BStructureTypeSymbol {
 
-    public BAttachedFunction initializerFunc;
-    public List<BAttachedFunction> attachedFuncs;
-
     public BObjectTypeSymbol(int symTag, int flags, Name name, PackageID pkgID, BType type,
             BSymbol owner) {
         super(SymbolKind.OBJECT, symTag, flags, name, pkgID, type, owner);
-        this.attachedFuncs = new ArrayList<>(0);
     }
 
     @Override
@@ -47,6 +40,7 @@ public class BObjectTypeSymbol extends BStructureTypeSymbol {
         BObjectTypeSymbol copy = (BObjectTypeSymbol) Symbols.createObjectSymbol(flags, Names.EMPTY, pkgID, type, owner);
         copy.attachedFuncs = attachedFuncs;
         copy.initializerFunc = initializerFunc;
+        copy.defaultsValuesInitFunc = defaultsValuesInitFunc;
         copy.isLabel = true;
         return copy;
     }

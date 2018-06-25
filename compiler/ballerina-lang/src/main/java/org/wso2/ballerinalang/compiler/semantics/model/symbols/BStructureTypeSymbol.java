@@ -22,6 +22,9 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * {@code BStructureTypeSymbol} represents a structure type symbol in a scope.
  *
@@ -29,9 +32,14 @@ import org.wso2.ballerinalang.compiler.util.Name;
  */
 public abstract class BStructureTypeSymbol extends BTypeSymbol {
 
+    public List<BAttachedFunction> attachedFuncs;
+    public BAttachedFunction initializerFunc;
+    public BAttachedFunction defaultsValuesInitFunc;
+
     BStructureTypeSymbol(SymbolKind kind, int symTag, int flags, Name name, PackageID pkgID, BType type,
                          BSymbol owner) {
         super(symTag, flags, name, pkgID, type, owner);
+        this.attachedFuncs = new ArrayList<>(0);
         this.kind = kind;
     }
 }

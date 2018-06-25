@@ -314,6 +314,10 @@ public class Desugar extends BLangNodeVisitor {
                         pkgNode.topLevelNodes.add(f);
                     }
                 });
+            } else if (typeDef.symbol.tag == SymTag.RECORD) {
+                BLangRecordTypeNode recordTypeNod = (BLangRecordTypeNode) typeDef.typeNode;
+                pkgNode.functions.add(recordTypeNod.initFunction);
+                pkgNode.topLevelNodes.add(recordTypeNod.initFunction);
             }
         }
     }
@@ -367,12 +371,30 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
-        // Setting default type values to the fields
-        recordTypeNode.fields.forEach(field -> {
-            if (field.expr == null) {
-                field.expr = getInitExpr(field);
-            }
-        });
+        // Add struct level variables to the init function.
+        recordTypeNode.fields.stream()
+                .map(field -> {
+                    // If the rhs value is not given in-line inside the struct
+                    // then get the default value literal for that particular struct.
+                    if (field.expr == null) {
+                        field.expr = getInitExpr(field);
+                    }
+                    return field;
+                })
+                .filter(field -> field.expr != null)
+                .forEachOrdered(field -> {
+                    if (!recordTypeNode.initFunction.initFunctionStmts.containsKey(field.symbol)) {
+                        recordTypeNode.initFunction.initFunctionStmts.put(field.symbol,
+                                                                          (BLangStatement) createAssignmentStmt(field));
+                    }
+                });
+
+        //Adding init statements to the init function.
+        BLangStatement[] initStmts = recordTypeNode.initFunction.initFunctionStmts
+                .values().toArray(new BLangStatement[0]);
+        for (int i = 0; i < recordTypeNode.initFunction.initFunctionStmts.size(); i++) {
+            recordTypeNode.initFunction.body.stmts.add(i, initStmts[i]);
+        }
 
         result = recordTypeNode;
     }
@@ -1081,8 +1103,14 @@ public class Desugar extends BLangNodeVisitor {
                                                                   (BVarSymbol) fieldAccessExpr.symbol);
                 }
             } else if (varRefType.tag == TypeTags.RECORD) {
-                BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
-                targetVarRef = new BLangRecordFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+                if (fieldAccessExpr.symbol instanceof BInvokableSymbol &&
+                        ((fieldAccessExpr.symbol.flags & Flags.ATTACHED) == Flags.ATTACHED)) {
+                    targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
+                                                                 (BVarSymbol) fieldAccessExpr.symbol);
+                } else {
+                    BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
+                    targetVarRef = new BLangRecordFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
+                }
             } else if (varRefType.tag == TypeTags.MAP) {
                 BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
                 targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);

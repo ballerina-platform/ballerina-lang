@@ -723,6 +723,33 @@ public class CodeGenerator extends BLangNodeVisitor {
         Operand typeCPIndex = getTypeCPIndex(symTable.mapType);
         emit(InstructionCodes.NEWMAP, structRegIndex, typeCPIndex);
 
+        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) structLiteral.type.tsymbol;
+        // Invoke the struct default values init function here.
+        if (recordSymbol.defaultsValuesInitFunc != null) {
+            int funcRefCPIndex = getFuncRefCPIndex(recordSymbol.defaultsValuesInitFunc.symbol);
+            // call funcRefCPIndex 1 structRegIndex 0
+            Operand[] operands = new Operand[5];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = getOperand(false);
+            operands[2] = getOperand(1);
+            operands[3] = structRegIndex;
+            operands[4] = getOperand(0);
+            emit(InstructionCodes.CALL, operands);
+        }
+
+        // Invoke the struct initializer here.
+        if (structLiteral.initializer != null) {
+            int funcRefCPIndex = getFuncRefCPIndex(structLiteral.initializer.symbol);
+            // call funcRefCPIndex 1 structRegIndex 0
+            Operand[] operands = new Operand[5];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = getOperand(false);
+            operands[2] = getOperand(1);
+            operands[3] = structRegIndex;
+            operands[4] = getOperand(0);
+            emit(InstructionCodes.CALL, operands);
+        }
+
         BRecordType recordType = (BRecordType) structLiteral.type;
         List<BField> recordFields = ((BRecordType) structLiteral.type).fields;
         Set<String> fieldNames = recordFields.stream()
@@ -1997,6 +2024,18 @@ public class CodeGenerator extends BLangNodeVisitor {
                 fieldIndexes.tString, fieldIndexes.tBoolean, fieldIndexes.tBlob, fieldIndexes.tRef};
         addVariableCountAttributeInfo(currentPkgInfo, recordInfo, fieldCount);
         fieldIndexes = new VariableIndex(FIELD);
+
+        // ----- TODO remove below block once record init function removed ------------
+        BAttachedFunction attachedFunc = recordSymbol.initializerFunc;
+        int funcNameCPIndex = addUTF8CPEntry(currentPkgInfo, attachedFunc.funcName.value);
+
+        // Remove the first type. The first type is always the type to which the function is attached to
+        BType[] paramTypes = attachedFunc.type.paramTypes.toArray(new BType[0]);
+        int sigCPIndex = addUTF8CPEntry(currentPkgInfo,
+                                        generateFunctionSig(paramTypes, attachedFunc.type.retType));
+        int flags = attachedFunc.symbol.flags;
+        recordInfo.attachedFuncInfoEntries.add(new AttachedFunctionInfo(funcNameCPIndex, sigCPIndex, flags));
+        // ------------- end of temp block--------------
 
         typeDefInfo.typeInfo = recordInfo;
     }
