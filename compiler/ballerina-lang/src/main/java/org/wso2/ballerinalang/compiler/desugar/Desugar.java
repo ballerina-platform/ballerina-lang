@@ -167,7 +167,9 @@ import org.wso2.ballerinalang.programfile.InstructionCodes;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -192,6 +194,7 @@ public class Desugar extends BLangNodeVisitor {
     private static final String QUERY_TABLE_WITH_JOIN_CLAUSE = "queryTableWithJoinClause";
     private static final String QUERY_TABLE_WITHOUT_JOIN_CLAUSE = "queryTableWithoutJoinClause";
     private static final String CREATE_FOREVER = "startForever";
+    private static final String BASE_64 = "base64";
 
     private SymbolTable symTable;
     private SymbolResolver symResolver;
@@ -928,7 +931,38 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
+        if (TypeTags.ARRAY == literalExpr.typeTag) { // this is blob literal as byte array
+            result = rewriteBlobLiteral(literalExpr);
+            return;
+        }
         result = literalExpr;
+    }
+
+    private BLangNode rewriteBlobLiteral(BLangLiteral literalExpr) {
+        String[] result = getBlobTextValue((String) literalExpr.value);
+        if (BASE_64.equals(result[0])) {
+            literalExpr.value = Base64.getDecoder().decode(result[1].getBytes(StandardCharsets.UTF_8));
+        } else {
+            literalExpr.value = hexStringToByteArray(result[1]);
+        }
+        return literalExpr;
+    }
+
+    private String[] getBlobTextValue(String blobLiteralNodeText) {
+        String nodeText = blobLiteralNodeText.replaceAll(" ", "");
+        String[] result = new String[2];
+        result[0] = nodeText.substring(0, nodeText.indexOf('`'));
+        result[1] = nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
+        return result;
+    }
+
+    private static byte[] hexStringToByteArray(String str) {
+        int len = str.length();
+        byte[] data = new byte[len / 2];
+        for (int i = 0; i < len; i += 2) {
+            data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4) + Character.digit(str.charAt(i + 1), 16));
+        }
+        return data;
     }
 
     @Override

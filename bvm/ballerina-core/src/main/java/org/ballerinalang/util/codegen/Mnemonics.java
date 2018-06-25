@@ -110,7 +110,8 @@ public class Mnemonics {
         mnemonics[InstructionCodes.BIXOR] = "bixor";
         mnemonics[InstructionCodes.BISHL] = "bishl";
         mnemonics[InstructionCodes.BISHR] = "bishr";
-        
+        mnemonics[InstructionCodes.BACONST] = "baconst";
+
         mnemonics[InstructionCodes.ISUB] = "isub";
         mnemonics[InstructionCodes.FSUB] = "fsub";
         mnemonics[InstructionCodes.SADD] = "sadd";

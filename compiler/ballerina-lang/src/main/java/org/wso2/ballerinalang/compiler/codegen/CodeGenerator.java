@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.TransactionStatus;
 import org.wso2.ballerinalang.compiler.PackageCache;
@@ -609,6 +610,14 @@ public class CodeGenerator extends BLangNodeVisitor {
                     opcode = InstructionCodes.BCONST_1;
                 }
                 emit(opcode, regIndex);
+                break;
+
+            case TypeTags.ARRAY:
+                if (TypeTags.BYTE == ((BArrayType) literalExpr.type).eType.tag) {
+                    BlobCPEntry blobCPEntry = new BlobCPEntry((byte[]) literalExpr.value);
+                    int blobCPIndex = currentPkgInfo.addCPEntry(blobCPEntry);
+                    emit(InstructionCodes.BACONST, getOperand(blobCPIndex), regIndex);
+                }
                 break;
 
             case TypeTags.NIL:
@@ -1915,7 +1924,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             objFieldInfo.fieldType = objField.type;
 
             // Populate default values
-            if (objField.expr != null && objField.expr.getKind() == NodeKind.LITERAL) {
+            if (objField.expr != null && (objField.expr.getKind() == NodeKind.LITERAL &&
+                    objField.expr.type.getKind() != TypeKind.ARRAY)) {
                 DefaultValueAttributeInfo defaultVal = getDefaultValueAttributeInfo((BLangLiteral) objField.expr);
                 objFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);
             }
@@ -1971,7 +1981,8 @@ public class CodeGenerator extends BLangNodeVisitor {
             recordFieldInfo.fieldType = recordField.type;
 
             // Populate default values
-            if (recordField.expr != null && recordField.expr.getKind() == NodeKind.LITERAL) {
+            if (recordField.expr != null && (recordField.expr.getKind() == NodeKind.LITERAL &&
+                    recordField.expr.type.getKind() != TypeKind.ARRAY)) {
                 DefaultValueAttributeInfo defaultVal
                         = getDefaultValueAttributeInfo((BLangLiteral) recordField.expr);
                 recordFieldInfo.addAttributeInfo(AttributeInfo.Kind.DEFAULT_VALUE_ATTRIBUTE, defaultVal);

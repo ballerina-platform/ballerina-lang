@@ -94,6 +94,7 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
+import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
@@ -268,6 +269,11 @@ public class CPU {
                         cpIndex = operands[0];
                         i = operands[1];
                         sf.intRegs[i] = ((ByteCPEntry) ctx.constPool[cpIndex]).getValue();
+                        break;
+                    case InstructionCodes.BACONST:
+                        cpIndex = operands[0];
+                        i = operands[1];
+                        sf.refRegs[i] = new BByteArray(((BlobCPEntry) ctx.constPool[cpIndex]).getValue());
                         break;
     
                     case InstructionCodes.IMOVE:

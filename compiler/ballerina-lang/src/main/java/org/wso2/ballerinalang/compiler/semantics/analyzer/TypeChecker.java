@@ -240,6 +240,12 @@ public class TypeChecker extends BLangNodeVisitor {
             literalExpr.value = ((Long) literalValue).byteValue();
         }
 
+        // check whether this is blob literal as byte array
+        if (TypeTags.ARRAY == expType.tag && TypeTags.BYTE == ((BArrayType) expType).eType.tag &&
+                TypeTags.ARRAY == literalExpr.typeTag) {
+            literalType = new BArrayType(symTable.byteType);
+        }
+
         if (this.expType.tag == TypeTags.FINITE) {
             BFiniteType expType = (BFiniteType) this.expType;
             boolean foundMember = types.isAssignableToFiniteType(expType, literalExpr);

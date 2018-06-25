@@ -1141,6 +1141,7 @@ public class PackageInfoReader {
                 case InstructionCodes.FCONST:
                 case InstructionCodes.SCONST:
                 case InstructionCodes.BICONST:
+                case InstructionCodes.BACONST:
                 case InstructionCodes.IMOVE:
                 case InstructionCodes.FMOVE:
                 case InstructionCodes.SMOVE:

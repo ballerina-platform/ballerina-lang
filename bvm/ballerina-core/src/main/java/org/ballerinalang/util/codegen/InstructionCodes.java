@@ -279,6 +279,7 @@ public interface InstructionCodes {
     int BI2I = 225;
     int BIXOR = 226;
     int IXOR = 227;
+    int BACONST = 228;
 
     int IRET = 229;
     int FRET = 230;
