@@ -16,10 +16,8 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -39,19 +37,17 @@ import java.util.stream.Collectors;
 /**
  * Completion Item Resolver for the endpoint type context.
  */
-public class ParserRuleEndpointTypeContext extends AbstractItemResolver {
+public class EndpointDeclarationContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int currentIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
-        List<SymbolInfo> visibleSymbols = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        Token secondNextToken = CommonUtil.getNthDefaultTokensToRight(tokenStream, currentIndex, 2);
-        Token pkgDelimiter = secondNextToken.getText().equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) ?
-                secondNextToken : tokenStream.get(currentIndex);
-
-        if (pkgDelimiter != null && pkgDelimiter.getText().equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
-            String pkgAlias = CommonUtil.getPreviousDefaultToken(tokenStream, pkgDelimiter.getTokenIndex()).getText();
+        List<String> poppedTokens = CommonUtil.popNFromStack(context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 3)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        List<SymbolInfo> visibleSymbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+        if (poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
+            String pkgAlias = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) - 1);
             SymbolInfo pkgSymbolInfo = visibleSymbols.stream().filter(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 PackageID packageID = bSymbol.pkgID;
