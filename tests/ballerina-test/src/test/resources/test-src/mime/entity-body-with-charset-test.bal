@@ -185,9 +185,9 @@ service<http:Service> echo bind mockEP {
     getJson(endpoint caller, http:Request request) {
         http:Response response = new;
         match request.getJsonPayload() {
-            error err => response.setTextPayload(err.message);
+            error err => response.setTextPayload(untaint err.message);
             json requestJson => {
-                response.setJsonPayload(requestJson);
+                response.setJsonPayload(untaint requestJson);
             }
         }
         _ = caller->respond(response);

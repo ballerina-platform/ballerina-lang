@@ -18,11 +18,9 @@
 package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.BPackageSymbolUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -55,29 +53,25 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
     private static final String LINE_SEPARATOR = System.lineSeparator();
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext context) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        int currentTokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        int matchTokenIndex = this.getMatchTokenIndex(tokenStream, currentTokenIndex);
-        Token tokenOffsetBy2 = CommonUtil.getNthDefaultTokensToRight(tokenStream, matchTokenIndex, 2);
-        int offsetBy2TokenLine = tokenOffsetBy2.getLine() - 1;
-        int cursorLine = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-        List<SymbolInfo> symbolInfoList = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        
-        if (tokenOffsetBy2.getText().equals(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)
-                && offsetBy2TokenLine == cursorLine) {
-            String packageAlias =
-                    CommonUtil.getPreviousDefaultToken(tokenStream, tokenOffsetBy2.getTokenIndex()).getText();
+        List<String> poppedTokens = CommonUtil.popNFromStack(context.get(CompletionKeys.FORCE_CONSUMED_TOKENS_KEY), 3)
+                .stream()
+                .map(Token::getText)
+                .collect(Collectors.toList());
+        List<SymbolInfo> symbolInfoList = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
+
+        if (poppedTokens.contains(UtilSymbolKeys.PKG_DELIMITER_KEYWORD)) {
+            String pkgAlias = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.PKG_DELIMITER_KEYWORD) - 1);
             SymbolInfo pkgSymbolInfo = symbolInfoList.stream().filter(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 if (bSymbol instanceof BPackageSymbol) {
                     List<Name> nameComps = ((BPackageSymbol) bSymbol).pkgID.getNameComps();
-                    return packageAlias.equals(nameComps.get(nameComps.size() - 1).getValue());
+                    return pkgAlias.equals(nameComps.get(nameComps.size() - 1).getValue());
                 }
                 return false;
             }).findFirst().orElse(null);
-            
+
             if (pkgSymbolInfo != null && pkgSymbolInfo.getScopeEntry().symbol instanceof BPackageSymbol) {
                 pkgSymbolInfo.getScopeEntry().symbol.scope.entries.forEach((name, scopeEntry) -> {
                     BSymbol scopeEntrySymbol = scopeEntry.symbol;
@@ -86,10 +80,11 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                     }
                 });
             }
-        } else if (tokenOffsetBy2.getText().equals(UtilSymbolKeys.DOT_SYMBOL_KEY)
-                && offsetBy2TokenLine == cursorLine) {
-            List<SymbolInfo> filteredSymbols = CommonUtil.invocationsAndFieldsOnIdentifier(completionContext,
-                    tokenOffsetBy2.getTokenIndex()).stream().filter(symbolInfo -> {
+        } else if (poppedTokens.contains(UtilSymbolKeys.DOT_SYMBOL_KEY)) {
+            String variableName = poppedTokens.get(poppedTokens.indexOf(UtilSymbolKeys.DOT_SYMBOL_KEY) - 1);
+            List<SymbolInfo> filteredSymbols =
+                    CommonUtil.invocationsAndFieldsOnIdentifier(context, variableName, UtilSymbolKeys.DOT_SYMBOL_KEY)
+                            .stream().filter(symbolInfo -> {
                 BSymbol symbol = symbolInfo.getScopeEntry().symbol;
                 return symbol instanceof BInvokableSymbol;
             }).collect(Collectors.toList());
@@ -100,11 +95,13 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                 }
             });
         } else {
-            List<SymbolInfo> filteredSymbolInfo = symbolInfoList.stream().filter(symbolInfo -> {
-                BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
-                return bSymbol instanceof BVarSymbol || bSymbol instanceof BPackageSymbol;
-            }).collect(Collectors.toList());
-            
+            List<SymbolInfo> filteredSymbolInfo = symbolInfoList.stream()
+                    .filter(symbolInfo -> {
+                        BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
+                        return bSymbol instanceof BVarSymbol || bSymbol instanceof BPackageSymbol;
+                    })
+                    .collect(Collectors.toList());
+
             filteredSymbolInfo.forEach(symbolInfo -> {
                 BSymbol bSymbol = symbolInfo.getScopeEntry().symbol;
                 if (bSymbol instanceof BInvokableSymbol) {
@@ -114,12 +111,11 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
                 } else if (bSymbol instanceof BPackageSymbol
                         && !bSymbol.pkgID.name.getValue().equals("builtin")
                         && !bSymbol.pkgID.name.getValue().contains("runtime")) {
-//                    completionItems.add(this.populateBTypeCompletionItem(symbolInfo));
                     completionItems.add(BPackageSymbolUtil.getBTypeCompletionItem(symbolInfo.getSymbolName()));
                 }
             });
         }
-        ItemSorters.getSorterByClass(MatchContextItemSorter.class).sortItems(completionContext, completionItems);
+        ItemSorters.getSorterByClass(MatchContextItemSorter.class).sortItems(context, completionItems);
 
         return completionItems;
     }
@@ -129,15 +125,13 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
         StringBuilder fieldsSnippet = new StringBuilder("{");
         fieldsSnippet.append(LINE_SEPARATOR);
 
-        memberTypes.forEach(bType -> {
-            fieldsSnippet
-                    .append("\t").append(bType.toString()).append(" => {")
-                    .append(LINE_SEPARATOR)
-                    .append("\t\t")
-                    .append(LINE_SEPARATOR)
-                    .append("\t").append("}")
-                    .append(LINE_SEPARATOR);
-        });
+        memberTypes.forEach(bType -> fieldsSnippet
+                .append("\t").append(bType.toString()).append(" => {")
+                .append(LINE_SEPARATOR)
+                .append("\t\t")
+                .append(LINE_SEPARATOR)
+                .append("\t").append("}")
+                .append(LINE_SEPARATOR));
         fieldsSnippet.append("}");
         
         return fieldsSnippet.toString();
@@ -191,24 +185,6 @@ public class ParserRuleMatchStatementContextResolver extends AbstractItemResolve
         signature.append(String.join(",", params)).append(")");
         
         return signature.toString();
-    }
-    
-    private int getMatchTokenIndex(TokenStream tokenStream, int startIndex) {
-        int searchIndex = startIndex;
-        int matchTokenIndex = -1;
-        while (true) {
-            if (searchIndex < 0) {
-                break;
-            }
-            Token token = CommonUtil.getPreviousDefaultToken(tokenStream, searchIndex);
-            if (UtilSymbolKeys.MATCH_KEYWORD_KEY.equals(token.getText())) {
-                matchTokenIndex = token.getTokenIndex();
-                break;
-            }
-            searchIndex = token.getTokenIndex();
-        }
-        
-        return matchTokenIndex;
     }
     
     private void fillInvokableSymbolMatchSnippet(BInvokableSymbol bInvokableSymbol,

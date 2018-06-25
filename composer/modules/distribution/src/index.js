@@ -44,12 +44,13 @@ let win,
                     .replace('app.asar', 'app.asar.unpacked');
 
 if (process.platform === 'darwin') {
-    const isDirectory = source => fs.lstatSync(source).isDirectory()
+    const isDirectory = source => fs.existsSync(source) && fs.lstatSync(source).isDirectory()
     const getDirectories = source =>
         fs.readdirSync(source).map(name => path.join(source, name)).filter(isDirectory)
     const balHomes = getDirectories('/Library/Ballerina');
-    if (balHomes && balHomes.length > 0) {
-        balHome = balHomes[0];
+    const balHomesWithElectronApp = balHomes.filter(name => isDirectory(path.join(name, 'lib/resources/composer/web/app')))
+    if (balHomesWithElectronApp && balHomesWithElectronApp.length > 0) {
+        balHome = balHomesWithElectronApp[0];
     }
 }
 
