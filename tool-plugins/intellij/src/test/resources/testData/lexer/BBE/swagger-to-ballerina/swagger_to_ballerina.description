@@ -1,0 +1,8 @@
+// If you already have a swagger or Open-Api-Specification(OAS)-3 document for your service(s),
+// you can use that to autogenerate Ballerina source code.
+// Currently, Ballerina supports two types of code generation.
+// 'mock' generation generates a mock version of the ballerina service for an input OAS definition.
+// 'client' generation generates a Ballerina client endpoint for an input OAS definition.
+// The Ballerina code generator supports the following parameters:
+// `-p | --package` The Ballerina package name for the generated code.
+// `-o | --output` The destination path to write generated source code. This path must be a project directory.

@@ -1,0 +1,12 @@
+// Ballerina provides the capability to easily introduce publishers and subscribers that are WebSub compliant.
+// Ballerina WebSub subscribers can specify the topic they wish to subscribe to and the hub they wish to subscribe at,
+// to receive notifications. If specified, the subscription process would be initiated at startup.
+// The subscription/unsubscription process could also be initiated via the Ballerina WebSub Hub Client Endpoint.
+//
+// This example demonstrates the usage of the WebSub Hub Client Endpoint to subscribe and unsubscribe to updates for
+// a particular topic at the hub, along with auto intent verification, where intent verification for subscription or
+// unsubscription requests would happen automatically (against the annotated topic) if the onIntentVerification request
+// is not included.
+//
+// Note: The Hub Client Endpoint can be used by subscribers to subscribe/unsubscribe at a Hub, and by publishers to
+// register topics and publish updates for topics at the Hub.

@@ -1,0 +1,3 @@
+# To run the service, put the code in  `grpc_client_streaming.bal`
+# and use "ballerina run" command.
+$ ballerina run grpc_client_streaming.bal

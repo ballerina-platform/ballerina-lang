@@ -1,0 +1,6 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command to start the `initiator` service.  
+$ ballerina run iniator.bal
+ballerina: initiating service(s) in 'initiator'
+ballerina: started HTTP/WS endpoint localhost:8080
+ballerina: started HTTP/WS endpoint 10.100.1.182:53871

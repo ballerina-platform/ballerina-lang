@@ -1,0 +1,2 @@
+// Let's use Ballerina to print "Hello, World!" in parallel.
+// In Ballerina, you need to use workers to represent parallel threads of execution.

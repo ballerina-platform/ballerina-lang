@@ -1,0 +1,5 @@
+#At the command line, navigate to the directory that contains the `http_2.0_service.bal` file.
+#Run the `ballerina run` command to start the service.
+$ ballerina run http_2.0_service.bal
+ballerina: initiating service(s) in 'http_2.0_service.bal'
+ballerina: started HTTP/WS endpoint 0.0.0.0:7090

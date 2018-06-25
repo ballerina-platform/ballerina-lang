@@ -1,0 +1,2 @@
+// Ballerina locks are used for concurrency management. The encapsulating block of statements will acquire
+// the locks for each global or service level variable reference that is used within the block.

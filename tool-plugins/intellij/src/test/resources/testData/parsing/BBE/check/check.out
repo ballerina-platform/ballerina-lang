@@ -1,0 +1,15 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command. 
+$ ballerina run check.bal
+validating bob...
+bob has a valid city
+Bob's result 1:true
+bob has a valid city
+Bob's result 2:true
+
+validating tom...
+Tom's result 1:{message:"address not found", cause:null}
+error: ballerina.runtime:CallFailedException, message: call failed
+        at main(check.bal:58)
+caused by error, message: address not found
+        at validateAddressAgain(check.bal:37)

@@ -1,0 +1,8 @@
+# Start Ballerina message broker by executing either the 'broker' or the 'broker.bat' command.
+$ broker
+
+# Navigate to the directory that contains the
+# 'jms_synchronous_queue_message_receiver.bal' file and issue the 'ballerina run' command.
+$ ballerina run jms_synchronous_queue_message_receiver.bal
+2018-06-14 15:31:51,884 INFO  [ballerina/jms] - Message receiver created for queue MyQueue
+2018-06-14 15:31:56,895 INFO  [] - Message not received

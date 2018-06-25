@@ -1,0 +1,6 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command. 
+$ ballerina run workers.bal
+sum of first 10000000 positive numbers = 50000005000000
+sum of squares of first 10000000 positive numbers = 1291990006563070912
+

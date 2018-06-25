@@ -1,0 +1,4 @@
+// In this example, the Ballerina HTTP service receives a message over the HTTP/1.1 protocol and forwards it 
+// to another service over the HTTP/2.0 protocol.
+
+

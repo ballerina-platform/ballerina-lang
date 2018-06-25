@@ -1,0 +1,10 @@
+# Start Ballerina message broker by executing either the 'broker' or the 'broker.bat' command.
+$ broker
+
+# At the command line, navigate to the directory that contains the
+# `transactional_queue_message_producer.bal` file and run the `ballerina run` command.
+$ ballerina run transactional_queue_message_producer.bal
+ballerina: started HTTP/WS endpoint 172.17.0.1:40769
+2018-06-14 15:38:51,269 INFO  [ballerina/transactions] - Created transaction: 982a22d9-cb0f-4f41-aaed-1a9351702dbb
+2018-06-14 15:38:51,283 INFO  [ballerina/transactions] - Running 2-phase commit for transaction: 982a22d9-cb0f-4f41-aaed-1a9351702dbb:1
+ballerina: stopped HTTP/WS endpoint 172.17.0.1:40769

@@ -1,0 +1,3 @@
+// Ballerina XA transactions are used when the transaction is happening over
+// two or more databases or JMS endpoints. This sample uses two H2 DBs. Before
+// running the sample, change the DB connection properties as required.

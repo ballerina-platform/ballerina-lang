@@ -1,0 +1,5 @@
+#To run this sample, navigate to the directory that contains the
+#'.bal' file and issue the 'ballerina run' command.
+$ ballerina run object_initializer.bal
+{age:5, name:"John", fullName:""}
+{age:5, name:"Adam", fullName:""}
