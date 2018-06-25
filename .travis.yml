@@ -39,7 +39,7 @@ script:
 - cp $ACTIVEMQ_VERSION/activemq-all-5.12.0.jar $DISTRIBUTION_NAME/bre/lib
 - ./$ACTIVEMQ_VERSION/bin/activemq start
 
-- cd exmples
+- cd examples
 
 - ballerina init
 
