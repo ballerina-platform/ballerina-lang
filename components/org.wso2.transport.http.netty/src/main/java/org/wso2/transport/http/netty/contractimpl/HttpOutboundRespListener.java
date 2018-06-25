@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.wso2.transport.http.netty.common.Constants.CHANNEL_CLOSED;
 import static org.wso2.transport.http.netty.common.Constants.CHUNKING_CONFIG;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
@@ -267,7 +268,7 @@ public class HttpOutboundRespListener implements HttpConnectorListener {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE);
+                    throwable = new IOException(CHANNEL_CLOSED);
                 }
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             } else {
