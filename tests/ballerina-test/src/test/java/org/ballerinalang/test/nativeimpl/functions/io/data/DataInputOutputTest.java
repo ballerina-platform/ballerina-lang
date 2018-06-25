@@ -20,6 +20,11 @@
 package org.ballerinalang.test.nativeimpl.functions.io.data;
 
 import org.apache.commons.codec.CharEncoding;
+import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
+import org.ballerinalang.nativeimpl.io.channels.base.Representation;
+import org.ballerinalang.nativeimpl.io.channels.base.data.LongResult;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
@@ -171,13 +176,11 @@ public class DataInputOutputTest {
     @DataProvider(name = "SignedVarLongValues")
     public static Object[][] signedVarLongValues() {
         return new Object[][]{
-                {0}, {0}, {0},
-                {-1}, {-1}, {-1},
-                {Short.MIN_VALUE}, {Short.MIN_VALUE},
-                {Short.MIN_VALUE}, {Short.MAX_VALUE},
-                {Short.MAX_VALUE}, {Short.MAX_VALUE},
-                {Integer.MIN_VALUE}, {Integer.MIN_VALUE},
-                {Integer.MAX_VALUE}, {Integer.MAX_VALUE},
+                {0, 1}, {0, 1}, {0, 1},
+                {-1, 1}, {-1, 1}, {-1, 1},
+                {Short.MIN_VALUE, 3}, {Short.MIN_VALUE, 3},
+                {Integer.MIN_VALUE, 5}, {Integer.MIN_VALUE, 5},
+                {IOConstants.VAR_INT_MAX, 8}, {IOConstants.VAR_INT_MIN, 8}
         };
     }
 

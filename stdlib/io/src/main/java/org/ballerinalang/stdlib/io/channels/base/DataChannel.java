@@ -18,6 +18,8 @@
 
 package org.ballerinalang.stdlib.io.channels.base;
 
+import org.ballerinalang.nativeimpl.io.channels.base.data.LongResult;
+
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -34,6 +36,11 @@ public class DataChannel {
      * Represents network byte order.
      */
     private ByteOrder order;
+
+    /**
+     * Represents 64 bit long value which will be used to convert from var long to fixed long.
+     */
+    private static final long BIT_64_LONG_MAX = 0xFFFFFFFFFFFFFFFFL;
 
     public DataChannel(Channel channel, ByteOrder order) {
         this.channel = channel;
@@ -52,6 +59,12 @@ public class DataChannel {
         } while (buffer.hasRemaining() && !channel.hasReachedEnd());
     }
 
+    /**
+     * Reads varint from the given channel.
+     *
+     * @return the bytes read through the buffer.
+     * @throws IOException during i/o error.
+     */
     private ByteBuffer readVarInt() throws IOException {
         int bufferLimit = 0;
         boolean hasRemainingBytes = true;
@@ -83,7 +96,7 @@ public class DataChannel {
      * @return the decoded long value.
      * @throws IOException during i/o error.
      */
-    private long decodeLong(Representation representation) throws IOException {
+    private LongResult decodeLong(Representation representation) throws IOException {
         ByteBuffer buffer;
         int requiredNumberOfBytes;
         if (Representation.VARIABLE.equals(representation)) {
@@ -98,10 +111,17 @@ public class DataChannel {
         return deriveLong(representation, buffer);
     }
 
-    private long convertVarLongToLong(long value, int nBytes) {
+    /**
+     * Converts var long to a fixed size long.
+     *
+     * @param value  var long value.
+     * @param nBytes number of bytes in varlong.
+     * @return corresponding long converted through varlong.
+     */
+    private long convertVarLongToFixedLong(long value, int nBytes) {
         int nBits = nBytes * Representation.VARIABLE.getBase() - 1;
         if (value >> nBits == 1) {
-            long intercept = 0xFFFFFFFFFFFFFFFFL << nBits;
+            long intercept = BIT_64_LONG_MAX << nBits;
             //This means it would be a sign representation
             value = value | intercept;
         }
@@ -113,9 +133,9 @@ public class DataChannel {
      *
      * @param representation the capacity of the long value i.e whether it's 32bit, 64bit.
      * @param buffer         holds the bytes which represents the long.
-     * @return the value of long.
+     * @return the value of long and the corresponding number of bytes read.
      */
-    private long deriveLong(Representation representation, ByteBuffer buffer) {
+    private LongResult deriveLong(Representation representation, ByteBuffer buffer) {
         long value = 0;
         int maxNumberOfBits = 0xFFFF;
         int byteLimit = buffer.limit();
@@ -140,9 +160,9 @@ public class DataChannel {
             totalNumberOfBits = totalNumberOfBits - representation.getBase();
         } while (buffer.hasRemaining());
         if (Representation.VARIABLE.equals(representation)) {
-            value = convertVarLongToLong(value, byteLimit);
+            value = convertVarLongToFixedLong(value, byteLimit);
         }
-        return value;
+        return new LongResult(value, byteLimit);
     }
 
     /**
@@ -199,7 +219,7 @@ public class DataChannel {
      * @return the long value which is read.
      * @throws IOException during i/o error.
      */
-    public long readLong(Representation representation) throws IOException {
+    public LongResult readLong(Representation representation) throws IOException {
         return decodeLong(representation);
     }
 
@@ -229,10 +249,10 @@ public class DataChannel {
      */
     public double readDouble(Representation representation) throws IOException {
         if (Representation.BIT_32.equals(representation)) {
-            int fValue = (int) readLong(Representation.BIT_32);
+            int fValue = (int) readLong(Representation.BIT_32).getValue();
             return Float.intBitsToFloat(fValue);
         } else {
-            long lValue = readLong(representation);
+            long lValue = readLong(representation).getValue();
             return Double.longBitsToDouble(lValue);
         }
     }

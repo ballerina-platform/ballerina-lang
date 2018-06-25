@@ -61,7 +61,7 @@ public class ReadIntegerEvent implements Event {
     public EventResult get() {
         LongResult result;
         try {
-            long numericResult = channel.readLong(representation);
+            long numericResult = channel.readLong(representation).getValue();
             result = new LongResult(numericResult, context);
         } catch (IOException e) {
             log.error("Error occurred while reading integer", e);
