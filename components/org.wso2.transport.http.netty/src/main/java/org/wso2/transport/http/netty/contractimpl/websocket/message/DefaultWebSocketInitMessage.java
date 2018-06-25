@@ -30,7 +30,6 @@ import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
-import io.netty.handler.codec.http.websocketx.CloseWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -39,11 +38,10 @@ import org.wso2.transport.http.netty.contract.ServerConnectorFuture;
 import org.wso2.transport.http.netty.contract.websocket.ServerHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketInitMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultServerHandshakeFuture;
-import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
-import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
+import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketUtil;
+import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 import org.wso2.transport.http.netty.message.HttpCarbonRequest;
 
 import java.nio.charset.StandardCharsets;
@@ -67,7 +65,7 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
         this.connectorFuture = connectorFuture;
         this.secureConnection = ctx.channel().pipeline().get(Constants.SSL_HANDLER) != null;
         this.httpRequest = httpRequest;
-        this.sessionlID = WebSocketUtil.getSessionID(ctx);
+        this.sessionID = WebSocketUtil.getChannelId(ctx);
     }
 
     @Override
@@ -118,31 +116,28 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
 
     @Override
     public ChannelFuture cancelHandshake(int statusCode, String closeReason) {
-        if (!cancelled && !handshakeStarted) {
-            try {
-                int responseStatusCode = statusCode >= 400 && statusCode < 500 ? statusCode : 400;
-                ChannelFuture responseFuture;
-                if (closeReason != null) {
-                    ByteBuf content = Unpooled.wrappedBuffer(closeReason.getBytes(StandardCharsets.UTF_8));
-                    responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                                                                                   HttpResponseStatus
-                                                                                           .valueOf(responseStatusCode),
-                                                                                   content));
-                } else {
-                    responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-                                                                                   HttpResponseStatus.valueOf(
-                                                                                           responseStatusCode)));
-                }
-                return responseFuture;
-            } finally {
-                cancelled = true;
-            }
-        } else {
-            if (cancelled) {
-                throw new IllegalStateException("Cannot cancel the handshake: handshake already cancelled");
+        if (cancelled) {
+            throw new IllegalStateException("Cannot cancel the handshake: handshake already cancelled");
+        }
+
+        if (handshakeStarted) {
+            throw new IllegalStateException("Cannot cancel the handshake: handshake already started");
+        }
+
+        try {
+            int responseStatusCode = statusCode >= 400 && statusCode < 500 ? statusCode : 400;
+            ChannelFuture responseFuture;
+            if (closeReason != null) {
+                ByteBuf content = Unpooled.wrappedBuffer(closeReason.getBytes(StandardCharsets.UTF_8));
+                responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(
+                        HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(responseStatusCode), content));
             } else {
-                throw new IllegalStateException("Cannot cancel the handshake: handshake already started");
+                responseFuture = ctx.writeAndFlush(new DefaultFullHttpResponse(
+                        HttpVersion.HTTP_1_1, HttpResponseStatus.valueOf(responseStatusCode)));
             }
+            return responseFuture;
+        } finally {
+            cancelled = true;
         }
     }
 
@@ -159,60 +154,50 @@ public class DefaultWebSocketInitMessage extends DefaultWebSocketMessage impleme
     private ServerHandshakeFuture handleHandshake(WebSocketServerHandshaker handshaker, int idleTimeout,
                                                   HttpHeaders headers) {
         DefaultServerHandshakeFuture handshakeFuture = new DefaultServerHandshakeFuture();
-
         if (cancelled) {
             Throwable e = new IllegalAccessException("Handshake is already cancelled!");
             handshakeFuture.notifyError(e);
             return handshakeFuture;
         }
-
-        try {
-            ChannelFuture channelFuture = handshaker.handshake(ctx.channel(), httpRequest, headers,
-                                                               ctx.channel().newPromise());
-            channelFuture.addListener(future -> {
-                String selectedSubProtocol = handshaker.selectedSubprotocol();
-                WebSocketFramesBlockingHandler blockingHandler = new WebSocketFramesBlockingHandler();
-                WebSocketInboundFrameHandler frameHandler = new WebSocketInboundFrameHandler(connectorFuture,
-                        blockingHandler, true, secureConnection, target, listenerInterface);
-
-                //Replace HTTP handlers  with  new Handlers for WebSocket in the pipeline
-                ChannelPipeline pipeline = ctx.pipeline();
-                if (idleTimeout > 0) {
-                    pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
-                                     new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout,
-                                                          TimeUnit.MILLISECONDS));
-                } else {
-                    pipeline.remove(Constants.IDLE_STATE_HANDLER);
-                }
-                pipeline.addLast(Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER, blockingHandler);
-                pipeline.addLast(Constants.WEBSOCKET_FRAME_HANDLER, frameHandler);
-                pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
-                pipeline.fireChannelActive();
-                // Make sure to get WebSocket connection after fireChannelActive
-                DefaultWebSocketConnection webSocketConnection = frameHandler.getWebSocketConnection();
-                webSocketConnection.getDefaultWebSocketSession().setNegotiatedSubProtocol(selectedSubProtocol);
+        ChannelFuture channelFuture =
+                handshaker.handshake(ctx.channel(), httpRequest, headers, ctx.channel().newPromise());
+        channelFuture.addListener(future -> {
+            if (future.isSuccess() && future.cause() == null) {
+                MessageQueueHandler messageQueueHandler = new MessageQueueHandler();
+                WebSocketInboundFrameHandler frameHandler = new WebSocketInboundFrameHandler(true, secureConnection,
+                        target, listenerInterface, handshaker.selectedSubprotocol(), connectorFuture,
+                        messageQueueHandler);
+                configureFrameHandlingPipeline(idleTimeout, messageQueueHandler, frameHandler);
                 handshakeFuture.notifySuccess(frameHandler.getWebSocketConnection());
-            });
-            handshakeStarted = true;
-            return handshakeFuture;
-        } catch (Exception e) {
-            /*
-            Code 1002 : indicates that an endpoint is terminating the connection
-            due to a protocol error.
-             */
-            handshaker.close(ctx.channel(),
-                             new CloseWebSocketFrame(1002,
-                                                     "Terminating the connection due to a protocol error."));
-            handshakeFuture.notifyError(e);
-            return handshakeFuture;
+            } else {
+                handshakeFuture.notifyError(future.cause());
+            }
+        });
+        handshakeStarted = true;
+        return handshakeFuture;
+    }
+
+    private void configureFrameHandlingPipeline(int idleTimeout, MessageQueueHandler messageQueueHandler,
+                                                WebSocketInboundFrameHandler frameHandler) {
+        ChannelPipeline pipeline = ctx.pipeline();
+        if (idleTimeout > 0) {
+            pipeline.replace(Constants.IDLE_STATE_HANDLER, Constants.IDLE_STATE_HANDLER,
+                             new IdleStateHandler(idleTimeout, idleTimeout, idleTimeout,
+                                                  TimeUnit.MILLISECONDS));
+        } else {
+            pipeline.remove(Constants.IDLE_STATE_HANDLER);
         }
+        pipeline.addLast(Constants.MESSAGE_QUEUE_HANDLER, messageQueueHandler);
+        pipeline.addLast(Constants.WEBSOCKET_FRAME_HANDLER, frameHandler);
+        pipeline.remove(Constants.HTTP_SOURCE_HANDLER);
+        pipeline.fireChannelActive();
     }
 
     /* Get the URL of the given connection */
     private String getWebSocketURL(HttpRequest req) {
-        String protocol = Constants.WEBSOCKET_PROTOCOL;
+        String protocol = Constants.WS_SCHEME;
         if (secureConnection) {
-            protocol = Constants.WEBSOCKET_PROTOCOL_SECURED;
+            protocol = Constants.WSS_SCHEME;
         }
         return protocol + "://" + req.headers().get("Host") + req.uri();
     }

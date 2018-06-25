@@ -43,13 +43,13 @@ public class SslHandshakeCompletionHandlerForServer extends ChannelInboundHandle
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (evt instanceof SslHandshakeCompletionEvent) {
-            ctx.pipeline().remove(this);
 
             SslHandshakeCompletionEvent event = (SslHandshakeCompletionEvent) evt;
 
             if (event.isSuccess()) {
                 this.httpServerChannelInitializer.configureHttpPipeline(serverPipeline, Constants.HTTP_SCHEME);
-                serverPipeline.fireChannelActive();
+                ctx.pipeline().remove(this);
+                ctx.fireChannelActive();
             } else {
                 ctx.close();
             }

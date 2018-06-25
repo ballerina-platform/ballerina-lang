@@ -14,60 +14,72 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketFrameType;
-import org.wso2.transport.http.netty.internal.websocket.DefaultWebSocketSession;
-import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
+import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
 import java.nio.ByteBuffer;
-import javax.websocket.Session;
 
 /**
  * Default implementation of {@link WebSocketConnection}.
  */
 public class DefaultWebSocketConnection implements WebSocketConnection {
 
-    private final WebSocketInboundFrameHandler frameHandler;
     private final ChannelHandlerContext ctx;
-    private final DefaultWebSocketSession session;
-    private WebSocketFramesBlockingHandler blockingHandler;
+    private final WebSocketInboundFrameHandler frameHandler;
+    private MessageQueueHandler messageQueueHandler;
+    private final boolean secure;
     private WebSocketFrameType continuationFrameType;
     private boolean closeFrameSent;
     private int closeInitiatedStatusCode;
+    private String id;
+    private String negotiatedSubProtocol;
 
     public DefaultWebSocketConnection(ChannelHandlerContext ctx, WebSocketInboundFrameHandler frameHandler,
-                                      WebSocketFramesBlockingHandler blockingHandler,
-                                      DefaultWebSocketSession session) {
+                                      MessageQueueHandler messageQueueHandler, boolean secure,
+                                      String negotiatedSubProtocol) {
         this.ctx = ctx;
+        this.id = WebSocketUtil.getChannelId(ctx);
         this.frameHandler = frameHandler;
-        this.blockingHandler = blockingHandler;
-        this.session = session;
+        this.messageQueueHandler = messageQueueHandler;
+        this.secure = secure;
+        this.negotiatedSubProtocol = negotiatedSubProtocol;
     }
 
     @Override
     public String getId() {
-        return session.getId();
+        return this.id;
     }
 
     @Override
-    public Session getSession() {
-        return session;
+    public boolean isOpen() {
+        return this.ctx.channel().isOpen();
+    }
+
+    @Override
+    public boolean isSecure() {
+        return this.secure;
+    }
+
+    @Override
+    public String getNegotiatedSubProtocol() {
+        return negotiatedSubProtocol;
     }
 
     @Override
     public void readNextFrame() {
-        blockingHandler.readNextFrame();
+        messageQueueHandler.readNextFrame();
     }
 
     @Override
     public void startReadingFrames() {
-        ctx.pipeline().remove(Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER);
+        ctx.pipeline().remove(Constants.MESSAGE_QUEUE_HANDLER);
         ctx.channel().config().setAutoRead(true);
     }
 
     @Override
     public void stopReadingFrames() {
         ctx.channel().config().setAutoRead(false);
-        ctx.pipeline().addBefore(Constants.WEBSOCKET_FRAME_HANDLER, Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER,
-                                 blockingHandler = new WebSocketFramesBlockingHandler());
+        ctx.pipeline().addBefore(Constants.WEBSOCKET_FRAME_HANDLER, Constants.MESSAGE_QUEUE_HANDLER,
+                                 messageQueueHandler = new MessageQueueHandler());
     }
 
     @Override
@@ -167,19 +179,39 @@ public class DefaultWebSocketConnection implements WebSocketConnection {
 
     @Override
     public ChannelFuture terminateConnection() {
+        frameHandler.setCloseInitialized(true);
         return ctx.close();
     }
 
-    public int getCloseInitiatedStatusCode() {
+    @Override
+    public ChannelFuture terminateConnection(int statusCode, String reason) {
+        ChannelPromise closePromise = ctx.newPromise();
+        ctx.writeAndFlush(new CloseWebSocketFrame(statusCode, reason)).addListener(writeFuture -> {
+            frameHandler.setCloseInitialized(true);
+            Throwable writeCause = writeFuture.cause();
+            if (writeFuture.isSuccess() && writeCause != null) {
+                closePromise.setFailure(writeCause);
+                ctx.close();
+                return;
+            }
+            ctx.close().addListener(closeFuture -> {
+                Throwable closeCause = closeFuture.cause();
+                if (!closeFuture.isSuccess() && closeCause != null) {
+                    closePromise.setFailure(closeCause);
+                } else {
+                    closePromise.setSuccess();
+                }
+            });
+
+        });
+        return closePromise;
+    }
+
+    int getCloseInitiatedStatusCode() {
         return this.closeInitiatedStatusCode;
     }
 
-    @Deprecated
-    public DefaultWebSocketSession getDefaultWebSocketSession() {
-        return session;
-    }
-
-    public ByteBuf getNettyBuf(ByteBuffer buffer) {
+    private ByteBuf getNettyBuf(ByteBuffer buffer) {
         return Unpooled.wrappedBuffer(buffer);
     }
 }

@@ -35,7 +35,9 @@ import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer
 import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
+
+import static org.wso2.transport.http.netty.util.TestUtil.WEBSOCKET_TEST_IDLE_TIMEOUT;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 /**
  * Test cases for WebSocket pass-through scenarios.
@@ -44,19 +46,18 @@ public class WebSocketPassThroughTestCase {
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketPassThroughTestCase.class);
 
-    private final int latchCountDownInSecs = 10;
-
-    private DefaultHttpWsConnectorFactory httpConnectorFactory = new DefaultHttpWsConnectorFactory();
-    private WebSocketRemoteServer remoteServer = new WebSocketRemoteServer(TestUtil.WEBSOCKET_REMOTE_SERVER_PORT);
-
+    private DefaultHttpWsConnectorFactory httpConnectorFactory;
+    private WebSocketRemoteServer remoteServer;
     private ServerConnector serverConnector;
 
     @BeforeClass
     public void setup() throws InterruptedException {
+        remoteServer = new WebSocketRemoteServer(TestUtil.WEBSOCKET_REMOTE_SERVER_PORT);
         remoteServer.run();
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
         listenerConfiguration.setHost("localhost");
         listenerConfiguration.setPort(TestUtil.SERVER_CONNECTOR_PORT);
+        httpConnectorFactory = new DefaultHttpWsConnectorFactory();
         serverConnector = httpConnectorFactory.createServerConnector(TestUtil.getDefaultServerBootstrapConfig(),
                                                                      listenerConfiguration);
         ServerConnectorFuture connectorFuture = serverConnector.start();
@@ -72,7 +73,7 @@ public class WebSocketPassThroughTestCase {
         webSocketClient.setCountDownLatch(latch);
         String text = "hello-pass-through";
         webSocketClient.sendText(text);
-        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 
         Assert.assertEquals(webSocketClient.getTextReceived(), text);
 
@@ -87,7 +88,7 @@ public class WebSocketPassThroughTestCase {
         webSocketClient.setCountDownLatch(latch);
         ByteBuffer sentBuffer = ByteBuffer.wrap(new byte[]{1, 2, 3, 4, 5});
         webSocketClient.sendBinary(sentBuffer);
-        latch.await(latchCountDownInSecs, TimeUnit.SECONDS);
+        latch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
 
         Assert.assertEquals(webSocketClient.getBufferReceived(), sentBuffer);
 

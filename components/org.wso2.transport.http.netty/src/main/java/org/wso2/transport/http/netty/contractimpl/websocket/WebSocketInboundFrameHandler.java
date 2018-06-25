@@ -46,8 +46,7 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketTextMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketCloseMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
 import org.wso2.transport.http.netty.exception.UnknownWebSocketFrameTypeException;
-import org.wso2.transport.http.netty.internal.websocket.WebSocketUtil;
-import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
+import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 
 import java.net.InetSocketAddress;
 
@@ -58,35 +57,39 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
     private Logger log = LoggerFactory.getLogger(WebSocketInboundFrameHandler.class);
 
-    private final WebSocketConnectorFuture connectorFuture;
     private final boolean isServer;
-    private final boolean securedConnection;
+    private final boolean secureConnection;
     private final String target;
     private final String interfaceId;
+    private final String negotiatedSubProtocol;
+    private final WebSocketConnectorFuture connectorFuture;
+    private final MessageQueueHandler messageQueueHandler;
+    private boolean caughtException;
+    private boolean closeFrameReceived;
+    private boolean closeInitialized;
     private DefaultWebSocketConnection webSocketConnection;
     private ChannelHandlerContext ctx;
-    private boolean caughtException;
     private ChannelPromise closePromise;
-    private boolean closeFrameReceived;
     private WebSocketFrameType continuationFrameType;
-    private final WebSocketFramesBlockingHandler blockingHandler;
 
-    public WebSocketInboundFrameHandler(WebSocketConnectorFuture connectorFuture,
-                                        WebSocketFramesBlockingHandler blockingHandler, boolean isServer,
-                                        boolean securedConnection, String target, String interfaceId) {
-        this.connectorFuture = connectorFuture;
-        this.blockingHandler = blockingHandler;
+    public WebSocketInboundFrameHandler(boolean isServer, boolean secureConnection, String target, String interfaceId,
+                                        String negotiatedSubProtocol, WebSocketConnectorFuture connectorFuture,
+                                        MessageQueueHandler messageQueueHandler) {
         this.isServer = isServer;
-        this.securedConnection = securedConnection;
+        this.secureConnection = secureConnection;
         this.target = target;
         this.interfaceId = interfaceId;
+        this.negotiatedSubProtocol = negotiatedSubProtocol;
+        this.connectorFuture = connectorFuture;
+        this.messageQueueHandler = messageQueueHandler;
+        this.closeInitialized = false;
     }
 
     /**
      * Set channel promise for WebSocket connection close.
      *
      * @param closePromise {@link ChannelPromise} to indicate the receiving of close frame echo
-     *                                      back from the remote endpoint.
+     *                     back from the remote endpoint.
      */
     public void setClosePromise(ChannelPromise closePromise) {
         this.closePromise = closePromise;
@@ -112,11 +115,15 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
         return closeFrameReceived;
     }
 
+    public void setCloseInitialized(boolean closeInitialized) {
+        this.closeInitialized = closeInitialized;
+    }
+
     @Override
-    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+    public void handlerAdded(ChannelHandlerContext ctx) {
         this.ctx = ctx;
-        webSocketConnection =
-                WebSocketUtil.getWebSocketConnection(ctx, this, blockingHandler, securedConnection, target);
+        webSocketConnection = new DefaultWebSocketConnection(ctx, this, messageQueueHandler, secureConnection,
+                                                             negotiatedSubProtocol);
     }
 
     @Override
@@ -131,7 +138,8 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws WebSocketConnectorException {
-        if (!caughtException && webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null) {
+        if (!caughtException && webSocketConnection != null && !this.isCloseFrameReceived() && closePromise == null &&
+                !closeInitialized) {
             // Notify abnormal closure.
             DefaultWebSocketMessage webSocketCloseMessage =
                     new DefaultWebSocketCloseMessage(Constants.WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE);
@@ -140,7 +148,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
-        if (closePromise != null && !closePromise.isDone()) {
+        if (closePromise != null && !closeFrameReceived) {
             String errMsg = "Connection is closed by remote endpoint without echoing a close frame";
             ctx.close().addListener(closeFuture -> closePromise.setFailure(new IllegalStateException(errMsg)));
         }
@@ -168,6 +176,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
             }
             notifyBinaryMessage(binaryFrame, binaryFrame.content(), binaryFrame.isFinalFragment());
         } else if (msg instanceof CloseWebSocketFrame) {
+            closeFrameReceived = true;
             notifyCloseMessage((CloseWebSocketFrame) msg);
         } else if (msg instanceof PingWebSocketFrame) {
             notifyPingMessage((PingWebSocketFrame) msg);
@@ -209,7 +218,7 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private void notifyBinaryMessage(WebSocketFrame frame, ByteBuf content, boolean finalFragment)
             throws WebSocketConnectorException {
         DefaultWebSocketMessage webSocketBinaryMessage = WebSocketUtil.getWebSocketMessage(frame, content,
-                finalFragment);
+                                                                                           finalFragment);
         setupCommonProperties(webSocketBinaryMessage);
         connectorFuture.notifyWebSocketListener((WebSocketBinaryMessage) webSocketBinaryMessage);
     }
@@ -221,7 +230,6 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
         if (closePromise == null) {
             DefaultWebSocketMessage webSocketCloseMessage = new DefaultWebSocketCloseMessage(statusCode, reasonText);
             setupCommonProperties(webSocketCloseMessage);
-            closeFrameReceived = true;
             connectorFuture.notifyWebSocketListener((WebSocketCloseMessage) webSocketCloseMessage);
         } else {
             if (webSocketConnection.getCloseInitiatedStatusCode() != closeWebSocketFrame.statusCode()) {
@@ -260,12 +268,12 @@ public class WebSocketInboundFrameHandler extends ChannelInboundHandlerAdapter {
     private void setupCommonProperties(DefaultWebSocketMessage webSocketMessage) {
         webSocketMessage.setTarget(target);
         webSocketMessage.setListenerInterface(interfaceId);
-        webSocketMessage.setIsConnectionSecured(securedConnection);
+        webSocketMessage.setIsSecureConnection(secureConnection);
         webSocketMessage.setWebSocketConnection(webSocketConnection);
-        webSocketMessage.setSessionlID(webSocketConnection.getId());
+        webSocketMessage.setSessionID(webSocketConnection.getId());
         webSocketMessage.setIsServerMessage(isServer);
         webSocketMessage.setProperty(Constants.LISTENER_PORT,
-                ((InetSocketAddress) ctx.channel().localAddress()).getPort());
+                                     ((InetSocketAddress) ctx.channel().localAddress()).getPort());
         webSocketMessage.setProperty(Constants.LOCAL_ADDRESS, ctx.channel().localAddress());
         webSocketMessage.setProperty(
                 Constants.LOCAL_NAME, ((InetSocketAddress) ctx.channel().localAddress()).getHostName());

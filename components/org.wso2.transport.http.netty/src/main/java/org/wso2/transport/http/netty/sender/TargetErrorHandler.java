@@ -167,5 +167,3 @@ public class TargetErrorHandler {
         httpResponseFuture.notifyHttpListener(throwable);
     }
 }
-
-

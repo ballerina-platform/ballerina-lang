@@ -18,10 +18,9 @@
 
 package org.wso2.transport.http.netty.sender.websocket;
 
-import io.netty.channel.ChannelFuture;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshaker;
@@ -29,8 +28,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorFuture;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultClientHandshakeFuture;
+import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
 import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
-import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
+import org.wso2.transport.http.netty.listener.MessageQueueHandler;
 import org.wso2.transport.http.netty.message.DefaultListener;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 
@@ -42,42 +43,28 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
     private static final Logger log = LoggerFactory.getLogger(WebSocketClientHandshakeHandler.class);
 
     private final WebSocketClientHandshaker handshaker;
-    private final WebSocketFramesBlockingHandler blockingHandler;
-    private final boolean isSecure;
+    private final MessageQueueHandler messageQueueHandler;
+    private final boolean secure;
     private final boolean autoRead;
     private final String requestedUri;
-    private ChannelPromise handshakeFuture;
-    private HttpCarbonResponse httpCarbonResponse;
+    private final DefaultClientHandshakeFuture handshakeFuture;
     private final WebSocketConnectorFuture connectorFuture;
-    private WebSocketInboundFrameHandler inboundFrameHandler;
+    private HttpCarbonResponse httpCarbonResponse;
 
     public WebSocketClientHandshakeHandler(WebSocketClientHandshaker handshaker,
-                                  WebSocketFramesBlockingHandler framesBlockingHandler, boolean isSecure,
-                                  boolean autoRead, String requestedUri, WebSocketConnectorFuture connectorFuture) {
+            DefaultClientHandshakeFuture handshakeFuture, MessageQueueHandler messageQueueHandler,
+            boolean secure, boolean autoRead, String requestedUri, WebSocketConnectorFuture connectorFuture) {
         this.handshaker = handshaker;
-        this.blockingHandler = framesBlockingHandler;
-        this.isSecure = isSecure;
+        this.messageQueueHandler = messageQueueHandler;
+        this.secure = secure;
         this.autoRead = autoRead;
         this.requestedUri = requestedUri;
-        this.handshakeFuture = null;
         this.connectorFuture = connectorFuture;
-    }
-
-    public ChannelFuture handshakeFuture() {
-        return handshakeFuture;
+        this.handshakeFuture = handshakeFuture;
     }
 
     public HttpCarbonResponse getHttpCarbonResponse() {
         return httpCarbonResponse;
-    }
-
-    public WebSocketInboundFrameHandler getInboundFrameHandler() {
-        return this.inboundFrameHandler;
-    }
-
-    @Override
-    public void handlerAdded(ChannelHandlerContext ctx) {
-        handshakeFuture = ctx.newPromise();
     }
 
     @Override
@@ -86,31 +73,38 @@ public class WebSocketClientHandshakeHandler extends ChannelInboundHandlerAdapte
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (!(msg instanceof FullHttpResponse)) {
-            throw new IllegalArgumentException("HTTP response is expected!");
+            throw new IllegalArgumentException("HTTP response is expected");
         }
 
-        FullHttpResponse fullHttpResponse = (FullHttpResponse) msg;
-        httpCarbonResponse = setUpCarbonMessage(ctx, fullHttpResponse);
-        log.debug("WebSocket Client connected!");
-        if (!autoRead) {
-            ctx.channel().pipeline().addLast(Constants.WEBSOCKET_FRAME_BLOCKING_HANDLER, blockingHandler);
+        FullHttpResponse handshakeResponse = (FullHttpResponse) msg;
+        httpCarbonResponse = setUpCarbonMessage(ctx, handshakeResponse);
+        try {
+            ctx.channel().config().setAutoRead(false);
+            handshaker.finishHandshake(ctx.channel(), handshakeResponse);
+            Channel channel = ctx.channel();
+            if (!autoRead) {
+                channel.pipeline().addLast(Constants.MESSAGE_QUEUE_HANDLER, messageQueueHandler);
+            }
+            WebSocketInboundFrameHandler inboundFrameHandler = new WebSocketInboundFrameHandler(false, secure,
+                    requestedUri, null,  handshaker.actualSubprotocol(), connectorFuture, messageQueueHandler);
+            channel.pipeline().addLast(Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);
+            channel.pipeline().remove(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER);
+            ctx.fireChannelActive();
+            DefaultWebSocketConnection webSocketConnection = inboundFrameHandler.getWebSocketConnection();
+            handshakeFuture.notifySuccess(webSocketConnection, httpCarbonResponse);
+            channel.config().setAutoRead(autoRead);
+            log.debug("WebSocket Client connected");
+        } finally {
+            handshakeResponse.release();
         }
-        inboundFrameHandler =
-                new WebSocketInboundFrameHandler(connectorFuture, blockingHandler, false, isSecure, requestedUri, null);
-        ctx.channel().pipeline().addLast(Constants.WEBSOCKET_FRAME_HANDLER, inboundFrameHandler);
-        handshaker.finishHandshake(ctx.channel(), fullHttpResponse);
-        ctx.channel().pipeline().remove(Constants.WEBSOCKET_CLIENT_HANDSHAKE_HANDLER);
-        ctx.fireChannelActive();
-        handshakeFuture.setSuccess();
-        fullHttpResponse.release();
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         log.error("Caught exception", cause);
-        handshakeFuture.setFailure(cause);
+        handshakeFuture.notifyError(cause, httpCarbonResponse);
     }
 
     private HttpCarbonResponse setUpCarbonMessage(ChannelHandlerContext ctx, HttpResponse msg) {

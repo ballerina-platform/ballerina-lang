@@ -312,22 +312,65 @@ public class Http2TargetHandler extends ChannelDuplexHandler {
                 return;
             }
         }
-        // Create response carbon message
-        HttpCarbonResponse responseMessage =
-                setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder);
+
         if (isServerPush) {
-            outboundMsgHolder.addPushResponse(streamId, responseMessage);
             if (endOfStream) {
-                responseMessage.addHttpContent(new DefaultLastHttpContent());
+                 // Retrieve response message.
+                HTTPCarbonMessage responseMessage = outboundMsgHolder.getPushResponse(streamId);
+                if (responseMessage != null) {
+                    onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
+                } else if (http2HeadersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
+                    // if the header frame is an initial header frame and also it has endOfStream
+                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
+                            .getHeaders(), outboundMsgHolder);
+                    responseMessage.addHttpContent(new DefaultLastHttpContent());
+                    outboundMsgHolder.addPushResponse(streamId, (HttpCarbonResponse) responseMessage);
+                }
                 http2ClientChannel.removePromisedMessage(streamId);
+            } else {
+                // Create response carbon message.
+                HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
+                        .getHeaders(), outboundMsgHolder);
+                outboundMsgHolder.addPushResponse(streamId, (HttpCarbonResponse) responseMessage);
             }
         } else {
             if (endOfStream) {
-                responseMessage.addHttpContent(new DefaultLastHttpContent());
+                // Retrieve response message.
+                HTTPCarbonMessage responseMessage = outboundMsgHolder.getResponse();
+                if (responseMessage != null) {
+                    onTrailersRead(streamId, http2HeadersFrame.getHeaders(), outboundMsgHolder, responseMessage);
+                } else if (http2HeadersFrame.getHeaders().contains(Constants.HTTP2_METHOD)) {
+                    // if the header frame is an initial header frame and also it has endOfStream
+                    responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
+                            .getHeaders(), outboundMsgHolder);
+                    responseMessage.addHttpContent(new DefaultLastHttpContent());
+                    outboundMsgHolder.setResponse((HttpCarbonResponse) responseMessage);
+                }
                 http2ClientChannel.removeInFlightMessage(streamId);
+            } else {
+                // Create response carbon message.
+                HTTPCarbonMessage responseMessage = setupResponseCarbonMessage(ctx, streamId, http2HeadersFrame
+                        .getHeaders(), outboundMsgHolder);
+                outboundMsgHolder.setResponse((HttpCarbonResponse) responseMessage);
             }
-            outboundMsgHolder.setResponse(responseMessage);
         }
+    }
+
+    private void onTrailersRead(int streamId, Http2Headers headers, OutboundMsgHolder outboundMsgHolder,
+                                HTTPCarbonMessage responseMessage) {
+
+        HttpVersion version = new HttpVersion(Constants.HTTP_VERSION_2_0, true);
+        LastHttpContent lastHttpContent = new DefaultLastHttpContent();
+        HttpHeaders trailers = lastHttpContent.trailingHeaders();
+
+        try {
+            HttpConversionUtil.addHttp2ToHttpHeaders(
+                    streamId, headers, trailers, version, true, false);
+        } catch (Http2Exception e) {
+            outboundMsgHolder.getResponseFuture().
+                    notifyHttpListener(new Exception("Error while setting http headers", e));
+        }
+        responseMessage.addHttpContent(lastHttpContent);
     }
 
     private void onDataRead(Http2DataFrame dataFrame) throws Http2Exception {

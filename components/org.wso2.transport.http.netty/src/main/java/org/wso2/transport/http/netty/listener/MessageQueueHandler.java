@@ -28,14 +28,14 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * This Handler is responsible for issuing frame by frame when the WebSocket connection is asked to read next frame
  * when autoRead is set to false.
  */
-public class WebSocketFramesBlockingHandler extends ChannelInboundHandlerAdapter {
+public class MessageQueueHandler extends ChannelInboundHandlerAdapter {
 
-    private final Queue<Object> frameCollectorQueue;
+    private final Queue<Object> messageQueue;
     private ChannelHandlerContext ctx;
     private boolean readNext;
 
-    public WebSocketFramesBlockingHandler() {
-        this.frameCollectorQueue = new ConcurrentLinkedQueue<>();
+    public MessageQueueHandler() {
+        this.messageQueue = new ConcurrentLinkedQueue<>();
     }
 
     @Override
@@ -50,7 +50,7 @@ public class WebSocketFramesBlockingHandler extends ChannelInboundHandlerAdapter
             ctx.fireChannelRead(msg);
             return;
         }
-        frameCollectorQueue.add(msg);
+        messageQueue.add(msg);
     }
 
     public void readNextFrame() {
@@ -58,11 +58,11 @@ public class WebSocketFramesBlockingHandler extends ChannelInboundHandlerAdapter
             throw new IllegalStateException("Cannot call readNextFrame() without an initialized ChannelHandlerContext");
         }
 
-        if (frameCollectorQueue.isEmpty()) {
+        if (messageQueue.isEmpty()) {
             readNext = true;
             ctx.channel().read();
             return;
         }
-        ctx.fireChannelRead(frameCollectorQueue.poll());
+        ctx.fireChannelRead(messageQueue.poll());
     }
 }

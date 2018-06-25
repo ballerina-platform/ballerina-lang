@@ -14,25 +14,19 @@
  *  KIND, either express or implied.  See the License for the
  *  specific language governing permissions and limitations
  *  under the License.
- *
  */
 
-package org.wso2.transport.http.netty.internal.websocket;
+package org.wso2.transport.http.netty.contractimpl.websocket;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketControlSignal;
-import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketConnection;
-import org.wso2.transport.http.netty.contractimpl.websocket.DefaultWebSocketMessage;
-import org.wso2.transport.http.netty.contractimpl.websocket.WebSocketInboundFrameHandler;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketControlMessage;
 import org.wso2.transport.http.netty.contractimpl.websocket.message.DefaultWebSocketTextMessage;
-import org.wso2.transport.http.netty.listener.WebSocketFramesBlockingHandler;
 
-import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 
 /**
@@ -40,17 +34,8 @@ import java.nio.ByteBuffer;
  */
 public class WebSocketUtil {
 
-    public static String getSessionID(ChannelHandlerContext ctx) {
+    public static String getChannelId(ChannelHandlerContext ctx) {
         return ctx.channel().id().asLongText();
-    }
-
-    public static DefaultWebSocketConnection getWebSocketConnection(ChannelHandlerContext ctx,
-                                                                    WebSocketInboundFrameHandler frameHandler,
-                                                                    WebSocketFramesBlockingHandler blockingHandler,
-                                                                    boolean isSecured,
-                                                                    String uri) throws URISyntaxException {
-        DefaultWebSocketSession session = new DefaultWebSocketSession(ctx, isSecured, uri, getSessionID(ctx));
-        return new DefaultWebSocketConnection(ctx, frameHandler, blockingHandler, session);
     }
 
     public static WebSocketControlMessage getWebSocketControlMessage(WebSocketFrame webSocketFrame,

@@ -29,11 +29,12 @@ import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeFuture;
 import org.wso2.transport.http.netty.contract.websocket.ClientHandshakeListener;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketBinaryMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnector;
+import org.wso2.transport.http.netty.contract.websocket.WebSocketClientConnectorConfig;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketCloseMessage;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnectorListener;
-import org.wso2.transport.http.netty.contract.websocket.WsClientConnectorConfig;
 import org.wso2.transport.http.netty.contractimpl.DefaultHttpWsConnectorFactory;
 import org.wso2.transport.http.netty.message.HttpCarbonResponse;
 import org.wso2.transport.http.netty.util.server.websocket.WebSocketRemoteServer;
@@ -62,7 +63,8 @@ public class WebSocketClientFunctionalityTestCase {
     public void setup() throws InterruptedException {
         remoteServer = new WebSocketRemoteServer(WEBSOCKET_REMOTE_SERVER_PORT, "xml, json");
         remoteServer.run();
-        WsClientConnectorConfig configuration = new WsClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
+        WebSocketClientConnectorConfig configuration = new WebSocketClientConnectorConfig(WEBSOCKET_REMOTE_SERVER_URL);
+        configuration.setAutoRead(true);
         clientConnector = httpConnectorFactory.createWsClientConnector(configuration);
     }
 
@@ -84,7 +86,9 @@ public class WebSocketClientFunctionalityTestCase {
         Assert.assertEquals(closeMessage.getCloseCode(), 1000);
         Assert.assertEquals(closeMessage.getCloseReason(), "Close on request");
 
-        closeMessage.getWebSocketConnection().finishConnectionClosure(closeMessage.getCloseCode(), null);
+        WebSocketConnection webSocketConnection = closeMessage.getWebSocketConnection();
+        webSocketConnection.finishConnectionClosure(closeMessage.getCloseCode(), null).sync();
+        Assert.assertFalse(webSocketConnection.isOpen());
     }
 
     @Test
@@ -95,6 +99,7 @@ public class WebSocketClientFunctionalityTestCase {
         Assert.assertEquals(closeMessage.getCloseCode(), 1006);
         Assert.assertNull(closeMessage.getCloseReason());
         Assert.assertTrue(connectorListener.isClosed());
+        Assert.assertFalse(closeMessage.getWebSocketConnection().isOpen());
     }
 
     @Test(description = "Test ping received from the server.")
@@ -129,9 +134,10 @@ public class WebSocketClientFunctionalityTestCase {
         byte[] bytes = {1, 2, 3, 4, 5};
         ByteBuffer bufferSent = ByteBuffer.wrap(bytes);
         WebSocketTestClientConnectorListener connectorListener = handshakeAndSendBinaryMessage(bufferSent);
-        ByteBuffer bufferReceived = connectorListener.getReceivedByteBufferToClient();
+        WebSocketBinaryMessage receivedBinaryMessage = connectorListener.getReceivedBinaryMessageToClient();
 
-        Assert.assertEquals(bufferReceived, bufferSent);
+        Assert.assertEquals(receivedBinaryMessage.getByteBuffer(), bufferSent);
+        Assert.assertEquals(receivedBinaryMessage.getByteArray(), bytes);
     }
 
     private WebSocketTestClientConnectorListener handshakeAndSendBinaryMessage(ByteBuffer bufferSent)
@@ -185,7 +191,7 @@ public class WebSocketClientFunctionalityTestCase {
     }
 
     @Test(description = "Test connection termination using WebSocketConnection without sending a close frame.")
-    public void testConnectionTermination() throws Throwable {
+    public void testConnectionTerminationWithoutCloseFrame() throws Throwable {
         WebSocketConnection webSocketConnection =
                 getWebSocketConnectionSync(new WebSocketTestClientConnectorListener());
         CountDownLatch countDownLatch = new CountDownLatch(1);
@@ -196,6 +202,22 @@ public class WebSocketClientFunctionalityTestCase {
         Assert.assertNull(closeFuture.cause());
         Assert.assertTrue(closeFuture.isDone());
         Assert.assertTrue(closeFuture.isSuccess());
+        Assert.assertFalse(webSocketConnection.isOpen());
+    }
+
+    @Test(description = "Test connection termination using WebSocketConnection with a close frame.")
+    public void testConnectionTerminationWithCloseFrame() throws Throwable {
+        WebSocketConnection webSocketConnection =
+                getWebSocketConnectionSync(new WebSocketTestClientConnectorListener());
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        ChannelFuture closeFuture = webSocketConnection.terminateConnection(1011, "Unexpected failure").addListener(
+                future -> countDownLatch.countDown());
+        countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
+
+        Assert.assertNull(closeFuture.cause());
+        Assert.assertTrue(closeFuture.isDone());
+        Assert.assertTrue(closeFuture.isSuccess());
+        Assert.assertFalse(webSocketConnection.isOpen());
     }
 
     @Test
@@ -236,9 +258,11 @@ public class WebSocketClientFunctionalityTestCase {
         countDownLatch.await(WEBSOCKET_TEST_IDLE_TIMEOUT, SECONDS);
         Throwable throwable = connectorListener.getError();
 
+        Assert.assertNotNull(webSocketConnection);
         Assert.assertNotNull(throwable);
         Assert.assertTrue(throwable instanceof CorruptedFrameException);
         Assert.assertEquals(throwable.getMessage(), "received continuation data frame outside fragmented message");
+        Assert.assertFalse(webSocketConnection.isOpen());
     }
 
     @AfterClass

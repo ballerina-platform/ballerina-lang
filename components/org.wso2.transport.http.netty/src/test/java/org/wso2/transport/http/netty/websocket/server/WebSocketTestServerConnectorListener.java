@@ -125,7 +125,7 @@ public class WebSocketTestServerConnectorListener implements WebSocketConnectorL
     public void onMessage(WebSocketControlMessage controlMessage) {
         if (controlMessage.getControlSignal() == WebSocketControlSignal.PING) {
             WebSocketConnection webSocketConnection = controlMessage.getWebSocketConnection();
-            webSocketConnection.pong(controlMessage.getPayload()).addListener(future -> {
+            webSocketConnection.pong(controlMessage.getByteBuffer()).addListener(future -> {
                 if (!future.isSuccess()) {
                     Assert.fail("Could not send the message. "
                             + future.cause().getMessage());

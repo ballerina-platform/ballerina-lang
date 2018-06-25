@@ -36,7 +36,7 @@ public class DefaultWebSocketMessage implements WebSocketMessage {
     protected boolean secureConnection;
     protected boolean isServerMessage;
     protected WebSocketConnection webSocketConnection;
-    protected String sessionlID;
+    protected String sessionID;
 
     public void setProperty(String key, Object value) {
         properties.put(key, value);
@@ -54,8 +54,8 @@ public class DefaultWebSocketMessage implements WebSocketMessage {
         return properties;
     }
 
-    public void setSessionlID(String sessionlID) {
-        this.sessionlID = sessionlID;
+    public void setSessionID(String sessionID) {
+        this.sessionID = sessionID;
     }
 
     public void setTarget(String target) {
@@ -76,7 +76,7 @@ public class DefaultWebSocketMessage implements WebSocketMessage {
         return listenerInterface;
     }
 
-    public void setIsConnectionSecured(boolean isConnectionSecured) {
+    public void setIsSecureConnection(boolean isConnectionSecured) {
         this.secureConnection = isConnectionSecured;
     }
 
@@ -105,6 +105,6 @@ public class DefaultWebSocketMessage implements WebSocketMessage {
 
     @Override
     public String getSessionID() {
-        return sessionlID;
+        return sessionID;
     }
 }

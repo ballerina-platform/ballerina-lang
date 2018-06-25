@@ -172,13 +172,14 @@ public final class Constants {
     public static final String LOCALHOST = "localhost";
 
     public static final String HTTP_OBJECT_AGGREGATOR = "HTTP_OBJECT_AGGREGATOR";
-    public static final String WEBSOCKET_PROTOCOL = "ws";
-    public static final String WEBSOCKET_PROTOCOL_SECURED = "wss";
+    public static final String WS_SCHEME = "ws";
+    public static final String WSS_SCHEME = "wss";
     public static final String WEBSOCKET_UPGRADE = "websocket";
     public static final String WEBSOCKET_FRAME_HANDLER = "WEBSOCKET_FRAME_HANDLER";
-    public static final String WEBSOCKET_FRAME_BLOCKING_HANDLER = "WEBSOCKET_FRAME_BLOCKING_HANDLER";
+    public static final String MESSAGE_QUEUE_HANDLER = "MESSAGE_QUEUE_HANDLER";
     public static final int WEBSOCKET_STATUS_CODE_NORMAL_CLOSURE = 1000;
     public static final int WEBSOCKET_STATUS_CODE_GOING_AWAY = 1001;
+    public static final int WEBSOCKET_STATUS_CODE_PROTOCOL_ERROR = 1002;
     public static final int WEBSOCKET_STATUS_CODE_ABNORMAL_CLOSURE = 1006;
     public static final int WEBSOCKET_STATUS_CODE_UNEXPECTED_CONDITION = 1011;
 

@@ -44,6 +44,7 @@ import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.FrameLogger;
 import org.wso2.transport.http.netty.common.HttpRoute;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
+import org.wso2.transport.http.netty.common.Util;
 import org.wso2.transport.http.netty.common.ssl.SSLConfig;
 import org.wso2.transport.http.netty.common.ssl.SSLHandlerFactory;
 import org.wso2.transport.http.netty.config.KeepAliveConfig;
@@ -55,7 +56,6 @@ import org.wso2.transport.http.netty.sender.http2.Http2ClientChannel;
 import org.wso2.transport.http.netty.sender.http2.Http2ConnectionManager;
 import org.wso2.transport.http.netty.sender.http2.Http2TargetHandler;
 
-import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLException;
 
 import static io.netty.handler.logging.LogLevel.TRACE;
@@ -99,7 +99,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         this.cacheSize = senderConfiguration.getCacheSize();
         this.senderConfiguration = senderConfiguration;
         this.httpRoute = httpRoute;
-        this.sslConfig = senderConfiguration.getSSLConfig();
+        this.sslConfig = senderConfiguration.generateSSLConfig();
         this.connectionAvailabilityFuture = connectionAvailabilityFuture;
 
         String httpVersion = senderConfiguration.getHttpVersion();
@@ -129,7 +129,7 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
         targetHandler.setHttp2TargetHandler(http2TargetHandler);
         targetHandler.setKeepAliveConfig(getKeepAliveConfig());
         if (http2) {
-            SSLConfig sslConfig = senderConfiguration.getSSLConfig();
+            SSLConfig sslConfig = senderConfiguration.generateSSLConfig();
             if (sslConfig != null) {
                 configureSslForHttp2(socketChannel, clientPipeline, sslConfig);
             } else if (senderConfiguration.isForceHttp2()) {
@@ -139,7 +139,11 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             }
         } else {
             if (sslConfig != null) {
-                configureSslForHttp(clientPipeline, targetHandler, socketChannel);
+                connectionAvailabilityFuture.setSSLEnabled(true);
+                Util.configureHttpPipelineForSSL(socketChannel, httpRoute.getHost(), httpRoute.getPort(),
+                        senderConfiguration);
+                clientPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
+                        new SslHandshakeCompletionHandlerForClient(connectionAvailabilityFuture, this, targetHandler));
             } else {
                 configureHttpPipeline(clientPipeline, targetHandler);
             }
@@ -160,34 +164,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
                         new HttpProxyHandler(proxyServerConfiguration.getInetSocketAddress()));
             }
         }
-    }
-
-    private void configureSslForHttp(ChannelPipeline clientPipeline, TargetHandler targetHandler,
-            SocketChannel socketChannel)
-            throws SSLException {
-        log.debug("adding ssl handler");
-        connectionAvailabilityFuture.setSSLEnabled(true);
-        if (senderConfiguration.isOcspStaplingEnabled()) {
-            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-            ReferenceCountedOpenSslContext referenceCountedOpenSslContext = sslHandlerFactory
-                    .buildClientReferenceCountedOpenSslContext();
-
-            if (referenceCountedOpenSslContext != null) {
-                SslHandler sslHandler = referenceCountedOpenSslContext.newHandler(socketChannel.alloc());
-                ReferenceCountedOpenSslEngine engine = (ReferenceCountedOpenSslEngine) sslHandler.engine();
-                socketChannel.pipeline().addLast(sslHandler);
-                socketChannel.pipeline().addLast(new OCSPStaplingHandler(engine));
-            }
-        } else {
-            SSLEngine sslEngine = instantiateAndConfigSSL(sslConfig);
-            clientPipeline.addLast(Constants.SSL_HANDLER, new SslHandler(sslEngine));
-            if (validateCertEnabled) {
-                clientPipeline.addLast(Constants.HTTP_CERT_VALIDATION_HANDLER,
-                        new CertificateValidationHandler(sslEngine, this.cacheDelay, this.cacheSize));
-            }
-        }
-        clientPipeline.addLast(Constants.SSL_COMPLETION_HANDLER,
-                new SslHandshakeCompletionHandlerForClient(connectionAvailabilityFuture, this, targetHandler));
     }
 
     private void configureSslForHttp2(SocketChannel ch, ChannelPipeline clientPipeline, SSLConfig sslConfig)
@@ -275,27 +251,6 @@ public class HttpClientChannelInitializer extends ChannelInitializer<SocketChann
             pipeline.addLast(Constants.HTTP_TRACE_LOG_HANDLER,
                     new HTTPTraceLoggingHandler(Constants.TRACE_LOG_UPSTREAM));
         }
-    }
-
-    /**
-     * Set configurations to create ssl engine.
-     *
-     * @param sslConfig ssl related configurations
-     * @return ssl engine
-     */
-    private SSLEngine instantiateAndConfigSSL(SSLConfig sslConfig) {
-        // set the pipeline factory, which creates the pipeline for each newly created channels
-        SSLEngine sslEngine = null;
-        if (sslConfig != null) {
-            SSLHandlerFactory sslHandlerFactory = new SSLHandlerFactory(sslConfig);
-            sslEngine = sslHandlerFactory.buildClientSSLEngine(httpRoute.getHost(), httpRoute.getPort());
-            sslEngine.setUseClientMode(true);
-            sslHandlerFactory.setSNIServerNames(sslEngine, httpRoute.getHost());
-            if (senderConfiguration.hostNameVerificationEnabled()) {
-                sslHandlerFactory.setHostNameVerfication(sslEngine);
-            }
-        }
-        return sslEngine;
     }
 
     /**
