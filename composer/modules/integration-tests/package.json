@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "mocha --timeout 3000 src/test/js/test.js --grep renders",
+    "test": "mocha --timeout 3000 src/test/js/test.js",
     "debug-print": "cross-env DEBUG=true mocha --timeout 3000 src/test/js/test.js --grep \"debug print\"",
     "test:debug": "cross-env SOURCE_DEBUG=true mocha target/test/js/source-gen-test.js"
   },

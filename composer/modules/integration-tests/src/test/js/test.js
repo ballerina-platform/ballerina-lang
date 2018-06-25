@@ -26,6 +26,10 @@ global.targetPath = path.join(__dirname, '..', '..', '..', 'target');
 const testEnv = require('./environment');
 const {findBalFilesInDirSync, parse} = require('./utils');
 const debugPrint = require('./source-gen-debug-print');
+const config = require('../resources/config');
+
+const renderingSkip = config.skip["rendering"];
+const sourceGenSkip = config.skip["source-gen"];
 
 const testFilesDir = path.join(__dirname, '../resources/ballerina-examples');
 
@@ -35,6 +39,7 @@ describe('Ballerina Composer Test Suite', () => {
     
     before(function (beforeAllDone) {
         this.timeout(10000);
+        console.log(sourceGenSkip)
         const targetPath = path.join(global.targetPath, 'lib', `composer-server.jar`);
         backEndProcess = spawn('java', [`-Dballerina.home=${global.targetPath}`, '-jar', targetPath]);
         backEndProcess.stderr.pipe(process.stderr);
@@ -70,11 +75,19 @@ describe('Ballerina Composer Test Suite', () => {
                 })
             });
 
-            it('renders', () => {
+            it('renders', function () {
+                if(renderingSkip.includes(path.basename(testFile))) {
+                    this.skip();
+                }
+
                 testEnv.render(model)
             });
 
-            it('generates source', () => {
+            it('generates source', function () {
+                if(sourceGenSkip.includes(path.basename(testFile))) {
+                    this.skip();
+                }
+
                 const generatedSource = testEnv.generateSource(model);
                 expect(generatedSource).to.equal(content);
             });

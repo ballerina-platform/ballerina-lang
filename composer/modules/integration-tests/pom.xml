@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <modelVersion>4.0.0</modelVersion>
     <artifactId>js-tests</artifactId>
-    <name>Ballerina - Composer Integration Tests</name>
+    <name>Ballerina - Composer - Integration Tests</name>
 
     <dependencies>
         <dependency>
