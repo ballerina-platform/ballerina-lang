@@ -1,8 +1,0 @@
-// In Ballerina, throwing an error means something unexpected has occured
-// (something which should not have occurred during the normal operation). A thrown error causes
-// the call stack to be unwound until a matching catcher is found.
-
-// Ballerina encourages developers NOT to use `throw` for handling program related
-// errors such as `header not found`, `data mismatched` errors, etc.). However, 
-// `Connection Closed/Timeout` and `OutOfMemory` errors can be used in an error situation 
-// where it could not handle the error by itself, such as when accessing a `Null` reference. 

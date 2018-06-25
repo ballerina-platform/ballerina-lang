@@ -1,3 +1,0 @@
-// In this example, you generate a client for a ballerina service.
-// Add the `@swagger:ClientEndpoint` annotation to mark the endpoint(s) that are used for client generation.
-// Add the `@swagger:ClientConfig {generate: true}` annotation to the service to enable client generation.

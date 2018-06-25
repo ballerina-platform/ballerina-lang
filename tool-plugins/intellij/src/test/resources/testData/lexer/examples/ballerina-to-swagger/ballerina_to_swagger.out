@@ -1,2 +1,0 @@
-#Run the following command in the Ballerina tools distribution to export the OAS definition of a ballerina service.
-$ ballerina swagger export ballerina_to_swagger.bal

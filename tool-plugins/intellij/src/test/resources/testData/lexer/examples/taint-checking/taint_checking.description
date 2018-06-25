@@ -1,7 +1,0 @@
-// Ballerina is designed to ensure that programs written with Ballerina are inherently secure. Ballerina programs
-// are resilient to major security vulnerabilities including SQL injection, path manipulation, file manipulation,
-// unauthorized file access, and unvalidated redirect (open redirect).
-//
-// A taint analysis mechanism is used to achieve this. As a result of the taint analysis mechanism, the Ballerina compiler
-// identifies untrusted (tainted) data by observing how tainted data propagates through the program. If untrusted data
-// is passed to a security sensitive parameter, a compiler error is generated.

@@ -1,4 +1,0 @@
-// JSON is a textual format for representing a collection of values:
-// a simple value (string, number, “true”, “false”, “null”), an array of values, or an object.
-// Ballerina has a single type named `json` that can represent any JSON value.
-// Thus, `json` is a built-in union type in Ballerina that can contain values of type string, float, boolean, an array of any, or a map of any.

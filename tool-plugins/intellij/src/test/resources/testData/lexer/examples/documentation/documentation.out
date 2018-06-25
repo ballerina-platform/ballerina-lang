@@ -1,3 +1,0 @@
-$ ballerina run documentation.bal
-Documentation attachments are non executable constructs in Ballerina.
-

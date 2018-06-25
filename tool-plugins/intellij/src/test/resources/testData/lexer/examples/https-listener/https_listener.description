@@ -1,2 +1,0 @@
-// The HTTP Listener can be used to connect to, and interact with, an HTTP client.
-// Https configurations can be given to the server to expose an https connection.

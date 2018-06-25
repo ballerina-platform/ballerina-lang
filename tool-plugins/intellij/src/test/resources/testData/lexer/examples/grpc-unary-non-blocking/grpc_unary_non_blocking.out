@@ -1,3 +1,0 @@
-# To run the service, put the code in  `grpc_unary_non-blocking.bal`
-# and use "ballerina run" command.
-$ ballerina run grpc_unary_non_blocking.bal
