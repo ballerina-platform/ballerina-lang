@@ -1,7 +1,7 @@
 import ballerina/reflect;
 
 // Start types
-type SimplePerson {
+type SimplePerson record {
     string name;
     int age = -1;
     boolean married;
@@ -23,7 +23,7 @@ function testPrimitiveTypes() returns (boolean) {
            !reflect:equals((),sp1);
 }
 
-public type ArrayedPerson {
+public type ArrayedPerson record {
     string name;
     int age = -1;
     boolean married;
@@ -44,16 +44,16 @@ function testTypesWithArrays() returns (boolean) {
            !reflect:equals((),ap1);
 }
 
-public type Wheel {
+public type Wheel record {
     int pressure;
 };
 
-public type Engine {
+public type Engine record {
     string model;
     float capacity;
 };
 
-public type Car {
+public type Car record {
     string name;
     Wheel[] wheels;
     Engine engine;

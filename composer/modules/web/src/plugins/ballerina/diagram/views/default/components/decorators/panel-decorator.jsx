@@ -110,6 +110,7 @@ class PanelDecorator extends React.Component {
                 },
                 icon: (collapsed) ? ImageUtil.getCodePoint('down') : ImageUtil.getCodePoint('up'),
                 onClick: () => this.onCollapseClick(),
+                tooltip: 'collapse',
                 key: `${this.props.model.getID()}-collapse-button`,
             };
 

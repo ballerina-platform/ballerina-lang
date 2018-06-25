@@ -69,7 +69,7 @@ documentation {
     F{{ciphers}} Encrypt/decrypt algorithms (i.e RSA, SHA-256)
     F{{sslProtocol}} Supported SSL protocols (i.e SSL, TLS)
 }
-public type SocketProperties {
+public type SocketProperties record {
     int localPort;
     string keyStoreFile;
     string keyStorePassword;

@@ -130,7 +130,7 @@ documentation { Configurations of the simple durable topic subscriber endpoint
     F{{messageSelector}} JMS selector statement
     F{{topicPattern}} Name or the pattern of the topic subscription
 }
-public type SimpleDurableTopicSubscriberEndpointConfiguration {
+public type SimpleDurableTopicSubscriberEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";

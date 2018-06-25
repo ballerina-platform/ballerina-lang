@@ -70,7 +70,7 @@ public class StartUpHubService extends BlockingNativeCallableUnit {
     private BStruct getHubStartedUpError(Context context, Hub hubInstance) {
         return BLangConnectorSPIUtil.createBStruct(context, WEBSUB_PACKAGE,
                                                     STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR,
-                                                    "Ballerina Hub already started up",
+                                                    "Ballerina Hub already started up", null,
                                                     hubInstance.getHubObject());
     }
 

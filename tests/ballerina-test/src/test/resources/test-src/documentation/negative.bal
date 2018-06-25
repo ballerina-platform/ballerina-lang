@@ -5,7 +5,7 @@ F{{a}} annotation `field a` documentation
 F{{a}} annotation `field a` documentation
 F{{b}} annotation `field b` documentation
 F{{c}} annotation `field c` documentation}
-type Tst {
+type Tst record {
     string a;
     string b;
     string cd;
@@ -22,7 +22,7 @@ F{{a}} struct `field a` documentation
 F{{a}} struct `field a` documentation
 F{{b}} struct `field b` documentation
 F{{c}} struct `field c` documentation}
-type Test {
+type Test record {
     int a;
     int b;
     int cdd;
@@ -63,14 +63,14 @@ public type File object {
 //    e.name = p.firstName;
 //}
 
-type Person {
+type Person record {
     string firstName;
     string lastName;
     int age;
     string city;
 };
 
-type Employee {
+type Employee record {
     string name;
     int age;
     string address;
@@ -82,7 +82,7 @@ Test Connector
 F{{url}} url for endpoint
 F{{url}} url for endpoint
 P{{urls}} urls for endpoint}
-type TestConnector {
+type TestConnector record {
   string url;
 };
 

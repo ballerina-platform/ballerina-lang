@@ -22,7 +22,6 @@ import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
@@ -58,17 +57,17 @@ public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
     
     @Override
     @SuppressWarnings("unchecked")
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        TokenStream tokenStream = completionContext.get(CompletionKeys.TOKEN_STREAM_KEY);
+        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
         CompletionItemSorter itemSorter = ItemSorters.getSorterByClass(DefaultItemSorter.class);
 
         if (parserRuleContext.getParent() instanceof BallerinaParser.CatchClauseContext
                 && CommonUtil.isWithinBrackets(completionContext, Collections.singletonList(CATCH_KEY_WORD))) {
             this.populateCompletionItemList(filterCatchConditionSymbolInfo(completionContext), completionItems);
-        } else if (tokenStream.get(completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY)).getText().equals(":")) {
+        } else if (tokenStream.get(1).getText().equals(":")) {
             /*
             TODO: ATM, this particular condition becomes true only when try to access packages' items in the 
             endpoint definition context
@@ -91,8 +90,8 @@ public class ParserRuleTypeNameContextResolver extends AbstractItemResolver {
 
     private static List<SymbolInfo> filterEndpointContextSymbolInfo(LSServiceOperationContext context) {
         List<SymbolInfo> symbolInfos = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
-        int currentTokenIndex = context.get(DocumentServiceKeys.TOKEN_INDEX_KEY) - 1;
-        TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        int currentTokenIndex = 0;
+        TokenStream tokenStream = context.get(CompletionKeys.TOKEN_STREAM_KEY);
         Token packageAlias = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex);
         Token constraintStart = CommonUtil.getPreviousDefaultToken(tokenStream, packageAlias.getTokenIndex() - 1);
         List<SymbolInfo> returnList = new ArrayList<>();

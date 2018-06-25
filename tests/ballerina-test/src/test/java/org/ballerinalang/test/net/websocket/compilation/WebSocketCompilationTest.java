@@ -38,8 +38,7 @@ public class WebSocketCompilationTest {
 
     @Test(description = "Successfully compiling WebSocketClientService")
     public void testSuccessClient() {
-        CompileResult compileResult = BCompileUtil.compileAndSetup(
-                "test-src/net/websocket/compilation/success_client.bal");
+        CompileResult compileResult = BCompileUtil.compile("test-src/net/websocket/compilation/success_client.bal");
 
         Assert.assertEquals(compileResult.toString(), "Compilation Successful");
     }

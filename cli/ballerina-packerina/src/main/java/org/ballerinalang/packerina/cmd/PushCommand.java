@@ -66,21 +66,19 @@ public class PushCommand implements BLauncherCmd {
             return;
         }
 
-        if (argList == null || argList.size() == 0) {
-            throw new BLangCompilerException("No package given");
-        }
-
-        if (argList.size() > 1) {
-            throw new BLangCompilerException("too many arguments");
-        }
-
         // Enable remote debugging
         if (null != debugPort) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, debugPort);
         }
 
-        String packageName = argList.get(0);
-        PushUtils.pushPackages(packageName, sourceRoot, repositoryHome);
+        if (argList == null || argList.size() == 0) {
+            PushUtils.pushAllPackages(sourceRoot, repositoryHome);
+        } else if (argList.size() == 1) {
+            String packageName = argList.get(0);
+            PushUtils.pushPackages(packageName, sourceRoot, repositoryHome);
+        } else {
+            throw new BLangCompilerException("too many arguments");
+        }
         Runtime.getRuntime().exit(0);
     }
 

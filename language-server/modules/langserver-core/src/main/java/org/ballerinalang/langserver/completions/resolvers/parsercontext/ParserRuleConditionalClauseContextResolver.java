@@ -49,7 +49,7 @@ public class ParserRuleConditionalClauseContextResolver extends AbstractItemReso
     private static final String WHILE_KEY_WORD = "while";
     
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> symbolInfos =
                 this.filterConditionalSymbols(completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY));

@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
  */
 public class ObjectTypeContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         List<SymbolInfo> filteredTypes = completionContext.get(CompletionKeys.VISIBLE_SYMBOLS_KEY).stream()
                 .filter(symbolInfo -> symbolInfo.getScopeEntry().symbol instanceof BTypeSymbol)

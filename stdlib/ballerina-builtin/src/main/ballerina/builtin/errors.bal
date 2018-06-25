@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type error {
+public type error record {
     string message;
     error? cause;
 };

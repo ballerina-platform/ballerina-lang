@@ -25,7 +25,7 @@ documentation {
     F{{serverStreaming}} - Server streaming flag. This applies only for bidirectional streaming. Flag
     sets to true, if the service defines as bidirectional streaming.
 }
-public type GrpcServiceConfig {
+public type GrpcServiceConfig record {
     string name;
     boolean clientStreaming;
     boolean serverStreaming;
@@ -42,7 +42,7 @@ documentation {
     F{{streaming}} - Server streaming flag. This flag sets to true to specify that the resource is capable of sending
      multiple responses per request.
 }
-public type GrpcResourceConfig {
+public type GrpcResourceConfig record {
     boolean streaming;
 };
 
@@ -56,7 +56,7 @@ documentation {
 
     F{{descriptor}} - Service descriptor sets at compile time.
 }
-public type ServiceDescriptorData {
+public type ServiceDescriptorData record {
     string descriptor;
 };
 

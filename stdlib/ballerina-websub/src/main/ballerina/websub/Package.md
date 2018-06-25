@@ -243,7 +243,7 @@ function main(string... args) {
 
 ## Configuration Parameters
 The Ballerina WebSub implementation allows specifying the following properties/parameters via the Ballerina Config API,
-where the values specified via the Config API would be used if the values are not specified as params on hub start up.
+where the values specified via the Config API would override values specified as params on hub start up.
 
 
 | Configuration Key              | Default Value | Description                                                        |

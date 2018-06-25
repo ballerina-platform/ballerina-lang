@@ -4,7 +4,7 @@ documentation { Documentation for Tst struct
 F{{a}} annotation `field a` documentation
 F{{b}} annotation `field b` documentation
 F{{c}} annotation `field c` documentation}
-type Tst {
+type Tst record {
     string a;
     string b;
     string c;
@@ -18,20 +18,20 @@ documentation { Documentation for Test struct
 F{{a}} struct `field a` documentation
 F{{b}} struct `field b` documentation
 F{{c}} struct `field c` documentation}
-type Test {
+type Test record {
     int a;
     int b;
     int c;
 };
 
-type Person {
+type Person record {
     string firstName;
     string lastName;
     int age;
     string city;
 };
 
-type Employee {
+type Employee record {
     string name;
     int age;
     string address;

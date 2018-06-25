@@ -198,20 +198,20 @@ public class XMLLiteralTest {
     public void testExpressionAsAttributeValue() {
         BValue[] returns = BRunUtil.invoke(result, "testExpressionAsAttributeValue");
         Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(), "<foo bar=\"&quot;zzz&quot;\"/>");
+        Assert.assertEquals(returns[0].stringValue(), "<foo bar=\"&quot;zzz&quot;\"></foo>");
 
         Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(returns[1].stringValue(), "<foo bar=\"aaazzzbb'b33>22ccc?\"/>");
+        Assert.assertEquals(returns[1].stringValue(), "<foo bar=\"aaazzzbb'b33&gt;22ccc?\"></foo>");
 
         Assert.assertTrue(returns[2] instanceof BXML);
-        Assert.assertEquals(returns[2].stringValue(), "<foo bar=\"}aaazzzbbb33>22ccc{d{}e}{f{\"/>");
+        Assert.assertEquals(returns[2].stringValue(), "<foo bar=\"}aaazzzbbb33&gt;22ccc{d{}e}{f{\"></foo>");
 
         Assert.assertTrue(returns[3] instanceof BXML);
-        Assert.assertEquals(returns[3].stringValue(), "<foo bar1=\"aaa{zzz}b{{b&quot;b33>22c}}cc{d{}e}{f{\" "
-                + "bar2=\"aaa{zzz}b{{b&quot;b33>22c}}cc{d{}e}{f{\"/>");
+        Assert.assertEquals(returns[3].stringValue(), "<foo bar1=\"aaa{zzz}b{{b&quot;b33&gt;22c}}cc{d{}e}{f{\" "
+                + "bar2=\"aaa{zzz}b{{b&quot;b33&gt;22c}}cc{d{}e}{f{\"></foo>");
 
         Assert.assertTrue(returns[4] instanceof BXML);
-        Assert.assertEquals(returns[4].stringValue(), "<foo bar=\"\"/>");
+        Assert.assertEquals(returns[4].stringValue(), "<foo bar=\"\"></foo>");
     }
 
     @Test
@@ -219,12 +219,12 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testElementLiteralWithTemplateChildren");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<root>hello aaa&lt;bbb good morning <fname>John</fname> "
-                + "<lname>Doe</lname>. Have a nice day!<foo>123</foo><bar/></root>");
+                + "<lname>Doe</lname>. Have a nice day!<foo>123</foo><bar></bar></root>");
 
         Assert.assertTrue(returns[1] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[1];
         Assert.assertEquals(seq.stringValue(), "hello aaa<bbb good morning <fname>John</fname> <lname>Doe</lname>. "
-                + "Have a nice day!<foo>123</foo><bar/>");
+                + "Have a nice day!<foo>123</foo><bar></bar>");
 
         BRefValueArray items = seq.value();
         Assert.assertEquals(items.size(), 7);
@@ -238,7 +238,7 @@ public class XMLLiteralTest {
         Assert.assertEquals(returns[0].stringValue(),
                 "<root xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/a\" "
                         + "xmlns:ns1=\"http://ballerina.com/c\" ns0:id=\"456\"><foo>123</foo>"
-                        + "<bar ns1:status=\"complete\"/></root>");
+                        + "<bar ns1:status=\"complete\"></bar></root>");
 
         Assert.assertTrue(returns[1] instanceof BXML);
         BXMLSequence seq = (BXMLSequence) returns[1];
@@ -246,7 +246,7 @@ public class XMLLiteralTest {
                 "<foo xmlns=\"http://ballerina.com/\" "
                         + "xmlns:ns0=\"http://ballerina.com/a\" xmlns:ns1=\"http://ballerina.com/c\">123</foo>"
                         + "<bar xmlns=\"http://ballerina.com/\" xmlns:ns0=\"http://ballerina.com/a\" "
-                        + "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"/>");
+                        + "xmlns:ns1=\"http://ballerina.com/c\" ns1:status=\"complete\"></bar>");
 
         BRefValueArray items = seq.value();
         Assert.assertEquals(items.size(), 2);
@@ -331,7 +331,7 @@ public class XMLLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testFunctionCallInXMLTemplate");
         Assert.assertTrue(returns[0] instanceof BXMLItem);
 
-        Assert.assertEquals(returns[0].stringValue(), "<foo>&lt;-->returned from a function</foo>");
+        Assert.assertEquals(returns[0].stringValue(), "<foo>&lt;--&gt;returned from a function</foo>");
     }
 
     @Test

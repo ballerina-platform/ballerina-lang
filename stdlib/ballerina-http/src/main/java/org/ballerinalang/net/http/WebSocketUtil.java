@@ -152,11 +152,11 @@ public abstract class WebSocketUtil {
     public static void populateEndpoint(WebSocketConnection webSocketConnection, BStruct webSocketEndpoint) {
         webSocketEndpoint.setStringField(WebSocketConstants.LISTENER_ID_INDEX, webSocketConnection.getId());
         webSocketEndpoint.setStringField(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_INDEX,
-                                         webSocketConnection.getSession().getNegotiatedSubprotocol());
+                                         webSocketConnection.getNegotiatedSubProtocol());
         webSocketEndpoint.setBooleanField(WebSocketConstants.LISTENER_IS_SECURE_INDEX,
-                                          webSocketConnection.getSession().isSecure() ? 1 : 0);
+                                          webSocketConnection.isSecure() ? 1 : 0);
         webSocketEndpoint.setBooleanField(WebSocketConstants.LISTENER_IS_OPEN_INDEX,
-                                          webSocketConnection.getSession().isOpen() ? 1 : 0);
+                                          webSocketConnection.isOpen() ? 1 : 0);
     }
 
     public static void handleWebSocketCallback(Context context, CallableUnitCallback callback,

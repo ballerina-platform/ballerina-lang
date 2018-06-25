@@ -25,7 +25,7 @@ documentation {
 }
 native function verifySignature(string data, string signature, string algorithm, TrustStore trustStore)
     returns (boolean);
-type TrustStore {
+type TrustStore record {
     string certificateAlias,
     string trustStoreFilePath,
     string trustStorePassword,
@@ -41,7 +41,7 @@ documentation {
 }
 native function sign(string data, string algorithm, KeyStore keyStore) returns (string);
 
-type KeyStore {
+type KeyStore record {
     string keyAlias,
     string keyPassword,
     string keyStoreFilePath,

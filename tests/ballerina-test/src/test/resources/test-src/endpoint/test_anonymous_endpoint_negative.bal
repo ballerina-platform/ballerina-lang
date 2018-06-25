@@ -30,7 +30,7 @@ type DummyEndpoint object {
     }
 };
 
-public type DummyEndpointConfig {
+public type DummyEndpointConfig record {
     string conf1;
     boolean conf2;
     int conf3;
