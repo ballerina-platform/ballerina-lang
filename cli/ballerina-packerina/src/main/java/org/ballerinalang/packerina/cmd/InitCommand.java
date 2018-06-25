@@ -27,6 +27,7 @@ import org.ballerinalang.packerina.init.models.FileType;
 import org.ballerinalang.packerina.init.models.PackageMdFile;
 import org.ballerinalang.packerina.init.models.SrcFile;
 import org.ballerinalang.toml.model.Manifest;
+import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -41,6 +42,7 @@ import java.util.Locale;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Init command for creating a ballerina project.
@@ -71,6 +73,21 @@ public class InitCommand implements BLauncherCmd {
 
         // Get source root path.
         Path projectPath = Paths.get(System.getProperty(USER_DIR));
+        try {
+            List<Path> subDirs = Files.walk(projectPath, 2)
+                                      .filter(path -> path.getParent() != projectPath &&
+                                              path.toFile().getName().equals(
+                                                      ProjectDirConstants.DOT_BALLERINA_DIR_NAME))
+                                      .collect(Collectors.toList());
+            if (subDirs.size() > 0) {
+                out.println("A ballerina project is already initialized in a sub directory " +
+                                    subDirs.get(0).toFile().getParent());
+                return;
+            }
+        } catch (IOException e) {
+            out.println("Error occurred while walking through the sub directories: " + e.getMessage());
+        }
+
         Scanner scanner = new Scanner(System.in, Charset.defaultCharset().name());
         try {
             Manifest manifest = null;
