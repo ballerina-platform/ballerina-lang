@@ -98,13 +98,13 @@ service<http:Service> sample1 bind echoEP {
     }
 }
 
-type Person {
+type Person record {
     int age,
     string name,
     Address address,
 };
 
-type Address {
+type Address record {
     int no,
     string line1,
     string line2,

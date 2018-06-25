@@ -20,7 +20,9 @@ package org.ballerinalang.testerina.core.entity;
 
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -85,7 +87,10 @@ public class TesterinaReport {
         if (testReportOfPackage.size() == 0) {
             outStream.println("Test Suites: 0");
         } else {
-            testReportOfPackage.forEach((packageName, summary) -> {
+            LinkedList<String> keys = new LinkedList<>(testReportOfPackage.keySet());
+            Collections.sort(keys);
+            keys.forEach(packageName -> {
+                TestSummary summary = testReportOfPackage.get(packageName);
                 outStream.println();
                 outStream.print(String.format("%-" + 67 + "s", packageName).replaceAll("\\s(?=\\s+$|$)", "."));
                 outStream.print(" " + ((summary.failedTests.size() > 0 || summary.skippedTests.size() > 0) ?

@@ -157,7 +157,7 @@ service<http:Service> quoteService bind serviceEndpoint {
     }
     employee (endpoint caller, http:Request req, json person) {
         http:Response res = new;
-        res.setJsonPayload(person);
+        res.setJsonPayload(untaint person);
         _ = caller -> respond(res);
     }
 }

@@ -1,5 +1,5 @@
 
-public type userPFoo {
+public type userPFoo record {
     int age;
     string name;
     string address;

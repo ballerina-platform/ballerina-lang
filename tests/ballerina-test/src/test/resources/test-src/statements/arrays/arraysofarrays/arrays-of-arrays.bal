@@ -69,7 +69,7 @@ function arrayTest(int[][] yy) returns (int) {
     return yy[0][1];
 }
 
-type B {
+type B record {
     int x;
 };
 
@@ -195,6 +195,6 @@ function testRefArrayIterator() returns A {
     return a;
 }
 
-type A {
+type A record {
     string name;
 };

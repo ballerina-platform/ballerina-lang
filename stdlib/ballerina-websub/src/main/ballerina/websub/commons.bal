@@ -446,7 +446,7 @@ documentation {
     F{{leaseSeconds}} The lease period for which the subscription is expected to be active
     F{{secret}} The secret to be used for authenticated content distribution with this subscription
 }
-public type SubscriptionChangeRequest {
+public type SubscriptionChangeRequest record {
     string topic,
     string callback,
     int leaseSeconds,
@@ -460,7 +460,7 @@ documentation {
     F{{topic}} The topic for which the subscription/unsubscription was successful
     F{{response}} The response from the hub to the subscription/unsubscription requests
 }
-public type SubscriptionChangeResponse {
+public type SubscriptionChangeResponse record {
     string hub,
     string topic,
     http:Response response,
@@ -484,6 +484,9 @@ documentation {
     P{{publicUrl}}                  The URL for the hub to be included in content delivery requests, defaults to
                                         `http(s)://localhost:{port}/websub/hub` if unspecified
     P{{sslEnabled}}                 Whether SSL needs to be enabled for the hub, enabled by default
+    P{{serviceSecureSocket}}        The SSL configuration for the hub service endpoint
+    P{{clientSecureSocket}}         The SSL configuration for the hub service for secure communication with remote HTTP
+                                        endpoints
     R{{}} `WebSubHub` The WebSubHub object representing the newly started up hub, or `HubStartedUpError` indicating
                         that the hub is already started, and including the WebSubHub object representing the
                         already started up hub
@@ -491,19 +494,29 @@ documentation {
 public function startUpBallerinaHub(int? port = (), int? leaseSeconds = (), string? signatureMethod = (),
                                     boolean? remotePublishingEnabled = (), string? remotePublishingMode = (),
                                     boolean? topicRegistrationRequired = (), string? publicUrl = (),
-                                    boolean? sslEnabled = ()) returns WebSubHub|HubStartedUpError {
-    hubPort = port but { () => hubPort };
-    hubLeaseSeconds = leaseSeconds but { () => hubLeaseSeconds };
-    hubSignatureMethod = signatureMethod but { () => hubSignatureMethod };
-    hubRemotePublishingEnabled = remotePublishingEnabled but { () => hubRemotePublishingEnabled };
-    hubRemotePublishingMode = remotePublishingMode but { () => hubRemotePublishingMode };
-    hubTopicRegistrationRequired = topicRegistrationRequired but { () => hubTopicRegistrationRequired };
-    hubSslEnabled = sslEnabled but { () => hubSslEnabled };
-    //reset serviceSecureSocket and secureSocket after hubSslEnabled is set
-    serviceSecureSocket = getServiceSecureSocketConfig();
-    httpSecureSocket = getSecureSocketConfig();
+                                    boolean? sslEnabled = (), http:ServiceSecureSocket? serviceSecureSocket = (),
+                                    http:SecureSocket? clientSecureSocket = ())
+    returns WebSubHub|HubStartedUpError {
+
+    hubPort = config:getAsInt("b7a.websub.hub.port", default = port but { () => DEFAULT_PORT });
+    hubLeaseSeconds = config:getAsInt("b7a.websub.hub.leasetime",
+                                      default = leaseSeconds but { () => DEFAULT_LEASE_SECONDS_VALUE });
+    hubSignatureMethod = config:getAsString("b7a.websub.hub.signaturemethod",
+                                            default = signatureMethod but { () => DEFAULT_SIGNATURE_METHOD });
+    hubRemotePublishingEnabled = config:getAsBoolean("b7a.websub.hub.remotepublish",
+                                                     default = remotePublishingEnabled but { () => false });
+    hubRemotePublishingMode = config:getAsString("b7a.websub.hub.remotepublish.mode",
+                                            default = remotePublishingMode but { () => REMOTE_PUBLISHING_MODE_DIRECT });
+    hubTopicRegistrationRequired = config:getAsBoolean("b7a.websub.hub.topicregistration",
+                                                       default = topicRegistrationRequired but { () => true });
+    hubSslEnabled = config:getAsBoolean("b7a.websub.hub.enablessl", default = sslEnabled but { () => true });
+    //set serviceSecureSocket after hubSslEnabled is set
+    if (hubSslEnabled) {
+        hubServiceSecureSocket = getServiceSecureSocketConfig(serviceSecureSocket);
+    }
+    hubClientSecureSocket = getSecureSocketConfig(clientSecureSocket);
     //reset the hubUrl once the other parameters are set
-    hubPublicUrl = publicUrl but { () => getHubUrl() };
+    hubPublicUrl = config:getAsString("b7a.websub.hub.url", default = publicUrl but { () => getHubUrl() });
     return startUpHubService(hubTopicRegistrationRequired, hubPublicUrl);
 }
 
@@ -627,7 +640,7 @@ documentation {
     F{{leaseSeconds}} The lease second period specified for the particular subscription
     F{{createdAt}} The time at which the subscription was created
 }
-type SubscriptionDetails {
+type SubscriptionDetails record {
     string topic,
     string callback,
     string secret,
@@ -653,7 +666,7 @@ documentation {
     F{{payload}} The payload to be sent
     F{{contentType}} The content-type of the payload
 }
-type WebSubContent {
+type WebSubContent record {
     string|xml|json|blob|io:ByteChannel payload,
     string contentType,
 };
@@ -670,5 +683,6 @@ documentation {
 }
 public type HubStartedUpError record {
     string message;
+    error? cause;
     WebSubHub startedUpHub;
 };

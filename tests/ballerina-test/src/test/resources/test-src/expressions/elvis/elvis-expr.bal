@@ -52,7 +52,7 @@ function testElvisRefTypeNestedCaseTwo () returns (int|string) {
     return b;
 }
 
-public type Person {
+public type Person record {
     string name;
     int age;
 };

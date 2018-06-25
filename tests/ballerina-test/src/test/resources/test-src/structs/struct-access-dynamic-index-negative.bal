@@ -1,11 +1,11 @@
-type Person {
+type Person record {
     string name = "default first name";
     string lname;
     map adrs;
     int age = 999;
 };
 
-type StructField {
+type StructField record {
     string key;
 };
 

@@ -56,7 +56,9 @@ class PanelDecoratorButton extends React.Component {
                 fontSize={iconSize}
                 className='control-icons'
                 onClick={this.props.onClick}
-            >{this.props.icon}</text>
+            >{this.props.icon} 
+                <title>{this.props.tooltip}</title>
+            </text>
         </g>);
     }
 }
