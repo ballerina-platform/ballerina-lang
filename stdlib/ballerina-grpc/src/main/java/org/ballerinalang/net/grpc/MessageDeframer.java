@@ -15,15 +15,12 @@
  */
 package org.ballerinalang.net.grpc;
 
-import com.google.common.base.Preconditions;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.HttpContent;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Deframer for GRPC frames.
@@ -79,7 +76,6 @@ public class MessageDeframer implements Closeable {
     private boolean inDelivery = false;
 
     private boolean closeWhenComplete = false;
-    private volatile boolean stopDelivery = false;
 
     /**
      * Create a deframer.
@@ -88,21 +84,17 @@ public class MessageDeframer implements Closeable {
      * @param decompressor the compression used if a compressed frame is encountered.
      * @param maxMessageSize the maximum allowed size for received messages.
      */
-    public MessageDeframer(
+    MessageDeframer(
             MessageDeframer.Listener listener,
             Decompressor decompressor,
             int maxMessageSize) {
-        this.listener = checkNotNull(listener, "sink");
-        this.decompressor = checkNotNull(decompressor, "decompressor");
+        this.listener = listener;
+        this.decompressor = decompressor;
         this.maxInboundMessageSize = maxMessageSize;
     }
 
     void setListener(MessageDeframer.Listener listener) {
         this.listener = listener;
-    }
-
-    public void setMaxInboundMessageSize(int messageSize) {
-        maxInboundMessageSize = messageSize;
     }
 
     public void setDecompressor(Decompressor decompressor) {
@@ -189,7 +181,7 @@ public class MessageDeframer implements Closeable {
         inDelivery = true;
         try {
             // Process the uncompressed bytes.
-            while (!stopDelivery && readRequiredBytes()) {
+            while (readRequiredBytes()) {
                 switch (state) {
                     case HEADER:
                         processHeader();
@@ -201,11 +193,6 @@ public class MessageDeframer implements Closeable {
                     default:
                         throw new IllegalStateException("Invalid state: " + state);
                 }
-            }
-
-            if (stopDelivery) {
-                close();
-                return;
             }
 
             if (closeWhenComplete && isStalled()) {
@@ -312,8 +299,8 @@ public class MessageDeframer implements Closeable {
     private static final class BufferInputStream extends InputStream implements KnownLength {
         final CompositeContent buffer;
 
-        public BufferInputStream(CompositeContent buffer) {
-            this.buffer = Preconditions.checkNotNull(buffer, "buffer");
+        BufferInputStream(CompositeContent buffer) {
+            this.buffer = buffer;
         }
 
         @Override

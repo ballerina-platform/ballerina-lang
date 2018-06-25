@@ -30,7 +30,6 @@ import java.util.concurrent.CancellationException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import static com.google.common.base.Preconditions.checkState;
 import static org.ballerinalang.net.grpc.GrpcConstants.CONTENT_TYPE_KEY;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ACCEPT_ENCODING;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
@@ -168,9 +167,15 @@ public final class ClientCall<ReqT, RespT> {
      */
     public void halfClose() {
 
-        checkState(outboundMessage != null, "Not started");
-        checkState(!cancelCalled, "call was cancelled");
-        checkState(!halfCloseCalled, "call already half-closed");
+        if (outboundMessage == null) {
+            throw new IllegalStateException("Client call did not start properly.");
+        }
+        if (cancelCalled) {
+            throw new IllegalStateException("Client call was called.");
+        }
+        if (halfCloseCalled) {
+            throw new IllegalStateException("Client call was already closed.");
+        }
         halfCloseCalled = true;
         outboundMessage.halfClose();
     }
@@ -182,9 +187,18 @@ public final class ClientCall<ReqT, RespT> {
      */
     public void sendMessage(ReqT message) {
 
-        checkState(connectorListener != null, "Not started");
-        checkState(!cancelCalled, "call was cancelled");
-        checkState(!halfCloseCalled, "call was half-closed");
+        if (connectorListener == null) {
+            throw new IllegalStateException("Client call did not start properly.");
+        }
+
+        if (cancelCalled) {
+            throw new IllegalStateException("Client call was already called.");
+        }
+
+        if (halfCloseCalled) {
+            throw new IllegalStateException("Client call was already closed.");
+        }
+
         try {
             InputStream resp = method.streamRequest(message);
             outboundMessage.sendMessage(resp);
@@ -209,7 +223,9 @@ public final class ClientCall<ReqT, RespT> {
      */
     public void setMessageCompression(boolean enabled) {
 
-        checkState(outboundMessage != null, "Not started");
+        if (outboundMessage == null) {
+            throw new IllegalStateException("Client call did not start properly.");
+        }
         outboundMessage.setMessageCompression(enabled);
     }
 

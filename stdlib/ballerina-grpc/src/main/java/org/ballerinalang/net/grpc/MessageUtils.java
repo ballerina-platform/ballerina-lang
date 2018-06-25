@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.net.grpc;
 
-import com.google.common.base.Preconditions;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpRequest;
@@ -682,7 +681,10 @@ public class MessageUtils {
      * Reads the entire {@link HttpContent} to a new {@link String} with the given charset.
      */
     public static String readAsString(HttpContent httpContent, Charset charset) {
-        Preconditions.checkNotNull(charset, "charset");
+
+        if (charset == null) {
+            throw new RuntimeException("Charset cannot be null");
+        }
         byte[] bytes = readArray(httpContent);
         return new String(bytes, charset);
     }
