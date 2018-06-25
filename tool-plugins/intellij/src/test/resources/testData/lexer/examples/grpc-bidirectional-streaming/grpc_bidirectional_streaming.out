@@ -1,0 +1,3 @@
+# To run the service, place the code in the  'grpc_bidirectional_streaming.bal' file in the required location.
+# Then navigate to that location and issue the 'ballerina run' command as shown here.
+$ ballerina run grpc_bidirectional_streaming.bal

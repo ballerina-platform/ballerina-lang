@@ -1,0 +1,2 @@
+// Ballerina natively supports connecting to the Ballerina Message Broker. In this example, you make a durable topic
+// subscriber.

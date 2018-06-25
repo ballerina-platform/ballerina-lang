@@ -1,0 +1,33 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command. 
+$ ballerina run csv_io.bal
+Record was successfully written to target file
+Record was successfully written to target file
+Record was successfully written to target file
+Record was successfully written to target file
+Record was successfully written to target file
+CSV channel closed successfully.
+Start processing the CSV file from ./files/sample.csv
+["1", "James", "10000"]
+["2", "Nathan", "150000"]
+["3", "Ronald", "120000"]
+["4", "Roy", "6000"]
+["5", "Oliver", "1100000"]
+Processing completed.
+CSV channel closed successfully.
+Reading  ./files/sample.csv as a table
+{id:"1", name:"James", salary:10000.0}
+{id:"2", name:"Nathan", salary:150000.0}
+{id:"3", name:"Ronald", salary:120000.0}
+{id:"4", name:"Roy", salary:6000.0}
+{id:"5", name:"Oliver", salary:1100000.0}
+CSV channel closed successfully.
+Creating a table and adding data
+Successfully added entry to table
+Successfully added entry to table
+Successfully added entry to table
+Writing the table to ./files/output.csv
+Record was successfully written to target file
+Record was successfully written to target file
+Record was successfully written to target file
+CSV channel closed successfully.

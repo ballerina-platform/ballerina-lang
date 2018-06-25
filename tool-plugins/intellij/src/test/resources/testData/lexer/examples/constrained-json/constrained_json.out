@@ -1,0 +1,5 @@
+#To run this sample, navigate to the directory that contains the
+#'.bal' file and issue the 'ballerina run' command.
+$ ballerina run constrained_json.bal
+{"name":"Jon","age":25,"city":"Colombo"}
+Software Engineer
