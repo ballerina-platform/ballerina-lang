@@ -43,12 +43,13 @@ import java.io.PrintStream;
 import static org.awaitility.Awaitility.await;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
+
 /**
  * Class to test table literal.
  */
 public class TableLiteralTest {
 
-    private static final String CR = "\r";
+    private static final String CARRIAGE_RETURN_CHAR = "\r";
     private static final String EMPTY_STRING = "";
     private CompileResult result;
     private CompileResult resultNegative;
@@ -109,7 +110,7 @@ public class TableLiteralTest {
         try {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintData");
-            Assert.assertEquals(outContent.toString().replaceAll(CR, EMPTY_STRING),
+            Assert.assertEquals(outContent.toString().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                     "table<Person> {index: [\"id\", \"age\"], primaryKey: [\"id\", \"age\"], data: [{id:1, age:30, "
                             + "salary:300.5, name:\"jane\", married:true}, {id:2, age:20, salary:200.5, "
                             + "name:\"martin\", married:true}, {id:3, age:32, salary:100.5, name:\"john\", "
@@ -127,7 +128,7 @@ public class TableLiteralTest {
         try {
             System.setOut(new PrintStream(outContent));
             BRunUtil.invoke(result, "testPrintDataEmptyTable");
-            Assert.assertEquals(outContent.toString().replaceAll(CR, EMPTY_STRING),
+            Assert.assertEquals(outContent.toString().replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
                     "table<Person> {index: [], primaryKey: [], data: []}\n");
         } finally {
             outContent.close();
