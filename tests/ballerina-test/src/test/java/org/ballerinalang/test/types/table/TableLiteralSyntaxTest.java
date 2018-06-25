@@ -86,6 +86,12 @@ public class TableLiteralSyntaxTest {
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 5);
     }
 
+    @Test
+    public void testTableLiteralDataAndAddWithObject() {
+        BValue[] returns = BRunUtil.invoke(result, "testTableLiteralDataAndAddWithObject");
+        Assert.assertEquals(((BInteger) returns[0]).intValue(), 2);
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*Unique index or primary key violation:.*")
     public void testTableAddOnConstrainedTableWithViolation() {

@@ -265,7 +265,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private void validateTableColumns(BType tableConstraint, BLangTableLiteral tableLiteral) {
         List<String> columnNames = new ArrayList<>();
         if (tableConstraint.tag == TypeTags.RECORD || tableConstraint.tag == TypeTags.OBJECT) {
-            for (BField field : ((BRecordType) tableConstraint).fields) {
+            for (BField field : ((BStructureType) tableConstraint).fields) {
                 columnNames.add(field.getName().getValue());
             }
             for (BLangTableLiteral.BLangTableColumn column : tableLiteral.columns) {
