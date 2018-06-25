@@ -20,10 +20,8 @@ package org.ballerinalang.test.observe;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -73,20 +71,6 @@ public class SummaryTest extends MetricTest {
     public void testMeanSummary() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMeanSummary");
         Assert.assertEquals(returns[0], new BFloat(2));
-    }
-
-    @Test
-    public void testPercentileSummary() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testPercentileSummary");
-        BArray<BStruct> bPercentileValues = (BArray<BStruct>) returns[0];
-        Assert.assertEquals(bPercentileValues.size(), 5);
-        for (int i = 0; i < bPercentileValues.size(); i++) {
-            BStruct bPercentileValue = bPercentileValues.get(i);
-            double percentile = bPercentileValue.getFloatField(0);
-            double value = bPercentileValue.getFloatField(1);
-            Assert.assertTrue(percentile >= 0 && percentile <= 1);
-            Assert.assertTrue(value > 0);
-        }
     }
 
     @Test

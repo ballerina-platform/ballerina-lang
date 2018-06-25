@@ -39,7 +39,7 @@ import org.ballerinalang.natives.annotations.ReturnType;
                 @Argument(name = "spanName", type = TypeKind.STRING),
                 @Argument(name = "tags", type = TypeKind.MAP),
         },
-        returnType = @ReturnType(type = TypeKind.STRING),
+        returnType = @ReturnType(type = TypeKind.INT),
         isPublic = true
 )
 public class StartSpan extends BlockingNativeCallableUnit {

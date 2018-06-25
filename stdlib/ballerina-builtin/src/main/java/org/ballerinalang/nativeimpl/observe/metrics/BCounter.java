@@ -17,27 +17,31 @@
  */
 package org.ballerinalang.nativeimpl.observe.metrics;
 
-import org.ballerinalang.util.metrics.Counter;
-import org.ballerinalang.util.metrics.DefaultMetricRegistry;
-import org.ballerinalang.util.metrics.MetricId;
-import org.ballerinalang.util.metrics.Tag;
-import org.ballerinalang.util.metrics.Tags;
-
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
 
 /**
- * This is the Utils class for the metrics related functions.
+ * This is the Ballerina reference Counter object.
  */
-public class Utils {
+public class BCounter {
+    private String name;
+    private String description;
+    private Map<String, String> tags;
 
-    private Utils() {
+    public BCounter(String name, String description, Map<String, String> tags) {
+        this.name = name;
+        this.description = description;
+        this.tags = tags;
     }
 
-    public static Counter getCounter(BCounter bCounter) {
-        Set<Tag> tags = new TreeSet<>();
-        Tags.tags(tags, bCounter.getTags());
-        return DefaultMetricRegistry.getInstance().counter(new MetricId(bCounter.getName(),
-                bCounter.getDescription(), tags));
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Map<String, String> getTags() {
+        return tags;
     }
 }

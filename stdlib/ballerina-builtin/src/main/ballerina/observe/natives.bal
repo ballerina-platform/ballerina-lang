@@ -68,7 +68,7 @@ public type Counter object {
    string strDesc => description = strDesc;
   }
   match metricTags {
-   string[] tagsMap => tags = tagsMap;
+   map<string> tagsMap => tags = tagsMap;
   }
  }
 
@@ -80,199 +80,200 @@ public type Counter object {
 
  public function increment(int amount = 1) {
   int currentValue = nativeIncrement(amount);
-  string jsonTags = check <string>tags;
-  CounterEvent event = { name: name, desc: description, value: currentValue, tags: jsonTags };
+  json jsonTags = check <json>tags;
+  string strTags = check <string>jsonTags;
+  CounterEvent event = { name: name, desc: description, value: currentValue, tags: strTags };
   counterEvent.publish(currentValue);
  }
 
- native function nativeIncrement(int amount = 1) returns int;
+ native function nativeIncrement(int amount) returns int;
 
  public native function getValue() returns (int);
 
 };
 
-public type Gauge object {
-
- public {
-  @readonly string name,
-  @readonly string description,
-  @readonly map<string> tags,
-  @readonly stream<GaugeEvent> gaugeStream,
-  @readonly future[] summaryQueries,
-  @readonly SummaryConfig[] summaryConfigs,
-  @readonly stream<WindowGaugeEvent>[] windowStreams,
-  @readonly map<Snapshot> snapshots;
- }
-
- new(name, string? desc = "", map<string>? gaugeTags = ()) {
-  match desc {
-   string strDesc => description = strDesc;
-  }
-  match gaugeTags {
-   map<string> tagMap => tags = tagMap;
-  }
-  gaugeStream.subscribe(createWindowGaugeStreamEvent);
- }
-
- public function subscribe(function (GaugeEvent) callBackFunction) {
-  gaugeStream.subscribe(callBackFunction);
- }
-
- public function addSummary(SummaryConfig config, function (GaugeSummaryEvent) subscribeCallbackFunction) {
-  summaryConfigs[lengthof summaryQueries] = config;
-  stream<WindowGaugeEvent> windowStream;
-  summaryQueries[lengthof summaryQueries] = start streamSummary(config, subscribeCallbackFunction);
-  windowStreams[lengthof windowStreams] = windowStream;
-  nativeAddSummary(config);
- }
-
- native function nativeAddSummary(SummaryConfig config);
-
- function createWindowGaugeStreamEvent(GaugeEvent gaugeEvent) {
-  int index = 0;
-  foreach summaryConfig in summaryConfigs {
-   WindowGaugeEvent windowEvent = { name: gaugeEvent.name, desc: gaugeEvent, timeExpiry: summaryConfig.expiry,
-    value: gaugeEvent.value, tags: gaugeEvent.tags };
-   windowStreams[index].publish(windowEvent);
-  }
- }
-
- function streamSummary(SummaryConfig config, stream<WindowGaugeEvent> windowStream,
-                        function (GaugeSummaryEvent) subscribeCallbackFunction) {
-  forever {
-   from windowStream
-   window timeBatch(timeExpiry)
-   select
-   name as name,
-   desc as desc,
-   value as currentValue,
-   avg(value) as averageValue,
-   max(value) as maxValue,
-   min(value) as minValue,
-   sum(value) as sumValue,
-   count(name) as totalCount,
-   percentile() as percentiles
-   => (GaugeSummaryEvent sumaryEvent) {
-    defaultSummaryEventSubscription(config, summaryEvent);
-    subscribeCallbackFunction(summaryEvent);
-   }
-  }
- }
-
- function defaultSummaryEventSubscription(SummaryConfig config, GaugeSummaryEvent summaryEvent) {
-  Snapshot currentSnapshot = { value: summaryEvent.currentValue, mean: summaryEvent.averageValue,
-   max: summaryEvent.maxValue, min: summaryEvent.minValue, sum: summaryEvent.sumValue,
-   count: summaryEvent.totalCount, percentileValues: summaryEvent.percentiles };
-  snapshots[config.name] = currentSnapshot;
- }
-
- public native function register() returns error?;
-
- public function increment(float amount) {
-  float currentVal = nativeIncrement(amount);
-  publishToGaugeStream(currentValue);
- }
-
- native function nativeIncrement(float amount) returns float;
-
- public function decrement(float amount) {
-  float currentVal = nativeDecrement(amount);
-  publishToGaugeStream(currentValue);
- }
- documentation {
-								Decrements the current recorded value.
-
-								P{{amount}} the amount by which the recorded value will be decreased.
-				}
- native function nativeDecrement(float amount) returns float;
-
-
- public function setValue(float amount) {
-  nativeSetValue(amount);
-  publishToGaugeStream(amount);
- }
-
- native function nativeSetValue(float amount);
-
-
- public function getSnapshot(string configName) returns (Snapshot) {
-  Snapshot returnSnapshot;
-  Snapshot? latestSnapShot = snapshots[configName];
-  match latestSnapShot {
-   Snapshot snapshotInstance => returnSnapshot = snapshotInstance;
-   () => returnSnapshot = { value: getValue() };
-  }
-  return returnSnapshot;
- }
-
- native function getValue() returns float;
-
- function publishToGaugeStream(float currentValue) {
-  string jsonTags = check <string>tags;
-  GaugeEvent event = { name: name, desc: description, value: currentValue, tags: jsonTags };
-  gaugeStream.publish(event);
- }
-};
-
+//public type Gauge object {
+//
+// public {
+//  @readonly string name,
+//  @readonly string description,
+//  @readonly map<string> tags,
+//  @readonly stream<GaugeEvent> gaugeStream,
+//  @readonly future[] summaryQueries,
+//  @readonly SummaryConfig[] summaryConfigs,
+//  @readonly stream<WindowGaugeEvent>[] windowStreams,
+//  @readonly map<Snapshot> snapshots;
+// }
+//
+// new(name, string? desc = "", map<string>? gaugeTags = ()) {
+//  match desc {
+//   string strDesc => description = strDesc;
+//  }
+//  match gaugeTags {
+//   map<string> tagMap => tags = tagMap;
+//  }
+//  gaugeStream.subscribe(createWindowGaugeStreamEvent);
+// }
+//
+// public function subscribe(function (GaugeEvent) callBackFunction) {
+//  gaugeStream.subscribe(callBackFunction);
+// }
+//
+// public function addSummary(SummaryConfig config, function (GaugeSummaryEvent) subscribeCallbackFunction) {
+//  summaryConfigs[lengthof summaryQueries] = config;
+//  stream<WindowGaugeEvent> windowStream;
+//  summaryQueries[lengthof summaryQueries] = start streamSummary(config, subscribeCallbackFunction);
+//  windowStreams[lengthof windowStreams] = windowStream;
+//  nativeAddSummary(config);
+// }
+//
+// native function nativeAddSummary(SummaryConfig config);
+//
+// function createWindowGaugeStreamEvent(GaugeEvent gaugeEvent) {
+//  int index = 0;
+//  foreach summaryConfig in summaryConfigs {
+//   WindowGaugeEvent windowEvent = { name: gaugeEvent.name, desc: gaugeEvent, timeExpiry: summaryConfig.expiry,
+//    value: gaugeEvent.value, tags: gaugeEvent.tags };
+//   windowStreams[index].publish(windowEvent);
+//  }
+// }
+//
+// function streamSummary(SummaryConfig config, stream<WindowGaugeEvent> windowStream,
+//                        function (GaugeSummaryEvent) subscribeCallbackFunction) {
+//  forever {
+//   from windowStream
+//   window timeBatch(timeExpiry)
+//   select
+//   name as name,
+//   desc as desc,
+//   value as currentValue,
+//   avg(value) as averageValue,
+//   max(value) as maxValue,
+//   min(value) as minValue,
+//   sum(value) as sumValue,
+//   count(name) as totalCount,
+//   percentile() as percentiles
+//   => (GaugeSummaryEvent sumaryEvent) {
+//    defaultSummaryEventSubscription(config, summaryEvent);
+//    subscribeCallbackFunction(summaryEvent);
+//   }
+//  }
+// }
+//
+// function defaultSummaryEventSubscription(SummaryConfig config, GaugeSummaryEvent summaryEvent) {
+//  Snapshot currentSnapshot = { value: summaryEvent.currentValue, mean: summaryEvent.averageValue,
+//   max: summaryEvent.maxValue, min: summaryEvent.minValue, sum: summaryEvent.sumValue,
+//   count: summaryEvent.totalCount, percentileValues: summaryEvent.percentiles };
+//  snapshots[config.name] = currentSnapshot;
+// }
+//
+// public native function register() returns error?;
+//
+// public function increment(float amount) {
+//  float currentVal = nativeIncrement(amount);
+//  publishToGaugeStream(currentValue);
+// }
+//
+// native function nativeIncrement(float amount) returns float;
+//
+// public function decrement(float amount) {
+//  float currentVal = nativeDecrement(amount);
+//  publishToGaugeStream(currentValue);
+// }
+// documentation {
+//								Decrements the current recorded value.
+//
+//								P{{amount}} the amount by which the recorded value will be decreased.
+//				}
+// native function nativeDecrement(float amount) returns float;
+//
+//
+// public function setValue(float amount) {
+//  nativeSetValue(amount);
+//  publishToGaugeStream(amount);
+// }
+//
+// native function nativeSetValue(float amount);
+//
+//
+// public function getSnapshot(string configName) returns (Snapshot) {
+//  Snapshot returnSnapshot;
+//  Snapshot? latestSnapShot = snapshots[configName];
+//  match latestSnapShot {
+//   Snapshot snapshotInstance => returnSnapshot = snapshotInstance;
+//   () => returnSnapshot = { value: getValue() };
+//  }
+//  return returnSnapshot;
+// }
+//
+// native function getValue() returns float;
+//
+// function publishToGaugeStream(float currentValue) {
+//  string jsonTags = check <string>tags;
+//  GaugeEvent event = { name: name, desc: description, value: currentValue, tags: jsonTags };
+//  gaugeStream.publish(event);
+// }
+//};
+//
 type CounterEvent {
  string name,
  string desc,
- string value,
+ int value,
  string tags;
 };
-
-
-public type SummaryConfig object {
-
- public {
-  @readonly string name,
-  @readonly float[] percentiles,
-  @readonly int expiry,
-  @readonly int buckets;
- }
-
- new(name, percentiles, expiry, buckets) {}
-};
-
-type GaugeEvent {
- string name,
- string desc,
- float value,
- string tags;
-};
-
-type WindowGaugeEvent {
- string name,
- string desc,
- int timeExpiry,
- float value,
- string tags;
-};
-
-
-type GaugeSummaryEvent {
- string name,
- string desc,
- float currentValue,
- float averageValue,
- float minValue,
- float maxValue,
- float sumValue,
- int totalCount,
- string percentiles;
-};
-
-public type PercentileValue {
- float percentile;
- float value;
-};
-
-public type Snapshot {
- float value;
- float mean;
- float max;
- float min;
- float sum;
- int count;
- PercentileValue[] percentileValues;
-};
+//
+//
+//public type SummaryConfig object {
+//
+// public {
+//  @readonly string name,
+//  @readonly float[] percentiles,
+//  @readonly int expiry,
+//  @readonly int buckets;
+// }
+//
+// new(name, percentiles, expiry, buckets) {}
+//};
+//
+//type GaugeEvent {
+// string name,
+// string desc,
+// float value,
+// string tags;
+//};
+//
+//type WindowGaugeEvent {
+// string name,
+// string desc,
+// int timeExpiry,
+// float value,
+// string tags;
+//};
+//
+//
+//type GaugeSummaryEvent {
+// string name,
+// string desc,
+// float currentValue,
+// float averageValue,
+// float minValue,
+// float maxValue,
+// float sumValue,
+// int totalCount,
+// string percentiles;
+//};
+//
+//public type PercentileValue {
+// float percentile;
+// float value;
+//};
+//
+//public type Snapshot {
+// float value;
+// float mean;
+// float max;
+// float min;
+// float sum;
+// int count;
+// PercentileValue[] percentileValues;
+//};

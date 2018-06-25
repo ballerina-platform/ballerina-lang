@@ -42,7 +42,7 @@ import static org.ballerinalang.nativeimpl.observe.tracing.OpenTracerBallerinaWr
                 @Argument(name = "spanName", type = TypeKind.STRING),
                 @Argument(name = "tags", type = TypeKind.MAP),
         },
-        returnType = @ReturnType(type = TypeKind.STRING),
+        returnType = @ReturnType(type = TypeKind.INT),
         isPublic = true
 )
 public class StartRootSpan extends BlockingNativeCallableUnit {

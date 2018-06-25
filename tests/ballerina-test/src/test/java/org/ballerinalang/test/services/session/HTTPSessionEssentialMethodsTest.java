@@ -482,7 +482,7 @@ public class HTTPSessionEssentialMethodsTest {
         String responseMsgPayload = StringUtils
                 .getStringFromInputStream(new HttpMessageDataStreamer(response).getInputStream());
         Assert.assertNotNull(responseMsgPayload);
-        Assert.assertEquals(responseMsgPayload, "Counter");
+        Assert.assertEquals(responseMsgPayload, "BCounter");
     }
 
     @Test(description = "Test for null attributes from getAttributeNames function")
