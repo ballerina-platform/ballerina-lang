@@ -134,6 +134,7 @@ public type ServiceEndpointConfiguration {
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
     Filter[] filters,
+    ProxyServer? proxyServer,
 };
 
 documentation {
@@ -158,6 +159,20 @@ public type ServiceSecureSocket {
     string sslVerifyClient,
     boolean shareSession = true,
     ServiceOcspStapling? ocspStapling,
+};
+
+documentation {
+    Configures proxy server listener.
+
+    F{{enable}} enable/disable proxy listener
+    F{{userName}} username
+    F{{password}} password
+}
+public type ProxyServer {
+    boolean enable,
+    string userName,
+    string password,
+    string pseudonym,
 };
 
 documentation {

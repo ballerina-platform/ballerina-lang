@@ -47,6 +47,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.net.http.HttpConstants.ENABLE;
+import static org.ballerinalang.net.http.HttpConstants.PROXY_PASSWORD;
+import static org.ballerinalang.net.http.HttpConstants.PROXY_PSEUDONYM;
+import static org.ballerinalang.net.http.HttpConstants.PROXY_SERVER;
+import static org.ballerinalang.net.http.HttpConstants.PROXY_USERNAME;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -99,6 +104,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
         Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
+        Struct proxyServer = endpointConfig.getStructField(HttpConstants.PROXY_SERVER);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
@@ -115,6 +121,18 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         listenerConfiguration.setPort(Math.toIntExact(port));
 
         listenerConfiguration.setKeepAliveConfig(HttpUtil.getKeepAliveConfig(keepAlive));
+
+        if (proxyServer != null) {
+            listenerConfiguration.setProxy(proxyServer.getBooleanField(ENABLE));
+            if (StringUtils.isNotBlank(proxyServer.getStringField(PROXY_USERNAME))
+                    && StringUtils.isNotBlank(proxyServer.getStringField(PROXY_PASSWORD))) {
+                listenerConfiguration.setProxyServerUserName(proxyServer.getStringField(PROXY_USERNAME));
+                listenerConfiguration.setProxyServerPassword(proxyServer.getStringField(PROXY_PASSWORD));
+            }
+            if (StringUtils.isNotBlank(proxyServer.getStringField(PROXY_PSEUDONYM))) {
+                listenerConfiguration.setProxyPseudonym(proxyServer.getStringField(PROXY_PSEUDONYM));
+            }
+        }
 
         // Set Request validation limits.
         if (requestLimits != null) {

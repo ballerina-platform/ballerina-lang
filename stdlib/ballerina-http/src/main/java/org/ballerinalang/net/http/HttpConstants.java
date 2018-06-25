@@ -289,6 +289,7 @@ public class HttpConstants {
     public static final String REQUEST_LIMITS_MAXIMUM_URL_LENGTH = "maxUriLength";
     public static final String REQUEST_LIMITS_MAXIMUM_HEADER_SIZE = "maxHeaderSize";
     public static final String REQUEST_LIMITS_MAXIMUM_ENTITY_BODY_SIZE = "maxEntityBodySize";
+    public static final String PROXY_SERVER = "proxyServer";
 
     public static final String ENDPOINT_CONFIG_SECURE_SOCKET = "secureSocket";
 
@@ -344,6 +345,7 @@ public class HttpConstants {
     public static final String PROXY_PORT = "port";
     public static final String PROXY_USERNAME = "userName";
     public static final String PROXY_PASSWORD = "password";
+    public static final String PROXY_PSEUDONYM = "pseudonym";
 
     public static final String HTTP_SERVICE_TYPE = "Service";
     // Filter related

@@ -90,6 +90,7 @@ public type SecureEndpointConfiguration {
     string httpVersion = "1.1",
     RequestLimits? requestLimits,
     Filter[] filters,
+    ProxyServer? proxyServer,
     AuthProvider[]? authProviders,
 };
 
