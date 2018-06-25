@@ -29,7 +29,7 @@ function testGlobalByte(byte b) returns byte {
 }
 
 function testIntToByteCast(int b) returns byte {
-    byte a = <byte> b;
+    byte a = check <byte> b;
     return a;
 }
 
@@ -39,12 +39,12 @@ function testByteToIntCast(byte a) returns int {
 }
 
 function testIntToByteExplicitCast(int b) returns byte {
-    byte a = <byte> b;
+    byte a = check <byte> b;
     return a;
 }
 
 function testIntToByteConversion(int b) returns byte {
-    var c = <byte> b;
+    var c = check <byte> b;
     return c;
 }
 

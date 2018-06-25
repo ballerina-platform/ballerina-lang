@@ -5,11 +5,11 @@ byte[] glbVarBlob;
 byte[] gA = base16 `aeeecdefabcd12345567888822`;
 byte[] gB = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
 
-type BinaryData {
+type BinaryData record {
     byte[] blobField;
 };
 
-type TestRec {
+type TestRec record {
     byte[] a = base16 `aa ab`;
     byte[] b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
     byte[] c;

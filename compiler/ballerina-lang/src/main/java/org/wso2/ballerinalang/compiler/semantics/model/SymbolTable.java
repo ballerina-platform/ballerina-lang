@@ -393,7 +393,7 @@ public class SymbolTable {
 //        defineConversionOperator(intType, floatType, true, InstructionCodes.I2F);
         defineConversionOperator(intType, booleanType, true, InstructionCodes.I2B);
         defineConversionOperator(intType, stringType, true, InstructionCodes.I2S);
-        defineConversionOperator(intType, byteType, true, InstructionCodes.I2BI);
+        defineConversionOperator(intType, byteType, false, InstructionCodes.I2BI);
         defineConversionOperator(floatType, intType, true, InstructionCodes.F2I);
         defineConversionOperator(floatType, booleanType, true, InstructionCodes.F2B);
         defineConversionOperator(floatType, stringType, true, InstructionCodes.F2S);

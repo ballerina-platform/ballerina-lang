@@ -124,6 +124,8 @@ import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.stream.LongStream;
 
+import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
+import static org.ballerinalang.util.BLangConstants.BBYTE_MIN_VALUE;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -2345,7 +2347,11 @@ public class CPU {
             case InstructionCodes.I2BI:
                 i = operands[0];
                 j = operands[1];
-                sf.intRegs[j] = (int) sf.longRegs[i];
+                if (isByteLiteral((int) sf.longRegs[i])) {
+                    sf.refRegs[j] = new BByte((byte) sf.longRegs[i]);
+                } else {
+                    handleTypeConversionError(ctx, sf, j, TypeConstants.INT_TNAME, TypeConstants.BYTE_TNAME);
+                }
                 break;
             case InstructionCodes.I2JSON:
                 i = operands[0];
@@ -2551,6 +2557,10 @@ public class CPU {
             default:
                 throw new UnsupportedOperationException();
         }
+    }
+
+    private static boolean isByteLiteral(int longValue) {
+        return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
     private static void execIteratorOperation(WorkerExecutionContext ctx, WorkerData sf, Instruction instruction) {
@@ -3199,6 +3209,8 @@ public class CPU {
         } else if (rhsType.getTag() == TypeTags.STRING_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
             return true;
         } else if (rhsType.getTag() == TypeTags.BOOLEAN_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.BYTE_TAG) {
             return true;
         }
 

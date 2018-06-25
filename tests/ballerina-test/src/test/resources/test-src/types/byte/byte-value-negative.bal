@@ -19,4 +19,13 @@ function invalidByteLiteral() {
 
     string r = "4";
     byte s = r;
+
+    int x1 = -123;
+    byte x2 = <byte> x1;
+
+    int x3 = 256;
+    byte x4 = <byte> x3;
+
+    int x5 = 12345;
+    byte x6 = <byte> x5;
 }
