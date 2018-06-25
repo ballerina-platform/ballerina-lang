@@ -39,6 +39,8 @@ script:
 - cp $ACTIVEMQ_VERSION/activemq-all-5.12.0.jar $DISTRIBUTION_NAME/bre/lib
 - ./$ACTIVEMQ_VERSION/bin/activemq start
 
+- cd exmples
+
 - ballerina init
 
-- ballerina test
+- ballerina test --exclude-package=proto-to-ballerina,taint-checking,websub-hub-client-sample,websub-remote-hub-sample,jdbc-client,basic-https-listener-client,config-api,local-transactions,secured-service-with-jwt,mysql-client,mutual-ssl,secured-service-with-basic-auth,directory-listener
