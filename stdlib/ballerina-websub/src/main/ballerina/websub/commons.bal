@@ -446,7 +446,7 @@ documentation {
     F{{leaseSeconds}} The lease period for which the subscription is expected to be active
     F{{secret}} The secret to be used for authenticated content distribution with this subscription
 }
-public type SubscriptionChangeRequest {
+public type SubscriptionChangeRequest record {
     string topic,
     string callback,
     int leaseSeconds,
@@ -460,7 +460,7 @@ documentation {
     F{{topic}} The topic for which the subscription/unsubscription was successful
     F{{response}} The response from the hub to the subscription/unsubscription requests
 }
-public type SubscriptionChangeResponse {
+public type SubscriptionChangeResponse record {
     string hub,
     string topic,
     http:Response response,
@@ -627,7 +627,7 @@ documentation {
     F{{leaseSeconds}} The lease second period specified for the particular subscription
     F{{createdAt}} The time at which the subscription was created
 }
-type SubscriptionDetails {
+type SubscriptionDetails record {
     string topic,
     string callback,
     string secret,
@@ -653,7 +653,7 @@ documentation {
     F{{payload}} The payload to be sent
     F{{contentType}} The content-type of the payload
 }
-type WebSubContent {
+type WebSubContent record {
     string|xml|json|blob|io:ByteChannel payload,
     string contentType,
 };

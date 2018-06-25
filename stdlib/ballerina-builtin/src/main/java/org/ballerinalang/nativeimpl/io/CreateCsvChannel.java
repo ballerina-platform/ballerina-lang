@@ -22,7 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.csv.Format;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
@@ -91,8 +92,8 @@ public class CreateCsvChannel extends BlockingNativeCallableUnit {
             String format = context.getStringArgument(FORMAT_INDEX);
             String charset = context.getStringArgument(CHARSET_INDEX);
             String accessMode = context.getStringArgument(MODE_INDEX);
-            BStruct textRecordChannel = BLangConnectorSPIUtil.createBStruct(context, RECORD_CHANNEL_PACKAGE,
-                    STRUCT_TYPE);
+            BMap<String, BValue> textRecordChannel =
+                    BLangConnectorSPIUtil.createBStruct(context, RECORD_CHANNEL_PACKAGE, STRUCT_TYPE);
             DelimitedRecordChannel delimitedRecordChannel = IOUtils.createDelimitedRecordChannel(filePath, charset,
                     accessMode, Format.valueOf(format));
             textRecordChannel.addNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME, delimitedRecordChannel);

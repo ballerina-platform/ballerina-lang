@@ -19,14 +19,15 @@ package org.ballerinalang.test.types.json;
 
 import org.apache.axiom.om.OMNode;
 import org.apache.axiom.om.OMText;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.util.JsonNode.Type;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
@@ -170,9 +171,9 @@ public class JSONTest {
     public void testParseMalformedString() {
         BValue[] args = {new BString("some words without quotes")};
         BValue[] returns = BRunUtil.invoke(compileResult, "testParse", args);
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
-                "Failed to parse json string: unrecognized token 'some' at line: 1 column: 6");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg, "Failed to parse json string: unrecognized token 'some' at line: 1 column: 6");
     }
 
     @Test(description = "Convert complex json object in to xml")
@@ -297,7 +298,7 @@ public class JSONTest {
         Assert.assertTrue(returns[0] instanceof BXML);
 
         OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<foo key=\"value\"/>");
+        Assert.assertEquals(returnElement.toString(), "<foo key=\"value\"></foo>");
     }
 
     @Test(description = "Convert json object with attribute and value")
@@ -345,7 +346,7 @@ public class JSONTest {
 
         String textValue = returns[0].stringValue();
         Assert.assertEquals(textValue, "<name>John</name><age>30</age>"
-                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/>");
+                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></car>");
     }
 
     @Test(description = "Convert a json object with null object elements")
@@ -357,7 +358,7 @@ public class JSONTest {
 
         OMNode returnElement = ((BXMLItem) returns[0]).value();
         Assert.assertEquals(returnElement.toString(), "<Person><name>John</name><age>30</age>"
-                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"/></Person>");
+                + "<car xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:nil=\"true\"></car></Person>");
     }
 
     @Test(description = "Convert a json object with empty elements")
@@ -368,7 +369,8 @@ public class JSONTest {
         Assert.assertTrue(returns[0] instanceof BString);
 
         String textValue = returns[0].stringValue();
-        Assert.assertEquals(textValue, "<address/><homeAddresses/><phoneNumbers/>");
+        Assert.assertEquals(textValue, "<address></address><homeAddresses></homeAddresses>" +
+                "<phoneNumbers></phoneNumbers>");
     }
 
     @Test(description = "Convert a json object with empty elements and non emepty elements")
@@ -378,8 +380,8 @@ public class JSONTest {
 
         Assert.assertTrue(returns[0] instanceof BXML);
         OMNode returnElement = ((BXMLItem) returns[0]).value();
-        Assert.assertEquals(returnElement.toString(), "<info><address/><homeAddresses><item>a</item><item>b</item>"
-                + "</homeAddresses><phoneNumbers/></info>");
+        Assert.assertEquals(returnElement.toString(), "<info><address></address><homeAddresses><item>a</item>"
+                + "<item>b</item></homeAddresses><phoneNumbers></phoneNumbers></info>");
     }
 
     @Test(description = "Convert a simple json object with attributes")
@@ -448,8 +450,9 @@ public class JSONTest {
         BValue[] args = {new BJSON(jsonToXML13)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToXMLWithOptions", args);
 
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg,
                 "failed to convert json to xml: invalid xml qualified name: unsupported characters in '@storeName'");
     }
 

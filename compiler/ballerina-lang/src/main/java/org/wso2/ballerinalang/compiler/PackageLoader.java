@@ -103,7 +103,6 @@ public class PackageLoader {
     private final Manifest manifest;
     private final LockFile lockFile;
 
-    private final CompilerDriver compilerDriver;
     private final CompilerOptions options;
     private final Parser parser;
     private final SourceDirectory sourceDirectory;
@@ -131,7 +130,6 @@ public class PackageLoader {
             throw new IllegalArgumentException("source directory has not been initialized");
         }
 
-        this.compilerDriver = CompilerDriver.getInstance(context);
         this.options = CompilerOptions.getInstance(context);
         this.parser = Parser.getInstance(context);
         this.packageCache = PackageCache.getInstance(context);
@@ -275,7 +273,7 @@ public class PackageLoader {
         }
 
         addImportPkg(packageNode, Names.BUILTIN_ORG.value, Names.RUNTIME_PACKAGE.value, Names.EMPTY.value);
-        compile(packageNode);
+        define(packageNode);
         return packageNode;
     }
 
@@ -324,7 +322,7 @@ public class PackageLoader {
         }
 
         if (pkgEntity.getKind() == PackageEntity.Kind.SOURCE) {
-            return parseAndCompile(packageId, (PackageSource) pkgEntity);
+            return parseAndDefine(packageId, (PackageSource) pkgEntity);
         } else if (pkgEntity.getKind() == PackageEntity.Kind.COMPILED) {
             return loadCompiledPackageAndDefine(packageId, (PackageBinary) pkgEntity);
         }
@@ -373,16 +371,15 @@ public class PackageLoader {
                      .collect(Collectors.toList());
     }
 
-    private BPackageSymbol parseAndCompile(PackageID pkgId, PackageSource pkgSource) {
+    private BPackageSymbol parseAndDefine(PackageID pkgId, PackageSource pkgSource) {
         // 1) Parse the source package
         BLangPackage pkgNode = parse(pkgId, pkgSource);
-        return compile(pkgNode);
+        return define(pkgNode);
     }
 
-    private BPackageSymbol compile(BLangPackage pkgNode) {
-        // 2) Define all package-level symbols and compile the package
+    private BPackageSymbol define(BLangPackage pkgNode) {
+        // 2) Define all package-level symbols
         this.symbolEnter.definePackage(pkgNode);
-        compilerDriver.compilePackage(pkgNode);
         this.packageCache.putSymbol(pkgNode.packageID, pkgNode.symbol);
 
         // 3) Create the compiledPackage structure

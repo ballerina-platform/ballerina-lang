@@ -27,7 +27,7 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.TableConstants;
@@ -67,7 +67,7 @@ public class BMirrorTable extends BTable {
         this.utcCalendar = utcCalendar;
     }
 
-    public void performAddOperation(BStruct data, Context context) {
+    public void performAddOperation(BMap<String, BValue> data, Context context) {
         try {
             this.addData(data, context);
             context.setReturnValues();
@@ -77,7 +77,7 @@ public class BMirrorTable extends BTable {
         }
     }
 
-    public void addData(BStruct data, Context context) {
+    public void addData(BMap<String, BValue> data, Context context) {
         Connection conn = null;
         boolean isInTransaction = context.isInTransaction();
         try {
@@ -103,7 +103,7 @@ public class BMirrorTable extends BTable {
                 connection.setAutoCommit(false);
             }
             while (this.hasNext(false)) {
-                BStruct data = this.getNext();
+                BMap<String, BValue> data = this.getNext();
                 BValue[] args = { data };
                 BValue[] returns = BLangFunctions.invokeCallable(lambdaFunction.value().getFunctionInfo(), args);
                 if (((BBoolean) returns[0]).booleanValue()) {
@@ -128,7 +128,7 @@ public class BMirrorTable extends BTable {
         return "";
     }
 
-    private void removeData(BStruct data, Connection conn) throws SQLException {
+    private void removeData(BMap<String, BValue> data, Connection conn) throws SQLException {
         PreparedStatement stmt = null;
         try {
             String sqlStmt = TableUtils.generateDeleteDataStatment(tableName, data);

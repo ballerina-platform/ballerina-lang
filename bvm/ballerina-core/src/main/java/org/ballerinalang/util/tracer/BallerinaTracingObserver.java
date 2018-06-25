@@ -18,7 +18,8 @@
 package org.ballerinalang.util.tracer;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.observability.BallerinaObserver;
 import org.ballerinalang.util.observability.ObserverContext;
 
@@ -86,7 +87,8 @@ public class BallerinaTracingObserver implements BallerinaObserver {
                 if (errorMessage != null) {
                     errorMessageBuilder.append(errorMessage);
                 }
-                BStruct bError = (BStruct) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
+                BMap<String, BValue> bError =
+                        (BMap<String, BValue>) observerContext.getProperty(PROPERTY_BSTRUCT_ERROR);
                 if (bError != null) {
                     if (errorMessage != null) {
                         errorMessageBuilder.append('\n');

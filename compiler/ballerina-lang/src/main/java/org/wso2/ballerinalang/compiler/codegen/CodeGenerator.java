@@ -83,11 +83,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangRecordFieldAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -813,20 +813,21 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFieldVarRef fieldVarRef) {
-        RegIndex fieldIndex = fieldVarRef.varSymbol.varIndex;
+        String fieldName = fieldVarRef.varSymbol.name.value;
+        RegIndex fieldNameRegIndex = createStringLiteral(fieldName, null, env);
 
         // This is a connector field.
         // the connector reference must be stored in the current reference register index.
         Operand varRegIndex = getOperand(0);
         if (varAssignment) {
             int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRegIndex, fieldIndex, fieldVarRef.regIndex);
+            emit(opcode, varRegIndex, fieldNameRegIndex, fieldVarRef.regIndex);
             return;
         }
 
         int opcode = getOpcode(fieldVarRef.type.tag, InstructionCodes.IFIELDLOAD);
         RegIndex exprRegIndex = calcAndGetExprRegIndex(fieldVarRef);
-        emit(opcode, varRegIndex, fieldIndex, exprRegIndex);
+        emit(opcode, varRegIndex, fieldNameRegIndex, exprRegIndex);
     }
 
     @Override
@@ -928,14 +929,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         genNode(fieldAccessExpr.expr, this.env);
         Operand varRefRegIndex = fieldAccessExpr.expr.regIndex;
 
+        genNode(fieldAccessExpr.indexExpr, this.env);
+        Operand keyRegIndex = fieldAccessExpr.indexExpr.regIndex;
+
         int opcode;
-        Operand fieldIndex = fieldAccessExpr.varSymbol.varIndex;
         if (variableStore) {
             opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDSTORE);
-            emit(opcode, varRefRegIndex, fieldIndex, fieldAccessExpr.regIndex);
+            emit(opcode, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
         } else {
             opcode = getOpcode(fieldAccessExpr.symbol.type.tag, InstructionCodes.IFIELDLOAD);
-            emit(opcode, varRefRegIndex, fieldIndex, calcAndGetExprRegIndex(fieldAccessExpr));
+            emit(opcode, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
         }
 
         this.varAssignment = variableStore;
@@ -3132,27 +3135,47 @@ public class CodeGenerator extends BLangNodeVisitor {
         int funcRefCPIndex = currentPkgInfo.addCPEntry(funcRefCPEntry);
         RegIndex nextIndex = calcAndGetExprRegIndex(fpExpr);
         Operand[] operands;
-        if (!(fpExpr instanceof BLangLambdaFunction)) {
+        if (NodeKind.LAMBDA == fpExpr.getKind()) {
+            operands = calcClosureOperands(((BLangLambdaFunction) fpExpr).function, funcRefCPIndex, nextIndex,
+                    typeCPIndex);
+        } else if (NodeKind.FIELD_BASED_ACCESS_EXPR == fpExpr.getKind()) {
+            operands = calcObjectAttachedFPOperands((BLangStructFunctionVarRef) fpExpr, typeCPIndex, funcRefCPIndex,
+                    nextIndex);
+        } else {
             operands = new Operand[4];
             operands[0] = getOperand(funcRefCPIndex);
             operands[1] = nextIndex;
             operands[2] = typeCPIndex;
             operands[3] = new Operand(0);
-        } else {
-            Operand[] closureIndexes = calcAndGetClosureIndexes(((BLangLambdaFunction) fpExpr).function);
-            operands = new Operand[3 + closureIndexes.length];
-            operands[0] = getOperand(funcRefCPIndex);
-            operands[1] = nextIndex;
-            operands[2] = typeCPIndex;
-            System.arraycopy(closureIndexes, 0, operands, 3, closureIndexes.length);
         }
         emit(InstructionCodes.FPLOAD, operands);
     }
 
-    private Operand[] calcAndGetClosureIndexes(BLangFunction function) {
-        List<Operand> operands = new ArrayList<>();
+    /**
+     * This is a helper method which calculate the required additional indexes needed for object attached function
+     * invoked as a function pointer scenario.
+     */
+    private Operand[] calcObjectAttachedFPOperands(BLangStructFunctionVarRef fpExpr, Operand typeCPIndex,
+                                                   int funcRefCPIndex, RegIndex nextIndex) {
+        Operand[] operands = new Operand[6];
+        operands[0] = getOperand(funcRefCPIndex);
+        operands[1] = nextIndex;
+        operands[2] = typeCPIndex;
+        operands[3] = getOperand(2);
+        operands[4] = getOperand(((BVarSymbol) fpExpr.expr.symbol).tag);
+        operands[5] = getOperand(((BVarSymbol) fpExpr.expr.symbol).varIndex.value);
+        return operands;
+    }
 
-        int closureOperandPairs = 0;
+    /**
+     * This is a helper method which calculate the required additional indexes needed for closure scenarios.
+     * If there are no closure variables found, then this method will just add 0 as the termination index
+     * which is used at runtime.
+     */
+    private Operand[] calcClosureOperands(BLangFunction function, int funcRefCPIndex, RegIndex nextIndex,
+                                          Operand typeCPIndex) {
+        List<Operand> closureOperandList = new ArrayList<>();
+
 
         for (BVarSymbol symbol : function.symbol.params) {
             if (!symbol.closure || function.requiredParams.stream().anyMatch(var -> var.symbol.equals(symbol))) {
@@ -3160,13 +3183,26 @@ public class CodeGenerator extends BLangNodeVisitor {
             }
             Operand type = new Operand(symbol.type.tag);
             Operand index = new Operand(symbol.varIndex.value);
-            operands.add(type);
-            operands.add(index);
-            closureOperandPairs++;
+            closureOperandList.add(type);
+            closureOperandList.add(index);
         }
-
-        operands.add(0, new Operand(closureOperandPairs));
-        return operands.toArray(new Operand[]{});
+        Operand[] operands;
+        if (!closureOperandList.isEmpty()) {
+            Operand[] closureIndexes = closureOperandList.toArray(new Operand[]{});
+            operands = new Operand[4 + closureIndexes.length];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            operands[2] = typeCPIndex;
+            operands[3] = getOperand(closureIndexes.length);
+            System.arraycopy(closureIndexes, 0, operands, 4, closureIndexes.length);
+        } else {
+            operands = new Operand[4];
+            operands[0] = getOperand(funcRefCPIndex);
+            operands[1] = nextIndex;
+            operands[2] = typeCPIndex;
+            operands[3] = getOperand(0);
+        }
+        return operands;
     }
 
     private void generateFinallyInstructions(BLangStatement statement) {
@@ -3289,6 +3325,7 @@ public class CodeGenerator extends BLangNodeVisitor {
      * @return String registry index of the generated string
      */
     private RegIndex createStringLiteral(String value, RegIndex regIndex, SymbolEnv env) {
+        // TODO: remove RegIndex arg
         BLangLiteral prefixLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         prefixLiteral.value = value;
         prefixLiteral.typeTag = TypeTags.STRING;

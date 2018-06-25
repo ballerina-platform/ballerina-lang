@@ -25,7 +25,8 @@ import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.database.sql.Constants;
 import org.ballerinalang.database.sql.SQLDatasourceUtils;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -47,15 +48,16 @@ public class CreateClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct configBStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> configBStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
         Map<String, Value> dbOptions = clientEndpointConfig.getMapField(Constants.EndpointConfig.DB_OPTIONS);
         String urlOptions = "";
         if (dbOptions != null) {
-            urlOptions = SQLDatasourceUtils.createJDBCDbOptions(Constants.JDBCUrlSeparators.MYSQL_PROPERTY_BEGIN_SYMBOL,
-                    Constants.JDBCUrlSeparators.MYSQL_SEPARATOR, dbOptions);
+            urlOptions =
+                    SQLDatasourceUtils.createJDBCDbOptions(Constants.JDBCUrlSeparators.MYSQL_PROPERTY_BEGIN_SYMBOL,
+                            Constants.JDBCUrlSeparators.MYSQL_SEPARATOR, dbOptions);
         }
-        BStruct sqlClient = SQLDatasourceUtils
+        BMap<String, BValue> sqlClient = SQLDatasourceUtils
                 .createServerBasedDBClient(context, Constants.DBTypes.MYSQL, clientEndpointConfig, urlOptions);
         context.setReturnValues(sqlClient);
     }

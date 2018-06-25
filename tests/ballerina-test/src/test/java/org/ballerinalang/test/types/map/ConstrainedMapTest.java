@@ -18,6 +18,7 @@
 
 package org.ballerinalang.test.types.map;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
@@ -25,9 +26,9 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -269,8 +270,9 @@ public class ConstrainedMapTest {
     public void testConstrainedMapValueTypeCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapValueTypeCastNegative");
         Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "'map<string>' cannot be cast to 'map<int>'");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg, "'map<string>' cannot be cast to 'map<int>'");
     }
 
     @Test(description = "Test cast map constrained with ref type from map any positive.")
@@ -286,8 +288,9 @@ public class ConstrainedMapTest {
     @Test(description = "Test cast map constrained with ref type from map any negative.")
     public void testConstrainedMapRefTypeCastNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testConstrainedMapRefTypeCastNegative");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "'map<Person>' cannot be cast to 'map<int>'");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg, "'map<Person>' cannot be cast to 'map<int>'");
     }
 
     @Test(description = "Test map constrained with string update.")
@@ -356,25 +359,25 @@ public class ConstrainedMapTest {
     @Test(description = "Test runtime cast for constrained maps of structurally not equivalent.")
     public void testStructNotEquivalentRuntimeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testStructNotEquivalentRuntimeCast");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
-                "'map<Employee>' cannot be cast to 'map<Person>'");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg, "'map<Employee>' cannot be cast to 'map<Person>'");
     }
 
     @Test(description = "Test runtime cast for any map to int map.")
     public void testAnyMapToValueTypeRuntimeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToValueTypeRuntimeCast");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
-                "'map' cannot be cast to 'map<int>'");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg, "'map' cannot be cast to 'map<int>'");
     }
 
     @Test(description = "Test runtime cast for any map to Employee map.")
     public void testAnyMapToRefTypeRuntimeCast() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testAnyMapToRefTypeRuntimeCast");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
-                "'map' cannot be cast to 'map<Employee>'");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg, "'map' cannot be cast to 'map<Employee>'");
     }
 
     @Test(description = "Test struct to map conversion for constrained map.")
@@ -389,10 +392,10 @@ public class ConstrainedMapTest {
     @Test(description = "Test struct to map conversion for constrained map negative.")
     public void testMapToStructConversionNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMapToStructConversionNegative");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
-                "cannot convert 'map<string>' to type 'Student: error while mapping 'index': " +
-                        "incompatible types: expected 'int', found 'string'");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg, "cannot convert 'map<string>' to type 'Student: error while mapping 'index': " +
+                "incompatible types: expected 'int', found 'string'");
     }
 
     @Test(description = "Test struct to map conversion for constrained map negative.")
@@ -449,10 +452,10 @@ public class ConstrainedMapTest {
     public void testJsonToStructConversionStructWithConstrainedMapNegative() {
         BValue[] returns = BRunUtil.invoke(compileResult,
                 "testJsonToStructConversionStructWithConstrainedMapNegative");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
-                "cannot convert 'json' to type 'PersonComplexTwo': error while mapping 'address': " +
-                        "incompatible types: expected 'int', found 'string' in json");
+        Assert.assertTrue(returns[0] instanceof BMap);
+        String errorMsg = ((BMap<String, BValue>) returns[0]).get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+        Assert.assertEquals(errorMsg, "cannot convert 'json' to type 'PersonComplexTwo': error while mapping " +
+                "'address': incompatible types: expected 'int', found 'string' in json");
     }
 
     @Test(description = "Test constrained map with union retrieving string value.")

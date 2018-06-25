@@ -17,7 +17,8 @@
 */
 package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.debugger.DebugCommand;
 
 import java.util.ArrayList;
@@ -143,7 +144,7 @@ public abstract class BaseWorkerResponseContext implements WorkerResponseContext
         }
     }
     
-    protected void doFailCallbackNotify(BStruct error) {
+    protected void doFailCallbackNotify(BMap<String, BValue> error) {
         if (this.responseCallbacks != null) {
             for (CallableUnitCallback callback : this.responseCallbacks) {
                 callback.notifyFailure(error);

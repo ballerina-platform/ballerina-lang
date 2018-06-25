@@ -68,7 +68,7 @@ documentation {
     F{{algorithm}} The algorithm to be used for load balancing. The HTTP package provides 'roundRobin()' by default
     F{{failover}} Configuration for load balancer whether to fail over in case of a failure
 }
-public type LoadBalanceClientEndpointConfiguration {
+public type LoadBalanceClientEndpointConfiguration record {
     CircuitBreakerConfig? circuitBreaker,
     int timeoutMillis = 60000,
     string httpVersion = "1.1",

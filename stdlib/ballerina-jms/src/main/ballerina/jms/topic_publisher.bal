@@ -72,7 +72,7 @@ documentation { Configuration related to the topic publisher endpoint
     F{{session}} Session object used to create topic publisher
     F{{topicPattern}} Topic name pattern
 }
-public type TopicPublisherEndpointConfiguration {
+public type TopicPublisherEndpointConfiguration record {
     Session? session;
     string topicPattern;
 };

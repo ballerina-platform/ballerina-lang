@@ -23,8 +23,9 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -67,7 +68,7 @@ public class StartUpHubService extends BlockingNativeCallableUnit {
         }
     }
 
-    private BStruct getHubStartedUpError(Context context, Hub hubInstance) {
+    private BMap<String, BValue> getHubStartedUpError(Context context, Hub hubInstance) {
         return BLangConnectorSPIUtil.createBStruct(context, WEBSUB_PACKAGE,
                                                     STRUCT_WEBSUB_BALLERINA_HUB_STARTED_UP_ERROR,
                                                     "Ballerina Hub already started up",

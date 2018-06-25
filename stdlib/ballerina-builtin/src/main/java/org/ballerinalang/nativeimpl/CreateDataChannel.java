@@ -22,7 +22,8 @@ package org.ballerinalang.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
@@ -88,8 +89,8 @@ public class CreateDataChannel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         try {
-            BStruct dataChannelStruct = (BStruct) context.getRefArgument(DATA_CHANNEL_INDEX);
-            BStruct byteChannelStruct = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
+            BMap<String, BValue> dataChannelStruct = (BMap<String, BValue>) context.getRefArgument(DATA_CHANNEL_INDEX);
+            BMap<String, BValue> byteChannelStruct = (BMap<String, BValue>) context.getRefArgument(BYTE_CHANNEL_INDEX);
             ByteOrder byteOrder = getByteOrder(context.getRefArgument(BYTE_ORDER_INDEX).stringValue());
             Channel channel = (Channel) byteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
             DataChannel dataChannel = new DataChannel(channel, byteOrder);

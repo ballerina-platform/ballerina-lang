@@ -101,32 +101,32 @@ public class Constants {
 
     public static final String CHARSET = "charset";
 
-    public static final int REQUEST_ENTITY_INDEX = 1;
-    public static final int RESPONSE_ENTITY_INDEX = 1;
+    public static final String REQUEST_ENTITY_FIELD = "entity";
+    public static final String RESPONSE_ENTITY_FIELD = "entity";
 
     //Native argument indexes
     public static final int FIRST_PARAMETER_INDEX = 0;
     public static final int SECOND_PARAMETER_INDEX = 1;
 
     //Entity properties
-    public static final int MEDIA_TYPE_INDEX = 0;
-    public static final int CONTENT_ID_INDEX = 0;
-    public static final int SIZE_INDEX = 0;
-    public static final int CONTENT_DISPOSITION_INDEX = 1;
+    public static final String MEDIA_TYPE_FIELD = "cType";
+    public static final String CONTENT_ID_FIELD = "cId";
+    public static final String SIZE_FIELD = "cLength";
+    public static final String CONTENT_DISPOSITION_FIELD = "cDisposition";
 
     public static final int FIRST_BODY_PART_INDEX = 0;
 
     //Media type properties
-    public static final int PRIMARY_TYPE_INDEX = 0;
-    public static final int SUBTYPE_INDEX = 1;
-    public static final int SUFFIX_INDEX = 2;
-    public static final int PARAMETER_MAP_INDEX = 0;
+    public static final String PRIMARY_TYPE_FIELD = "primaryType";
+    public static final String SUBTYPE_FIELD = "subType";
+    public static final String SUFFIX_FIELD = "suffix";
+    public static final String PARAMETER_MAP_FIELD = "parameters";
 
     //Content-Disposition properties
-    public static final int CONTENT_DISPOSITION_FILENAME_INDEX = 0;
-    public static final int DISPOSITION_INDEX = 1;
-    public static final int CONTENT_DISPOSITION_NAME_INDEX = 2;
-    public static final int CONTENT_DISPOSITION_PARA_MAP_INDEX = 0;
+    public static final String CONTENT_DISPOSITION_FILENAME_FIELD = "fileName";
+    public static final String DISPOSITION_FIELD = "disposition";
+    public static final String CONTENT_DISPOSITION_NAME_FIELD = "name";
+    public static final String CONTENT_DISPOSITION_PARA_MAP_FIELD = "parameters";
 
     //Native function indexes
     public static final int STRING_INDEX = 0;

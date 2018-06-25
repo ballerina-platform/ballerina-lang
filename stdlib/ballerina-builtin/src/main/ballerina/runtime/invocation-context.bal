@@ -17,7 +17,7 @@
 documentation {
     Represents the InvocationContext.
 }
-public type InvocationContext {
+public type InvocationContext record {
     string id;
     UserPrincipal userPrincipal;
     AuthContext authContext;
@@ -27,7 +27,7 @@ public type InvocationContext {
 documentation {
     Represents the AuthenticationContext, populated with authenticated information.
 }
-public type AuthContext {
+public type AuthContext record {
     string scheme;
     string authToken;
 };
@@ -35,7 +35,7 @@ public type AuthContext {
 documentation {
     Represents the UserPrincipal, populated with authenticated user information.
 }
-public type UserPrincipal {
+public type UserPrincipal record {
     string userId;
     string username;
     map claims;

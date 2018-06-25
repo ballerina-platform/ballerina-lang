@@ -21,10 +21,10 @@ package org.ballerinalang.util.debugger.dto;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.model.values.BXML;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 /**
  * DTO class representing variables in the stack upon a debug hit.
@@ -75,14 +75,13 @@ public class VariableDTO {
             BNewArray bArray = (BNewArray) bValue;
             bValueString = "Array[" + bArray.size() + "] ";
             bValueString = bValueString + bArray.stringValue();
-        } else if (bValue instanceof BMap) {
+        } else if (bValue.getType().getTag() == TypeTags.MAP) {
             BMap bmap = (BMap) bValue;
             bValueString = "Map[" + bmap.size() + "] ";
             bValueString = bValueString + bmap.stringValue();
-        } else if (bValue instanceof BStruct) {
-            BStruct bStruct = (BStruct) bValue;
-            bValueString = "struct " + bStruct.getType().getName() + " ";
-            bValueString = bValueString + bStruct.stringValue();
+        } else if (bValue.getType().getTag() == TypeTags.RECORD || bValue.getType().getTag() == TypeTags.OBJECT) {
+            bValueString = "struct " + bValue.getType().getName() + " ";
+            bValueString = bValueString + bValue.stringValue();
         } else {
             bValueString = "<Complex_Value>";
         }

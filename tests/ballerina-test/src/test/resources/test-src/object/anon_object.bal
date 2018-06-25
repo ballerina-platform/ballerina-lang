@@ -107,7 +107,7 @@ function testObjectEquivalencyBetweenAnonAndNormalObject() returns (int, string,
 }
 
 function testAnonObjectWithRecordLiteral() returns (int, string) {
-    object { public { {int age; string name;} details;} private { int length; string kind; }
+    object { public { record {int age; string name;} details;} private { int length; string kind; }
     new (details, kind) {
     }
     function getName () returns string { return details.name; }} value = new ({age:8, name:"sanjiva"}, "passed kind");
@@ -117,7 +117,7 @@ function testAnonObjectWithRecordLiteral() returns (int, string) {
 
 type Foo object {
     public {
-        {int age; string name;} details;
+        record {int age; string name;} details;
     }
     private {
         int length;

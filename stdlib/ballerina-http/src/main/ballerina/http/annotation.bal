@@ -31,7 +31,7 @@ documentation {
     F{{versioning}} The version of the service to be used
     F{{authConfig}} Authentication configurations for securing the service
 }
-public type HttpServiceConfig {
+public type HttpServiceConfig record {
     Listener[] endpoints,
     string host = "b7a.default",
     string basePath,
@@ -52,7 +52,7 @@ documentation {
     F{{allowCredentials}} Specifies whether credentials are required to access the service
     F{{maxAge}} The maximum duration to cache the preflight from client side
 }
-public type CorsConfig {
+public type CorsConfig record {
     string[] allowHeaders,
     string[] allowMethods,
     string[] allowOrigins,
@@ -69,7 +69,7 @@ documentation {
     F{{allowNoVersion}} Allow requests with missing version path segment in the URL to be dispatched
     F{{matchMajorVersion}} Allow requests with only the major version specified in the URL to be dispatched
 }
-public type Versioning {
+public type Versioning record {
     string pattern = "v{major}.{minor}",
     boolean allowNoVersion = false,
     boolean matchMajorVersion = false,
@@ -86,7 +86,7 @@ documentation {
                               an `onIdleTimeout` resource in the WebSocket service.
     F{{maxFrameSize}} The maximum payload size of a WebSocket frame in bytes
 }
-public type WSServiceConfig {
+public type WSServiceConfig record {
     Listener[] endpoints,
     WebSocketListener[] webSocketEndpoints,
     string path,
@@ -124,7 +124,7 @@ documentation {
     F{{webSocketUpgrade}} Annotation to define HTTP to WebSocket upgrade
     F{{authConfig}} Authentication Configs to secure the resource
 }
-public type HttpResourceConfig {
+public type HttpResourceConfig record {
     string[] methods,
     string path,
     string body,
@@ -142,7 +142,7 @@ documentation {
     F{{upgradePath}} Path which is used to upgrade from HTTP to WebSocket
     F{{upgradeService}} WebSocket service which should be used after a successful upgrade
 }
-public type WebSocketUpgradeConfig {
+public type WebSocketUpgradeConfig record {
     string upgradePath,
     typedesc upgradeService,
 };
@@ -154,7 +154,7 @@ documentation {
     F{{authProviders}} Array of authentication provider IDs
     F{{scopes}} Array of scopes
 }
-public type ListenerAuthConfig {
+public type ListenerAuthConfig record {
     Authentication? authentication,
     string[]? authProviders,
     string[]? scopes,
@@ -165,7 +165,7 @@ documentation {
 
     F{{enabled}} Specifies whether authentication is enabled
 }
-public type Authentication {
+public type Authentication record {
     boolean enabled,
 };
 

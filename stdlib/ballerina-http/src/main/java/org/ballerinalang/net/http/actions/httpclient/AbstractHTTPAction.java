@@ -22,7 +22,9 @@ import io.netty.handler.codec.EncoderException;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
+
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
@@ -30,8 +32,11 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.AcceptEncodingConfig;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
@@ -61,10 +66,11 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Optional;
 
-import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
+import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
+import static org.ballerinalang.net.http.HttpConstants.URL_FIELD;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
@@ -86,10 +92,10 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     protected HTTPCarbonMessage createOutboundRequestMsg(Context context) {
 
         // Extract Argument values
-        BStruct bConnector = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         String path = context.getStringArgument(0);
 
-        BStruct requestStruct = ((BStruct) context.getNullableRefArgument(1));
+        BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getNullableRefArgument(1));
         if (requestStruct == null) {
             requestStruct = BLangConnectorSPIUtil.createBStruct(context, HTTP_PACKAGE_PATH, REQUEST);
         }
@@ -106,7 +112,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return requestMsg;
     }
 
-    protected String getAcceptEncodingConfigFromEndpointConfig(BStruct httpClientStruct) {
+    protected String getAcceptEncodingConfigFromEndpointConfig(BMap<String, BValue> httpClientStruct) {
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(httpClientStruct);
         Struct epConfig = (Struct) clientEndpointConfig.getNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG);
         if (epConfig == null) {
@@ -140,7 +146,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    protected void prepareOutboundRequest(Context context, BStruct connector, String path,
+    protected void prepareOutboundRequest(Context context, BMap<String, BValue> connector, String path,
                                           HTTPCarbonMessage outboundRequest) {
         validateParams(connector);
         if (context.isInTransaction()) {
@@ -149,7 +155,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, localTransactionInfo.getURL());
         }
         try {
-            String uri = connector.getStringField(0) + path;
+            String uri = connector.get(URL_FIELD).stringValue() + path;
             URL url = new URL(uri);
 
             int port = getOutboundReqPort(url);
@@ -229,8 +235,8 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         return port;
     }
 
-    private void validateParams(BStruct connector) {
-        if (connector == null || connector.getStringField(0) == null) {
+    private void validateParams(BMap<String, BValue> connector) {
+        if (connector == null || connector.get(URL_FIELD) == null) {
             throw new BallerinaException("Connector parameters not defined correctly.");
         }
     }
@@ -262,7 +268,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     }
 
     private void checkDirtiness(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg) {
-        BStruct requestStruct = ((BStruct) dataContext.context.
+        BMap<String, BValue> requestStruct = ((BMap<String, BValue>) dataContext.context.
                 getNullableRefArgument(HttpConstants.REQUEST_STRUCT_INDEX));
         String contentType = HttpUtil.getContentTypeFromTransportMessage(outboundRequestMsg);
         outboundRequestMsg.setIoException(null);
@@ -270,13 +276,14 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             if (dirty(requestStruct)) {
                 cleanOutboundReq(outboundRequestMsg, requestStruct, contentType);
             } else {
-                requestStruct.setBooleanField(HttpConstants.REQUEST_REUSE_STATUS_INDEX, HttpConstants.DIRTY_REQUEST);
+                requestStruct.put(HttpConstants.REQUEST_REUSE_STATUS_INDEX, new BBoolean(HttpConstants.DIRTY_REQUEST));
             }
         }
     }
 
-    private void cleanOutboundReq(HTTPCarbonMessage outboundRequestMsg, BStruct requestStruct, String contentType) {
-        BStruct entityStruct = extractEntity(requestStruct);
+    private void cleanOutboundReq(HTTPCarbonMessage outboundRequestMsg, BMap<String, BValue> requestStruct,
+                                  String contentType) {
+        BMap<String, BValue> entityStruct = extractEntity(requestStruct);
         if (entityStruct != null) {
             MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource == null && EntityBodyHandler.getByteChannel(entityStruct) == null
@@ -290,8 +297,9 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    private boolean dirty(BStruct requestStruct) {
-        return requestStruct.getBooleanField(HttpConstants.REQUEST_REUSE_STATUS_INDEX) == HttpConstants.DIRTY_REQUEST;
+    private boolean dirty(BMap<String, BValue> requestStruct) {
+        BValue isDirty = requestStruct.get(HttpConstants.REQUEST_REUSE_STATUS_INDEX);
+        return ((BBoolean) isDirty).booleanValue() == HttpConstants.DIRTY_REQUEST;
     }
 
     private void sendOutboundRequest(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg, boolean async) {
@@ -317,7 +325,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      * @param async              whether a handle should be return
      */
     private void send(DataContext dataContext, HTTPCarbonMessage outboundRequestMsg, boolean async) {
-        BStruct bConnector = (BStruct) dataContext.context.getRefArgument(0);
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) dataContext.context.getRefArgument(0);
         Struct httpClient = BLangConnectorSPIUtil.toStruct(bConnector);
         HttpClientConnector clientConnector = (HttpClientConnector)
                 httpClient.getNativeData(HttpConstants.CALLER_ACTIONS);
@@ -384,7 +392,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      */
     private void serializeMultiparts(Context context, OutputStream messageOutputStream, String boundaryString)
             throws IOException {
-        BStruct entityStruct = getEntityStruct(context);
+        BMap<String, BValue> entityStruct = getEntityStruct(context);
         if (entityStruct != null) {
             BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
             if (bodyParts != null && bodyParts.size() > 0) {
@@ -396,9 +404,9 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
         }
     }
 
-    private BStruct getEntityStruct(Context context) {
-        BStruct requestStruct = ((BStruct) context.getRefArgument(1));
-        return (BStruct) requestStruct.getRefField(REQUEST_ENTITY_INDEX);
+    private BMap<String, BValue> getEntityStruct(Context context) {
+        BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getRefArgument(1));
+        return (BMap<String, BValue>) requestStruct.get(REQUEST_ENTITY_FIELD);
     }
 
     /**
@@ -409,19 +417,19 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
      * @param messageOutputStream Output stream to which the payload is written
      */
     private void serializeMultipartDataSource(OutputStream messageOutputStream,
-                                              String boundaryString, BStruct entityStruct) {
+                                              String boundaryString, BMap<String, BValue> entityStruct) {
         MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
         multipartDataSource.serializeData(messageOutputStream);
         HttpUtil.closeMessageOutputStream(messageOutputStream);
     }
 
     private void serializeDataSource(Context context, OutputStream messageOutputStream) throws IOException {
-        BStruct requestStruct = ((BStruct) context.getNullableRefArgument(1));
+        BMap<String, BValue> requestStruct = ((BMap<String, BValue>) context.getNullableRefArgument(1));
         if (requestStruct == null) {
             return;
         }
 
-        BStruct entityStruct = extractEntity(requestStruct);
+        BMap<String, BValue> entityStruct = extractEntity(requestStruct);
         if (entityStruct != null) {
             MessageDataSource messageDataSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             if (messageDataSource != null) {
@@ -460,7 +468,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         @Override
         public void onResponseHandle(ResponseHandle responseHandle) {
-            BStruct httpFuture = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
+            BMap<String, BValue> httpFuture = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
                                                                      HttpConstants.PROTOCOL_PACKAGE_HTTP,
                                                                      HttpConstants.HTTP_FUTURE);
             httpFuture.addNativeData(HttpConstants.TRANSPORT_HANDLE, responseHandle);
@@ -469,7 +477,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
 
         @Override
         public void onError(Throwable throwable) {
-            BStruct httpConnectorError;
+            BMap<String, BValue> httpConnectorError;
             if (throwable instanceof EndpointTimeOutException) {
                 httpConnectorError = BLangConnectorSPIUtil.createBStruct(this.dataContext.context,
                                                                          HttpConstants.PROTOCOL_PACKAGE_HTTP,
@@ -481,7 +489,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
                 this.outboundMsgDataStreamer.setIoException(new IOException(throwable.getMessage()));
                 httpConnectorError = HttpUtil.getError(this.dataContext.context, throwable);
             }
-            httpConnectorError.setStringField(0, throwable.getMessage());
+            httpConnectorError.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
             this.dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

@@ -1,10 +1,10 @@
 
-public type FooDepartment {
+public type FooDepartment record {
     string dptName;
     FooPerson[] employees;
 };
 
-public type FooPerson {
+public type FooPerson record {
     string name = "default first name";
     string lname;
     map adrs;
@@ -13,17 +13,17 @@ public type FooPerson {
     FooPerson? parent;
 };
 
-type FooFamily {
+type FooFamily record {
     string spouse;
     int noOfChildren;
     string[] children;
 };
 
-public type FooEmployee {
+public type FooEmployee record {
     string fname;
     string lname;
     int age;
-    {
+    record {
         string city;
         string state;
         string zipcode;

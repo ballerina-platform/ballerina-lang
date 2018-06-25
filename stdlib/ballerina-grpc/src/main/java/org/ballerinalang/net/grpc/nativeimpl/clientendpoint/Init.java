@@ -29,7 +29,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -80,7 +81,7 @@ public class Init extends BlockingNativeCallableUnit {
 
             Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
             // Creating client endpoint with channel as native data.
-            BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+            BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
             Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
             String urlString = endpointConfig.getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
             String scheme;
@@ -93,13 +94,13 @@ public class Init extends BlockingNativeCallableUnit {
             scheme = url.getProtocol();
             SenderConfiguration configuration = populateSenderConfigurationOptions(endpointConfig, scheme);
             ManagedChannel channel;
-            if (configuration.getSSLConfig() == null) {
+            if (configuration.generateSSLConfig() == null) {
                 channel = ManagedChannelBuilder.forAddress(url.getHost(), url.getPort())
                         .usePlaintext(true)
                         .build();
             } else {
                 try {
-                    SslContext sslContext = new SSLHandlerFactory(configuration.getSSLConfig())
+                    SslContext sslContext = new SSLHandlerFactory(configuration.generateSSLConfig())
                             .createHttp2TLSContextForClient();
                     channel = NettyChannelBuilder
                             .forAddress(generateSocketAddress(url.getHost(), url.getPort()))

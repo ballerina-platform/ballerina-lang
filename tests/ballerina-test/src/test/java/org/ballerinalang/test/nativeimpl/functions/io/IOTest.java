@@ -26,9 +26,9 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
@@ -125,7 +125,6 @@ public class IOTest {
     public void testByteOperationPermissionError() throws URISyntaxException {
         int numberOfBytesToRead = 3;
         String resourceToRead = "datafiles/io/text/6charfile.txt";
-        BStruct readBytes;
 
         //Will initialize the channel with write permission
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w")};
@@ -134,7 +133,7 @@ public class IOTest {
         //We try to read bytes
         args = new BValue[]{new BInteger(numberOfBytesToRead)};
         BValue[] returns = BRunUtil.invokeStateful(bytesInputOutputProgramFile, "readBytes", args);
-        readBytes = (BStruct) returns[0];
+        BMap<String, BValue> readBytes = (BMap<String, BValue>) returns[0];
 
         Assert.assertTrue(readBytes.toString().startsWith("{message:\"could not read"));
 
@@ -180,7 +179,6 @@ public class IOTest {
     public void testCharacterOperationPermissionError() throws URISyntaxException {
         String resourceToRead = "datafiles/io/text/utf8file.txt";
         int numberOfCharactersToRead = 3;
-        BStruct readCharacters;
 
         //Will initialize the channel with write permissions
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w"), new BString("UTF-8")};
@@ -188,7 +186,7 @@ public class IOTest {
 
         args = new BValue[]{new BInteger(numberOfCharactersToRead)};
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readCharacters", args);
-        readCharacters = (BStruct) returns[0];
+        BMap<String, BValue> readCharacters = (BMap<String, BValue>) returns[0];
 
         Assert.assertTrue(readCharacters.toString().startsWith("{message:\"Error occurred"));
 
@@ -273,7 +271,6 @@ public class IOTest {
     @Test(description = "Test permission errors in record read operations")
     public void testRecordOperationPermissionError() throws URISyntaxException {
         String resourceToRead = "datafiles/io/records/sample.csv";
-        BStruct records;
 
         //Will initialize the channel with write permissions
         BValue[] args = {new BString(getAbsoluteFilePath(resourceToRead)), new BString("w"), new BString("UTF-8"),
@@ -281,7 +278,7 @@ public class IOTest {
         BRunUtil.invokeStateful(recordsInputOutputProgramFile, "initDelimitedRecordChannel", args);
 
         BValue[] returns = BRunUtil.invokeStateful(recordsInputOutputProgramFile, "nextRecord");
-        records = (BStruct) returns[0];
+        BMap<String, BValue> records = (BMap<String, BValue>) returns[0];
 
         Assert.assertTrue(records.toString().startsWith("{message:\"Error occurred"));
 
@@ -448,7 +445,7 @@ public class IOTest {
     @Test
     public void testBase64EncodeByteChannel() {
         String expectedValue = "SGVsbG8gQmFsbGVyaW5h";
-        BStruct byteChannelStruct = Util.getByteChannelStruct(bytesInputOutputProgramFile);
+        BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(bytesInputOutputProgramFile);
         InputStream inputStream = new ByteArrayInputStream("Hello Ballerina".getBytes());
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(inputStream);
         byteChannelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, new Base64Wrapper(base64ByteChannel));
@@ -456,7 +453,7 @@ public class IOTest {
         BValue[] returnValues = BRunUtil.invoke(bytesInputOutputProgramFile, "testBase64EncodeByteChannel", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
-        BStruct decodedByteChannel = (BStruct) returnValues[0];
+        BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
         Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
     }
@@ -464,7 +461,7 @@ public class IOTest {
     @Test
     public void testBase64DecodeByteChannel() {
         String expectedValue = "Hello Ballerina!";
-        BStruct byteChannelStruct = Util.getByteChannelStruct(bytesInputOutputProgramFile);
+        BMap<String, BValue> byteChannelStruct = Util.getByteChannelStruct(bytesInputOutputProgramFile);
         byte[] encodedByteArray = Base64.getEncoder().encode(expectedValue.getBytes());
         InputStream encodedStream = new ByteArrayInputStream(encodedByteArray);
         Base64ByteChannel base64ByteChannel = new Base64ByteChannel(encodedStream);
@@ -473,7 +470,7 @@ public class IOTest {
         BValue[] returnValues = BRunUtil.invoke(bytesInputOutputProgramFile, "testBase64DecodeByteChannel", args);
         Assert.assertFalse(returnValues == null || returnValues.length == 0 || returnValues[0] == null,
                 "Invalid return value");
-        BStruct decodedByteChannel = (BStruct) returnValues[0];
+        BMap<String, BValue> decodedByteChannel = (BMap<String, BValue>) returnValues[0];
         Channel byteChannel = (Channel) decodedByteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
         Assert.assertEquals(StringUtils.getStringFromInputStream(byteChannel.getInputStream()), expectedValue);
     }

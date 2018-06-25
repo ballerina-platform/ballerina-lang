@@ -22,8 +22,8 @@ import io.ballerina.messaging.broker.core.BrokerException;
 import io.ballerina.messaging.broker.core.Consumer;
 import io.ballerina.messaging.broker.core.Message;
 import org.ballerinalang.broker.BallerinaBrokerByteBuf;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.program.BLangFunctions;
@@ -42,9 +42,9 @@ class HubSubscriber extends Consumer {
     private final String queue;
     private final String topic;
     private final String callback;
-    private final BStruct subscriptionDetails;
+    private final BMap<String, BValue> subscriptionDetails;
 
-    HubSubscriber(String queue, String topic, String callback, BStruct subscriptionDetails) {
+    HubSubscriber(String queue, String topic, String callback, BMap<String, BValue> subscriptionDetails) {
         this.queue = queue;
         this.topic = topic;
         this.callback = callback;

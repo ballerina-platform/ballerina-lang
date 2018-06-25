@@ -20,8 +20,9 @@ package org.ballerinalang.nativeimpl.builtin.tablelib;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BTable;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -43,7 +44,7 @@ public class Add extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BTable table = (BTable) context.getRefArgument(0);
-        BStruct data = (BStruct) context.getRefArgument(1);
+        BMap<String, BValue> data = (BMap) context.getRefArgument(1);
         table.performAddOperation(data, context);
     }
 }

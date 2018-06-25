@@ -1,21 +1,21 @@
-type Employee {
+type Employee record {
     int id;
     string name;
     float salary;
 };
 
-type EmployeeIncompatible {
+type EmployeeIncompatible record {
     float id;
     string name;
     float salary;
 };
 
-type EmployeeSalary {
+type EmployeeSalary record {
     int id;
     float salary;
 };
 
-type EmployeeSalaryIncompatible {
+type EmployeeSalaryIncompatible record {
     float id;
     float salary;
 };

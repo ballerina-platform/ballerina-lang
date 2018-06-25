@@ -23,8 +23,8 @@ import org.ballerinalang.broker.BallerinaBrokerByteBuf;
 import org.ballerinalang.broker.BrokerUtils;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.websub.BallerinaWebSubException;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -42,8 +42,8 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.STRUCT_WEBSUB_BALLERINA_HUB;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SUBSCRIPTION_DETAILS_SECRET;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
-
 /**
  * The Ballerina WebSub Hub.
  *
@@ -53,7 +53,7 @@ public class Hub {
     private static final Logger logger = LoggerFactory.getLogger(Hub.class);
 
     private static Hub instance = new Hub();
-    private BStruct hubObject = null;
+    private BMap<String, BValue> hubObject = null;
     private String hubUrl;
     private boolean hubTopicRegistrationRequired;
     private boolean hubPersistenceEnabled;
@@ -80,11 +80,11 @@ public class Hub {
         return hubUrl;
     }
 
-    private void setHubObject(BStruct hubObject) {
+    private void setHubObject(BMap<String, BValue> hubObject) {
         this.hubObject = hubObject;
     }
 
-    public BStruct getHubObject() {
+    public BMap<String, BValue> getHubObject() {
         return hubObject;
     }
 
@@ -139,7 +139,7 @@ public class Hub {
      * @param topic     the topic to which the subscription should be added
      * @param callback  the callback registered for the particular subscription
      */
-    public void registerSubscription(String topic, String callback, BStruct subscriptionDetails) {
+    public void registerSubscription(String topic, String callback, BMap<String, BValue> subscriptionDetails) {
         if (!started) {
             //TODO: Revisit to check if this needs to be returned as an error, currently not required since this check
             // is performed at Ballerina level
@@ -154,7 +154,7 @@ public class Hub {
 
             //Temporary workaround - expected secret to be "" if not specified but got null
             if (BLangConnectorSPIUtil.toStruct(subscriptionDetails).getStringField("secret") == null) {
-                subscriptionDetails.setStringField(2, "");
+                subscriptionDetails.put(SUBSCRIPTION_DETAILS_SECRET, new BString(""));
             }
             HubSubscriber subscriberToAdd = new HubSubscriber(queue, topic, callback, subscriptionDetails);
             BrokerUtils.addSubscription(topic, subscriberToAdd);
@@ -199,7 +199,7 @@ public class Hub {
      * @throws BallerinaWebSubException if the hub service is not started or topic registration is required, but the
      *                                  topic is not registered
      */
-    public void publish(String topic, BStruct content) throws BallerinaWebSubException {
+    public void publish(String topic, BMap<String, BValue> content) throws BallerinaWebSubException {
         if (!started) {
             throw new BallerinaWebSubException("Hub Service not started: publish failed");
         } else if (!topics.containsKey(topic) && hubTopicRegistrationRequired) {

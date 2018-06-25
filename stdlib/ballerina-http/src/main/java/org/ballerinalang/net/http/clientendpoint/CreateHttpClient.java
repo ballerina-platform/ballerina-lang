@@ -18,7 +18,6 @@
 
 package org.ballerinalang.net.http.clientendpoint;
 
-import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
@@ -26,7 +25,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.net.http.HttpConnectionManager;
@@ -34,7 +34,6 @@ import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.ProxyServerConfiguration;
-import org.wso2.transport.http.netty.config.Parameter;
 import org.wso2.transport.http.netty.config.SenderConfiguration;
 import org.wso2.transport.http.netty.contract.HttpClientConnector;
 import org.wso2.transport.http.netty.contract.HttpWsConnectorFactory;
@@ -43,11 +42,7 @@ import org.wso2.transport.http.netty.message.HTTPConnectorUtil;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.net.http.HttpConstants.CALLER_ACTIONS;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
@@ -72,7 +67,8 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct configBStruct = (BStruct) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
+        BMap<String, BValue> configBStruct =
+                (BMap<String, BValue>) context.getRefArgument(HttpConstants.CLIENT_ENDPOINT_CONFIG_INDEX);
         Struct clientEndpointConfig = BLangConnectorSPIUtil.toStruct(configBStruct);
         String urlString = context.getStringArgument(HttpConstants.CLIENT_ENDPOINT_URL_INDEX);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
@@ -120,8 +116,8 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
         }
         HttpClientConnector httpClientConnector = httpConnectorFactory
                 .createHttpClientConnector(properties, senderConfiguration);
-        BStruct httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(), HTTP_PACKAGE_PATH,
-                CALLER_ACTIONS, urlString, clientEndpointConfig);
+        BMap<String, BValue> httpClient = BLangConnectorSPIUtil.createBStruct(context.getProgramFile(),
+                HTTP_PACKAGE_PATH, CALLER_ACTIONS, urlString, clientEndpointConfig);
         httpClient.addNativeData(HttpConstants.CALLER_ACTIONS, httpClientConnector);
         httpClient.addNativeData(HttpConstants.CLIENT_ENDPOINT_CONFIG, clientEndpointConfig);
         context.setReturnValues(httpClient);
@@ -129,90 +125,14 @@ public class CreateHttpClient extends BlockingNativeCallableUnit {
 
     private void populateSenderConfigurationOptions(SenderConfiguration senderConfiguration, Struct
             clientEndpointConfig) {
-        ProxyServerConfiguration proxyServerConfiguration = null;
-        Struct secureSocket = null;
+        ProxyServerConfiguration proxyServerConfiguration;
+        Struct secureSocket;
         Value[] targetServices = clientEndpointConfig.getArrayField(HttpConstants.TARGET_SERVICES);
 
         for (Value targetService : targetServices) {
             secureSocket = targetService.getStructValue().getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
-
             if (secureSocket != null) {
-                Struct trustStore = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_TRUST_STORE);
-                Struct keyStore = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_KEY_STORE);
-                Struct protocols = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_PROTOCOLS);
-                Struct validateCert = secureSocket.getStructField(HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
-                List<Parameter> clientParams = new ArrayList<>();
-                if (trustStore != null) {
-                    String trustStoreFile = trustStore.getStringField(HttpConstants.FILE_PATH);
-                    if (StringUtils.isNotBlank(trustStoreFile)) {
-                        senderConfiguration.setTrustStoreFile(trustStoreFile);
-                    }
-                    String trustStorePassword = trustStore.getStringField(HttpConstants.PASSWORD);
-                    if (StringUtils.isNotBlank(trustStorePassword)) {
-                        senderConfiguration.setTrustStorePass(trustStorePassword);
-                    }
-                }
-                if (keyStore != null) {
-                    String keyStoreFile = keyStore.getStringField(HttpConstants.FILE_PATH);
-                    if (StringUtils.isNotBlank(keyStoreFile)) {
-                        senderConfiguration.setKeyStoreFile(keyStoreFile);
-                    }
-                    String keyStorePassword = keyStore.getStringField(HttpConstants.PASSWORD);
-                    if (StringUtils.isNotBlank(keyStorePassword)) {
-                        senderConfiguration.setKeyStorePassword(keyStorePassword);
-                    }
-                }
-                if (protocols != null) {
-                    List<Value> sslEnabledProtocolsValueList = Arrays
-                            .asList(protocols.getArrayField(HttpConstants.ENABLED_PROTOCOLS));
-                    if (sslEnabledProtocolsValueList.size() > 0) {
-                        String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
-                                .collect(Collectors.joining(",", "", ""));
-                        Parameter clientProtocols = new Parameter(HttpConstants.SSL_ENABLED_PROTOCOLS,
-                                sslEnabledProtocols);
-                        clientParams.add(clientProtocols);
-                    }
-                    String sslProtocol = protocols.getStringField(HttpConstants.PROTOCOL_VERSION);
-                    if (StringUtils.isNotBlank(sslProtocol)) {
-                        senderConfiguration.setSSLProtocol(sslProtocol);
-                    }
-                }
-
-                if (validateCert != null) {
-                    boolean validateCertEnabled = validateCert.getBooleanField(HttpConstants.ENABLE);
-                    int cacheSize = (int) validateCert.getIntField(HttpConstants.SSL_CONFIG_CACHE_SIZE);
-                    int cacheValidityPeriod = (int) validateCert
-                            .getIntField(HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
-                    senderConfiguration.setValidateCertEnabled(validateCertEnabled);
-                    if (cacheValidityPeriod != 0) {
-                        senderConfiguration.setCacheValidityPeriod(cacheValidityPeriod);
-                    }
-                    if (cacheSize != 0) {
-                        senderConfiguration.setCacheSize(cacheSize);
-                    }
-                }
-                boolean hostNameVerificationEnabled = secureSocket
-                        .getBooleanField(HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
-                boolean ocspStaplingEnabled = secureSocket.getBooleanField(HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
-                senderConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
-                senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
-
-                List<Value> ciphersValueList = Arrays
-                        .asList(secureSocket.getArrayField(HttpConstants.SSL_CONFIG_CIPHERS));
-                if (ciphersValueList.size() > 0) {
-                    String ciphers = ciphersValueList.stream().map(Value::getStringValue)
-                            .collect(Collectors.joining(",", "", ""));
-                    Parameter clientCiphers = new Parameter(HttpConstants.CIPHERS, ciphers);
-                    clientParams.add(clientCiphers);
-                }
-                String enableSessionCreation = String.valueOf(secureSocket
-                        .getBooleanField(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
-                Parameter clientEnableSessionCreation = new Parameter(HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
-                        enableSessionCreation);
-                clientParams.add(clientEnableSessionCreation);
-                if (!clientParams.isEmpty()) {
-                    senderConfiguration.setParameters(clientParams);
-                }
+                HttpUtil.populateSSLConfiguration(senderConfiguration, secureSocket);
             }
         }
         Struct proxy = clientEndpointConfig.getStructField(HttpConstants.PROXY_STRUCT_REFERENCE);

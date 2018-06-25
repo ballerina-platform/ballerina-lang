@@ -23,7 +23,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventManager;
@@ -76,7 +77,7 @@ public class HasNextTextRecord implements NativeCallableUnit {
      */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct channel = (BStruct) context.getRefArgument(TXT_RECORD_CHANNEL_INDEX);
+        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(TXT_RECORD_CHANNEL_INDEX);
         if (channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME) != null) {
             DelimitedRecordChannel textRecordChannel =
                     (DelimitedRecordChannel) channel.getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);

@@ -1,7 +1,7 @@
 import ballerina/jdbc;
 import ballerina/h2;
 
-type ResultCount {
+type ResultCount record {
     int COUNTVAL,
 };
 

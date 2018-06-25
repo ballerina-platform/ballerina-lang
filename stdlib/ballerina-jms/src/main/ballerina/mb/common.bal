@@ -23,7 +23,7 @@ documentation { Configurations related to Ballerina message broker URL
     F{{virtualHost}} target virtualhost
     F{{secureSocket}} TLS configurations
 }
-public type BrokerURLConfig {
+public type BrokerURLConfig record {
     string username = "admin",
     string password = "admin",
     string host = "localhost",
@@ -38,7 +38,7 @@ documentation { Configurations related to TLS
     F{{keyStore}} Keystore configuration
     F{{sslCertAlias}} name of the ssl cert alias
 }
-public type ServiceSecureSocket {
+public type ServiceSecureSocket record {
     Store? trustStore,
     Store? keyStore,
     string sslCertAlias,
@@ -48,7 +48,7 @@ documentation {
     F{{path}} file path to key store
     F{{password}} password used to protect the key store
 }
-public type Store {
+public type Store record {
     string path,
     string password,
 };

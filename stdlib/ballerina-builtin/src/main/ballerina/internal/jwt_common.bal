@@ -32,7 +32,7 @@
 documentation {
     Represents a JWT header.
 }
-public type JwtHeader {
+public type JwtHeader record {
     string alg;
     string typ;
     string cty;
@@ -43,7 +43,7 @@ public type JwtHeader {
 documentation {
     Represents a JWT payload.
 }
-public type JwtPayload {
+public type JwtPayload record {
     string iss;
     string sub;
     string[] aud;

@@ -4,7 +4,7 @@ import ballerina/io;
 
 @final string constPath = getConstPath();
 
-type Person {
+type Person record {
     string name,
     int age,
 };
@@ -132,10 +132,10 @@ service<http:Service> echo bind echoEP {
                     team = p.team;
                 }
                 json responseJson = {"Name":name , "Team":team};
-                res.setJsonPayload(responseJson);
+                res.setJsonPayload(untaint responseJson);
             }
             error err => {
-                res.setTextPayload(err.message);
+                res.setTextPayload(untaint err.message);
             }
         }
         _ = conn -> respond(res);

@@ -188,9 +188,10 @@ public class TableLiteralTest {
         BValue[] returns = BRunUtil.invoke(result, "testTableWithAllDataToXml");
         Assert.assertTrue(returns[0] instanceof BXML);
         Assert.assertEquals(returns[0].stringValue(), "<results><result><id>1</id><jsonData>{\"name\":\"apple\","
-                + "\"color\":\"red\",\"price\":30.3}</jsonData><xmlData>&lt;book>The Lost World&lt;"
-                + "/book></xmlData></result><result><id>2</id><jsonData>{\"name\":\"apple\",\"color\":\"red\","
-                + "\"price\":30.3}</jsonData><xmlData>&lt;book>The Lost World&lt;/book></xmlData></result></results>");
+                + "\"color\":\"red\",\"price\":30.3}</jsonData><xmlData>&lt;book&gt;The Lost World&lt;"
+                + "/book&gt;</xmlData></result><result><id>2</id><jsonData>{\"name\":\"apple\",\"color\":\"red\","
+                + "\"price\":30.3}</jsonData><xmlData>&lt;book&gt;The Lost World&lt;/book&gt;</xmlData></result>"
+                + "</results>");
     }
 
     @Test(priority = 1)

@@ -28,8 +28,8 @@ import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.net.uri.URIUtil;
@@ -56,7 +56,7 @@ import static org.ballerinalang.net.http.HttpConstants.DEFAULT_HOST;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
 import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT;
-import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.SERVICE_ENDPOINT_CONNECTION_FIELD;
 
 /**
  * {@code HttpDispatcher} is responsible for dispatching incoming http requests to the correct resource.
@@ -171,16 +171,20 @@ public class HttpDispatcher {
         ProgramFile programFile =
                 httpResource.getBalResource().getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile();
 
-        BStruct serviceEndpoint = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP,
-                                                                      SERVICE_ENDPOINT);
-        BStruct connection = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, CONNECTION);
-        BStruct inRequest = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST);
-        BStruct inRequestEntity = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
-        BStruct mediaType = BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+        BMap<String, BValue> serviceEndpoint =
+                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, SERVICE_ENDPOINT);
+        BMap<String, BValue> connection =
+                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, CONNECTION);
+        BMap<String, BValue> inRequest =
+                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_HTTP, REQUEST);
+        BMap<String, BValue> inRequestEntity =
+                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, ENTITY);
+        BMap<String, BValue> mediaType =
+                BLangConnectorSPIUtil.createBStruct(programFile, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
 
         HttpUtil.enrichServiceEndpointInfo(serviceEndpoint, httpCarbonMessage, httpResource, endpointConfig);
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
-        serviceEndpoint.setRefField(SERVICE_ENDPOINT_CONNECTION_INDEX, connection);
+        serviceEndpoint.put(SERVICE_ENDPOINT_CONNECTION_FIELD, connection);
 
         HttpUtil.enrichConnectionInfo(connection, httpCarbonMessage, endpointConfig);
         HttpUtil.populateInboundRequest(inRequest, inRequestEntity, mediaType, httpCarbonMessage, programFile);
@@ -223,7 +227,8 @@ public class HttpDispatcher {
         return bValues;
     }
 
-    private static BValue populateAndGetEntityBody(BStruct inRequest, BStruct inRequestEntity, BType entityBodyType) {
+    private static BValue populateAndGetEntityBody(BMap<String, BValue> inRequest,
+                                                   BMap<String, BValue> inRequestEntity, BType entityBodyType) {
         HttpUtil.populateEntityBody(null, inRequest, inRequestEntity, true);
         try {
             switch (entityBodyType.getTag()) {
