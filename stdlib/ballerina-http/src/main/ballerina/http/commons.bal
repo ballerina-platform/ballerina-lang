@@ -17,6 +17,8 @@
 @final string HTTP_SCHEME = "http://";
 @final string HTTPS_SCHEME = "https://";
 
+@final int DEFAULT_LISTENER_TIMEOUT = 120000; //2 mins
+
 documentation {Represents multipart primary type}
 @final public string MULTIPART_AS_PRIMARY_TYPE = "multipart/";
 // TODO: Document these. Should we make FORWARD a private constant?

@@ -22,14 +22,14 @@ import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.eclipse.lsp4j.CompletionItem;
 import org.wso2.ballerinalang.compiler.tree.BLangResource;
 
-import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Item Resolver for the connector action context.
  */
 public class ConnectorActionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         // Same item resolving logic is used for both the BLangResource and the BLangAction
         return CompletionItemResolver.getResolverByClass(BLangResource.class).resolveItems(completionContext);
     }

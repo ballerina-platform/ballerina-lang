@@ -125,7 +125,7 @@ documentation { Configurations related to the SimpleQueueReceiver endpoint
     F{{properties}} Additional properties use in initializing the initial context
     F{{queueName}} Name of the target queue
 }
-public type SimpleQueueReceiverEndpointConfiguration {
+public type SimpleQueueReceiverEndpointConfiguration record {
     string initialContextFactory = "bmbInitialContextFactory";
     string providerUrl = "amqp://admin:admin@ballerina/default?brokerlist='tcp://localhost:5672'";
     string connectionFactoryName = "ConnectionFactory";

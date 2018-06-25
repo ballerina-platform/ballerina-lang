@@ -27,7 +27,7 @@
     </parent>
     <artifactId>ballerina-composer-electron-sources</artifactId>
     <packaging>pom</packaging>
-    <name>Ballerina Composer - Electron Sources</name>
+    <name>Ballerina - Composer - Electron Sources</name>
 
     <build>
         <plugins>

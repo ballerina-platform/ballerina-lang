@@ -113,7 +113,7 @@ Records of the `.CSV` file can read directly into a table of a matching type.
 
  ```ballerina
 // First let’s define a type that matches a record in the CSV file.
-type Employee {
+type Employee record {
     string id;
     string name;
     float salary;

@@ -18,42 +18,42 @@ import ballerina/jdbc;
 import ballerina/sql;
 import ballerina/time;
 
-type ResultDatesWithNillableStringType {
+type ResultDatesWithNillableStringType record {
     string? DATE_TYPE,
     string? TIME_TYPE,
     string? TIMESTAMP_TYPE,
     string? DATETIME_TYPE,
 };
 
-type ResultDatesWithTimeType {
+type ResultDatesWithTimeType record {
     time:Time DATE_TYPE,
     time:Time TIME_TYPE,
     time:Time TIMESTAMP_TYPE,
     time:Time DATETIME_TYPE,
 };
 
-type ResultDatesWithNillableTimeType {
+type ResultDatesWithNillableTimeType record {
     time:Time? DATE_TYPE;
     time:Time? TIME_TYPE;
     time:Time? TIMESTAMP_TYPE;
     time:Time? DATETIME_TYPE;
 };
 
-type ResultDatesWithIntType {
+type ResultDatesWithIntType record {
     int DATE_TYPE,
     int TIME_TYPE,
     int TIMESTAMP_TYPE,
     int DATETIME_TYPE,
 };
 
-type ResultDatesWithNillableIntType {
+type ResultDatesWithNillableIntType record {
     int? DATE_TYPE,
     int? TIME_TYPE,
     int? TIMESTAMP_TYPE,
     int? DATETIME_TYPE,
 };
 
-type NillableDataTypes {
+type NillableDataTypes record {
     int? int_type,
     int? long_type,
     float? float_type,
@@ -74,7 +74,7 @@ type NillableDataTypes {
     time:Time? timestamp_type,
 };
 
-type ResultMapNonNillableTypeNillableElements {
+type ResultMapNonNillableTypeNillableElements record {
     int?[] INT_ARRAY;
     int?[] LONG_ARRAY;
     float?[] FLOAT_ARRAY;
@@ -82,7 +82,7 @@ type ResultMapNonNillableTypeNillableElements {
     string?[] STRING_ARRAY;
 };
 
-type ResultMapNillable {
+type ResultMapNillable record {
     int?[]? INT_ARRAY;
     int?[]? LONG_ARRAY;
     float?[]? FLOAT_ARRAY;
@@ -90,7 +90,7 @@ type ResultMapNillable {
     string?[]? STRING_ARRAY;
 };
 
-type ResultMapNillableTypeNonNillableElements {
+type ResultMapNillableTypeNonNillableElements record {
     int[]? INT_ARRAY;
     int[]? LONG_ARRAY;
     float[]? FLOAT_ARRAY;

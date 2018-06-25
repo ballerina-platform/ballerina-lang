@@ -19,7 +19,6 @@ import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.slf4j.Logger;
@@ -55,6 +54,7 @@ public class LSAnnotationCache {
     private static HashMap<PackageID, List<BAnnotationSymbol>> serviceAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> resourceAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> functionAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> endpointAnnotations = new HashMap<>();
     private static LSAnnotationCache lsAnnotationCache = null;
     
     private LSAnnotationCache() {
@@ -119,26 +119,33 @@ public class LSAnnotationCache {
         return functionAnnotations;
     }
 
+    public static HashMap<PackageID, List<BAnnotationSymbol>> getEndpointAnnotations() {
+        return endpointAnnotations;
+    }
+
     /**
      * Get the annotation map for the given type.
      * @param attachmentPoint   Attachment point
      * @return {@link HashMap}  Map of annotation lists
      */
-    public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(AttachmentPoint attachmentPoint) {
+    public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(String attachmentPoint) {
         HashMap<PackageID, List<BAnnotationSymbol>> annotationMap;
         if (attachmentPoint == null) {
             // TODO: Here return the common annotations
             annotationMap = new HashMap<>();
         } else {
             switch (attachmentPoint) {
-                case SERVICE:
+                case "service":
                     annotationMap = serviceAnnotations;
                     break;
-                case RESOURCE:
+                case "resource":
                     annotationMap = resourceAnnotations;
                     break;
-                case FUNCTION:
+                case "function":
                     annotationMap = functionAnnotations;
+                    break;
+                case "endpoint":
+                    annotationMap = endpointAnnotations;
                     break;
                 default:
                     annotationMap = new HashMap<>();
@@ -180,6 +187,9 @@ public class LSAnnotationCache {
                 }
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FUNCTION)) {
                     addAttachment(annotationSymbol, functionAnnotations, bPackageSymbol.pkgID);
+                }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.ENDPOINT)) {
+                    addAttachment(annotationSymbol, endpointAnnotations, bPackageSymbol.pkgID);
                 }
             }
         });

@@ -79,12 +79,12 @@ service HelloWorld bind ep {
     }
 }
 
-type Request {
+type Request record {
     string name;
     string message;
     int age;
 };
 
-type Response {
+type Response record {
     string resp;
 };
