@@ -283,7 +283,7 @@ public class CodeGenerator extends BLangNodeVisitor {
     /**
      * This structure holds child scopes of a given scope.
      */
-    private Map<String, Stack<String>> childScopesMap = new HashMap();
+    private Map<String, Stack<String>> childScopesMap = new HashMap<>();
 
     private SymbolEnv env;
     // TODO Remove this dependency from the code generator

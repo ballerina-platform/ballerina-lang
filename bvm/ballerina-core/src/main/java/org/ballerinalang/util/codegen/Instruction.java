@@ -279,7 +279,6 @@ public class Instruction {
 
         InstructionCompensate(int opcode, String scopeName, ArrayList<String> childScopes) {
             super(opcode);
-            //            this.pos = null;
             this.scopeName = scopeName;
             this.childScopes = childScopes;
         }
@@ -288,8 +287,8 @@ public class Instruction {
         public String toString() {
             StringJoiner sj = new StringJoiner(" ");
             sj.add(String.valueOf(scopeName));
-            for (int i = 0; i < childScopes.size(); i++) {
-                sj.add(childScopes.get(i));
+            for (String child : childScopes) {
+                sj.add(child);
             }
             return Mnemonics.getMnem(opcode) + " " + sj.toString();
         }
@@ -318,8 +317,8 @@ public class Instruction {
         public String toString() {
             StringJoiner sj = new StringJoiner(" ");
             sj.add(String.valueOf(scopeName));
-            for (int i = 0; i < childScopes.size(); i++) {
-                sj.add(childScopes.get(i));
+            for (String child : childScopes) {
+                sj.add(child);
             }
             sj.add(String.valueOf(argRegs.length));
             Arrays.stream(argRegs).forEach(i -> sj.add(String.valueOf(i)));

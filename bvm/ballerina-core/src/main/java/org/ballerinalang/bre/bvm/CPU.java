@@ -4078,25 +4078,22 @@ public class CPU {
 
     /**
      * Invokes a callable after marking it as a compensate function. This is a non native, sync call.
-     * @param ctx
-     * @param funcInfo
-     * @return
+     * @param ctx current WorkerExecutionContext
+     * @param funcInfo compensate function to invoke
+     * @return result WorkerExecutionContext
      */
-    private static WorkerExecutionContext handleCompensate (WorkerExecutionContext ctx,
-            CallableUnitInfo
-                    funcInfo) {
+    private static WorkerExecutionContext handleCompensate(WorkerExecutionContext ctx, CallableUnitInfo funcInfo) {
         int flags = 0;
         flags = FunctionFlags.markCompensate(flags);
 
-        return BLangFunctions.invokeCallable(funcInfo, ctx, new int[0],
-                new int[0], false, flags);
+        return BLangFunctions.invokeCallable(funcInfo, ctx, new int[0], new int[0], false, flags);
     }
 
     /**
      * Add the corresponding compensation function pointer of the given scope, to the compensations table. A copy of
      * current worker data of the args also added to the table.
      * @param scopeEnd current scope instruction
-     * @param ctx
+     * @param ctx current WorkerExecutionContext
      */
     private static void addToCompensationTable(Instruction.InstructionScopeEnd scopeEnd, WorkerExecutionContext ctx) {
         CompensationTable compensationTable = (CompensationTable) ctx.globalProps.get(Constants.COMPENSATION_TABLE);

@@ -20,6 +20,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 
 /**
  * Represents scope blocks.
+ * @since 0.980.0
  */
 public interface ScopeNode extends StatementNode {
     BlockNode getScopeBody();

@@ -18,6 +18,7 @@ package org.ballerinalang.model.tree.statements;
 
 /**
  * Interface for compensate node.
+ * @since 0.980.0
  */
 public interface CompensateNode extends StatementNode {
     public String getScopeName();

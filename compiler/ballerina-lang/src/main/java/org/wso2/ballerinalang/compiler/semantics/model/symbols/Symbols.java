@@ -282,8 +282,8 @@ public class Symbols {
         return (mask & attachPoint) == attachPoint;
     }
 
-    public static BTypeSymbol createScopeSymbol(int flags, Name name, PackageID pkgID, BType type, BSymbol owner) {
-        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SCOPE, flags, name, pkgID, type, owner);
+    public static BTypeSymbol createScopeSymbol(Name name, PackageID pkgID, BType type, BSymbol owner) {
+        BTypeSymbol typeSymbol = createTypeSymbol(SymTag.SCOPE, 0, name, pkgID, type, owner);
         typeSymbol.kind = SymbolKind.SCOPE;
         return typeSymbol;
     }

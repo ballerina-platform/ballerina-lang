@@ -779,7 +779,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangScope scopeNode) {
-        BTypeSymbol symbol = Symbols.createScopeSymbol(0, names.fromIdNode(scopeNode.name), env.enclPkg.symbol.pkgID,
+        BTypeSymbol symbol = Symbols.createScopeSymbol(names.fromIdNode(scopeNode.name), env.enclPkg.symbol.pkgID,
                 scopeNode.type, env
                 .scope
                 .owner);

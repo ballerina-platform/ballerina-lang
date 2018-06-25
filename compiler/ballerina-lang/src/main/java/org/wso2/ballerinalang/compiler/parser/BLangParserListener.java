@@ -3040,16 +3040,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.startOnCompensationBlock();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void exitCompensationClause(BallerinaParser.CompensationClauseContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-    }
-
     @Override
     public void exitCompensateStatement(BallerinaParser.CompensateStatementContext ctx) {
         if (ctx.exception != null) {
@@ -3152,13 +3142,9 @@ public class BLangParserListener extends BallerinaParserBaseListener {
     }
 
     private BLangFunction getFunctionDefinition(BallerinaParser.ScopeStatementContext ctx) {
-        boolean publicFunc = true;
-        boolean nativeFunc = false;
         boolean bodyExists = ctx.compensationClause().callableUnitBody() != null;
 
-        boolean isReceiverAttached = false;
-
-        return this.pkgBuilder.getScopesFunctionDef(getCurrentPos(ctx), getWS(ctx), publicFunc, nativeFunc, bodyExists,
-                isReceiverAttached, ctx.scopeClause().Identifier().getText());
+        return this.pkgBuilder.getScopesFunctionDef(getCurrentPos(ctx), getWS(ctx), bodyExists,
+                ctx.scopeClause().Identifier().getText());
     }
 }

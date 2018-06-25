@@ -24,6 +24,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 
 /**
  * Implementation of Compensate statement.
+ * @since 0.980.0
  */
 public class BLangCompensate extends BLangStatement implements CompensateNode {
 

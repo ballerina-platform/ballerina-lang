@@ -1382,12 +1382,11 @@ public class PackageInfoReader {
                     packageInfo.addInstruction(InstructionFactory.get(opcode, funcRefCPIndex, funcCallCPIndex));
                     break;
                 case InstructionCodes.SCOPE_END:
-                    FunctionInfo scopeFunction = ((FunctionRefCPEntry) packageInfo.getCPEntry(codeStream.readInt
-                            ())).getFunctionInfo();
-                    String scopeName = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt
-                            ())).getValue();
-                    packageInfo.addInstruction(new InstructionScopeEnd(opcode, scopeFunction, getArgRegs
-                            (codeStream), getChildScopesList(codeStream, packageInfo), scopeName));
+                    FunctionInfo scopeFunction = ((FunctionRefCPEntry) packageInfo.getCPEntry(codeStream.readInt()))
+                            .getFunctionInfo();
+                    String scopeName = ((UTF8CPEntry) packageInfo.getCPEntry(codeStream.readInt())).getValue();
+                    packageInfo.addInstruction(new InstructionScopeEnd(opcode, scopeFunction, getArgRegs(codeStream),
+                            getChildScopesList(codeStream, packageInfo), scopeName));
                     break;
                 case InstructionCodes.WRKSEND:
                 case InstructionCodes.WRKRECEIVE:

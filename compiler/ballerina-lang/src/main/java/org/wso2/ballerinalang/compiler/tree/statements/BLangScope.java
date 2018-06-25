@@ -29,6 +29,7 @@ import java.util.Stack;
 
 /**
  * Implementation of the Scope block.
+ * @since 0.980.0
  */
 public class BLangScope extends BLangStatement implements ScopeNode {
 
@@ -41,7 +42,6 @@ public class BLangScope extends BLangStatement implements ScopeNode {
     public BLangScope() {}
 
     public BLangScope(BLangBlockStmt scopeBody,
-            BLangBlockStmt onCompensationBody,
             BLangIdentifier name, List<BLangExpression> varRefs) {
         this.scopeBody = scopeBody;
         this.name = name;

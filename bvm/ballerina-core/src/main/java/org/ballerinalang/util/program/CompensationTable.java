@@ -23,6 +23,7 @@ import java.util.ArrayList;
 
 /**
  * This class represents a table to store compensation entries.
+ * @since 0.980.0
  */
 public class CompensationTable {
     public int index;

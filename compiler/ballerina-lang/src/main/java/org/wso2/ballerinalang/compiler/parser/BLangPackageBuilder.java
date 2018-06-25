@@ -3129,24 +3129,14 @@ public class BLangPackageBuilder {
         addExpressionNode(matchExpr);
     }
 
-    public BLangFunction getScopesFunctionDef(DiagnosticPos pos,
-            Set<Whitespace> ws,
-            boolean publicFunc,
-            boolean nativeFunc,
-            boolean bodyExists,
-            boolean isReceiverAttached, String name) {
+    BLangFunction getScopesFunctionDef(DiagnosticPos pos, Set<Whitespace> ws, boolean bodyExists, String name) {
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;
         function.addWS(ws);
 
-        if (publicFunc) {
-            function.flagSet.add(Flag.PUBLIC);
-        }
-
-        if (nativeFunc) {
-            function.flagSet.add(Flag.NATIVE);
-        }
+        //always a public function
+        function.flagSet.add(Flag.PUBLIC);
 
         if (!bodyExists) {
             function.body = null;
@@ -3224,7 +3214,7 @@ public class BLangPackageBuilder {
         startFunctionDef();
     }
 
-    List<BLangExpression> getVariableReferences() {
+    private List<BLangExpression> getVariableReferences() {
 
         List<BLangExpression> varRefs = new ArrayList<>();
         if (this.exprNodeListStack != null && !this.exprNodeListStack.isEmpty()) {
