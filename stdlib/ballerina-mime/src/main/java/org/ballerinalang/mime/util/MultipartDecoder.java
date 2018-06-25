@@ -21,7 +21,7 @@ package org.ballerinalang.mime.util;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.MIMEConfig;
@@ -82,9 +82,7 @@ public class MultipartDecoder {
     public static List<MIMEPart> decodeBodyParts(String contentType, InputStream inputStream)
             throws MimeTypeParseException {
         MimeType mimeType = new MimeType(contentType);
-        final MIMEMessage mimeMessage = new MIMEMessage(inputStream,
-                mimeType.getParameter(BOUNDARY),
-                getMimeConfig());
+        final MIMEMessage mimeMessage = new MIMEMessage(inputStream, mimeType.getParameter(BOUNDARY), getMimeConfig());
         return mimeMessage.getAttachments();
     }
 
@@ -120,8 +118,8 @@ public class MultipartDecoder {
     private static void populateBallerinaParts(Context context, BStruct entity, List<MIMEPart> mimeParts) {
         ArrayList<BStruct> bodyParts = new ArrayList<>();
         for (final MIMEPart mimePart : mimeParts) {
-            BStruct partStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
-            BStruct mediaType = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+            BStruct partStruct = BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, ENTITY);
+            BStruct mediaType = BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
             populateBodyPart(context, mimePart, partStruct, mediaType);
             bodyParts.add(partStruct);
         }
@@ -144,7 +142,7 @@ public class MultipartDecoder {
         populateContentType(mimePart, partStruct, mediaType);
         List<String> contentDispositionHeaders = mimePart.getHeader(HttpHeaderNames.CONTENT_DISPOSITION.toString());
         if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
-            BStruct contentDisposition = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME,
+            BStruct contentDisposition = BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME,
                     CONTENT_DISPOSITION_STRUCT);
             populateContentDisposition(partStruct, contentDispositionHeaders, contentDisposition);
         }
