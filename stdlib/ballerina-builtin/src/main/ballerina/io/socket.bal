@@ -101,9 +101,9 @@ public type ServerSocket object {
     public native function bindAddress(int port, string? interface = ()) returns error?;
 
     documentation {
-        Binds socket to a local port.
+        This blocking function will wait until new client socket connect.
 
-        R{{}} An error if could not bind to a port
+        R{{}} An error if could not create new socket.
     }
     public native function accept() returns @tainted Socket|error;
 
