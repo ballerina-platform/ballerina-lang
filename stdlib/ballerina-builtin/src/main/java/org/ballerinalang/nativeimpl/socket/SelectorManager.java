@@ -48,9 +48,15 @@ public class SelectorManager {
 
     private static Selector selector;
     private static boolean running = false;
-    private static ThreadFactory factory = new BLangThreadFactory("socket-select");
-    private static ExecutorService executor = Executors.newSingleThreadExecutor(factory);
+    private static ThreadFactory blangThreadFactory = new BLangThreadFactory("socket-select");
+    private static ExecutorService executor = Executors.newSingleThreadExecutor(blangThreadFactory);
 
+    /**
+     * Get selector instance.
+     *
+     * @return {@link Selector} instance.
+     * @throws IOException Throws if unable to create a new selector instance.
+     */
     public static synchronized Selector getInstance() throws IOException {
         if (selector == null) {
             selector = Selector.open();
@@ -58,27 +64,34 @@ public class SelectorManager {
         return selector;
     }
 
+    /**
+     * Start the selector loop.
+     */
     public static void start() {
         if (!running) {
             executor.execute(() -> {
                 while (true) {
                     try {
-                        selector.select();
-                    } catch (IOException e) {
-                        log.error("An error occurred in selector loop: " + e.getMessage(), e);
-                        continue;
-                    }
-                    Set<SelectionKey> selectedKeys = selector.selectedKeys();
-                    Iterator<SelectionKey> iter = selectedKeys.iterator();
-                    while (iter.hasNext()) {
-                        SelectionKey key = iter.next();
-                        if (key.isAcceptable()) {
-                            handleAccept(key);
+                        try {
+                            selector.select(2000);
+                        } catch (IOException e) {
+                            log.error("An error occurred in selector wait: " + e.getMessage(), e);
+                            continue;
                         }
-                        if (key.isReadable()) {
-                            log.info("currently do nothing.");
+                        Set<SelectionKey> selectedKeys = selector.selectedKeys();
+                        Iterator<SelectionKey> iter = selectedKeys.iterator();
+                        while (iter.hasNext()) {
+                            SelectionKey key = iter.next();
+                            if (key.isAcceptable()) {
+                                handleAccept(key);
+                            }
+                            if (key.isReadable()) {
+                                log.info("Read ready implementation not done yet.");
+                            }
+                            iter.remove();
                         }
-                        iter.remove();
+                    } catch (Exception e) {
+                        log.error("An error occurred: " + e.getMessage(), e);
                     }
                 }
             });
@@ -103,7 +116,7 @@ public class SelectorManager {
                 }
             }
         } catch (IOException e) {
-            log.error("Unable to accept new client socket connection: " + e.getMessage(), e);
+            log.error("Unable to accept a new client socket connection: " + e.getMessage(), e);
         }
     }
 }
