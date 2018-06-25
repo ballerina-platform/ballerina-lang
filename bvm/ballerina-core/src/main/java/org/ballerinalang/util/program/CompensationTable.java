@@ -25,7 +25,7 @@ import java.util.ArrayList;
  * This class represents a table to store compensation entries.
  */
 public class CompensationTable {
-    public static int index;
+    public int index;
     public ArrayList<CompensationEntry> compensations;
 
     private CompensationTable() {

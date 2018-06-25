@@ -3000,7 +3000,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         if (ctx.exception != null) {
             return;
         }
-
         this.pkgBuilder.startScopeStmt();
     }
 
@@ -3020,7 +3019,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         identifier.setValue(name);
 
         this.pkgBuilder.endScopeStmt(getCurrentPos(ctx), getWS(ctx), identifier, getFunctionDefinition(ctx));
-
     }
 
     @Override

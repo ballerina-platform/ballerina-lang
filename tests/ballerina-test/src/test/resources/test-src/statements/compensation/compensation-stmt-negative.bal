@@ -15,5 +15,3 @@ function testCompensateWithoutIdentifier() {
     a = a + 1;
     compensate;
 }
-
-

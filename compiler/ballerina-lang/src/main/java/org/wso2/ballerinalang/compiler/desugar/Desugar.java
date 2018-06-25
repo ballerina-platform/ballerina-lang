@@ -943,14 +943,12 @@ public class Desugar extends BLangNodeVisitor {
 
             scopeNode.compensationFunction.addParameter(exprVar);
             scopeNode.compensationFunction.requiredParams.add(exprVar);
-
         }
 
         scopeNode.getCompensationFunction().body.scope = env.scope;
         scopeNode.compensationFunction = rewrite(scopeNode.getCompensationFunction(), env);
         env.enclPkg.functions.add(scopeNode.getCompensationFunction());
         env.enclPkg.topLevelNodes.add(scopeNode.getCompensationFunction());
-
 
         scopeNode.scopeBody = rewrite(scopeNode.scopeBody, env);
         scopeNode.varRefs.forEach(bLangSimpleVarRef -> rewrite(bLangSimpleVarRef, env));

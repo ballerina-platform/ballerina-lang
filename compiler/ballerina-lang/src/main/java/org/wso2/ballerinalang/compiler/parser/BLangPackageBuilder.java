@@ -3135,7 +3135,6 @@ public class BLangPackageBuilder {
             boolean nativeFunc,
             boolean bodyExists,
             boolean isReceiverAttached, String name) {
-
         BLangFunction function = (BLangFunction) this.invokableNodeStack.pop();
         endEndpointDeclarationScope();
         function.pos = pos;

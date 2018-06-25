@@ -756,7 +756,6 @@ public class CPU {
                         if (index >= 0 && (table.compensations.get(index).scope.equals(compIn
                                 .scopeName) || compIn.childScopes.contains(table.compensations.get(index).scope))) {
                             ctx = handleCompensate(ctx, table.compensations.get(index).functionInfo);
-
                         }
                         if (ctx == null) {
                             return;
