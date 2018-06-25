@@ -82,7 +82,7 @@ public class BLangTableLiteral extends BLangExpression implements TableLiteralNo
     /**
      * This class represents a column of a table.
      *
-     * @since 0.975.0
+     * @since 0.980.0
      */
     public static class BLangTableColumn extends BLangNode {
 

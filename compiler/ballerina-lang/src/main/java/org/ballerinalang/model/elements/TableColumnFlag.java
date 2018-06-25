@@ -18,7 +18,7 @@
 package org.ballerinalang.model.elements;
 
 /**
- * @since 0.975.0
+ * @since 0.980.0
  */
 public enum TableColumnFlag {
     /**
