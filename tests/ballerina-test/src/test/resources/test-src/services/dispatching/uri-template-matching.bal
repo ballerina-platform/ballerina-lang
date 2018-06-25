@@ -27,7 +27,7 @@ service<http:Service> echo11 bind testEP {
     echo4 (endpoint conn, http:Request req, string abc) {
         http:Response res = new;
         json responseJson = {"echo3":abc};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -38,7 +38,7 @@ service<http:Service> echo11 bind testEP {
     echo5 (endpoint conn, http:Request req, string abc) {
         http:Response res = new;
         json responseJson = {"first":abc, "echo4":"echo4"};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -63,7 +63,7 @@ service<http:Service> echo11 bind testEP {
         json responseJson = {"first":abc, "second":foo, "echo9":"echo9"};
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -76,7 +76,7 @@ service<http:Service> echo11 bind testEP {
         json responseJson = {"third":foo, "echo10":"echo10"};
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -85,7 +85,7 @@ service<http:Service> echo11 bind testEP {
         json responseJson = {"third":foo, "echo11":"echo11"};
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -96,7 +96,7 @@ service<http:Service> echo11 bind testEP {
     echo12 (endpoint conn, http:Request req, string abc) {
         http:Response res = new;
         json responseJson = {"echo12":abc};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -109,7 +109,7 @@ service<http:Service> echo11 bind testEP {
         json responseJson = {"echo125":bar};
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -123,7 +123,7 @@ service<http:Service> echo11 bind testEP {
         json responseJson = {"echo125":bar};
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -137,7 +137,7 @@ service<http:Service> echo11 bind testEP {
         json responseJson = {"echo13":bar};
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -151,7 +151,7 @@ service<http:Service> echo11 bind testEP {
         json responseJson = {"echo14":bar};
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -165,7 +165,7 @@ service<http:Service> echo11 bind testEP {
         json responseJson = {"echo15":bar};
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -225,7 +225,7 @@ service<http:Service> echo33 bind testEP {
         json responseJson = {"third":foo, "echo33":"echo1"};
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 }
@@ -247,7 +247,7 @@ service<http:Service> echo44 bind testEP {
         json responseJson = {"first":foo, "echo44":"echo1"};
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -308,7 +308,7 @@ service<http:Service> echo66 bind testEP {
     echo1 (endpoint conn, http:Request req) {
         http:Response res = new;
         json responseJson = {"echo66":req.extraPathInfo};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -321,7 +321,7 @@ service<http:Service> echo66 bind testEP {
             req.extraPathInfo = "empty";
         }
         json responseJson = {"echo66":req.extraPathInfo};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 }
@@ -358,7 +358,7 @@ service<http:Service> WildcardService bind testEP {
     threePathParams (endpoint conn, http:Request req, string aaa, string bbb, string ccc) {
         http:Response res = new;
         json responseJson = {aaa:aaa, bbb:bbb, ccc:ccc};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 
@@ -368,7 +368,7 @@ service<http:Service> WildcardService bind testEP {
     twoPathParams (endpoint conn, http:Request req, string xxx, string yyy) {
         http:Response res = new;
         json responseJson = {xxx:xxx, yyy:yyy};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = conn -> respond(res);
     }
 

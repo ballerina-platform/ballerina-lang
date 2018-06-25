@@ -218,7 +218,7 @@ documentation {
     F{{cause}} The error which caused the `HttpTimeoutError`
     F{{statusCode}} HTTP status code
 }
-public type HttpTimeoutError {
+public type HttpTimeoutError record {
     string message,
     error? cause,
     int statusCode,

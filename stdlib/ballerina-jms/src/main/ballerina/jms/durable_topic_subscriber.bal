@@ -80,7 +80,7 @@ documentation { Configurations related to the durable topic subscriber endpoint
     F{{messageSelector}} JMS selector statement
     F{{identifier}} unique identifier for the subscription
 }
-public type DurableTopicSubscriberEndpointConfiguration {
+public type DurableTopicSubscriberEndpointConfiguration record {
     Session? session;
     string topicPattern;
     string messageSelector;

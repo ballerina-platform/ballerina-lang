@@ -31,7 +31,7 @@ documentation {
     F{{maxLifetime}} Maximum lifetime of a connection in the pool. Default is 30 minutes
     F{{validationTimeout}} Maximum amount of time that a connection will be tested for aliveness. Default 5 seconds
 }
-public type PoolOptions {
+public type PoolOptions record {
     string connectionInitSql,
     string dataSourceClassName,
     boolean autoCommit = true,
@@ -142,7 +142,7 @@ documentation {
     F{{recordType}} In case of OUT direction, if the sqlType is REFCURSOR, this represents the record type to map a
                       result row
 }
-public type Parameter {
+public type Parameter record {
     SQLType sqlType,
     any value,
     Direction direction,

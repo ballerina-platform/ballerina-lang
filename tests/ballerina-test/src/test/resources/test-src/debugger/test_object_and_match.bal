@@ -68,7 +68,7 @@ function Person::attachInterface(int add) returns int {
     return count;
 }
 
-type Foo {
+type Foo record {
     int count,
     string last,
 };

@@ -148,7 +148,7 @@ function respondToBadRequest(http:Listener conn, string msg) {
     http:Response res = new;  res.statusCode = http:BAD_REQUEST_400;
     RequestError err = {errorMessage:msg};
     json resPayload = check <json>err;
-    res.setJsonPayload(resPayload);
+    res.setJsonPayload(untaint resPayload);
     var resResult = ep->respond(res);
     match resResult {
         error respondErr => {

@@ -1,6 +1,6 @@
 
 
-public type user {
+public type user record {
     int age;
     string name;
     string address;
@@ -17,7 +17,7 @@ function <user u> getAge() returns (int) {
 
 
 
-public type person {
+public type person record {
     int age;
     string name;
     string address;
@@ -44,7 +44,7 @@ public function <person p> setSSN(string ssn) {
     p.ssn = ssn;
 }
 
-public type employee {
+public type employee record {
     int age;
     string name;
     string address;

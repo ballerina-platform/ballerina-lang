@@ -1,15 +1,15 @@
-public type testError {
+public type testError record {
     string message;
     error? cause;
     string code;
 };
 
-public type testDataError {
+public type testDataError record {
     string message;
     error? cause;
     string data;
 };
-public type testInputError {
+public type testInputError record {
     string message;
     error? cause;
     string input;

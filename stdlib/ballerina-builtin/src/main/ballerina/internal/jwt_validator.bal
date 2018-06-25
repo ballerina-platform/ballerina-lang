@@ -20,7 +20,7 @@ import ballerina/time;
 documentation {
     Represents JWT validator configurations.
 }
-public type JWTValidatorConfig {
+public type JWTValidatorConfig record {
     string issuer,
     string audience,
     int clockSkew,

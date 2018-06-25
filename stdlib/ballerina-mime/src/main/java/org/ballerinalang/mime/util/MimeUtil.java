@@ -23,7 +23,7 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
-import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
@@ -181,7 +181,7 @@ public class MimeUtil {
     }
 
     public static void setMediaTypeToEntity(Context context, BStruct entityStruct, String contentType) {
-        BStruct mediaType = ConnectorUtils.createAndGetStruct(context, Constants.PROTOCOL_PACKAGE_MIME,
+        BStruct mediaType = BLangConnectorSPIUtil.createObject(context, Constants.PROTOCOL_PACKAGE_MIME,
                 Constants.MEDIA_TYPE);
         MimeUtil.setContentType(mediaType, entityStruct, contentType);
         HeaderUtil.setHeaderToEntity(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString(), contentType);
@@ -198,7 +198,6 @@ public class MimeUtil {
                                              String contentDispositionHeaderWithParams) {
         populateContentDispositionObject(contentDisposition, contentDispositionHeaderWithParams);
         bodyPart.setRefField(CONTENT_DISPOSITION_INDEX, contentDisposition);
-
     }
 
     public static void populateContentDispositionObject(BStruct contentDisposition,

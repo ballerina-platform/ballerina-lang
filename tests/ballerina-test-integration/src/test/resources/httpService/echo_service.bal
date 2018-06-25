@@ -19,7 +19,7 @@ service<http:Service> echo bind echoEP {
         match payload {
             string payloadValue => {
                 http:Response resp = new;
-                resp.setTextPayload(payloadValue);
+                resp.setTextPayload(untaint payloadValue);
                 _ = caller -> respond(resp);
             }
             any | () => {

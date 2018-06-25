@@ -80,7 +80,7 @@ documentation { Configurations related to the QueueReceiver endpoint
     F{{messageSelector}} JMS selector statement
     F{{identifier}} unique identifier for the subscription
 }
-public type QueueReceiverEndpointConfiguration {
+public type QueueReceiverEndpointConfiguration record {
     Session? session;
     string queueName;
     string messageSelector;

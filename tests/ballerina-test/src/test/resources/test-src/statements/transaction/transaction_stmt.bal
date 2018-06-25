@@ -1,4 +1,4 @@
-public type TrxError {
+public type TrxError record {
     string message;
     error? cause;
     string data;

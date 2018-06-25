@@ -18,15 +18,16 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
+import org.ballerinalang.langserver.completions.resolvers.parsercontext.ParserRuleAnnotationAttachmentResolver;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
 import org.ballerinalang.langserver.completions.util.sorters.CompletionItemSorter;
 import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ServiceContextResolver.
@@ -34,11 +35,14 @@ import java.util.ArrayList;
 public class ServiceContextResolver extends AbstractItemResolver {
 
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        // TODO: Add annotations
-        ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
-        if (parserRuleContext != null) {
+        ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
+
+        if (this.isAnnotationStart(completionContext)) {
+            completionItems.addAll(CompletionItemResolver
+                    .getResolverByClass(ParserRuleAnnotationAttachmentResolver.class).resolveItems(completionContext));
+        } else if (parserRuleContext != null) {
             AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
             if (resolver != null) {
                 completionItems.addAll(resolver.resolveItems(completionContext));

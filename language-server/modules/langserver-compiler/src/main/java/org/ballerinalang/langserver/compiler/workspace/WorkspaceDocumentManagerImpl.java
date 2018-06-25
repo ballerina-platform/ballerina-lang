@@ -26,6 +26,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 
@@ -99,6 +100,11 @@ public class WorkspaceDocumentManagerImpl implements WorkspaceDocumentManager {
         Lock lock = document.getLock();
         lock.lock();
         return Optional.of(lock);
+    }
+
+    @Override
+    public Set<Path> getAllFilePaths() {
+        return documentList.keySet();
     }
 
     private String readFromFileSystem(Path filePath) {

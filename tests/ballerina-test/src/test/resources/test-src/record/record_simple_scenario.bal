@@ -4,7 +4,7 @@ public function testSimpleRecord () returns (int, string) {
     return (p.age, p.name);
 }
 
-type Person {
+type Person record {
     int age,
     string name;
 };

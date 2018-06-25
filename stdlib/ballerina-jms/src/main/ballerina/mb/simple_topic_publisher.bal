@@ -131,7 +131,7 @@ documentation { Configurations related to SimpleQueueSender endpoint
     F{{properties}} Additional properties use in initializing the initial context
     F{{topicPattern}} name of the target topic
 }
-public type SimpleTopicPublisherEndpointConfiguration {
+public type SimpleTopicPublisherEndpointConfiguration record {
     string username = "admin",
     string password = "admin",
     string host = "localhost",
