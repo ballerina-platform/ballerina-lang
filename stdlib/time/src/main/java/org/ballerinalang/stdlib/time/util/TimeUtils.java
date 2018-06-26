@@ -36,7 +36,7 @@ import java.util.TimeZone;
  */
 public class TimeUtils {
 
-    public static final String PACKAGE_TIME = "ballerina.time";
+    public static final String PACKAGE_TIME = "ballerina/time";
     public static final String STRUCT_TYPE_TIME = "Time";
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB

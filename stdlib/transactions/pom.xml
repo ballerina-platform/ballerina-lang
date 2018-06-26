@@ -42,10 +42,6 @@
             <groupId>org.ballerinalang</groupId>
             <artifactId>ballerina-logging</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.ballerinalang</groupId>-->
-            <!--<artifactId>ballerina-config</artifactId>-->
-        <!--</dependency>-->
         <dependency>
             <groupId>org.ballerinalang</groupId>
             <artifactId>lib-creator</artifactId>
@@ -107,6 +103,12 @@
                 <excludes>
                     <exclude>ballerina/**</exclude>
                 </excludes>
+            </resource>
+
+            <!-- copy transactions ballerina balx to the jar -->
+            <resource>
+                <directory>${project.build.directory}/../src/main/ballerina/target</directory>
+                <targetPath>META-INF/ballerina/target</targetPath>
             </resource>
         </resources>
         <plugins>

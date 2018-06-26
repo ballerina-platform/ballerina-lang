@@ -121,6 +121,12 @@
                     <exclude>ballerina/**</exclude>
                 </excludes>
             </resource>
+
+            <!-- copy websub ballerina balx to the jar -->
+            <resource>
+                <directory>${project.build.directory}/../src/main/ballerina/target</directory>
+                <targetPath>META-INF/ballerina/target</targetPath>
+            </resource>
         </resources>
         <plugins>
 
