@@ -100,10 +100,25 @@ public class JMSUtils {
         Properties properties = new Properties();
         configParams.forEach(properties::put);
 
+        //check for additional jndi properties
+        Map<String, Value> props = connectionConfig.getMapField(Constants.PROPERTIES_MAP);
+        if (props != null) {
+            for (Map.Entry<String, Value> entry : props.entrySet()) {
+                properties.put(entry.getKey(), entry.getValue().getStringValue());
+            }
+        }
+
         try {
             InitialContext initialContext = new InitialContext(properties);
             ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(factoryName);
-            return connectionFactory.createConnection();
+            String username = connectionConfig.getStringField(Constants.ALIAS_USERNAME);
+            String password = connectionConfig.getStringField(Constants.ALIAS_PASSWORD);
+
+            if (!JMSUtils.isNullOrEmptyAfterTrim(username) && !JMSUtils.isNullOrEmptyAfterTrim(password)) {
+                return connectionFactory.createConnection(username, password);
+            } else {
+                return connectionFactory.createConnection();
+            }
         } catch (NamingException | JMSException e) {
             String message = "Error while connecting to broker.";
             LOGGER.error(message, e);
