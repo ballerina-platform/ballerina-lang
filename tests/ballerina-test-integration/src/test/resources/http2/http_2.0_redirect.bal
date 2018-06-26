@@ -18,11 +18,9 @@ import ballerina/io;
 import ballerina/http;
 import ballerina/mime;
 
-//TODO: HTTP2 scanarios doesn't work when the first request goes to a HTTP2 enabled server regardless of redirect feature.
-//TODO: Enable HTTP2 for this service endpoint once the above mentioned issue is fixed.
-//See {https://github.com/ballerina-platform/ballerina-lang/issues/9044}
 endpoint http:Listener serviceEndpoint1 {
-    port: 9090
+    port: 9090,
+    httpVersion: "2.0"
 };
 
 endpoint http:Listener serviceEndpoint2 {
