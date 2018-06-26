@@ -76,6 +76,7 @@ public class DataChannel {
             readFull(buf);
             buf.flip();
             byte b = buf.get(bufferLimit - 1);
+            //We '&' with 10000000 and shift it by 7 to identify the msb
             if ((b & 0x80) >> 7 == 0) {
                 //We identify whether there're bytes remaining to be read
                 hasRemainingBytes = false;
@@ -177,8 +178,9 @@ public class DataChannel {
         int nBytes;
         int totalNumberOfBits;
         if (Representation.VARIABLE.equals(representation)) {
-            nBytes = (int) Math.abs(Math.round((Math.log(Math.abs(value)) / Math.log(2)) / representation.getBase()))
-                    + 1;
+            //We identify the log(2) of the value to identify how many bits are required to represent
+            int nBits = (int) Math.abs(Math.round((Math.log(Math.abs(value)) / Math.log(2))));
+            nBytes = nBits / representation.getBase() + 1;
             content = new byte[nBytes];
         } else {
             nBytes = representation.getNumberOfBytes();

@@ -158,7 +158,7 @@ public type DataChannel object {
     public native function readVarInt() returns int|error;
 
     documentation {
-        Writes a given integer based on variable length.
+        Writes a given integer identifying the variable length.
 
         P{{value}} the value which should be written
         R{{}} nill if the content is written successfully or an error
