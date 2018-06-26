@@ -252,7 +252,7 @@ public class PackageLoader {
                                                                               return alias.equals(pkgAlias);
                                                                           })
                                                                           .findFirst();
-                    dependency.ifPresent(lockFilePackage1 -> pkgId.version = new Name(lockFilePackage1.getVersion()));
+                    dependency.ifPresent(dependencyPkg -> pkgId.version = new Name(dependencyPkg.getVersion()));
                 }
             }
         }
