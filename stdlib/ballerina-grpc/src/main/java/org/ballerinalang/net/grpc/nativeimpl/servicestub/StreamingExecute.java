@@ -25,6 +25,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
@@ -135,7 +136,7 @@ public class StreamingExecute extends AbstractExecute {
             // Update request headers when request headers exists in the context.
             BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
             HttpHeaders headers = null;
-            if (headerValues instanceof BStruct) {
+            if (headerValues != null && headerValues.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
                 headers = (HttpHeaders) ((BStruct) headerValues).getNativeData(MESSAGE_HEADERS);
             }
 

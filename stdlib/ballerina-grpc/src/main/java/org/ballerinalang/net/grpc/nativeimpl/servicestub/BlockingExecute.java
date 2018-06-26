@@ -21,6 +21,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -118,7 +119,7 @@ public class BlockingExecute extends AbstractExecute {
             // Update request headers when request headers exists in the context.
             BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
             HttpHeaders headers = null;
-            if (headerValues instanceof BStruct) {
+            if (headerValues != null && headerValues.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
                 headers = (HttpHeaders) ((BStruct) headerValues).getNativeData(MESSAGE_HEADERS);
             }
             if (headers != null) {
