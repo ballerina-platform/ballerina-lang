@@ -245,7 +245,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // check whether this is blob literal as byte array
         if (TypeTags.ARRAY == expType.tag && TypeTags.BYTE == ((BArrayType) expType).eType.tag &&
-                TypeTags.ARRAY == literalExpr.typeTag) {
+                TypeTags.BYTE_ARRAY == literalExpr.typeTag) {
             literalType = new BArrayType(symTable.byteType);
         }
 

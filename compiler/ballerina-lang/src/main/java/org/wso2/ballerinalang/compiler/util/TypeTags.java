@@ -58,6 +58,7 @@ public class TypeTags {
     public static final int FINITE = INTERMEDIATE_COLLECTION + 1;
     public static final int OBJECT = FINITE + 1;
     public static final int RECORD = OBJECT + 1;
+    public static final int BYTE_ARRAY = RECORD + 1;
 
     private TypeTags() {
     }

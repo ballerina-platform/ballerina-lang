@@ -931,7 +931,7 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLiteral literalExpr) {
-        if (TypeTags.ARRAY == literalExpr.typeTag) { // this is blob literal as byte array
+        if (TypeTags.BYTE_ARRAY == literalExpr.typeTag) { // this is blob literal as byte array
             result = rewriteBlobLiteral(literalExpr);
             return;
         }
