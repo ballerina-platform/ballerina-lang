@@ -91,7 +91,8 @@ public class RequestNativeFunctionSuccessTest {
 
     @BeforeClass
     public void setup() {
-        String resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        String resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "statements", "services", "nativeimpl",
                 "request");
         result = BCompileUtil.compileAndSetup(sourceRoot.resolve("in-request-native-function.bal").toString());
@@ -203,7 +204,7 @@ public class RequestNativeFunctionSuccessTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
-                                                               reqCacheControlStruct);
+                reqCacheControlStruct);
         HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, result.getProgFile());
 
         BString key = new BString(HttpHeaderNames.CONTENT_TYPE.toString());
@@ -237,7 +238,7 @@ public class RequestNativeFunctionSuccessTest {
         BStruct entity = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, entityStruct);
         BStruct mediaType = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageMime, mediaTypeStruct);
         BStruct cacheControl = BCompileUtil.createAndGetStruct(result.getProgFile(), protocolPackageHttp,
-                                                               reqCacheControlStruct);
+                reqCacheControlStruct);
         HttpUtil.populateInboundRequest(inRequest, entity, mediaType, inRequestMsg, result.getProgFile());
 
         BString key = new BString("test-header");

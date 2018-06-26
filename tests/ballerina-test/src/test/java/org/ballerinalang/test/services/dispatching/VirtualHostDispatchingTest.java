@@ -32,6 +32,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import org.wso2.transport.http.netty.message.HttpMessageDataStreamer;
+import java.io.File;
 
 /**
  * Service dispatching test cases for virtual hosting.
@@ -90,8 +91,8 @@ public class VirtualHostDispatchingTest {
             expectedExceptionsMessageRegExp =
                     ".*two services have the same basePath : '/page' under host name : 'abc.com'.*")
     public void testTwoServicesWithSameHostandBasePath() {
-        CompileResult compileResult = BCompileUtil.compile(getClass().getClassLoader().getResource(
-                "test-src/services/dispatching/virtual-host-negative-test.bal").getPath());
+        CompileResult compileResult = BCompileUtil.compile(new File(getClass().getClassLoader().getResource(
+                "test-src/services/dispatching/virtual-host-negative-test.bal").getPath()).getAbsolutePath());
         BServiceUtil.runService(compileResult);
     }
 }
