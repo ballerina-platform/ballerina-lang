@@ -1,3 +1,0 @@
-function jsonTest() {
-    json json = {};
-}
