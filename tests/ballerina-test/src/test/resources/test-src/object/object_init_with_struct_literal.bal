@@ -6,11 +6,8 @@ function test () returns int {
 }
 
 type Person object {
-    public {
-        int age,
-        string name,
-    }
-
+    public int age,
+    public string name,
 };
 
 

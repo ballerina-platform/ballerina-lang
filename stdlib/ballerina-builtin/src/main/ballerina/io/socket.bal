@@ -26,13 +26,11 @@ documentation {
 }
 public type Socket object {
 
-    public {
-        @readonly ByteChannel channel;
-        @readonly int port;
-        @readonly int localPort;
-        @readonly string address;
-        @readonly string localAddress;
-    }
+    @readonly public ByteChannel channel;
+    @readonly public int port;
+    @readonly public int localPort;
+    @readonly public string address;
+    @readonly public string localAddress;
 
     documentation {
         Closes a socket connection.

@@ -18,10 +18,8 @@ documentation {
     Represents a channel which could be used to read/write characters through a given ByteChannel.
 }
 public type CharacterChannel object {
-    private {
-        ByteChannel channel;
-        string charset;
-    }
+    private ByteChannel channel;
+    private string charset;
 
     documentation {
         Constructs a CharacterChannel from a given ByteChannel and Charset.

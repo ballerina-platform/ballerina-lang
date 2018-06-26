@@ -20,9 +20,7 @@ documentation {
     Reference to the file location.
 }
 public type Path object {
-    private {
-        string root;
-    }
+    private string root;
 
     public new (root){
         init(root);

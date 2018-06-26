@@ -19,21 +19,19 @@ documentation {
 }
 public type Timer object {
 
-    private {
-        // The function which gets called when the timer goes off
-        (function() returns error?) onTrigger,
-        // The function that gets called if the onTrigger function returns an error
-        (function(error) returns ())? onError,
-        // Initial delay before the timer gets triggerred
-        int delay;
-        // Timer trigger interval
-        int interval;
-        // Unique task ID which will be used when this timer is stopped
-        string taskId;
-        // Keeps track whether the task is started to ensure that a started task cannot be started again
-        // unless it is stopped
-        boolean isRunning;
-    }
+    // The function which gets called when the timer goes off
+    private (function() returns error?) onTrigger,
+    // The function that gets called if the onTrigger function returns an error
+    private (function(error) returns ())? onError,
+    // Initial delay before the timer gets triggerred
+    private int delay;
+    // Timer trigger interval
+    private int interval;
+    // Unique task ID which will be used when this timer is stopped
+    private string taskId;
+    // Keeps track whether the task is started to ensure that a started task cannot be started again
+    // unless it is stopped
+    private boolean isRunning;
 
     // defaultable delay is -1, which means the delay will be the same as the interval
     public new(onTrigger, onError, interval, delay = -1) {}

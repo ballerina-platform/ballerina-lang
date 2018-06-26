@@ -6,18 +6,14 @@ function testFieldWithExpr() returns (int, string) {
 
 
 type Person object {
-    public {
-        int age = 90,
-        Employee ep = new(88, "sanjiva"),
-    }
+    public int age = 90,
+    public Employee ep = new(88, "sanjiva"),
 };
 
 
 type Employee object {
-    public {
-        int pp,
-        string name,
-    }
+    public int pp,
+    public string name,
 
     new (pp, name) {
 

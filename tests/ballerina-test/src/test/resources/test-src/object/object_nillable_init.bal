@@ -12,18 +12,18 @@ function test() {
 
 
 type Person object {
-    public {
-        int age,
-    }
+
+    public int age,
+
 };
 
 type Employee object {
-    public {
-        Person? p3 = new,
-        Person? p4 = new (),
-        Person? p5,
-        Person? p6,
-    }
+
+    public Person? p3 = new,
+    public Person? p4 = new (),
+    public Person? p5,
+    public Person? p6,
+
     new () {
         p5 = new;
         p6 = new();

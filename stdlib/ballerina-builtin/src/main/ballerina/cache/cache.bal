@@ -44,12 +44,10 @@ type CacheEntry record {
 documentation { Represents a cache. }
 public type Cache object {
 
-    private {
-        int capacity;
-        map<CacheEntry> entries;
-        int expiryTimeMillis;
-        float evictionFactor;
-    }
+    private int capacity;
+    private map<CacheEntry> entries;
+    private int expiryTimeMillis;
+    private float evictionFactor;
 
     public new(expiryTimeMillis = 900000, capacity = 100, evictionFactor = 0.25) {
         // Cache expiry time must be a positive value.

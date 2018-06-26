@@ -548,8 +548,8 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 3, "cannot infer type of the object from 'Person?'", 6, 18);
         BAssertUtil.validateError(result, 4, "cannot infer type of the object from 'Person?'", 8, 10);
         BAssertUtil.validateError(result, 5, "cannot infer type of the object from 'Person?'", 10, 10);
-        BAssertUtil.validateError(result, 6, "cannot infer type of the object from 'Person?'", 22, 22);
-        BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 23, 22);
+        BAssertUtil.validateError(result, 6, "cannot infer type of the object from 'Person?'", 22, 25);
+        BAssertUtil.validateError(result, 7, "cannot infer type of the object from 'Person?'", 23, 25);
         BAssertUtil.validateError(result, 8, "cannot infer type of the object from 'Person?'", 28, 14);
         BAssertUtil.validateError(result, 9, "cannot infer type of the object from 'Person?'", 29, 14);
     }

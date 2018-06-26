@@ -25,12 +25,8 @@ documentation {
 }
 public type JWTAuthProvider object {
 
-    public {
-        JWTAuthProviderConfig jwtAuthProviderConfig;
-    }
-    private {
-        cache:Cache authCache;
-    }
+    public JWTAuthProviderConfig jwtAuthProviderConfig;
+    private cache:Cache authCache;
 
     public new(jwtAuthProviderConfig) {
     }

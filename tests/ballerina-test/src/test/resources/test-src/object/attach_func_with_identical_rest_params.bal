@@ -1,7 +1,5 @@
 type Person object {
-    public {
-        string name;
-    }
+    public string name;
 
     public function foo(string... names) returns string;
 
