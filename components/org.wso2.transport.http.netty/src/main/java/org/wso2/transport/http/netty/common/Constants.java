@@ -317,6 +317,9 @@ public final class Constants {
     public static final String REMOTE_SERVER_CLOSED_WHILE_READING_INBOUND_RESPONSE
             = "Remote host closed the connection while reading inbound response";
 
+    public static final String REMOTE_CLIENT_CLOSED_CONNECTION = "Remote client closed the connection";
+
+
     public static final String PROMISED_STREAM_REJECTED_ERROR
             = "Promised stream is already rejected or stream is no longer valid";
 
