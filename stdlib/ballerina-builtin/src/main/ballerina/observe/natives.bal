@@ -59,16 +59,17 @@ public type Counter object {
  public {
   @readonly string name,
   @readonly string description,
-  @readonly map<string> tags,
+  @readonly map<string> metricTags,
   @readonly stream<CounterEvent> counterEvent;
  }
 
- public new(name, string? desc = "", map<string>? metricTags) {
+ public new(name, string? desc="", map<string>? tags) {
   match desc {
    string strDesc => description = strDesc;
+   () => description = "";
   }
-  match metricTags {
-   map<string> tagsMap => tags = tagsMap;
+  match tags {
+   map<string> tagsMap => metricTags = tagsMap;
   }
   initialize();
  }
@@ -83,7 +84,7 @@ public type Counter object {
 
  public function increment(int amount = 1) {
   int currentValue = nativeIncrement(amount);
-  json jsonTags = check <json>tags;
+  json jsonTags = check <json>metricTags;
   string strTags = jsonTags.toString();
   CounterEvent event = { name: name, desc: description, value: currentValue, tags: strTags };
   counterEvent.publish(event);
