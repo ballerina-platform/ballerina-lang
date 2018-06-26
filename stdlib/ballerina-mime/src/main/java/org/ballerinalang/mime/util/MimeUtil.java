@@ -25,6 +25,7 @@ import io.netty.util.internal.PlatformDependent;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
@@ -159,26 +160,38 @@ public class MimeUtil {
      */
     public static BMap<String, BValue> parseMediaType(BMap<String, BValue> mediaType, String contentType) {
         try {
+            BMap<String, BValue> parameterMap = new BMap<>();
+            BString suffix, primaryType, subType;
+
             if (contentType != null) {
                 MimeType mimeType = new MimeType(contentType);
-                mediaType.put(PRIMARY_TYPE_FIELD, new BString(mimeType.getPrimaryType()));
-                mediaType.put(SUBTYPE_FIELD, new BString(mimeType.getSubType()));
-                if (mimeType.getSubType() != null && mimeType.getSubType().contains(Constants.SUFFIX_ATTACHMENT)) {
-                    String suffix = mimeType.getSubType()
-                            .substring(mimeType.getSubType().lastIndexOf(Constants.SUFFIX_ATTACHMENT) + 1);
-                    mediaType.put(SUFFIX_FIELD, new BString(suffix));
+                primaryType = new BString(mimeType.getPrimaryType());
+
+                String subTypeStr = mimeType.getSubType();
+                subType = new BString(subTypeStr);
+                if (subTypeStr != null && subTypeStr.contains(Constants.SUFFIX_ATTACHMENT)) {
+                    suffix = new BString(
+                            subTypeStr.substring(subTypeStr.lastIndexOf(Constants.SUFFIX_ATTACHMENT) + 1));
+                } else {
+                    suffix = BTypes.typeString.getZeroValue();
                 }
+
                 MimeTypeParameterList parameterList = mimeType.getParameters();
                 Enumeration keys = parameterList.getNames();
-                BMap<String, BValue> parameterMap = new BMap<>();
 
                 while (keys.hasMoreElements()) {
                     String key = (String) keys.nextElement();
                     String value = parameterList.get(key);
                     parameterMap.put(key, new BString(value));
                 }
-                mediaType.put(PARAMETER_MAP_FIELD, parameterMap);
+            } else {
+                primaryType = suffix = subType = BTypes.typeString.getZeroValue();
             }
+
+            mediaType.put(PRIMARY_TYPE_FIELD, primaryType);
+            mediaType.put(SUBTYPE_FIELD, subType);
+            mediaType.put(SUFFIX_FIELD, suffix);
+            mediaType.put(PARAMETER_MAP_FIELD, parameterMap);
         } catch (MimeTypeParseException e) {
             throw new BallerinaException("Error while parsing Content-Type value: " + e.getMessage());
         }
@@ -252,8 +265,8 @@ public class MimeUtil {
             BMap<String, BValue> contentDispositionStruct =
                     (BMap<String, BValue>) entity.get(CONTENT_DISPOSITION_FIELD);
             if (contentDispositionStruct != null) {
-                String disposition = contentDispositionStruct.get(DISPOSITION_FIELD).stringValue();
-                if (disposition == null || disposition.isEmpty()) {
+                BValue disposition = contentDispositionStruct.get(DISPOSITION_FIELD);
+                if (disposition == null || disposition.stringValue().isEmpty()) {
                     String contentType = getBaseType(entity);
                     if (contentType != null && contentType.equals(MULTIPART_FORM_DATA)) {
                         dispositionBuilder.append(FORM_DATA_PARAM);

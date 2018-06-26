@@ -57,7 +57,7 @@ public class BLangVMStructs {
             if (values.length >= i + 1) {
                 value = getBValue(structFields[i].fieldType, values[i]);
             } else {
-                value = structFields[i].fieldType.getZeroValue();
+                value = structFields[i].fieldType.getEmptyValue();
             }
             bStruct.put(structFields[i].fieldName, value);
         }

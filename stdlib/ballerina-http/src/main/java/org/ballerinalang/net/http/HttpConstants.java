@@ -312,13 +312,14 @@ public class HttpConstants {
     public static final String SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED = "verifyHostname";
     public static final String SSL_CONFIG_ENABLE_SESSION_CREATION = "shareSession";
 
-    //Client Endpoint
+    //Client Endpoint (CallerActions)
+    public static final String CLIENT_ENDPOINT_SERVICE_URI = "serviceUri";
     public static final String CLIENT_ENDPOINT_CONFIG = "config";
     public static final int CLIENT_ENDPOINT_CONFIG_INDEX = 0;
     public static final int CLIENT_ENDPOINT_URL_INDEX = 0;
 
+    
     //Client Endpoint Config
-    public static final String URL_FIELD = "url";
     public static final String CLIENT_EP_CHUNKING = "chunking";
     public static final String CLIENT_EP_ENDPOINT_TIMEOUT = "timeoutMillis";
     public static final String CLIENT_EP_IS_KEEP_ALIVE = "keepAlive";

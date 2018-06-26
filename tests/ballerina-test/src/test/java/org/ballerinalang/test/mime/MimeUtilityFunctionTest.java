@@ -116,7 +116,7 @@ public class MimeUtilityFunctionTest {
         mediaType.put(SUBTYPE_FIELD, new BString("test+xml"));
         BMap map = new BMap();
         map.put("charset", new BString("utf-8"));
-        mediaType.put(PRIMARY_TYPE_FIELD, map);
+        mediaType.put(PARAMETER_MAP_FIELD, map);
         BValue[] args = {mediaType};
         BValue[] returns = BRunUtil.invoke(compileResult, "testToStringOnMediaType", args);
         Assert.assertEquals(returns.length, 1);

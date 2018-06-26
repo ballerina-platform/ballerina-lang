@@ -51,7 +51,7 @@ public class AggregationTest {
 
         BMap<String, BValue> statusCount0 = (BMap<String, BValue>) outputStatusCountArray[0];
 
-        Assert.assertEquals(statusCount0.get("status"), "single");
+        Assert.assertEquals(statusCount0.get("status").stringValue(), "single");
         Assert.assertEquals(((BInteger) statusCount0.get("totalCount")).intValue(), 2);
     }
 

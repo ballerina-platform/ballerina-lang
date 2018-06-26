@@ -52,8 +52,8 @@ public class WindowTest {
         BMap<String, BValue> statusCount0 = (BMap<String, BValue>) outputStatusCountArray[0];
         BMap<String, BValue> statusCount1 = (BMap<String, BValue>) outputStatusCountArray[1];
 
-        Assert.assertEquals(((BInteger) statusCount0.get("age")).intValue(), 2);
-        Assert.assertEquals(((BInteger) statusCount1.get("age")).intValue(), 1);
+        Assert.assertEquals(((BInteger) statusCount0.get("totalCount")).intValue(), 2);
+        Assert.assertEquals(((BInteger) statusCount1.get("totalCount")).intValue(), 1);
     }
 
 }

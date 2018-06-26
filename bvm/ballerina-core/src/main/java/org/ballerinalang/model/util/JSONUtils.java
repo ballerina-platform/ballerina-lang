@@ -289,12 +289,6 @@ public class JSONUtils {
         BJSON bjson = new BJSON(new JsonNode(Type.OBJECT));
         JsonNode jsonNode = bjson.value();
         BStructureType structType = (BStructureType) struct.getType();
-
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int refRegIndex = -1;
         for (BField structField : structType.getFields()) {
             String key = structField.getFieldName();
             BType fieldType = structField.getFieldType();

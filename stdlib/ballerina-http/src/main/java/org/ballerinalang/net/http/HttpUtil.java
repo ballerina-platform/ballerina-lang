@@ -232,10 +232,12 @@ public class HttpUtil {
             if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
                 isByteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
             }
-            if (entity != null && isEntityBodyRequired && !isByteChannelAlreadySet) {
+            if (isEntityBodyRequired && !isByteChannelAlreadySet) {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
-            if (entity == null) {
+            
+            // Entity cannot be null, since it is not a nullable field in http:Request or http:Response
+            if (entity.isEmpty()) {
                 entity = createNewEntity(context, httpMessageStruct);
             }
             return new BValue[]{entity};

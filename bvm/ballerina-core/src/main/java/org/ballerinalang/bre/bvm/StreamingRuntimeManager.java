@@ -95,6 +95,8 @@ public class StreamingRuntimeManager {
             @Override
             public void receive(Event[] events) {
                 for (Event event : events) {
+                    // Here it is assumed that an event data will contain all the fields
+                    // of the record. Otherwise, some fields will be missing from the record value.
                     BMap<String, BValue> output = new BMap<String, BValue>(structType);
                     BField[] fields = structType.getFields();
                     int i = 0;
@@ -108,6 +110,7 @@ public class StreamingRuntimeManager {
                         } else if (field instanceof String) {
                             output.put(fields[i].fieldName, new BString((String) field));
                         }
+                        i++;
                     }
                     List<BValue> argsList = new ArrayList<>();
                     argsList.addAll(closureArgs);

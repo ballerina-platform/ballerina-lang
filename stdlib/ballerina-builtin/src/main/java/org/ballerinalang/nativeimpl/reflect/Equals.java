@@ -168,48 +168,6 @@ public class Equals extends BlockingNativeCallableUnit {
                 return false;
             }
         }
-        
-//        // Checking equality for integer fields.
-//        for (int i = 0; i < structType.getFieldTypeCount()[0]; i++) {
-//            if (lhsStruct.getIntField(i) != rhsStruct.getIntField(i)) {
-//                return false;
-//            }
-//        }
-//        
-//        // Checking equality for float fields.
-//        for (int i = 0; i < structType.getFieldTypeCount()[1]; i++) {
-//            if (Double.compare(lhsStruct.getFloatField(i), rhsStruct.getFloatField(i)) != 0) {
-//                return false;
-//            }
-//        }
-//        
-//        // Checking equality for string fields.
-//        for (int i = 0; i < structType.getFieldTypeCount()[2]; i++) {
-//            if (!lhsStruct.getStringField(i).equals(rhsStruct.getStringField(i))) {
-//                return false;
-//            }
-//        }
-//        
-//        // Checking equality for boolean fields.
-//        for (int i = 0; i < structType.getFieldTypeCount()[3]; i++) {
-//            if (lhsStruct.getBooleanField(i) != rhsStruct.getBooleanField(i)) {
-//                return false;
-//            }
-//        }
-//        
-//        // Checking equality for byte fields.
-//        for (int i = 0; i < structType.getFieldTypeCount()[4]; i++) {
-//            if (!Arrays.equals(lhsStruct.getBlobField(i), rhsStruct.getBlobField(i))) {
-//                return false;
-//            }
-//        }
-//        
-//        // Checking equality for refs fields.
-//        for (int i = 0; i < structType.getFieldTypeCount()[5]; i++) {
-//            if (!isEqual(lhsStruct.getRefField(i), rhsStruct.getRefField(i))) {
-//                return false;
-//            }
-//        }
 
         return true;
     }

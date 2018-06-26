@@ -16,10 +16,10 @@
  */
 package org.ballerinalang.launcher.util;
 
+import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.launcher.LauncherUtils;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -365,8 +365,7 @@ public class BCompileUtil {
                                                           String structName) {
         PackageInfo structPackageInfo = programFile.getPackageInfo(packagePath);
         StructureTypeInfo typeInfo = structPackageInfo.getStructInfo(structName);
-        BStructureType structType = typeInfo.getType();
-        return new BMap<>(structType);
+        return BLangVMStructs.createBStruct(typeInfo);
     }
 
 

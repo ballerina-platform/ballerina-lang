@@ -67,10 +67,10 @@ import java.net.URL;
 import java.util.Optional;
 
 import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.CLIENT_ENDPOINT_SERVICE_URI;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_PACKAGE_PATH;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST;
-import static org.ballerinalang.net.http.HttpConstants.URL_FIELD;
 import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 import static org.wso2.transport.http.netty.common.Constants.ENCODING_DEFLATE;
@@ -155,7 +155,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
             outboundRequest.setHeader(HttpConstants.HEADER_X_REGISTER_AT_URL, localTransactionInfo.getURL());
         }
         try {
-            String uri = connector.get(URL_FIELD).stringValue() + path;
+            String uri = connector.get(CLIENT_ENDPOINT_SERVICE_URI).stringValue() + path;
             URL url = new URL(uri);
 
             int port = getOutboundReqPort(url);
@@ -236,7 +236,7 @@ public abstract class AbstractHTTPAction implements NativeCallableUnit {
     }
 
     private void validateParams(BMap<String, BValue> connector) {
-        if (connector == null || connector.get(URL_FIELD) == null) {
+        if (connector == null || connector.get(CLIENT_ENDPOINT_SERVICE_URI) == null) {
             throw new BallerinaException("Connector parameters not defined correctly.");
         }
     }
