@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.completions.resolvers;
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.AnnotationAttachmentMetaInfo;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.common.utils.completion.BLangRecordLiteralUtil;
 import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
@@ -36,7 +36,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -54,7 +53,8 @@ public class BLangAnnotationAttachmentContextResolver extends AbstractItemResolv
         BLangNode symbolEnvNode = ctx.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         if (symbolEnvNode instanceof BLangAnnotationAttachment
                 && ((BLangAnnotationAttachment) symbolEnvNode).expr instanceof BLangRecordLiteral) {
-            return findAllFields((BLangRecordLiteral) ((BLangAnnotationAttachment) symbolEnvNode).expr, ctx);
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) ((BLangAnnotationAttachment) symbolEnvNode).expr;
+            return BLangRecordLiteralUtil.getFieldsForMatchingRecord(recordLiteral, ctx);
         } else if (symbolEnvNode instanceof BLangAnnotationAttachment
                 && ctx.get(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY) != null) {
             return findAllFieldsFromMetaInfo(ctx);
@@ -62,48 +62,12 @@ public class BLangAnnotationAttachmentContextResolver extends AbstractItemResolv
 
         return new ArrayList<>();
     }
-
-    /**
-     * Find all the struct fields for the record literal.
-     * @param recordLiteral             Record Literal
-     * @param context                   Completion Context
-     * @return {@link CompletionItem}   List of Completion Items
-     */
-    private ArrayList<CompletionItem> findAllFields(BLangRecordLiteral recordLiteral, LSContext context) {
-        ArrayList<CompletionItem> completionItems = new ArrayList<>();
-        DiagnosticPos nodePos = CommonUtil.toZeroBasedPosition(recordLiteral.getPosition());
-        int line = context.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-        int nodeStartLine = nodePos.getStartLine();
-        int nodeEndLine = nodePos.getEndLine();
-
-        for (BLangRecordLiteral.BLangRecordKeyValue keyValuePair : recordLiteral.keyValuePairs) {
-            if (keyValuePair.valueExpr.type instanceof BRecordType) {
-                DiagnosticPos exprPos = CommonUtil.toZeroBasedPosition(keyValuePair.valueExpr.getPosition());
-                int exprStartLine = exprPos.getStartLine();
-                int exprEndLine = exprPos.getEndLine();
-
-                if (exprStartLine < line && exprEndLine > line
-                        && keyValuePair.valueExpr instanceof BLangRecordLiteral) {
-                    return findAllFields((BLangRecordLiteral) keyValuePair.valueExpr, context);
-                }
-            }
-        }
-
-        if (nodeStartLine < line && nodeEndLine > line && recordLiteral.type instanceof BRecordType) {
-            completionItems.addAll(
-                    CommonUtil.getStructFieldPopulateCompletionItems(((BRecordType) recordLiteral.type).fields)
-            );
-            completionItems.add(CommonUtil.getFillAllStructFieldsItem(((BRecordType) recordLiteral.type).fields));
-        }
-
-        return completionItems;
-    }
     
     private ArrayList<CompletionItem> findAllFieldsFromMetaInfo(LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         AnnotationAttachmentMetaInfo annotationMeta = ctx.get(CompletionKeys.ANNOTATION_ATTACHMENT_META_KEY);
         HashMap<PackageID, List<BAnnotationSymbol>> annotationMap =
-                LSAnnotationCache.getInstance().getAnnotationMapForType(annotationMeta.getAttachmentPoint());
+                LSAnnotationCache.getInstance().getAnnotationMapForType(annotationMeta.getAttachmentPoint(), ctx);
         BAnnotationSymbol filteredAnnotation = null;
         for (Map.Entry<PackageID, List<BAnnotationSymbol>> packageIDListEntry : annotationMap.entrySet()) {
             List<Name> pkgNameComps = packageIDListEntry.getKey().getNameComps();
