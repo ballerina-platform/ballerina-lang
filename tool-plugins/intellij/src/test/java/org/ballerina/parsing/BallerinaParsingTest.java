@@ -67,7 +67,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
             File resource = path.toFile();
             if (!resource.exists()) {
                 return;
-            } else if (resource.isFile() && resource.getName().toString().endsWith(myFileExt)) {
+            } else if (resource.isFile() && resource.getName().endsWith(myFileExt)) {
                 doTest(resource, true);
 
                 //if the resource is a directory, recursively test the sub directories/files accordingly

@@ -62,12 +62,6 @@ public class BallerinaModuleType extends ModuleType<BallerinaModuleBuilder> {
 
     @Nullable
     @Override
-    public Icon getBigIcon() {
-        return BallerinaIcons.ICON;
-    }
-
-    @Nullable
-    @Override
     public Icon getNodeIcon(boolean isOpened) {
         return BallerinaIcons.ICON;
     }

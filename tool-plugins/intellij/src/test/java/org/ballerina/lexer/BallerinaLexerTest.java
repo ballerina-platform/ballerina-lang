@@ -39,12 +39,8 @@ public class BallerinaLexerTest extends LexerTestCase {
         return "src/test/resources/testData/lexer/BBE/";
     }
 
-    private String getExpectedResultsDirectoryPath() {
-        return "src/test/resources/testData/lexer/expectedResults/";
-    }
-
     //this test validates the lexer token generation for all the ballerina-by-example files
-    public void testBBE() throws Exception {
+    public void testBBE() throws RuntimeException {
 
         //This flag is used to include/filter BBE testerina files in lexer testing
         boolean includeTests = false;
@@ -58,7 +54,7 @@ public class BallerinaLexerTest extends LexerTestCase {
             File resource = path.toFile();
             if (!resource.exists()) {
                 return;
-            } else if (resource.isFile() && resource.getName().toString().endsWith(".bal")) {
+            } else if (resource.isFile() && resource.getName().endsWith(".bal")) {
                 doTestFile(resource);
 
                 //if the resource is a directory, recursively test the sub directories/files accordingly
@@ -78,7 +74,7 @@ public class BallerinaLexerTest extends LexerTestCase {
         try {
             String text = FileUtil.loadFile(sourceFile, CharsetToolkit.UTF8);
             String actual = printTokens(StringUtil.convertLineSeparators(text.trim()), 0);
-            String pathname = getExpectedResultsDirectoryPath() + sourceFile.getName().replace(".bal", "") + ".txt";
+            String pathname = sourceFile.getAbsolutePath().replace(".bal", "") + ".txt";
             File expectedResultFile = new File(pathname);
             assertSameLinesWithFile(expectedResultFile.getAbsolutePath(), actual);
         } catch (IOException e) {
