@@ -268,9 +268,9 @@ public class JSONUtils {
     }
     
     /**
-     * Convert {@link BStruct} to {@link BJSON}.
+     * Convert Struct to {@link BJSON}.
      *
-     * @param struct {@link BStruct} to be converted to {@link BJSON}
+     * @param struct {@link BMap} to be converted to {@link BJSON}
      * @return JSON representation of the provided array
      */
     public static BJSON convertStructToJSON(BMap<String, BValue> struct) {
@@ -278,9 +278,9 @@ public class JSONUtils {
     }
 
     /**
-     * Convert {@link BStruct} to {@link BJSON}.
+     * Convert Struct value to {@link BJSON}.
      *
-     * @param struct {@link BStruct} to be converted to {@link BJSON}
+     * @param struct {@link BMap} to be converted to {@link BJSON}
      * @param targetType the target JSON type to be convert to
      * @return JSON representation of the provided array
      */
@@ -705,7 +705,7 @@ public class JSONUtils {
      *
      * @param bjson      JSON to convert
      * @param structType Type (definition) of the target struct
-     * @return If the provided JSON is of object-type, this method will return a {@link BStruct} containing the values
+     * @return If the provided JSON is of object-type, this method will return a {@link BMap} containing the values
      * of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */
     public static BMap<String, BValue> convertJSONToStruct(BJSON bjson, BStructureType structType) {
@@ -717,7 +717,7 @@ public class JSONUtils {
      *
      * @param jsonNode   JSON to convert
      * @param structType Type (definition) of the target struct
-     * @return If the provided JSON is of object-type, this method will return a {@link BStruct} containing the values
+     * @return If the provided JSON is of object-type, this method will return a {@link BMap} containing the values
      * of the JSON object. Otherwise the method will throw a {@link BallerinaException}.
      */
     public static BMap<String, BValue> convertJSONNodeToStruct(JsonNode jsonNode, BStructureType structType) {
