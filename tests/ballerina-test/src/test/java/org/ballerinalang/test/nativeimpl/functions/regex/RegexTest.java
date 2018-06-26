@@ -35,6 +35,8 @@ public class RegexTest {
 
     private static final String s1 = "WSO2 Inc.";
     private CompileResult result;
+    private static final String CARRIAGE_RETURN_CHAR = "\r";
+    private static final String EMPTY_STRING = "";
 
     @BeforeClass
     public void setup() {
@@ -43,7 +45,7 @@ public class RegexTest {
 
     @Test(description = "Test for executing on matches regex method")
     public void testMatches() {
-        BValue[] args = {new BString(s1), new BString("WSO2.*")};
+        BValue[] args = { new BString(s1), new BString("WSO2.*") };
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), true);
@@ -51,7 +53,7 @@ public class RegexTest {
 
     @Test(description = "Test for executing on matches regex method -  negative case")
     public void testMatchesNegative() {
-        BValue[] args = {new BString("Virtusa"), new BString("WSO2.*")};
+        BValue[] args = { new BString("Virtusa"), new BString("WSO2.*") };
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertTrue(returns[0] instanceof BBoolean);
         Assert.assertEquals(((BBoolean) returns[0]).booleanValue(), false);
@@ -59,7 +61,7 @@ public class RegexTest {
 
     @Test(description = "Test for executing on find all regex method")
     public void testFindAll() {
-        BValue[] args = {new BString("This is a sentence."), new BString("[a-zA-Z]*is")};
+        BValue[] args = { new BString("This is a sentence."), new BString("[a-zA-Z]*is") };
         BValue[] returns = BRunUtil.invoke(result, "findAll", args);
         Assert.assertTrue(returns[0] instanceof BStringArray);
         BStringArray bStringArray = (BStringArray) returns[0];
@@ -69,8 +71,9 @@ public class RegexTest {
 
     @Test(description = "Test for executing on replace all regex method")
     public void testReplaceAllRgx() {
-        BValue[] args = {new BString("abc is not abc as abc anymore"), new BString("[a-zA-Z]*bc"),
-                new BString("xyz")};
+        BValue[] args = {
+                new BString("abc is not abc as abc anymore"), new BString("[a-zA-Z]*bc"), new BString("xyz")
+        };
         BValue[] returns = BRunUtil.invoke(result, "replaceAllRgx", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "xyz is not xyz as xyz anymore");
@@ -78,8 +81,9 @@ public class RegexTest {
 
     @Test(description = "Test for executing on replace first regex method")
     public void testReplaceFirstRgx() {
-        BValue[] args = {new BString("abc is not abc as abc anymore"), new BString("[a-zA-Z]*bc"),
-                new BString("xyz")};
+        BValue[] args = {
+                new BString("abc is not abc as abc anymore"), new BString("[a-zA-Z]*bc"), new BString("xyz")
+        };
         BValue[] returns = BRunUtil.invoke(result, "replaceFirstRgx", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "xyz is not abc as abc anymore");
@@ -87,28 +91,29 @@ public class RegexTest {
 
     @Test(description = "Test for executing on invalid regex pattern")
     public void testInvalidPattern() {
-        BValue[] args = {new BString("[")};
+        BValue[] args = { new BString("[") };
         BValue[] returns = BRunUtil.invoke(result, "invalidPattern", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Unclosed character class near index 0\n" +
-                "[\n^");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0).replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+                "Unclosed character class near index 0\n[\n^");
     }
 
     @Test(description = "Test for executing regex functions on non-initialized pattern")
     public void testInvalidPatternWithMatch() {
-        BValue[] args = {new BString(s1), new BString("[")};
+        BValue[] args = { new BString(s1), new BString("[") };
         BValue[] returns = BRunUtil.invoke(result, "matches", args);
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "Unclosed character class near index 0\n" +
-                "[\n^");
+        Assert.assertEquals(((BStruct) returns[0]).getStringField(0).replaceAll(CARRIAGE_RETURN_CHAR, EMPTY_STRING),
+                "Unclosed character class near index 0\n[\n^");
     }
 
     @Test(description = "Test for executing multiple regex functions on same pattern")
     public void testMultipleReplaceFirst() {
-        BValue[] args = {new BString("abc is not abc as abc anymore"), new BString("[a-zA-Z]*bc"),
-                new BString("xyz")};
+        BValue[] args = {
+                new BString("abc is not abc as abc anymore"), new BString("[a-zA-Z]*bc"), new BString("xyz")
+        };
         BValue[] returns = BRunUtil.invoke(result, "multipleReplaceFirst", args);
         Assert.assertTrue(returns[0] instanceof BString);
         Assert.assertEquals(returns[0].stringValue(), "xyz is not xyz as abc anymore");

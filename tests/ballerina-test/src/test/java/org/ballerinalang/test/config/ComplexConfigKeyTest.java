@@ -27,6 +27,7 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,7 +42,8 @@ public class ComplexConfigKeyTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "config");
         Path ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", COMPLEX_BALLERINA_CONF);
 
@@ -53,7 +55,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test dotted table header with quoted entries")
-    public void testDottedTableHeaderWithQuotedEntries () {
+    public void testDottedTableHeaderWithQuotedEntries() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDottedTableHeaderWithQuotedEntries");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
@@ -61,7 +63,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test colon separated table header")
-    public void testColonSeparatedTableHeader () {
+    public void testColonSeparatedTableHeader() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testColonSeparatedTableHeader");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
@@ -69,7 +71,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test dotted key with quoted entries")
-    public void testDottedKeyWithQuotedEntries () {
+    public void testDottedKeyWithQuotedEntries() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testDottedKeyWithQuotedEntries");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
@@ -77,7 +79,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test slash separated key")
-    public void testSlashSeparatedKey () {
+    public void testSlashSeparatedKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSlashSeparatedKey");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
@@ -85,7 +87,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test slash separated header and key")
-    public void testSlashSeparatedHeaderAndKey () {
+    public void testSlashSeparatedHeaderAndKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSlashSeparatedHeaderAndKey");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
@@ -93,7 +95,7 @@ public class ComplexConfigKeyTest {
     }
 
     @Test(description = "test simple key")
-    public void testSimpleKey () {
+    public void testSimpleKey() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testSimpleKey");
         Assert.assertTrue(returns != null);
         // auth cache is disabled, hence should be null
