@@ -503,7 +503,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             // TODO: Re-evaluating the full data-set (array) when a change occur.
             if (varRefExpr.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
                 overridingAnalysis = false;
-                updatedVarRefTaintedState((BLangIndexBasedAccess) varRefExpr, varTaintedStatus);
+                updatedVarRefTaintedState(varRefExpr, varTaintedStatus);
                 overridingAnalysis = true;
             } else if (varRefExpr.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR) {
                 BLangFieldBasedAccess fieldBasedAccessExpr = (BLangFieldBasedAccess) varRefExpr;
@@ -604,9 +604,9 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangMatch matchStmt) {
         matchStmt.expr.accept(this);
-        TaintedStatus observedTainedStatus = this.taintedStatus;
+        TaintedStatus observedTaintedStatus = this.taintedStatus;
         matchStmt.patternClauses.forEach(clause -> {
-            setTaintedStatus(clause.variable.symbol, observedTainedStatus);
+            setTaintedStatus(clause.variable.symbol, observedTaintedStatus);
             clause.body.accept(this);
         });
     }
@@ -1026,10 +1026,10 @@ public class TaintAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
         xmlAttribute.name.accept(this);
-        TaintedStatus attrNameTainedStatus = this.taintedStatus;
+        TaintedStatus attrNameTaintedStatus = this.taintedStatus;
         xmlAttribute.value.accept(this);
-        TaintedStatus attrValueTainedStatus = this.taintedStatus;
-        this.taintedStatus = getCombinedTaintedStatus(attrNameTainedStatus, attrValueTainedStatus);
+        TaintedStatus attrValueTaintedStatus = this.taintedStatus;
+        this.taintedStatus = getCombinedTaintedStatus(attrNameTaintedStatus, attrValueTaintedStatus);
     }
 
     @Override
@@ -1750,8 +1750,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
             int defaultableParamCount = invokableSymbol.defaultableParams.size();
             for (int argIndex = 0; argIndex < invocationExpr.requiredArgs.size(); argIndex++) {
                 BLangExpression argExpr = invocationExpr.requiredArgs.get(argIndex);
-                TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(argIndex, invokableSymbol, invocationExpr,
-                        argExpr);
+                TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(argIndex, invokableSymbol,
+                        invocationExpr, argExpr);
                 if (argumentAnalysisResult == TaintedStatus.IGNORED) {
                     return;
                 } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
@@ -1775,8 +1775,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                             break;
                         }
                     }
-                    TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(paramIndex, invokableSymbol, invocationExpr,
-                            argExpr);
+                    TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(paramIndex, invokableSymbol,
+                            invocationExpr, argExpr);
                     if (argumentAnalysisResult == TaintedStatus.IGNORED) {
                         return;
                     } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
@@ -1791,8 +1791,8 @@ public class TaintAnalyzer extends BLangNodeVisitor {
                 BLangExpression argExpr = invocationExpr.restArgs.get(argIndex);
                 // Pick the index of the rest parameter in the invokable definition.
                 int paramIndex = requiredParamCount + defaultableParamCount;
-                TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(paramIndex, invokableSymbol, invocationExpr,
-                        argExpr);
+                TaintedStatus argumentAnalysisResult = analyzeInvocationArgument(paramIndex, invokableSymbol,
+                        invocationExpr, argExpr);
                 if (argumentAnalysisResult == TaintedStatus.IGNORED) {
                     return;
                 } else if (argumentAnalysisResult == TaintedStatus.TAINTED) {
