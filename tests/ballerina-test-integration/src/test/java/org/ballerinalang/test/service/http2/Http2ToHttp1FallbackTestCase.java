@@ -45,7 +45,7 @@ public class Http2ToHttp1FallbackTestCase extends IntegrationTestCase {
         ballerinaServer.startBallerinaServer(balFile);
     }
 
-    @Test(description = "Test HTTP/2.0 Server Push scenario")
+    @Test(description = "Test HTTP/2.0 to HTTP/1.1 server fallback scenario")
     public void testFallback() throws IOException {
         HttpResponse response = HttpClientRequest.doGet(ballerinaServer.getServiceURLHttp("hello"));
         Assert.assertEquals(response.getResponseCode(), 200, "Response code mismatched");

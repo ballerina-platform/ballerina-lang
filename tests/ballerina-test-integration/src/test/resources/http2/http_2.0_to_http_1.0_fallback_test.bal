@@ -15,7 +15,6 @@
 // under the License.package http2;
 
 import ballerina/http;
-import ballerina/log;
 
 endpoint http:Listener helloWorldEP {
     port: 9090,
@@ -32,7 +31,6 @@ service helloWorld bind helloWorldEP {
         path: "/"
     }
     sayHelloGet(endpoint caller, http:Request req) {
-
         http:Response res = new;
         res.setTextPayload("Version: " + untaint req.httpVersion);
         _ = caller->respond(res);
