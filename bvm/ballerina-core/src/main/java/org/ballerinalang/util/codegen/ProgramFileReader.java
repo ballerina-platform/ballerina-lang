@@ -85,8 +85,12 @@ public class ProgramFileReader {
         // Read PackageInfo entries
         int pkgInfoCount = dataInStream.readShort();
         for (int i = 0; i < pkgInfoCount; i++) {
-            pkgInfoReader.readPackageInfo();
+            PackageInfoReader pkgReader = new PackageInfoReader(dataInStream, programFile);
+            pkgReader.readPackageInfo();
         }
+
+        //Resolve program file CP entries
+        pkgInfoReader.resolveCPEntries(programFile.getEntryPackage());
 
         PackageInfo entryPkg = programFile.getPackageInfo(programFile.getEntryPkgName());
         programFile.setEntryPackage(entryPkg);

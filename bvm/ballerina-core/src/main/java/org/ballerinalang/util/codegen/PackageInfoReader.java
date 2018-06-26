@@ -1474,7 +1474,7 @@ public class PackageInfoReader {
         packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
     }
 
-    private void resolveCPEntries(PackageInfo currentPackageInfo) {
+    void resolveCPEntries(PackageInfo currentPackageInfo) {
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
             PackageInfo packageInfo;
             StructureRefCPEntry structureRefCPEntry;
