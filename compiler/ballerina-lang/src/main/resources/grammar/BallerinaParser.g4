@@ -83,15 +83,7 @@ typeDefinition
     ;
 
 objectBody
-    : publicObjectFields? privateObjectFields? objectInitializer? objectFunctions?
-    ;
-
-publicObjectFields
-    :   PUBLIC LEFT_BRACE fieldDefinition* RIGHT_BRACE
-    ;
-
-privateObjectFields
-    :   PRIVATE LEFT_BRACE fieldDefinition* RIGHT_BRACE
+    :   objectFieldDefinition* objectInitializer? objectFunctions?
     ;
 
 objectInitializer
@@ -106,7 +98,10 @@ objectFunctions
     :   objectFunctionDefinition+
     ;
 
-// TODO merge with fieldDefinition later
+objectFieldDefinition
+    :   annotationAttachment* documentationAttachment? deprecatedAttachment? (PUBLIC | PRIVATE)? typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
+    ;
+
 fieldDefinition
     :   annotationAttachment* typeName Identifier (ASSIGN expression)? (COMMA | SEMICOLON)
     ;

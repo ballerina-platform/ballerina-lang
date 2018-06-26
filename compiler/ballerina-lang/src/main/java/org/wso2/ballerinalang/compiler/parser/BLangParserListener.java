@@ -447,33 +447,33 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * <p>The default implementation does nothing.</p>
-     */
-    @Override
-    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
-    }
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * <p>The default implementation does nothing.</p>
+//     */
+//    @Override
+//    public void exitPublicObjectFields(BallerinaParser.PublicObjectFieldsContext ctx) {
+//        if (ctx.exception != null) {
+//            return;
+//        }
+//
+//        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+//    }
+//
+//    /**
+//     * {@inheritDoc}
+//     *
+//     * <p>The default implementation does nothing.</p>
+//     */
+//    @Override
+//    public void exitPrivateObjectFields(BallerinaParser.PrivateObjectFieldsContext ctx) {
+//        if (ctx.exception != null) {
+//            return;
+//        }
+//
+//        this.pkgBuilder.addObjectFieldsBlock(getWS(ctx));
+//    }
 
     /**
      * {@inheritDoc}
@@ -537,13 +537,36 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Set<Whitespace> ws = getWS(ctx);
         String name = ctx.Identifier().getText();
         boolean exprAvailable = ctx.expression() != null;
-        if (ctx.parent instanceof BallerinaParser.PrivateObjectFieldsContext) {
-            this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable,
-                    ctx.annotationAttachment().size(), true);
-            return;
-        }
         this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable,
                 ctx.annotationAttachment().size(), false);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>The default implementation does nothing.</p>
+     */
+    @Override
+    public void exitObjectFieldDefinition(BallerinaParser.ObjectFieldDefinitionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        DiagnosticPos currentPos = getCurrentPos(ctx);
+        Set<Whitespace> ws = getWS(ctx);
+        String name = ctx.Identifier().getText();
+        boolean exprAvailable = ctx.expression() != null;
+
+
+        boolean docExists = ctx.documentationAttachment() != null;
+        boolean deprecatedDocExists = ctx.deprecatedAttachment() != null;
+        int annotationCount = ctx.annotationAttachment().size();
+
+        boolean isPrivate = ctx.PRIVATE() != null;
+        boolean isPublic = ctx.PUBLIC() != null;
+
+        this.pkgBuilder.addFieldVariable(currentPos, ws, name, exprAvailable, docExists,
+                deprecatedDocExists, annotationCount, isPrivate, isPublic);
     }
 
     /**
