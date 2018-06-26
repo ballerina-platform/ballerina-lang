@@ -19,15 +19,13 @@ public type SimpleSelect object {
             index += 1;
         }
         if (index > 0) {
-            io:println("DDDDDDD");
             nextProcessorPointer(newStreamEventArr);
         }
 
     }
 };
 
-public function createSimpleSelect(function (StreamEvent[]) nextProcPointer, function(any o) returns any selectFunc)
-        returns SimpleSelect {
+public function createSimpleSelect(function (StreamEvent[]) nextProcPointer, function(any o) returns any selectFunc) returns SimpleSelect {
     SimpleSelect simpleSelect = new(nextProcPointer, selectFunc);
     return simpleSelect;
 }

@@ -66,6 +66,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 /**
  * Class responsible for desugar an iterable chain into actual Ballerina code.
@@ -95,11 +96,11 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private SymbolEnv env;
     private List<BLangStatement> stmts;
     private Set<BVarSymbol> closureVarSymbols = new LinkedHashSet<>();
-    private BVarSymbol outputProcessInvokableTypeVarSymbol;
-    private BVarSymbol filterInvokableTypeVarSymbol;
     private BType inputStreamEventType;
     private BLangExpression filterConditionalExpression;
     private BLangVariable filterTypeCastedVariable;
+    private Stack<BVarSymbol> nextProcessVarSymbolStack = new Stack<>();
+
 
     private StreamingCodeDesugar(CompilerContext context) {
         context.put(STREAMING_DESUGAR_KEY, this);
@@ -133,6 +134,12 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStreamingQueryStatement streamingQueryStatement) {
+
+        closureVarSymbols = new LinkedHashSet<>();
+        inputStreamEventType = null;
+        filterConditionalExpression = null;
+        filterTypeCastedVariable = null;
+
 
         //Construct the elements to publish events to output stream
         BLangStreamAction streamAction = (BLangStreamAction) streamingQueryStatement.getStreamingAction();
@@ -235,9 +242,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 scope.lookup(new Name("createOutputProcess")).symbol;
 
         BType outputProcessInvokableType = outputProcessInvokableSymbol.type.getReturnType();
-        outputProcessInvokableTypeVarSymbol = new BVarSymbol(0,
+        BVarSymbol outputProcessInvokableTypeVarSymbol = new BVarSymbol(0,
                 new Name(getVariableName(OUTPUT_PROCESS_FUNC_REFERENCE)), outputProcessInvokableSymbol.pkgID,
                 outputProcessInvokableType, env.scope.owner);
+        nextProcessVarSymbolStack.push(outputProcessInvokableTypeVarSymbol);
 
         List<BLangExpression> args = new ArrayList<>();
         args.add(outputStreamFunctionSimpleVarRef);
@@ -337,6 +345,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         //-------- Function invocation to call output process
 
+        BVarSymbol filterInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
         List<BAttachedFunction> attachedFunctionsList = ((BObjectTypeSymbol)
                 (filterInvokableTypeVarSymbol).type.tsymbol).attachedFuncs;
         BInvokableSymbol nextProcessInvokableSymbol = null;
@@ -460,6 +469,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaBody.stmts.add(returnStmt);
 
         //Create event filter definition
+        BVarSymbol outputProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
         List<BAttachedFunction> attachedFunctionsList = ((BObjectTypeSymbol)
                 (outputProcessInvokableTypeVarSymbol).type.tsymbol).attachedFuncs;
         BInvokableSymbol nextProcessInvokableSymbol = null;
@@ -482,9 +492,10 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 scope.lookup(new Name("createFilter")).symbol;
 
         BType filterInvokableType = filterInvokableSymbol.type.getReturnType();
-        filterInvokableTypeVarSymbol = new BVarSymbol(0,
+        BVarSymbol filterInvokableTypeVarSymbol = new BVarSymbol(0,
                 new Name(getVariableName(FILTER_FUNC_REFERENCE)), filterInvokableSymbol.pkgID,
                 filterInvokableType, env.scope.owner);
+        nextProcessVarSymbolStack.push(filterInvokableTypeVarSymbol);
 
         List<BLangExpression> args = new ArrayList<>();
         args.add(outputProcessMethodAccess);

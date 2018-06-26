@@ -5,7 +5,7 @@ public type GroupBy object {
         map groupedStreamEvents;
     }
 
-    new (nextProcessorPointer, groupByFields) {
+    new(nextProcessorPointer, groupByFields) {
 
     }
 
@@ -58,6 +58,6 @@ public type GroupBy object {
 };
 
 public function createGroupBy(function(StreamEvent[]) nextProcPointer, string[] groupByFields) returns GroupBy {
-    GroupBy groupBy = new (nextProcPointer, groupByFields);
+    GroupBy groupBy = new(nextProcPointer, groupByFields);
     return groupBy;
 }

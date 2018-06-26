@@ -23,7 +23,6 @@ public type Filter object {
         if (index > 0) {
             nextProcessorPointer(newStreamEventArr);
         }
-        io:println("AAAAA");
     }
 };
 
