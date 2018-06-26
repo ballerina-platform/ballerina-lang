@@ -1,4 +1,4 @@
-type Person {
+type Person record {
     string name;
     int age;
     Person | () parent;
@@ -11,18 +11,18 @@ type Person {
     Person[]|() children;
 };
 
-type Person2 {
+type Person2 record {
     string name;
     int age;
 };
 
-type Person3 {
+type Person3 record {
     string name;
     int age;
     string gender;
 };
 
-type Student {
+type Student record {
     string name;
     int age;
 };
@@ -194,7 +194,7 @@ function testMapWithIncompatibleArrayToStruct () returns (Person) {
     return p;
 }
 
-type Employee {
+type Employee record {
     string name;
     int age;
     Person partner;
@@ -314,7 +314,7 @@ function testJsonArrayToStruct () returns (Person) {
     return p;
 }
 
-type Info {
+type Info record {
     map foo;
 };
 
@@ -368,12 +368,12 @@ function testIncompatibleJsonToBoolean () returns (boolean) {
     return value;
 }
 
-type Address {
+type Address record {
     string city;
     string country;
 };
 
-type AnyArray {
+type AnyArray record {
     any[] a;
 };
 
@@ -383,7 +383,7 @@ function testJsonToAnyArray () returns (AnyArray) {
     return value;
 }
 
-type IntArray {
+type IntArray record {
     int[] a;
 };
 
@@ -394,7 +394,7 @@ function testJsonToIntArray () returns (IntArray) {
 }
 
 
-type StringArray {
+type StringArray record {
     string[]? a;
 };
 
@@ -410,7 +410,7 @@ function testJsonIntArrayToStringArray () returns (StringArray) {
     return a;
 }
 
-type XmlArray {
+type XmlArray record {
     xml[] a;
 };
 
@@ -470,7 +470,7 @@ function testIncompatibleJsonToStructWithErrors () returns (Person | error) {
     return p;
 }
 
-type PersonA {
+type PersonA record {
     string name;
     int age;
 };
@@ -483,7 +483,7 @@ function JsonToStructWithErrors () returns (PersonA | error) {
     return pA;
 }
 
-type PhoneBook {
+type PhoneBook record {
     string[] names;
 };
 
@@ -493,13 +493,13 @@ function testStructWithStringArrayToJSON () returns (json) {
     return phonebookJson;
 }
 
-type person {
+type person record {
     string fname;
     string lname;
     int age;
 };
 
-type movie {
+type movie record {
     string title;
     int year;
     string released;
@@ -525,7 +525,7 @@ function testStructToMapWithRefTypeArray () returns (map, int) {
     return (m, writers[0].age);
 }
 
-type StructWithDefaults {
+type StructWithDefaults record {
     string s = "string value";
     int a = 45;
     float f = 5.3;
@@ -541,7 +541,7 @@ function testEmptyJSONtoStructWithDefaults () returns (StructWithDefaults | erro
     return testStruct;
 }
 
-type StructWithoutDefaults {
+type StructWithoutDefaults record {
     string s;
     int a;
     float f;
@@ -608,7 +608,7 @@ function structWithComplexMapToJson() returns (json | error) {
     return js;
 }
 
-type ComplexArrayStruct{
+type ComplexArrayStruct record {
     int[] a;
     float[] b;
     boolean[] c;
@@ -660,7 +660,7 @@ function testJsonToMapConstrained1() returns map {
     return check <map<string>> j;
 }
 
-type T1 {
+type T1 record {
     int x;
     int y;
 };
@@ -687,7 +687,7 @@ function testJsonToMapConstrainedFail() returns map {
     return m;
 }
 
-type T2 {
+type T2 record {
   int x;
   int y;
   int z;
@@ -716,7 +716,7 @@ function testStructArrayConversion2() returns T2 {
     return b[0];
 }
 
-public type T3 {
+public type T3 record {
   int x,
   int y,
 };
@@ -811,7 +811,7 @@ function testArrayToJson2() returns json {
     return j;
 }
 
-public type TX {
+public type TX record {
   int x,
   int y,
   blob b,
@@ -858,7 +858,7 @@ function anyToFloat() returns float {
     return check <float> a;
 }
 
-type A {
+type A record {
     float f;
 };
 

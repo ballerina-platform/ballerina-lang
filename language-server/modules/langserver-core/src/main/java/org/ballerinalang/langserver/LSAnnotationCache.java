@@ -15,11 +15,12 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSContextManager;
 import org.ballerinalang.langserver.compiler.LSPackageCache;
 import org.ballerinalang.langserver.compiler.LSPackageLoader;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
-import org.ballerinalang.model.AttachmentPoint;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.slf4j.Logger;
@@ -55,7 +56,9 @@ public class LSAnnotationCache {
     private static HashMap<PackageID, List<BAnnotationSymbol>> serviceAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> resourceAnnotations = new HashMap<>();
     private static HashMap<PackageID, List<BAnnotationSymbol>> functionAnnotations = new HashMap<>();
+    private static HashMap<PackageID, List<BAnnotationSymbol>> endpointAnnotations = new HashMap<>();
     private static LSAnnotationCache lsAnnotationCache = null;
+    private static List<PackageID> processedPackages = new ArrayList<>();
     
     private LSAnnotationCache() {
     }
@@ -119,26 +122,44 @@ public class LSAnnotationCache {
         return functionAnnotations;
     }
 
+    public static HashMap<PackageID, List<BAnnotationSymbol>> getEndpointAnnotations() {
+        return endpointAnnotations;
+    }
+
     /**
      * Get the annotation map for the given type.
      * @param attachmentPoint   Attachment point
      * @return {@link HashMap}  Map of annotation lists
      */
-    public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(AttachmentPoint attachmentPoint) {
+    public HashMap<PackageID, List<BAnnotationSymbol>> getAnnotationMapForType(String attachmentPoint, LSContext ctx) {
         HashMap<PackageID, List<BAnnotationSymbol>> annotationMap;
+        
+        // Check whether the imported packages in the current bLang package has been already processed
+        ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).getImports()
+                .forEach(bLangImportPackage -> {
+                    if (!isPackageProcessed(bLangImportPackage.symbol.pkgID)
+                            && !bLangImportPackage.symbol.pkgID.getName().getValue().equals("runtime")) {
+                        loadAnnotationsFromPackage(LSPackageLoader.getPackageSymbolById(
+                                ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), bLangImportPackage.symbol.pkgID));
+                    }
+                });
+
         if (attachmentPoint == null) {
             // TODO: Here return the common annotations
             annotationMap = new HashMap<>();
         } else {
             switch (attachmentPoint) {
-                case SERVICE:
+                case "service":
                     annotationMap = serviceAnnotations;
                     break;
-                case RESOURCE:
+                case "resource":
                     annotationMap = resourceAnnotations;
                     break;
-                case FUNCTION:
+                case "function":
                     annotationMap = functionAnnotations;
+                    break;
+                case "endpoint":
+                    annotationMap = endpointAnnotations;
                     break;
                 default:
                     annotationMap = new HashMap<>();
@@ -150,21 +171,10 @@ public class LSAnnotationCache {
     }
 
     /**
-     * Check whether annotations have been loaded from a given package.
-     * @param packageID         Package ID to check against
-     * @return {@link Boolean}  whether annotations are loaded or not
-     */
-    public static boolean containsAnnotationsForPackage(PackageID packageID) {
-        return containsPackageWithBvmAlias(packageID, serviceAnnotations)
-                || containsPackageWithBvmAlias(packageID, resourceAnnotations)
-                || containsPackageWithBvmAlias(packageID, functionAnnotations);
-    }
-
-    /**
      * Load annotations from the package.
      * @param bPackageSymbol      BLang Package Symbol to load annotations
      */
-    public static void loadAnnotationsFromPackage(BPackageSymbol bPackageSymbol) {
+    private static void loadAnnotationsFromPackage(BPackageSymbol bPackageSymbol) {
         List<Scope.ScopeEntry> scopeEntries = extractAnnotationDefinitions(bPackageSymbol.scope.entries);
 
         scopeEntries.forEach(annotationEntry -> {
@@ -181,16 +191,13 @@ public class LSAnnotationCache {
                 if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.FUNCTION)) {
                     addAttachment(annotationSymbol, functionAnnotations, bPackageSymbol.pkgID);
                 }
+                if (Symbols.isAttachPointPresent(attachPoints, AttachPoints.ENDPOINT)) {
+                    addAttachment(annotationSymbol, endpointAnnotations, bPackageSymbol.pkgID);
+                }
             }
         });
-    }
-    
-    private static boolean containsPackageWithBvmAlias(PackageID packageID, HashMap<PackageID,
-            List<BAnnotationSymbol>> map) {
-        return map.entrySet().stream()
-                .filter(entry -> entry.getKey().toString().equals(packageID.toString()))
-                .findFirst()
-                .orElse(null) != null;
+        
+        processedPackages.add(bPackageSymbol.pkgID);
     }
     
     private static List<Scope.ScopeEntry> extractAnnotationDefinitions(Map<Name, Scope.ScopeEntry> scopeEntries) {
@@ -200,5 +207,12 @@ public class LSAnnotationCache {
             }
             return null;
         }).filter(Objects::nonNull).collect(Collectors.toList());
+    }
+    
+    private boolean isPackageProcessed(PackageID packageID) {
+        return processedPackages.stream()
+                .map(PackageID::toString)
+                .collect(Collectors.toList())
+                .contains(packageID.toString());
     }
 }

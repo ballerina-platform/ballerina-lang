@@ -86,6 +86,9 @@ public class TestCmd implements BLauncherCmd {
     @Parameter(names = "--disable-groups", description = "test groups to be disabled")
     private List<String> disableGroupList;
 
+    @Parameter(names = "--exclude-packages", description = "packages to be excluded")
+    private List<String> excludedPackageList;
+
     public void execute() {
         if (helpFlag) {
             outStream.println(BLauncherCmd.getCommandUsageInfo("test"));
@@ -140,7 +143,11 @@ public class TestCmd implements BLauncherCmd {
             throw new RuntimeException("failed to read the specified configuration file: " + configFilePath, e);
         }
 
-        Path[] paths = sourceFileList.stream().map(Paths::get).toArray(Path[]::new);
+        Path[] paths = sourceFileList.stream()
+                .filter(source -> excludedPackageList == null || !excludedPackageList.contains(source))
+                .map(Paths::get)
+                .sorted()
+                .toArray(Path[]::new);
 
         if (srcDirectory != null) {
             Manifest manifest = readManifestConfigurations();

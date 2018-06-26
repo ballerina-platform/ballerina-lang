@@ -17,9 +17,6 @@
 */
 package org.ballerinalang.langserver.completions.util.sorters;
 
-import org.antlr.v4.runtime.Token;
-import org.antlr.v4.runtime.TokenStream;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
@@ -35,36 +32,17 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangVariableDef;
 import java.util.List;
 
 /**
- * Completion Item sorter to sort items inside a callable unit body. This is used by actions, functions and resources.
+ * Completion Item sorter to sort items inside a callable unit body. This is used by functions and resources.
  */
 class CallableUnitBodyItemSorter extends CompletionItemSorter {
     @Override
     public void sortItems(LSServiceOperationContext ctx, List<CompletionItem> completionItems) {
         BLangNode previousNode = ctx.get(CompletionKeys.PREVIOUS_NODE_KEY);
-        TokenStream tokenStream = ctx.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        
-        if (ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY) != null) {
-            int currentTokenStart = ctx.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY).getStart().getTokenIndex();
-            Token nextToken = tokenStream.get(currentTokenStart + 1);
-            int cursorLine = ctx.get(DocumentServiceKeys.POSITION_KEY).getPosition().getLine();
-            int cursorChar = ctx.get(DocumentServiceKeys.POSITION_KEY).getPosition().getCharacter();
-
-            if (nextToken.getChannel() != Token.DEFAULT_CHANNEL
-                    && (cursorLine > nextToken.getLine() - 1 ||
-                    (cursorLine == nextToken.getLine() - 1 && cursorChar > nextToken.getCharPositionInLine()))) {
-                completionItems.clear();
-                return;
-            }
-        }
         
         this.clearItemsIfWorkerExists(ctx, completionItems);
         if (previousNode == null) {
             this.populateWhenCursorBeforeOrAfterEp(completionItems);
         } else if (previousNode instanceof BLangVariableDef) {
-//            BType bLangType = ((BLangVariableDef) previousNode).var.type;
-//            if (bLangType instanceof BEndpointType) {
-//                this.populateWhenCursorBeforeOrAfterEp(completionItems);
-//            } else
             if (ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY) == null
                     || !ctx.get(CompletionKeys.INVOCATION_STATEMENT_KEY)) {
                 CompletionItem workerItem = this.getWorkerSnippet();

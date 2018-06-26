@@ -429,6 +429,14 @@ class PositioningUtil {
         this.positionStatementComponents(node);
     }
 
+    /**
+     * Calculate position of PostIncrementNode nodes.
+     *
+     * @param {object} node PostIncrementNode object
+     */
+    positionPostIncrementNode(node) {
+        this.positionStatementComponents(node);
+    }
 
     /**
      * Calculate position of Service nodes.

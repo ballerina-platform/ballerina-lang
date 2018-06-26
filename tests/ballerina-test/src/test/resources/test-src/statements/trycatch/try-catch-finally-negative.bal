@@ -21,7 +21,7 @@ function funcReturnInt() returns (int){
     return a;
 }
 
-public type TestError {
+public type TestError record {
     string message;
     error? cause;
     string code;

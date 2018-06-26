@@ -42,11 +42,11 @@ public class ParserRuleCallableUnitBodyContextResolver extends AbstractItemResol
     
     private static final String ENDPOINT_KEYWORD = "endpoint";
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
-        int tokenIndex = completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+        int tokenIndex = /*completionContext.get(DocumentServiceKeys.TOKEN_INDEX_KEY)*/0;
         int endpointTokenIndex = -1;
         String tokenString;
-        TokenStream tokenStream = completionContext.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
+        TokenStream tokenStream = completionContext.get(CompletionKeys.TOKEN_STREAM_KEY);
         Position position = completionContext.get(DocumentServiceKeys.POSITION_KEY).getPosition();
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         

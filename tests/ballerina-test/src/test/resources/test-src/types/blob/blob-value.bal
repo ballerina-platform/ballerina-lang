@@ -5,11 +5,11 @@ blob glbVarBlob;
 blob gA = base16 `aeeecdefabcd12345567888822`;
 blob gB = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
 
-type BinaryData {
+type BinaryData record {
     blob blobField;
 };
 
-type TestRec {
+type TestRec record {
     blob a = base16 `aa ab`;
     blob b = base64 `aGVsbG8gYmFsbGVyaW5hICEhIQ==`;
     blob c;
