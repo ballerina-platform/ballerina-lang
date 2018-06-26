@@ -526,7 +526,7 @@ function testByteAndBoolean() returns (function (int, byte) returns
     return (int a, byte b) => (function (byte, int, boolean) returns byte[][]) {
         boolean boo2 = false;
         return (byte c, int f, boolean booF) => (byte[][]) {
-            byte i = <byte> f;
+            byte i = check <byte> f;
             byte[][] bArr = [];
             if !boo2 {
                 bArr[0] = [c, b, 4, i];

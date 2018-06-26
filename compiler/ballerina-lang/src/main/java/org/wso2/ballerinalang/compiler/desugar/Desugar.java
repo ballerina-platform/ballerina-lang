@@ -1318,18 +1318,22 @@ public class Desugar extends BLangNodeVisitor {
      *      int i1 = a | i;
      *      int i2 = a & i;
      *      int i3 = a ^ i;
-     *      int i4 = a + b;
-     *      int i5 = a - b;
-     *      int i6 = a >> b;
-     *      int i7 = a << b;
+     *      int i4 = a >> b;
+     *      int i5 = a << b;
      *
      */
     private boolean isByteRelatedOperation(BLangBinaryExpr binaryExpr) {
         OperatorKind binaryOpKind = binaryExpr.opKind;
-        return (OperatorKind.isBitwiseOperator(binaryOpKind) &&
-                !(binaryExpr.lhsExpr.type.tag == TypeTags.BYTE && binaryExpr.rhsExpr.type.tag == TypeTags.BYTE))
-                || binaryOpKind == OperatorKind.ADD || binaryOpKind == OperatorKind.SUB
-                || binaryOpKind == OperatorKind.BITWISE_LEFT_SHIFT || binaryOpKind == OperatorKind.BITWISE_RIGHT_SHIFT;
+        if ((OperatorKind.BITWISE_AND == binaryOpKind || OperatorKind.BITWISE_OR == binaryOpKind ||
+                OperatorKind.BITWISE_XOR == binaryOpKind) &&
+                !(binaryExpr.lhsExpr.type.tag == TypeTags.BYTE && binaryExpr.rhsExpr.type.tag == TypeTags.BYTE)) {
+            return true;
+        }
+
+        if (binaryOpKind == OperatorKind.BITWISE_LEFT_SHIFT || binaryOpKind == OperatorKind.BITWISE_RIGHT_SHIFT) {
+            return true;
+        }
+        return false;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {

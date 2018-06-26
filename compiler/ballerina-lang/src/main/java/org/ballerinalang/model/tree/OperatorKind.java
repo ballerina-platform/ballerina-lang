@@ -76,9 +76,4 @@ public enum OperatorKind {
         }
         return null;
     }
-
-    public static boolean isBitwiseOperator(OperatorKind operatorKind) {
-        return BITWISE_AND == operatorKind || BITWISE_OR == operatorKind || BITWISE_LEFT_SHIFT == operatorKind ||
-                BITWISE_RIGHT_SHIFT == operatorKind || BITWISE_XOR == operatorKind;
-    }
 }
