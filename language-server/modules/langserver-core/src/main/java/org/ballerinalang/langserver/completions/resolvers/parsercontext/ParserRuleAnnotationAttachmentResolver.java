@@ -20,8 +20,7 @@ package org.ballerinalang.langserver.completions.resolvers.parsercontext;
 
 import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
-import org.ballerinalang.langserver.compiler.LSPackageLoader;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.resolvers.AbstractItemResolver;
@@ -40,23 +39,10 @@ public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver
         String attachmentPointType = ctx.get(CompletionKeys.NEXT_NODE_KEY) != null ?
                 ctx.get(CompletionKeys.NEXT_NODE_KEY) : "";
 
-        // Add the annotations from the imported packages to the annotation cache
-        // TODO: Optimize the process
-        ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).getImports()
-                .forEach(bLangImportPackage -> {
-                    if (!LSAnnotationCache.containsAnnotationsForPackage(bLangImportPackage.symbol.pkgID)
-                            && !bLangImportPackage.symbol.pkgID.getName().getValue().equals("runtime")) {
-                        LSAnnotationCache.loadAnnotationsFromPackage(
-                                LSPackageLoader.getPackageSymbolById(
-                                        ctx.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY),
-                                        bLangImportPackage.symbol.pkgID));
-                    }
-                });
-
         if (attachmentPointType.equals("")) {
             return new ArrayList<>();
         }
-        return filterAnnotations(attachmentPointType);
+        return filterAnnotations(attachmentPointType, ctx);
     }
 
     /**
@@ -64,13 +50,15 @@ public class ParserRuleAnnotationAttachmentResolver extends AbstractItemResolver
      * 
      * @return {@link List}
      */
-    private ArrayList<CompletionItem> filterAnnotations(String attachmentPoint) {
+    private ArrayList<CompletionItem> filterAnnotations(String attachmentPoint, LSContext ctx) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         
-        LSAnnotationCache.getInstance().getAnnotationMapForType(attachmentPoint).entrySet().forEach(annotationLists ->
-                annotationLists.getValue().forEach(bLangAnnotation -> {
-            completionItems.add(CommonUtil.getAnnotationCompletionItem(annotationLists.getKey(), bLangAnnotation));
-        }));
+        LSAnnotationCache.getInstance().getAnnotationMapForType(attachmentPoint, ctx)
+                .entrySet()
+                .forEach(annotationLists -> annotationLists.getValue().forEach(bLangAnnotation -> {
+                    completionItems.add(CommonUtil.getAnnotationCompletionItem(annotationLists.getKey(),
+                            bLangAnnotation));
+                }));
         
         return completionItems;
     }
