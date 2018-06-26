@@ -49,6 +49,7 @@ describe('Ballerina Composer Test Suite', () => {
             if (stdIndata.indexOf("Composer started successfully") < 0) {
                 return;
             }
+            stdIndata = '';
             console.log(stdIndata);
             testEnv.initialize();
             beforeAllDone();
