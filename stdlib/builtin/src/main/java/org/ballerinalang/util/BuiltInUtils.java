@@ -21,8 +21,8 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -57,11 +57,12 @@ public class BuiltInUtils {
         return new BString(value);
     }
 
-    public static BStruct createConversionError(Context context, String msg) {
+    public static BMap<String, BValue> createConversionError(Context context, String msg) {
         return BLangVMErrors.createError(context, msg);
     }
 
-    private static BStruct createBase64Error(Context context, String msg, boolean isMimeSpecific, boolean isEncoder) {
+    private static BMap<String, BValue> createBase64Error(Context context, String msg,
+                                                          boolean isMimeSpecific, boolean isEncoder) {
         PackageInfo filePkg;
         if (isMimeSpecific) {
             filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_MIME);

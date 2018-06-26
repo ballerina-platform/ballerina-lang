@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal.jwt.signature;
+package org.ballerinalang.stdlib.internal.jwt.signature;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -25,12 +25,12 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.internal.jwt.crypto.JWSSigner;
-import org.ballerinalang.nativeimpl.internal.jwt.crypto.KeyStoreHolder;
-import org.ballerinalang.nativeimpl.internal.jwt.crypto.RSASigner;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
+import org.ballerinalang.stdlib.internal.jwt.crypto.KeyStoreHolder;
+import org.ballerinalang.stdlib.internal.jwt.crypto.RSASigner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

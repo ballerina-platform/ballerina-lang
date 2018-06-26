@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl;
+package org.ballerinalang.stdlib.io.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -26,10 +26,7 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.util.Base64ByteChannel;
-import org.ballerinalang.nativeimpl.util.Base64Wrapper;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;

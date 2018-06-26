@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.utils;
+package org.ballerinalang.stdlib.io.utils;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -24,23 +24,23 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.FileIOChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.nativeimpl.io.csv.Format;
-import org.ballerinalang.nativeimpl.io.events.EventContext;
-import org.ballerinalang.nativeimpl.io.events.EventManager;
-import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.bytes.CloseByteChannelEvent;
-import org.ballerinalang.nativeimpl.io.events.bytes.ReadBytesEvent;
-import org.ballerinalang.nativeimpl.io.events.bytes.WriteBytesEvent;
-import org.ballerinalang.nativeimpl.io.events.characters.CloseCharacterChannelEvent;
-import org.ballerinalang.nativeimpl.io.events.characters.ReadCharactersEvent;
-import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
-import org.ballerinalang.nativeimpl.io.events.records.CloseDelimitedRecordEvent;
-import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadEvent;
-import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordWriteEvent;
+import org.ballerinalang.stdlib.io.channels.FileIOChannel;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.stdlib.io.csv.Format;
+import org.ballerinalang.stdlib.io.events.EventContext;
+import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.bytes.CloseByteChannelEvent;
+import org.ballerinalang.stdlib.io.events.bytes.ReadBytesEvent;
+import org.ballerinalang.stdlib.io.events.bytes.WriteBytesEvent;
+import org.ballerinalang.stdlib.io.events.characters.CloseCharacterChannelEvent;
+import org.ballerinalang.stdlib.io.events.characters.ReadCharactersEvent;
+import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
+import org.ballerinalang.stdlib.io.events.records.CloseDelimitedRecordEvent;
+import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadEvent;
+import org.ballerinalang.stdlib.io.events.records.DelimitedRecordWriteEvent;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;

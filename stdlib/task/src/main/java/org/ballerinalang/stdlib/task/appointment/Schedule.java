@@ -16,7 +16,7 @@
  *  under the License.
  *
  */
-package org.ballerinalang.nativeimpl.task.appointment;
+package org.ballerinalang.stdlib.task.appointment;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -26,18 +26,18 @@ import org.ballerinalang.model.values.BFunctionPointer;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
-import static org.ballerinalang.nativeimpl.task.TaskConstants.APPOINTMENT_CRON_EXPR_FIELD;
-import static org.ballerinalang.nativeimpl.task.TaskConstants.APPOINTMENT_IS_RUNNING_FIELD;
-import static org.ballerinalang.nativeimpl.task.TaskConstants.APPOINTMENT_ON_ERROR_FIELD;
-import static org.ballerinalang.nativeimpl.task.TaskConstants.APPOINTMENT_ON_TRIGGER_FIELD;
-import static org.ballerinalang.nativeimpl.task.TaskConstants.APPOINTMENT_TASK_ID_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_CRON_EXPR_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_IS_RUNNING_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_ON_ERROR_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_ON_TRIGGER_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.APPOINTMENT_TASK_ID_FIELD;
 
 /**
  * Native function ballerina/task:Appointment.schedule.

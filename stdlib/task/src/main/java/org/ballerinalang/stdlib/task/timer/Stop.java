@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.task.timer;
+package org.ballerinalang.stdlib.task.timer;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -23,14 +23,14 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.task.TaskRegistry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
-import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_IS_RUNNING_FIELD;
-import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_TASK_ID_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_IS_RUNNING_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
  * Native function ballerina/task:Timer.stop.

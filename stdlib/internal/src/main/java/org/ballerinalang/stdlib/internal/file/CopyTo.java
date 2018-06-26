@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.internal.file;
+package org.ballerinalang.stdlib.internal.file;
 
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.bre.Context;
@@ -25,11 +25,11 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.internal.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

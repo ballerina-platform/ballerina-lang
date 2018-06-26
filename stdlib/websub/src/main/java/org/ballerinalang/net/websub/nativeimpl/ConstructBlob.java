@@ -25,15 +25,15 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.runtime.message.BlobDataSource;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
 
 import java.io.IOException;
 
-import static org.ballerinalang.nativeimpl.io.IOConstants.BYTE_CHANNEL_NAME;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.BYTE_CHANNEL_NAME;
 
 /**
  * Native function to create a Blob to use as the content when a ByteChannel is specified to indicate the content to

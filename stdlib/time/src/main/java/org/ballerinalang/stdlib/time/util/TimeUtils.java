@@ -19,7 +19,8 @@ package org.ballerinalang.stdlib.time.util;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -41,7 +42,7 @@ public class TimeUtils {
     public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
 
-    public static BStruct createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
+    public static BMap<String, BValue> createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
         String zoneIdName;
         try {
             ZoneId zoneId = ZoneId.of(zoneIdValue);
@@ -56,9 +57,10 @@ public class TimeUtils {
         }
     }
 
-    public static BStruct createTimeStruct(StructureTypeInfo timezoneStructInfo, StructureTypeInfo timeStructInfo,
-                                           long millis, String zoneIdName) {
-        BStruct timezone = createTimeZone(timezoneStructInfo, zoneIdName);
+    public static BMap<String, BValue> createTimeStruct(StructureTypeInfo timezoneStructInfo,
+                                                        StructureTypeInfo timeStructInfo, long millis,
+                                                        String zoneIdName) {
+        BMap<String, BValue> timezone = createTimeZone(timezoneStructInfo, zoneIdName);
         return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
     }
 

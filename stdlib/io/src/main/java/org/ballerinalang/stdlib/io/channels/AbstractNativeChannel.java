@@ -15,15 +15,15 @@
  * under the License.
  */
 
-package org.ballerinalang.nativeimpl.io.channels;
+package org.ballerinalang.stdlib.io.channels;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 /**
@@ -34,7 +34,7 @@ import org.ballerinalang.util.exceptions.BallerinaException;
  * This will prepare the ByteChannel to perform I/O operations.
  * </p>
  *
- * @see org.ballerinalang.nativeimpl.io.OpenFile
+ * @see org.ballerinalang.stdlib.io.nativeimpl.OpenFile
  */
 public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
     /**

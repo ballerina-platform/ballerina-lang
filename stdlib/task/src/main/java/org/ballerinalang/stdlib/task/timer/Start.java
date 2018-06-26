@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.task.timer;
+package org.ballerinalang.stdlib.task.timer;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -26,19 +26,19 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
+import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
 
-import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_DELAY;
-import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_INTERVAL;
-import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_IS_RUNNING_FIELD;
-import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_ON_ERROR_FIELD;
-import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_ON_TRIGGER_FIELD;
-import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_TASK_ID_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_DELAY;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_INTERVAL;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_IS_RUNNING_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_ON_ERROR_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_ON_TRIGGER_FIELD;
+import static org.ballerinalang.stdlib.task.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
  * Native function ballerina/task:Timer.start.

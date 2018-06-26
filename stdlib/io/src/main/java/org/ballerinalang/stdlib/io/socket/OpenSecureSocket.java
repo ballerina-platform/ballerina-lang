@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.socket;
+package org.ballerinalang.stdlib.io.socket;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
@@ -25,13 +25,13 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
+import org.ballerinalang.stdlib.io.channels.SocketIOChannel;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
@@ -59,17 +59,17 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
-import static org.ballerinalang.nativeimpl.io.IOConstants.BYTE_CHANNEL_NAME;
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.ADDRESS_FIELD;
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.CERT_PASS_OPTION_FIELD;
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.KEY_STORE_OPTION_FIELD;
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.KEY_STORE_PASS_OPTION_FIELD;
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.LOCAL_ADDRESS_FIELD;
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.LOCAL_PORT_OPTION_FIELD;
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.PORT_FIELD;
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.SSL_PROTOCOL_OPTION_FIELD;
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.TRUST_STORE_OPTION_FIELD;
-import static org.ballerinalang.nativeimpl.socket.SocketConstants.TRUST_STORE_PASS_OPTION_FIELD;
+import static org.ballerinalang.stdlib.io.socket.SocketConstants.ADDRESS_FIELD;
+import static org.ballerinalang.stdlib.io.socket.SocketConstants.CERT_PASS_OPTION_FIELD;
+import static org.ballerinalang.stdlib.io.socket.SocketConstants.KEY_STORE_OPTION_FIELD;
+import static org.ballerinalang.stdlib.io.socket.SocketConstants.KEY_STORE_PASS_OPTION_FIELD;
+import static org.ballerinalang.stdlib.io.socket.SocketConstants.LOCAL_ADDRESS_FIELD;
+import static org.ballerinalang.stdlib.io.socket.SocketConstants.LOCAL_PORT_OPTION_FIELD;
+import static org.ballerinalang.stdlib.io.socket.SocketConstants.PORT_FIELD;
+import static org.ballerinalang.stdlib.io.socket.SocketConstants.SSL_PROTOCOL_OPTION_FIELD;
+import static org.ballerinalang.stdlib.io.socket.SocketConstants.TRUST_STORE_OPTION_FIELD;
+import static org.ballerinalang.stdlib.io.socket.SocketConstants.TRUST_STORE_PASS_OPTION_FIELD;
+import static org.ballerinalang.stdlib.io.utils.IOConstants.BYTE_CHANNEL_NAME;
 
 /**
  * Native function to open a secure client socket.

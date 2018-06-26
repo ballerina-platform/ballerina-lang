@@ -35,7 +35,7 @@ import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.Utils;
+import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.TableIterator;
 import org.ballerinalang.util.TableResourceManager;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -270,7 +270,7 @@ public class SQLDataIterator extends TableIterator {
     }
 
     private BMap<String, BValue> createTimeStruct(long millis) {
-        return Utils.createTimeStruct(zoneStructInfo, timeStructInfo, millis, Constants.TIMEZONE_UTC);
+        return TimeUtils.createTimeStruct(zoneStructInfo, timeStructInfo, millis, Constants.TIMEZONE_UTC);
     }
 
     private BMap<String, BValue> createUserDefinedType(Struct structValue, BStructureType structType) {

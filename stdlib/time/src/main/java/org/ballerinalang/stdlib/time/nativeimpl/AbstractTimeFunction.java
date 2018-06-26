@@ -15,14 +15,14 @@
 * specific language governing permissions and limitations
 * under the License.
 */
-package org.ballerinalang.nativeimpl.time;
+package org.ballerinalang.stdlib.time.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.Utils;
+import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -52,7 +52,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
     BMap<String, BValue> createCurrentTime(Context context) {
         long currentTime = Instant.now().toEpochMilli();
-        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), currentTime,
+        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), currentTime,
                 ZoneId.systemDefault().toString());
     }
 
@@ -68,7 +68,8 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         }
         ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
         long timeValue = zonedDateTime.toInstant().toEpochMilli();
-        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue, zoneIDStr);
+        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), 
+                getTimeStructInfo(context), timeValue, zoneIDStr);
     }
 
     BMap<String, BValue> parseTime(Context context, String dateValue, String pattern) {
@@ -114,7 +115,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
             ZonedDateTime zonedDateTime = ZonedDateTime.of(year, month, day, hour, minute, second, nanoSecond, zoneId);
             long timeValue = zonedDateTime.toInstant().toEpochMilli();
-            return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue,
+            return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue,
                     zoneId.toString());
 
         } catch (DateTimeParseException e) {
@@ -150,7 +151,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         BMap<String, BValue> zoneData = (BMap<String, BValue>) timeStruct.get(ZONE_FIELD);
         String zoneIdName = zoneData.get(ZONE_ID_FIELD).stringValue();
         long mSec = dateTime.toInstant().toEpochMilli();
-        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
+        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
     }
 
     BMap<String, BValue> subtractDuration(Context context, BMap<String, BValue> timeStruct, long years, long months,
@@ -162,11 +163,11 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         BMap<String, BValue> zoneData = (BMap<String, BValue>) timeStruct.get(ZONE_FIELD);
         String zoneIdName = zoneData.get(ZONE_ID_FIELD).stringValue();
         long mSec = dateTime.toInstant().toEpochMilli();
-        return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
+        return TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
     }
 
     BMap<String, BValue> changeTimezone(Context context, BMap<String, BValue> timeStruct, String zoneId) {
-        BMap<String, BValue> timezone = Utils.createTimeZone(Utils.getTimeZoneStructInfo(context), zoneId);
+        BMap<String, BValue> timezone = TimeUtils.createTimeZone(TimeUtils.getTimeZoneStructInfo(context), zoneId);
         timeStruct.put(ZONE_FIELD, timezone);
         clearStructCache(timeStruct);
         return timeStruct;
@@ -242,14 +243,14 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
     private StructureTypeInfo getTimeZoneStructInfo(Context context) {
         if (zoneStructInfo == null) {
-            zoneStructInfo = Utils.getTimeZoneStructInfo(context);
+            zoneStructInfo = TimeUtils.getTimeZoneStructInfo(context);
         }
         return zoneStructInfo;
     }
 
     private StructureTypeInfo getTimeStructInfo(Context context) {
         if (timeStructInfo == null) {
-            timeStructInfo = Utils.getTimeStructInfo(context);
+            timeStructInfo = TimeUtils.getTimeStructInfo(context);
         }
         return timeStructInfo;
     }
