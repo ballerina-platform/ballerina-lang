@@ -79,12 +79,10 @@ documentation {
 }
 public type ContentDisposition object {
 
-    public {
-        string fileName;
-        string disposition;
-        string name;
-        map<string> parameters;
-    }
+    public string fileName;
+    public string disposition;
+    public string name;
+    public map<string> parameters;
 
     documentation {
         Converts the `ContentDisposition` type to a string suitable for use as the value of a corresponding MIME header.
@@ -103,12 +101,10 @@ documentation {
 }
 public type MediaType object {
 
-    public {
-        string primaryType;
-        string subType;
-        string suffix;
-        map<string> parameters;
-    }
+    public string primaryType;
+    public string subType;
+    public string suffix;
+    public map<string> parameters;
 
     documentation {
         Gets “primaryType/subtype+suffix” combination in string format.
@@ -161,12 +157,10 @@ documentation {
 }
 public type Entity object {
 
-    private {
-        MediaType cType;
-        string cId;
-        int cLength;
-        ContentDisposition cDisposition;
-    }
+    private MediaType cType;
+    private string cId;
+    private int cLength;
+    private ContentDisposition cDisposition;
 
     documentation {
         Sets the content-type to entity.
