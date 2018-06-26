@@ -354,6 +354,8 @@ public class BLangVMUtils {
                 case TypeTags.FLOAT_TAG:
                     if (args[i] instanceof BString) {
                         local.doubleRegs[doubleParamCount] = ((BString) args[i]).floatValue();
+                    } else if (args[i] instanceof BInteger) {
+                        local.doubleRegs[doubleParamCount] = ((BInteger) args[i]).floatValue();
                     } else {
                         local.doubleRegs[doubleParamCount] = ((BFloat) args[i]).floatValue();
                     }

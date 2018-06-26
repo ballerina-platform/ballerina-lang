@@ -121,11 +121,15 @@ public class BStream implements BRefType<Object> {
      */
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
-        if (parameters[0].getTag() != constraintType.getTag()
-                || (constraintType instanceof BStructureType && ((BStructureType) parameters[0])
-                .getTypeInfo().getType() != constraintType)) {
-            throw new BallerinaException("incompatible function: subscription function needs to be a function accepting"
-                                                 + ":" + this.constraintType.getName());
+        if (!CPU.isAssignable(constraintType, parameters[0])) {
+            if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG
+                    || constraintType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+                throw new BallerinaException("incompatible function: subscription function needs to be a function"
+                                                     + " accepting:" + this.constraintType.getName());
+            } else {
+                throw new BallerinaException("incompatible function: subscription function needs to be a function"
+                                                     + " accepting:" + this.constraintType);
+            }
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
@@ -150,10 +154,14 @@ public class BStream implements BRefType<Object> {
         }
 
         @Override
-        protected void send(Message message) throws BrokerException {
-            BValue data =
-                    ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
-            BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), new BValue[] { data });
+        protected void send(Message message) {
+            try {
+                BValue data =
+                        ((BallerinaBrokerByteBuf) (message.getContentChunks().get(0).getByteBuf()).unwrap()).getValue();
+                BLangFunctions.invokeCallable(functionPointer.value().getFunctionInfo(), new BValue[] { data });
+            } catch (Exception e) {
+                throw new BallerinaException("Error delivering event to subscriber: ", e);
+            }
         }
 
         @Override

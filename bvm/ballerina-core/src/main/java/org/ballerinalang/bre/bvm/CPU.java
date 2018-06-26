@@ -25,6 +25,7 @@ import org.ballerinalang.model.types.BFiniteType;
 import org.ballerinalang.model.types.BFunctionType;
 import org.ballerinalang.model.types.BJSONType;
 import org.ballerinalang.model.types.BMapType;
+import org.ballerinalang.model.types.BStreamType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
@@ -3244,7 +3245,8 @@ public class CPU {
         }
 
         if (rhsType.getTag() == TypeTags.STREAM_TAG && lhsType.getTag() == TypeTags.STREAM_TAG) {
-            return true;
+            return isAssignable(((BStreamType) rhsType).getConstrainedType(),
+                                ((BStreamType) lhsType).getConstrainedType());
         }
 
         if (rhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG &&
@@ -4170,5 +4172,112 @@ public class CPU {
         }
 
         return checkFunctionTypeEquality((BFunctionType) value.getType(), (BFunctionType) lhsType);
+    }
+
+    public static boolean isAssignable(BType sourceType, BType targetType) {
+
+        if (targetType.getTag() == TypeTags.ANY_TAG) {
+            return true;
+        }
+
+        if (targetType.getTag() == TypeTags.UNION_TAG) {
+            return checkUnionAssignable(sourceType, targetType);
+        }
+
+        if (sourceType.equals(targetType)) {
+            return true;
+        } else if (sourceType.getTag() == TypeTags.INT_TAG &&
+                (targetType.getTag() == TypeTags.JSON_TAG || targetType.getTag() == TypeTags.FLOAT_TAG)) {
+            return true;
+        } else if (sourceType.getTag() == TypeTags.FLOAT_TAG && targetType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (sourceType.getTag() == TypeTags.STRING_TAG && targetType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (sourceType.getTag() == TypeTags.BOOLEAN_TAG && targetType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        }
+
+        if ((sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG && targetType.getTag() == TypeTags.OBJECT_TYPE_TAG)
+                || (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG
+                            && targetType.getTag() == TypeTags.RECORD_TYPE_TAG)) {
+            return checkStructEquivalency((BStructureType) sourceType, (BStructureType) targetType);
+        }
+
+        // TODO: 6/26/18 complete impl. for JSON assignable
+        if (targetType.getTag() == TypeTags.JSON_TAG && sourceType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        }
+
+        if (targetType.getTag() == TypeTags.ARRAY_TAG && sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            return checkArrayCast(((BArrayType) sourceType).getElementType(),
+                                  ((BArrayType) targetType).getElementType());
+        }
+
+        if (sourceType.getTag() == TypeTags.MAP_TAG && targetType.getTag() == TypeTags.MAP_TAG) {
+            return checkMapCast(sourceType, targetType);
+        }
+
+        if (sourceType.getTag() == TypeTags.TABLE_TAG && targetType.getTag() == TypeTags.TABLE_TAG) {
+            return true;
+        }
+
+        if (sourceType.getTag() == TypeTags.STREAM_TAG && targetType.getTag() == TypeTags.STREAM_TAG) {
+            return isAssignable(((BStreamType) sourceType).getConstrainedType(),
+                                ((BStreamType) targetType).getConstrainedType());
+        }
+
+        if (sourceType.getTag() == TypeTags.TUPLE_TAG && targetType.getTag() == TypeTags.TUPLE_TAG) {
+            return checkTupleAssignable(sourceType, targetType);
+        }
+
+        // TODO: impl. finite type assignable
+
+        if (targetType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
+            return checkFunctionAssignable(sourceType, targetType);
+        }
+
+        return false;
+    }
+
+    private static boolean checkUnionAssignable(BType sourceType, BType targetType) {
+        if (sourceType.getTag() == TypeTags.UNION_TAG) {
+            for (BType sourceMemberType : ((BUnionType) sourceType).getMemberTypes()) {
+                if (!checkUnionAssignable(sourceMemberType, targetType)) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            BUnionType targetUnionType = (BUnionType) targetType;
+            for (BType memberType : targetUnionType.getMemberTypes()) {
+                if (isAssignable(sourceType, memberType)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
+
+    private static boolean checkTupleAssignable(BType sourceType, BType targetType) {
+        List<BType> targetTupleTypes = ((BTupleType) targetType).getTupleTypes();
+        List<BType> sourceTupleTypes = ((BTupleType) sourceType).getTupleTypes();
+
+        if (sourceTupleTypes.size() != targetTupleTypes.size()) {
+            return false;
+        }
+        for (int i = 0; i < sourceTupleTypes.size(); i++) {
+            if (!isAssignable(sourceTupleTypes.get(i), targetTupleTypes.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean checkFunctionAssignable(BType rhsType, BType lhsType) {
+        if (rhsType.getTag() != TypeTags.FUNCTION_POINTER_TAG) {
+            return false;
+        }
+
+        return checkFunctionTypeEquality((BFunctionType) rhsType, (BFunctionType) lhsType);
     }
 }
