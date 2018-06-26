@@ -42,7 +42,10 @@ public class BBlobArray extends BNewArray {
     }
 
     public BBlobArray(int size) {
-        values = (byte[][]) newArrayInstance(byte[].class, size);
+        if (size != -1) {
+            this.size = capacity = size;
+        }
+        values = (byte[][]) newArrayInstance(byte[].class);
         super.arrayType = new BArrayType(BTypes.typeBlob);
     }
 

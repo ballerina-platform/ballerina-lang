@@ -130,6 +130,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -873,14 +874,17 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExpr(indexAccessExpr.indexExpr);
         analyzeExpr(indexAccessExpr.expr);
 
-        // Check for illegal access of sealed arrays using literals
-        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY && indexAccessExpr.indexExpr instanceof BLangLiteral) {
+        if (indexAccessExpr.indexExpr.type == null || indexAccessExpr.indexExpr.type.tag == TypeTags.ERROR) {
+            return;
+        }
+
+        if (indexAccessExpr.expr.type.tag == TypeTags.ARRAY
+                && indexAccessExpr.indexExpr.getKind() == NodeKind.LITERAL) {
             BArrayType bArrayType = (BArrayType) indexAccessExpr.expr.type;
             BLangLiteral indexExpr = (BLangLiteral) indexAccessExpr.indexExpr;
-            if (bArrayType.size > -1
-                    && (indexExpr.getValue() instanceof Long) && (bArrayType.size <= (Long) indexExpr.getValue())) {
-                dlog.error(
-                        indexExpr.pos, DiagnosticCode.ARRAY_INDEX_OUT_OF_BOUNDS);
+            Long indexVal = (Long) indexExpr.getValue();   // indexExpr.getBValue() will always be a long at this stage
+            if (bArrayType.getState() != BArrayState.UNSEALED && (bArrayType.size <= indexVal)) {
+                dlog.error(indexExpr.pos, DiagnosticCode.ARRAY_INDEX_OUT_OF_RANGE, indexVal, bArrayType.size);
             }
         }
     }

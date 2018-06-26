@@ -70,32 +70,24 @@ public class TypeSignatureReader<T> {
                 String name = new String(Arrays.copyOfRange(chars, index, nameIndex + 1));
                 T type = getBTypeFromDescriptor(typeCreater, name);
                 typeStack.push(type);
-
-                index++;
                 return nameIndex + 1;
             case '[':
                 int endIndex = index + 1;
-                for (int i = index + 1; i < chars.length; i++) {
-                    if (chars[i] == ';') {
-                        break;
-                    }
-                    if ((chars[i] < '0' || chars[i] > '9') && chars[i] != '-') {
+                int j = index + 1;
+                while (chars[j] != ';') {
+                    if (!Character.isDigit(chars[j]) && chars[j] != '-') {
                         endIndex = chars.length;
                         break;
                     }
                     endIndex++;
+                    j++;
                 }
 
-                if (endIndex != chars.length) {
-                    int size = Integer.parseInt(String.valueOf(Arrays.copyOfRange(chars, index + 1, endIndex)));
-                    index = createBTypeFromSig(typeCreater, chars, endIndex + 1, typeStack);
-                    T elemType = typeStack.pop();
-                    typeStack.push(typeCreater.getArrayType(elemType, size));
-                } else {
-                    index = createBTypeFromSig(typeCreater, chars, index + 1, typeStack);
-                    T elemType = typeStack.pop();
-                    typeStack.push(typeCreater.getArrayType(elemType));
-                }
+                int size = Integer.parseInt(String.valueOf(Arrays.copyOfRange(chars, index + 1, endIndex)));
+                index = createBTypeFromSig(typeCreater, chars, endIndex + 1, typeStack);
+                T elemType = typeStack.pop();
+                typeStack.push(typeCreater.getArrayType(elemType, size));
+
                 return index;
             case 'M':
             case 'H':
@@ -187,11 +179,8 @@ public class TypeSignatureReader<T> {
                     index++;
                 }
                 T elemType = getBTypeFromDescriptor(typeCreater, desc.substring(index));
-                if (size != null) {
-                    return typeCreater.getArrayType(elemType, Integer.parseInt(String.valueOf(size)));
-                } else {
-                    return typeCreater.getArrayType(elemType);
-                }
+                return typeCreater.getArrayType(elemType, Integer.parseInt(String.valueOf(size)));
+
             case 'U':
             case 'O':
             case 'P':

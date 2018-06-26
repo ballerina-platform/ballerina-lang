@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.types;
 import org.ballerinalang.model.types.ArrayType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.TypeDescriptor;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 
@@ -28,9 +29,12 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
  */
 public class BArrayType extends BType implements ArrayType {
 
+    private static final String SEMI_COLON = ";";
     public BType eType;
 
-    public int size = -1; // Default to unsealed
+    public int size = -1;
+
+    private BArrayState state = BArrayState.UNSEALED;
 
     public BArrayType(BType elementType) {
         super(TypeTags.ARRAY, null);
@@ -42,19 +46,24 @@ public class BArrayType extends BType implements ArrayType {
         this.eType = elementType;
     }
 
-    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size) {
+    public BArrayType(BType elementType, BTypeSymbol tsymbol, int size, BArrayState state) {
         super(TypeTags.ARRAY, tsymbol);
         this.eType = elementType;
-        this.size = size; // -2 value to infer size from expression
+        this.size = size;
+        this.state = state;
     }
 
     public String getDesc() {
-        return TypeDescriptor.SIG_ARRAY + size + ";" + eType.getDesc();
+        return TypeDescriptor.SIG_ARRAY + size + SEMI_COLON + eType.getDesc();
     }
 
     @Override
     public int getSize() {
         return size;
+    }
+
+    public BArrayState getState() {
+        return state;
     }
 
     @Override

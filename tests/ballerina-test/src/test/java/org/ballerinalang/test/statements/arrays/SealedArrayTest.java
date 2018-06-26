@@ -182,18 +182,18 @@ public class SealedArrayTest {
 
     @Test
     public void testNegativeSealedArrays() {
-        BAssertUtil.validateError(resultNegative, 0, "array index is out of bounds", 19, 30);
-        BAssertUtil.validateError(resultNegative, 1, "array index is out of bounds", 25, 33);
+        BAssertUtil.validateError(resultNegative, 0, "array index out of range: index: '5', size: '5'", 19, 30);
+        BAssertUtil.validateError(resultNegative, 1, "array index out of range: index: '5', size: '5'", 25, 33);
         BAssertUtil.validateError(
                 resultNegative, 2, "size mismatch in sealed array. expected '4', but found '3'", 30, 31);
         BAssertUtil.validateError(
                 resultNegative, 3, "size mismatch in sealed array. expected '4', but found '5'", 31, 31);
         BAssertUtil.validateError(
-                resultNegative, 4, "array index is out of bounds", 37, 18);
+                resultNegative, 4, "array index out of range: index: '5', size: '5'", 37, 18);
         BAssertUtil.validateError(
-                resultNegative, 5, "array index is out of bounds", 38, 18);
+                resultNegative, 5, "array index out of range: index: '5', size: '5'", 38, 18);
         BAssertUtil.validateError(
-                resultNegative, 6, "invalid declaration of sealed type", 39, 5);
+                resultNegative, 6, "sealed keyword is not allowed for type ", 39, 5);
         BAssertUtil.validateError(
                 resultNegative, 7, "incompatible types: expected 'int[3]', found 'int[]'", 46, 17);
         BAssertUtil.validateError(

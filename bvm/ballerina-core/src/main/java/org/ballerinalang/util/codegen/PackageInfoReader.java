@@ -1779,11 +1779,6 @@ public class PackageInfoReader {
         }
 
         @Override
-        public BType getArrayType(BType elementType) {
-            return new BArrayType(elementType);
-        }
-
-        @Override
         public BType getArrayType(BType elemType, int size) {
             return new BArrayType(elemType, size);
         }

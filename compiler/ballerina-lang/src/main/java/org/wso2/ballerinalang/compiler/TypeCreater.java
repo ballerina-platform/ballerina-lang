@@ -36,8 +36,6 @@ public interface TypeCreater<T> {
 
     public T getConstrainedType(char typeChar, T constraint);
 
-    public T getArrayType(T elementType);
-
     public T getArrayType(T elemType, int size);
 
     public T getCollectionType(char typeChar, List<T> memberTypes);

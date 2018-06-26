@@ -43,7 +43,10 @@ public class BIntArray extends BNewArray {
     }
 
     public BIntArray(int size) {
-        values = (long[]) newArrayInstance(Long.TYPE, size);
+        if (size != -1) {
+            this.size = capacity = size;
+        }
+        values = (long[]) newArrayInstance(Long.TYPE);
         super.arrayType = new BArrayType(BTypes.typeInt);
     }
 

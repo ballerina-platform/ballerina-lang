@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
@@ -142,7 +143,6 @@ public class Types {
                            BType actualType,
                            BType expType,
                            DiagnosticCode diagCode) {
-
         expr.type = checkType(expr.pos, actualType, expType, diagCode);
         if (expr.type.tag == TypeTags.ERROR) {
             return expr.type;
@@ -275,14 +275,11 @@ public class Types {
             // Both types are array types
             BArrayType lhsArrayType = (BArrayType) target;
             BArrayType rhsArrayType = (BArrayType) source;
-            if (lhsArrayType.size == -1) {
+            if (lhsArrayType.getState() == BArrayState.UNSEALED) {
                 return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
             }
-            if (checkSealedArrayEquality(rhsArrayType, lhsArrayType)) {
-                return isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
-            } else {
-                return false;
-            }
+            return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
+                    && isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
 
         } else if (source.tag == TypeTags.ARRAY) {
             // Only the right-hand side is an array type
@@ -340,29 +337,22 @@ public class Types {
     public boolean checkArrayEquality(BType source, BType target) {
         if (target.tag == TypeTags.ARRAY && source.tag == TypeTags.ARRAY) {
             // Both types are array types
-            BArrayType lhrArrayType = (BArrayType) target;
+            BArrayType lhsArrayType = (BArrayType) target;
             BArrayType rhsArrayType = (BArrayType) source;
-            if (lhrArrayType.size == -1) {
-                return checkArrayEquality(lhrArrayType.eType, rhsArrayType.eType);
+            if (lhsArrayType.getState() == BArrayState.UNSEALED) {
+                return checkArrayEquality(lhsArrayType.eType, rhsArrayType.eType);
             }
-            if (checkSealedArrayEquality(rhsArrayType, lhrArrayType)) {
-                return checkArrayEquality(lhrArrayType.eType, rhsArrayType.eType);
-            } else {
-                return false;
-            }
-
+            return checkSealedArraySizeEquality(rhsArrayType, lhsArrayType)
+                    && isArrayTypesAssignable(rhsArrayType.eType, lhsArrayType.eType);
         }
 
         // Now one or both types are not array types and they have to be equal
         return isSameType(source, target);
     }
 
-    public boolean checkSealedArrayEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
-        if (lhsArrayType.size == -2 && rhsArrayType.size >= -1) { // Array is sealed using keyword hence size -2
-            return true;
-        } else {
-            return lhsArrayType.size == rhsArrayType.size;
-        }
+    public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
+        return lhsArrayType.size == rhsArrayType.size;
+        // TODO: 6/22/18 ANOUKH Check the array equality
     }
 
     public boolean checkStructEquivalency(BType rhsType, BType lhsType) {

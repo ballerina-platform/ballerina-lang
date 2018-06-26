@@ -110,6 +110,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForever;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
@@ -270,27 +271,21 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         int expTypeTag = expType.tag;
-        if (expTypeTag == TypeTags.JSON || expTypeTag == TypeTags.ANY) {
+        if (expTypeTag == TypeTags.JSON) {
             checkExprs(arrayLiteral.exprs, this.env, expType);
             actualType = expType;
 
         } else if (expTypeTag == TypeTags.ARRAY) {
             BArrayType arrayType = (BArrayType) expType;
-            if (arrayType.size == -2) {
+            if (arrayType.getState() == BArrayState.OPEN_SEALED) {
                 arrayType.size = arrayLiteral.exprs.size();
-            } else if (arrayType.size != -1 && arrayType.size != arrayLiteral.exprs.size()) {
+            } else if (arrayType.getState() != BArrayState.UNSEALED && arrayType.size != arrayLiteral.exprs.size()) {
                 dlog.error(arrayLiteral.pos,
                         DiagnosticCode.MISMATCHING_ARRAY_LITERAL_VALUES, arrayType.size, arrayLiteral.exprs.size());
                 resultType = symTable.errType;
                 return;
             }
             checkExprs(arrayLiteral.exprs, this.env, arrayType.eType);
-            BType childType = arrayType.eType;
-            while (childType != null && childType.tag == TypeTags.ARRAY) {
-                BArrayType bArrayType = (BArrayType) childType;
-                bArrayType.size = bArrayType.size == -2 ? -1 : bArrayType.size;
-                childType = bArrayType.eType;
-            }
             actualType = arrayType;
 
         } else if (expTypeTag != TypeTags.ERROR) {

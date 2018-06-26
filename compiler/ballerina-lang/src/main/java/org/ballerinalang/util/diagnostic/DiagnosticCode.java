@@ -168,7 +168,7 @@ public enum DiagnosticCode {
     INVALID_ARRAY_LITERAL("invalid.array.literal"),
     MISMATCHING_ARRAY_LITERAL_VALUES("mismatching.array.literal.values"),
     INVALID_DECLARATION_OF_SEALED_TYPE("invalid.declaration.of.sealed.type"),
-    ARRAY_INDEX_OUT_OF_BOUNDS("array.index.out.of.bounds"),
+    ARRAY_INDEX_OUT_OF_RANGE("array.index.out.of.range"),
     INVALID_TYPE_NEW_LITERAL("invalid.type.new.literal"),
     INVALID_USAGE_OF_KEYWORD("invalid.usage.of.keyword"),
 

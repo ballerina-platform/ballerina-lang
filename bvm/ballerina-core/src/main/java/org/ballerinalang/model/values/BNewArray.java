@@ -39,7 +39,7 @@ public abstract class BNewArray implements BRefType, BCollection {
      * This is same as Java
      */
     protected int maxArraySize = Integer.MAX_VALUE - 8;
-    protected static final int DEFAULT_ARRAY_SIZE = 100;
+    protected int capacity = 100;
 
     protected int size = 0;
 
@@ -63,16 +63,7 @@ public abstract class BNewArray implements BRefType, BCollection {
     // Private methods
 
     protected Object newArrayInstance(Class<?> componentType) {
-        return Array.newInstance(componentType, DEFAULT_ARRAY_SIZE);
-    }
-
-    protected Object newArrayInstance(Class<?> componentType, int size) {
-        if (size == -1) {
-            return newArrayInstance(componentType);
-        } else {
-            this.size = maxArraySize = size;
-            return Array.newInstance(componentType, size);
-        }
+        return Array.newInstance(componentType, capacity);
     }
 
     protected void prepareForAdd(long index, int currentArraySize) {

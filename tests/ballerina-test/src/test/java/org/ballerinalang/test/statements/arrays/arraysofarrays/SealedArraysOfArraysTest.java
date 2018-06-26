@@ -114,12 +114,12 @@ public class SealedArraysOfArraysTest {
                 resultNegative, 1, "size mismatch in sealed array. expected '2', but found '3'", 20, 36);
         BAssertUtil.validateError(
                 resultNegative, 2, "size mismatch in sealed array. expected '2', but found '3'", 21, 24);
-        BAssertUtil.validateError(resultNegative, 3, "array index is out of bounds", 27, 21);
-        BAssertUtil.validateError(resultNegative, 4, "array index is out of bounds", 29, 22);
-        BAssertUtil.validateError(resultNegative, 5, "array index is out of bounds", 31, 23);
-        BAssertUtil.validateError(resultNegative, 6, "array index is out of bounds", 37, 8);
-        BAssertUtil.validateError(resultNegative, 7, "array index is out of bounds", 38, 11);
-        BAssertUtil.validateError(resultNegative, 8, "array index is out of bounds", 39, 14);
+        BAssertUtil.validateError(resultNegative, 3, "array index out of range: index: '2', size: '2'", 27, 21);
+        BAssertUtil.validateError(resultNegative, 4, "array index out of range: index: '3', size: '3'", 29, 22);
+        BAssertUtil.validateError(resultNegative, 5, "array index out of range: index: '3', size: '3'", 31, 23);
+        BAssertUtil.validateError(resultNegative, 6, "array index out of range: index: '3', size: '3'", 37, 8);
+        BAssertUtil.validateError(resultNegative, 7, "array index out of range: index: '3', size: '2'", 38, 11);
+        BAssertUtil.validateError(resultNegative, 8, "array index out of range: index: '3', size: '3'", 39, 14);
         BAssertUtil.validateError(
                 resultNegative, 9, "size mismatch in sealed array. expected '3', but found '4'", 40, 16);
         BAssertUtil.validateError(
@@ -135,6 +135,6 @@ public class SealedArraysOfArraysTest {
         BAssertUtil.validateError(
                 resultNegative, 14, "incompatible types: expected 'int[3]', found 'int[]'", 47, 25);
         BAssertUtil.validateError(
-                resultNegative, 15, "array index is out of bounds", 52, 11);
+                resultNegative, 15, "array index out of range: index: '4', size: '3'", 52, 11);
     }
 }

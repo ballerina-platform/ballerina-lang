@@ -41,12 +41,14 @@ public class BRefValueArray extends BNewArray {
         super.arrayType = type;
         if (type.getTag() == TypeTags.ARRAY_TAG) {
             BArrayType arrayType = (BArrayType) type;
-            values = (BRefType[]) newArrayInstance(BRefType.class, arrayType.getSize());
+            if (arrayType.getSize() != -1) {
+                this.size = capacity = arrayType.getSize();
+            }
+            values = (BRefType[]) newArrayInstance(BRefType.class);
+            Arrays.fill(values, type.getZeroValue());
         } else {
             values = (BRefType[]) newArrayInstance(BRefType.class);
-        }
-        for (int i = 0; i < values.length; i++) {
-            values[i] = type.getZeroValue();
+            Arrays.fill(values, type.getEmptyValue());
         }
     }
 

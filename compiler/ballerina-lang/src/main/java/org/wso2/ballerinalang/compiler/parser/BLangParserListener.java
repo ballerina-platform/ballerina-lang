@@ -34,7 +34,6 @@ import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.QuoteType;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
-import org.wso2.ballerinalang.compiler.util.diagnotic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.nio.charset.StandardCharsets;
@@ -52,7 +51,6 @@ import java.util.stream.Collectors;
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_NATIVE = "native";
-    private final BLangDiagnosticLog dlog;
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -64,7 +62,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                         BDiagnosticSource diagnosticSource) {
         this.pkgBuilder = new BLangPackageBuilder(context, compUnit);
         this.diagnosticSrc = diagnosticSource;
-        this.dlog = BLangDiagnosticLog.getInstance(context);
     }
 
     @Override
@@ -443,12 +440,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
 
         boolean isFieldAnalyseRequired =
-                (ctx.parent.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
+                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
+                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         this.pkgBuilder.addObjectType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 
@@ -824,12 +821,12 @@ public class BLangParserListener extends BallerinaParserBaseListener {
             return;
         }
 
-        boolean isAnonymous = !(ctx.parent.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
+        boolean isAnonymous = !(ctx.parent.parent instanceof BallerinaParser.FiniteTypeUnitContext);
 
         boolean isFieldAnalyseRequired =
-                (ctx.parent.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
-                        ctx.parent.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
-                        ctx.parent.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
+                (ctx.parent.parent instanceof BallerinaParser.GlobalVariableDefinitionContext ||
+                        ctx.parent.parent instanceof BallerinaParser.ReturnParameterContext) ||
+                        ctx.parent.parent.parent.parent instanceof BallerinaParser.TypeDefinitionContext;
         this.pkgBuilder.addRecordType(getCurrentPos(ctx), getWS(ctx), isFieldAnalyseRequired, isAnonymous);
     }
 

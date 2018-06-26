@@ -3128,7 +3128,7 @@ public class BLangPackageBuilder {
 
     void markSealedNode(DiagnosticPos pos, BallerinaParser.SealedTypeNameContext ctx) {
         TypeNode typeNode = this.typeNodeStack.peek();
-        if (typeNode instanceof BLangArrayType) {
+        if (typeNode.getKind() == NodeKind.ARRAY_TYPE) {
             int[] sizes = ((BLangArrayType) typeNode).sizes;
             // If sealed keyword used, explicit sealing is not allowed
             boolean isSealed = Arrays.stream(sizes).anyMatch(size -> size != -1);
@@ -3136,7 +3136,8 @@ public class BLangPackageBuilder {
                 dlog.error(pos, DiagnosticCode.INVALID_DECLARATION_OF_SEALED_TYPE);
                 return;
             }
-            Arrays.fill(((BLangArrayType) typeNode).sizes, -2);
+            Arrays.fill(((BLangArrayType) typeNode).sizes, -1);
+            ((BLangArrayType) typeNode).isOpenSealed = true;
         } else {
             dlog.error(pos, DiagnosticCode.INVALID_USAGE_OF_KEYWORD, "sealed");
         }

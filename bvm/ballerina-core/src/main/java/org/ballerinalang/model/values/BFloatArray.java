@@ -43,7 +43,10 @@ public class BFloatArray extends BNewArray {
     }
 
     public BFloatArray(int size) {
-        values = (double[]) newArrayInstance(Double.TYPE, size);
+        if (size != -1) {
+            this.size = capacity = size;
+        }
+        values = (double[]) newArrayInstance(Double.TYPE);
         super.arrayType = new BArrayType(BTypes.typeFloat);
     }
 

@@ -628,12 +628,8 @@ public class CodeGenerator extends BLangNodeVisitor {
 
         BLangLiteral arraySizeLiteral = new BLangLiteral();
         arraySizeLiteral.pos = arrayLiteral.pos;
-        if (arrayLiteral.type.tag == TypeTags.ARRAY) {
-            BArrayType type = (BArrayType) arrayLiteral.type;
-            arraySizeLiteral.value = (type.size == -2) ? -1L : type.size;
-        } else {
-            arraySizeLiteral.value = -1L;
-        }
+        arraySizeLiteral.value =
+                (arrayLiteral.type.tag == TypeTags.ARRAY) ? ((BArrayType) arrayLiteral.type).size : -1L;
         arraySizeLiteral.type = symTable.intType;
         genNode(arraySizeLiteral, this.env);
 

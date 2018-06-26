@@ -45,7 +45,10 @@ public class BStringArray extends BNewArray {
     }
 
     public BStringArray(int size) {
-        values = (String[]) newArrayInstance(String.class, size);
+        if (size != -1) {
+            this.size = capacity = size;
+        }
+        values = (String[]) newArrayInstance(String.class);
         Arrays.fill(values, BLangConstants.STRING_EMPTY_VALUE);
         super.arrayType = new BArrayType(BTypes.typeString);
     }

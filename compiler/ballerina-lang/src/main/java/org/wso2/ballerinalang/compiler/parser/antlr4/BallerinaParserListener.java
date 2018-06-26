@@ -399,121 +399,109 @@ public interface BallerinaParserListener extends ParseTreeListener {
 	void exitFiniteTypeUnit(BallerinaParser.FiniteTypeUnitContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code sealedTypeName}
-	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * labeled alternative in {@link BallerinaParser#sealedType}.
 	 * @param ctx the parse tree
 	 */
 	void enterSealedTypeName(BallerinaParser.SealedTypeNameContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code sealedTypeName}
-	 * labeled alternative in {@link BallerinaParser#typeName}.
+	 * labeled alternative in {@link BallerinaParser#sealedType}.
 	 * @param ctx the parse tree
 	 */
 	void exitSealedTypeName(BallerinaParser.SealedTypeNameContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code unsealedTypeName}
-	 * labeled alternative in {@link BallerinaParser#typeName}.
-	 * @param ctx the parse tree
-	 */
-	void enterUnsealedTypeName(BallerinaParser.UnsealedTypeNameContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code unsealedTypeName}
-	 * labeled alternative in {@link BallerinaParser#typeName}.
-	 * @param ctx the parse tree
-	 */
-	void exitUnsealedTypeName(BallerinaParser.UnsealedTypeNameContext ctx);
-	/**
 	 * Enter a parse tree produced by the {@code tupleTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void enterTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code tupleTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void exitTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code recordTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void enterRecordTypeNameLabel(BallerinaParser.RecordTypeNameLabelContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code recordTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void exitRecordTypeNameLabel(BallerinaParser.RecordTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code unionTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void enterUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code unionTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void exitUnionTypeNameLabel(BallerinaParser.UnionTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code simpleTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void enterSimpleTypeNameLabel(BallerinaParser.SimpleTypeNameLabelContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code simpleTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void exitSimpleTypeNameLabel(BallerinaParser.SimpleTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code nullableTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void enterNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code nullableTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void exitNullableTypeNameLabel(BallerinaParser.NullableTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code arrayTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void enterArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code arrayTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void exitArrayTypeNameLabel(BallerinaParser.ArrayTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code objectTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void enterObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code objectTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void exitObjectTypeNameLabel(BallerinaParser.ObjectTypeNameLabelContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code groupTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void enterGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx);
 	/**
 	 * Exit a parse tree produced by the {@code groupTypeNameLabel}
-	 * labeled alternative in {@link BallerinaParser#typeNameList}.
+	 * labeled alternative in {@link BallerinaParser#typeName}.
 	 * @param ctx the parse tree
 	 */
 	void exitGroupTypeNameLabel(BallerinaParser.GroupTypeNameLabelContext ctx);

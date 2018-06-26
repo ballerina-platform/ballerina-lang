@@ -496,18 +496,6 @@ public class BallerinaParserBaseListener implements BallerinaParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterUnsealedTypeName(BallerinaParser.UnsealedTypeNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitUnsealedTypeName(BallerinaParser.UnsealedTypeNameContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterTupleTypeNameLabel(BallerinaParser.TupleTypeNameLabelContext ctx) { }
 	/**
 	 * {@inheritDoc}
