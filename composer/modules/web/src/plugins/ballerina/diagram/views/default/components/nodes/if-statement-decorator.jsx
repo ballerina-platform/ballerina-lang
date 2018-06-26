@@ -19,6 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
 import SimpleBBox from 'plugins/ballerina/model/view/simple-bounding-box';
+import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hover-group';
 import Node from '../../../../../model/tree/node';
 import './compound-statement-decorator.css';
 import ActiveArbiter from '../decorators/active-arbiter';
@@ -26,7 +27,6 @@ import Breakpoint from '../decorators/breakpoint';
 import { getComponentForNodeArray } from './../../../../diagram-util';
 import ElseStatementDecorator from './else-statement-decorator';
 import ArrowDecorator from '../decorators/arrow-decorator';
-import HoverGroup from '../decorators/quick-actions/hover-group';
 
 /**
  * Wraps other UI elements and provide box with a heading.
@@ -338,9 +338,18 @@ class IfStatementDecorator extends React.Component {
                 <HoverGroup model={this.props.model} region='main'>
                     <rect
                         x={p8X - 25}
-                        y={p8Y + 5}
+                        y={p8Y}
                         width={50}
-                        height={25}
+                        height={30}
+                        className='invisible-rect'
+                    />
+                </HoverGroup>
+                <HoverGroup model={this.props.model} region='else'>
+                    <rect
+                        x={p8X + 100}
+                        y={p8Y}
+                        width={50}
+                        height={30}
                         className='invisible-rect'
                     />
                 </HoverGroup>

@@ -18,9 +18,9 @@
 
 import React from 'react';
 import { Button } from 'semantic-ui-react';
-import ImageUtils from './../diagram/image-util';
+import ImageUtils from 'plugins/ballerina/diagram/image-util';
 
-class Tools extends React.Component {
+class HoverButton extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -57,9 +57,9 @@ class Tools extends React.Component {
     }
 }
 
-Tools.defaultProps = {
+HoverButton.defaultProps = {
     showButtonAlways: false,
     style: {},
 };
 
-export default Tools;
+export default HoverButton;

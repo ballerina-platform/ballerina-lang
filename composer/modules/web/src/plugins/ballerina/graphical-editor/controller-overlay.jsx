@@ -19,14 +19,20 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import { Menu } from 'semantic-ui-react';
-
-import WorkerTools from 'plugins/ballerina/tool-palette/item-provider/worker-tools';
-import ControllerUtil from 'plugins/ballerina/diagram/views/default/components/controllers/controller-util';
 import ActionBox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
 import HoverItemVisiter from '../visitors/hover-item-visitor';
-import './controller-overlay.scss';
-import HoverButton from './hover-button';
+
+// require all react components
+function requireAll(requireContext) {
+    const comp = {};
+    requireContext.keys().forEach((item) => {
+        const module = requireContext(item);
+        if (module.default) {
+            comp[module.default.name] = module.default.regions;
+        }
+    });
+    return comp;
+}
 
 /**
  * React component for a canvas decorator.
@@ -38,9 +44,7 @@ class ControllerOverlay extends React.Component {
 
     constructor() {
         super();
-        this.state = {
-            showMenu: false,
-        };
+        this.ctrlComponents = requireAll(require.context('./controllers', true, /\.jsx$/));
         this.onMouseEnter = this.onMouseEnter.bind(this);
         this.onMouseLeave = this.onMouseLeave.bind(this);
     }
@@ -61,9 +65,7 @@ class ControllerOverlay extends React.Component {
         this.props.model.off('mouse-leave', this.onMouseLeave);
     }
     onMouseEnter({ origin, region }) {
-        this.setState({
-            region,
-        });
+        // menu rendering is done in render function.
         this.forceUpdate();
     }
     onMouseLeave({ origin, region }) {
@@ -75,25 +77,7 @@ class ControllerOverlay extends React.Component {
     renderControllers(model, controllers, region) {
         model.trigger('render-menu', { content: controllers, region });
     }
-
-    renderToRegions(node, regionToComponent = {}) {
-        const region = node.viewState.hoveredRegion;
-        const component = regionToComponent[region];
-        this.renderControllers(node, component, region);
-    }
-
-    renderMain({ left, top }, items) {
-        return (<HoverButton
-            style={{
-                top,
-                left,
-            }}
-        >
-            <Menu vertical>
-                {items}
-            </Menu>
-        </HoverButton>);
-    }
+    
     renderActionBox({ left, top }, onDelete, onJumptoCodeLine) {
         return (
             <ActionBox
@@ -119,36 +103,14 @@ class ControllerOverlay extends React.Component {
         const nodes = hoverItemVisiter.getHoveredItems();
 
         nodes.forEach((node) => {
-            if (node.kind === 'If') {
-                this.renderToRegions(node, {
-                    main: this.renderMain({
-                        top: node.viewState.components['statement-box'].y - 10,
-                        left: node.viewState.components['statement-box'].x - 15,
-                    },
-                        ControllerUtil.convertToAddItems(WorkerTools, node.getBody())
-                    ),
-                    actionBox: this.renderActionBox({
-                        top: node.viewState.components['statement-box'].y - 50,
-                        left: node.viewState.components['statement-box'].x - 38,
-                    },
-                        () => { node.remove(); },
-                        () => {
-                            const { editor } = this.context;
-                            editor.goToSource(node);
-                        }
-                    ),
-                });
-            } else if (node.kind === 'Assignment' || node.kind === 'VariableDef' || node.kind === 'ExpressionStatement') {
-                this.renderToRegions(node, {
-                    main: this.renderMain({
-                        top: node.viewState.components['statement-box'].y - 5,
-                        left: node.viewState.components['statement-box'].x - 20,
-                    },
-                        ControllerUtil.convertToAddItems(WorkerTools, node)
-                    ),
-                });
-            } else {
-                console.log('Could not render ctrl for', node);
+            const region = node.viewState.hoveredRegion;
+            const component = this.ctrlComponents[`${node.kind}`][region];
+            if (component) {
+                const element = React.createElement(component, {
+                    model: node,
+                }, null);
+
+                this.renderControllers(node, element, region);
             }
         });
 

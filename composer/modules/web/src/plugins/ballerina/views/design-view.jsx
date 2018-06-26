@@ -27,7 +27,7 @@ import CompilationUnitNode from './../model/tree/compilation-unit-node';
 import { EVENTS } from '../constants';
 import DesignViewErrorBoundary from './DesignViewErrorBoundary';
 import DiagramMenu from './diagram-menu';
-import ControllerOverlay from './controller-overlay';
+import GraphicalEditor from '../graphical-editor/graphical-editor';
 
 class DesignView extends React.Component {
 
@@ -187,7 +187,10 @@ class DesignView extends React.Component {
                             <div className='diagram root' ref={this.setDiagramContainer} >
                                 {this.props.model &&
                                     <DesignViewErrorBoundary>
-                                        <ControllerOverlay model={this.props.model} />
+                                        <GraphicalEditor
+                                            model={this.props.model}
+                                            mode={this.props.mode}
+                                        />
                                         <BallerinaDiagram
                                             model={this.props.model}
                                             mode={this.props.mode}

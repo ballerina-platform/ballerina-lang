@@ -19,7 +19,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 import breakpointHoc from 'src/plugins/debugger/views/BreakpointHoc';
-import ActionBox from './action-box';
+import HoverGroup from 'plugins/ballerina/graphical-editor/controller-utils/hover-group';
 import SimpleBBox from './../../../../../model/view/simple-bounding-box';
 import './statement-decorator.css';
 import Breakpoint from './breakpoint';
@@ -28,7 +28,6 @@ import Node from '../../../../../model/tree/node';
 import DropZone from '../../../../../drag-drop/DropZone';
 import splitVariableDefByLambda from '../../../../../model/lambda-util';
 import { getComponentForNodeArray } from '../../../../diagram-util';
-import HoverGroup from './quick-actions/hover-group';
 
 /**
  * Wraps other UI elements and provide box with a heading.
