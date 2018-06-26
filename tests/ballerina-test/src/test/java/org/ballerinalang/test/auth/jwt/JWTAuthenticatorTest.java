@@ -23,8 +23,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
 import org.ballerinalang.stdlib.internal.jwt.crypto.RSASigner;
@@ -123,7 +123,7 @@ public class JWTAuthenticatorTest {
     public void testCreateJwtAuthenticatorWithCache() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testJwtAuthenticatorCreationWithCache");
         Assert.assertNotNull(returns);
-        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertTrue(returns[0] instanceof BMap);
     }
 
     @Test(description = "Test case for JWT authenticator for authentication success")

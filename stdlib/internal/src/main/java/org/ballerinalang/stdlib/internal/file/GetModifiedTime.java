@@ -16,18 +16,19 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.internal.file;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.Utils;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.Constants;
-import org.ballerinalang.stdlib.time.util.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,10 +38,10 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.ZonedDateTime;
 
-import static org.ballerinalang.stdlib.time.util.TimeUtils.PACKAGE_TIME;
-import static org.ballerinalang.stdlib.time.util.TimeUtils.STRUCT_TYPE_TIME;
-import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeStructInfo;
-import static org.ballerinalang.stdlib.time.util.TimeUtils.getTimeZoneStructInfo;
+import static org.ballerinalang.nativeimpl.Utils.PACKAGE_TIME;
+import static org.ballerinalang.nativeimpl.Utils.STRUCT_TYPE_TIME;
+import static org.ballerinalang.nativeimpl.Utils.getTimeStructInfo;
+import static org.ballerinalang.nativeimpl.Utils.getTimeZoneStructInfo;
 
 /**
  * Retrieves the last modified time of the specified file.
@@ -65,15 +66,14 @@ public class GetModifiedTime extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> pathStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        BStruct lastModifiedStruct;
+        BMap<String, BValue> lastModifiedStruct;
         try {
             FileTime lastModified = Files.getLastModifiedTime(path);
             ZonedDateTime zonedDateTime = ZonedDateTime.parse(lastModified.toString());
-            lastModifiedStruct = TimeUtils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context),
-                                                            lastModified.toMillis(),
-                                                            zonedDateTime.getZone().toString());
+            lastModifiedStruct = Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context),
+                    lastModified.toMillis(), zonedDateTime.getZone().toString());
             context.setReturnValues(lastModifiedStruct);
         } catch (IOException | SecurityException e) {
             String msg;

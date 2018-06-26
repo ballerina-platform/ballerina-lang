@@ -15,19 +15,30 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.task.timer;
+package org.ballerinalang.nativeimpl.task.timer;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.task.SchedulingException;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.task.SchedulingException;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
+
+import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_DELAY;
+import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_INTERVAL;
+import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_IS_RUNNING_FIELD;
+import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_ON_ERROR_FIELD;
+import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_ON_TRIGGER_FIELD;
+import static org.ballerinalang.nativeimpl.task.TaskConstants.TIMER_TASK_ID_FIELD;
 
 /**
  * Native function ballerina/task:Timer.start.
@@ -41,25 +52,28 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 )
 public class Start extends BlockingNativeCallableUnit {
     public void execute(Context ctx) {
-        BStruct task = (BStruct) ctx.getRefArgument(0);
-        int isRunning = task.getBooleanField(0);
-        if (isRunning == 1) {
+        BMap<String, BValue> task = (BMap<String, BValue>) ctx.getRefArgument(0);
+        boolean isRunning = ((BBoolean) task.get(TIMER_IS_RUNNING_FIELD)).booleanValue();
+        if (isRunning) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.TASK_ALREADY_RUNNING);
         }
 
-        FunctionRefCPEntry onTriggerFunctionRefCPEntry = ((BFunctionPointer) task.getRefField(0)).value();
+        FunctionRefCPEntry onTriggerFunctionRefCPEntry = ((BFunctionPointer) task.get(TIMER_ON_TRIGGER_FIELD)).value();
+        BValue onErrorFunc = task.get(TIMER_ON_ERROR_FIELD);
         FunctionRefCPEntry onErrorFunctionRefCPEntry =
-                task.getRefField(1) != null ? ((BFunctionPointer) task.getRefField(1)).value() : null;
-        long delay = task.getIntField(0);
-        long interval = task.getIntField(1);
+                onErrorFunc != null ? ((BFunctionPointer) onErrorFunc).value() : null;
+
+        long delay = ((BInteger) task.get(TIMER_DELAY)).intValue();
+        long interval = ((BInteger) task.get(TIMER_INTERVAL)).intValue();
         if (delay == -1) {
             delay = interval;
         }
 
         try {
-            Timer timer = new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
-            task.setStringField(0, timer.getId());
-            task.setBooleanField(0, 1);
+            Timer timer =
+                    new Timer(this, ctx, delay, interval, onTriggerFunctionRefCPEntry, onErrorFunctionRefCPEntry);
+            task.put(TIMER_TASK_ID_FIELD, new BString(timer.getId()));
+            task.put(TIMER_IS_RUNNING_FIELD, new BBoolean(true));
         } catch (SchedulingException e) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INVALID_TASK_CONFIG);
         }

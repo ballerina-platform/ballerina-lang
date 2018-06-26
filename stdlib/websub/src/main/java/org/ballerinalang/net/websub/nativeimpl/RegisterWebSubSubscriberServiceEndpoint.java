@@ -25,12 +25,14 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.LISTENER_SERVICE_ENDPOINT;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_PACKAGE;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_SERVICE_REGISTRY;
 
@@ -54,8 +56,9 @@ public class RegisterWebSubSubscriberServiceEndpoint extends BlockingNativeCalla
 
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
         Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        Struct serviceEndpoint = ConnectorSPIModelHelper.createStruct(
-                (BStruct) ((BStruct) (subscriberServiceEndpoint.getVMValue())).getRefField(1));
+        BMap<String, BValue> vmValue = (BMap<String, BValue>) subscriberServiceEndpoint.getVMValue();
+        Struct serviceEndpoint = ConnectorSPIModelHelper
+                .createStruct((BMap<String, BValue>) vmValue.get(LISTENER_SERVICE_ENDPOINT));
         WebSubServicesRegistry webSubServicesRegistry =
                 (WebSubServicesRegistry) serviceEndpoint.getNativeData(WEBSUB_SERVICE_REGISTRY);
         webSubServicesRegistry.registerWebSubSubscriberService(service);

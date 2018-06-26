@@ -16,17 +16,22 @@
  *  under the License.
  *
  */
-package org.ballerinalang.stdlib.task.appointment;
+package org.ballerinalang.nativeimpl.task.appointment;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.task.TaskRegistry;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.task.TaskRegistry;
 import org.ballerinalang.util.exceptions.BLangExceptionHelper;
 import org.ballerinalang.util.exceptions.RuntimeErrors;
+
+import static org.ballerinalang.nativeimpl.task.TaskConstants.APPOINTMENT_IS_RUNNING_FIELD;
+import static org.ballerinalang.nativeimpl.task.TaskConstants.APPOINTMENT_TASK_ID_FIELD;
 
 /**
  * Native function ballerina/task:Appointment.cancel.
@@ -41,13 +46,13 @@ import org.ballerinalang.util.exceptions.RuntimeErrors;
 public class Cancel extends BlockingNativeCallableUnit {
 
     public void execute(Context ctx) {
-        BStruct task = (BStruct) ctx.getRefArgument(0);
-        int isRunning = task.getBooleanField(0);
-        if (isRunning == 0) {
+        BMap<String, BValue> task = (BMap<String, BValue>) ctx.getRefArgument(0);
+        boolean isRunning = ((BBoolean) task.get(APPOINTMENT_IS_RUNNING_FIELD)).booleanValue();
+        if (!isRunning) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.TASK_NOT_RUNNING);
         }
-        String taskId = task.getStringField(0);
+        String taskId = task.get(APPOINTMENT_TASK_ID_FIELD).stringValue();
         TaskRegistry.getInstance().stopTask(taskId);
-        task.setBooleanField(0, 0);
+        task.put(APPOINTMENT_IS_RUNNING_FIELD, new BBoolean(false));
     }
 }

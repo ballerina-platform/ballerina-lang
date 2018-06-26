@@ -16,18 +16,20 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.internal.file;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
-import org.ballerinalang.stdlib.internal.Constants;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 
 /**
  * Initializes a given file location to a path.
@@ -57,7 +59,7 @@ public class Init extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String basePath = context.getStringArgument(0);
-        BStruct path = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> path = (BMap<String, BValue>) context.getRefArgument(0);
         path.addNativeData(Constants.PATH_DEFINITION_NAME, getPath(basePath));
     }
 }

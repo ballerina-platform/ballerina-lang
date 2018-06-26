@@ -20,7 +20,8 @@ package org.ballerinalang.stdlib.file.service;
 
 import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.Resource;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.slf4j.Logger;
@@ -29,6 +30,9 @@ import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSys
 import org.wso2.transport.localfilesystem.server.connector.contract.LocalFileSystemListener;
 
 import java.util.Map;
+
+import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_EVENT_NAME;
+import static org.ballerinalang.nativeimpl.file.utils.Constants.FILE_EVENT_OPERATION;
 
 /**
  * File System connector listener for Ballerina.
@@ -58,9 +62,9 @@ public class FSListener implements LocalFileSystemListener {
     }
 
     private BValue[] getSignatureParameters(LocalFileSystemEvent fileEvent) {
-        BStruct eventStruct = new BStruct(this.structInfo.getType());
-        eventStruct.setStringField(0, fileEvent.getFileName());
-        eventStruct.setStringField(1, fileEvent.getEvent());
+        BMap<String, BValue> eventStruct = new BMap<>(this.structInfo.getType());
+        eventStruct.put(FILE_EVENT_NAME, new BString(fileEvent.getFileName()));
+        eventStruct.put(FILE_EVENT_OPERATION, new BString(fileEvent.getEvent()));
         return new BValue[] { eventStruct };
     }
 

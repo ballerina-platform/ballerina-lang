@@ -18,6 +18,7 @@
 package org.ballerinalang.database.sql.actions;
 
 import com.sun.rowset.CachedRowSetImpl;
+
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.database.sql.Constants;
@@ -40,12 +41,12 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
@@ -82,8 +83,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.TimeZone;
+
 import javax.sql.rowset.CachedRowSet;
 
+import static org.ballerinalang.database.sql.Constants.PARAMETER_DIRECTION_FIELD;
+import static org.ballerinalang.database.sql.Constants.PARAMETER_RECORD_TYPE_FIELD;
+import static org.ballerinalang.database.sql.Constants.PARAMETER_SQL_TYPE_FIELD;
+import static org.ballerinalang.database.sql.Constants.PARAMETER_VALUE_FIELD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_DB_TYPE_SQL;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_INSTANCE;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_DB_STATEMENT;
@@ -96,7 +102,7 @@ import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KE
  * @since 0.8.0
  */
 public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
-
+    
     private Calendar utcCalendar;
     private static final BTupleType executeUpdateWithKeysTupleType = new BTupleType(
             Arrays.asList(BTypes.typeInt, new BArrayType(BTypes.typeString)));
@@ -342,25 +348,26 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         int paramCount = (int) parameters.size();
         for (int i = 0; i < paramCount; ++i) {
             BRefType typeValue = parameters.get(i);
-            BStruct paramStruct;
+            BMap<String, BValue> paramStruct;
             if (typeValue.getType().getTag() == TypeTags.OBJECT_TYPE_TAG
                     || typeValue.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
-                paramStruct = (BStruct) typeValue;
+                paramStruct = (BMap<String, BValue>) typeValue;
             } else {
                 paramStruct = getSQLParameter(context);
-                paramStruct.setRefField(0, new BString(SQLDatasourceUtils.getSQLType(typeValue.getType())));
-                paramStruct.setRefField(1, typeValue);
-                paramStruct.setRefField(2, new BString(Constants.QueryParamDirection.DIR_IN));
+                paramStruct.put(PARAMETER_SQL_TYPE_FIELD,
+                        new BString(SQLDatasourceUtils.getSQLType(typeValue.getType())));
+                paramStruct.put(PARAMETER_VALUE_FIELD, typeValue);
+                paramStruct.put(PARAMETER_DIRECTION_FIELD, new BString(Constants.QueryParamDirection.DIR_IN));
             }
             parametersNew.add(i, paramStruct);
         }
         return parametersNew;
     }
 
-    private static BStruct getSQLParameter(Context context) {
+    private static BMap<String, BValue> getSQLParameter(Context context) {
         PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(Constants.SQL_PACKAGE_PATH);
         StructureTypeInfo paramStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_PARAMETER);
-        return new BStruct(paramStructInfo.getType());
+        return new BMap<>(paramStructInfo.getType());
     }
 
     /**
@@ -375,10 +382,11 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
             int count;
             int paramCount = (int) parameters.size();
             for (int i = 0; i < paramCount; i++) {
-                BStruct paramValue = (BStruct) parameters.get(i);
+                // types.bal Parameter
+                BMap<String, BValue> paramValue = (BMap<String, BValue>) parameters.get(i);
                 if (paramValue != null) {
                     String sqlType = getSQLType(paramValue);
-                    BValue value = paramValue.getRefField(1);
+                    BValue value = paramValue.get(PARAMETER_VALUE_FIELD);
                     if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
                             .equalsIgnoreCase(sqlType)) {
                         count = (int) ((BNewArray) value).size();
@@ -531,10 +539,10 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         int paramCount = (int) params.size();
         int currentOrdinal = 0;
         for (int index = 0; index < paramCount; index++) {
-            BStruct paramStruct = (BStruct) params.get(index);
+            BMap<String, BValue> paramStruct = (BMap<String, BValue>) params.get(index);
             if (paramStruct != null) {
                 String sqlType = getSQLType(paramStruct);
-                BValue value = paramStruct.getRefField(1);
+                BValue value = paramStruct.get(PARAMETER_VALUE_FIELD);
                 int direction = getParameterDirection(paramStruct);
                 //If the parameter is an array and sql type is not "array" then treat it as an array of parameters
                 if (value != null && value.getType().getTag() == TypeTags.ARRAY_TAG && !Constants.SQLDataTypes.ARRAY
@@ -694,7 +702,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         boolean refCursorOutParamPresent = false;
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
-            BStruct paramValue = (BStruct) params.get(index);
+            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.get(index);
             if (paramValue != null) {
                 String sqlType = getSQLType(paramValue);
                 int direction = getParameterDirection(paramValue);
@@ -719,7 +727,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                     && params.get(index).getType().getTag() != TypeTags.RECORD_TYPE_TAG) {
                 continue;
             }
-            BStruct paramValue = (BStruct) params.get(index);
+            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.get(index);
             if (paramValue != null) {
                 String sqlType = getSQLType(paramValue);
                 int direction = getParameterDirection(paramValue);
@@ -734,96 +742,96 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     }
 
     private void setOutParameterValue(Context context, CallableStatement stmt, String sqlType, int index,
-            BStruct paramValue, TableResourceManager resourceManager) {
+                                      BMap<String, BValue> paramValue, TableResourceManager resourceManager) {
         try {
             String sqlDataType = sqlType.toUpperCase(Locale.getDefault());
             switch (sqlDataType) {
             case Constants.SQLDataTypes.INTEGER: {
                 int value = stmt.getInt(index + 1);
-                paramValue.setRefField(1, new BInteger(value)); //Value is the first position of the struct
+                paramValue.put(PARAMETER_VALUE_FIELD, new BInteger(value)); //Value is the first position of the struct
             }
             break;
             case Constants.SQLDataTypes.VARCHAR: {
                 String value = stmt.getString(index + 1);
-                paramValue.setRefField(1, new BString(value));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BString(value));
             }
             break;
             case Constants.SQLDataTypes.NUMERIC:
             case Constants.SQLDataTypes.DECIMAL: {
                 BigDecimal value = stmt.getBigDecimal(index + 1);
                 if (value == null) {
-                    paramValue.setRefField(1, new BFloat(0));
+                    paramValue.put(PARAMETER_VALUE_FIELD, new BFloat(0));
                 } else {
-                    paramValue.setRefField(1, new BFloat(value.doubleValue()));
+                    paramValue.put(PARAMETER_VALUE_FIELD, new BFloat(value.doubleValue()));
                 }
             }
             break;
             case Constants.SQLDataTypes.BIT:
             case Constants.SQLDataTypes.BOOLEAN: {
                 boolean value = stmt.getBoolean(index + 1);
-                paramValue.setRefField(1, new BBoolean(value));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BBoolean(value));
             }
             break;
             case Constants.SQLDataTypes.TINYINT: {
                 byte value = stmt.getByte(index + 1);
-                paramValue.setRefField(1, new BInteger(value));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BInteger(value));
             }
             break;
             case Constants.SQLDataTypes.SMALLINT: {
                 short value = stmt.getShort(index + 1);
-                paramValue.setRefField(1, new BInteger(value));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BInteger(value));
             }
             break;
             case Constants.SQLDataTypes.BIGINT: {
                 long value = stmt.getLong(index + 1);
-                paramValue.setRefField(1, new BInteger(value));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BInteger(value));
             }
             break;
             case Constants.SQLDataTypes.REAL:
             case Constants.SQLDataTypes.FLOAT: {
                 float value = stmt.getFloat(index + 1);
-                paramValue.setRefField(1, new BFloat(value));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BFloat(value));
             }
             break;
             case Constants.SQLDataTypes.DOUBLE: {
                 double value = stmt.getDouble(index + 1);
-                paramValue.setRefField(1, new BFloat(value));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BFloat(value));
             }
             break;
             case Constants.SQLDataTypes.CLOB: {
                 Clob value = stmt.getClob(index + 1);
-                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.BLOB: {
                 Blob value = stmt.getBlob(index + 1);
-                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.BINARY: {
                 byte[] value = stmt.getBytes(index + 1);
-                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.DATE: {
                 Date value = stmt.getDate(index + 1);
-                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.TIMESTAMP:
             case Constants.SQLDataTypes.DATETIME: {
                 Timestamp value = stmt.getTimestamp(index + 1, utcCalendar);
-                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.TIME: {
                 Time value = stmt.getTime(index + 1, utcCalendar);
-                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.ARRAY: {
                 Array value = stmt.getArray(index + 1);
-                paramValue.setRefField(1, new BString(SQLDatasourceUtils.getString(value)));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BString(SQLDatasourceUtils.getString(value)));
             }
             break;
             case Constants.SQLDataTypes.STRUCT: {
@@ -836,7 +844,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         stringValue = value.toString();
                     }
                 }
-                paramValue.setRefField(1, new BString(stringValue));
+                paramValue.put(PARAMETER_VALUE_FIELD, new BString(stringValue));
             }
             break;
             case Constants.SQLDataTypes.REFCURSOR: {
@@ -844,7 +852,8 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                 BStructureType structType = getStructType(paramValue);
                 if (structType != null) {
                     resourceManager.addResultSet(rs);
-                    paramValue.setRefField(1, constructTable(resourceManager, context, rs, getStructType(paramValue)));
+                    paramValue.put(PARAMETER_VALUE_FIELD,
+                                constructTable(resourceManager, context, rs, getStructType(paramValue)));
                 } else {
                     throw new BallerinaException(
                             "The Struct Type for the result set pointed by the Ref Cursor cannot be null");
@@ -863,7 +872,7 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
     private boolean hasOutParams(BRefValueArray params) {
         int paramCount = (int) params.size();
         for (int index = 0; index < paramCount; index++) {
-            BStruct paramValue = (BStruct) params.get(index);
+            BMap<String, BValue> paramValue = (BMap<String, BValue>) params.get(index);
             int direction = getParameterDirection(paramValue);
             if (direction == Constants.QueryParamDirection.OUT || direction == Constants.QueryParamDirection.INOUT) {
                 return true;
@@ -918,17 +927,17 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                                 TimeUtils.getTimeZoneStructInfo(context), utcCalendar);
     }
 
-    private String getSQLType(BStruct parameter) {
+    private String getSQLType(BMap<String, BValue> parameter) {
         String sqlType = "";
-        BRefType refType = parameter.getRefField(0);
+        BRefType refType = (BRefType) parameter.get(PARAMETER_SQL_TYPE_FIELD);
         if (refType != null) {
             sqlType = refType.stringValue();
         }
         return sqlType;
     }
 
-    private BStructureType getStructType(BStruct parameter) {
-        BTypeDescValue type = (BTypeDescValue) parameter.getRefField(3);
+    private BStructureType getStructType(BMap<String, BValue> parameter) {
+        BTypeDescValue type = (BTypeDescValue) parameter.get(PARAMETER_RECORD_TYPE_FIELD);
         BStructureType structType = null;
         if (type != null) {
             structType = (BStructureType) type.value();
@@ -936,9 +945,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
         return structType;
     }
 
-    private int getParameterDirection(BStruct parameter) {
+    private int getParameterDirection(BMap<String, BValue> parameter) {
         int direction = 0;
-        BRefType dir = parameter.getRefField(2);
+        BRefType dir = (BRefType) parameter.get(PARAMETER_DIRECTION_FIELD);
         if (dir != null) {
             String sqlType = dir.stringValue();
             switch (sqlType) {

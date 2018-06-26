@@ -75,12 +75,12 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangEnumeratorAccessExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess.BLangStructFunctionVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangArrayAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangJSONAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangMapAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangStructFieldAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -1068,7 +1068,7 @@ public class Desugar extends BLangNodeVisitor {
                     fieldAccessExpr.field, (BVarSymbol) fieldAccessExpr.symbol);
         } else {
             fieldAccessExpr.expr = rewriteExpr(fieldAccessExpr.expr);
-            
+            BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
             BType varRefType = fieldAccessExpr.expr.type;
             if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
                 if (fieldAccessExpr.symbol instanceof BInvokableSymbol &&
@@ -1076,17 +1076,14 @@ public class Desugar extends BLangNodeVisitor {
                     targetVarRef = new BLangStructFunctionVarRef(fieldAccessExpr.expr,
                             (BVarSymbol) fieldAccessExpr.symbol);
                 } else {
-                    targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos,
-                            fieldAccessExpr.expr, (BVarSymbol) fieldAccessExpr.symbol);
+                    targetVarRef = new BLangStructFieldAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
+                            (BVarSymbol) fieldAccessExpr.symbol);
                 }
             } else if (varRefType.tag == TypeTags.MAP) {
-                BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
                 targetVarRef = new BLangMapAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
             } else if (varRefType.tag == TypeTags.JSON) {
-                BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
                 targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
             } else if (varRefType.tag == TypeTags.XML) {
-                BLangLiteral stringLit = createStringLiteral(fieldAccessExpr.pos, fieldAccessExpr.field.value);
                 targetVarRef = new BLangXMLAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit,
                         fieldAccessExpr.fieldKind);
             }
@@ -1109,8 +1106,8 @@ public class Desugar extends BLangNodeVisitor {
         indexAccessExpr.expr = rewriteExpr(indexAccessExpr.expr);
         BType varRefType = indexAccessExpr.expr.type;
         if (varRefType.tag == TypeTags.OBJECT || varRefType.tag == TypeTags.RECORD) {
-            targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos,
-                    indexAccessExpr.expr, (BVarSymbol) indexAccessExpr.symbol);
+            targetVarRef = new BLangStructFieldAccessExpr(indexAccessExpr.pos, indexAccessExpr.expr,
+                    indexAccessExpr.indexExpr, (BVarSymbol) indexAccessExpr.symbol);
         } else if (varRefType.tag == TypeTags.MAP) {
             targetVarRef = new BLangMapAccessExpr(indexAccessExpr.pos,
                     indexAccessExpr.expr, indexAccessExpr.indexExpr, !indexAccessExpr.type.isNullable());
@@ -2250,30 +2247,18 @@ public class Desugar extends BLangNodeVisitor {
         BType type = varNode.type;
         // Don't need to create an empty init expressions if the type allows null.
         if (type.isNullable()) {
-            return null;
+            return getNullLiteral();
         }
 
         switch (type.tag) {
             case TypeTags.INT:
-                BLangLiteral intDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                intDefault.value = Long.parseLong("0");
-                intDefault.type = symTable.intType;
-                return intDefault;
+                return getIntLiteral(0);
             case TypeTags.FLOAT:
-                BLangLiteral floatDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                floatDefault.value = Double.parseDouble("0");
-                floatDefault.type = symTable.floatType;
-                return floatDefault;
+                return getFloatLiteral(0);
             case TypeTags.BOOLEAN:
-                BLangLiteral booleanDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                booleanDefault.value = Boolean.parseBoolean("false");
-                booleanDefault.type = symTable.booleanType;
-                return booleanDefault;
+                return getBooleanLiteral(false);
             case TypeTags.STRING:
-                BLangLiteral stringDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
-                stringDefault.value = "";
-                stringDefault.type = symTable.stringType;
-                return stringDefault;
+                return getStringLiteral("");
             case TypeTags.BLOB:
                 BLangLiteral blobDefault = (BLangLiteral) TreeBuilder.createLiteralExpression();
                 blobDefault.value = new byte[0];

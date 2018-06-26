@@ -22,7 +22,8 @@ package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 import org.slf4j.Logger;
@@ -61,7 +62,7 @@ public class ReceiveActionHandler {
             sessionConnector.handleTransactionBlock(context);
             Message message = messageConsumer.receive(timeInMilliSeconds);
             if (Objects.nonNull(message)) {
-                BStruct messageBObject = BLangConnectorSPIUtil.createBStruct(context,
+                BMap<String, BValue> messageBObject = BLangConnectorSPIUtil.createBStruct(context,
                                                                              Constants.BALLERINA_PACKAGE_JMS,
                                                                              Constants.JMS_MESSAGE_STRUCT_NAME);
                 messageBObject.addNativeData(Constants.JMS_MESSAGE_OBJECT, message);

@@ -14,16 +14,17 @@
  *  limitations under the License.
  */
 
-package org.ballerinalang.stdlib.internal.compression;
+package org.ballerinalang.nativeimpl.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.utils.Constants;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 
 import java.io.FileOutputStream;
@@ -128,9 +129,9 @@ public class Compress extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct srcPathStruct = (BStruct) context.getRefArgument(SRC_PATH_FIELD_INDEX);
+        BMap<String, BValue> srcPathStruct = (BMap<String, BValue>) context.getRefArgument(SRC_PATH_FIELD_INDEX);
         Path srcPath = (Path) srcPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
-        BStruct destPathStruct = (BStruct) context.getRefArgument(DEST_PATH_FIELD_INDEX);
+        BMap<String, BValue> destPathStruct = (BMap<String, BValue>) context.getRefArgument(DEST_PATH_FIELD_INDEX);
         Path destPath = (Path) destPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         if (!srcPath.toFile().exists()) {
             context.setReturnValues(CompressionUtils.createCompressionError(context, "Path of the folder to be " +

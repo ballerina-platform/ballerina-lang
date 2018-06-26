@@ -24,8 +24,9 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.util.StringUtils;
 import org.ballerinalang.model.util.XMLUtils;
 import org.ballerinalang.model.values.BJSON;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.runtime.message.BlobDataSource;
 import org.ballerinalang.runtime.message.MessageDataSource;
@@ -101,7 +102,7 @@ public class EntityBodyHandler {
      * @param entityStruct Represent a ballerina entity
      * @return MessageDataSource which represent the entity body in memory
      */
-    public static MessageDataSource getMessageDataSource(BStruct entityStruct) {
+    public static MessageDataSource getMessageDataSource(BMap<String, BValue> entityStruct) {
         return entityStruct.getNativeData(MESSAGE_DATA_SOURCE) != null ? (MessageDataSource) entityStruct.getNativeData
                 (MESSAGE_DATA_SOURCE) : null;
     }
@@ -112,7 +113,7 @@ public class EntityBodyHandler {
      * @param entityStruct      Represent the ballerina entity
      * @param messageDataSource which represent the entity body in memory
      */
-    public static void addMessageDataSource(BStruct entityStruct, MessageDataSource messageDataSource) {
+    public static void addMessageDataSource(BMap<String, BValue> entityStruct, MessageDataSource messageDataSource) {
         entityStruct.addNativeData(MESSAGE_DATA_SOURCE, messageDataSource);
     }
 
@@ -123,7 +124,7 @@ public class EntityBodyHandler {
      * @return BlobDataSource Data source for binary data which is kept in memory
      * @throws IOException In case an error occurred while creating blob data source
      */
-    public static BlobDataSource constructBlobDataSource(BStruct entityStruct) throws IOException {
+    public static BlobDataSource constructBlobDataSource(BMap<String, BValue> entityStruct) throws IOException {
         Channel byteChannel = getByteChannel(entityStruct);
         if (byteChannel == null) {
             return null;
@@ -139,7 +140,7 @@ public class EntityBodyHandler {
      * @param entityStruct Represent an entity struct
      * @return BJSON data source which is kept in memory
      */
-    public static BJSON constructJsonDataSource(BStruct entityStruct) {
+    public static BJSON constructJsonDataSource(BMap<String, BValue> entityStruct) {
         try {
             BJSON jsonData;
             Channel byteChannel = getByteChannel(entityStruct);
@@ -170,7 +171,7 @@ public class EntityBodyHandler {
      * @param entityStruct Represent an entity struct
      * @return BXML data source which is kept in memory
      */
-    public static BXML constructXmlDataSource(BStruct entityStruct) {
+    public static BXML constructXmlDataSource(BMap<String, BValue> entityStruct) {
         try {
             BXML xmlContent;
             Channel byteChannel = getByteChannel(entityStruct);
@@ -201,7 +202,7 @@ public class EntityBodyHandler {
      * @param entityStruct Represent an entity struct
      * @return StringDataSource which represent the entity body which is kept in memory
      */
-    public static StringDataSource constructStringDataSource(BStruct entityStruct) {
+    public static StringDataSource constructStringDataSource(BMap<String, BValue> entityStruct) {
         try {
             String textContent;
             Channel byteChannel = getByteChannel(entityStruct);
@@ -233,7 +234,7 @@ public class EntityBodyHandler {
      * @param entityStruct Represent an 'Entity'
      * @return a boolean indicating entity body availability
      */
-    public static boolean checkEntityBodyAvailability(BStruct entityStruct) {
+    public static boolean checkEntityBodyAvailability(BMap<String, BValue> entityStruct) {
         return entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) != null || getMessageDataSource(entityStruct) != null
                 || entityStruct.getNativeData(BODY_PARTS) != null;
     }
@@ -244,10 +245,10 @@ public class EntityBodyHandler {
      * @param entity    Represent top level message's entity
      * @param bodyParts Represent ballerina body parts
      */
-    static void setPartsToTopLevelEntity(BStruct entity, ArrayList<BStruct> bodyParts) {
+    static void setPartsToTopLevelEntity(BMap<String, BValue> entity, ArrayList<BMap<String, BValue>> bodyParts) {
         if (!bodyParts.isEmpty()) {
-            BStructureType typeOfBodyPart = bodyParts.get(FIRST_BODY_PART_INDEX).getType();
-            BStruct[] result = bodyParts.toArray(new BStruct[bodyParts.size()]);
+            BStructureType typeOfBodyPart = (BStructureType) bodyParts.get(FIRST_BODY_PART_INDEX).getType();
+            BMap<String, BValue>[] result = bodyParts.toArray(new BMap[bodyParts.size()]);
             BRefValueArray partsArray = new BRefValueArray(result, typeOfBodyPart);
             entity.addNativeData(BODY_PARTS, partsArray);
         }
@@ -260,7 +261,7 @@ public class EntityBodyHandler {
      * @param bodyPart Represent ballerina body part
      * @param mimePart Represent decoded mime part
      */
-    public static void populateBodyContent(BStruct bodyPart, MIMEPart mimePart) {
+    public static void populateBodyContent(BMap<String, BValue> bodyPart, MIMEPart mimePart) {
         bodyPart.addNativeData(ENTITY_BYTE_CHANNEL, new MimeEntityWrapper(new EntityBodyChannel(mimePart.readOnce()),
                 mimePart));
     }
@@ -272,7 +273,8 @@ public class EntityBodyHandler {
      * @param messageOutputStream Represent the outputstream that the message should be written to
      * @throws IOException When an error occurs while writing inputstream to outputstream
      */
-    public static void writeByteChannelToOutputStream(BStruct entityStruct, OutputStream messageOutputStream)
+    public static void writeByteChannelToOutputStream(BMap<String, BValue> entityStruct,
+                                                      OutputStream messageOutputStream)
             throws IOException {
         Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
         if (byteChannel != null) {
@@ -290,7 +292,7 @@ public class EntityBodyHandler {
      * @param entityStruct Parent entity that the nested parts reside
      * @param byteChannel  Represent ballerina specific byte channel
      */
-    public static void decodeEntityBody(Context context, BStruct entityStruct, Channel byteChannel) {
+    public static void decodeEntityBody(Context context, BMap<String, BValue> entityStruct, Channel byteChannel) {
         String contentType = MimeUtil.getContentTypeWithParameters(entityStruct);
         if (!MimeUtil.isNotNullAndEmpty(contentType) || !contentType.startsWith(MULTIPART_AS_PRIMARY_TYPE)) {
             return;
@@ -305,12 +307,12 @@ public class EntityBodyHandler {
      * @param entityStruct Represent a ballerina entity
      * @return An array of body parts
      */
-    public static BRefValueArray getBodyPartArray(BStruct entityStruct) {
+    public static BRefValueArray getBodyPartArray(BMap<String, BValue> entityStruct) {
         return entityStruct.getNativeData(BODY_PARTS) != null ?
                 (BRefValueArray) entityStruct.getNativeData(BODY_PARTS) : new BRefValueArray();
     }
 
-    public static Channel getByteChannel(BStruct entityStruct) {
+    public static Channel getByteChannel(BMap<String, BValue> entityStruct) {
         return entityStruct.getNativeData(ENTITY_BYTE_CHANNEL) != null ? (Channel) entityStruct.getNativeData
                 (ENTITY_BYTE_CHANNEL) : null;
     }

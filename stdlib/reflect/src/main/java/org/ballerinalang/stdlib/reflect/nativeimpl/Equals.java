@@ -20,6 +20,7 @@ package org.ballerinalang.stdlib.reflect.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
@@ -29,7 +30,6 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BNewArray;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -125,7 +125,7 @@ public class Equals extends BlockingNativeCallableUnit {
                     return false;
                 }
     
-                return isEqual((BStruct) lhsValue, (BStruct) rhsValue, lhsStructType);
+                return isEqual((BMap<String, BValue>) lhsValue, (BMap<String, BValue>) rhsValue, lhsStructType);
             case TypeTags.MAP_TAG:
                 return isEqual((BMap) lhsValue, (BMap) rhsValue);
             case TypeTags.ARRAY_TAG:
@@ -162,48 +162,13 @@ public class Equals extends BlockingNativeCallableUnit {
      * @param structType Struct type.
      * @return True if deeply equals, else false.
      */
-    private boolean isEqual(BStruct lhsStruct, BStruct rhsStruct, BStructureType structType) {
-        // Checking equality for integer fields.
-        for (int i = 0; i < structType.getFieldTypeCount()[0]; i++) {
-            if (lhsStruct.getIntField(i) != rhsStruct.getIntField(i)) {
+    private boolean isEqual(BMap<String, BValue> lhsStruct, BMap<String, BValue> rhsStruct, BStructureType structType) {
+        for (BField field: structType.getFields()) {
+            if (!isEqual(lhsStruct.get(field.fieldName), rhsStruct.get(field.fieldName))) {
                 return false;
             }
         }
-        
-        // Checking equality for float fields.
-        for (int i = 0; i < structType.getFieldTypeCount()[1]; i++) {
-            if (Double.compare(lhsStruct.getFloatField(i), rhsStruct.getFloatField(i)) != 0) {
-                return false;
-            }
-        }
-        
-        // Checking equality for string fields.
-        for (int i = 0; i < structType.getFieldTypeCount()[2]; i++) {
-            if (!lhsStruct.getStringField(i).equals(rhsStruct.getStringField(i))) {
-                return false;
-            }
-        }
-        
-        // Checking equality for boolean fields.
-        for (int i = 0; i < structType.getFieldTypeCount()[3]; i++) {
-            if (lhsStruct.getBooleanField(i) != rhsStruct.getBooleanField(i)) {
-                return false;
-            }
-        }
-        
-        // Checking equality for byte fields.
-        for (int i = 0; i < structType.getFieldTypeCount()[4]; i++) {
-            if (!Arrays.equals(lhsStruct.getBlobField(i), rhsStruct.getBlobField(i))) {
-                return false;
-            }
-        }
-        
-        // Checking equality for refs fields.
-        for (int i = 0; i < structType.getFieldTypeCount()[5]; i++) {
-            if (!isEqual(lhsStruct.getRefField(i), rhsStruct.getRefField(i))) {
-                return false;
-            }
-        }
+
         return true;
     }
     

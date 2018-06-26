@@ -1,21 +1,21 @@
 /*
- * Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *   Copyright (c) 2017, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
- * WSO2 Inc. licenses this file to you under the Apache License,
- * Version 2.0 (the "License"); you may not use this file except
- * in compliance with the License.
- * You may obtain a copy of the License at
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
  *
  *    http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.io.utils;
+package org.ballerinalang.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
@@ -23,12 +23,16 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.io.IOConstants;
+import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.util.Base64ByteChannel;
+import org.ballerinalang.nativeimpl.util.Base64Wrapper;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
+import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -36,15 +40,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.zone.ZoneRulesException;
 import java.util.Base64;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
- * A util class for handling common functions in ballerina/io native implementation.
+ * A util class for handling common functions across native implementation.
  *
  * @since 0.95.4
  */
 public class Utils {
 
+    public static final String PACKAGE_TIME = "ballerina/time";
+    public static final String STRUCT_TYPE_TIME = "Time";
+    public static final String STRUCT_TYPE_TIMEZONE = "Timezone";
     public static final int READABLE_BUFFER_SIZE = 8192; //8KB
     public static final String PROTOCOL_PACKAGE_UTIL = "ballerina/util";
     public static final String PROTOCOL_PACKAGE_MIME = "ballerina/mime";
@@ -52,11 +63,49 @@ public class Utils {
     public static final String BASE64_DECODE_ERROR = "Base64DecodeError";
     private static final String STRUCT_TYPE = "ByteChannel";
 
-    public static BStruct createConversionError(Context context, String msg) {
+    public static BMap<String, BValue> createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
+        String zoneIdName;
+        try {
+            ZoneId zoneId = ZoneId.of(zoneIdValue);
+            zoneIdName = zoneId.toString();
+            //Get offset in seconds
+            TimeZone tz = TimeZone.getTimeZone(zoneId);
+            int offsetInMills = tz.getOffset(new Date().getTime());
+            int offset = offsetInMills / 1000;
+            return BLangVMStructs.createBStruct(timezoneStructInfo, zoneIdName, offset);
+        } catch (ZoneRulesException e) {
+            throw new BallerinaException("invalid timezone id: " + zoneIdValue);
+        }
+    }
+
+    public static BMap<String, BValue> createTimeStruct(StructureTypeInfo timezoneStructInfo,
+                                           StructureTypeInfo timeStructInfo, long millis, String zoneIdName) {
+        BMap<String, BValue> timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
+        return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
+    }
+
+    public static StructureTypeInfo getTimeZoneStructInfo(Context context) {
+        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
+        if (timePackageInfo == null) {
+            return null;
+        }
+        return timePackageInfo.getStructInfo(STRUCT_TYPE_TIMEZONE);
+    }
+
+    public static StructureTypeInfo getTimeStructInfo(Context context) {
+        PackageInfo timePackageInfo = context.getProgramFile().getPackageInfo(PACKAGE_TIME);
+        if (timePackageInfo == null) {
+            return null;
+        }
+        return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
+    }
+
+    public static BMap<String, BValue> createConversionError(Context context, String msg) {
         return BLangVMErrors.createError(context, msg);
     }
 
-    private static BStruct createBase64Error(Context context, String msg, boolean isMimeSpecific, boolean isEncoder) {
+    private static BMap<String, BValue> createBase64Error(Context context, String msg, boolean isMimeSpecific,
+                                                          boolean isEncoder) {
         PackageInfo filePkg;
         if (isMimeSpecific) {
             filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_MIME);
@@ -92,6 +141,7 @@ public class Utils {
      * @param charset        Represent the charset value to be used with string
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
+    @SuppressWarnings("unchecked")
     public static void encode(Context context, BValue input, String charset, boolean isMimeSpecific) {
         switch (input.getType().getTag()) {
             case TypeTags.BLOB_TAG:
@@ -101,11 +151,9 @@ public class Utils {
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                if (input instanceof BStruct) {
-                    BStruct byteChannel = (BStruct) input;
-                    if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
-                        encodeByteChannel(context, byteChannel, isMimeSpecific);
-                    }
+                BMap<String, BValue> byteChannel = (BMap<String, BValue>) input;
+                if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
+                    encodeByteChannel(context, byteChannel, isMimeSpecific);
                 }
                 break;
             case TypeTags.STRING_TAG:
@@ -124,6 +172,7 @@ public class Utils {
      * @param charset        Represent the charset value to be used with string
      * @param isMimeSpecific A boolean indicating whether the decoder should be mime specific or not
      */
+    @SuppressWarnings("unchecked")
     public static void decode(Context context, BValue encodedInput, String charset, boolean isMimeSpecific) {
         switch (encodedInput.getType().getTag()) {
             case TypeTags.BLOB_TAG:
@@ -133,9 +182,7 @@ public class Utils {
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                if (encodedInput instanceof BStruct) {
-                    decodeByteChannel(context, (BStruct) encodedInput, isMimeSpecific);
-                }
+                decodeByteChannel(context, (BMap<String, BValue>) encodedInput, isMimeSpecific);
                 break;
             case TypeTags.STRING_TAG:
                 decodeString(context, encodedInput, charset, isMimeSpecific);
@@ -221,9 +268,9 @@ public class Utils {
      * @param byteChannel    Represent the byte channel that needs to be encoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
-    public static void encodeByteChannel(Context context, BStruct byteChannel, boolean isMimeSpecific) {
+    public static void encodeByteChannel(Context context, BMap<String, BValue> byteChannel, boolean isMimeSpecific) {
         Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        BStruct byteChannelStruct;
+        BMap<String, BValue> byteChannelStruct;
         try {
             byte[] encodedByteArray;
             if (isMimeSpecific) {
@@ -252,10 +299,10 @@ public class Utils {
      * @param byteChannel    Represent the byte channel that needs to be decoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
-    public static void decodeByteChannel(Context context, BStruct byteChannel, boolean isMimeSpecific) {
+    public static void decodeByteChannel(Context context, BMap<String, BValue> byteChannel, boolean isMimeSpecific) {
         if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
             Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            BStruct byteChannelStruct;
+            BMap<String, BValue> byteChannelStruct;
             byte[] decodedByteArray;
             try {
                 if (isMimeSpecific) {

@@ -1,22 +1,22 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *    http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
 
-package org.ballerinalang.stdlib.io.nativeimpl;
+package org.ballerinalang.nativeimpl.io;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
@@ -26,21 +26,24 @@ import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BTableType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
+import org.ballerinalang.nativeimpl.io.events.EventContext;
+import org.ballerinalang.nativeimpl.io.events.EventManager;
+import org.ballerinalang.nativeimpl.io.events.EventResult;
+import org.ballerinalang.nativeimpl.io.events.records.DelimitedRecordReadAllEvent;
+import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.io.channels.base.DelimitedRecordChannel;
-import org.ballerinalang.stdlib.io.events.EventContext;
-import org.ballerinalang.stdlib.io.events.EventManager;
-import org.ballerinalang.stdlib.io.events.EventResult;
-import org.ballerinalang.stdlib.io.events.records.DelimitedRecordReadAllEvent;
-import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
-import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,12 +70,14 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 public class GetTable implements NativeCallableUnit {
 
     private static final Logger log = LoggerFactory.getLogger(GetTable.class);
+    private static final String CSV_CHANNEL_DELIMITED_STRUCT_FIELD = "dc";
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct csvChannel = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> csvChannel = (BMap<String, BValue>) context.getRefArgument(0);
         try {
-            final BStruct delimitedStruct = (BStruct) csvChannel.getRefField(0);
+            final BMap<String, BValue> delimitedStruct =
+                    (BMap<String, BValue>) csvChannel.get(CSV_CHANNEL_DELIMITED_STRUCT_FIELD);
             DelimitedRecordChannel delimitedChannel = (DelimitedRecordChannel) delimitedStruct
                     .getNativeData(IOConstants.TXT_RECORD_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context, callback);
@@ -92,7 +97,7 @@ public class GetTable implements NativeCallableUnit {
     }
 
     private static EventResult response(EventResult<List, EventContext> result) {
-        BStruct errorStruct;
+        BMap<String, BValue> errorStruct;
         BTable table;
         EventContext eventContext = result.getContext();
         Context context = eventContext.getContext();
@@ -121,7 +126,7 @@ public class GetTable implements NativeCallableUnit {
         BStructureType structType = (BStructureType) type.value();
         for (Object obj : records) {
             String[] fields = (String[]) obj;
-            final BStruct struct = getStruct(fields, structType);
+            final BMap<String, BValue> struct = getStruct(fields, structType);
             if (struct != null) {
                 table.addData(struct);
             }
@@ -129,36 +134,33 @@ public class GetTable implements NativeCallableUnit {
         return table;
     }
 
-    private static BStruct getStruct(String[] fields, final BStructureType structType) {
+    private static BMap<String, BValue> getStruct(String[] fields, final BStructureType structType) {
         BField[] internalStructFields = structType.getFields();
         int fieldLength = internalStructFields.length;
-        BStruct struct = null;
+        BMap<String, BValue> struct = null;
         if (fields.length > 0) {
             if (internalStructFields.length != fields.length) {
                 String msg = "Record row fields count and the give struct's fields count are mismatch";
                 throw new BallerinaIOException(msg);
             }
-            struct = new BStruct(structType);
-            int longRegIndex = -1;
-            int doubleRegIndex = -1;
-            int stringRegIndex = -1;
-            int booleanRegIndex = -1;
+            struct = new BMap<>(structType);
             for (int i = 0; i < fieldLength; i++) {
                 String value = fields[i];
                 final BField internalStructField = internalStructFields[i];
                 final int type = internalStructField.getFieldType().getTag();
+                String fieldName = internalStructField.fieldName;
                 switch (type) {
                     case TypeTags.INT_TAG:
-                        struct.setIntField(++longRegIndex, Long.parseLong(value));
+                        struct.put(fieldName, new BInteger(Long.parseLong(value)));
                         break;
                     case TypeTags.FLOAT_TAG:
-                        struct.setFloatField(++doubleRegIndex, Double.parseDouble(value));
+                        struct.put(fieldName, new BFloat(Double.parseDouble(value)));
                         break;
                     case TypeTags.STRING_TAG:
-                        struct.setStringField(++stringRegIndex, value);
+                        struct.put(fieldName, new BString(value));
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        struct.setBooleanField(++booleanRegIndex, (Boolean.parseBoolean(value)) ? 1 : 0);
+                        struct.put(fieldName, new BBoolean((Boolean.parseBoolean(value))));
                         break;
                     default:
                         throw new BallerinaIOException("Type casting support only for int, float, boolean and string. "

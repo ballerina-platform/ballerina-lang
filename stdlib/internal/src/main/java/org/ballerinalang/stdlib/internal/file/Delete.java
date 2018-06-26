@@ -15,17 +15,18 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.internal.file;
+package org.ballerinalang.nativeimpl.internal.file;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.internal.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,10 +59,10 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 )
 public class Delete extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(Delete.class);
-
+    
     @Override
     public void execute(Context context) {
-        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> pathStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         try {
             Files.walk(path)
@@ -79,5 +80,5 @@ public class Delete extends BlockingNativeCallableUnit {
             context.setReturnValues(BLangVMErrors.createError(context, msg));
         }
     }
-
+    
 }

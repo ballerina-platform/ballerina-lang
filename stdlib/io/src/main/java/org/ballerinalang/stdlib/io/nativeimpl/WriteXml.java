@@ -22,7 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -54,14 +55,14 @@ public class WriteXml implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         try {
-            BStruct characterChannelStruct = (BStruct) context.getRefArgument(0);
+            BMap<String, BValue> characterChannelStruct = (BMap<String, BValue>) context.getRefArgument(0);
             BXML content = (BXML) context.getRefArgument(1);
             CharacterChannel characterChannel = (CharacterChannel) characterChannelStruct.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);
             EventContext eventContext = new EventContext(context);
             IOUtils.writeFull(characterChannel, content.stringValue(), eventContext);
         } catch (BallerinaException e) {
-            BStruct errorStruct = IOUtils.createError(context, e.getMessage());
+            BMap<String, BValue> errorStruct = IOUtils.createError(context, e.getMessage());
             context.setReturnValues(errorStruct);
         } finally {
             callback.notifySuccess();

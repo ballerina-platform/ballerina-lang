@@ -21,7 +21,6 @@ package org.ballerinalang.stdlib.runtime.nativeimpl;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 
 import java.util.Map;
@@ -33,35 +32,35 @@ import java.util.Map;
  */
 public class UserPrincipal {
 
-    public static final int USER_ID_STRING_FIELD_INDEX = 0;
-    public static final int USER_NAME_STRING_FIELD_INDEX = 1;
-    public static final int CLAIMS_REF_FIELD_INDEX = 0;
-    public static final int SCOPES_REF_FIELD_INDEX = 1;
+    public static final String USER_ID_STRING_FIELD_KEY = "userId";
+    public static final String USER_NAME_STRING_FIELD_KEY = "username";
+    public static final String CLAIMS_REF_FIELD_KEY = "claims";
+    public static final String SCOPES_REF_FIELD_KEY = "scopes";
 
-    private BStruct authContextStruct;
+    private BMap<String, BValue> authContextStruct;
 
-    public UserPrincipal(BStruct authContextStruct) {
+    public UserPrincipal(BMap<String, BValue> authContextStruct) {
         this.authContextStruct = authContextStruct;
     }
 
     public String getUserId() {
-        return authContextStruct.getStringField(USER_ID_STRING_FIELD_INDEX);
+        return authContextStruct.get(USER_ID_STRING_FIELD_KEY).stringValue();
     }
 
     public void setUserId(String userId) {
-        authContextStruct.setStringField(USER_ID_STRING_FIELD_INDEX, userId);
+        authContextStruct.put(USER_ID_STRING_FIELD_KEY, new BString(userId));
     }
 
     public String getUsername() {
-        return authContextStruct.getStringField(USER_NAME_STRING_FIELD_INDEX);
+        return authContextStruct.get(USER_NAME_STRING_FIELD_KEY).stringValue();
     }
 
     public void setUsername(String username) {
-        authContextStruct.setStringField(USER_NAME_STRING_FIELD_INDEX, username);
+        authContextStruct.put(USER_NAME_STRING_FIELD_KEY, new BString(username));
     }
 
     public Map<String, String> getClaims() {
-        return getMapField(authContextStruct.getRefField(CLAIMS_REF_FIELD_INDEX));
+        return getMapField(authContextStruct.get(CLAIMS_REF_FIELD_KEY));
     }
 
     public void setClaims(Map<String, String> claims) {
@@ -69,15 +68,15 @@ public class UserPrincipal {
         if (claims != null) {
             claims.forEach((key, value) -> bMap.put(key, new BString(value)));
         }
-        authContextStruct.setRefField(CLAIMS_REF_FIELD_INDEX, bMap);
+        authContextStruct.put(CLAIMS_REF_FIELD_KEY, bMap);
     }
 
     public String[] getScopes() {
-        return getStringArrayField(authContextStruct.getRefField(SCOPES_REF_FIELD_INDEX));
+        return getStringArrayField(authContextStruct.get(SCOPES_REF_FIELD_KEY));
     }
 
     public void setScopes(String[] scopes) {
-        authContextStruct.setRefField(SCOPES_REF_FIELD_INDEX, new BStringArray(scopes));
+        authContextStruct.put(SCOPES_REF_FIELD_KEY, new BStringArray(scopes));
     }
 
     public static String[] getStringArrayField(BValue bValue) {

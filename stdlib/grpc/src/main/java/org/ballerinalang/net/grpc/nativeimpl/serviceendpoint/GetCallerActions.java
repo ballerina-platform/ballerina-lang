@@ -19,8 +19,8 @@ package org.ballerinalang.net.grpc.nativeimpl.serviceendpoint;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -30,7 +30,7 @@ import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
 import static org.ballerinalang.net.grpc.EndpointConstants.SERVICE_ENDPOINT_INDEX;
 import static org.ballerinalang.net.grpc.GrpcConstants.CALLER_ACTION;
-import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_RESPONDER_REF_INDEX;
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_CONNECTION_FIELD;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -56,12 +56,12 @@ public class GetCallerActions extends AbstractGrpcNativeFunction {
     
     @Override
     public void execute(Context context) {
-        BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
+        BMap<String, BValue> serviceEndpoint = (BMap<String, BValue>) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
         // Service client responder is populated in method listener. There we create new service endpoint instance
         // and bind client responder instance.
-        BRefType clientType = serviceEndpoint.getRefField(CLIENT_RESPONDER_REF_INDEX);
-        if (clientType instanceof BStruct) {
-            BStruct endpointClient = (BStruct) clientType;
+        BValue clientType = serviceEndpoint.get(LISTENER_CONNECTION_FIELD);
+        if (clientType instanceof BMap) {
+            BMap<String, BValue> endpointClient = (BMap<String, BValue>) clientType;
             context.setReturnValues(endpointClient);
         } else {
             context.setError(MessageUtils.getConnectorError(context, new GrpcServerException("Error while " +

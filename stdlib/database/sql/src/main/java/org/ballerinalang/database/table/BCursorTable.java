@@ -20,8 +20,9 @@ package org.ballerinalang.database.table;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.DataIterator;
 import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BTable;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.TableUtils;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
@@ -55,7 +56,7 @@ public class BCursorTable extends BTable {
         return "";
     }
 
-    public void addData(BStruct data, Context context) {
+    public void addData(BMap<String, BValue> data, Context context) {
         throw new BallerinaException("data cannot be added to a table returned from a database");
     }
 

@@ -23,12 +23,13 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.runtime.message.MessageDataSource;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
 
 import static org.ballerinalang.mime.util.Constants.ENTITY_BYTE_CHANNEL;
 import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
@@ -50,8 +51,8 @@ import static org.ballerinalang.mime.util.Constants.SECOND_PARAMETER_INDEX;
 public class SetByteChannel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
-        BStruct byteChannel = (BStruct) context.getRefArgument(SECOND_PARAMETER_INDEX);
+        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        BMap<String, BValue> byteChannel = (BMap<String, BValue>) context.getRefArgument(SECOND_PARAMETER_INDEX);
         String contentType = context.getStringArgument(FIRST_PARAMETER_INDEX);
         entityStruct.addNativeData(ENTITY_BYTE_CHANNEL, byteChannel.getNativeData
                 (IOConstants.BYTE_CHANNEL_NAME));

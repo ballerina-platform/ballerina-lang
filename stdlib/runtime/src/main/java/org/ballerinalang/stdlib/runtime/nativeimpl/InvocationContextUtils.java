@@ -23,7 +23,7 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
@@ -58,16 +58,17 @@ public class InvocationContextUtils {
         return invocationContext;
     }
 
-    public static BStruct getInvocationContextStruct(Context context) {
+    public static BMap<String, BValue> getInvocationContextStruct(Context context) {
         return getInvocationContext(context).getInvocationContextStruct();
     }
 
     private static InvocationContext initInvocationContext(Context context) {
-        BStruct userPrincipalStruct = createUserPrincipal(context);
+        BMap<String, BValue> userPrincipalStruct = createUserPrincipal(context);
         UserPrincipal userPrincipal = new UserPrincipal(userPrincipalStruct);
-        BStruct authContextStruct = createAuthContext(context);
+        BMap<String, BValue> authContextStruct = createAuthContext(context);
         AuthContext authContext = new AuthContext(authContextStruct);
-        BStruct invocationContextStruct = createInvocationContext(context, userPrincipalStruct, authContextStruct);
+        BMap<String, BValue> invocationContextStruct =
+                createInvocationContext(context, userPrincipalStruct, authContextStruct);
         InvocationContext invocationContext = new InvocationContext(
                 invocationContextStruct, userPrincipal, authContext);
         return invocationContext;
@@ -81,7 +82,8 @@ public class InvocationContextUtils {
         return packageInfo.getStructInfo(structName);
     }
 
-    private static BStruct createInvocationContext(Context context, BStruct userPrincipal, BStruct authContext) {
+    private static BMap<String, BValue> createInvocationContext(Context context, BMap<String, BValue> userPrincipal,
+                                                                BMap<String, BValue> authContext) {
         StructureTypeInfo invocationContextInfo = getStructInfo(context,
                 BALLERINA_RUNTIME_PKG, STRUCT_TYPE_INVOCATION_CONTEXT);
         UUID invocationId = UUID.randomUUID();
@@ -89,14 +91,14 @@ public class InvocationContextUtils {
                 authContext, new BMap());
     }
 
-    private static BStruct createAuthContext(Context context) {
+    private static BMap<String, BValue> createAuthContext(Context context) {
         StructureTypeInfo authContextInfo = getStructInfo(context, BALLERINA_RUNTIME_PKG, STRUCT_TYPE_AUTH_CONTEXT);
         String scheme = "";
         String authToken = "";
         return BLangVMStructs.createBStruct(authContextInfo, scheme, authToken);
     }
 
-    private static BStruct createUserPrincipal(Context context) {
+    private static BMap<String, BValue> createUserPrincipal(Context context) {
         StructureTypeInfo authContextInfo = getStructInfo(context, BALLERINA_RUNTIME_PKG, STRUCT_TYPE_USER_PRINCIPAL);
         String userId = "";
         String username = "";

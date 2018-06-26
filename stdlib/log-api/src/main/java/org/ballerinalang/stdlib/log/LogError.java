@@ -21,7 +21,8 @@ package org.ballerinalang.stdlib.log;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.logging.util.BLogLevel;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
@@ -42,7 +43,7 @@ public class LogError extends AbstractLogFunction {
         String pkg = getPackagePath(ctx);
         if (LOG_MANAGER.getPackageLogLevel(pkg).value() <= BLogLevel.ERROR.value()) {
             String msg = getLogMessage(ctx, 0);
-            BStruct err = (BStruct) ctx.getNullableRefArgument(0);
+            BMap<String, BValue> err = (BMap<String, BValue>) ctx.getNullableRefArgument(0);
             getLogger(pkg).error(msg + (err == null ? "" : " : " + err.stringValue()));
         }
         ctx.setReturnValues();

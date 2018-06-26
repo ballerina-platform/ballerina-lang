@@ -19,11 +19,16 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BArrayType;
+import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BClosure;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFunctionPointer;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.siddhi.core.SiddhiAppRuntime;
 import org.ballerinalang.siddhi.core.SiddhiManager;
@@ -34,7 +39,6 @@ import org.ballerinalang.util.program.BLangFunctions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class responsible on holding Siddhi App runtimes and related stream objects.
@@ -91,21 +95,22 @@ public class StreamingRuntimeManager {
             @Override
             public void receive(Event[] events) {
                 for (Event event : events) {
-                    AtomicInteger intVarIndex = new AtomicInteger(-1);
-                    AtomicInteger floatVarIndex = new AtomicInteger(-1);
-                    AtomicInteger boolVarIndex = new AtomicInteger(-1);
-                    AtomicInteger stringVarIndex = new AtomicInteger(-1);
-                    BStruct output = new BStruct(structType);
+                    // Here it is assumed that an event data will contain all the fields
+                    // of the record. Otherwise, some fields will be missing from the record value.
+                    BMap<String, BValue> output = new BMap<String, BValue>(structType);
+                    BField[] fields = structType.getFields();
+                    int i = 0;
                     for (Object field : event.getData()) {
                         if (field instanceof Long || field instanceof Integer) {
-                            output.setIntField(intVarIndex.incrementAndGet(), ((Number) field).longValue());
+                            output.put(fields[i].fieldName, new BInteger(((Number) field).longValue()));
                         } else if (field instanceof Double || field instanceof Float) {
-                            output.setFloatField(floatVarIndex.incrementAndGet(), ((Number) field).doubleValue());
+                            output.put(fields[i].fieldName, new BFloat(((Number) field).doubleValue()));
                         } else if (field instanceof Boolean) {
-                            output.setBooleanField(boolVarIndex.incrementAndGet(), ((Boolean) field) ? 1 : 0);
+                            output.put(fields[i].fieldName, new BBoolean(((Boolean) field)));
                         } else if (field instanceof String) {
-                            output.setStringField(stringVarIndex.incrementAndGet(), (String) field);
+                            output.put(fields[i].fieldName, new BString((String) field));
                         }
+                        i++;
                     }
                     List<BValue> argsList = new ArrayList<>();
                     argsList.addAll(closureArgs);

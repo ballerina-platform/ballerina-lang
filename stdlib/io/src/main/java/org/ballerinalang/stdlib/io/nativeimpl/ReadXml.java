@@ -23,7 +23,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -48,14 +49,14 @@ import org.ballerinalang.util.exceptions.BallerinaException;
 public class ReadXml implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct channel = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(0);
         CharacterChannel charChannel = (CharacterChannel) channel.getNativeData(IOConstants.CHARACTER_CHANNEL_NAME);
         CharacterChannelReader reader = new CharacterChannelReader(charChannel);
         final BXML xml;
         try {
             xml = XMLUtils.parse(reader);
         } catch (BallerinaException e) {
-            BStruct errorStruct = IOUtils.createError(context, e.getMessage());
+            BMap<String, BValue> errorStruct = IOUtils.createError(context, e.getMessage());
             context.setReturnValues(errorStruct);
             callback.notifySuccess();
             return;

@@ -17,7 +17,8 @@ package org.ballerinalang.stdlib.internal.compression;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
@@ -34,7 +35,7 @@ public class CompressionUtils {
      * @param msg     Error message in string form
      * @return Ballerina struct with compression error
      */
-    public static BStruct createCompressionError(Context context, String msg) {
+    public static BMap<String, BValue> createCompressionError(Context context, String msg) {
         PackageInfo filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_COMPRESSION);
         StructureTypeInfo compressionErrorStruct = filePkg.getStructInfo("CompressionError");
         return BLangVMStructs.createBStruct(compressionErrorStruct, msg);

@@ -24,7 +24,6 @@ import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -58,7 +57,7 @@ abstract class AbstractAnnotationReader extends BlockingNativeCallableUnit {
         for (String key : annotationMap.keySet()) {
             final String annotaionQName = key.split("\\$")[0];
             final String[] qNameParts = annotaionQName.split(":");
-            final BStruct annotation =
+            final BMap<String, BValue> annotation =
                     BLangVMStructs.createBStruct(structInfo, qNameParts[1], qNameParts[0], annotationMap.get(key));
             annotationArray.add(index++, annotation);
         }

@@ -24,7 +24,8 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -41,8 +42,8 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.util.Optional;
 
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_INDEX;
-import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL_FIELD;
+import static org.ballerinalang.net.http.HttpConstants.RESPONSE_STATUS_CODE_FIELD;
 import static org.ballerinalang.util.observability.ObservabilityConstants.TAG_KEY_HTTP_STATUS_CODE;
 
 /**
@@ -66,11 +67,11 @@ public class Respond extends ConnectionAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
         HttpUtil.checkFunctionValidity(connectionStruct, inboundRequestMsg);
         DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
-        BStruct outboundResponseStruct = (BStruct) context.getRefArgument(1);
+        BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(1);
         HTTPCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
@@ -88,7 +89,7 @@ public class Respond extends ConnectionAction {
 
         Optional<ObserverContext> observerContext = ObservabilityUtils.getParentContext(context);
         observerContext.ifPresent(ctx -> ctx.addTag(TAG_KEY_HTTP_STATUS_CODE,
-                String.valueOf(outboundResponseStruct.getIntField(RESPONSE_STATUS_CODE_INDEX))));
+                String.valueOf(outboundResponseStruct.get(RESPONSE_STATUS_CODE_FIELD))));
 
         try {
             sendOutboundResponseRobust(dataContext, inboundRequestMsg, outboundResponseStruct, outboundResponseMsg);
@@ -98,8 +99,9 @@ public class Respond extends ConnectionAction {
         }
     }
 
-    private void setCacheControlHeader(BStruct outboundRespStruct, HTTPCarbonMessage outboundResponse) {
-        BStruct cacheControl = (BStruct) outboundRespStruct.getRefField(RESPONSE_CACHE_CONTROL_INDEX);
+    private void setCacheControlHeader(BMap<String, BValue> outboundRespStruct, HTTPCarbonMessage outboundResponse) {
+        BMap<String, BValue> cacheControl =
+                (BMap<String, BValue>) outboundRespStruct.get(RESPONSE_CACHE_CONTROL_FIELD);
         if (cacheControl != null &&
                 outboundResponse.getHeader(HttpHeaderNames.CACHE_CONTROL.toString()) == null) {
             ResponseCacheControlStruct respCC = new ResponseCacheControlStruct(cacheControl);
