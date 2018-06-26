@@ -94,8 +94,8 @@ class Else extends React.Component {
         const { model } = this.props;
         const { viewState, viewState: { bBox } } = model;
         const items = ControllerUtil.convertToAddItems(WorkerTools, model.getBody());
-        const top = viewState.components['statement-box'].y - 15;
-        const left = viewState.components['statement-box'].x + viewState.components['statement-box'].w - 15;
+        const top = bBox.y + bBox.h - 20;
+        const left = viewState.components['statement-box'].x + viewState.components['statement-box'].w;
 
         return (
             <HoverButton
