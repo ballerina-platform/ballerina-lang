@@ -18,13 +18,25 @@
 
 package org.wso2.transport.http.netty.listener;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.DecoderResult;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.LastHttpContent;
+import io.netty.handler.timeout.IdleState;
+import io.netty.handler.timeout.IdleStateEvent;
+import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.wso2.transport.http.netty.common.Constants;
 import org.wso2.transport.http.netty.common.SourceInteractiveState;
 import org.wso2.transport.http.netty.contract.HttpResponseFuture;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
@@ -35,16 +47,17 @@ import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static io.netty.buffer.Unpooled.copiedBuffer;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_BEFORE_INITIATING_OUTBOUND_RESPONSE;
-import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_CONNECTION;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_READING_INBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_CLOSED_WHILE_WRITING_OUTBOUND_RESPONSE;
+import static org.wso2.transport.http.netty.common.Constants.REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.SourceInteractiveState.ENTITY_BODY_SENT;
+import static org.wso2.transport.http.netty.common.SourceInteractiveState.SENDING_ENTITY_BODY;
 
 /**
  * Handle all the errors related to source-handler.
@@ -56,12 +69,14 @@ public class SourceErrorHandler {
     private HTTPCarbonMessage inboundRequestMsg;
     private final ServerConnectorFuture serverConnectorFuture;
     private SourceInteractiveState state;
+    private String serverName;
 
-    public SourceErrorHandler(ServerConnectorFuture serverConnectorFuture) {
+    SourceErrorHandler(ServerConnectorFuture serverConnectorFuture, String serverName) {
         this.serverConnectorFuture = serverConnectorFuture;
+        this.serverName = serverName;
     }
 
-    void handleErrorCloseScenario(HTTPCarbonMessage inboundRequestMsg, HttpResponseFuture httpOutRespStatusFuture) {
+    void handleErrorCloseScenario(HTTPCarbonMessage inboundRequestMsg) {
         this.inboundRequestMsg = inboundRequestMsg;
         try {
             switch (state) {
@@ -92,7 +107,8 @@ public class SourceErrorHandler {
         }
     }
 
-    void handleIdleErrorScenario(HTTPCarbonMessage inboundRequestMsg, HttpResponseFuture httpOutRespStatusFuture) {
+    ChannelFuture handleIdleErrorScenario(HTTPCarbonMessage inboundRequestMsg, ChannelHandlerContext ctx,
+                                          IdleStateEvent evt) {
         this.inboundRequestMsg = inboundRequestMsg;
         try {
             switch (state) {
@@ -103,11 +119,19 @@ public class SourceErrorHandler {
                     log.debug(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_REQUEST);
                     break;
                 case RECEIVING_ENTITY_BODY:
-                    handleIncompleteInboundRequest(IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_REQUEST);
-                    break;
+                    //408 Request Timeout is sent if the idle timeout triggered when reading request
+                    return sendRequestTimeoutResponse(ctx, HttpResponseStatus.REQUEST_TIMEOUT, Unpooled.EMPTY_BUFFER,
+                                                      0);
                 case ENTITY_BODY_RECEIVED:
                     // This means we have received the complete inbound request. But nothing happened
                     // after that.
+                    if (evt.state() != IdleState.READER_IDLE) {
+                        //500 Internal Server error is sent if the idle timeout is reached
+                        String responseValue = "Server time out";
+                        return sendRequestTimeoutResponse(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR,
+                                                          copiedBuffer(responseValue, CharsetUtil.UTF_8),
+                                                          responseValue.length());
+                    }
                     serverConnectorFuture.notifyErrorListener(
                             new ServerConnectorException(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_RESPONSE));
                     break;
@@ -123,9 +147,10 @@ public class SourceErrorHandler {
         } catch (ServerConnectorException e) {
             log.error("Error while notifying error state to server-connector listener");
         }
+        return null;
     }
 
-    private void handleIncompleteInboundRequest(String errorMessage) {
+    void handleIncompleteInboundRequest(String errorMessage) {
         LastHttpContent lastHttpContent = new DefaultLastHttpContent();
         lastHttpContent.setDecoderResult(DecoderResult.failure(new DecoderException(errorMessage)));
         this.inboundRequestMsg.addHttpContent(lastHttpContent);
@@ -133,7 +158,7 @@ public class SourceErrorHandler {
     }
 
     public void exceptionCaught(Throwable cause) {
-        log.warn("Exception occurred :" + cause.getMessage());
+        log.warn("Exception occurred in SourceHandler :" + cause.getMessage());
     }
 
     public void setState(SourceInteractiveState state) {
@@ -146,7 +171,7 @@ public class SourceErrorHandler {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null) {
                 if (throwable instanceof ClosedChannelException) {
-                    throwable = new IOException(REMOTE_CLIENT_CLOSED_CONNECTION);
+                    throwable = new IOException(REMOTE_CLIENT_TO_HOST_CONNECTION_CLOSED);
                 }
                 outboundRespStatusFuture.notifyHttpListener(throwable);
             } else {
@@ -157,7 +182,7 @@ public class SourceErrorHandler {
     }
 
     public void addResponseWriteFailureListener(HttpResponseFuture outboundRespStatusFuture,
-                                                 ChannelFuture channelFuture, AtomicInteger writeCounter) {
+                                                ChannelFuture channelFuture, AtomicInteger writeCounter) {
         channelFuture.addListener(writeOperationPromise -> {
             Throwable throwable = writeOperationPromise.cause();
             if (throwable != null && writeCounter.get() == 1) {
@@ -168,5 +193,30 @@ public class SourceErrorHandler {
             }
             writeCounter.decrementAndGet();
         });
+    }
+
+    SourceInteractiveState getState() {
+        return state;
+    }
+
+    private ChannelFuture sendRequestTimeoutResponse(ChannelHandlerContext ctx, HttpResponseStatus status,
+                                                     ByteBuf content, int length) {
+        state = SENDING_ENTITY_BODY;
+        HttpResponse outboundResponse;
+        if (inboundRequestMsg != null) {
+            float httpVersion = Float.parseFloat((String) inboundRequestMsg.getProperty(Constants.HTTP_VERSION));
+            if (httpVersion == Constants.HTTP_1_0) {
+                outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_0, status, content);
+            } else {
+                outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
+            }
+        } else {
+            outboundResponse = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, status, content);
+        }
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_LENGTH, length);
+        outboundResponse.headers().set(HttpHeaderNames.CONTENT_TYPE, Constants.TEXT_PLAIN);
+        outboundResponse.headers().set(HttpHeaderNames.CONNECTION.toString(), Constants.CONNECTION_CLOSE);
+        outboundResponse.headers().set(HttpHeaderNames.SERVER.toString(), serverName);
+        return ctx.channel().writeAndFlush(outboundResponse);
     }
 }

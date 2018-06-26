@@ -36,6 +36,7 @@ import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 import java.io.IOException;
 import java.nio.channels.ClosedChannelException;
 
+import static org.wso2.transport.http.netty.common.Constants.CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_INBOUND_RESPONSE;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST;
 import static org.wso2.transport.http.netty.common.Constants.IDLE_TIMEOUT_TRIGGERED_WHILE_READING_INBOUND_RESPONSE;
@@ -69,8 +70,7 @@ public class TargetErrorHandler {
                 log.error(REMOTE_SERVER_CLOSED_BEFORE_INITIATING_OUTBOUND_REQUEST);
                 break;
             case SENDING_ENTITY_BODY:
-                httpResponseFuture.notifyHttpListener(
-                        new ServerConnectorException(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST));
+                // HttpResponseFuture will be notified asynchronously via Target channel.
                 log.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST);
                 break;
             case ENTITY_BODY_SENT:
@@ -99,9 +99,7 @@ public class TargetErrorHandler {
                 log.debug(IDLE_TIMEOUT_TRIGGERED_BEFORE_INITIATING_OUTBOUND_REQUEST);
                 break;
             case SENDING_ENTITY_BODY:
-                httpResponseFuture.notifyHttpListener(new EndpointTimeOutException(channelID,
-                        IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST,
-                        HttpResponseStatus.GATEWAY_TIMEOUT.code()));
+                // HttpResponseFuture will be notified asynchronously via Target channel.
                 log.error(IDLE_TIMEOUT_TRIGGERED_WHILE_WRITING_OUTBOUND_REQUEST);
                 break;
             case ENTITY_BODY_SENT:
@@ -161,9 +159,8 @@ public class TargetErrorHandler {
     private void notifyResponseFutureListener(Future<? super Void> writeOperationPromise) {
         Throwable throwable = writeOperationPromise.cause();
         if (throwable instanceof ClosedChannelException) {
-            throwable = new IOException(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST);
+            throwable = new IOException(CLIENT_TO_REMOTE_HOST_CONNECTION_CLOSED);
         }
-        log.error(REMOTE_SERVER_CLOSED_WHILE_WRITING_OUTBOUND_REQUEST, throwable);
         httpResponseFuture.notifyHttpListener(throwable);
     }
 }
