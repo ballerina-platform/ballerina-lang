@@ -169,14 +169,17 @@ public class MultipartEncoderTest {
         Assert.assertNotNull(jsonData);
         Assert.assertEquals(jsonData.getMessageAsString(), "{\"" + "bodyPart" + "\":\"" + "jsonPart" +
                 "\"}");
+
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(1));
         BXML xmlData = EntityBodyHandler.constructXmlDataSource(bodyPart);
         Assert.assertNotNull(xmlData);
         Assert.assertEquals(xmlData.getMessageAsString(), "<name>Ballerina xml file part</name>");
+
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(2));
         StringDataSource textData = EntityBodyHandler.constructStringDataSource(bodyPart);
         Assert.assertNotNull(textData);
         Assert.assertEquals(textData.getMessageAsString(), "Ballerina text body part");
+        
         EntityBodyHandler.populateBodyContent(bodyPart, mimeParts.get(3));
         BlobDataSource blobDataSource = EntityBodyHandler.constructBlobDataSource(bodyPart);
         Assert.assertNotNull(blobDataSource);

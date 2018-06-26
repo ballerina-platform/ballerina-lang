@@ -18,7 +18,6 @@
 package org.ballerinalang.langserver.completions.resolvers;
 
 import org.antlr.v4.runtime.ParserRuleContext;
-import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.util.CompletionItemResolver;
@@ -27,18 +26,19 @@ import org.ballerinalang.langserver.completions.util.sorters.ItemSorters;
 import org.eclipse.lsp4j.CompletionItem;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Resolver for Connector definition context.
  */
 public class ConnectorDefinitionContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
 
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
 
-        if (!this.isAnnotationContext(completionContext)) {
-            ParserRuleContext parserRuleContext = completionContext.get(DocumentServiceKeys.PARSER_RULE_CONTEXT_KEY);
+        if (!this.isAnnotationStart(completionContext)) {
+            ParserRuleContext parserRuleContext = completionContext.get(CompletionKeys.PARSER_RULE_CONTEXT_KEY);
             if (parserRuleContext != null) {
                 AbstractItemResolver resolver = CompletionItemResolver.getResolverByClass(parserRuleContext.getClass());
                 if (resolver != null) {

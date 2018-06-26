@@ -32,6 +32,7 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.mime.util.Constants;
+import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
@@ -160,8 +161,9 @@ public class BallerinaWebSubConnectionListener extends BallerinaHTTPConnectorLis
                     intentVerificationRequestStruct.put(VERIFICATION_REQUEST_CHALLENGE,
                             params.get(PARAM_HUB_CHALLENGE));
                     if (params.hasKey(PARAM_HUB_LEASE_SECONDS)) {
+                        int leaseSec = Integer.parseInt(params.get(PARAM_HUB_LEASE_SECONDS).stringValue());
                         intentVerificationRequestStruct.put(VERIFICATION_REQUEST_LEASE_SECONDS,
-                                params.get(PARAM_HUB_LEASE_SECONDS));
+                                new BInteger(leaseSec));
                     }
                 } catch (UnsupportedEncodingException e) {
                     throw new BallerinaException("Error populating query map for intent verification request received: "

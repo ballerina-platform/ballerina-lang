@@ -20,8 +20,9 @@ package org.ballerinalang.mime.util;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaderNames;
+
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.connector.api.ConnectorUtils;
+import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
@@ -33,6 +34,7 @@ import org.jvnet.mimepull.MIMEPart;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.activation.MimeType;
 import javax.activation.MimeTypeParseException;
 
@@ -85,9 +87,7 @@ public class MultipartDecoder {
     public static List<MIMEPart> decodeBodyParts(String contentType, InputStream inputStream)
             throws MimeTypeParseException {
         MimeType mimeType = new MimeType(contentType);
-        final MIMEMessage mimeMessage = new MIMEMessage(inputStream,
-                mimeType.getParameter(BOUNDARY),
-                getMimeConfig());
+        final MIMEMessage mimeMessage = new MIMEMessage(inputStream, mimeType.getParameter(BOUNDARY), getMimeConfig());
         return mimeMessage.getAttachments();
     }
 
@@ -125,9 +125,9 @@ public class MultipartDecoder {
         ArrayList<BMap<String, BValue>> bodyParts = new ArrayList<>();
         for (final MIMEPart mimePart : mimeParts) {
             BMap<String, BValue> partStruct =
-                    ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, ENTITY);
+                    BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, ENTITY);
             BMap<String, BValue> mediaType =
-                    ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
+                    BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, MEDIA_TYPE);
             populateBodyPart(context, mimePart, partStruct, mediaType);
             bodyParts.add(partStruct);
         }
@@ -151,8 +151,8 @@ public class MultipartDecoder {
         populateContentType(mimePart, partStruct, mediaType);
         List<String> contentDispositionHeaders = mimePart.getHeader(HttpHeaderNames.CONTENT_DISPOSITION.toString());
         if (HeaderUtil.isHeaderExist(contentDispositionHeaders)) {
-            BMap<String, BValue> contentDisposition = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_MIME,
-                    CONTENT_DISPOSITION_STRUCT);
+            BMap<String, BValue> contentDisposition =
+                    BLangConnectorSPIUtil.createObject(context, PROTOCOL_PACKAGE_MIME, CONTENT_DISPOSITION_STRUCT);
             populateContentDisposition(partStruct, contentDispositionHeaders, contentDisposition);
         }
         EntityBodyHandler.populateBodyContent(partStruct, mimePart);

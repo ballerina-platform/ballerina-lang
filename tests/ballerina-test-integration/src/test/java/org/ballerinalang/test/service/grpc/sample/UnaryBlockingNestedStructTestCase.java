@@ -120,8 +120,8 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
         // StockQuote res = {symbol: "WSO2", name: "WSO2.com", last: 149.52, low: 150.70, high:
         //        149.18};
-        Assert.assertEquals(response.get("symbol"), "WSO2");
-        Assert.assertEquals(response.get("name"), "WSO2.com");
+        Assert.assertEquals(response.get("symbol").stringValue(), "WSO2");
+        Assert.assertEquals(response.get("name").stringValue(), "WSO2.com");
         Assert.assertEquals(((BFloat) response.get("last")).floatValue(), 149.52);
         Assert.assertEquals(((BFloat) response.get("low")).floatValue(), 150.70);
         Assert.assertEquals(((BFloat) response.get("high")).floatValue(), 149.18);

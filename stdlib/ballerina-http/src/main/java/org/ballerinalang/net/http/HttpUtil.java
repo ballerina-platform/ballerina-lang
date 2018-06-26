@@ -217,22 +217,22 @@ public class HttpUtil {
     /**
      * Get the entity from request or response.
      *
-     * @param context                Ballerina context
-     * @param isRequest              boolean representing whether the message is a request or a response
-     * @param isEntityBodyRequired   boolean representing whether the entity body is required
+     * @param context            Ballerina context
+     * @param isRequest          boolean representing whether the message is a request or a response
+     * @param entityBodyRequired boolean representing whether the entity body is required
      * @return Entity of the request or response
      */
-    public static BValue[] getEntity(Context context, boolean isRequest, boolean isEntityBodyRequired) {
+    public static BValue[] getEntity(Context context, boolean isRequest, boolean entityBodyRequired) {
         try {
             BMap<String, BValue> httpMessageStruct = (BMap<String, BValue>) context.getRefArgument(HTTP_MESSAGE_INDEX);
             BMap<String, BValue> entity = (BMap<String, BValue>) httpMessageStruct
                     .get(isRequest ? REQUEST_ENTITY_FIELD : RESPONSE_ENTITY_FIELD);
-            boolean isByteChannelAlreadySet = false;
+            boolean byteChannelAlreadySet = false;
 
             if (httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET) != null) {
-                isByteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
+                byteChannelAlreadySet = (Boolean) httpMessageStruct.getNativeData(IS_BODY_BYTE_CHANNEL_ALREADY_SET);
             }
-            if (isEntityBodyRequired && !isByteChannelAlreadySet) {
+            if (entityBodyRequired && !byteChannelAlreadySet) {
                 populateEntityBody(context, httpMessageStruct, entity, isRequest);
             }
             
