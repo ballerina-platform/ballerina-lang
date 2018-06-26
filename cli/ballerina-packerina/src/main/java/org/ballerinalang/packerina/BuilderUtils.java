@@ -57,7 +57,7 @@ public class BuilderUtils {
         options.put(SKIP_TESTS, Boolean.toString(skiptests));
 
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage bLangPackage = compiler.compile(packagePath);
+        BLangPackage bLangPackage = compiler.build(packagePath);
 
         if (skiptests) {
             compiler.write(bLangPackage, packagePath);
@@ -78,7 +78,7 @@ public class BuilderUtils {
         options.put(SKIP_TESTS, Boolean.toString(skiptests));
 
         Compiler compiler = Compiler.getInstance(context);
-        List<BLangPackage> packages = compiler.compile();
+        List<BLangPackage> packages = compiler.build();
 
         if (skiptests) {
             compiler.write(packages);

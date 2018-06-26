@@ -44,6 +44,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -66,8 +67,19 @@ public class BTestRunner {
      * @param sourceFilePaths List of @{@link Path} of ballerina files
      * @param groups          List of groups to be included
      */
-    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean buildWithTests) {
-        runTest(sourceRoot, sourceFilePaths, groups, true, buildWithTests);
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups) {
+        runTest(sourceRoot, sourceFilePaths, groups, true);
+    }
+
+    /**
+     * Executes a given set of ballerina program files.
+     *
+     * @param sourceRoot      source root
+     * @param sourceFilePaths List of @{@link Path} of ballerina files
+     * @param groups          List of groups to be included
+     */
+    public void runTest(String sourceRoot, Path[] sourceFilePaths, List<String> groups, boolean shouldIncludeGroups) {
+        runTest(sourceRoot, sourceFilePaths, groups, shouldIncludeGroups, false);
     }
 
     /**
@@ -151,8 +163,8 @@ public class BTestRunner {
                 CompilerPhase.CODE_GEN);
             // print errors
             for (Diagnostic diagnostic : compileResult.getDiagnostics()) {
-                errStream.println("error: " + diagnostic.getPosition() + " " + diagnostic
-                    .getMessage());
+                errStream.println(diagnostic.getKind().toString().toLowerCase(Locale.ENGLISH) + ":"
+                                          + diagnostic.getPosition() + " " + diagnostic.getMessage());
             }
             if (compileResult.getErrorCount() > 0) {
                 throw new BallerinaException("error : compilation failed");

@@ -53,7 +53,7 @@ public class FunctionMockTest {
         TesterinaRegistry.getInstance().setOrgName("$anon");
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("functionmocktest.pkg"), Paths.get("functionmocktest2.pkg")},
-                new ArrayList<>(), false);
+                new ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionmocktest.pkg", "passed"), 1);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary("functionmocktest2.pkg", "passed"), 1);
     }

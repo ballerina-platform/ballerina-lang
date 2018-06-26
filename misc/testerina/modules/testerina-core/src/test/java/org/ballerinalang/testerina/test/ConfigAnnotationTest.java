@@ -37,7 +37,7 @@ public class ConfigAnnotationTest {
     public void testBefore() {
         BTestRunner runner = new BTestRunner();
         runner.runTest("src/test/resources/annotations-test", new Path[]{Paths.get("config-test.bal")}, new
-                ArrayList<>(), false);
+                ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 9);
     }
 

@@ -155,9 +155,9 @@ public class TestCmd implements BLauncherCmd {
             Runtime.getRuntime().exit(0);
         }
         if (disableGroupList != null) {
-            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false, false);
+            testRunner.runTest(sourceRootPath.toString(), paths, disableGroupList, false);
         } else {
-            testRunner.runTest(sourceRootPath.toString(), paths, groupList, false);
+            testRunner.runTest(sourceRootPath.toString(), paths, groupList);
         }
         if (testRunner.getTesterinaReport().isFailure()) {
             Utils.cleanUpDir(sourceRootPath.resolve(TesterinaConstants.TESTERINA_TEMP_DIR));

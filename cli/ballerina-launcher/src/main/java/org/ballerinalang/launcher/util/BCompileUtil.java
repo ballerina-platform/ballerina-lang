@@ -244,7 +244,7 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage packageNode = compiler.compile(packageName, false);
+        BLangPackage packageNode = compiler.compile(packageName);
         comResult.setAST(packageNode);
         CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(packageNode);
         if (programFile != null) {
@@ -301,7 +301,7 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        return compiler.compile(packageName, false);
+        return compiler.compile(packageName);
     }
 
     /**
@@ -395,7 +395,7 @@ public class BCompileUtil {
 
         // compile
         Compiler compiler = Compiler.getInstance(context);
-        BLangPackage entryPackageNode = compiler.compile(fileName, false);
+        BLangPackage entryPackageNode = compiler.compile(fileName);
         CompiledBinaryFile.ProgramFile programFile = compiler.getExecutableProgram(entryPackageNode);
         if (programFile != null) {
             comResult.setProgFile(LauncherUtils.getExecutableProgram(programFile));

@@ -99,7 +99,7 @@ public class GenerateBalo {
         SymbolTable symbolTable = SymbolTable.getInstance(context);
 
         Compiler compiler = Compiler.getInstance(context);
-        compiler.write(compiler.compile());
+        compiler.write(compiler.build());
 
 
         BLangDiagnosticLog diagnosticLog = BLangDiagnosticLog.getInstance(context);

@@ -72,6 +72,10 @@ public class Compiler {
         return compiler;
     }
 
+    public BLangPackage compile(String sourcePackage) {
+        return compile(sourcePackage, false);
+    }
+
     public BLangPackage compile(String sourcePackage, boolean isBuild) {
         PackageID packageID = this.sourceDirectoryManager.getPackageID(sourcePackage);
         if (packageID == null) {
@@ -81,11 +85,11 @@ public class Compiler {
         return compilePackage(packageID, isBuild);
     }
 
-    public List<BLangPackage> compile() {
+    public List<BLangPackage> build() {
         return compilePackages();
     }
 
-    public BLangPackage compile(String sourcePackage) {
+    public BLangPackage build(String sourcePackage) {
         outStream.println("Compiling source");
         BLangPackage bLangPackage = compile(sourcePackage, true);
         if (bLangPackage.diagCollector.hasErrors()) {
@@ -114,7 +118,7 @@ public class Compiler {
     }
 
     public void list(String sourcePackage) {
-        BLangPackage bLangPackage = compile(sourcePackage, false);
+        BLangPackage bLangPackage = compile(sourcePackage);
         if (bLangPackage.diagCollector.hasErrors()) {
             throw new BLangCompilerException("compilation contains errors");
         }

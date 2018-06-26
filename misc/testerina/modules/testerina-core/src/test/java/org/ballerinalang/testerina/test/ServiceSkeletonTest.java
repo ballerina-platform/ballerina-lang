@@ -52,8 +52,7 @@ public class ServiceSkeletonTest {
         cleanup();
         BTestRunner bTestRunner = new BTestRunner();
         bTestRunner.runTest(Paths.get(sourceRoot, "service.skeleton").toString(),
-                            new Path[]{Paths.get("service-skeleton-test.bal")}, new
-                ArrayList<>(), false);
+                            new Path[]{Paths.get("service-skeleton-test.bal")}, new ArrayList<>());
         Assert.assertEquals(bTestRunner.getTesterinaReport().getTestSummary(".", "passed"), 1);
     }
 

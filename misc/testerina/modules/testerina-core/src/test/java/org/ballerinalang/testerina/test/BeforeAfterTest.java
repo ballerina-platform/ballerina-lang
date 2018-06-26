@@ -40,7 +40,7 @@ public class BeforeAfterTest {
     public void tesDependsOnFunctions() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("before-after-func.bal")}, new
-            ArrayList<>(), false);
+            ArrayList<>());
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "skipped"), 0);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "passed"), 2);
         Assert.assertEquals(runner.getTesterinaReport().getTestSummary(".", "failed"), 0);
@@ -52,7 +52,7 @@ public class BeforeAfterTest {
     public void tesMissingBeforeFunction() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("before-func-negative.bal")}, new
-            ArrayList<>(), false);
+            ArrayList<>());
     }
 
     @Test(expectedExceptions = BallerinaException.class,
@@ -61,7 +61,7 @@ public class BeforeAfterTest {
     public void tesMissingAfterFunction() {
         BTestRunner runner = new BTestRunner();
         runner.runTest(sourceRoot, new Path[]{Paths.get("after-func-negative.bal")}, new
-            ArrayList<>(), false);
+            ArrayList<>());
     }
 
     @AfterMethod

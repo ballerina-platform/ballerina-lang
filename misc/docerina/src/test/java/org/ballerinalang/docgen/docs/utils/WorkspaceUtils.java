@@ -60,7 +60,7 @@ public class WorkspaceUtils {
         Compiler compiler = Compiler.getInstance(context);
         BLangPackage balPkg = null;
         try {
-            balPkg = compiler.compile(fileName, false);
+            balPkg = compiler.compile(fileName);
         } catch (Exception ex) {
             BDiagnostic catastrophic = new BDiagnostic();
             catastrophic.msg = "Failed in the runtime parse/analyze. " + ex.getMessage();
