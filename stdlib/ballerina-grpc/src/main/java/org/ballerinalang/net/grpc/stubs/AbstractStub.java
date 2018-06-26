@@ -37,6 +37,8 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.AUTHORITY;
+import static org.ballerinalang.net.grpc.GrpcConstants.SCHEME_HEADER;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -45,11 +47,9 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
  * Referenced from grpc-java implementation.
  * <p>
  *
- * @param <S> the concrete type of this stub.
- *
  * @since 0.980.0
  */
-public abstract class AbstractStub<S extends AbstractStub<S>> {
+public abstract class AbstractStub {
 
     private static final Logger logger = Logger.getLogger(AbstractStub.class.getName());
     private final HttpClientConnector connector;
@@ -65,7 +65,7 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
      *
      * @param connector the client connector which use to communicate.
      */
-    protected AbstractStub(HttpClientConnector connector, Struct endpointConfig) {
+    AbstractStub(HttpClientConnector connector, Struct endpointConfig) {
         this.connector = connector;
         this.endpointConfig = endpointConfig;
     }
@@ -91,8 +91,8 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
             URL url = new URL(urlString);
             int port = getOutboundReqPort(url);
             String host = url.getHost();
-            carbonMessage.setHeader("scheme", url.getProtocol());
-            carbonMessage.setHeader("authority", urlString);
+            carbonMessage.setHeader(SCHEME_HEADER, url.getProtocol());
+            carbonMessage.setHeader(AUTHORITY, urlString);
             setOutboundReqProperties(carbonMessage, url, port, host);
             setOutboundReqHeaders(carbonMessage, port, host);
             if (httpHeaders != null) {
@@ -166,7 +166,7 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
      * @param call client call.
      * @param t RuntimeException/Error.
      */
-    public static RuntimeException cancelThrow(ClientCall<?, ?> call, Throwable t) {
+    static RuntimeException cancelThrow(ClientCall<?, ?> call, Throwable t) {
         try {
             call.cancel(null, t);
         } catch (Throwable e) {

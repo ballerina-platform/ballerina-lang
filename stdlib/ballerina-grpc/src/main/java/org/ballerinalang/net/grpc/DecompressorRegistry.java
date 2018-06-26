@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentMap;
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ * @since 0.980.0
  */
 public final class DecompressorRegistry {
 

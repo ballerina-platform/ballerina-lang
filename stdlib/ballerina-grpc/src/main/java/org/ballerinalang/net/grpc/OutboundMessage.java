@@ -133,15 +133,6 @@ public class OutboundMessage {
     }
 
     /**
-     * Remove a property from the underlining CarbonMessage object.
-     *
-     * @param key property key
-     */
-    public void removeProperty(String key) {
-        responseMessage.removeProperty(key);
-    }
-
-    /**
      * @return the underlining CarbonMessage object.
      */
     HTTPCarbonMessage getResponseMessage() {

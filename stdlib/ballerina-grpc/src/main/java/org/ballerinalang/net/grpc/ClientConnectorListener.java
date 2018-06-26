@@ -35,6 +35,8 @@ import static org.ballerinalang.net.grpc.MessageUtils.readAsString;
 
 /**
  * Client Connector Listener.
+ *
+ * @since 0.980.0
  */
 public class ClientConnectorListener implements HttpClientConnectorListener {
 
@@ -128,7 +130,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
      *
      * @param inboundMessage the incoming message.
      */
-    protected boolean isValid(InboundMessage inboundMessage) {
+    private boolean isValid(InboundMessage inboundMessage) {
         HttpHeaders headers = inboundMessage.getHeaders();
         if (headers == null) {
             transportError = Status.Code.INTERNAL.toStatus().withDescription("Message headers is null");
@@ -176,7 +178,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
      *
      * @param trailers the received terminal trailer metadata
      */
-    protected void transportTrailersReceived(HttpHeaders trailers) {
+    private void transportTrailersReceived(HttpHeaders trailers) {
         if (transportError != null) {
             transportError = transportError.augmentDescription("trailers: " + trailers);
             stateListener.transportReportStatus(transportError, false, transportErrorMetadata);
@@ -211,7 +213,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         private boolean statusReported;
         private boolean listenerClosed;
 
-        protected ClientInboundStateListener(int maxMessageSize, ClientCall.ClientStreamListener listener) {
+        ClientInboundStateListener(int maxMessageSize, ClientCall.ClientStreamListener listener) {
             super(maxMessageSize);
             this.listener = listener;
         }
@@ -239,7 +241,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
          *
          * @param headers the parsed headers
          */
-        protected void inboundHeadersReceived(HttpHeaders headers) {
+        void inboundHeadersReceived(HttpHeaders headers) {
             String streamEncoding = headers.get(CONTENT_ENCODING);
             if (streamEncoding != null) {
                 deframeFailed(
@@ -270,12 +272,12 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
          *
          * @param httpContent the received data frame. Its ownership is transferred to this method.
          */
-        public void inboundDataReceived(HttpContent httpContent) {
+        void inboundDataReceived(HttpContent httpContent) {
             deframe(httpContent);
         }
 
-        public final void transportReportStatus(final Status status, boolean stopDelivery,
-                                                final HttpHeaders trailers) {
+        final void transportReportStatus(final Status status, boolean stopDelivery,
+                                         final HttpHeaders trailers) {
             if (statusReported && !stopDelivery) {
                 return;
             }

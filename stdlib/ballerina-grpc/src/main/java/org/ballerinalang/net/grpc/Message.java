@@ -47,10 +47,6 @@ public class Message {
     protected Message(String messageName) {
         this.messageName = messageName;
     }
-    
-    void setFieldValues(Map<String, Object> fieldValues) {
-        this.fields = fieldValues;
-    }
 
     protected void addField(String fieldName, Object value) {
         fields.put(fieldName, value);
@@ -477,8 +473,9 @@ public class Message {
                                         .getNumber(), message);
                             }
                         } else {
-                            size += com.google.protobuf.CodedOutputStream.computeFloatSize(fieldDescriptor.getNumber
-                                    (), Float.parseFloat(fields.get(fieldDescriptor.getName()).toString()));
+                            size += com.google.protobuf.CodedOutputStream.computeFloatSize(
+                                    fieldDescriptor.getNumber(),
+                                    Float.parseFloat(fields.get(fieldDescriptor.getName()).toString()));
                         }
                         break;
                     }

@@ -22,6 +22,7 @@ import java.io.IOException;
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ * @since 0.980.0
  */
 public interface KnownLength {
 

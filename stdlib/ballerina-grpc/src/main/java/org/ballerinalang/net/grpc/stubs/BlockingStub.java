@@ -41,6 +41,15 @@ import java.util.Arrays;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BOOL_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_BYTES_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_DOUBLE_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_FLOAT_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT32_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_INT64_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_STRING_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT32_MESSAGE;
+import static org.ballerinalang.net.grpc.GrpcConstants.WRAPPER_UINT64_MESSAGE;
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
 import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
 
@@ -49,7 +58,7 @@ import static org.ballerinalang.net.http.HttpConstants.STRUCT_GENERIC_ERROR;
  *
  * @since 1.0.0
  */
-public class BlockingStub extends AbstractStub<BlockingStub> {
+public class BlockingStub extends AbstractStub {
 
     private static final BTupleType RESP_TUPLE_TYPE = new BTupleType(Arrays.asList(BTypes.typeAny, BTypes.typeAny));
 
@@ -152,19 +161,19 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
      * @return .
      */
     private static BType getBalType(String protoType, Context context) {
-        if (protoType.equalsIgnoreCase("DoubleValue") || protoType
-                .equalsIgnoreCase("FloatValue")) {
+        if (protoType.equalsIgnoreCase(WRAPPER_DOUBLE_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_FLOAT_MESSAGE)) {
             return BTypes.typeFloat;
-        } else if (protoType.equalsIgnoreCase("Int32Value") || protoType
-                .equalsIgnoreCase("Int64Value") || protoType
-                .equalsIgnoreCase("UInt32Value") || protoType
-                .equalsIgnoreCase("UInt64Value")) {
+        } else if (protoType.equalsIgnoreCase(WRAPPER_INT32_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_INT64_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_UINT32_MESSAGE) || protoType
+                .equalsIgnoreCase(WRAPPER_UINT64_MESSAGE)) {
             return BTypes.typeInt;
-        } else if (protoType.equalsIgnoreCase("BoolValue")) {
+        } else if (protoType.equalsIgnoreCase(WRAPPER_BOOL_MESSAGE)) {
             return BTypes.typeBoolean;
-        } else if (protoType.equalsIgnoreCase("StringValue")) {
+        } else if (protoType.equalsIgnoreCase(WRAPPER_STRING_MESSAGE)) {
             return BTypes.typeString;
-        } else if (protoType.equalsIgnoreCase("BytesValue")) {
+        } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
             return BTypes.typeBlob;
         } else {
             return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();

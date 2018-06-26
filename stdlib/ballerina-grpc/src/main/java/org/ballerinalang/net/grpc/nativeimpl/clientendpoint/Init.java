@@ -96,7 +96,6 @@ public class Init extends BlockingNativeCallableUnit {
         Struct endpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
         String urlString = endpointConfig.getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
         HttpConnectionManager connectionManager = HttpConnectionManager.getInstance();
-        String scheme;
         URL url;
         try {
             url = new URL(urlString);
@@ -104,7 +103,7 @@ public class Init extends BlockingNativeCallableUnit {
             throw new BallerinaConnectorException("Malformed URL: " + urlString);
         }
 
-        scheme = url.getProtocol();
+        String scheme = url.getProtocol();
         Map<String, Object> properties =
                 HTTPConnectorUtil.getTransportProperties(connectionManager.getTransportConfig());
         SenderConfiguration senderConfiguration =

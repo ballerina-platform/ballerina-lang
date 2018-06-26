@@ -49,7 +49,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 public class Get extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        //TODO: redesign headers support
         String headerName = context.getStringArgument(0);
         BStruct headerValues = (BStruct) context.getRefArgument(0);
         HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
@@ -60,22 +59,4 @@ public class Get extends BlockingNativeCallableUnit {
             context.setReturnValues();
         }
     }
-
-/*    private String getHeaderValue(MessageHeaders metadata, String keyName) {
-        String headerValue = null;
-        if (metadata != null) {
-            if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-                Metadata.Key<byte[]> key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER);
-                byte[] byteValues = metadata.get(key);
-                // Referred : https://stackoverflow
-                // .com/questions/1536054/how-to-convert-byte-array-to-string-and-vice-versa
-                // https://stackoverflow.com/questions/2418485/how-do-i-convert-a-byte-array-to-base64-in-java
-                headerValue = byteValues != null ? Base64.getEncoder().encodeToString(byteValues) : null;
-            } else {
-                Metadata.Key<String> key = Metadata.Key.of(keyName, Metadata.ASCII_STRING_MARSHALLER);
-                headerValue = metadata.get(key);
-            }
-        }
-        return headerValue;
-    }*/
 }

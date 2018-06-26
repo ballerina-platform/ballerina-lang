@@ -66,8 +66,8 @@ public class Send extends BlockingNativeCallableUnit {
                 (REQUEST_SENDER);
         if (requestSender == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
-                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while initializing " +
-                            "connector. response sender does not exist"))));
+                    .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
+                            "message. endpoint does not exist"))));
         } else {
             Descriptors.Descriptor inputType = (Descriptors.Descriptor) connectionStruct.getNativeData(GrpcConstants
                     .REQUEST_MESSAGE_DEFINITION);

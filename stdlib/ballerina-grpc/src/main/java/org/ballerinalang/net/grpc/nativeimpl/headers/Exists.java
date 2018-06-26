@@ -49,11 +49,9 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 public class Exists extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        //TODO: redesign headers support
         String headerName = context.getStringArgument(0);
         BStruct headerValues = (BStruct) context.getRefArgument(0);
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS)
-                : null;
+        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
         boolean isExist = false;
         if (headers != null) {
             isExist = headers.contains(headerName);

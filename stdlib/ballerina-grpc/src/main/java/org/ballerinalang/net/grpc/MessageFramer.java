@@ -148,8 +148,7 @@ public class MessageFramer {
             throws IOException {
         if (maxOutboundMessageSize >= 0 && messageLength > maxOutboundMessageSize) {
             throw Status.Code.RESOURCE_EXHAUSTED.toStatus()
-                    .withDescription(
-                            String.format("message too large %d > %d", messageLength, maxOutboundMessageSize))
+                    .withDescription(String.format("message too large %d > %d", messageLength, maxOutboundMessageSize))
                     .asRuntimeException();
         }
         ByteBuffer header = ByteBuffer.wrap(headerScratch);

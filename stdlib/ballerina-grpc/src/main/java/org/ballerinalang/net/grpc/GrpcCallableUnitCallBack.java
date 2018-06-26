@@ -21,6 +21,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
+
 /**
  * gRPC call back class registered in B7a executor.
  *
@@ -62,7 +64,7 @@ public class GrpcCallableUnitCallBack<ResponseT> implements CallableUnitCallback
         // notify success only if response message is empty. Service impl doesn't send empty message. Empty response
         // scenarios handles here.
         if (emptyResponse) {
-            requestSender.onNext((ResponseT) new Message("Empty"));
+            requestSender.onNext((ResponseT) new Message(EMPTY_DATATYPE_NAME));
         }
         // Notify complete if service impl doesn't call complete;
         requestSender.onCompleted();

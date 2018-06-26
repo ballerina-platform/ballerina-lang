@@ -45,10 +45,8 @@ public class RemoveAll extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        //TODO: redesign headers support
         BStruct headerValues = (BStruct) context.getRefArgument(0);
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS)
-                : null;
+        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
         if (headers != null) {
             headers.clear();
         }

@@ -29,17 +29,21 @@ import java.util.zip.GZIPOutputStream;
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ * @since 0.980.0
  */
 public interface Codec extends Compressor, Decompressor {
+
+    String GZIP = "gzip";
+    String IDENTITY = "identity";
 
     /**
      * A gzip compressor and decompressor.
      */
-    public static final class Gzip implements Codec {
+    final class Gzip implements Codec {
 
         @Override
         public String getMessageEncoding() {
-            return "gzip";
+            return GZIP;
         }
 
         @Override
@@ -56,22 +60,22 @@ public interface Codec extends Compressor, Decompressor {
     /**
      * The "identity", or "none" codec.
      */
-    public static final class Identity implements Codec {
+    final class Identity implements Codec {
 
         public static final Codec NONE = new Identity();
 
         @Override
-        public InputStream decompress(InputStream is) throws IOException {
+        public InputStream decompress(InputStream is) {
             return is;
         }
 
         @Override
         public String getMessageEncoding() {
-            return "identity";
+            return IDENTITY;
         }
 
         @Override
-        public OutputStream compress(OutputStream os) throws IOException {
+        public OutputStream compress(OutputStream os) {
             return os;
         }
 

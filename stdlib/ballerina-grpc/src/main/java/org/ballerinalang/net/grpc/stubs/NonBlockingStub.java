@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
  *
  * @since 1.0.0
  */
-public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
+public class NonBlockingStub extends AbstractStub {
 
     public NonBlockingStub(HttpClientConnector clientConnector, Struct endpointConfig) {
         super(clientConnector, endpointConfig);

@@ -26,9 +26,13 @@ import java.io.InputStream;
 import java.util.Map;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
+import static org.ballerinalang.net.grpc.GrpcConstants.STATUS_HEADER;
+import static org.ballerinalang.net.grpc.GrpcConstants.TO_HEADER;
 
 /**
  * Class that represents an gRPC inbound message.
+ *
+ * @since 0.980.0
  */
 public class InboundMessage {
 
@@ -90,23 +94,14 @@ public class InboundMessage {
     }
 
     /**
-     * Remove a property from the underlining CarbonMessage object.
-     *
-     * @param key property key
-     */
-    public void removeProperty(String key) {
-        httpCarbonMessage.removeProperty(key);
-    }
-
-    /**
      * @return URL of the request.
      */
     public String getPath() {
-        return (String) httpCarbonMessage.getProperty("TO");
+        return (String) httpCarbonMessage.getProperty(TO_HEADER);
     }
 
     public int getStatus() {
-        return  (Integer) httpCarbonMessage.getProperty("HTTP_STATUS_CODE");
+        return  (Integer) httpCarbonMessage.getProperty(STATUS_HEADER);
     }
 
     /**
@@ -162,7 +157,7 @@ public class InboundMessage {
 
         private MessageDeframer deframer;
 
-        protected InboundStateListener(int maxMessageSize) {
+        InboundStateListener(int maxMessageSize) {
             deframer = new MessageDeframer(
                     this,
                     Codec.Identity.NONE,
@@ -188,7 +183,7 @@ public class InboundMessage {
          *
          * @param stopDelivery interrupt pending deliveries and close immediately
          */
-        protected final void closeDeframer(boolean stopDelivery) {
+        final void closeDeframer(boolean stopDelivery) {
             if (stopDelivery) {
                 deframer.close();
             } else {
@@ -200,7 +195,7 @@ public class InboundMessage {
          * Called to parse a received frame and attempt delivery of any completed messages. Must be
          * called from the transport thread.
          */
-        protected final void deframe(final HttpContent httpContent) {
+        final void deframe(final HttpContent httpContent) {
             try {
                 deframer.deframe(httpContent);
             } catch (Throwable t) {

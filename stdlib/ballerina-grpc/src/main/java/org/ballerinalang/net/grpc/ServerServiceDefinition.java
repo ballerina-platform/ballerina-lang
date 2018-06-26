@@ -105,10 +105,10 @@ public final class ServerServiceDefinition {
                 MethodDescriptor<ReqT, RespT> method, ServerCallHandler<ReqT, RespT> handler) throws
                 GrpcServerException {
             if (method == null) {
-                throw new GrpcServerException("Service Descriptor cannot be null");
+                throw new GrpcServerException("Method Descriptor cannot be null");
             }
             if (handler == null) {
-                throw new GrpcServerException("Service Descriptor cannot be null");
+                throw new GrpcServerException("Server call handler cannot be null");
             }
             addMethod(ServerMethodDefinition.create(method, handler));
         }

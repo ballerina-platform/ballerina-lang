@@ -45,6 +45,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.TE_KEY;
  *
  * @param <ReqT> Request Message Type.
  * @param <RespT> Response Message Type.
+ * @since 0.980.0
  */
 public final class ClientCall<ReqT, RespT> {
 
@@ -74,13 +75,11 @@ public final class ClientCall<ReqT, RespT> {
         if (compressor != Codec.Identity.NONE) {
             outboundMessage.setHeader(MESSAGE_ENCODING, compressor.getMessageEncoding());
         }
-
         outboundMessage.removeHeader(MESSAGE_ACCEPT_ENCODING);
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
         if (advertisedEncodings != null) {
             outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
         }
-
         outboundMessage.setProperty(Constants.TO, "/" + method.getFullMethodName());
         outboundMessage.setProperty(Constants.HTTP_METHOD, GrpcConstants.HTTP_METHOD);
         outboundMessage.setProperty(Constants.HTTP_VERSION, "2.0");
@@ -253,7 +252,6 @@ public final class ClientCall<ReqT, RespT> {
                 MessageUtils.closeQuietly(message);
                 return;
             }
-
             try {
                 Message responseMessage = (Message) method.parseResponse(message);
                 responseMessage.setHeaders(responseHeaders);

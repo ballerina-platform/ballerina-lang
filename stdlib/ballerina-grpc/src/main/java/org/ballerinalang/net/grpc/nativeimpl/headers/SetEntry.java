@@ -48,7 +48,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 public class SetEntry extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        //TODO: redesign headers support
         BStruct headerValues = (BStruct) context.getRefArgument(0);
         HttpHeaders headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
         String headerName = context.getStringArgument(0);

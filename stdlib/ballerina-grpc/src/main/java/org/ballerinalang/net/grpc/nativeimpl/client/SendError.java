@@ -66,7 +66,7 @@ public class SendError extends BlockingNativeCallableUnit {
         if (requestSender == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +
-                            "error. Response observer not found."))));
+                            "error. endpoint does not exist"))));
         } else {
             try {
                 requestSender.onError(new StatusRuntimeException(Status.fromCodeValue((int) statusCode).withDescription

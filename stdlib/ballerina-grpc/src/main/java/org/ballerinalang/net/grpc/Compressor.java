@@ -23,6 +23,7 @@ import java.io.OutputStream;
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ * @since 0.980.0
  */
 public interface Compressor {
 

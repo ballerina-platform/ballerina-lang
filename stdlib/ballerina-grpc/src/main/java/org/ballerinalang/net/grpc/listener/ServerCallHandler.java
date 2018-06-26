@@ -168,7 +168,7 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
      * @return b7a message.
      */
     private BValue getRequestParameter(Resource resource, RequestT requestMessage, boolean isHeaderRequired) {
-        if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 3) {
+        if (resource.getParamDetails().size() > 3) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than three");
         }
         List<ParamDetail> paramDetails = resource.getParamDetails();

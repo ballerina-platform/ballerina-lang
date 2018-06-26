@@ -46,10 +46,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 public class Remove extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        //TODO: redesign headers support
         BStruct headerValues = (BStruct) context.getRefArgument(0);
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS)
-                : null;
+        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
         String headerName = context.getStringArgument(0);
         if (headers != null) {
             headers.remove(headerName);

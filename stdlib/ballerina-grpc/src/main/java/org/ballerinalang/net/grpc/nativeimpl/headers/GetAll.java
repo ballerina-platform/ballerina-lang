@@ -51,11 +51,9 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 public class GetAll extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        //TODO: redesign headers support
         String headerName = context.getStringArgument(0);
         BStruct headerValues = (BStruct) context.getRefArgument(0);
-        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS)
-                : null;
+        HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
         List<String> headersList =  headers != null ? headers.getAll(headerName) : null;
 
         if (headersList != null) {
@@ -66,29 +64,4 @@ public class GetAll extends BlockingNativeCallableUnit {
             context.setReturnValues();
         }
     }
-
-/*    private String[] getHeaderValues(MessageHeaders metadata, String keyName) {
-
-        List<String> headerValues = new ArrayList<>();
-        if (metadata != null) {
-            if (keyName.endsWith(Metadata.BINARY_HEADER_SUFFIX)) {
-                Metadata.Key<byte[]> key = Metadata.Key.of(keyName, Metadata.BINARY_BYTE_MARSHALLER);
-                Iterable<byte[]> valueIterator = metadata.getAll(key);
-                // Referred : https://stackoverflow
-                // .com/questions/1536054/how-to-convert-byte-array-to-string-and-vice-versa
-                // https://stackoverflow.com/questions/2418485/how-do-i-convert-a-byte-array-to-base64-in-java
-                List<String> values = new ArrayList<>();
-                valueIterator.forEach(value -> values.add(value != null ? Base64.getEncoder().encodeToString(value) :
-                        null));
-                headerValues = values;
-            } else {
-                Metadata.Key<String> key = Metadata.Key.of(keyName, Metadata.ASCII_STRING_MARSHALLER);
-                Iterable<String> valueIterator = metadata.getAll(key);
-                List<String> values = new ArrayList<>();
-                valueIterator.forEach(values::add);
-                headerValues = values;
-            }
-        }
-        return headerValues.toArray(new String[headerValues.size()]);
-    }*/
 }

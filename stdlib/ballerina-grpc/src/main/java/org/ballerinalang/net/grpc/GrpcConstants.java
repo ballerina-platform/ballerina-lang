@@ -97,6 +97,17 @@ public class GrpcConstants {
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES, 2);
         WIRE_TYPE_MAP = Collections.unmodifiableMap(wireMap);
     }
+
+    // proto wrapper message constants
+    public static final String WRAPPER_DOUBLE_MESSAGE = "DoubleValue";
+    public static final String WRAPPER_FLOAT_MESSAGE = "FloatValue";
+    public static final String WRAPPER_INT64_MESSAGE = "Int64Value";
+    public static final String WRAPPER_UINT64_MESSAGE = "UInt64Value";
+    public static final String WRAPPER_INT32_MESSAGE = "Int32Value";
+    public static final String WRAPPER_UINT32_MESSAGE = "UInt32Value";
+    public static final String WRAPPER_BOOL_MESSAGE = "BoolValue";
+    public static final String WRAPPER_STRING_MESSAGE = "StringValue";
+    public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
     
     // Server Streaming method resources.
     public static final String ON_OPEN_RESOURCE = "onOpen";
@@ -142,6 +153,10 @@ public class GrpcConstants {
     static final String GRPC_MESSAGE_KEY = "grpc-message";
     static final String CONTENT_TYPE_KEY = "content-type";
     static final String TE_KEY = "te";
+    static final String TO_HEADER = "TO";
+    static final String STATUS_HEADER = "HTTP_STATUS_CODE";
+    public static final String SCHEME_HEADER = "scheme";
+    public static final String AUTHORITY = "authority";
 
     //Content-Type used for GRPC-over-HTTP/2.
     public static final String CONTENT_TYPE_GRPC = "application/grpc";

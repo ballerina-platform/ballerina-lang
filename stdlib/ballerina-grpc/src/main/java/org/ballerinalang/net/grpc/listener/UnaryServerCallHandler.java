@@ -67,9 +67,8 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
         @Override
         public void onMessage(ReqT request) {
             if (this.request != null) {
-                call.close(
-                        Status.Code.INTERNAL.toStatus().withDescription(TOO_MANY_REQUESTS), new
-                                DefaultHttpHeaders());
+                call.close(Status.Code.INTERNAL.toStatus().withDescription(TOO_MANY_REQUESTS),
+                        new DefaultHttpHeaders());
                 canInvoke = false;
                 return;
             }
@@ -82,8 +81,8 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
                 return;
             }
             if (request == null) {
-                call.close(
-                        Status.Code.INTERNAL.toStatus().withDescription(MISSING_REQUEST), new DefaultHttpHeaders());
+                call.close(Status.Code.INTERNAL.toStatus().withDescription(MISSING_REQUEST),
+                        new DefaultHttpHeaders());
                 return;
             }
             invoke(request, responseObserver);
