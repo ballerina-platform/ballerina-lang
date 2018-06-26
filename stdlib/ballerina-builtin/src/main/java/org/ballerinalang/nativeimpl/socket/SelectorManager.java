@@ -90,7 +90,7 @@ public class SelectorManager {
                             }
                             iter.remove();
                         }
-                    } catch (Exception e) {
+                    } catch (Throwable e) {
                         log.error("An error occurred: " + e.getMessage(), e);
                     }
                 }
