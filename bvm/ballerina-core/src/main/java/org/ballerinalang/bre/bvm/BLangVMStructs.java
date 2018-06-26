@@ -97,15 +97,12 @@ public class BLangVMStructs {
                 }
                 break;
             case TypeTags.BYTE_TAG:
-                index = ++regIndexes[4];
-                if (value != null) {
-                    if (value instanceof Byte) {
-                        structureType.setBooleanField(index, (Byte) value);
-                    } else if (value instanceof Integer) {
-                        structureType.setBooleanField(index, (Integer) value);
-                    } else if (value instanceof BByte) {
-                        structureType.setBooleanField(index, ((BByte) value).byteValue());
-                    }
+                if (value instanceof Byte) {
+                    return new BByte(((Byte) value));
+                } else if (value instanceof Integer) {
+                    return new BByte(((Integer) value).byteValue());
+                } else if (value instanceof BByte) {
+                    return (BByte) value;
                 }
                 break;
             case TypeTags.FLOAT_TAG:
