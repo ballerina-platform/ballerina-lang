@@ -20,6 +20,7 @@ package org.ballerinalang.nativeimpl.observe.tracing;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
+import org.ballerinalang.nativeimpl.observe.Utils;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 
 /**

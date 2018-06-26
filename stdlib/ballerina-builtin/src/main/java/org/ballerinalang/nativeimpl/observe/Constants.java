@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.nativeimpl.observe.metrics;
+package org.ballerinalang.nativeimpl.observe;
 
 /**
  * Constants used in Ballerina Observe package.
@@ -25,12 +25,12 @@ public final class Constants {
     private Constants() {
     }
 
-    public static final String OBSERVE_PACKAGE_PATH = "ballerina.observe";
+    public static final String OBSERVE_PACKAGE_PATH = "ballerina/observe";
     public static final String GAUGE = "Gauge";
-    public static final String COUNTER = "BCounter";
+    public static final String COUNTER = "Counter";
     public static final String SNAPSHOT = "Snapshot";
     public static final String PERCENTILE_VALUE = "PercentileValue";
-
+    public static final String COUNTER_NATIVE_INSTANCE_KEY = "__counter_native_instance__";
 
     public static final String GAUGE_VALUE_SUFFIX = "_value";
 

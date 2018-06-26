@@ -17,11 +17,7 @@
  */
 package org.ballerinalang.test.observe;
 
-import org.ballerinalang.util.metrics.DefaultMetricRegistry;
-import org.ballerinalang.util.metrics.MetricRegistry;
 import org.testng.annotations.BeforeSuite;
-
-import static org.ballerinalang.util.observability.ObservabilityConstants.CONFIG_METRICS_ENABLED;
 
 public class MetricTest {
 

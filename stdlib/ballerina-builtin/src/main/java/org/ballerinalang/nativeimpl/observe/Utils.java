@@ -16,7 +16,7 @@
  *
  */
 
-package org.ballerinalang.nativeimpl.observe.tracing;
+package org.ballerinalang.nativeimpl.observe;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;

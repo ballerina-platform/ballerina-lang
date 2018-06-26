@@ -92,6 +92,13 @@ public interface Metric {
          * @return Registered metric
          */
         M register(MetricRegistry registry);
+
+        /**
+         * Build the metric without registering.
+         *
+         * @return Metric instance.
+         */
+        M build();
     }
 
 }

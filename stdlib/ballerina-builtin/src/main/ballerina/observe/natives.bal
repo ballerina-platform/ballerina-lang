@@ -63,14 +63,17 @@ public type Counter object {
   @readonly stream<CounterEvent> counterEvent;
  }
 
- new(name, string? desc = "", map<string>? metricTags) {
+ public new(name, string? desc = "", map<string>? metricTags) {
   match desc {
    string strDesc => description = strDesc;
   }
   match metricTags {
    map<string> tagsMap => tags = tagsMap;
   }
+  initialize();
  }
+
+ native function initialize();
 
  public native function register() returns error?;
 
@@ -81,9 +84,9 @@ public type Counter object {
  public function increment(int amount = 1) {
   int currentValue = nativeIncrement(amount);
   json jsonTags = check <json>tags;
-  string strTags = check <string>jsonTags;
+  string strTags = jsonTags.toString();
   CounterEvent event = { name: name, desc: description, value: currentValue, tags: strTags };
-  counterEvent.publish(currentValue);
+  counterEvent.publish(event);
  }
 
  native function nativeIncrement(int amount) returns int;
@@ -209,18 +212,19 @@ public type Counter object {
 // native function getValue() returns float;
 //
 // function publishToGaugeStream(float currentValue) {
-//  string jsonTags = check <string>tags;
+//  string jsonTags = tags.toString();
 //  GaugeEvent event = { name: name, desc: description, value: currentValue, tags: jsonTags };
 //  gaugeStream.publish(event);
 // }
 //};
 //
-type CounterEvent {
- string name,
- string desc,
- int value,
+public type CounterEvent record {
+ string name;
+ string desc;
+ int value;
  string tags;
 };
+
 //
 //
 //public type SummaryConfig object {

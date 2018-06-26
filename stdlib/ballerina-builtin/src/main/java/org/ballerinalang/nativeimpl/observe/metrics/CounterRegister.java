@@ -21,6 +21,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.nativeimpl.observe.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.util.metrics.Counter;
@@ -42,10 +43,8 @@ public class CounterRegister extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         BStruct bStruct = (BStruct) context.getRefArgument(0);
-        BCounter bCounter = (BCounter) bStruct.getNativeData(Constants.COUNTER);
-        Counter.builder(bCounter.getName())
-                .description(bCounter.getDescription())
-                .tags(bCounter.getTags())
-                .register();
+        Counter counter = (Counter) bStruct.getNativeData(Constants.COUNTER_NATIVE_INSTANCE_KEY);
+        Counter registeredCounter = counter.register();
+        bStruct.addNativeData(Constants.COUNTER_NATIVE_INSTANCE_KEY, registeredCounter);
     }
 }

@@ -56,6 +56,15 @@ public class MetricRegistry {
     }
 
     /**
+     * Registers the counter metrics instance.
+     *
+     * @param counter The {@link Counter} instacne.
+     */
+    public Counter register(Counter counter) {
+        return register(counter, Counter.class);
+    }
+
+    /**
      * Use {@link Gauge#builder(String)}.
      *
      * @param id               The {@link MetricId}.
@@ -64,6 +73,15 @@ public class MetricRegistry {
      */
     public Gauge gauge(MetricId id, StatisticConfig... statisticConfigs) {
         return getOrCreate(id, Gauge.class, () -> metricProvider.newGauge(id, statisticConfigs));
+    }
+
+    /**
+     * Registers the gauge metrics instance.
+     *
+     * @param gauge The {@link Gauge} instacne.
+     */
+    public Gauge register(Gauge gauge) {
+        return register(gauge, Gauge.class);
     }
 
     /**
@@ -77,6 +95,15 @@ public class MetricRegistry {
      */
     public <T> PolledGauge polledGauge(MetricId id, T obj, ToDoubleFunction<T> valueFunction) {
         return getOrCreate(id, PolledGauge.class, () -> metricProvider.newPolledGauge(id, obj, valueFunction));
+    }
+
+    /**
+     * Registers the polled gauge metrics instance.
+     *
+     * @param gauge The {@link PolledGauge} instacne.
+     */
+    public PolledGauge register(PolledGauge gauge) {
+        return register(gauge, PolledGauge.class);
     }
 
     private <M extends Metric> M getOrCreate(MetricId id, Class<M> metricClass, Supplier<M> metricSupplier) {
@@ -113,6 +140,41 @@ public class MetricRegistry {
         }
     }
 
+
+    private <M extends Metric> M register(Metric registerMetric, Class<M> metricClass) {
+        long stamp = stampedLock.tryOptimisticRead();
+        Metric existingMetrics = metrics.get(registerMetric.getId());
+        if (!stampedLock.validate(stamp)) {
+            stamp = stampedLock.readLock();
+            try {
+                existingMetrics = metrics.get(registerMetric.getId());
+            } finally {
+                stampedLock.unlockRead(stamp);
+            }
+        }
+        if (existingMetrics != null) {
+            if (metricClass.isInstance(existingMetrics)) {
+                return (M) existingMetrics;
+            }
+        }
+        stamp = stampedLock.writeLock();
+        try {
+            final Metric existing = metrics.putIfAbsent(registerMetric.getId(), registerMetric);
+            if (existing != null) {
+                if (!metricClass.isInstance(existing)) {
+                    throw new IllegalArgumentException(existing.getId() +
+                            " is already used for a different type of metric: "
+                            + metricClass.getSimpleName());
+                } else {
+                    return (M) existing;
+                }
+            }
+            return (M) registerMetric;
+        } finally {
+            stampedLock.unlockWrite(stamp);
+        }
+    }
+
     /**
      * Removes the metric with the given name.
      *
@@ -127,5 +189,9 @@ public class MetricRegistry {
         } finally {
             stampedLock.unlockWrite(stamp);
         }
+    }
+
+    public MetricProvider getMetricProvider() {
+        return metricProvider;
     }
 }

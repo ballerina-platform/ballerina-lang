@@ -105,6 +105,17 @@ public interface Gauge extends Metric {
             return registry.gauge(new MetricId(name, description, tags), statisticConfigs.toArray(
                     new StatisticConfig[statisticConfigs.size()]));
         }
+
+        @Override
+        public Gauge build() {
+            return DefaultMetricRegistry.getInstance().getMetricProvider().
+                    newGauge(new MetricId(name, description, tags), statisticConfigs.toArray(
+                            new StatisticConfig[statisticConfigs.size()]));
+        }
+    }
+
+    default void register() {
+        DefaultMetricRegistry.getInstance().gauge(getId());
     }
 
     /**

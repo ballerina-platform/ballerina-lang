@@ -99,6 +99,12 @@ public interface PolledGauge extends Metric {
         public PolledGauge register(MetricRegistry registry) {
             return registry.polledGauge(new MetricId(name, description, tags), obj, valueFunction);
         }
+
+        @Override
+        public PolledGauge build() {
+            return DefaultMetricRegistry.getInstance().getMetricProvider().
+                    newPolledGauge(new MetricId(name, description, tags), obj, valueFunction);
+        }
     }
 
     /**
