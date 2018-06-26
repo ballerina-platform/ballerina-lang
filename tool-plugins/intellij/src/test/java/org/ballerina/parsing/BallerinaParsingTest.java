@@ -17,9 +17,11 @@
 package org.ballerina.parsing;
 
 import com.intellij.openapi.fileEditor.impl.LoadTextUtil;
+import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.LightVirtualFile;
 import com.intellij.testFramework.ParsingTestCase;
 import io.ballerina.plugins.idea.BallerinaParserDefinition;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +43,11 @@ public class BallerinaParsingTest extends ParsingTestCase {
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/parsing/BBE/any-type";
+        return "src/test/resources/testData/parsing/BBE";
+    }
+
+    protected String getExpectedResultPath() {
+        return "src/test/resources/testData/parsing/expectedResults";
     }
 
     @Override
@@ -71,7 +77,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
                 doTest(resource, true);
 
                 //if the resource is a directory, recursively test the sub directories/files accordingly
-            } else if (resource.isDirectory() && (includeTests || !resource.getName().equals("tests"))) {
+            } else if (resource.isDirectory() && (includeTests || !resource.getName().contains("tests"))) {
                 DirectoryStream<Path> ds = Files.newDirectoryStream(path);
                 for (Path subPath : ds) {
                     doTestDirectory(subPath, includeTests);
@@ -87,7 +93,11 @@ public class BallerinaParsingTest extends ParsingTestCase {
 
         try {
             String name = resource.getName().replace("." + myFileExt, EMPTY_STRING);
-            String text = loadFile(name + "." + myFileExt);
+
+            //Retrieves relative path of the file since loadFile() uses "myFullDataPath" as the source root
+            String relativeFilePath = resource.getPath().replace(getTestDataPath(), EMPTY_STRING);
+            String text = loadFile(relativeFilePath);
+
             myFile = createPsiFile(name, text);
             ensureParsed(myFile);
             assertEquals("light virtual file text mismatch", text,
@@ -97,7 +107,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
             assertEquals("psi text mismatch", text, myFile.getText());
             ensureCorrectReparse(myFile);
             if (checkResult) {
-                checkResult(name, myFile);
+                checkResult(relativeFilePath, myFile);
             } else {
                 toParseTreeText(myFile, skipSpaces(), includeRanges());
             }
@@ -105,4 +115,12 @@ public class BallerinaParsingTest extends ParsingTestCase {
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    protected void checkResult(@NonNls String var1, PsiFile var2) throws IOException {
+        doCheckResult((new File(getExpectedResultPath() + var1)).getParent(), var2, this.checkAllPsiRoots(),
+                (new File(var1)).getName().replace("." + myFileExt, EMPTY_STRING), this.skipSpaces(),
+                this.includeRanges(), this.allTreesInSingleFile());
+    }
 }
+

@@ -30,13 +30,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.netty.util.internal.StringUtil.EMPTY_STRING;
+
 /**
  * Lexer tests.
  */
 public class BallerinaLexerTest extends LexerTestCase {
 
     private String getTestDataDirectoryPath() {
-        return "src/test/resources/testData/lexer/BBE/";
+        return "src/test/resources/testData/lexer/BBE";
+    }
+
+    private String getExpectedResultDirectoryPath() {
+        return "src/test/resources/testData/lexer/expectedResults";
     }
 
     //this test validates the lexer token generation for all the ballerina-by-example files
@@ -58,7 +64,7 @@ public class BallerinaLexerTest extends LexerTestCase {
                 doTestFile(resource);
 
                 //if the resource is a directory, recursively test the sub directories/files accordingly
-            } else if (resource.isDirectory() && (includeTests || !resource.getName().equals("tests"))) {
+            } else if (resource.isDirectory() && (includeTests || !resource.getName().contains("tests"))) {
                 DirectoryStream<Path> ds = Files.newDirectoryStream(path);
                 for (Path subPath : ds) {
                     doTestDirectory(subPath, includeTests);
@@ -74,7 +80,9 @@ public class BallerinaLexerTest extends LexerTestCase {
         try {
             String text = FileUtil.loadFile(sourceFile, CharsetToolkit.UTF8);
             String actual = printTokens(StringUtil.convertLineSeparators(text.trim()), 0);
-            String pathname = sourceFile.getAbsolutePath().replace(".bal", "") + ".txt";
+
+            String relativePath = sourceFile.getPath().replace(getTestDataDirectoryPath(), EMPTY_STRING);
+            String pathname = (getExpectedResultDirectoryPath() + relativePath).replace(".bal", "") + ".txt";
             File expectedResultFile = new File(pathname);
             assertSameLinesWithFile(expectedResultFile.getAbsolutePath(), actual);
         } catch (IOException e) {
