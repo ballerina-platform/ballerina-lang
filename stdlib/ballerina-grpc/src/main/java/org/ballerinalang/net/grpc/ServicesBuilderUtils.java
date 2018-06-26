@@ -120,4 +120,8 @@ public class ServicesBuilderUtils {
         return serviceDefBuilder.build();
     }
 
+    private ServicesBuilderUtils() {
+
+    }
+
 }

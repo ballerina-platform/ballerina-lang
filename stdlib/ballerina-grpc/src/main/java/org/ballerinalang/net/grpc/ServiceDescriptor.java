@@ -36,7 +36,7 @@ import java.util.Set;
 public final class ServiceDescriptor {
 
     private final String name;
-    private final Collection<MethodDescriptor<?, ?>> methods;
+    private final Collection<MethodDescriptor> methods;
 
     /**
      * Constructs a new Service Descriptor.
@@ -44,7 +44,7 @@ public final class ServiceDescriptor {
      * @param name    The name of the service
      * @param methods The methods that are part of the service
      */
-    private ServiceDescriptor(String name, Collection<MethodDescriptor<?, ?>> methods) throws GrpcServerException {
+    private ServiceDescriptor(String name, Collection<MethodDescriptor> methods) throws GrpcServerException {
         this.name = name;
         validateMethodNames(name, methods);
         this.methods = Collections.unmodifiableList(new ArrayList<>(methods));
@@ -65,11 +65,11 @@ public final class ServiceDescriptor {
      *
      * @return list of service methods.
      */
-    public Collection<MethodDescriptor<?, ?>> getMethods() {
+    public Collection<MethodDescriptor> getMethods() {
         return methods;
     }
 
-    private static void validateMethodNames(String serviceName, Collection<MethodDescriptor<?, ?>> methods) throws
+    private static void validateMethodNames(String serviceName, Collection<MethodDescriptor> methods) throws
             GrpcServerException {
 
         Set<String> allNames = new HashSet<>(methods.size());
@@ -107,7 +107,7 @@ public final class ServiceDescriptor {
      */
     public static final class Builder {
         private String name;
-        private List<MethodDescriptor<?, ?>> methods = new ArrayList<>();
+        private List<MethodDescriptor> methods = new ArrayList<>();
 
         private Builder(String name) throws GrpcServerException {
             if (name == null) {
@@ -117,26 +117,12 @@ public final class ServiceDescriptor {
         }
 
         /**
-         * Adds a method to this service.
-         *
-         * @param method the method to add to the descriptor.
-         * @return this builder.
-         */
-        public Builder addMethod(MethodDescriptor<?, ?> method) throws GrpcServerException {
-            if (method == null) {
-                throw new GrpcServerException("method cannot be null");
-            }
-            methods.add(method);
-            return this;
-        }
-
-        /**
          * Bulk adds methods to this builder.
          *
          * @param methods collection of methods.
          * @return this builder.
          */
-        public Builder addAllMethods(Collection<MethodDescriptor<?, ?>> methods) {
+        public Builder addAllMethods(Collection<MethodDescriptor> methods) {
 
             this.methods.addAll(methods);
             return this;

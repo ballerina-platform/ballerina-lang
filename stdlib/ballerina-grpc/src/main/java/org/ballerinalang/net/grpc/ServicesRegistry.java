@@ -30,10 +30,10 @@ import java.util.Map;
 public class ServicesRegistry {
 
     private final List<ServerServiceDefinition> services;
-    private final Map<String, ServerMethodDefinition<?, ?>> methods;
+    private final Map<String, ServerMethodDefinition> methods;
 
     private ServicesRegistry(
-            List<ServerServiceDefinition> services, Map<String, ServerMethodDefinition<?, ?>> methods) {
+            List<ServerServiceDefinition> services, Map<String, ServerMethodDefinition> methods) {
         this.services = services;
         this.methods = methods;
     }
@@ -58,9 +58,8 @@ public class ServicesRegistry {
         // Store per-service first, to make sure services are added/replaced atomically.
         private final HashMap<String, ServerServiceDefinition> services = new LinkedHashMap<>();
 
-        public ServicesRegistry.Builder addService(ServerServiceDefinition service) {
+        public void addService(ServerServiceDefinition service) {
             services.put(service.getServiceDescriptor().getName(), service);
-            return this;
         }
 
         public ServicesRegistry build() {

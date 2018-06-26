@@ -20,8 +20,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpClientConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
@@ -40,17 +38,14 @@ import static org.ballerinalang.net.grpc.MessageUtils.readAsString;
  */
 public class ClientConnectorListener implements HttpClientConnectorListener {
 
-    private static final Logger log = LoggerFactory.getLogger(ClientConnectorListener.class);
-    ClientCall call;
     private Status transportError;
     private HttpHeaders transportErrorMetadata;
     private boolean headersReceived;
-    private InboundStateListener stateListener;
+    private ClientInboundStateListener stateListener;
 
-    ClientConnectorListener(ClientCall call, ClientCall.ClientStreamListener streamListener) {
+    ClientConnectorListener(ClientCall.ClientStreamListener streamListener) {
 
-        this.call = call;
-        this.stateListener = new InboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, streamListener);
+        this.stateListener = new ClientInboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, streamListener);
     }
 
     public final void setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {
@@ -110,7 +105,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                     }
                     httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
                 }
-            } catch (RuntimeException | Error e) {
+            } catch (RuntimeException e) {
 
                 if (transportError != null) {
                     // Already received a transport error so just augment it.
@@ -220,7 +215,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         }
     }
 
-    private static class InboundStateListener extends InboundMessage.InboundStateListener {
+    private static class ClientInboundStateListener extends InboundMessage.InboundStateListener {
 
         final ClientCall.ClientStreamListener listener;
         private DecompressorRegistry decompressorRegistry = DecompressorRegistry.getDefaultInstance();
@@ -231,7 +226,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
         private boolean statusReported;
         private boolean listenerClosed;
 
-        protected InboundStateListener(int maxMessageSize, ClientCall.ClientStreamListener listener) {
+        protected ClientInboundStateListener(int maxMessageSize, ClientCall.ClientStreamListener listener) {
 
             super(maxMessageSize);
             this.listener = listener;
@@ -333,7 +328,7 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
 
         @Override
         public void deframeFailed(Throwable cause) {
-            transportReportStatus(Status.fromThrowable(cause), true, new DefaultHttpHeaders());;
+            transportReportStatus(Status.fromThrowable(cause), true, new DefaultHttpHeaders());
         }
     }
 

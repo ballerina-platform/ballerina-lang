@@ -19,7 +19,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultHttpContent;
 import io.netty.handler.codec.http.DefaultLastHttpContent;
-import org.wso2.transport.http.netty.contract.ServerConnectorException;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import java.io.ByteArrayInputStream;
@@ -61,7 +60,7 @@ public class MessageFramer {
      *
      * @param carbonMessage response carbon message to be delivered.
      */
-    public MessageFramer(HTTPCarbonMessage carbonMessage) {
+    MessageFramer(HTTPCarbonMessage carbonMessage) {
         this.carbonMessage = carbonMessage;
     }
 
@@ -73,12 +72,6 @@ public class MessageFramer {
         messageCompression = enable;
     }
 
-    public void setMaxOutboundMessageSize(int maxSize) {
-        if (maxSize > 0) {
-            maxOutboundMessageSize = maxSize;
-        }
-    }
-
     /**
      * Writes out a payload message.
      *
@@ -87,8 +80,8 @@ public class MessageFramer {
     public void writePayload(InputStream message) {
         verifyNotClosed();
         boolean compressed = messageCompression && compressor != Codec.Identity.NONE;
-        int written = -1;
-        int messageLength = -2;
+        int written;
+        int messageLength;
         try {
             messageLength = getKnownLength(message);
             if (messageLength != 0 && compressed) {
@@ -96,7 +89,7 @@ public class MessageFramer {
             } else {
                 written = writeUncompressed(message, messageLength);
             }
-        } catch (IOException | RuntimeException | ServerConnectorException e) {
+        } catch (IOException | RuntimeException e) {
             throw Status.Code.INTERNAL.toStatus()
                     .withDescription("Failed to frame message")
                     .withCause(e)
@@ -109,7 +102,7 @@ public class MessageFramer {
         }
     }
 
-    private int writeUncompressed(InputStream message, int messageLength) throws IOException, ServerConnectorException {
+    private int writeUncompressed(InputStream message, int messageLength) throws IOException {
         if (messageLength != -1) {
             return writeKnownLengthUncompressed(message, messageLength);
         }
@@ -125,7 +118,7 @@ public class MessageFramer {
         return written;
     }
 
-    private int writeCompressed(InputStream message) throws IOException, ServerConnectorException {
+    private int writeCompressed(InputStream message) throws IOException {
         BufferChainOutputStream bufferChain = new BufferChainOutputStream();
 
         int written;
@@ -189,8 +182,8 @@ public class MessageFramer {
         // Write content as default http content.
         carbonMessage.addHttpContent(new DefaultHttpContent(Unpooled.wrappedBuffer(writeableHeader)));
         List<ByteBuffer> bufferList = bufferChain.bufferList;
-        for (int i = 0; i < bufferList.size(); i++) {
-            carbonMessage.addHttpContent(new DefaultHttpContent((Unpooled.wrappedBuffer(bufferList.get(i)))));
+        for (ByteBuffer aBufferList : bufferList) {
+            carbonMessage.addHttpContent(new DefaultHttpContent((Unpooled.wrappedBuffer(aBufferList))));
         }
         // Assign the current buffer to the last in the chain so it can be used
         // for future writes or written with end-of-stream=true on close.

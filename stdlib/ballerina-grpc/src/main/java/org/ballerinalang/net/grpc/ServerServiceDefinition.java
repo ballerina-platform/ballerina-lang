@@ -49,14 +49,11 @@ public final class ServerServiceDefinition {
     }
 
     private final ServiceDescriptor serviceDescriptor;
-    private final Map<String, ServerMethodDefinition<?, ?>> methods;
+    private final Map<String, ServerMethodDefinition> methods;
 
     private ServerServiceDefinition(
-            ServiceDescriptor serviceDescriptor, Map<String, ServerMethodDefinition<?, ?>> methods) throws
-            GrpcServerException {
-        if (serviceDescriptor == null) {
-            throw new GrpcServerException("Service Descriptor cannot be null");
-        }
+            ServiceDescriptor serviceDescriptor, Map<String, ServerMethodDefinition<?, ?>> methods) {
+
         this.serviceDescriptor = serviceDescriptor;
         this.methods = Collections.unmodifiableMap(new HashMap<>(methods));
     }
@@ -75,17 +72,8 @@ public final class ServerServiceDefinition {
      *
      * @return Collection of method definitions.
      */
-    public Collection<ServerMethodDefinition<?, ?>> getMethods() {
+    public Collection<ServerMethodDefinition> getMethods() {
         return methods.values();
-    }
-
-    /**
-     * Look up a method by its fully qualified name.
-     *
-     * @param methodName the fully qualified name without leading slash. E.g., "com.foo.Foo/Bar"
-     */
-    public ServerMethodDefinition<?, ?> getMethod(String methodName) {
-        return methods.get(methodName);
     }
 
     /**
@@ -98,7 +86,6 @@ public final class ServerServiceDefinition {
     public static final class Builder {
 
         private final String serviceName;
-        private final ServiceDescriptor serviceDescriptor;
         private final Map<String, ServerMethodDefinition<?, ?>> methods =
                 new HashMap<>();
 
@@ -107,15 +94,6 @@ public final class ServerServiceDefinition {
                 throw new GrpcServerException("Service Name cannot be null");
             }
             this.serviceName = serviceName;
-            this.serviceDescriptor = null;
-        }
-
-        private Builder(ServiceDescriptor serviceDescriptor) throws GrpcServerException {
-            if (serviceDescriptor == null) {
-                throw new GrpcServerException("Service Descriptor cannot be null");
-            }
-            this.serviceDescriptor = serviceDescriptor;
-            this.serviceName = serviceDescriptor.getName();
         }
 
         /**
@@ -167,18 +145,14 @@ public final class ServerServiceDefinition {
          * @throws GrpcServerException if failed
          */
         public ServerServiceDefinition build() throws GrpcServerException {
-
-            ServiceDescriptor serviceDescriptor = this.serviceDescriptor;
-            if (serviceDescriptor == null) {
-                List<MethodDescriptor<?, ?>> methodDescriptors
-                        = new ArrayList<>(methods.size());
-                for (ServerMethodDefinition<?, ?> serverMethod : methods.values()) {
-                    methodDescriptors.add(serverMethod.getMethodDescriptor());
-                }
-                serviceDescriptor = ServiceDescriptor.newBuilder(serviceName).addAllMethods(methodDescriptors).build();
+            List<MethodDescriptor> methodDescriptors = new ArrayList<>(methods.size());
+            for (ServerMethodDefinition<?, ?> serverMethod : methods.values()) {
+                methodDescriptors.add(serverMethod.getMethodDescriptor());
             }
+            ServiceDescriptor descriptor = ServiceDescriptor.newBuilder(serviceName).addAllMethods(methodDescriptors)
+                    .build();
             Map<String, ServerMethodDefinition<?, ?>> tmpMethods = new HashMap<>(methods);
-            for (MethodDescriptor<?, ?> descriptorMethod : serviceDescriptor.getMethods()) {
+            for (MethodDescriptor<?, ?> descriptorMethod : descriptor.getMethods()) {
                 ServerMethodDefinition<?, ?> removed = tmpMethods.remove(
                         descriptorMethod.getFullMethodName());
                 if (removed == null) {
@@ -196,7 +170,7 @@ public final class ServerServiceDefinition {
                         "No entry in descriptor matching bound method "
                                 + tmpMethods.values().iterator().next().getMethodDescriptor().getFullMethodName());
             }
-            return new ServerServiceDefinition(serviceDescriptor, methods);
+            return new ServerServiceDefinition(descriptor, methods);
         }
     }
 }

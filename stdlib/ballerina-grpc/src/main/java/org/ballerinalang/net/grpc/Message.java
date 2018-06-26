@@ -92,12 +92,12 @@ public class Message {
 
         this(messageName);
         Descriptors.Descriptor messageDescriptor = getDescriptor();
-        Map<Integer, Descriptors.FieldDescriptor> fields = new HashMap<>();
+        Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors = new HashMap<>();
         for (Descriptors.FieldDescriptor fieldDescriptor : messageDescriptor.getFields()) {
             Descriptors.FieldDescriptor.Type fieldType = fieldDescriptor.getType();
             int number = fieldDescriptor.getNumber();
             int byteCode = ((number << 3) + MessageUtils.getFieldWireType(fieldType));
-            fields.put(byteCode, fieldDescriptor);
+            fieldDescriptors.put(byteCode, fieldDescriptor);
         }
 
         boolean done = false;
@@ -105,8 +105,8 @@ public class Message {
             int tag = input.readTag();
             if (tag == 0) {
                 done = true;
-            } else if (fields.containsKey(tag)) {
-                Descriptors.FieldDescriptor fieldDescriptor = fields.get(tag);
+            } else if (fieldDescriptors.containsKey(tag)) {
+                Descriptors.FieldDescriptor fieldDescriptor = fieldDescriptors.get(tag);
                 String name = fieldDescriptor.getName();
                 switch (fieldDescriptor.getType().toProto().getNumber()) {
                     case DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE_VALUE: {

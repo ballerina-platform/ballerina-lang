@@ -688,4 +688,8 @@ public class MessageUtils {
         byte[] bytes = readArray(httpContent);
         return new String(bytes, charset);
     }
+
+    private MessageUtils() {
+
+    }
 }

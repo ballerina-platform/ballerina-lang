@@ -109,7 +109,6 @@ public class MessageDeframer implements Closeable {
         boolean needToCloseData = true;
         try {
             if (!isClosedOrScheduledToClose()) {
-
                 unprocessed.addBuffer(data.content());
                 needToCloseData = false;
                 deliver();

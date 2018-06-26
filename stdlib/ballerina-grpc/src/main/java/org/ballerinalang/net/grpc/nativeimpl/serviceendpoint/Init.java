@@ -49,6 +49,21 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVER_CONNECTOR;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_REGISTRY_BUILDER;
+import static org.ballerinalang.net.http.HttpConstants.ENABLE;
+import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
+import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CACHE_SIZE;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CIPHERS;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_SSL_VERIFY_CLIENT;
 import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
 
 /**
@@ -118,17 +133,17 @@ public class Init extends AbstractGrpcNativeFunction {
         return listenerConfiguration;
     }
     
-    private ListenerConfiguration setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {
+    private void setSslConfig(Struct sslConfig, ListenerConfiguration listenerConfiguration) {
         listenerConfiguration.setScheme(GrpcConstants.PROTOCOL_HTTPS);
-        Struct trustStore = sslConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_TRUST_STORE);
-        Struct keyStore = sslConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_KEY_STORE);
-        Struct protocols = sslConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_PROTOCOLS);
-        Struct validateCert = sslConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
-        Struct ocspStapling = sslConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
+        Struct trustStore = sslConfig.getStructField(ENDPOINT_CONFIG_TRUST_STORE);
+        Struct keyStore = sslConfig.getStructField(ENDPOINT_CONFIG_KEY_STORE);
+        Struct protocols = sslConfig.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
+        Struct validateCert = sslConfig.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
+        Struct ocspStapling = sslConfig.getStructField(ENDPOINT_CONFIG_OCSP_STAPLING);
         
         if (keyStore != null) {
-            String keyStoreFile = keyStore.getStringField(GrpcConstants.FILE_PATH);
-            String keyStorePassword = keyStore.getStringField(GrpcConstants.PASSWORD);
+            String keyStoreFile = keyStore.getStringField(FILE_PATH);
+            String keyStorePassword = keyStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(keyStoreFile)) {
                 //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
@@ -140,11 +155,11 @@ public class Init extends AbstractGrpcNativeFunction {
             listenerConfiguration.setKeyStoreFile(keyStoreFile);
             listenerConfiguration.setKeyStorePass(keyStorePassword);
         }
-        String sslVerifyClient = sslConfig.getStringField(GrpcConstants.SSL_CONFIG_SSL_VERIFY_CLIENT);
+        String sslVerifyClient = sslConfig.getStringField(SSL_CONFIG_SSL_VERIFY_CLIENT);
         listenerConfiguration.setVerifyClient(sslVerifyClient);
         if (trustStore != null) {
-            String trustStoreFile = trustStore.getStringField(GrpcConstants.FILE_PATH);
-            String trustStorePassword = trustStore.getStringField(GrpcConstants.PASSWORD);
+            String trustStoreFile = trustStore.getStringField(FILE_PATH);
+            String trustStorePassword = trustStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
                 //TODO get from language pack, and add location
                 throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
@@ -160,7 +175,7 @@ public class Init extends AbstractGrpcNativeFunction {
         Parameter serverParameters;
         if (protocols != null) {
             List<Value> sslEnabledProtocolsValueList = Arrays
-                    .asList(protocols.getArrayField(GrpcConstants.ENABLED_PROTOCOLS));
+                    .asList(protocols.getArrayField(ENABLED_PROTOCOLS));
             if (sslEnabledProtocolsValueList.size() > 0) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
                         .collect(Collectors.joining(",", "", ""));
@@ -169,13 +184,13 @@ public class Init extends AbstractGrpcNativeFunction {
                 serverParamList.add(serverParameters);
             }
             
-            String sslProtocol = protocols.getStringField(GrpcConstants.PROTOCOL_VERSION);
+            String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
             if (StringUtils.isNotBlank(sslProtocol)) {
                 listenerConfiguration.setSSLProtocol(sslProtocol);
             }
         }
         
-        List<Value> ciphersValueList = Arrays.asList(sslConfig.getArrayField(GrpcConstants.SSL_CONFIG_CIPHERS));
+        List<Value> ciphersValueList = Arrays.asList(sslConfig.getArrayField(SSL_CONFIG_CIPHERS));
         if (ciphersValueList.size() > 0) {
             String ciphers = ciphersValueList.stream().map(Value::getStringValue)
                     .collect(Collectors.joining(",", "", ""));
@@ -183,9 +198,9 @@ public class Init extends AbstractGrpcNativeFunction {
             serverParamList.add(serverParameters);
         }
         if (validateCert != null) {
-            boolean validateCertificateEnabled = validateCert.getBooleanField(GrpcConstants.ENABLE);
-            long cacheSize = validateCert.getIntField(GrpcConstants.SSL_CONFIG_CACHE_SIZE);
-            long cacheValidationPeriod = validateCert.getIntField(GrpcConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            boolean validateCertificateEnabled = validateCert.getBooleanField(ENABLE);
+            long cacheSize = validateCert.getIntField(SSL_CONFIG_CACHE_SIZE);
+            long cacheValidationPeriod = validateCert.getIntField(SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(validateCertificateEnabled);
             if (validateCertificateEnabled) {
                 if (cacheSize != 0) {
@@ -197,10 +212,10 @@ public class Init extends AbstractGrpcNativeFunction {
             }
         }
         if (ocspStapling != null) {
-            boolean ocspStaplingEnabled = ocspStapling.getBooleanField(GrpcConstants.ENABLE);
+            boolean ocspStaplingEnabled = ocspStapling.getBooleanField(ENABLE);
             listenerConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
-            long cacheSize = ocspStapling.getIntField(GrpcConstants.SSL_CONFIG_CACHE_SIZE);
-            long cacheValidationPeriod = ocspStapling.getIntField(GrpcConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+            long cacheSize = ocspStapling.getIntField(SSL_CONFIG_CACHE_SIZE);
+            long cacheValidationPeriod = ocspStapling.getIntField(SSL_CONFIG_CACHE_VALIDITY_PERIOD);
             listenerConfiguration.setValidateCertEnabled(ocspStaplingEnabled);
             if (ocspStaplingEnabled) {
                 if (cacheSize != 0) {
@@ -213,8 +228,8 @@ public class Init extends AbstractGrpcNativeFunction {
         }
         listenerConfiguration.setTLSStoreType(GrpcConstants.PKCS_STORE_TYPE);
         String serverEnableSessionCreation = String.valueOf(sslConfig
-                .getBooleanField(GrpcConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
-        Parameter enableSessionCreationParam = new Parameter(GrpcConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
+                .getBooleanField(SSL_CONFIG_ENABLE_SESSION_CREATION));
+        Parameter enableSessionCreationParam = new Parameter(SSL_CONFIG_ENABLE_SESSION_CREATION,
                 serverEnableSessionCreation);
         serverParamList.add(enableSessionCreationParam);
         if (!serverParamList.isEmpty()) {
@@ -223,11 +238,9 @@ public class Init extends AbstractGrpcNativeFunction {
         
         listenerConfiguration
                 .setId(getListenerInterface(listenerConfiguration.getHost(), listenerConfiguration.getPort()));
-        
-        return listenerConfiguration;
     }
     
-    public static String getListenerInterface(String host, int port) {
+    private static String getListenerInterface(String host, int port) {
         host = host != null ? host : "0.0.0.0";
         return host + ":" + port;
     }

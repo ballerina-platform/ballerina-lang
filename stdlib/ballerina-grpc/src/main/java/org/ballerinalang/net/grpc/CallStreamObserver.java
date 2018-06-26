@@ -27,7 +27,7 @@ package org.ballerinalang.net.grpc;
  *
  * @param <V> Request/Response Message Type.
  */
-public abstract class CallStreamObserver<V> implements StreamObserver<V> {
+public interface CallStreamObserver<V> extends StreamObserver<V> {
 
     /**
      * Indicates that the observer is capable of sending additional messages.

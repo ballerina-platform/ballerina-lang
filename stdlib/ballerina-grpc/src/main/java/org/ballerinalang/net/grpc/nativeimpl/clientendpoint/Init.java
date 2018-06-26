@@ -54,6 +54,21 @@ import static org.ballerinalang.net.grpc.GrpcConstants.CLIENT_ENDPOINT_TYPE;
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
+import static org.ballerinalang.net.http.HttpConstants.ENABLE;
+import static org.ballerinalang.net.http.HttpConstants.ENABLED_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_KEY_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_OCSP_STAPLING;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_PROTOCOLS;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_TRUST_STORE;
+import static org.ballerinalang.net.http.HttpConstants.ENDPOINT_CONFIG_VALIDATE_CERT;
+import static org.ballerinalang.net.http.HttpConstants.FILE_PATH;
+import static org.ballerinalang.net.http.HttpConstants.PASSWORD;
+import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_VERSION;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CACHE_SIZE;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_CIPHERS;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_ENABLE_SESSION_CREATION;
+import static org.ballerinalang.net.http.HttpConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED;
 
 /**
  * Native function for initializing gRPC client endpoint.
@@ -118,27 +133,27 @@ public class Init extends BlockingNativeCallableUnit {
         senderConfiguration.setScheme(scheme);
         Struct secureSocket = clientEndpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         if (secureSocket != null) {
-            Struct trustStore = secureSocket.getStructField(GrpcConstants.ENDPOINT_CONFIG_TRUST_STORE);
-            Struct keyStore = secureSocket.getStructField(GrpcConstants.ENDPOINT_CONFIG_KEY_STORE);
-            Struct protocols = secureSocket.getStructField(GrpcConstants.ENDPOINT_CONFIG_PROTOCOLS);
-            Struct validateCert = secureSocket.getStructField(GrpcConstants.ENDPOINT_CONFIG_VALIDATE_CERT);
+            Struct trustStore = secureSocket.getStructField(ENDPOINT_CONFIG_TRUST_STORE);
+            Struct keyStore = secureSocket.getStructField(ENDPOINT_CONFIG_KEY_STORE);
+            Struct protocols = secureSocket.getStructField(ENDPOINT_CONFIG_PROTOCOLS);
+            Struct validateCert = secureSocket.getStructField(ENDPOINT_CONFIG_VALIDATE_CERT);
             List<Parameter> clientParams = new ArrayList<>();
             if (trustStore != null) {
-                String trustStoreFile = trustStore.getStringField(GrpcConstants.FILE_PATH);
+                String trustStoreFile = trustStore.getStringField(FILE_PATH);
                 if (StringUtils.isNotBlank(trustStoreFile)) {
                     senderConfiguration.setTrustStoreFile(trustStoreFile);
                 }
-                String trustStorePassword = trustStore.getStringField(GrpcConstants.PASSWORD);
+                String trustStorePassword = trustStore.getStringField(PASSWORD);
                 if (StringUtils.isNotBlank(trustStorePassword)) {
                     senderConfiguration.setTrustStorePass(trustStorePassword);
                 }
             }
             if (keyStore != null) {
-                String keyStoreFile = keyStore.getStringField(GrpcConstants.FILE_PATH);
+                String keyStoreFile = keyStore.getStringField(FILE_PATH);
                 if (StringUtils.isNotBlank(keyStoreFile)) {
                     senderConfiguration.setKeyStoreFile(keyStoreFile);
                 }
-                String keyStorePassword = keyStore.getStringField(GrpcConstants.PASSWORD);
+                String keyStorePassword = keyStore.getStringField(PASSWORD);
                 if (StringUtils.isNotBlank(keyStorePassword)) {
                     senderConfiguration.setKeyStorePassword(keyStorePassword);
                 }
@@ -146,7 +161,7 @@ public class Init extends BlockingNativeCallableUnit {
             senderConfiguration.setTLSStoreType(GrpcConstants.PKCS_STORE_TYPE);
             if (protocols != null) {
                 List<Value> sslEnabledProtocolsValueList = Arrays
-                        .asList(protocols.getArrayField(GrpcConstants.ENABLED_PROTOCOLS));
+                        .asList(protocols.getArrayField(ENABLED_PROTOCOLS));
                 if (sslEnabledProtocolsValueList.size() > 0) {
                     String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
                             .collect(Collectors.joining(",", "", ""));
@@ -154,17 +169,17 @@ public class Init extends BlockingNativeCallableUnit {
                             sslEnabledProtocols);
                     clientParams.add(clientProtocols);
                 }
-                String sslProtocol = protocols.getStringField(GrpcConstants.PROTOCOL_VERSION);
+                String sslProtocol = protocols.getStringField(PROTOCOL_VERSION);
                 if (StringUtils.isNotBlank(sslProtocol)) {
                     senderConfiguration.setSSLProtocol(sslProtocol);
                 }
             }
 
             if (validateCert != null) {
-                boolean validateCertEnabled = validateCert.getBooleanField(GrpcConstants.ENABLE);
-                int cacheSize = (int) validateCert.getIntField(GrpcConstants.SSL_CONFIG_CACHE_SIZE);
+                boolean validateCertEnabled = validateCert.getBooleanField(ENABLE);
+                int cacheSize = (int) validateCert.getIntField(SSL_CONFIG_CACHE_SIZE);
                 int cacheValidityPeriod = (int) validateCert
-                        .getIntField(GrpcConstants.SSL_CONFIG_CACHE_VALIDITY_PERIOD);
+                        .getIntField(SSL_CONFIG_CACHE_VALIDITY_PERIOD);
                 senderConfiguration.setValidateCertEnabled(validateCertEnabled);
                 if (cacheValidityPeriod != 0) {
                     senderConfiguration.setCacheValidityPeriod(cacheValidityPeriod);
@@ -174,13 +189,13 @@ public class Init extends BlockingNativeCallableUnit {
                 }
             }
             boolean hostNameVerificationEnabled = secureSocket
-                    .getBooleanField(GrpcConstants.SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
-            boolean ocspStaplingEnabled = secureSocket.getBooleanField(GrpcConstants.ENDPOINT_CONFIG_OCSP_STAPLING);
+                    .getBooleanField(SSL_CONFIG_HOST_NAME_VERIFICATION_ENABLED);
+            boolean ocspStaplingEnabled = secureSocket.getBooleanField(ENDPOINT_CONFIG_OCSP_STAPLING);
             senderConfiguration.setOcspStaplingEnabled(ocspStaplingEnabled);
             senderConfiguration.setHostNameVerificationEnabled(hostNameVerificationEnabled);
 
             List<Value> ciphersValueList = Arrays
-                    .asList(secureSocket.getArrayField(GrpcConstants.SSL_CONFIG_CIPHERS));
+                    .asList(secureSocket.getArrayField(SSL_CONFIG_CIPHERS));
             if (ciphersValueList.size() > 0) {
                 String ciphers = ciphersValueList.stream().map(Value::getStringValue)
                         .collect(Collectors.joining(",", "", ""));
@@ -188,8 +203,8 @@ public class Init extends BlockingNativeCallableUnit {
                 clientParams.add(clientCiphers);
             }
             String enableSessionCreation = String.valueOf(secureSocket
-                    .getBooleanField(GrpcConstants.SSL_CONFIG_ENABLE_SESSION_CREATION));
-            Parameter clientEnableSessionCreation = new Parameter(GrpcConstants.SSL_CONFIG_ENABLE_SESSION_CREATION,
+                    .getBooleanField(SSL_CONFIG_ENABLE_SESSION_CREATION));
+            Parameter clientEnableSessionCreation = new Parameter(SSL_CONFIG_ENABLE_SESSION_CREATION,
                     enableSessionCreation);
             clientParams.add(clientEnableSessionCreation);
             if (!clientParams.isEmpty()) {

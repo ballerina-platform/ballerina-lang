@@ -77,23 +77,24 @@ public final class ServiceDefinition {
         try (InputStream targetStream = new ByteArrayInputStream(rootDescriptorData)) {
             DescriptorProtos.FileDescriptorProto descriptorProto = DescriptorProtos.FileDescriptorProto.parseFrom
                     (targetStream);
-            return fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, depSet);
+            fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, depSet);
+            return fileDescriptor;
         } catch (IOException | Descriptors.DescriptorValidationException e) {
             throw new RuntimeException("Error while generating service descriptor : ", e);
         }
     }
 
     private Descriptors.ServiceDescriptor getServiceDescriptor() throws GrpcClientException {
-        Descriptors.FileDescriptor fileDescriptor = getDescriptor();
+        Descriptors.FileDescriptor descriptor = getDescriptor();
 
-        if (fileDescriptor.getFile().getServices().isEmpty()) {
+        if (descriptor.getFile().getServices().isEmpty()) {
             throw new GrpcClientException("No service found in proto definition file");
         }
-        if (fileDescriptor.getFile().getServices().size() > 1) {
+        if (descriptor.getFile().getServices().size() > 1) {
             throw new GrpcClientException("Multiple service definitions in signal proto file is not supported. Number" +
-                    " of service found: " + fileDescriptor.getFile().getServices().size());
+                    " of service found: " + descriptor.getFile().getServices().size());
         }
-        return fileDescriptor.getFile().getServices().get(0);
+        return descriptor.getFile().getServices().get(0);
     }
 
     public Map<String, MethodDescriptor<Message, Message>> getMethodDescriptors() throws GrpcClientException {

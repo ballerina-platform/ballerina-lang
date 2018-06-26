@@ -159,7 +159,7 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
         }
     }
 
-    private static final class ClientCallStreamObserver<T> extends CallStreamObserver<T> {
+    private static final class ClientCallStreamObserver<T> implements CallStreamObserver<T> {
 
         private final ClientCall<T, ?> call;
 

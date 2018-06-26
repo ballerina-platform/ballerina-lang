@@ -64,7 +64,7 @@ public class GrpcCallableUnitCallBack<ResponseT> implements CallableUnitCallback
         if (emptyResponse) {
             requestSender.onNext((ResponseT) new Message("Empty"));
         }
-        // Notify complete if service impl doesn't call caller->complete();
+        // Notify complete if service impl doesn't call complete;
         requestSender.onCompleted();
     }
     

@@ -19,7 +19,6 @@ import io.netty.handler.codec.http.HttpContent;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.LastHttpContent;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
-import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.ballerinalang.net.http.HttpUtil;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -28,7 +27,6 @@ import org.slf4j.LoggerFactory;
 import org.wso2.transport.http.netty.contract.HttpConnectorListener;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
-import java.io.PrintStream;
 import java.util.concurrent.Executor;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.DEFAULT_MAX_MESSAGE_SIZE;
@@ -41,7 +39,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_STATUS_KEY;
 public class ServerConnectorListener implements HttpConnectorListener {
 
     private static final Logger log = LoggerFactory.getLogger(ServerConnectorListener.class);
-    private static final PrintStream console = System.out;
 
     private final ServicesRegistry servicesRegistry;
 
@@ -77,6 +74,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onError(Throwable throwable) {
+
         log.error("Error in http server connector" + throwable.getMessage(), throwable);
     }
 
@@ -85,6 +83,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
         ServerMethodDefinition methodDefinition = servicesRegistry.lookupMethod(method);
 
         if (methodDefinition == null) {
+            // Use netty http constant.
             handleFailure(inboundMessage.getHttpCarbonMessage(), 404, Status.Code.UNIMPLEMENTED, String.format
                     ("Method not found: %s", method));
             return;
@@ -96,8 +95,8 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
             try {
                 listener = startCall(inboundMessage, outboundMessage, method);
-                InboundStateListener stateListener = new InboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, listener,
-                        inboundMessage);
+                ServerInboundStateListener stateListener = new ServerInboundStateListener(DEFAULT_MAX_MESSAGE_SIZE,
+                        listener, inboundMessage);
                 stateListener.setDecompressor(inboundMessage.getMessageDecompressor());
 
                 HttpContent httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
@@ -114,13 +113,12 @@ public class ServerConnectorListener implements HttpConnectorListener {
                     }
                     httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
                 }
-            } catch (RuntimeException | Error e) {
+            } catch (RuntimeException e) {
                 HttpUtil.handleFailure(inboundMessage.getHttpCarbonMessage(), new BallerinaConnectorException(e
                         .getMessage(), e.getCause()));
             }
         });
     }
-
 
     private <ReqT, RespT> ServerCall.ServerStreamListener startCall(InboundMessage inboundMessage, OutboundMessage
             outboundMessage, String fullMethodName) {
@@ -130,15 +128,9 @@ public class ServerConnectorListener implements HttpConnectorListener {
         // Create service call instance for the inboundMessage.
         ServerCall<ReqT, RespT> call = new ServerCall<>(inboundMessage, outboundMessage, methodDefinition
                 .getMethodDescriptor(), DecompressorRegistry.getDefaultInstance(), CompressorRegistry
-                .getDefaultInstance());;
-        ServerCallHandler<ReqT, RespT> callHandler = methodDefinition.getServerCallHandler();
+                .getDefaultInstance());
 
-        ServerCallHandler.Listener<ReqT> listener = callHandler.startCall(call);
-        if (listener == null) {
-            throw new NullPointerException(
-                    "startCall() returned a null listener for method " + fullMethodName);
-        }
-        return call.newServerStreamListener(listener);
+        return call.newServerStreamListener(methodDefinition.getServerCallHandler().startCall(call));
     }
 
     private boolean isValid(InboundMessage inboundMessage) {
@@ -194,13 +186,13 @@ public class ServerConnectorListener implements HttpConnectorListener {
         HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
     }
 
-    private static class InboundStateListener extends InboundMessage.InboundStateListener {
+    private static class ServerInboundStateListener extends InboundMessage.InboundStateListener {
 
         final ServerCall.ServerStreamListener listener;
         final InboundMessage inboundMessage;
 
-        protected InboundStateListener(int maxMessageSize, ServerCall.ServerStreamListener listener, InboundMessage
-                inboundMessage) {
+        ServerInboundStateListener(int maxMessageSize, ServerCall.ServerStreamListener listener,
+                                   InboundMessage inboundMessage) {
 
             super(maxMessageSize);
             this.listener = listener;
@@ -228,6 +220,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
         @Override
         public void deframeFailed(Throwable cause) {
+
             handleFailure(inboundMessage.getHttpCarbonMessage(), 500, Status.Code.INTERNAL, cause.getMessage());
         }
 
@@ -238,7 +231,7 @@ public class ServerConnectorListener implements HttpConnectorListener {
          * @param httpContent Http content.
          * @param endOfStream {@code true} if no more data will be received on the stream.
          */
-        public void inboundDataReceived(HttpContent httpContent, boolean endOfStream) {
+        void inboundDataReceived(HttpContent httpContent, boolean endOfStream) {
 
             // Deframe the message. If a failure occurs, deframeFailed will be called.
             deframe(httpContent);

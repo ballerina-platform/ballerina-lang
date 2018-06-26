@@ -31,8 +31,6 @@ public class ServerConnectorPortBindingListener implements PortBindingEventListe
     private static final Logger log = LoggerFactory.getLogger(ServerConnectorPortBindingListener.class);
     private static final PrintStream console;
 
-    public ServerConnectorPortBindingListener() {}
-
     public void onOpen(String serverConnectorId, boolean isHttps) {
         if (isHttps) {
             console.println("ballerina: started HTTPS/WSS endpoint " + serverConnectorId);

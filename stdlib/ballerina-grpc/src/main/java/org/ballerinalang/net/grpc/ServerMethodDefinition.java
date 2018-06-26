@@ -51,7 +51,7 @@ public final class ServerMethodDefinition<ReqT, RespT> {
             MethodDescriptor<ReqT, RespT> method,
             ServerCallHandler<ReqT, RespT> handler) {
 
-        return new ServerMethodDefinition<ReqT, RespT>(method, handler);
+        return new ServerMethodDefinition<>(method, handler);
     }
 
     /**

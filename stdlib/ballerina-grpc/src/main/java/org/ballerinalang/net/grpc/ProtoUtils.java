@@ -38,9 +38,8 @@ public class ProtoUtils {
 
     private static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
 
-    private static final ThreadLocal<Reference<byte[]>> bufs = ThreadLocal.withInitial(() -> {
-        return new WeakReference<>(new byte[4096]);
-    });
+    private static final ThreadLocal<Reference<byte[]>> bufs = ThreadLocal.withInitial(() -> new WeakReference<>(new
+            byte[4096]));
 
     /**
      * Create a {@code Marshaller} for protos of the same type as {@code defaultInstance}.

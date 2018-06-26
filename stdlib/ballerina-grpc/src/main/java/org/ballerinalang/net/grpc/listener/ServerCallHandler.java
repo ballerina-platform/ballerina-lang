@@ -81,7 +81,7 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
      *
      * @param <RespT> Response message type.
      */
-    public static final class ServerCallStreamObserver<RespT> extends CallStreamObserver<RespT> {
+    public static final class ServerCallStreamObserver<RespT> implements CallStreamObserver<RespT> {
 
         final ServerCall<?, RespT> call;
         volatile boolean cancelled;

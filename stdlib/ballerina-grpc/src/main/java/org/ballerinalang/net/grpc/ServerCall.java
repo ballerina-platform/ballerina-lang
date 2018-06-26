@@ -150,11 +150,8 @@ public final class ServerCall<ReqT, RespT> {
         try {
             InputStream resp = method.streamResponse(message);
             outboundMessage.sendMessage(resp);
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             close(Status.fromThrowable(e), new DefaultHttpHeaders());
-        } catch (Error e) {
-            close(Status.Code.CANCELLED.toStatus().withDescription("Server sendMessage() failed with Error"), new
-                            DefaultHttpHeaders());
         }
     }
 
@@ -235,9 +232,9 @@ public final class ServerCall<ReqT, RespT> {
                 Message request = (Message) call.method.parseRequest(message);
                 request.setHeaders(call.inboundMessage.getHeaders());
                 listener.onMessage((ReqT) request);
-            } catch (Throwable t) {
+            } catch (Exception ex) {
                 MessageUtils.closeQuietly(message);
-                throw new RuntimeException(t);
+                throw new RuntimeException(ex);
             } finally {
                 try {
                     message.close();

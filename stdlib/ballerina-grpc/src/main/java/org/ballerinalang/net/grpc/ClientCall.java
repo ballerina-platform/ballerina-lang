@@ -123,7 +123,7 @@ public final class ClientCall<ReqT, RespT> {
         }
         prepareHeaders(compressor);
         ClientStreamListener clientStreamListener = new ClientStreamListener(observer);
-        connectorListener = new ClientConnectorListener(this, clientStreamListener);
+        connectorListener = new ClientConnectorListener(clientStreamListener);
 
         outboundMessage.framer().setCompressor(compressor);
         connectorListener.setDecompressorRegistry(decompressorRegistry);
@@ -188,7 +188,7 @@ public final class ClientCall<ReqT, RespT> {
     public void sendMessage(ReqT message) {
 
         if (connectorListener == null) {
-            throw new IllegalStateException("Client call did not start properly.");
+            throw new IllegalStateException("Connector listener didn't initialize properly.");
         }
 
         if (cancelCalled) {
@@ -203,11 +203,8 @@ public final class ClientCall<ReqT, RespT> {
             InputStream resp = method.streamRequest(message);
             outboundMessage.sendMessage(resp);
 
-        } catch (RuntimeException e) {
-            throw Status.Code.CANCELLED.toStatus().withCause(e).withDescription("Failed to stream message")
-                    .asRuntimeException();
-        } catch (Error e) {
-            throw Status.Code.CANCELLED.toStatus().withDescription("Client sendMessage() failed with Error")
+        } catch (Exception ex) {
+            throw Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to stream message")
                     .asRuntimeException();
         }
         // For unary requests, halfClose call should be coming soon.
@@ -258,9 +255,9 @@ public final class ClientCall<ReqT, RespT> {
                 }
                 responseHeaders = headers;
                 observer.onHeaders(headers);
-            } catch (Throwable t) {
+            } catch (Exception ex) {
                 Status status =
-                        Status.Code.CANCELLED.toStatus().withCause(t).withDescription("Failed to read headers");
+                        Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to read headers");
                 close(status, new DefaultHttpHeaders());
             }
 
@@ -278,10 +275,10 @@ public final class ClientCall<ReqT, RespT> {
                 responseMessage.setHeaders(responseHeaders);
                 observer.onMessage((RespT) responseMessage);
                 message.close();
-            } catch (Throwable t) {
+            } catch (Exception ex) {
                 MessageUtils.closeQuietly(message);
                 Status status =
-                        Status.Code.CANCELLED.toStatus().withCause(t).withDescription("Failed to read message.");
+                        Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to read message.");
                 close(status, new DefaultHttpHeaders());
             }
         }
@@ -303,9 +300,9 @@ public final class ClientCall<ReqT, RespT> {
 
             try {
                 observer.onReady();
-            } catch (Throwable t) {
+            } catch (Exception ex) {
                 Status status =
-                        Status.Code.CANCELLED.toStatus().withCause(t).withDescription("Failed to call onReady.");
+                        Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to call onReady.");
                 close(status, new DefaultHttpHeaders());
             }
 
