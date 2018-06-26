@@ -31,13 +31,13 @@ import java.lang.ref.WeakReference;
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ *
+ * @since 0.980.0
  */
 public class ProtoUtils {
 
     private static final int BUF_SIZE = 8192;
-
     private static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
-
     private static final ThreadLocal<Reference<byte[]>> bufs = ThreadLocal.withInitial(() -> new WeakReference<>(new
             byte[4096]));
 
@@ -46,7 +46,6 @@ public class ProtoUtils {
      */
     public static MethodDescriptor.Marshaller<Message> marshaller(Message defaultInstance) {
         final MessageParser parser = defaultInstance.getParserForType();
-
         return new MethodDescriptor.Marshaller<Message>() {
 
             @Override
@@ -66,7 +65,6 @@ public class ProtoUtils {
                             buf = new byte[size];
                             bufs.set(new WeakReference<>(buf));
                         }
-
                         int remaining = size;
                         while (remaining > 0) {
                             int position = size - remaining;
@@ -76,7 +74,6 @@ public class ProtoUtils {
                             }
                             remaining -= count;
                         }
-
                         if (remaining != 0) {
                             int position = size - remaining;
                             throw new RuntimeException("size inaccurate: " + size + " != " + position);
@@ -102,7 +99,6 @@ public class ProtoUtils {
             }
 
             private Message parseFrom(CodedInputStream stream) throws IOException {
-
                 Message message = parser.parseFrom(stream);
                 stream.checkLastTagWas(0);
                 return message;
@@ -128,6 +124,5 @@ public class ProtoUtils {
     }
 
     private ProtoUtils() {
-
     }
 }

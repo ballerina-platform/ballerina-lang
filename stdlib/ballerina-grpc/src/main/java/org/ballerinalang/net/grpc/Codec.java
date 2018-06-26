@@ -76,7 +76,6 @@ public interface Codec extends Compressor, Decompressor {
         }
 
         private Identity() {
-
         }
     }
 }

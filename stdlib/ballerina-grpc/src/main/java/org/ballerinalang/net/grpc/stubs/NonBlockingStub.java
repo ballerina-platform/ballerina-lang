@@ -49,7 +49,6 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
      */
     public <ReqT, RespT> void executeServerStreaming(ReqT request, StreamObserver<RespT> responseObserver,
                                        MethodDescriptor<ReqT, RespT> methodDescriptor) {
-
         ClientCall<ReqT, RespT> call = new ClientCall<>(getConnector(), createOutboundRequest(((Message) request)
                 .getHeaders()), methodDescriptor);
         call.start(new NonblockingCallListener<>(responseObserver, true));
@@ -87,7 +86,6 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
      */
     public <ReqT, RespT> void executeUnary(ReqT request, StreamObserver<RespT> responseObserver,
                                            MethodDescriptor<ReqT, RespT> methodDescriptor) {
-
         ClientCall<ReqT, RespT> call = new ClientCall<>(getConnector(), createOutboundRequest(((Message) request)
                 .getHeaders()), methodDescriptor);
         call.start(new NonblockingCallListener<>(responseObserver, false));
@@ -126,7 +124,6 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
 
         // Non private to avoid synthetic class
         NonblockingCallListener(StreamObserver<RespT> observer, boolean streamingResponse) {
-
             this.observer = observer;
             this.streamingResponse = streamingResponse;
         }
@@ -138,7 +135,6 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
 
         @Override
         public void onMessage(RespT message) {
-
             if (firstResponseReceived && !streamingResponse) {
                 throw Status.Code.INTERNAL.toStatus()
                         .withDescription("More than one responses received for unary or client-streaming call")
@@ -150,7 +146,6 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
 
         @Override
         public void onClose(Status status, HttpHeaders trailers) {
-
             if (status.isOk()) {
                 observer.onCompleted();
             } else {
@@ -165,42 +160,35 @@ public class NonBlockingStub extends AbstractStub<NonBlockingStub> {
 
         // Non private to avoid synthetic class
         ClientCallStreamObserver(ClientCall<T, ?> call) {
-
             this.call = call;
         }
 
         @Override
         public void onNext(T value) {
-
             call.sendMessage(value);
         }
 
         @Override
         public void onError(T error) {
-
             call.cancel("Cancelled by client with StreamObserver.onError()", ((Message) error).getError());
         }
 
         @Override
         public void onCompleted() {
-
             call.halfClose();
         }
 
         @Override
         public boolean isReady() {
-
             return call.isReady();
         }
 
         @Override
         public void setMessageCompression(boolean enable) {
-
             call.setMessageCompression(enable);
         }
 
         public void cancel(@Nullable String message, @Nullable Throwable cause) {
-
             call.cancel(message, cause);
         }
     }

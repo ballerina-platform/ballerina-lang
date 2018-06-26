@@ -37,6 +37,7 @@ import static java.lang.Math.min;
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ * @since 0.980.0
  */
 public class MessageFramer {
 
@@ -95,7 +96,6 @@ public class MessageFramer {
                     .withCause(e)
                     .asRuntimeException();
         }
-
         if (messageLength != -1 && written != messageLength) {
             String err = String.format("Message length inaccurate %s != %s", written, messageLength);
             throw Status.Code.INTERNAL.toStatus().withDescription(err).asRuntimeException();
@@ -120,7 +120,6 @@ public class MessageFramer {
 
     private int writeCompressed(InputStream message) throws IOException {
         BufferChainOutputStream bufferChain = new BufferChainOutputStream();
-
         int written;
         try (OutputStream compressingStream = compressor.compress(bufferChain)) {
             written = writeToOutputStream(message, compressingStream);
@@ -131,7 +130,6 @@ public class MessageFramer {
                             String.format("message too large %d > %d", written, maxOutboundMessageSize))
                     .asRuntimeException();
         }
-
         writeBufferChain(bufferChain, true);
         return written;
     }
@@ -325,7 +323,6 @@ public class MessageFramer {
          */
         @Override
         public void write(int b) {
-
             if (current != null && current.limit() > 0) {
                 current.put((byte) b);
                 return;
@@ -336,7 +333,6 @@ public class MessageFramer {
 
         @Override
         public void write(byte[] b, int off, int len) {
-
             if (current == null) {
                 // InboundMessage len bytes initially from the allocator, it may give us more.
                 current = ByteBuffer.allocate(len);
@@ -359,7 +355,6 @@ public class MessageFramer {
         }
 
         private int readableBytes() {
-
             int readable = 0;
             for (ByteBuffer writableBuffer : bufferList) {
                 readable += writableBuffer.limit();

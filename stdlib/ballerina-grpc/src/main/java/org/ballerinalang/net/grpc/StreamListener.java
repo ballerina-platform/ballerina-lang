@@ -26,6 +26,8 @@ import java.io.InputStream;
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ *
+ * @since 0.980.0
  */
 public interface StreamListener {
 

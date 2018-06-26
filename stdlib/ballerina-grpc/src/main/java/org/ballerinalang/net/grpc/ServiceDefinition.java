@@ -37,7 +37,7 @@ import static org.ballerinalang.net.grpc.MethodDescriptor.generateFullMethodName
 /**
  * This class contains proto descriptors of the service.
  *
- * @since 1.0.0
+ * @since 0.980.0
  */
 public final class ServiceDefinition {
     
@@ -98,7 +98,6 @@ public final class ServiceDefinition {
     }
 
     public Map<String, MethodDescriptor<Message, Message>> getMethodDescriptors() throws GrpcClientException {
-
         Map<String, MethodDescriptor<Message, Message>> descriptorMap = new HashMap<>();
         Descriptors.ServiceDescriptor serviceDescriptor = getServiceDescriptor();
 

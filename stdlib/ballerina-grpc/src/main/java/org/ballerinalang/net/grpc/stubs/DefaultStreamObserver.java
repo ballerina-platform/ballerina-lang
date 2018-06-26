@@ -53,7 +53,6 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         if (callbackService == null) {
             throw new GrpcClientException("Error while building the connection. Listener Service does not exist");
         }
-        
         for (Resource resource : callbackService.getResources()) {
             resourceMap.put(resource.getName(), resource);
         }
@@ -95,11 +94,9 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, error.getError());
         signatureParams[0] = errorStruct;
         BStruct headerStruct = getHeaderStruct(onError);
-        
         if (headerStruct != null && signatureParams.length == 2) {
             signatureParams[1] = headerStruct;
         }
-        
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(onError, callback, null, null, signatureParams);
     }
@@ -115,11 +112,9 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BStruct headerStruct = getHeaderStruct(onCompleted);
-        
         if (headerStruct != null && signatureParams.length == 1) {
             signatureParams[0] = headerStruct;
         }
-        
         CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(onCompleted, callback, null, null, signatureParams);
     }
@@ -128,7 +123,6 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 2) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than two");
         }
-        
         List<ParamDetail> paramDetails = resource.getParamDetails();
         if ((isHeaderRequired && paramDetails.size() == 2) || (!isHeaderRequired && paramDetails.size() == 1)) {
             BType requestType = resource.getParamDetails().get(GrpcConstants.CALLBACK_MESSAGE_PARAM_INDEX)

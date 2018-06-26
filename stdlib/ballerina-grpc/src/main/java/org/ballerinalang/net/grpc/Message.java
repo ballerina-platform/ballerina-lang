@@ -61,22 +61,18 @@ public class Message {
     }
 
     public HttpHeaders getHeaders() {
-
         return headers;
     }
 
     public void setHeaders(HttpHeaders headers) {
-
         this.headers = headers;
     }
 
     public boolean isError() {
-
         return isError;
     }
 
     public Throwable getError() {
-
         return error;
     }
 
@@ -89,7 +85,6 @@ public class Message {
             String messageName,
             com.google.protobuf.CodedInputStream input)
             throws IOException {
-
         this(messageName);
         Descriptors.Descriptor messageDescriptor = getDescriptor();
         Map<Integer, Descriptors.FieldDescriptor> fieldDescriptors = new HashMap<>();
@@ -276,7 +271,6 @@ public class Message {
         if (isInitialized == 0) {
             return false;
         }
-        
         memoizedIsInitialized = 1;
         return true;
     }
@@ -450,7 +444,6 @@ public class Message {
         if (size != -1) {
             return size;
         }
-        
         size = 0;
         Descriptors.Descriptor messageDescriptor = getDescriptor();
         if (messageDescriptor == null) {
@@ -631,7 +624,6 @@ public class Message {
     }
 
     private int computeMessageSize(Descriptors.FieldDescriptor fieldDescriptor, Message message) {
-
         return CodedOutputStream.computeTagSize(fieldDescriptor
                 .getNumber()) + CodedOutputStream.computeUInt32SizeNoTag
                 (message.getSerializedSize()) + message.getSerializedSize();

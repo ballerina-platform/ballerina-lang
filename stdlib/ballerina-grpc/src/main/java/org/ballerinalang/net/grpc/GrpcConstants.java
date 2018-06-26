@@ -76,7 +76,7 @@ public class GrpcConstants {
     public static final int CALLBACK_MESSAGE_PARAM_INDEX = 0;
     
     public static final Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> WIRE_TYPE_MAP;
-    
+
     static {
         Map<DescriptorProtos.FieldDescriptorProto.Type, Integer> wireMap = new HashMap<>();
         wireMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_DOUBLE, 1);
@@ -166,7 +166,5 @@ public class GrpcConstants {
     static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024;
 
     private GrpcConstants() {
-
     }
-
 }

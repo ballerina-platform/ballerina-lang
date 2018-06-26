@@ -28,6 +28,7 @@ import java.io.InputStream;
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ * @since 0.980.0
  */
 public class MessageDeframer implements Closeable {
     private static final int HEADER_LENGTH = 5;
@@ -105,7 +106,6 @@ public class MessageDeframer implements Closeable {
         if (data == null) {
             throw new RuntimeException("Data buffer is null");
         }
-
         boolean needToCloseData = true;
         try {
             if (!isClosedOrScheduledToClose()) {
@@ -193,7 +193,6 @@ public class MessageDeframer implements Closeable {
                         throw new IllegalStateException("Invalid state: " + state);
                 }
             }
-
             if (closeWhenComplete && isStalled()) {
                 close();
             }
@@ -208,15 +207,12 @@ public class MessageDeframer implements Closeable {
      * @return true if there are pending messages to read.
      */
     private boolean readRequiredBytes() {
-
         if (nextFrame == null) {
             nextFrame = new CompositeContent();
         }
-
         // Read until the buffer contains all the required bytes.
         int missingBytes;
         while ((missingBytes = requiredLength - nextFrame.readableBytes()) > 0) {
-
             if (unprocessed.readableBytes() == 0) {
                 // No more data is available.
                 return false;
@@ -242,7 +238,6 @@ public class MessageDeframer implements Closeable {
                     .asRuntimeException();
         }
         compressedFlag = (type & COMPRESSED_FLAG_MASK) != 0;
-
         // Update the required length to include the length of the frame.
         requiredLength = nextFrame.readInt();
         if (requiredLength < 0 || requiredLength > maxInboundMessageSize) {
@@ -259,10 +254,8 @@ public class MessageDeframer implements Closeable {
      * Processes message body.
      */
     private void processBody() {
-
         InputStream stream = compressedFlag ? getCompressedBody() : getUncompressedBody();
         listener.messagesAvailable(stream);
-
         // Done with this frame, begin processing the next header.
         state = MessageDeframer.State.HEADER;
         requiredLength = HEADER_LENGTH;
@@ -280,7 +273,6 @@ public class MessageDeframer implements Closeable {
                     "Can't decode compressed frame as compression not configured.")
                     .asRuntimeException();
         }
-
         try {
             return decompressor.decompress(new BufferInputStream(nextFrame));
         } catch (IOException e) {
@@ -321,7 +313,6 @@ public class MessageDeframer implements Closeable {
                 // EOF.
                 return -1;
             }
-
             length = Math.min(buffer.readableBytes(), length);
             buffer.readBytes(dest, destOffset, length);
             return length;

@@ -25,6 +25,8 @@ import java.io.PrintStream;
 
 /**
  * Server Connector Port Binding Listener.
+ *
+ * @since 0.980.0
  */
 public class ServerConnectorPortBindingListener implements PortBindingEventListener {
 
@@ -37,7 +39,6 @@ public class ServerConnectorPortBindingListener implements PortBindingEventListe
         } else {
             console.println("ballerina: started HTTP/WS endpoint " + serverConnectorId);
         }
-
     }
 
     public void onClose(String serverConnectorId, boolean isHttps) {
@@ -46,7 +47,6 @@ public class ServerConnectorPortBindingListener implements PortBindingEventListe
         } else {
             console.println("ballerina: stopped HTTP/WS endpoint " + serverConnectorId);
         }
-
     }
 
     public void onError(Throwable throwable) {

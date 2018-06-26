@@ -33,11 +33,12 @@ import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_STATUS_KEY;
 
 /**
  * Class that represents an GRPC outbound message.
+ *
+ * @since 0.980.0
  */
 public class OutboundMessage {
 
     private static final int NULL_STATUS_CODE = -1;
-
     private final HTTPCarbonMessage responseMessage;
     private int statusCode = NULL_STATUS_CODE;
     private MessageFramer framer;
@@ -164,7 +165,6 @@ public class OutboundMessage {
      * @return status code value
      */
     public int getStatusCode() {
-
         return statusCode;
     }
 
@@ -174,7 +174,6 @@ public class OutboundMessage {
      * @param entity object that should be set as the response body
      */
     public void sendMessage(InputStream entity) {
-
         if (entity != null) {
             framer().writePayload(entity);
             framer().flush();
@@ -191,7 +190,6 @@ public class OutboundMessage {
      * @param trailers trailer headers
      */
     public void complete(Status status, io.netty.handler.codec.http.HttpHeaders trailers) {
-
         framer().flush();
         framer().dispose();
         addStatusToTrailers(status, trailers);

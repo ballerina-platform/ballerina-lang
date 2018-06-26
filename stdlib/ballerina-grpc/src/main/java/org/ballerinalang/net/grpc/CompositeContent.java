@@ -51,18 +51,15 @@ public class CompositeContent {
      * Adds a new {@link ByteBuf} at the end of the buffer list.
      */
     public void addBuffer(ByteBuf buffer) {
-
         buffers.add(buffer);
         readableBytes += buffer.readableBytes();
     }
 
     public int readableBytes() {
-
         return readableBytes;
     }
 
     public int readUnsignedByte() {
-
         ReadOperation op = new ReadOperation() {
             @Override
             int readInternal(ByteBuf buffer, int length) {
@@ -75,11 +72,9 @@ public class CompositeContent {
     }
 
     public void skipBytes(int length) {
-
         execute(new ReadOperation() {
             @Override
             public int readInternal(ByteBuf buffer, int length) {
-
                 buffer.skipBytes(length);
                 return 0;
             }
@@ -87,13 +82,11 @@ public class CompositeContent {
     }
 
     public void readBytes(final byte[] dest, final int destOffset, int length) {
-
         execute(new ReadOperation() {
             int currentOffset = destOffset;
 
             @Override
             public int readInternal(ByteBuf buffer, int length) {
-
                 buffer.readBytes(dest, currentOffset, length);
                 currentOffset += length;
                 return 0;
@@ -113,7 +106,6 @@ public class CompositeContent {
     }
 
     public void close() {
-
         while (!buffers.isEmpty()) {
             ByteBuf byteBuf = buffers.remove();
             if (byteBuf.refCnt() != 0) {
@@ -126,27 +118,21 @@ public class CompositeContent {
      * Executes the given {@link ReadOperation} against the {@link CompositeContent}.
      */
     private void execute(ReadOperation op, int length) {
-
         checkReadable(length);
-
         if (!buffers.isEmpty()) {
             advanceBufferIfNecessary();
         }
-
         for (; length > 0 && !buffers.isEmpty(); advanceBufferIfNecessary()) {
             ByteBuf buffer = buffers.peek();
             int lengthToCopy = Math.min(length, buffer.readableBytes());
-
             // Perform the read operation for this buffer.
             op.read(buffer, lengthToCopy);
             if (op.isError()) {
                 return;
             }
-
             length -= lengthToCopy;
             readableBytes -= lengthToCopy;
         }
-
         if (length > 0) {
             // Should never get here.
             throw new AssertionError("Failed executing read operation");
@@ -157,7 +143,6 @@ public class CompositeContent {
      * If the current buffer is exhausted, removes and closes it.
      */
     private void advanceBufferIfNecessary() {
-
         ByteBuf buffer = buffers.peek();
         if (buffer.readableBytes() == 0 && buffer.refCnt() != 0) {
             buffers.remove().release();
@@ -176,11 +161,9 @@ public class CompositeContent {
          * Only used by {@link CompositeContent#readUnsignedByte()}.
          */
         int value;
-
         IOException ex;
 
         final void read(ByteBuf buffer, int length) {
-
             try {
                 value = readInternal(buffer, length);
             } catch (IOException e) {
@@ -189,7 +172,6 @@ public class CompositeContent {
         }
 
         final boolean isError() {
-
             return ex != null;
         }
 

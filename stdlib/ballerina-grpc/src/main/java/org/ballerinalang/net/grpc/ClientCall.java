@@ -49,12 +49,10 @@ import static org.ballerinalang.net.grpc.GrpcConstants.TE_KEY;
 public final class ClientCall<ReqT, RespT> {
 
     private static final Logger log = Logger.getLogger(ClientCall.class.getName());
-
     private final MethodDescriptor<ReqT, RespT> method;
     private final boolean unaryRequest;
     private HttpClientConnector connector;
     private final OutboundMessage outboundMessage;
-
     private ClientConnectorListener connectorListener;
     private boolean cancelCalled;
     private boolean halfCloseCalled;
@@ -96,15 +94,12 @@ public final class ClientCall<ReqT, RespT> {
      * @param observer response listener instance
      */
     public void start(final AbstractStub.Listener<RespT> observer) {
-
         if (connectorListener != null) {
             throw new IllegalStateException(String.valueOf("Client connection us already setup."));
         }
-
         if (cancelCalled) {
             throw new IllegalStateException(String.valueOf("Client call was cancelled."));
         }
-
         Compressor compressor;
         String compressorName = outboundMessage.getHeader("grpc-encoding");
         if (compressorName != null) {
@@ -124,7 +119,6 @@ public final class ClientCall<ReqT, RespT> {
         prepareHeaders(compressor);
         ClientStreamListener clientStreamListener = new ClientStreamListener(observer);
         connectorListener = new ClientConnectorListener(clientStreamListener);
-
         outboundMessage.framer().setCompressor(compressor);
         connectorListener.setDecompressorRegistry(decompressorRegistry);
         HttpResponseFuture responseFuture = connector.send(outboundMessage.getResponseMessage());
@@ -138,7 +132,6 @@ public final class ClientCall<ReqT, RespT> {
      * @param cause Throwable
      */
     public void cancel(String message, Throwable cause) {
-
         if (message == null && cause == null) {
             cause = new CancellationException("Cancelled without a message or cause");
             log.log(Level.WARNING, "Cancelling without a message or cause is suboptimal", cause);
@@ -147,7 +140,6 @@ public final class ClientCall<ReqT, RespT> {
             return;
         }
         cancelCalled = true;
-
         if (outboundMessage != null) {
             Status status = Status.Code.CANCELLED.toStatus();
             if (message != null) {
@@ -166,7 +158,6 @@ public final class ClientCall<ReqT, RespT> {
      * Close the call for request message sending. Incoming response messages are unaffected.
      */
     public void halfClose() {
-
         if (outboundMessage == null) {
             throw new IllegalStateException("Client call did not start properly.");
         }
@@ -186,19 +177,15 @@ public final class ClientCall<ReqT, RespT> {
      * @param message Request message.
      */
     public void sendMessage(ReqT message) {
-
         if (connectorListener == null) {
             throw new IllegalStateException("Connector listener didn't initialize properly.");
         }
-
         if (cancelCalled) {
             throw new IllegalStateException("Client call was already called.");
         }
-
         if (halfCloseCalled) {
             throw new IllegalStateException("Client call was already closed.");
         }
-
         try {
             InputStream resp = method.streamRequest(message);
             outboundMessage.sendMessage(resp);
@@ -219,7 +206,6 @@ public final class ClientCall<ReqT, RespT> {
      * @param enabled enable flag
      */
     public void setMessageCompression(boolean enabled) {
-
         if (outboundMessage == null) {
             throw new IllegalStateException("Client call did not start properly.");
         }
@@ -227,7 +213,6 @@ public final class ClientCall<ReqT, RespT> {
     }
 
     private void closeObserver(AbstractStub.Listener<RespT> observer, Status status, HttpHeaders trailers) {
-
         observer.onClose(status, trailers);
     }
 
@@ -260,7 +245,6 @@ public final class ClientCall<ReqT, RespT> {
                         Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to read headers");
                 close(status, new DefaultHttpHeaders());
             }
-
         }
 
         @Override
@@ -297,7 +281,6 @@ public final class ClientCall<ReqT, RespT> {
 
         @Override
         public void onReady() {
-
             try {
                 observer.onReady();
             } catch (Exception ex) {

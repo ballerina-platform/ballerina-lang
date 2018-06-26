@@ -46,14 +46,14 @@ import static org.ballerinalang.runtime.Constants.BALLERINA_VERSION;
  * <p>
  *
  * @param <S> the concrete type of this stub.
+ *
+ * @since 0.980.0
  */
 public abstract class AbstractStub<S extends AbstractStub<S>> {
 
     private static final Logger logger = Logger.getLogger(AbstractStub.class.getName());
-
     private final HttpClientConnector connector;
     private final Struct endpointConfig;
-
     private static final String CACHE_BALLERINA_VERSION;
 
     static {
@@ -85,7 +85,6 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
     }
 
     OutboundMessage createOutboundRequest(HttpHeaders httpHeaders) {
-
         try {
             HTTPCarbonMessage carbonMessage = MessageUtils.createHttpCarbonMessage(true);
             String urlString = getEndpointConfig().getStringField(GrpcConstants.CLIENT_ENDPOINT_URL);
@@ -94,10 +93,8 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
             String host = url.getHost();
             carbonMessage.setHeader("scheme", url.getProtocol());
             carbonMessage.setHeader("authority", urlString);
-
             setOutboundReqProperties(carbonMessage, url, port, host);
             setOutboundReqHeaders(carbonMessage, port, host);
-
             if (httpHeaders != null) {
                 for (Map.Entry<String, String> headerEntry : httpHeaders.entries()) {
                     carbonMessage.setHeader(headerEntry.getKey(), headerEntry.getValue());
@@ -131,10 +128,8 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
     private void setOutboundReqProperties(HTTPCarbonMessage outboundRequest, URL url, int port, String host) {
         outboundRequest.setProperty(Constants.HTTP_HOST, host);
         outboundRequest.setProperty(Constants.HTTP_PORT, port);
-
         String outboundReqPath = url.getPath();
         outboundRequest.setProperty(HttpConstants.TO, outboundReqPath);
-
         outboundRequest.setProperty(HttpConstants.PROTOCOL, url.getProtocol());
     }
 
@@ -160,7 +155,6 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
         } else {
             userAgent = "ballerina";
         }
-
         if (!headers.contains(HttpHeaderNames.USER_AGENT)) { // If User-Agent is not already set from program
             headers.set(HttpHeaderNames.USER_AGENT, userAgent);
         }
@@ -173,7 +167,6 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
      * @param t RuntimeException/Error.
      */
     public static RuntimeException cancelThrow(ClientCall<?, ?> call, Throwable t) {
-
         try {
             call.cancel(null, t);
         } catch (Throwable e) {
@@ -203,7 +196,6 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
          * @param headers response headers.
          */
         public void onHeaders(HttpHeaders headers) {
-
         }
 
         /**
@@ -212,7 +204,6 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
          * @param message response message.
          */
         public void onMessage(T message) {
-
         }
 
         /**
@@ -224,14 +215,12 @@ public abstract class AbstractStub<S extends AbstractStub<S>> {
          * @param trailers headers sent at call completion.
          */
         public void onClose(Status status, HttpHeaders trailers) {
-
         }
 
         /**
          * Indicates whether ClientCall is capable of sending additional messages.
          */
         public void onReady() {
-
         }
     }
 }

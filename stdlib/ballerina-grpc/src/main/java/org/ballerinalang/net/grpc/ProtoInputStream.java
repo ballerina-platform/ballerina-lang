@@ -29,9 +29,9 @@ import static com.google.protobuf.CodedOutputStream.DEFAULT_BUFFER_SIZE;
 /**
  * Protobuf input stream.
  * <p>
- * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ * @since 0.980.0
  */
 class ProtoInputStream extends InputStream implements Drainable, KnownLength {
 
@@ -73,7 +73,6 @@ class ProtoInputStream extends InputStream implements Drainable, KnownLength {
                 partial = null;
                 return size;
             }
-
             partial = new ByteArrayInputStream(message.toByteArray());
             message = null;
         }

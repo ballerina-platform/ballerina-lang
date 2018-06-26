@@ -139,7 +139,6 @@ public class InboundMessage {
     }
 
     public Decompressor getMessageDecompressor() {
-
         String contentEncodingHeader = httpCarbonMessage.getHeader(MESSAGE_ENCODING);
         if (contentEncodingHeader != null) {
             httpCarbonMessage.removeHeader(HttpHeaderNames.CONTENT_ENCODING.toString());

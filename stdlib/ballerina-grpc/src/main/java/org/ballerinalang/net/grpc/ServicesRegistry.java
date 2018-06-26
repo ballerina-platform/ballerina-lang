@@ -26,6 +26,8 @@ import java.util.Map;
 
 /**
  * gRPC Services Registry.
+ *
+ * @since 0.980.0
  */
 public class ServicesRegistry {
 

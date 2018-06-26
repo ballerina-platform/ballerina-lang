@@ -36,20 +36,17 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
     public Resource resource;
 
     public UnaryServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
-
         super(methodDescriptor);
         this.resource = resource;
     }
 
     @Override
     public Listener<ReqT> startCall(ServerCall<ReqT, RespT> call) {
-
         if (!call.getMethodDescriptor().getType().clientSendsOneMessage()) {
             throw new RuntimeException("asyncUnaryRequestCall is only for clientSendsOneMessage methods");
         }
         ServerCallStreamObserver<RespT> responseObserver =
                 new ServerCallStreamObserver<>(call);
-
         return new UnaryServerCallListener(responseObserver, call);
     }
 
@@ -63,7 +60,6 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
         UnaryServerCallListener(
                 ServerCallStreamObserver<RespT> responseObserver,
                 ServerCall<ReqT, RespT> call) {
-
             this.call = call;
             this.responseObserver = responseObserver;
         }
@@ -77,7 +73,6 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
                 canInvoke = false;
                 return;
             }
-
             this.request = request;
         }
 
@@ -91,7 +86,6 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
                         Status.Code.INTERNAL.toStatus().withDescription(MISSING_REQUEST), new DefaultHttpHeaders());
                 return;
             }
-
             invoke(request, responseObserver);
         }
 
@@ -102,7 +96,6 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
 
         @Override
         public void onReady() {
-
         }
 
         public void invoke(ReqT request, ServerCallStreamObserver<RespT> responseObserver) {

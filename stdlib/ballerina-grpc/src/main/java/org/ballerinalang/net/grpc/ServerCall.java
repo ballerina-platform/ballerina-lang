@@ -41,6 +41,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
  *
  * @param <ReqT> Request Message Type.
  * @param <RespT> Response Message Type.
+ *
+ * @since 0.980.0
  */
 public final class ServerCall<ReqT, RespT> {
 
@@ -68,7 +70,6 @@ public final class ServerCall<ReqT, RespT> {
 
     ServerCall(InboundMessage inboundMessage, OutboundMessage outboundMessage, MethodDescriptor<ReqT, RespT>
             method, DecompressorRegistry decompressorRegistry, CompressorRegistry compressorRegistry) {
-
         this.inboundMessage = inboundMessage;
         this.outboundMessage = outboundMessage;
         this.method = method;
@@ -78,15 +79,12 @@ public final class ServerCall<ReqT, RespT> {
     }
 
     public void sendHeaders(HttpHeaders headers) {
-
         if (sendHeadersCalled) {
             throw new IllegalStateException("sendHeaders has already been called");
         }
-
         if (closeCalled) {
             throw new IllegalStateException("call is closed");
         }
-
         outboundMessage.removeHeader(MESSAGE_ENCODING);
         if (compressor == null) {
             compressor = Codec.Identity.NONE;
@@ -103,24 +101,19 @@ public final class ServerCall<ReqT, RespT> {
                 compressor = Codec.Identity.NONE;
             }
         }
-
         // Always put compressor, even if it's identity.
         outboundMessage.setHeader(MESSAGE_ENCODING, compressor.getMessageEncoding());
         outboundMessage.framer().setCompressor(compressor);
-
         outboundMessage.removeHeader(MESSAGE_ACCEPT_ENCODING);
         String advertisedEncodings = String.join(",", decompressorRegistry.getAdvertisedMessageEncodings());
-
         if (advertisedEncodings != null) {
             outboundMessage.setHeader(MESSAGE_ACCEPT_ENCODING, advertisedEncodings);
         }
-
         if (headers != null) {
             for (Map.Entry<String, String> headerEntry : headers.entries()) {
                 outboundMessage.setHeader(headerEntry.getKey(), headerEntry.getValue());
             }
         }
-
         try {
             // Send response headers.
             inboundMessage.respond(outboundMessage.getResponseMessage());
@@ -131,21 +124,17 @@ public final class ServerCall<ReqT, RespT> {
     }
 
     public void sendMessage(RespT message) {
-
         if (!sendHeadersCalled) {
             throw new IllegalStateException("sendHeaders has not been called");
         }
-
         if (closeCalled) {
             throw new IllegalStateException("call is closed");
         }
-
         if (method.getType().serverSendsOneMessage() && messageSent) {
             outboundMessage.complete(Status.Code.INTERNAL.toStatus().withDescription(TOO_MANY_RESPONSES), new
                     DefaultHttpHeaders());
             return;
         }
-
         messageSent = true;
         try {
             InputStream resp = method.streamResponse(message);
@@ -160,7 +149,6 @@ public final class ServerCall<ReqT, RespT> {
         if (sendHeadersCalled) {
             throw new IllegalStateException("sendHeaders has been called");
         }
-
         compressor = compressorRegistry.lookupCompressor(compressorName);
         if (compressor == null) {
             throw new IllegalArgumentException("Unable to find compressor by name " + compressorName);
@@ -176,7 +164,6 @@ public final class ServerCall<ReqT, RespT> {
     }
 
     public void close(Status status, HttpHeaders trailers) {
-
         if (closeCalled) {
             throw new RuntimeException("call already closed");
         }
@@ -187,7 +174,6 @@ public final class ServerCall<ReqT, RespT> {
                     DefaultHttpHeaders());
             return;
         }
-
         outboundMessage.complete(status, trailers);
     }
 
@@ -215,19 +201,16 @@ public final class ServerCall<ReqT, RespT> {
 
         ServerStreamListener(
                 ServerCall<ReqT, ?> call, ServerCallHandler.Listener<ReqT> listener) {
-
             this.call = call;
             this.listener = listener;
         }
 
         @Override
         public void messagesAvailable(final InputStream message) {
-
             if (call.cancelled) {
                 MessageUtils.closeQuietly(message);
                 return;
             }
-
             try {
                 Message request = (Message) call.method.parseRequest(message);
                 request.setHeaders(call.inboundMessage.getHeaders());
@@ -245,16 +228,13 @@ public final class ServerCall<ReqT, RespT> {
         }
 
         public void halfClosed() {
-
             if (call.cancelled) {
                 return;
             }
-
             listener.onHalfClose();
         }
 
         public void closed(Status status) {
-
             if (status.isOk()) {
                 listener.onComplete();
             } else {
@@ -265,7 +245,6 @@ public final class ServerCall<ReqT, RespT> {
 
         @Override
         public void onReady() {
-
             if (call.cancelled) {
                 return;
             }

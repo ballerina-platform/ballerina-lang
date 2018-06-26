@@ -29,6 +29,8 @@ import java.io.InputStream;
  *
  * @param <ReqT> InboundMessage Message Type
  * @param <RespT> OutboundMessage Message Type
+ *
+ * @since 0.980.0
  */
 public final class MethodDescriptor<ReqT, RespT> {
 
@@ -272,7 +274,6 @@ public final class MethodDescriptor<ReqT, RespT> {
         private com.google.protobuf.Descriptors.MethodDescriptor schemaDescriptor;
 
         private Builder() {
-
         }
 
         /**
@@ -338,7 +339,6 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @return new {@link MethodDescriptor} instance.
          */
         public MethodDescriptor<ReqT, RespT> build() {
-
             return new MethodDescriptor<>(
                     type,
                     fullMethodName,

@@ -27,6 +27,8 @@ import org.ballerinalang.net.grpc.listener.ServerCallHandler;
  *
  * @param <ReqT>  InboundMessage Message Type
  * @param <RespT> OutboundMessage Message Type
+ *
+ * @since 0.980.0
  */
 public final class ServerMethodDefinition<ReqT, RespT> {
 
@@ -35,7 +37,6 @@ public final class ServerMethodDefinition<ReqT, RespT> {
 
     private ServerMethodDefinition(MethodDescriptor<ReqT, RespT> method,
                                    ServerCallHandler<ReqT, RespT> handler) {
-
         this.method = method;
         this.handler = handler;
     }
@@ -50,7 +51,6 @@ public final class ServerMethodDefinition<ReqT, RespT> {
     public static <ReqT, RespT> ServerMethodDefinition<ReqT, RespT> create(
             MethodDescriptor<ReqT, RespT> method,
             ServerCallHandler<ReqT, RespT> handler) {
-
         return new ServerMethodDefinition<>(method, handler);
     }
 
@@ -59,7 +59,6 @@ public final class ServerMethodDefinition<ReqT, RespT> {
      * @return Method descriptor
      */
     public MethodDescriptor<ReqT, RespT> getMethodDescriptor() {
-
         return method;
     }
 
@@ -69,7 +68,6 @@ public final class ServerMethodDefinition<ReqT, RespT> {
      * @return server call handler
      */
     public ServerCallHandler<ReqT, RespT> getServerCallHandler() {
-
         return handler;
     }
 

@@ -26,6 +26,8 @@ package org.ballerinalang.net.grpc;
  * stream messages. It is used for all {@link MethodDescriptor.MethodType}.
  *
  * @param <V> Request/Response Message Type.
+ *
+ * @since 0.980.0
  */
 public interface StreamObserver<V> {
 

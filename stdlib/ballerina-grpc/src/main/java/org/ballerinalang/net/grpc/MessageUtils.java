@@ -205,7 +205,6 @@ public class MessageUtils {
     }
 
     public static void setNestedMessages(Descriptors.Descriptor resMessage, MessageRegistry messageRegistry) {
-
         for (Descriptors.Descriptor nestedType : resMessage.getNestedTypes()) {
             messageRegistry.addMessageDescriptor(nestedType.getName(), nestedType);
         }
@@ -429,13 +428,11 @@ public class MessageUtils {
 
     public static BValue generateRequestStruct(Message request, ProgramFile programFile, String fieldName, BType
             structType) {
-
         BValue bValue = null;
         Map<String, Object> fields = request.getFields();
         if (fields.size() == 1 && fields.containsKey("value")) {
             fieldName = "value";
         }
-
         if (TypeKind.STRING.typeName().equals(structType.getName())) {
             bValue = new BString((String) fields.get(fieldName));
         } else if (TypeKind.INT.typeName().equals(structType.getName())) {
@@ -530,7 +527,6 @@ public class MessageUtils {
             }
             bValue = requestStruct;
         }
-
         return bValue;
     }
     
@@ -579,7 +575,7 @@ public class MessageUtils {
     static void closeQuietly(InputStream message) {
         try {
             message.close();
-        } catch (IOException ioException) {
+        } catch (IOException ignore) {
             // do nothing
         }
     }
@@ -595,21 +591,17 @@ public class MessageUtils {
         if (contentType == null) {
             return false;
         }
-
         if (CONTENT_TYPE_GRPC.length() > contentType.length()) {
             return false;
         }
-
         contentType = contentType.toLowerCase(Locale.ENGLISH);
         if (!contentType.startsWith(CONTENT_TYPE_GRPC)) {
             return false;
         }
-
         if (contentType.length() == CONTENT_TYPE_GRPC.length()) {
             // The strings match exactly.
             return true;
         }
-
         // The contentType matches, but is longer than the expected string.
         // We need to support variations on the content-type (e.g. +proto, +json) as defined by the gRPC wire spec.
         char nextChar = contentType.charAt(CONTENT_TYPE_GRPC.length());
@@ -667,7 +659,6 @@ public class MessageUtils {
      * will contain no readable bytes.
      */
     public static byte[] readArray(HttpContent httpContent) {
-
         if (httpContent == null || httpContent.content() == null) {
             throw new RuntimeException("Http content is null");
         }
@@ -681,7 +672,6 @@ public class MessageUtils {
      * Reads the entire {@link HttpContent} to a new {@link String} with the given charset.
      */
     public static String readAsString(HttpContent httpContent, Charset charset) {
-
         if (charset == null) {
             throw new RuntimeException("Charset cannot be null");
         }
@@ -690,6 +680,5 @@ public class MessageUtils {
     }
 
     private MessageUtils() {
-
     }
 }

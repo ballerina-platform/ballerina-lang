@@ -54,7 +54,6 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
     private static final BTupleType RESP_TUPLE_TYPE = new BTupleType(Arrays.asList(BTypes.typeAny, BTypes.typeAny));
 
     public BlockingStub(HttpClientConnector clientConnector, Struct endpointConfig) {
-
         super(clientConnector, endpointConfig);
     }
 
@@ -66,10 +65,8 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
      */
     public <ReqT, RespT> void executeUnary(ReqT request, MethodDescriptor<ReqT, RespT> methodDescriptor,
                                            DataContext dataContext) {
-
         ClientCall<ReqT, RespT> call = new ClientCall<>(getConnector(), createOutboundRequest(((Message) request)
                 .getHeaders()), methodDescriptor);
-
         call.start(new CallBlockingListener<RespT>(dataContext, methodDescriptor.getSchemaDescriptor()
                 .getOutputType()));
         try {
@@ -91,19 +88,16 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
 
         // Non private to avoid synthetic class
         private CallBlockingListener(DataContext dataContext, Descriptors.Descriptor outputDescriptor) {
-
             this.dataContext = dataContext;
             this.outputDescriptor = outputDescriptor;
         }
 
         @Override
         public void onHeaders(HttpHeaders headers) {
-
         }
 
         @Override
         public void onMessage(RespT value) {
-
             if (this.value != null) {
                 throw Status.Code.INTERNAL.toStatus().withDescription("More than one value received for unary call")
                         .asRuntimeException();
@@ -113,17 +107,14 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
 
         @Override
         public void onClose(Status status, HttpHeaders trailers) {
-
             BStruct httpConnectorError = null;
             BRefValueArray inboundResponse = null;
-
             if (status.isOk()) {
                 if (value == null) {
                     // No value received so mark the future as an error
                     httpConnectorError = MessageUtils.getConnectorError(dataContext.context,
                             Status.Code.INTERNAL.toStatus()
                                     .withDescription("No value received for unary call").asRuntimeException());
-
                 } else {
                     BValue responseBValue = MessageUtils.generateRequestStruct((Message) value, dataContext.context
                             .getProgramFile(), outputDescriptor.getName(), getBalType(outputDescriptor.getName(),
@@ -161,7 +152,6 @@ public class BlockingStub extends AbstractStub<BlockingStub> {
      * @return .
      */
     private static BType getBalType(String protoType, Context context) {
-
         if (protoType.equalsIgnoreCase("DoubleValue") || protoType
                 .equalsIgnoreCase("FloatValue")) {
             return BTypes.typeFloat;

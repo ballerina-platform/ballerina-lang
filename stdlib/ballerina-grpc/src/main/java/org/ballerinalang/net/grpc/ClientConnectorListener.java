@@ -44,27 +44,22 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
     private ClientInboundStateListener stateListener;
 
     ClientConnectorListener(ClientCall.ClientStreamListener streamListener) {
-
         this.stateListener = new ClientInboundStateListener(DEFAULT_MAX_MESSAGE_SIZE, streamListener);
     }
 
     public final void setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {
-
         stateListener.setDecompressorRegistry(decompressorRegistry);
     }
 
     @Override
     public void onMessage(HTTPCarbonMessage httpMessage) {
-
         InboundMessage inboundMessage = new InboundMessage(httpMessage);
-
         if (isValid(inboundMessage)) {
             stateListener.inboundHeadersReceived(inboundMessage.getHeaders());
         }
 
         final Executor wrappedExecutor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         wrappedExecutor.execute(() -> {
-
             try {
                 HttpContent httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
                 while (true) {
@@ -106,7 +101,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                     httpContent = inboundMessage.getHttpCarbonMessage().getHttpContent();
                 }
             } catch (RuntimeException e) {
-
                 if (transportError != null) {
                     // Already received a transport error so just augment it.
                     transportError = transportError.augmentDescription(e.getMessage());
@@ -135,13 +129,11 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
      * @param inboundMessage the incoming message.
      */
     protected boolean isValid(InboundMessage inboundMessage) {
-
         HttpHeaders headers = inboundMessage.getHeaders();
         if (headers == null) {
             transportError = Status.Code.INTERNAL.toStatus().withDescription("Message headers is null");
             return false;
         }
-
         if (transportError != null) {
             // Already received a transport error so just augment it.
             transportError = transportError.augmentDescription("headers: " + headers);
@@ -159,10 +151,8 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                 return false;
             }
             headersReceived = true;
-
             transportError = validateInitialMetadata(inboundMessage);
             return transportError == null;
-
         } finally {
             if (transportError != null) {
                 // Note we don't immediately report the transport error, instead we wait for more data on
@@ -173,7 +163,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
     }
 
     private Status validateInitialMetadata(InboundMessage inboundMessage) {
-
         String contentType = inboundMessage.getHeaders().get("content-type");
         if (!MessageUtils.isGrpcContentType(contentType)) {
             return MessageUtils.httpStatusToGrpcStatus(inboundMessage.getStatus())
@@ -188,7 +177,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
      * @param trailers the received terminal trailer metadata
      */
     protected void transportTrailersReceived(HttpHeaders trailers) {
-
         if (transportError != null) {
             transportError = transportError.augmentDescription("trailers: " + trailers);
             stateListener.transportReportStatus(transportError, false, transportErrorMetadata);
@@ -202,7 +190,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
      * Extract the response status from trailers.
      */
     private Status statusFromTrailers(HttpHeaders trailers) {
-
         String statusString = trailers.get(GRPC_STATUS_KEY);
         Status status = null;
         if (statusString != null) {
@@ -219,33 +206,27 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
 
         final ClientCall.ClientStreamListener listener;
         private DecompressorRegistry decompressorRegistry = DecompressorRegistry.getDefaultInstance();
-
         private boolean deframerClosed = false;
         private Runnable deframerClosedTask;
-
         private boolean statusReported;
         private boolean listenerClosed;
 
         protected ClientInboundStateListener(int maxMessageSize, ClientCall.ClientStreamListener listener) {
-
             super(maxMessageSize);
             this.listener = listener;
         }
 
         private void setDecompressorRegistry(DecompressorRegistry decompressorRegistry) {
-
             this.decompressorRegistry = decompressorRegistry;
         }
 
         @Override
         protected ClientCall.ClientStreamListener listener() {
-
             return listener;
         }
 
         @Override
         public void deframerClosed(boolean hasPartialMessage) {
-
             deframerClosed = true;
             if (deframerClosedTask != null) {
                 deframerClosedTask.run();
@@ -259,7 +240,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
          * @param headers the parsed headers
          */
         protected void inboundHeadersReceived(HttpHeaders headers) {
-
             String streamEncoding = headers.get(CONTENT_ENCODING);
             if (streamEncoding != null) {
                 deframeFailed(
@@ -269,7 +249,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                                                 streamEncoding)).asRuntimeException());
                 return;
             }
-
             String messageEncoding = headers.get(MESSAGE_ENCODING);
             if (messageEncoding != null) {
                 Decompressor decompressor = decompressorRegistry.lookupDecompressor(messageEncoding);
@@ -283,7 +262,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
                     setDecompressor(decompressor);
                 }
             }
-
             listener().headersRead(headers);
         }
 
@@ -298,12 +276,10 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
 
         public final void transportReportStatus(final Status status, boolean stopDelivery,
                                                 final HttpHeaders trailers) {
-
             if (statusReported && !stopDelivery) {
                 return;
             }
             statusReported = true;
-
             if (deframerClosed) {
                 deframerClosedTask = null;
                 closeListener(status, trailers);
@@ -319,7 +295,6 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
          * @throws IllegalStateException if the call has not yet been started.
          */
         private void closeListener(Status status, HttpHeaders trailers) {
-
             if (!listenerClosed) {
                 listenerClosed = true;
                 listener().closed(status, trailers);
@@ -331,5 +306,4 @@ public class ClientConnectorListener implements HttpClientConnectorListener {
             transportReportStatus(Status.fromThrowable(cause), true, new DefaultHttpHeaders());
         }
     }
-
 }

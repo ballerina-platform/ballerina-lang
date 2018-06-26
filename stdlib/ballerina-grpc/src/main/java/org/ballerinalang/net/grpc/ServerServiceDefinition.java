@@ -30,10 +30,10 @@ import java.util.Map;
 
 /**
  * Definition of a service to be exposed via a Server.
- *
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ * @since 0.980.0
  */
 public final class ServerServiceDefinition {
 
@@ -53,7 +53,6 @@ public final class ServerServiceDefinition {
 
     private ServerServiceDefinition(
             ServiceDescriptor serviceDescriptor, Map<String, ServerMethodDefinition<?, ?>> methods) {
-
         this.serviceDescriptor = serviceDescriptor;
         this.methods = Collections.unmodifiableMap(new HashMap<>(methods));
     }
@@ -123,7 +122,6 @@ public final class ServerServiceDefinition {
          * @throws GrpcServerException if failed.
          */
         <ReqT, RespT> void addMethod(ServerMethodDefinition<ReqT, RespT> def) throws GrpcServerException {
-
             MethodDescriptor<ReqT, RespT> method = def.getMethodDescriptor();
             if (!serviceName.equals(MethodDescriptor.extractFullServiceName(method.getFullMethodName()))) {
                 throw new GrpcServerException(String.format("Method name should be prefixed with service name and " +

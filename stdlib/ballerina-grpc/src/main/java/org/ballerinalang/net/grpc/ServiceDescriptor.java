@@ -28,10 +28,10 @@ import java.util.Set;
 
 /**
  * Descriptor for a service.
- *
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ * @since 0.980.0
  */
 public final class ServiceDescriptor {
 
@@ -71,7 +71,6 @@ public final class ServiceDescriptor {
 
     private static void validateMethodNames(String serviceName, Collection<MethodDescriptor> methods) throws
             GrpcServerException {
-
         Set<String> allNames = new HashSet<>(methods.size());
         for (MethodDescriptor<?, ?> method : methods) {
             if (method == null) {
@@ -123,7 +122,6 @@ public final class ServiceDescriptor {
          * @return this builder.
          */
         public Builder addAllMethods(Collection<MethodDescriptor> methods) {
-
             this.methods.addAll(methods);
             return this;
         }
@@ -134,7 +132,6 @@ public final class ServiceDescriptor {
          * @return a new instance.
          */
         public ServiceDescriptor build() throws GrpcServerException {
-
             return new ServiceDescriptor(name, methods);
         }
     }

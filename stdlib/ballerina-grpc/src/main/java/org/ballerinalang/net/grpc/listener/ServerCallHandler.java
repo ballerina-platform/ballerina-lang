@@ -60,7 +60,6 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
 
     static final String TOO_MANY_REQUESTS = "Too many requests";
     static final String MISSING_REQUEST = "Half-closed without a request";
-
     private Descriptors.MethodDescriptor methodDescriptor;
     private static final Logger LOG = LoggerFactory.getLogger(ServerCallHandler.class);
 
@@ -88,13 +87,11 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         private boolean sentHeaders;
 
         ServerCallStreamObserver(ServerCall<?, RespT> call) {
-
             this.call = call;
         }
 
         @Override
         public void setMessageCompression(boolean enable) {
-
             call.setMessageCompression(enable);
         }
 
@@ -104,7 +101,6 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
 
         @Override
         public void onNext(RespT response) {
-
             if (cancelled) {
                 throw Status.Code.CANCELLED.toStatus().withDescription("call already cancelled").asRuntimeException();
             }
@@ -117,7 +113,6 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
 
         @Override
         public void onError(RespT error) {
-
             if (!sentHeaders) {
                 call.sendHeaders(((Message) error).getHeaders());
                 sentHeaders = true;
@@ -127,7 +122,6 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
 
         @Override
         public void onCompleted() {
-
             if (cancelled) {
                 throw Status.Code.CANCELLED.toStatus().withDescription("call already cancelled").asRuntimeException();
             } else {
@@ -137,12 +131,10 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
 
         @Override
         public boolean isReady() {
-
             return call.isReady();
         }
 
         public boolean isCancelled() {
-
             return call.isCancelled();
         }
     }
@@ -179,7 +171,6 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         if (resource == null || resource.getParamDetails() == null || resource.getParamDetails().size() > 3) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than three");
         }
-
         List<ParamDetail> paramDetails = resource.getParamDetails();
         if ((isHeaderRequired && paramDetails.size() == 3) || (!isHeaderRequired && paramDetails.size() == 2)) {
             BType requestType = paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
@@ -301,10 +292,7 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         }
 
         /**
-         * This indicates that the call is now capable of sending additional messages (via
-         * {@link #sendMessage}) without requiring excessive buffering internally. This event is
-         * just a suggestion and the application is free to ignore it, however doing so may
-         * result in excessive buffering within the call.
+         * This indicates that the call is now capable of sending additional messages.
          */
         public void onReady() {
 

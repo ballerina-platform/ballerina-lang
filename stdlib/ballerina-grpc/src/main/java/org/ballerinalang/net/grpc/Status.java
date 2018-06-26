@@ -35,6 +35,8 @@ import java.util.TreeMap;
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
+ *
+ * @since 0.980.0
  */
 public final class Status implements Serializable {
 
@@ -373,14 +375,12 @@ public final class Status implements Serializable {
 
     @Override
     public String toString() {
-
         return ("Status{ code " + code.name() + ", ") +
                 "description " + description + ", " +
                 "cause " + (cause != null ? getStackTraceAsString(cause) : null) + "}";
     }
 
     private static String getStackTraceAsString(Throwable throwable) {
-
         StringWriter stringWriter = new StringWriter();
         throwable.printStackTrace(new PrintWriter(stringWriter));
         return stringWriter.toString();
@@ -392,12 +392,10 @@ public final class Status implements Serializable {
     protected static final class StatusCodeMarshaller {
 
         public byte[] toAsciiString(Status status) {
-
             return status.getCode().valueAscii();
         }
 
         public Status parseAsciiString(byte[] serialized) {
-
             return fromCodeValue(serialized);
         }
     }
@@ -451,7 +449,6 @@ public final class Status implements Serializable {
             }
             byte[] dest = new byte[wi];
             System.arraycopy(escapedBytes, 0, dest, 0, wi);
-
             return dest;
         }
     }

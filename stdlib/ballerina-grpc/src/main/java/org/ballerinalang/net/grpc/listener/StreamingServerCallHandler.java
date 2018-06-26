@@ -44,17 +44,15 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
 
     public StreamingServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, Map<String, Resource>
             resourceMap) {
-
         super(methodDescriptor);
         this.resourceMap = resourceMap;
     }
 
     @Override
     public Listener<ReqT> startCall(ServerCall<ReqT, RespT> call) {
-
         ServerCallStreamObserver<RespT> responseObserver = new ServerCallStreamObserver<>(call);
         StreamObserver<ReqT> requestObserver = invoke(responseObserver);
-        return new StreamingServerCallListener(requestObserver, responseObserver, call);
+        return new StreamingServerCallListener(requestObserver, responseObserver);
     }
 
     public StreamObserver<ReqT> invoke(StreamObserver<RespT> responseObserver) {
@@ -85,7 +83,6 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
                     String message = "Error in listener service definition. onError resource does not exists";
                     throw new RuntimeException(message);
                 }
-
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack<>(responseObserver, Boolean.FALSE);
                 Executor.submit(onCompleted, callback, null, null, computeMessageParams
                         (onCompleted, null, responseObserver));
@@ -102,29 +99,24 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
         // Non private to avoid synthetic class
         StreamingServerCallListener(
                 StreamObserver<ReqT> requestObserver,
-                ServerCallStreamObserver<RespT> responseObserver,
-                ServerCall<ReqT, RespT> call) {
-
+                ServerCallStreamObserver<RespT> responseObserver) {
             this.requestObserver = requestObserver;
             this.responseObserver = responseObserver;
         }
 
         @Override
         public void onMessage(ReqT request) {
-
             requestObserver.onNext(request);
         }
 
         @Override
         public void onHalfClose() {
-
             halfClosed = true;
             requestObserver.onCompleted();
         }
 
         @Override
         public void onCancel() {
-
             responseObserver.cancelled = true;
             if (!halfClosed) {
                 Message message = new Message(Status.Code.CANCELLED.toStatus()

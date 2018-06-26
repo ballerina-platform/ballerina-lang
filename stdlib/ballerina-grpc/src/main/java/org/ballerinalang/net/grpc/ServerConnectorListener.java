@@ -35,6 +35,8 @@ import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_STATUS_KEY;
 
 /**
  * gRPC connector listener for Ballerina.
+ *
+ * @since 0.980.0
  */
 public class ServerConnectorListener implements HttpConnectorListener {
 
@@ -49,20 +51,16 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onMessage(HTTPCarbonMessage inboundMessage) {
-
         try {
             InboundMessage request = new InboundMessage(inboundMessage);
             if (!isValid(request)) {
                 return;
             }
             OutboundMessage outboundMessage = new OutboundMessage(request);
-
             // Remove the leading slash of the path and get the fully qualified method name
             CharSequence path = request.getPath();
             String method = path != null ? path.subSequence(1, path.length()).toString() : null;
-
             deliver(method, request, outboundMessage);
-
         } catch (BallerinaException ex) {
             try {
                 HttpUtil.handleFailure(inboundMessage, new BallerinaConnectorException(ex.getMessage(), ex.getCause()));
@@ -74,14 +72,11 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
     @Override
     public void onError(Throwable throwable) {
-
         log.error("Error in http server connector" + throwable.getMessage(), throwable);
     }
 
     private void deliver(String method, InboundMessage inboundMessage, OutboundMessage outboundMessage) {
-
         ServerMethodDefinition methodDefinition = servicesRegistry.lookupMethod(method);
-
         if (methodDefinition == null) {
             // Use netty http constant.
             handleFailure(inboundMessage.getHttpCarbonMessage(), 404, Status.Code.UNIMPLEMENTED, String.format
@@ -92,7 +87,6 @@ public class ServerConnectorListener implements HttpConnectorListener {
         final Executor wrappedExecutor = ThreadPoolFactory.getInstance().getWorkerExecutor();
         wrappedExecutor.execute(() -> {
             ServerCall.ServerStreamListener listener;
-
             try {
                 listener = startCall(inboundMessage, outboundMessage, method);
                 ServerInboundStateListener stateListener = new ServerInboundStateListener(DEFAULT_MAX_MESSAGE_SIZE,
@@ -129,29 +123,23 @@ public class ServerConnectorListener implements HttpConnectorListener {
         ServerCall<ReqT, RespT> call = new ServerCall<>(inboundMessage, outboundMessage, methodDefinition
                 .getMethodDescriptor(), DecompressorRegistry.getDefaultInstance(), CompressorRegistry
                 .getDefaultInstance());
-
         return call.newServerStreamListener(methodDefinition.getServerCallHandler().startCall(call));
     }
 
     private boolean isValid(InboundMessage inboundMessage) {
-
         HttpHeaders headers = inboundMessage.getHeaders();
-
         // Validate inboundMessage path.
         CharSequence path = inboundMessage.getPath();
-
         if (path == null) {
             handleFailure(inboundMessage.getHttpCarbonMessage(), 404, Status.Code.UNIMPLEMENTED, "Expected path is " +
                     "missing");
             return false;
         }
-
         if (path.charAt(0) != '/') {
             handleFailure(inboundMessage.getHttpCarbonMessage(), 404, Status.Code.UNIMPLEMENTED, String.format
                     ("Expected path to start with /: %s", path));
             return false;
         }
-
         // Verify that the Content-Type is correct in the inboundMessage.
         CharSequence contentType = headers.get("content-type");
         if (contentType == null) {
@@ -165,24 +153,20 @@ public class ServerConnectorListener implements HttpConnectorListener {
                     ("Content-Type '%s' is not supported", contentTypeString));
             return false;
         }
-
         String method = inboundMessage.getHttpMethod();
         if (!"POST".equals(method)) {
             handleFailure(inboundMessage.getHttpCarbonMessage(), 405, Status.Code.INTERNAL, String.format("Method " +
                     "'%s' is not supported", method));
             return false;
         }
-
         return true;
     }
 
     private static void handleFailure(HTTPCarbonMessage requestMessage, int status,
                                       Status.Code statusCode, String msg) {
-
         HTTPCarbonMessage responseMessage = HttpUtil.createErrorMessage(msg, status);
         responseMessage.setHeader(GRPC_STATUS_KEY, statusCode.toString());
         responseMessage.setHeader(GRPC_MESSAGE_KEY, msg);
-
         HttpUtil.sendOutboundResponse(requestMessage, responseMessage);
     }
 
@@ -193,7 +177,6 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
         ServerInboundStateListener(int maxMessageSize, ServerCall.ServerStreamListener listener,
                                    InboundMessage inboundMessage) {
-
             super(maxMessageSize);
             this.listener = listener;
             this.inboundMessage = inboundMessage;
@@ -201,13 +184,11 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
         @Override
         protected ServerCall.ServerStreamListener listener() {
-
             return listener;
         }
 
         @Override
         public void deframerClosed(boolean hasPartialMessage) {
-
             if (hasPartialMessage) {
                 deframeFailed(
                         Status.Code.INTERNAL.toStatus()
@@ -220,7 +201,6 @@ public class ServerConnectorListener implements HttpConnectorListener {
 
         @Override
         public void deframeFailed(Throwable cause) {
-
             handleFailure(inboundMessage.getHttpCarbonMessage(), 500, Status.Code.INTERNAL, cause.getMessage());
         }
 
@@ -232,7 +212,6 @@ public class ServerConnectorListener implements HttpConnectorListener {
          * @param endOfStream {@code true} if no more data will be received on the stream.
          */
         void inboundDataReceived(HttpContent httpContent, boolean endOfStream) {
-
             // Deframe the message. If a failure occurs, deframeFailed will be called.
             deframe(httpContent);
             if (endOfStream) {

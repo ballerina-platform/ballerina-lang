@@ -90,7 +90,6 @@ public class Init extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-
         Struct clientEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         // Creating client endpoint with channel as native data.
         BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
@@ -128,7 +127,6 @@ public class Init extends BlockingNativeCallableUnit {
     }
 
     private SenderConfiguration populateSenderConfigurationOptions(Struct clientEndpointConfig, String scheme) {
-
         SenderConfiguration senderConfiguration = new SenderConfiguration();
         senderConfiguration.setScheme(scheme);
         Struct secureSocket = clientEndpointConfig.getStructField(GrpcConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
@@ -213,5 +211,4 @@ public class Init extends BlockingNativeCallableUnit {
         }
         return senderConfiguration;
     }
-
 }

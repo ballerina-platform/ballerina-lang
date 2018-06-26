@@ -251,7 +251,6 @@ public class ServiceProtoUtils {
                 fileBuilder.setDependency(requestMessage.getDependency());
             }
         }
-
         if (responseMessage.getMessageKind() == MessageKind.USER_DEFINED) {
             updateFileBuilder(fileBuilder, responseMessage);
         }
@@ -260,7 +259,6 @@ public class ServiceProtoUtils {
                 fileBuilder.setDependency(responseMessage.getDependency());
             }
         }
-        
         Method resourceMethod = Method.newBuilder(serviceConfig.getRpcEndpoint())
                 .setClientStreaming(serviceConfig.isClientStreaming())
                 .setServerStreaming(serviceConfig.isServerStreaming())
@@ -272,7 +270,6 @@ public class ServiceProtoUtils {
     }
 
     private static void updateFileBuilder(File.Builder fileBuilder, Message message) {
-
         if (isNewMessageDefinition(fileBuilder, message)) {
             fileBuilder.setMessage(message);
         }
@@ -333,9 +330,7 @@ public class ServiceProtoUtils {
     }
 
     private static BType getMessageParamType(List<?> variableNodes) throws GrpcServerException {
-
         BType requestType = null;
-
         for (Object variable : variableNodes)  {
             if (variable instanceof BLangNode) {
                 BType tempType = ((BLangNode) variable).type;
@@ -438,7 +433,6 @@ public class ServiceProtoUtils {
                 fieldType = elementType;
                 fieldLabel = "repeated";
             }
-
             messageField = Field.newBuilder(fieldName)
                     .setIndex(++fieldIndex)
                     .setLabel(fieldLabel)
