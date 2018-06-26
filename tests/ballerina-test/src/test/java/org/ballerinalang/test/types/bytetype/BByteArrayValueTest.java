@@ -23,12 +23,10 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.test.utils.ByteArrayUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 /**
  * This test class will test byte array values.
@@ -45,7 +43,7 @@ public class BByteArrayValueTest {
     @Test(description = "Test blob value assignment")
     public void testBlobParameter() {
         byte[] bytes = "string".getBytes();
-        BValue[] args = {createBByteArray(bytes)};
+        BValue[] args = {ByteArrayUtils.createBByteArray(bytes)};
         BValue[] returns = BRunUtil.invoke(result, "testBlobParameter", args);
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
@@ -55,8 +53,8 @@ public class BByteArrayValueTest {
     public void testBlobArray() {
         byte[] bytes1 = "string1".getBytes();
         byte[] bytes2 = "string2".getBytes();
-        BByteArray byteArray1 = createBByteArray(bytes1);
-        BByteArray byteArray2 = createBByteArray(bytes2);
+        BByteArray byteArray1 = ByteArrayUtils.createBByteArray(bytes1);
+        BByteArray byteArray2 = ByteArrayUtils.createBByteArray(bytes2);
         BValue[] args = {byteArray1, byteArray2};
         BValue[] returns = BRunUtil.invoke(result, "testBlobParameterArray", args);
         Assert.assertEquals(returns.length, 2);
@@ -64,28 +62,14 @@ public class BByteArrayValueTest {
         Assert.assertSame(returns[1].getClass(), BByteArray.class);
         BByteArray blob1 = (BByteArray) returns[0];
         BByteArray blob2 = (BByteArray) returns[1];
-        assertJBytesWithBBytes(bytes1, blob1);
-        assertJBytesWithBBytes(bytes2, blob2);
-    }
-
-    private BByteArray createBByteArray(byte[] bytes) {
-        BByteArray byteArray = new BByteArray();
-        for (int i = 0; i < bytes.length; i++) {
-            byteArray.add(i, bytes[i]);
-        }
-        return byteArray;
-    }
-
-    private void assertJBytesWithBBytes(byte[] jBytes, BByteArray bBytes) {
-        for (int i = 0; i < jBytes.length; i++) {
-            Assert.assertEquals(bBytes.get(i), jBytes[i], "Invalid byte value returned.");
-        }
+        ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
+        ByteArrayUtils.assertJBytesWithBBytes(bytes2, blob2);
     }
 
     @Test(description = "Test blob global variable1")
     public void testBlobGlobalVariable1() {
         byte[] bytes = "string".getBytes();
-        BValue[] args = {createBByteArray(bytes)};
+        BValue[] args = {ByteArrayUtils.createBByteArray(bytes)};
         BValue[] returns = BRunUtil.invoke(result, "testGlobalVariable1", args);
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
@@ -94,7 +78,7 @@ public class BByteArrayValueTest {
     @Test(description = "Test blob global variable2")
     public void testBlobGlobalVariable2() {
         String b16 = "aeeecdefabcd12345567888822";
-        byte[] bytes = hexStringToByteArray(b16);
+        byte[] bytes = ByteArrayUtils.hexStringToByteArray(b16);
         BValue[] returns = BRunUtil.invoke(result, "testGlobalVariable2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
@@ -103,7 +87,7 @@ public class BByteArrayValueTest {
     @Test(description = "Test blob global variable3")
     public void testBlobGlobalVariable3() {
         String b64 = "aGVsbG8gYmFsbGVyaW5hICEhIQ==";
-        byte[] bytes = decode(b64);
+        byte[] bytes = ByteArrayUtils.decodeBase64(b64);
         BValue[] returns = BRunUtil.invoke(result, "testGlobalVariable3", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
@@ -113,16 +97,16 @@ public class BByteArrayValueTest {
     public void testBlobReturnTuple1() {
         String b1 = "aaabafac23345678";
         String b2 = "a4f5njn/jnfvr+d=";
-        byte[] bytes1 = hexStringToByteArray(b1);
-        byte[] bytes2 = decode(b2);
+        byte[] bytes1 = ByteArrayUtils.hexStringToByteArray(b1);
+        byte[] bytes2 = ByteArrayUtils.decodeBase64(b2);
         BValue[] returns = BRunUtil.invoke(result, "testBlobReturnTuple1", new BValue[]{});
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BByteArray.class);
         Assert.assertSame(returns[1].getClass(), BByteArray.class);
         BByteArray blob1 = (BByteArray) returns[0];
         BByteArray blob2 = (BByteArray) returns[1];
-        assertJBytesWithBBytes(bytes1, blob1);
-        assertJBytesWithBBytes(bytes2, blob2);
+        ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob1);
+        ByteArrayUtils.assertJBytesWithBBytes(bytes2, blob2);
     }
 
     @Test(description = "Test blob tuple return 2")
@@ -131,10 +115,10 @@ public class BByteArrayValueTest {
         String b1 = "a4f5";
         String b2 = "aeeecdefabcd12345567888822";
         String b3 = "aGVsbG8gYmFsbGVyaW5hICEhIQ==";
-        byte[] bytes0 = hexStringToByteArray(b0);
-        byte[] bytes1 = decode(b1);
-        byte[] bytes2 = hexStringToByteArray(b2);
-        byte[] bytes3 = decode(b3);
+        byte[] bytes0 = ByteArrayUtils.hexStringToByteArray(b0);
+        byte[] bytes1 = ByteArrayUtils.decodeBase64(b1);
+        byte[] bytes2 = ByteArrayUtils.hexStringToByteArray(b2);
+        byte[] bytes3 = ByteArrayUtils.decodeBase64(b3);
         BValue[] returns = BRunUtil.invoke(result, "testBlobReturnTuple2", new BValue[]{});
         Assert.assertEquals(returns.length, 4);
         assertResult(bytes0, returns[0]);
@@ -146,29 +130,29 @@ public class BByteArrayValueTest {
     private void assertResult(byte[] bytes, BValue aReturn) {
         Assert.assertSame(aReturn.getClass(), BByteArray.class);
         BByteArray blob = (BByteArray) aReturn;
-        assertJBytesWithBBytes(bytes, blob);
+        ByteArrayUtils.assertJBytesWithBBytes(bytes, blob);
     }
 
     @Test(description = "Test return blob array")
     public void testBlobReturnArray() {
         String b1 = "aaab34dfca1267";
         String b2 = "aaabcfccadafcd34bdfabcdferf=";
-        byte[] bytes1 = hexStringToByteArray(b1);
-        byte[] bytes2 = decode(b2);
+        byte[] bytes1 = ByteArrayUtils.hexStringToByteArray(b1);
+        byte[] bytes2 = ByteArrayUtils.decodeBase64(b2);
         BValue[] returns = BRunUtil.invoke(result, "testBlobReturnArray", new BValue[]{});
         Assert.assertEquals(returns.length, 2);
         Assert.assertSame(returns[0].getClass(), BByteArray.class);
         Assert.assertSame(returns[1].getClass(), BByteArray.class);
         BByteArray blobArray1 = (BByteArray) returns[0];
         BByteArray blobArray2 = (BByteArray) returns[1];
-        assertJBytesWithBBytes(bytes1, blobArray1);
-        assertJBytesWithBBytes(bytes2, blobArray2);
+        ByteArrayUtils.assertJBytesWithBBytes(bytes1, blobArray1);
+        ByteArrayUtils.assertJBytesWithBBytes(bytes2, blobArray2);
     }
 
     @Test(description = "Test blob field variable 1")
     public void testBlobField1() {
         byte[] bytes = "string".getBytes();
-        BValue[] args = {createBByteArray(bytes)};
+        BValue[] args = {ByteArrayUtils.createBByteArray(bytes)};
         BValue[] returns = BRunUtil.invoke(result, "testBlobField1", args);
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
@@ -177,7 +161,7 @@ public class BByteArrayValueTest {
     @Test(description = "Test blob global variable 2")
     public void testBlobField2() {
         String b16 = "aaabcfccadafcd341a4bdfabcd8912df";
-        byte[] bytes = hexStringToByteArray(b16);
+        byte[] bytes = ByteArrayUtils.hexStringToByteArray(b16);
         BValue[] returns = BRunUtil.invoke(result, "testBlobField2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
@@ -187,7 +171,7 @@ public class BByteArrayValueTest {
     public void testBlobHexFormat() {
         String b16 = "aaabcfccadafcd341a4bdfabcd8912df";
         String b64 = "aGVsbG8gYmFsbGVyaW5hICEhIQ==";
-        String b64HexStr = byteArrayToHexString(decode(b64));
+        String b64HexStr = ByteArrayUtils.byteArrayToHexString(ByteArrayUtils.decodeBase64(b64));
         BValue[] returns = BRunUtil.invoke(result, "testBlobHexFormat", new BValue[]{});
         Assert.assertEquals(returns.length, 3);
         BString blob1 = (BString) returns[0];
@@ -202,14 +186,14 @@ public class BByteArrayValueTest {
     public void testBlobAssign() {
         String b16 = "aaabcfccadafcd341a4bdfabcd8912df";
         String b64 = "aGVsbG8gYmFsbGVyaW5hICEhIQ==";
-        byte[] bytes1 = hexStringToByteArray(b16);
-        byte[] bytes2 = decode(b64);
+        byte[] bytes1 = ByteArrayUtils.hexStringToByteArray(b16);
+        byte[] bytes2 = ByteArrayUtils.decodeBase64(b64);
         BValue[] returns = BRunUtil.invoke(result, "testBlobAssign", new BValue[]{});
         Assert.assertEquals(returns.length, 2);
         BByteArray blob1 = (BByteArray) returns[0];
         BByteArray blob2 = (BByteArray) returns[1];
-        assertJBytesWithBBytes(bytes2, blob1);
-        assertJBytesWithBBytes(bytes1, blob2);
+        ByteArrayUtils.assertJBytesWithBBytes(bytes2, blob1);
+        ByteArrayUtils.assertJBytesWithBBytes(bytes1, blob2);
     }
 
     @Test(description = "Test blob default value")
@@ -217,8 +201,8 @@ public class BByteArrayValueTest {
         String b0 = "aaab";
         String b1 = "aGVsbG8gYmFsbGVyaW5hICEhIQ==";
         byte[] empty = new byte[0];
-        byte[] bytes0 = hexStringToByteArray(b0);
-        byte[] bytes1 = decode(b1);
+        byte[] bytes0 = ByteArrayUtils.hexStringToByteArray(b0);
+        byte[] bytes1 = ByteArrayUtils.decodeBase64(b1);
         BValue[] returns = BRunUtil.invoke(result, "testBlobDefaultValue", new BValue[]{});
         Assert.assertEquals(returns.length, 8);
         assertResult(empty, returns[0]);
@@ -237,26 +221,5 @@ public class BByteArrayValueTest {
         BValue[] returns = BRunUtil.invoke(result, "testByteArrayLiteral", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
-    }
-
-    private static byte[] decode(String b64) {
-        return Base64.getDecoder().decode(b64.getBytes(StandardCharsets.UTF_8));
-    }
-
-    private static byte[] hexStringToByteArray(String str) {
-        int len = str.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4) + Character.digit(str.charAt(i + 1), 16));
-        }
-        return data;
-    }
-
-    private static String byteArrayToHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder(bytes.length * 2);
-        for (byte b : bytes) {
-            sb.append(String.format("%02x", b));
-        }
-        return sb.toString();
     }
 }
