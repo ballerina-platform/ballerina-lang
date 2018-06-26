@@ -104,13 +104,18 @@ class ControllerOverlay extends React.Component {
 
         nodes.forEach((node) => {
             const region = node.viewState.hoveredRegion;
-            const component = this.ctrlComponents[`${node.kind}`][region];
-            if (component) {
-                const element = React.createElement(component, {
-                    model: node,
-                }, null);
-
-                this.renderControllers(node, element, region);
+            const componentWithRegions = this.ctrlComponents[`${node.kind}`];
+            if (!componentWithRegions) {
+                console.warn(`no regions found for ${node.kind}`);
+            } else {
+                const component = this.ctrlComponents[`${node.kind}`][region];
+                if (component) {
+                    const element = React.createElement(component, {
+                        model: node,
+                    }, null);
+    
+                    this.renderControllers(node, element, region);
+                }
             }
         });
 

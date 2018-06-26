@@ -26,12 +26,12 @@ class ToolsPortal extends React.Component {
     }
 
     componentDidMount() {
-        const menuRoot = document.getElementsByClassName('design-view-container')[0];
+        const menuRoot = document.getElementsByClassName('canvas-container')[0];
         menuRoot.appendChild(this.el);
     }
 
     componentWillUnmount() {
-        const menuRoot = document.getElementsByClassName('design-view-container')[0];
+        const menuRoot = document.getElementsByClassName('canvas-container')[0];
         menuRoot.removeChild(this.el);
     }
 

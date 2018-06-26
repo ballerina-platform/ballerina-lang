@@ -27,10 +27,11 @@ import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorato
 class MainRegion extends React.Component {
     render() {
         const { model } = this.props;
+        const { viewState, viewState: { bBox } } = model;
         const items = ControllerUtil.convertToAddItems(WorkerTools, model.getBody());
-        const top = model.viewState.components['statement-box'].y - 15;
-        const left = model.viewState.components['statement-box'].x - 15;
-
+        const top = bBox.y + bBox.h - 20;
+        const left = viewState.components['statement-box'].x;
+        
         return (
             <HoverButton
                 style={{
@@ -46,16 +47,23 @@ class MainRegion extends React.Component {
     }
 }
 
+MainRegion.contextTypes = {
+    designer: PropTypes.instanceOf(Object),
+};
+
 class ActionBox extends React.Component {
     render() {
         const { model } = this.props;
-        const top = model.viewState.components['statement-box'].y - 25;
-        const left = model.viewState.components['statement-box'].x - 38;
+        const { viewState, viewState: { bBox } } = model;
+        const titleH = this.context.designer.config.flowChartControlStatement.heading.height;
+        const gapTop = this.context.designer.config.flowChartControlStatement.padding.top;
+        const top = bBox.y + titleH + gapTop;
+        const left = viewState.components['statement-box'].x;
         const onDelete = () => { model.remove(); };
         const onJumptoCodeLine = () => {
             const { editor } = this.context;
             editor.goToSource(model);
-        }
+        };
         return (
             <Toolbox
                 onDelete={onDelete}
@@ -78,14 +86,16 @@ ActionBox.contextTypes = {
         getActiveEditor: PropTypes.func,
         getDefaultContent: PropTypes.func,
     }).isRequired,
+    designer: PropTypes.instanceOf(Object),
 };
 
 class Else extends React.Component {
     render() {
         const { model } = this.props;
+        const { viewState, viewState: { bBox } } = model;
         const items = ControllerUtil.convertToAddItems(WorkerTools, model.getBody());
-        const top = model.viewState.components['statement-box'].y - 15;
-        const left = model.viewState.components['statement-box'].x + model.viewState.components['statement-box'].w - 15;
+        const top = viewState.components['statement-box'].y - 15;
+        const left = viewState.components['statement-box'].x + viewState.components['statement-box'].w - 15;
 
         return (
             <HoverButton

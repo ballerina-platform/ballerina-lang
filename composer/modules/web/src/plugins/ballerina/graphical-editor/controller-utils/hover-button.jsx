@@ -36,12 +36,14 @@ class HoverButton extends React.Component {
 
     render() {
         const { children, size } = this.props;
+        const buttonSize = 30;
+        const style = {
+            position: 'absolute',
+            ...this.props.style,
+            left: this.props.style.left - (buttonSize / 2),
+        };
         return (
-            <div style={{
-                position: 'absolute',
-                ...this.props.style,
-            }}
-            >
+            <div style={style}>
                 <Button
                     size={size}
                     compact
