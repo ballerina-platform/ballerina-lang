@@ -1512,6 +1512,7 @@
                 <module>bvm/ballerina-streaming</module>
                 <module>bvm/ballerina-logging</module>
                 <module>cli/ballerina-launcher</module>
+                <module>cli/ballerina-packerina</module>
 
                 <!--Should Run Before tests/ballerina-test-->
                 <module>misc/protobuf-ballerina</module>
@@ -1596,6 +1597,8 @@
                 <module>language-server</module>
                 <module>misc/docerina</module>
                 <module>misc/ballerina-maven-plugins</module>
+                <module>misc/swagger-ballerina</module>
+                <module>misc/testerina</module>
                 <module>misc/toml-parser</module>
                 <module>misc/metrics-extensions</module>
                 <module>misc/tracing-extensions</module>
