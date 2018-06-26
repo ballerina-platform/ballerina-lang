@@ -41,16 +41,12 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.stream.Collectors;
 
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
-import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MIN_VALUE;
-
 /**
  * @since 0.94
  */
 public class BLangParserListener extends BallerinaParserBaseListener {
     private static final String KEYWORD_PUBLIC = "public";
     private static final String KEYWORD_NATIVE = "native";
-    private static final String KEYWORD_BYTE = "byte";
 
     private BLangPackageBuilder pkgBuilder;
     private BDiagnosticSource diagnosticSrc;
@@ -2095,11 +2091,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         Long longObject;
         BallerinaParser.IntegerLiteralContext integerLiteralContext = ctx.integerLiteral();
         if (integerLiteralContext != null && (longObject = getIntegerLiteral(ctx, ctx.integerLiteral())) != null) {
-            if (isByteLiteral(ctx, longObject)) {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE, longObject.byteValue());
-            } else {
-                this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
-            }
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.INT, longObject);
         } else if ((node = ctx.FloatingPointLiteral()) != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.FLOAT, Double.parseDouble(getNodeValue(ctx, node)));
         } else if ((node = ctx.BooleanLiteral()) != null) {
@@ -2114,19 +2106,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.blobLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.ARRAY, ctx.blobLiteral().getText());
         }
-    }
-
-    private boolean isByteLiteral(BallerinaParser.SimpleLiteralContext ctx, Long longObject) {
-        if (!(ctx.parent.parent instanceof BallerinaParser.VariableDefinitionStatementContext)) {
-            return false;
-        }
-
-        if (!(longObject.intValue() >= BBYTE_MIN_VALUE && longObject.intValue() <= BBYTE_MAX_VALUE)) {
-            return false;
-        }
-
-        return ((BallerinaParser.VariableDefinitionStatementContext) ctx.parent.parent).typeName().
-                getText().startsWith(KEYWORD_BYTE);
     }
 
     /**

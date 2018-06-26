@@ -148,6 +148,25 @@ public class BByteValueTest {
         Assert.assertEquals(bInteger.intValue(), (long) input, "Invalid integer value returned.");
     }
 
+    @Test(description = "Test byte to int safe conversion")
+    public void testSafeCasting() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testSafeCasting", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        BInteger bInteger = (BInteger) returns[0];
+        Assert.assertEquals(bInteger.intValue(), 6, "Invalid integer value returned.");
+    }
+
+    @Test(description = "Test byte to integer conversion")
+    public void testAnyToByteCasting() {
+        BValue[] args = {};
+        BValue[] returns = BRunUtil.invoke(result, "testAnyToByteCasting", args);
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BByte.class);
+        BByte bByte = (BByte) returns[0];
+        Assert.assertEquals(bByte.byteValue(), 45, "Invalid byte value returned.");
+    }
 
     @Test(description = "Test byte array value")
     public void testByteArrayValue() {

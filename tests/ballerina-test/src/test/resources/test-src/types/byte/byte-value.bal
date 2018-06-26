@@ -34,7 +34,7 @@ function testIntToByteCast(int b) returns byte {
 }
 
 function testByteToIntCast(byte a) returns int {
-    int b = a;
+    int b = <int>a;
     return b;
 }
 
@@ -53,6 +53,22 @@ function testByteToIntConversion(byte b) returns int {
     return c;
 }
 
+function testSafeCasting() returns int {
+  any abc = byteReturn();
+  int val = check <int> abc;
+  return val;
+}
+
+function byteReturn() returns any {
+  byte val = 6;
+  return val;
+}
+
+function testAnyToByteCasting() returns byte {
+  any val = 45;
+  byte i = check <byte> val;
+  return i;
+}
 
 function testByteArray() returns byte[] {
     byte[] ba = [12, 24, 7];
@@ -117,28 +133,28 @@ function testWorkerWithByteVariable() {
 
 function testBitwiseAndOperator(byte a, byte b, int i, int j) returns (byte, int, int, int, int){
     byte b1 = a & b;
-    int r1 = a & b;
-    int r2 = a & i;
+    int r1 = <int>(a & b);
+    int r2 = <int>a & i;
     int r3 = i & j;
-    int r4 = a & i & b & j;
+    int r4 = <int>a & i & <int>b & j;
     return (b1, r1, r2, r3, r4);
 }
 
 function testBitwiseOrOperator(byte a, byte b, int i, int j) returns (byte, int, int, int, int){
     byte b1 = a | b;
-    int r1 = a | b;
-    int r2 = a | i;
+    int r1 = <int>(a | b);
+    int r2 = <int>a | i;
     int r3 = i | j;
-    int r4 = a | i | b | j;
+    int r4 = <int>a | i | <int>b | j;
     return (b1, r1, r2, r3, r4);
 }
 
 function testBitwiseXorOperator(byte a, byte b, int i, int j) returns (byte, int, int, int, int){
     byte b1 = a ^ b;
-    int r1 = a ^ b;
-    int r2 = a ^ i;
+    int r1 = <int>(a ^ b);
+    int r2 = <int>a ^ i;
     int r3 = i ^ j;
-    int r4 = a ^ i ^ b ^ j;
+    int r4 = <int>a ^ i ^ <int>b ^ j;
     return (b1, r1, r2, r3, r4);
 }
 

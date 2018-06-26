@@ -2195,12 +2195,12 @@ public class CPU {
             case InstructionCodes.ANY2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = ((BInteger) sf.refRegs[i]).intValue();
+                sf.longRegs[j] = ((BValueType) sf.refRegs[i]).intValue();
                 break;
             case InstructionCodes.ANY2BI:
                 i = operands[0];
                 j = operands[1];
-                sf.intRegs[j] = ((BByte) sf.refRegs[i]).byteValue();
+                sf.intRegs[j] = ((BValueType) sf.refRegs[i]).byteValue();
                 break;
             case InstructionCodes.ANY2F:
                 i = operands[0];
@@ -3202,7 +3202,8 @@ public class CPU {
         if (rhsType.equals(lhsType)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.INT_TAG &&
-                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
+                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG ||
+                        lhsType.getTag() == TypeTags.BYTE_TAG)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
             return true;
@@ -3210,7 +3211,7 @@ public class CPU {
             return true;
         } else if (rhsType.getTag() == TypeTags.BOOLEAN_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
             return true;
-        } else if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.BYTE_TAG) {
+        } else if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
             return true;
         }
 
@@ -3309,7 +3310,12 @@ public class CPU {
             return true;
         }
 
-        if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.FLOAT_TAG) {
+        if (rhsType.getTag() == TypeTags.INT_TAG && (lhsType.getTag() == TypeTags.FLOAT_TAG ||
+                lhsType.getTag() == TypeTags.BYTE_TAG)) {
+            return true;
+        }
+
+        if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
             return true;
         }
 

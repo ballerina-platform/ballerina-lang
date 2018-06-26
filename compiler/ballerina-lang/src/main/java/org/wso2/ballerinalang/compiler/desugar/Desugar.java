@@ -1259,8 +1259,8 @@ public class Desugar extends BLangNodeVisitor {
         binaryExpr.rhsExpr = rewriteExpr(binaryExpr.rhsExpr);
         result = binaryExpr;
 
-        // Check for bitwise operator and add type conversion to int
-        if (isByteRelatedOperation(binaryExpr)) {
+        // Check for bitwise shift operator and add type conversion to int
+        if (isBitwiseShiftOperation(binaryExpr)) {
             if (TypeTags.BYTE == binaryExpr.rhsExpr.type.tag) {
                 binaryExpr.rhsExpr = createTypeConversionExpr(binaryExpr.rhsExpr, binaryExpr.rhsExpr.type,
                         symTable.intType);
@@ -1301,39 +1301,26 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     /**
-     * This method checks whether given binary expression is related to byte type operation for the following
-     * conditions. If its true, then both lhs and rhs of the binary expression will be converted to 'int' type.
+     * This method checks whether given binary expression is related to shift operation.
+     * If its true, then both lhs and rhs of the binary expression will be converted to 'int' type.
      *
      *      byte a = 12;
      *      byte b = 34;
      *      int i = 234;
-     *      int j = -456;
-     *
-     *      false: where binary expression's expected type is 'byte'
-     *      byte b1 = a | b;
-     *      byte b2 = a & b;
-     *      byte b3 = a ^ b;
+     *      int j = -4;
      *
      *      true: where binary expression's expected type is 'int'
-     *      int i1 = a | i;
-     *      int i2 = a & i;
-     *      int i3 = a ^ i;
-     *      int i4 = a >> b;
-     *      int i5 = a << b;
+     *      int i1 = a >> b;
+     *      int i2 = a << b;
+     *      int i3 = a >> i;
+     *      int i4 = a << i;
+     *      int i5 = i >> j;
+     *      int i6 = i << j;
      *
      */
-    private boolean isByteRelatedOperation(BLangBinaryExpr binaryExpr) {
-        OperatorKind binaryOpKind = binaryExpr.opKind;
-        if ((OperatorKind.BITWISE_AND == binaryOpKind || OperatorKind.BITWISE_OR == binaryOpKind ||
-                OperatorKind.BITWISE_XOR == binaryOpKind) &&
-                !(binaryExpr.lhsExpr.type.tag == TypeTags.BYTE && binaryExpr.rhsExpr.type.tag == TypeTags.BYTE)) {
-            return true;
-        }
-
-        if (binaryOpKind == OperatorKind.BITWISE_LEFT_SHIFT || binaryOpKind == OperatorKind.BITWISE_RIGHT_SHIFT) {
-            return true;
-        }
-        return false;
+    private boolean isBitwiseShiftOperation(BLangBinaryExpr binaryExpr) {
+        return binaryExpr.opKind == OperatorKind.BITWISE_LEFT_SHIFT ||
+                binaryExpr.opKind == OperatorKind.BITWISE_RIGHT_SHIFT;
     }
 
     public void visit(BLangElvisExpr elvisExpr) {
