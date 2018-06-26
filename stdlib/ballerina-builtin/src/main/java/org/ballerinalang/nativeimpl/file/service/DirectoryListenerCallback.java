@@ -19,7 +19,8 @@
 package org.ballerinalang.nativeimpl.file.service;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class DirectoryListenerCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BStruct struct) {
+    public void notifyFailure(BMap<String, BValue> struct) {
         log.debug("File Listener: event deliver failed.");
     }
 }

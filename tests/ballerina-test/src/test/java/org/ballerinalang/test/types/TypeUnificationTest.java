@@ -24,7 +24,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -47,26 +46,26 @@ public class TypeUnificationTest {
     public void testMultiValuedStructInlineInit() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testMultiValuedStructInlineInit");
 
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct person = ((BStruct) returns[0]);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> person = ((BMap<String, BValue>) returns[0]);
 
-        Assert.assertEquals(person.getStringField(0), "aaa");
-        Assert.assertEquals(person.getIntField(0), 25);
+        Assert.assertEquals(person.get("name").stringValue(), "aaa");
+        Assert.assertEquals(((BInteger) person.get("age")).intValue(), 25);
 
         // check inner struct
-        Assert.assertTrue(person.getRefField(0) instanceof BStruct);
-        BStruct parent = ((BStruct) person.getRefField(0));
-        Assert.assertEquals(parent.getStringField(0), "bbb");
-        Assert.assertEquals(parent.getIntField(0), 50);
+        Assert.assertTrue(person.get("parent") instanceof BMap);
+        BMap<String, BValue> parent = ((BMap<String, BValue>) person.get("parent"));
+        Assert.assertEquals(parent.get("name").stringValue(), "bbb");
+        Assert.assertEquals(((BInteger) parent.get("age")).intValue(), 50);
 
         // check inner json
-        Assert.assertTrue(person.getRefField(1) instanceof BJSON);
-        BJSON info = ((BJSON) person.getRefField(1));
+        Assert.assertTrue(person.get("info") instanceof BJSON);
+        BJSON info = ((BJSON) person.get("info"));
         Assert.assertEquals(info.getMessageAsString(), "{\"status\":\"single\"}");
 
         // check inner map
-        Assert.assertTrue(person.getRefField(2) instanceof BMap);
-        BMap<String, ?> address = ((BMap<String, ?>) person.getRefField(2));
+        Assert.assertTrue(person.get("address") instanceof BMap);
+        BMap<String, ?> address = ((BMap<String, ?>) person.get("address"));
         Assert.assertEquals(address.get("city").stringValue(), "Colombo");
         Assert.assertEquals(address.get("country").stringValue(), "SriLanka");
     }

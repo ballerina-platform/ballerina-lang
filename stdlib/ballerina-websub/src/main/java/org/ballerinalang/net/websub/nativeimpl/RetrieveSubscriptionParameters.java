@@ -28,7 +28,6 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -123,7 +122,7 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
                                         new BString(annotationStruct.getStringField(ANN_WEBSUB_ATTR_SECRET)));
 
                 if (annotationStruct.getRefField(ANN_WEBSUB_ATTR_AUTH_CONFIG) != null) {
-                    BStruct authConfig = (BStruct) annotationStruct.getRefField(
+                    BMap<String, BValue> authConfig = (BMap<String, BValue>) annotationStruct.getRefField(
                                                                     ANN_WEBSUB_ATTR_AUTH_CONFIG).getVMValue();
                     subscriptionDetails.put(ANN_WEBSUB_ATTR_AUTH_CONFIG, authConfig);
                 } else {
@@ -131,16 +130,16 @@ public class RetrieveSubscriptionParameters extends BlockingNativeCallableUnit {
                 }
 
                 if (annotationStruct.getRefField(ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG) != null) {
-                    BStruct secureSocket =
-                            (BStruct) annotationStruct.getRefField(ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG).getVMValue();
+                    BMap<String, BValue> secureSocket = (BMap<String, BValue>) annotationStruct
+                            .getRefField(ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG).getVMValue();
                     subscriptionDetails.put(ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG, secureSocket);
                 } else {
                     subscriptionDetails.put(ANN_WEBSUB_ATTR_SECURE_SOCKET_CONFIG, null);
                 }
 
                 if (annotationStruct.getRefField(ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG) != null) {
-                    BStruct secureSocket = (BStruct) annotationStruct.getRefField(
-                                                                ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG).getVMValue();
+                    BMap<String, BValue> secureSocket = (BMap<String, BValue>) annotationStruct
+                            .getRefField(ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG).getVMValue();
                     subscriptionDetails.put(ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG, secureSocket);
                 } else {
                     subscriptionDetails.put(ANN_WEBSUB_ATTR_FOLLOW_REDIRECTS_CONFIG, null);

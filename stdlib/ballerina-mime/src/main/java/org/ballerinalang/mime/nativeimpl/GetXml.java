@@ -25,7 +25,8 @@ import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -57,7 +58,7 @@ public class GetXml extends BlockingNativeCallableUnit {
     public void execute(Context context) {
         BXML result;
         try {
-            BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             String baseType = HeaderUtil.getBaseType(entityStruct);
             if (baseType != null && (baseType.toLowerCase(Locale.getDefault()).endsWith(XML_TYPE_IDENTIFIER) ||
                     baseType.toLowerCase(Locale.getDefault()).endsWith(XML_SUFFIX))) {

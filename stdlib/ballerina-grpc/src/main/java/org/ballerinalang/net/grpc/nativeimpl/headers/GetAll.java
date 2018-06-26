@@ -19,8 +19,9 @@ import io.grpc.Metadata;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -55,7 +56,7 @@ public class GetAll extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String headerName = context.getStringArgument(0);
-        BStruct headerValues = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
         MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
                 : null;
         String[] headerValue = getHeaderValues(metadata, headerName);

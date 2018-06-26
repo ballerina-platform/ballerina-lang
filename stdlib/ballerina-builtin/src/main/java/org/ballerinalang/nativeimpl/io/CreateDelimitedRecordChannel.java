@@ -20,7 +20,8 @@ package org.ballerinalang.nativeimpl.io;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.DelimitedRecordChannel;
 import org.ballerinalang.nativeimpl.io.csv.Format;
@@ -86,12 +87,14 @@ public class CreateDelimitedRecordChannel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         try {
-            //File which holds access to the channel information
-            BStruct characterChannelInfo = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+            // File which holds access to the channel information
+            BMap<String, BValue> characterChannelInfo =
+                    (BMap<String, BValue>) context.getRefArgument(CHAR_CHANNEL_INDEX);
             String recordSeparator = context.getStringArgument(RECORD_SEPARATOR_INDEX);
             String fieldSeparator = context.getStringArgument(FIELD_SEPARATOR_INDEX);
             String format = context.getStringArgument(FORMAT_INDEX);
-            BStruct textRecordChannel = (BStruct) context.getRefArgument(RECORD_CHANNEL_INDEX);
+            BMap<String, BValue> textRecordChannel =
+                    (BMap<String, BValue>) context.getRefArgument(RECORD_CHANNEL_INDEX);
             //Will get the relevant byte channel and will create a character channel
             CharacterChannel characterChannel = (CharacterChannel) characterChannelInfo.getNativeData(IOConstants
                     .CHARACTER_CHANNEL_NAME);

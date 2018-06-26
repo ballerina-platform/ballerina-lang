@@ -17,12 +17,14 @@
 */
 package org.ballerinalang.util.transactions;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.WorkerExecutionContext;
+import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.FunctionInfo;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -77,8 +79,9 @@ public class TransactionUtils {
                 || value.getType().getTag() == TypeTags.RECORD_TYPE_TAG) {
             PackageInfo errorPackageInfo = ctx.programFile.getPackageInfo(BALLERINA_BUILTIN_PKG);
             StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-            if (((BStruct) value).getType().getTypeInfo().equals(errorStructInfo)) {
-                throw new BallerinaException(errMsg + ((BStruct) value).getStringField(0));
+            if (((BStructureType) value.getType()).getTypeInfo().equals(errorStructInfo)) {
+                throw new BallerinaException(
+                        errMsg + ((BMap<String, BValue>) value).get(BLangVMErrors.ERROR_MESSAGE_FIELD));
             }
         }
     }

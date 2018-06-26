@@ -330,7 +330,7 @@ documentation {
 function verifyIntent(string callback, string topic, map<string> params) {
     endpoint http:Client callbackEp {
         url:callback,
-        secureSocket: httpSecureSocket
+        secureSocket: hubClientSecureSocket
     };
 
     string mode = params[HUB_MODE];
@@ -609,7 +609,7 @@ documentation {
 function fetchTopicUpdate(string topic) returns http:Response|error {
     endpoint http:Client topicEp {
         url:topic,
-        secureSocket: httpSecureSocket
+        secureSocket: hubClientSecureSocket
     };
 
     http:Request request = new;
@@ -628,7 +628,7 @@ documentation {
 function distributeContent(string callback, SubscriptionDetails subscriptionDetails, WebSubContent webSubContent) {
     endpoint http:Client callbackEp {
         url:callback,
-        secureSocket: httpSecureSocket
+        secureSocket: hubClientSecureSocket
     };
 
     http:Request request = new;

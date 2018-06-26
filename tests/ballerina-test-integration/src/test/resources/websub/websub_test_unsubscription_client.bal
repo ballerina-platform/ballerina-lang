@@ -12,7 +12,7 @@ function main(string... args) {
     // Send unsubscription request for the subscriber service.
     websub:SubscriptionChangeRequest unsubscriptionRequest = {
         topic: "http://www.websubpubtopic.com",
-        callback: "http://0.0.0.0:8181/websub"
+        callback: "http://localhost:8181/websub"
     };
 
     var response = websubHubClientEP->unsubscribe(unsubscriptionRequest);

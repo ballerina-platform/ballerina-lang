@@ -22,7 +22,7 @@ package org.ballerinalang.observe.nativeimpl;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
@@ -49,7 +49,7 @@ public class Utils {
         return returnMap;
     }
 
-    public static BStruct createErrorStruct(Context context, String message) {
+    public static BMap<String, BValue> createErrorStruct(Context context, String message) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
         return BLangVMStructs.createBStruct(errorStructInfo, message);

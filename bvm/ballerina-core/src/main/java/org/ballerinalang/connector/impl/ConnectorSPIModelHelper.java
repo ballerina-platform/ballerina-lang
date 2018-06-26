@@ -20,7 +20,6 @@ package org.ballerinalang.connector.impl;
 import org.ballerinalang.bre.bvm.GlobalMemoryArea;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BMap;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.PackageVarInfo;
@@ -49,7 +48,7 @@ public class ConnectorSPIModelHelper {
         return service;
     }
 
-    public static StructImpl createStruct(BStruct struct) {
+    public static StructImpl createStruct(BMap<String, BValue> struct) {
         return new StructImpl(struct);
     }
 
@@ -71,7 +70,7 @@ public class ConnectorSPIModelHelper {
         }
         BMap<String, BValue> annotationMap = (BMap<String, BValue>) map;
         for (String key : annotationMap.keySet()) {
-            final BStruct annotationData = (BStruct) annotationMap.get(key);
+            final BMap<String, BValue> annotationData = (BMap<String, BValue>) annotationMap.get(key);
             StructImpl struct = null;
             if (annotationData != null) {
                 struct = new StructImpl(annotationData);

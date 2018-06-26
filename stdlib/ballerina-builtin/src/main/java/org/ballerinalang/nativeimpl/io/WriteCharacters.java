@@ -22,7 +22,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
@@ -75,7 +76,7 @@ public class WriteCharacters implements NativeCallableUnit {
         CallableUnitCallback callback = eventContext.getCallback();
         Throwable error = eventContext.getError();
         if (null != error) {
-            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
+            BMap<String, BValue> errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
             Integer numberOfCharactersWritten = result.getResponse();
@@ -92,7 +93,7 @@ public class WriteCharacters implements NativeCallableUnit {
      */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct channel = (BStruct) context.getRefArgument(CHAR_CHANNEL_INDEX);
+        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(CHAR_CHANNEL_INDEX);
         String content = context.getStringArgument(CONTENT_INDEX);
         long startOffset = context.getIntArgument(START_OFFSET_INDEX);
         CharacterChannel characterChannel = (CharacterChannel) channel.getNativeData(IOConstants

@@ -23,7 +23,6 @@ import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.jvnet.mimepull.Header;
@@ -144,7 +143,7 @@ public class HeaderUtil {
      * @param headerName Represent an http header name
      * @return a header value for the given header name
      */
-    public static String getHeaderValue(BStruct bodyPart, String headerName) {
+    public static String getHeaderValue(BMap<String, BValue> bodyPart, String headerName) {
         if (bodyPart.getNativeData(ENTITY_HEADERS) != null) {
             HttpHeaders httpHeaders = (HttpHeaders) bodyPart.getNativeData(ENTITY_HEADERS);
             return httpHeaders.get(headerName);
@@ -196,7 +195,7 @@ public class HeaderUtil {
         return null;
     }
 
-    public static void setHeaderToEntity(BStruct entity, String key, String value) {
+    public static void setHeaderToEntity(BMap<String, BValue> entity, String key, String value) {
         HttpHeaders httpHeaders;
         if (entity.getNativeData(ENTITY_HEADERS) != null) {
             httpHeaders = (HttpHeaders) entity.getNativeData(ENTITY_HEADERS);
@@ -208,7 +207,7 @@ public class HeaderUtil {
         httpHeaders.set(key, value);
     }
 
-    public static String getBaseType(BStruct entityStruct) throws MimeTypeParseException {
+    public static String getBaseType(BMap<String, BValue> entityStruct) throws MimeTypeParseException {
         String contentType = HeaderUtil.getHeaderValue(entityStruct, HttpHeaderNames.CONTENT_TYPE.toString());
         if (contentType != null) {
             return new MimeType(contentType).getBaseType();

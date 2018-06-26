@@ -24,7 +24,8 @@ import org.ballerinalang.connector.api.ConnectorUtils;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -51,9 +52,9 @@ public class GetByteChannel extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct byteChannelStruct;
+        BMap<String, BValue> byteChannelStruct;
         try {
-            BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+            BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
             byteChannelStruct = ConnectorUtils.createAndGetStruct(context, PROTOCOL_PACKAGE_IO, BYTE_CHANNEL_STRUCT);
             Channel byteChannel = EntityBodyHandler.getByteChannel(entityStruct);
             if (byteChannel != null) {

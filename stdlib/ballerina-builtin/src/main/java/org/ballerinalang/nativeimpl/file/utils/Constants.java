@@ -37,4 +37,9 @@ public class Constants {
      */
     public static final String PATH_DEFINITION_NAME = "PathDef";
 
+    // FileEvent struct field names
+
+    public static final String FILE_EVENT_NAME = "name";
+
+    public static final String FILE_EVENT_OPERATION = "operation";
 }
