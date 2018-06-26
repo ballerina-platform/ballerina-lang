@@ -20,7 +20,8 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -46,8 +47,8 @@ public class PatternTest {
 
         Assert.assertNotNull(tempDifferences);
 
-        BStruct tempDifference = (BStruct) tempDifferences[0];
-        Assert.assertEquals(tempDifference.getFloatField(0), 7.0);
+        BMap<String, BValue> tempDifference = (BMap<String, BValue>) tempDifferences[0];
+        Assert.assertEquals(((BFloat) tempDifference.get("tempDifference")).floatValue(), 7.0);
     }
 
     @Test(description = "Test pattern streaming query with 'Or'")
@@ -56,8 +57,8 @@ public class PatternTest {
 
         Assert.assertNotNull(roomActions);
 
-        BStruct tempDifference = (BStruct) roomActions[0];
-        Assert.assertEquals(tempDifference.getStringField(0), "stop");
+        BMap<String, BValue> tempDifference = (BMap<String, BValue>) roomActions[0];
+        Assert.assertEquals(tempDifference.get("userAction").stringValue(), "stop");
     }
 
     @Test(description = "Test pattern streaming query with 'And'")
@@ -66,8 +67,8 @@ public class PatternTest {
 
         Assert.assertNotNull(roomActions);
 
-        BStruct tempDifference = (BStruct) roomActions[0];
-        Assert.assertEquals(tempDifference.getStringField(0), "RoomClosedWithRegulatorOff");
+        BMap<String, BValue> tempDifference = (BMap<String, BValue>) roomActions[0];
+        Assert.assertEquals(tempDifference.get("userAction").stringValue(), "RoomClosedWithRegulatorOff");
     }
 
     @Test(description = "Test pattern streaming query with 'Not' and 'And'")
@@ -76,8 +77,8 @@ public class PatternTest {
 
         Assert.assertNotNull(roomActions);
 
-        BStruct tempDifference = (BStruct) roomActions[0];
-        Assert.assertEquals(tempDifference.getStringField(0), "RoomNotClosedWithRegulatorNotOff");
+        BMap<String, BValue> tempDifference = (BMap<String, BValue>) roomActions[0];
+        Assert.assertEquals(tempDifference.get("userAction").stringValue(), "RoomNotClosedWithRegulatorNotOff");
     }
 
     @Test(description = "Test pattern streaming query with 'Not' and 'For'")
@@ -86,8 +87,8 @@ public class PatternTest {
 
         Assert.assertNotNull(roomActions);
 
-        BStruct tempDifference = (BStruct) roomActions[0];
-        Assert.assertEquals(tempDifference.getStringField(0), "CloseRoomAfter2Sec");
+        BMap<String, BValue> tempDifference = (BMap<String, BValue>) roomActions[0];
+        Assert.assertEquals(tempDifference.get("userAction").stringValue(), "CloseRoomAfter2Sec");
     }
 
     @Test(description = "Test pattern streaming query with within clause")

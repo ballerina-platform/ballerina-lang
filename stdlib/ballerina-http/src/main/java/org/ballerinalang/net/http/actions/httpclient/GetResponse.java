@@ -19,7 +19,8 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -58,13 +59,13 @@ public class GetResponse extends AbstractHTTPAction {
     public void execute(Context context, CallableUnitCallback callback) {
 
         DataContext dataContext = new DataContext(context, callback, null);
-        BStruct handleStruct = ((BStruct) context.getRefArgument(1));
+        BMap<String, BValue> handleStruct = ((BMap<String, BValue>) context.getRefArgument(1));
 
         ResponseHandle responseHandle = (ResponseHandle) handleStruct.getNativeData(HttpConstants.TRANSPORT_HANDLE);
         if (responseHandle == null) {
             throw new BallerinaException("invalid http handle");
         }
-        BStruct bConnector = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
         clientConnector.getResponse(responseHandle).
@@ -86,7 +87,7 @@ public class GetResponse extends AbstractHTTPAction {
         }
 
         public void onError(Throwable throwable) {
-            BStruct httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
+            BMap<String, BValue> httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

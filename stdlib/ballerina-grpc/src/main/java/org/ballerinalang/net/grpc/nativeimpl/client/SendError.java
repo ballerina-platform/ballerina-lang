@@ -21,7 +21,8 @@ import io.grpc.stub.StreamObserver;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -58,7 +59,7 @@ public class SendError extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
         long statusCode = context.getIntArgument(0);
         String errorMsg = context.getStringArgument(0);
 

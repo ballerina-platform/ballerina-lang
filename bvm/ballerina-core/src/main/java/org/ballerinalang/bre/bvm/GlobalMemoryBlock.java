@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.model.values;
+package org.ballerinalang.bre.bvm;
 
-import org.ballerinalang.bre.bvm.VarLock;
-import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.model.types.BField;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.util.Flags;
+import org.ballerinalang.model.values.BRefType;
+import org.ballerinalang.model.values.BValue;
+import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.BLangConstants;
 
 import java.nio.charset.StandardCharsets;
@@ -31,12 +32,12 @@ import java.util.HashMap;
 import java.util.StringJoiner;
 
 /**
- * The {@code BStruct} represents the value of a user defined struct in Ballerina.
+ * The {@code GlobalMemoryBlock} represents the global memory block in Ballerina VM.
  *
  * @since 1.0.0
  */
 
-public final class BStruct implements BRefType, LockableStructureType {
+public final class GlobalMemoryBlock implements BRefType, LockableStructureType {
     private HashMap<String, Object> nativeData = new HashMap<>();
 
     private long[] longFields;
@@ -55,11 +56,11 @@ public final class BStruct implements BRefType, LockableStructureType {
     private BStructureType structType;
 
     /**
-     * Creates a struct with a single memory block.
+     * Creates a GlobalMemoryBlock.
      *
      * @param structType type of the struct
      */
-    public BStruct(BStructureType structType) {
+    public GlobalMemoryBlock(BStructureType structType) {
         this.structType = structType;
 
         int[] fieldCount = this.structType.getFieldTypeCount();
@@ -78,7 +79,7 @@ public final class BStruct implements BRefType, LockableStructureType {
      * {@inheritDoc}
      */
     @Override
-    public BStruct value() {
+    public GlobalMemoryBlock value() {
         return this;
     }
 
@@ -372,7 +373,7 @@ public final class BStruct implements BRefType, LockableStructureType {
 
     @Override
     public BValue copy() {
-        BStruct bStruct = new BStruct(structType);
+        GlobalMemoryBlock bStruct = new GlobalMemoryBlock(structType);
         bStruct.longFields = Arrays.copyOf(longFields, longFields.length);
         bStruct.doubleFields = Arrays.copyOf(doubleFields, doubleFields.length);
         bStruct.stringFields = Arrays.copyOf(stringFields, stringFields.length);

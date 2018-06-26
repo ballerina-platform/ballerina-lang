@@ -28,7 +28,7 @@ import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BValueType;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -61,7 +61,7 @@ public class GetMapMessageContent extends AbstractBlockinAction {
     @Override
     public void execute(Context context, CallableUnitCallback callableUnitCallback) {
 
-        BStruct messageStruct = ((BStruct) context.getRefArgument(0));
+        BMap<String, BValue> messageStruct = ((BMap<String, BValue>) context.getRefArgument(0));
         Message jmsMessage = JMSUtils.getJMSMessage(messageStruct);
         BMap<String, BValueType> messageContent = new BMap<>();
 

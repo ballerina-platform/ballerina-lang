@@ -27,12 +27,17 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.http.WebSocketServicesRegistry;
 import org.ballerinalang.net.websub.WebSubServicesRegistry;
 
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.LISTENER_SERVICE_ENDPOINT_CONFIG;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_CONFIG_TOPIC_HEADER;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_CONFIG_TOPIC_IDENTIFIER;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_CONFIG_TOPIC_PAYLOAD_KEYS;
+import static org.ballerinalang.net.websub.WebSubSubscriberConstants.SERVICE_CONFIG_TOPIC_RESOURCE_MAP;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_HEADER;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.TOPIC_ID_PAYLOAD_KEY;
 import static org.ballerinalang.net.websub.WebSubSubscriberConstants.WEBSUB_HTTP_ENDPOINT;
@@ -57,29 +62,31 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
 
         Struct subscriberServiceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
         Struct serviceEndpoint = ((subscriberServiceEndpoint).getRefField(WEBSUB_HTTP_ENDPOINT).getStructValue());
-        BStruct config = (BStruct) ((BStruct) context.getRefArgument(0)).getRefField(0);
+        BMap<String, BValue> listener = (BMap<String, BValue>) context.getRefArgument(0);
+        BMap<String, BValue> config = (BMap<String, BValue>) listener.get(LISTENER_SERVICE_ENDPOINT_CONFIG);
+
         WebSubServicesRegistry webSubServicesRegistry = new WebSubServicesRegistry(new WebSocketServicesRegistry());
-        BString topicIdentifier = (BString) config.getRefField(1);
+        BString topicIdentifier = (BString) config.get(SERVICE_CONFIG_TOPIC_IDENTIFIER);
         if (topicIdentifier != null) {
             String stringTopicIdentifier = topicIdentifier.stringValue();
             webSubServicesRegistry.setTopicIdentifier(stringTopicIdentifier);
             if (TOPIC_ID_HEADER.equals(stringTopicIdentifier)) {
-                BString topicHeader = (BString) config.getRefField(2);
+                BString topicHeader = (BString) config.get(SERVICE_CONFIG_TOPIC_HEADER);
                 if (topicHeader != null) {
                     webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
                 } else {
                     throw new BallerinaConnectorException("Topic Header not specified to dispatch by Header");
                 }
             } else if (TOPIC_ID_PAYLOAD_KEY.equals(stringTopicIdentifier)) {
-                BStringArray topicPayloadKeys = (BStringArray) config.getRefField(3);
+                BStringArray topicPayloadKeys = (BStringArray) config.get(SERVICE_CONFIG_TOPIC_PAYLOAD_KEYS);
                 if (topicPayloadKeys != null) {
                     webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
                 } else {
                     throw new BallerinaConnectorException("Payload Keys not specified to dispatch by Payload Key");
                 }
             } else {
-                BString topicHeader = (BString) config.getRefField(2);
-                BStringArray topicPayloadKeys = (BStringArray) config.getRefField(3);
+                BString topicHeader = (BString) config.get(SERVICE_CONFIG_TOPIC_HEADER);
+                BStringArray topicPayloadKeys = (BStringArray) config.get(SERVICE_CONFIG_TOPIC_PAYLOAD_KEYS);
                 if (topicHeader != null && topicPayloadKeys != null) {
                     webSubServicesRegistry.setTopicHeader(topicHeader.stringValue());
                     webSubServicesRegistry.setTopicPayloadKeys(topicPayloadKeys);
@@ -89,7 +96,7 @@ public class InitWebSubSubscriberServiceEndpoint extends BlockingNativeCallableU
                 }
             }
             BMap<String, BMap<String, BString>> topicResourceMap =
-                                                    (BMap<String, BMap<String, BString>>) config.getRefField(4);
+                    (BMap<String, BMap<String, BString>>) config.get(SERVICE_CONFIG_TOPIC_RESOURCE_MAP);
             if (!(topicResourceMap).isEmpty()) {
                 webSubServicesRegistry.setTopicResourceMap(topicResourceMap);
             } else {

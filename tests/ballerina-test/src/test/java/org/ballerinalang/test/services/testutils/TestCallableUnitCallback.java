@@ -19,7 +19,7 @@ package org.ballerinalang.test.services.testutils;
 
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -52,7 +52,7 @@ public class TestCallableUnitCallback implements CallableUnitCallback {
     }
 
     @Override
-    public void notifyFailure(BStruct error) {
+    public void notifyFailure(BMap<String, BValue> error) {
         Object carbonStatusCode = requestMessage.getProperty(HttpConstants.HTTP_STATUS_CODE);
         int statusCode = (carbonStatusCode == null) ? 500 : Integer.parseInt(carbonStatusCode.toString());
         String errorMsg = BLangVMErrors.getAggregatedRootErrorMessages(error);

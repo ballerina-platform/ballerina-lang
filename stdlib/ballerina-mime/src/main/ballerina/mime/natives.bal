@@ -130,7 +130,7 @@ public function MediaType::getBaseType() returns (string) {
 
 public function MediaType::toString() returns (string) {
     string contentType = self.getBaseType();
-    map<string> parameters = self.parameters;
+    // map<string> parameters = self.parameters;
     string[] arrKeys = self.parameters.keys();
     int size = lengthof arrKeys;
     if (size > 0) {
@@ -138,7 +138,7 @@ public function MediaType::toString() returns (string) {
     }
     int index = 0;
     while (index < size) {
-        string value = parameters[arrKeys[index]];
+        string value = self.parameters[arrKeys[index]];
         if (index == size - 1) {
             contentType = contentType + arrKeys[index] + "=" + value;
             break;

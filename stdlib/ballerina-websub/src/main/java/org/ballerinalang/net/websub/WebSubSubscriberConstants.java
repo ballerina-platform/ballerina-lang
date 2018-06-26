@@ -77,4 +77,28 @@ public class WebSubSubscriberConstants {
 
     static final String PATH_FIELD = "path";
 
+    // SubscriptionDetails struct field names
+    public static final String SUBSCRIPTION_DETAILS_TOPIC = "topic";
+    public static final String SUBSCRIPTION_DETAILS_CALLBACK = "callback";
+    public static final String SUBSCRIPTION_DETAILS_SECRET = "sceret";
+
+    // IntentVerificationRequest
+    public static final String VERIFICATION_REQUEST_MODE = "mode";
+    public static final String VERIFICATION_REQUEST_TOPIC = "topic";
+    public static final String VERIFICATION_REQUEST_CHALLENGE = "challenge";
+    public static final String VERIFICATION_REQUEST_LEASE_SECONDS = "leaseSeconds";
+    public static final String VERIFICATION_REQUEST_REQUEST = "request";
+
+    // websub Listener struct
+    public static final String LISTENER_SERVICE_ENDPOINT_CONFIG = "config";
+    public static final String LISTENER_SERVICE_ENDPOINT = "serviceEndpoint";
+
+    // SubscriberServiceEndpointConfiguration struct
+    public static final String SERVICE_CONFIG_HOST = "host";
+    public static final String SERVICE_CONFIG_PORT = "port";
+    public static final String SERVICE_CONFIG_SECURE_SOCKET = "httpServiceSecureSocket";
+    public static final String SERVICE_CONFIG_TOPIC_IDENTIFIER = "topicIdentifier";
+    public static final String SERVICE_CONFIG_TOPIC_HEADER = "topicHeader";
+    public static final String SERVICE_CONFIG_TOPIC_PAYLOAD_KEYS = "topicPayloadKeys";
+    public static final String SERVICE_CONFIG_TOPIC_RESOURCE_MAP = "topicResourceMap";
 }

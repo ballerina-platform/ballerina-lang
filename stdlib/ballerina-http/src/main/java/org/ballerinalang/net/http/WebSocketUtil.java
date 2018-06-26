@@ -30,7 +30,9 @@ import org.ballerinalang.connector.api.Executor;
 import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.services.ErrorHandlerUtils;
 import org.ballerinalang.util.codegen.ProgramFile;
@@ -82,14 +84,14 @@ public abstract class WebSocketUtil {
             @Override
             public void onSuccess(WebSocketConnection webSocketConnection) {
                 // TODO: Need to create new struct
-                BStruct webSocketEndpoint = BLangConnectorSPIUtil.createObject(
+                BMap<String, BValue> webSocketEndpoint = BLangConnectorSPIUtil.createObject(
                         wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
                                 .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_ENDPOINT);
-                BStruct webSocketConnector = BLangConnectorSPIUtil.createObject(
+                BMap<String, BValue> webSocketConnector = BLangConnectorSPIUtil.createObject(
                         wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo()
                                 .getProgramFile(), PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
 
-                webSocketEndpoint.setRefField(1, webSocketConnector);
+                webSocketEndpoint.put(WebSocketConstants.LISTENER_CONNECTOR_FIELD, webSocketConnector);
                 populateEndpoint(webSocketConnection, webSocketEndpoint);
                 WebSocketOpenConnectionInfo connectionInfo =
                         new WebSocketOpenConnectionInfo(wsService, webSocketConnection, webSocketEndpoint);
@@ -123,24 +125,32 @@ public abstract class WebSocketUtil {
         });
     }
 
-    static void executeOnOpenResource(Resource onOpenResource, BStruct webSocketEndpoint,
-                                      WebSocketConnection webSocketConnection) {
+    public static void executeOnOpenResource(Resource onOpenResource, BMap<String, BValue> webSocketEndpoint,
+                                             WebSocketConnection webSocketConnection) {
         List<ParamDetail> paramDetails =
                 onOpenResource.getParamDetails();
         BValue[] bValues = new BValue[paramDetails.size()];
         bValues[0] = webSocketEndpoint;
-        BStruct webSocketConnector = (BStruct) webSocketEndpoint.getRefField(1);
+        BMap<String, BValue> webSocketConnector =
+                (BMap<String, BValue>) webSocketEndpoint.get(WebSocketConstants.LISTENER_CONNECTOR_FIELD);
 
         CallableUnitCallback onOpenCallableUnitCallback = new CallableUnitCallback() {
             @Override
             public void notifySuccess() {
-                if (webSocketConnector.getBooleanField(WebSocketConstants.CONNECTOR_IS_READY_INDEX) == 0) {
+                boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
+                        .booleanValue();
+                if (!isReady) {
                     readFirstFrame(webSocketConnection, webSocketConnector);
                 }
             }
 
             @Override
-            public void notifyFailure(BStruct error) {
+            public void notifyFailure(BMap<String, BValue> error) {
+                boolean isReady = ((BBoolean) webSocketConnector.get(WebSocketConstants.CONNECTOR_IS_READY_FIELD))
+                        .booleanValue();
+                if (!isReady) {
+                    readFirstFrame(webSocketConnection, webSocketConnector);
+                }
                 ErrorHandlerUtils.printError("error: " + BLangVMErrors.getPrintableStackTrace(error));
                 closeDuringUnexpectedCondition(webSocketConnection);
             }
@@ -149,14 +159,15 @@ public abstract class WebSocketUtil {
         Executor.submit(onOpenResource, onOpenCallableUnitCallback, null, null, bValues);
     }
 
-    public static void populateEndpoint(WebSocketConnection webSocketConnection, BStruct webSocketEndpoint) {
-        webSocketEndpoint.setStringField(WebSocketConstants.LISTENER_ID_INDEX, webSocketConnection.getId());
-        webSocketEndpoint.setStringField(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_INDEX,
-                                         webSocketConnection.getNegotiatedSubProtocol());
-        webSocketEndpoint.setBooleanField(WebSocketConstants.LISTENER_IS_SECURE_INDEX,
-                                          webSocketConnection.isSecure() ? 1 : 0);
-        webSocketEndpoint.setBooleanField(WebSocketConstants.LISTENER_IS_OPEN_INDEX,
-                                          webSocketConnection.isOpen() ? 1 : 0);
+    public static void populateEndpoint(WebSocketConnection webSocketConnection,
+                                        BMap<String, BValue> webSocketEndpoint) {
+        webSocketEndpoint.put(WebSocketConstants.LISTENER_ID_FIELD, new BString(webSocketConnection.getId()));
+        webSocketEndpoint.put(WebSocketConstants.LISTENER_NEGOTIATED_SUBPROTOCOLS_FIELD,
+                new BString(webSocketConnection.getNegotiatedSubProtocol()));
+        webSocketEndpoint.put(WebSocketConstants.LISTENER_IS_SECURE_FIELD,
+                new BBoolean(webSocketConnection.isSecure()));
+        webSocketEndpoint.put(WebSocketConstants.LISTENER_IS_OPEN_FIELD,
+                new BBoolean(webSocketConnection.isOpen()));
     }
 
     public static void handleWebSocketCallback(Context context, CallableUnitCallback callback,
@@ -189,9 +200,10 @@ public abstract class WebSocketUtil {
         return uri;
     }
 
-    public static void readFirstFrame(WebSocketConnection webSocketConnection, BStruct webSocketConnector) {
+    public static void readFirstFrame(WebSocketConnection webSocketConnection,
+                                      BMap<String, BValue> webSocketConnector) {
         webSocketConnection.readNextFrame();
-        webSocketConnector.setBooleanField(WebSocketConstants.CONNECTOR_IS_READY_INDEX, 1);
+        webSocketConnector.put(WebSocketConstants.CONNECTOR_IS_READY_FIELD, new BBoolean(true));
     }
 
     /**

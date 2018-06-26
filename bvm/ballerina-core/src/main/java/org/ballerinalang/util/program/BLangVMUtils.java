@@ -28,9 +28,9 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -454,7 +454,8 @@ public class BLangVMUtils {
         }
     }
     
-    public static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx, BStruct error) {
+    public static WorkerExecutionContext handleNativeInvocationError(WorkerExecutionContext parentCtx,
+                                                                     BMap<String, BValue> error) {
         parentCtx.setError(error);
         try {
             CPU.handleError(parentCtx);

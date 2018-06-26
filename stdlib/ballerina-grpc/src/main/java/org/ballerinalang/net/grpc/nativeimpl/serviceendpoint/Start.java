@@ -19,7 +19,8 @@ import io.grpc.Server;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.GrpcServicesBuilder;
@@ -54,7 +55,7 @@ public class Start extends AbstractGrpcNativeFunction {
 
     @Override
     public void execute(Context context) {
-        BStruct serviceEndpoint = (BStruct) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
+        BMap<String, BValue> serviceEndpoint = (BMap<String, BValue>) context.getRefArgument(SERVICE_ENDPOINT_INDEX);
         io.grpc.ServerBuilder serverBuilder = getServiceBuilder(serviceEndpoint);
         try {
             Server server = GrpcServicesBuilder.start(serverBuilder);

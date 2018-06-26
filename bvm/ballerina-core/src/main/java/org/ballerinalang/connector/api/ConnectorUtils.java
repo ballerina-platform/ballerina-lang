@@ -20,7 +20,8 @@ package org.ballerinalang.connector.api;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.connector.impl.ConnectorSPIModelHelper;
 import org.ballerinalang.model.types.BStructureType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
@@ -34,18 +35,6 @@ import org.ballerinalang.util.codegen.StructureTypeInfo;
 public class ConnectorUtils extends ConnectorSPIModelHelper {
 
     /**
-     * This method is used to create a struct given the resource and required struct details.
-     *
-     * @param resource to get required details.
-     * @param packageName package name of the struct definition.
-     * @param structName struct name.
-     * @return created struct.
-     */
-    public static BStruct createStruct(Resource resource, String packageName, String structName) {
-        return null;
-    }
-
-    /**
      * This method is used to create a struct given the context and required struct details.
      *
      * @param context to get program file.
@@ -54,7 +43,7 @@ public class ConnectorUtils extends ConnectorSPIModelHelper {
      * @return created struct.
      * @throws BallerinaConnectorException if an error occurs
      */
-    public static BStruct createAndGetStruct(Context context, String packagePath, String structName)
+    public static BMap<String, BValue> createAndGetStruct(Context context, String packagePath, String structName)
             throws BallerinaConnectorException {
         PackageInfo packageInfo = context.getProgramFile()
                 .getPackageInfo(packagePath);
@@ -63,7 +52,7 @@ public class ConnectorUtils extends ConnectorSPIModelHelper {
         }
         StructureTypeInfo structureInfo = packageInfo.getStructInfo(structName);
         BStructureType structType = structureInfo.getType();
-        BStruct bStruct = new BStruct(structType);
+        BMap<String, BValue> bStruct = new BMap<>(structType);
 
         return bStruct;
     }

@@ -23,7 +23,8 @@ import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.internal.jwt.crypto.JWSVerifier;
 import org.ballerinalang.nativeimpl.internal.jwt.crypto.RSAVerifier;
 import org.ballerinalang.nativeimpl.internal.jwt.crypto.TrustStoreHolder;
@@ -55,18 +56,22 @@ import java.security.interfaces.RSAPublicKey;
 )
 public class VerifySignature extends BlockingNativeCallableUnit {
     private static final Logger log = LoggerFactory.getLogger(VerifySignature.class);
+    private static final String CERT_ALIAS = "certificateAlias";
+    private static final String TRUST_STORE_PATH = "trustStoreFilePath";
+    private static final String TRUST_STORE_PASSWORD = "trustStorePassword";
 
     @Override
     public void execute(Context context) {
         String data = context.getStringArgument(0);
         String signature = context.getStringArgument(1);
         String algorithm = context.getStringArgument(2);
-        BStruct trustStore = (BStruct) context.getRefArgument(0);
-        char[] trustStorePassword = trustStore.getStringField(2).toCharArray();
+        BMap<String, BValue> trustStore = (BMap<String, BValue>) context.getRefArgument(0);
+        char[] trustStorePassword = trustStore.get(TRUST_STORE_PASSWORD).stringValue().toCharArray();
         RSAPublicKey publicKey;
         try {
-            publicKey = (RSAPublicKey) TrustStoreHolder.getInstance().getTrustedPublicKey(trustStore.getStringField
-                    (0), PathResolver.getResolvedPath(trustStore.getStringField(1)), trustStorePassword);
+            publicKey = (RSAPublicKey) TrustStoreHolder.getInstance().getTrustedPublicKey(
+                    trustStore.get(CERT_ALIAS).stringValue(),
+                    PathResolver.getResolvedPath(trustStore.get(TRUST_STORE_PATH).stringValue()), trustStorePassword);
             JWSVerifier verifier = new RSAVerifier(publicKey);
             Boolean validSignature = verifier.verify(data, signature, algorithm);
             context.setReturnValues(new BBoolean(validSignature));

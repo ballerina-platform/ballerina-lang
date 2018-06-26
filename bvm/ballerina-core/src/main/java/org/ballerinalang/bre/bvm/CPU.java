@@ -61,7 +61,6 @@ import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BStream;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
@@ -70,7 +69,6 @@ import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLAttributes;
 import org.ballerinalang.model.values.BXMLQName;
 import org.ballerinalang.model.values.BXMLSequence;
-import org.ballerinalang.model.values.StructureType;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.TransactionStatus;
 import org.ballerinalang.util.codegen.AttachedFunctionInfo;
@@ -471,7 +469,7 @@ public class CPU {
                     case InstructionCodes.THROW:
                         i = operands[0];
                         if (i >= 0) {
-                            BStruct error = (BStruct) sf.refRegs[i];
+                            BMap<String, BValue> error = (BMap) sf.refRegs[i];
                             if (error == null) {
                                 handleNullRefError(ctx);
                                 break;
@@ -661,7 +659,7 @@ public class CPU {
                         i = operands[0];
                         cpIndex = operands[1];
                         j = operands[2];
-                        BStruct configStruct = (BStruct) sf.refRegs[j];
+                        BMap<String, BValue> configStruct = (BMap<String, BValue>) sf.refRegs[j];
                         typeRefCPEntry = (TypeRefCPEntry) ctx.constPool[cpIndex];
                         sf.refRegs[i] = new BTable(typeRefCPEntry.getType(), configStruct);
                         break;
@@ -1120,7 +1118,7 @@ public class CPU {
         BBooleanArray bBooleanArray;
         BBlobArray bBlobArray;
         BRefValueArray bArray;
-        StructureType structureType;
+        BMap<String, BValue> structureType;
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
         switch (opcode) {
@@ -1332,75 +1330,75 @@ public class CPU {
 
             case InstructionCodes.IFIELDLOAD:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                sf.longRegs[j] = structureType.getIntField(fieldIndex);
+                sf.longRegs[k] = ((BInteger) structureType.get(sf.stringRegs[j])).intValue();
                 break;
             case InstructionCodes.FFIELDLOAD:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                sf.doubleRegs[j] = structureType.getFloatField(fieldIndex);
+                sf.doubleRegs[k] = ((BFloat) structureType.get(sf.stringRegs[j])).floatValue();
                 break;
             case InstructionCodes.SFIELDLOAD:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                sf.stringRegs[j] = structureType.getStringField(fieldIndex);
+                sf.stringRegs[k] = structureType.get(sf.stringRegs[j]).stringValue();
                 break;
             case InstructionCodes.BFIELDLOAD:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                sf.intRegs[j] = structureType.getBooleanField(fieldIndex);
+                sf.intRegs[k] = ((BBoolean) structureType.get(sf.stringRegs[j])).booleanValue() ? 1 : 0;
                 break;
             case InstructionCodes.LFIELDLOAD:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                sf.byteRegs[j] = structureType.getBlobField(fieldIndex);
+                sf.byteRegs[k] = ((BBlob) structureType.get(sf.stringRegs[j])).blobValue();
                 break;
             case InstructionCodes.RFIELDLOAD:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                sf.refRegs[j] = structureType.getRefField(fieldIndex);
+                sf.refRegs[k] = (BRefType<?>) structureType.get(sf.stringRegs[j]);
                 break;
 
             case InstructionCodes.MAPLOAD:
@@ -1450,7 +1448,7 @@ public class CPU {
         BBooleanArray bBooleanArray;
         BBlobArray bBlobArray;
         BRefValueArray bArray;
-        StructureType structureType;
+        BMap<String, BValue> structureType;
         BMap<String, BRefType> bMap;
         BJSON jsonVal;
         switch (opcode) {
@@ -1631,75 +1629,75 @@ public class CPU {
 
             case InstructionCodes.IFIELDSTORE:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                structureType.setIntField(fieldIndex, sf.longRegs[j]);
+                structureType.put(sf.stringRegs[j], new BInteger(sf.longRegs[k]));
                 break;
             case InstructionCodes.FFIELDSTORE:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                structureType.setFloatField(fieldIndex, sf.doubleRegs[j]);
+                structureType.put(sf.stringRegs[j], new BFloat(sf.doubleRegs[k]));
                 break;
             case InstructionCodes.SFIELDSTORE:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                structureType.setStringField(fieldIndex, sf.stringRegs[j]);
+                structureType.put(sf.stringRegs[j], new BString(sf.stringRegs[k]));
                 break;
             case InstructionCodes.BFIELDSTORE:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                structureType.setBooleanField(fieldIndex, sf.intRegs[j]);
+                structureType.put(sf.stringRegs[j], new BBoolean(sf.intRegs[k] == 1));
                 break;
             case InstructionCodes.LFIELDSTORE:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                structureType.setBlobField(fieldIndex, sf.byteRegs[j]);
+                structureType.put(sf.stringRegs[j], new BBlob(sf.byteRegs[k]));
                 break;
             case InstructionCodes.RFIELDSTORE:
                 i = operands[0];
-                fieldIndex = operands[1];
-                j = operands[2];
-                structureType = (StructureType) sf.refRegs[i];
+                j = operands[1];
+                k = operands[2];
+                structureType = (BMap<String, BValue>) sf.refRegs[i];
                 if (structureType == null) {
                     handleNullRefError(ctx);
                     break;
                 }
 
-                structureType.setRefField(fieldIndex, sf.refRegs[j]);
+                structureType.put(sf.stringRegs[j], sf.refRegs[k]);
                 break;
             case InstructionCodes.MAPSTORE:
                 i = operands[0];
@@ -2872,8 +2870,7 @@ public class CPU {
 
     private static void handleTypeCastError(WorkerExecutionContext ctx, WorkerData sf, int errorRegIndex,
                                             String sourceType, String targetType) {
-        BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
+        BMap<String, BValue> errorVal = BLangVMErrors.createTypeCastError(ctx, sourceType, targetType);
         sf.refRegs[errorRegIndex] = errorVal;
     }
 
@@ -2885,8 +2882,7 @@ public class CPU {
 
     private static void handleTypeConversionError(WorkerExecutionContext ctx, WorkerData sf,
                                                   int errorRegIndex, String errorMessage) {
-        BStruct errorVal;
-        errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
+        BMap<String, BValue> errorVal = BLangVMErrors.createTypeConversionError(ctx, errorMessage);
         if (errorRegIndex == -1) {
             ctx.setError(errorVal);
             handleError(ctx);
@@ -2908,7 +2904,7 @@ public class CPU {
         StructureRefCPEntry structureRefCPEntry = (StructureRefCPEntry) ctx.constPool[cpIndex];
         StructureTypeInfo structInfo = (StructureTypeInfo) ((TypeDefInfo) structureRefCPEntry
                 .getStructureTypeInfo()).typeInfo;
-        sf.refRegs[i] = new BStruct(structInfo.getType());
+        sf.refRegs[i] = new BMap<>(structInfo.getType());
     }
 
     private static void beginTransaction(WorkerExecutionContext ctx, int transactionBlockId, int retryCountRegIndex,
@@ -2951,10 +2947,10 @@ public class CPU {
             if (isGlobalTransactionEnabled) {
                 BValue[] returns = TransactionUtils.notifyTransactionBegin(ctx, null, null, transactionBlockId,
                         TransactionConstants.DEFAULT_COORDINATION_TYPE);
-                BStruct txDataStruct = (BStruct) returns[0];
-                globalTransactionId = txDataStruct.getStringField(1);
-                protocol = txDataStruct.getStringField(2);
-                url = txDataStruct.getStringField(3);
+                BMap<String, BValue> txDataStruct = (BMap<String, BValue>) returns[0];
+                globalTransactionId = txDataStruct.get(TransactionConstants.TRANSACTION_ID).stringValue();
+                protocol = txDataStruct.get(TransactionConstants.CORDINATION_TYPE).stringValue();
+                url = txDataStruct.get(TransactionConstants.REGISTER_AT_URL).stringValue();
             } else {
                 globalTransactionId = UUID.randomUUID().toString().replaceAll("-", "");
             }
@@ -2976,7 +2972,8 @@ public class CPU {
             if (ctx.getError() == null) {
                 ctx.ip = startOfNoThrowEndIP;
             } else {
-                if (BLangVMErrors.TRANSACTION_ERROR.equals(ctx.getError().getStringField(0))) {
+                String errorMsg = ctx.getError().get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
+                if (BLangVMErrors.TRANSACTION_ERROR.equals(errorMsg)) {
                     ctx.ip = startOfNoThrowEndIP;
                 } else {
                     ctx.ip = startOfAbortIP;
@@ -3039,7 +3036,7 @@ public class CPU {
     private static WorkerExecutionContext invokeVirtualFunction(WorkerExecutionContext ctx, int receiver,
                                                                 FunctionInfo virtualFuncInfo, int[] argRegs,
                                                                 int[] retRegs, int flags) {
-        BStruct structVal = (BStruct) ctx.workerLocal.refRegs[receiver];
+        BMap<String, BValue> structVal = (BMap<String, BValue>) ctx.workerLocal.refRegs[receiver];
         if (structVal == null) {
             ctx.setError(BLangVMErrors.createNullRefException(ctx));
             handleError(ctx);
@@ -3047,7 +3044,7 @@ public class CPU {
         }
 
         // TODO use ObjectTypeInfo once record init function is removed
-        StructureTypeInfo structInfo = (StructureTypeInfo) structVal.getType().getTypeInfo();
+        StructureTypeInfo structInfo = (StructureTypeInfo) ((BStructureType) structVal.getType()).getTypeInfo();
         AttachedFunctionInfo attachedFuncInfo = structInfo.funcInfoEntries.get(virtualFuncInfo.getName());
         FunctionInfo concreteFuncInfo = attachedFuncInfo.functionInfo;
         return BLangFunctions.invokeCallable(concreteFuncInfo, ctx, argRegs, retRegs, false, flags);
@@ -3804,50 +3801,8 @@ public class CPU {
         int i = operands[0];
         int j = operands[1];
 
-        BStruct bStruct = (BStruct) sf.refRegs[i];
-        if (bStruct == null) {
-            handleNullRefError(ctx);
-            return;
-        }
-
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int blobRegIndex = -1;
-        int refRegIndex = -1;
-
-        BField[] structFields = (bStruct.getType()).getFields();
-        BMap<String, BValue> map = BTypes.typeMap.getEmptyValue();
-        for (BField structField : structFields) {
-            String key = structField.getFieldName();
-            BType fieldType = structField.getFieldType();
-            switch (fieldType.getTag()) {
-                case TypeTags.INT_TAG:
-                    map.put(key, new BInteger(bStruct.getIntField(++longRegIndex)));
-                    break;
-                case TypeTags.BYTE_TAG:
-                    map.put(key, new BByte((byte) bStruct.getBooleanField(++booleanRegIndex)));
-                    break;
-                case TypeTags.FLOAT_TAG:
-                    map.put(key, new BFloat(bStruct.getFloatField(++doubleRegIndex)));
-                    break;
-                case TypeTags.STRING_TAG:
-                    map.put(key, new BString(bStruct.getStringField(++stringRegIndex)));
-                    break;
-                case TypeTags.BOOLEAN_TAG:
-                    map.put(key, new BBoolean(bStruct.getBooleanField(++booleanRegIndex) == 1));
-                    break;
-                case TypeTags.BLOB_TAG:
-                    map.put(key, new BBlob(bStruct.getBlobField(++blobRegIndex)));
-                    break;
-                default:
-                    BValue value = bStruct.getRefField(++refRegIndex);
-                    map.put(key, value == null ? null : value.copy());
-            }
-        }
-
-        sf.refRegs[j] = map;
+        // TODO: do validation for type?
+        sf.refRegs[j] = sf.refRegs[i];
     }
 
     private static void convertStructToJSON(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
@@ -3856,7 +3811,7 @@ public class CPU {
         int j = operands[2];
         BJSONType targetType = (BJSONType) ((TypeRefCPEntry) ctx.constPool[cpIndex]).getType();
 
-        BStruct bStruct = (BStruct) sf.refRegs[i];
+        BMap<String, BValue> bStruct = (BMap<String, BValue>) sf.refRegs[i];
         if (bStruct == null) {
             handleNullRefError(ctx);
             return;
@@ -3967,14 +3922,8 @@ public class CPU {
             return;
         }
 
-        int longRegIndex = -1;
-        int doubleRegIndex = -1;
-        int stringRegIndex = -1;
-        int booleanRegIndex = -1;
-        int blobRegIndex = -1;
-        int refRegIndex = -1;
         BStructureType structType = (BStructureType) typeRefCPEntry.getType();
-        BStruct bStruct = new BStruct(structType);
+        BMap<String, BValue> bStruct = new BMap<>(structType);
         StructureTypeInfo structInfo = ctx.callableUnitInfo
                 .getPackageInfo().getStructInfo(structType.getName());
 
@@ -4004,58 +3953,49 @@ public class CPU {
 
                 switch (fieldType.getTag()) {
                     case TypeTags.INT_TAG:
-                        longRegIndex++;
                         if (containsField) {
-                            bStruct.setIntField(longRegIndex, ((BInteger) mapVal).intValue());
+                            bStruct.put(key, mapVal);
                         } else if (defaultValAttrInfo != null) {
-                            bStruct.setIntField(longRegIndex, defaultValAttrInfo.getDefaultValue().getIntValue());
+                            bStruct.put(key, new BInteger(defaultValAttrInfo.getDefaultValue().getIntValue()));
                         }
                         break;
                     case TypeTags.BYTE_TAG:
-                        booleanRegIndex++;
                         if (containsField) {
-                            bStruct.setBooleanField(booleanRegIndex, ((BByte) mapVal).byteValue());
+                            bStruct.put(key, mapVal);
                         } else if (defaultValAttrInfo != null) {
-                            bStruct.setBooleanField(booleanRegIndex,
-                                    defaultValAttrInfo.getDefaultValue().getByteValue());
+                            bStruct.put(key, new BByte(defaultValAttrInfo.getDefaultValue().getByteValue()));
                         }
                         break;
                     case TypeTags.FLOAT_TAG:
-                        doubleRegIndex++;
                         if (containsField) {
-                            bStruct.setFloatField(doubleRegIndex, ((BFloat) mapVal).floatValue());
+                            bStruct.put(key, mapVal);
                         } else if (defaultValAttrInfo != null) {
-                            bStruct.setFloatField(doubleRegIndex, defaultValAttrInfo.getDefaultValue().getFloatValue());
+                            bStruct.put(key, new BFloat(defaultValAttrInfo.getDefaultValue().getFloatValue()));
                         }
                         break;
                     case TypeTags.STRING_TAG:
-                        stringRegIndex++;
                         if (containsField) {
-                            bStruct.setStringField(stringRegIndex, ((BString) mapVal).stringValue());
+                            bStruct.put(key, mapVal);
                         } else if (defaultValAttrInfo != null) {
-                            bStruct.setStringField(stringRegIndex,
-                                    defaultValAttrInfo.getDefaultValue().getStringValue());
+                            bStruct.put(key, new BString(defaultValAttrInfo.getDefaultValue().getStringValue()));
                         }
                         break;
                     case TypeTags.BOOLEAN_TAG:
-                        booleanRegIndex++;
                         if (containsField) {
-                            bStruct.setBooleanField(booleanRegIndex, ((BBoolean) mapVal).booleanValue() ? 1 : 0);
+                            bStruct.put(key, mapVal);
                         } else if (defaultValAttrInfo != null) {
-                            bStruct.setBooleanField(booleanRegIndex,
-                                    defaultValAttrInfo.getDefaultValue().getBooleanValue() ? 1 : 0);
+                            bStruct.put(key, new BBoolean(defaultValAttrInfo.getDefaultValue().getBooleanValue()));
                         }
                         break;
                     case TypeTags.BLOB_TAG:
-                        blobRegIndex++;
                         if (containsField && mapVal != null) {
-                            bStruct.setBlobField(blobRegIndex, ((BBlob) mapVal).blobValue());
+                            bStruct.put(key, mapVal);
                         } else if (defaultValAttrInfo != null) {
-                            bStruct.setBlobField(blobRegIndex, defaultValAttrInfo.getDefaultValue().getBlobValue());
+                            bStruct.put(key, new BBlob(defaultValAttrInfo.getDefaultValue().getBlobValue()));
                         }
                         break;
                     default:
-                        bStruct.setRefField(++refRegIndex, (BRefType) mapVal);
+                        bStruct.put(key, mapVal);
                 }
             } catch (BallerinaException e) {
                 sf.refRegs[j] = null;

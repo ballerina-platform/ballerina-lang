@@ -30,13 +30,15 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.BLangConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -83,6 +85,8 @@ import java.util.TimeZone;
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
 
+import static org.ballerinalang.bre.bvm.BLangVMErrors.ERROR_MESSAGE_FIELD;
+
 /**
  * Class contains utility methods for SQL Connector operations.
  *
@@ -94,6 +98,7 @@ public class SQLDatasourceUtils {
     private static final String POSTGRES_DATABASE_NAME = "postgresql";
     public static final String POSTGRES_DOUBLE = "float8";
     private static final int ORACLE_CURSOR_TYPE = -10;
+    private static final String TIME_FIELD = "time";
 
     public static void setIntValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Integer val = obtainIntegerValue(value);
@@ -412,9 +417,11 @@ public class SQLDatasourceUtils {
     public static void setDateValue(PreparedStatement stmt, BValue value, int index, int direction, int sqlType) {
         Date val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+            if (value instanceof BMap && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
                     .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
-                val = new Date(((BStruct) value).getIntField(0));
+                BValue timeVal = ((BMap<String, BValue>) value).get(TIME_FIELD);
+                long time = ((BInteger) timeVal).intValue();
+                val = new Date(time);
             } else if (value instanceof BInteger) {
                 val = new Date(((BInteger) value).intValue());
             } else if (value instanceof BString) {
@@ -451,9 +458,11 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Timestamp val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+            if (value instanceof BMap && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
                     .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
-                val = new Timestamp(((BStruct) value).getIntField(0));
+                BValue timeVal = ((BMap<String, BValue>) value).get(TIME_FIELD);
+                long time = ((BInteger) timeVal).intValue();
+                val = new Timestamp(time);
             } else if (value instanceof BInteger) {
                 val = new Timestamp(((BInteger) value).intValue());
             } else if (value instanceof BString) {
@@ -490,9 +499,11 @@ public class SQLDatasourceUtils {
             Calendar utcCalendar) {
         Time val = null;
         if (value != null) {
-            if (value instanceof BStruct && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
+            if (value instanceof BMap && value.getType().getName().equals(Constants.STRUCT_TIME) && value.getType()
                     .getPackagePath().equals(Constants.STRUCT_TIME_PACKAGE)) {
-                val = new Time(((BStruct) value).getIntField(0));
+                BValue timeVal = ((BMap<String, BValue>) value).get(TIME_FIELD);
+                long time = ((BInteger) timeVal).intValue();
+                val = new Time(time);
             } else if (value instanceof BInteger) {
                 val = new Time(((BInteger) value).intValue());
             } else if (value instanceof BString) {
@@ -794,47 +805,36 @@ public class SQLDatasourceUtils {
         BField[] structFields = ((BStructureType) value.getType()).getFields();
         int fieldCount = structFields.length;
         Object[] structData = new Object[fieldCount];
-        int intFieldIndex = 0;
-        int floatFieldIndex = 0;
-        int stringFieldIndex = 0;
-        int booleanFieldIndex = 0;
-        int blobFieldIndex = 0;
-        int refFieldIndex = 0;
         for (int i = 0; i < fieldCount; ++i) {
             BField field = structFields[i];
+            BValue bValue = ((BMap<String, BValue>) value).get(field.fieldName);
             int typeTag = field.getFieldType().getTag();
             switch (typeTag) {
             case TypeTags.INT_TAG:
-                structData[i] = ((BStruct) value).getIntField(intFieldIndex);
-                ++intFieldIndex;
+                structData[i] = ((BInteger) bValue).intValue();
                 break;
             case TypeTags.FLOAT_TAG:
-                structData[i] = ((BStruct) value).getFloatField(floatFieldIndex);
-                ++floatFieldIndex;
+                structData[i] = ((BFloat) bValue).floatValue();
                 break;
             case TypeTags.STRING_TAG:
-                structData[i] = ((BStruct) value).getStringField(stringFieldIndex);
-                ++stringFieldIndex;
+                structData[i] = bValue.stringValue();
                 break;
             case TypeTags.BOOLEAN_TAG:
-                structData[i] = ((BStruct) value).getBooleanField(booleanFieldIndex) > 0;
-                ++booleanFieldIndex;
+                structData[i] = ((BBoolean) bValue).booleanValue();
                 break;
             case TypeTags.BLOB_TAG:
-                structData[i] = ((BStruct) value).getBlobField(blobFieldIndex);
-                ++blobFieldIndex;
+                structData[i] = ((BBlob) bValue).blobValue();
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                Object structValue = ((BStruct) value).getRefField(refFieldIndex);
-                if (structValue instanceof BStruct) {
-                    Object[] internalStructData = getStructData((BStruct) structValue, conn);
+                Object structValue = bValue;
+                if (structValue instanceof BMap) {
+                    Object[] internalStructData = getStructData((BMap<String, BValue>) structValue, conn);
                     Object[] dataArray = (Object[]) internalStructData[0];
                     String internalStructType = (String) internalStructData[1];
                     structValue = conn.createStruct(internalStructType, dataArray);
                 }
                 structData[i] = structValue;
-                ++refFieldIndex;
                 break;
             default:
                 throw new BallerinaException("unsupported data type for struct parameter: " + structuredSQLType);
@@ -1096,14 +1096,14 @@ public class SQLDatasourceUtils {
         return null;
     }
 
-    public static BStruct getSQLConnectorError(Context context, Throwable throwable) {
+    public static BMap<?, ?> getSQLConnectorError(Context context, Throwable throwable) {
         PackageInfo sqlPackageInfo = context.getProgramFile().getPackageInfo(BLangConstants.BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = sqlPackageInfo.getStructInfo(Constants.SQL_CONNECTOR_ERROR);
-        BStruct sqlConnectorError = new BStruct(errorStructInfo.getType());
+        BMap<String, BValue> sqlConnectorError = new BMap<>(errorStructInfo.getType());
         if (throwable.getMessage() == null) {
-            sqlConnectorError.setStringField(0, Constants.SQL_EXCEPTION_OCCURED);
+            sqlConnectorError.put(ERROR_MESSAGE_FIELD, new BString(Constants.SQL_EXCEPTION_OCCURED));
         } else {
-            sqlConnectorError.setStringField(0, throwable.getMessage());
+            sqlConnectorError.put(ERROR_MESSAGE_FIELD, new BString(throwable.getMessage()));
         }
         return sqlConnectorError;
     }
@@ -1128,7 +1128,7 @@ public class SQLDatasourceUtils {
                 transactionBlockId);
     }
 
-    public static BStruct createServerBasedDBClient(Context context, String dbType,
+    public static BMap<String, BValue> createServerBasedDBClient(Context context, String dbType,
             org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
         String host = clientEndpointConfig.getStringField(Constants.EndpointConfig.HOST);
         int port = (int) clientEndpointConfig.getIntField(Constants.EndpointConfig.PORT);
@@ -1141,7 +1141,7 @@ public class SQLDatasourceUtils {
                 null);
     }
 
-    public static BStruct createSQLDBClient(Context context,
+    public static BMap<String, BValue> createSQLDBClient(Context context,
             org.ballerinalang.connector.api.Struct clientEndpointConfig) {
         String url = clientEndpointConfig.getStringField(Constants.EndpointConfig.URL);
         String username = clientEndpointConfig.getStringField(Constants.EndpointConfig.USERNAME);
@@ -1153,7 +1153,7 @@ public class SQLDatasourceUtils {
         return createSQLDataSource(context, options, url, dbType, "", 0, username, password, "", "", dbOptions);
     }
 
-    public static BStruct createMultiModeDBClient(Context context, String dbType,
+    public static BMap<String, BValue> createMultiModeDBClient(Context context, String dbType,
             org.ballerinalang.connector.api.Struct clientEndpointConfig, String urlOptions) {
         String dbPostfix = Constants.SQL_MEMORY_DB_POSTFIX;
         String hostOrPath = "";
@@ -1204,12 +1204,13 @@ public class SQLDatasourceUtils {
         }
     }
 
-    private static BStruct createSQLDataSource(Context context, org.ballerinalang.connector.api.Struct options,
-            String url, String dbType, String hostOrPath, int port, String username, String password, String dbName,
-            String dbOptions, Map dbOptionsMap) {
+    private static BMap<String, BValue>
+            createSQLDataSource(Context context, org.ballerinalang.connector.api.Struct options, String url,
+                                String dbType, String hostOrPath, int port, String username, String password,
+                                String dbName, String dbOptions, Map dbOptionsMap) {
         SQLDatasource datasource = new SQLDatasource();
         datasource.init(options, url, dbType, hostOrPath, port, username, password, dbName, dbOptions, dbOptionsMap);
-        BStruct sqlClient = BLangConnectorSPIUtil
+        BMap<String, BValue> sqlClient = BLangConnectorSPIUtil
                 .createBStruct(context.getProgramFile(), Constants.SQL_PACKAGE_PATH, Constants.CALLER_ACTIONS);
         sqlClient.addNativeData(Constants.CALLER_ACTIONS, datasource);
         return sqlClient;

@@ -22,7 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -63,18 +64,18 @@ public class PushPromisedResponse extends ConnectionAction {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
         HTTPCarbonMessage inboundRequestMsg = HttpUtil.getCarbonMsg(connectionStruct, null);
         DataContext dataContext = new DataContext(context, callback, inboundRequestMsg);
         HttpUtil.serverConnectionStructCheck(inboundRequestMsg);
 
-        BStruct pushPromiseStruct = (BStruct) context.getRefArgument(1);
+        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");
         }
 
-        BStruct outboundResponseStruct = (BStruct) context.getRefArgument(2);
+        BMap<String, BValue> outboundResponseStruct = (BMap<String, BValue>) context.getRefArgument(2);
         HTTPCarbonMessage outboundResponseMsg = HttpUtil
                 .getCarbonMsg(outboundResponseStruct, HttpUtil.createHttpCarbonMessage(false));
 
@@ -84,8 +85,8 @@ public class PushPromisedResponse extends ConnectionAction {
     }
 
     private void pushResponseRobust(DataContext dataContext, HTTPCarbonMessage requestMessage,
-                                        BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage,
-                                        Http2PushPromise http2PushPromise) {
+                                    BMap<String, BValue> outboundResponseStruct, HTTPCarbonMessage responseMessage,
+                                    Http2PushPromise http2PushPromise) {
         HttpResponseFuture outboundRespStatusFuture =
                 HttpUtil.pushResponse(requestMessage, responseMessage, http2PushPromise);
         HttpMessageDataStreamer outboundMsgDataStreamer = getMessageDataStreamer(responseMessage);
@@ -94,7 +95,7 @@ public class PushPromisedResponse extends ConnectionAction {
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
 
-        BStruct entityStruct = extractEntity(outboundResponseStruct);
+        BMap<String, BValue> entityStruct = extractEntity(outboundResponseStruct);
         if (entityStruct != null) {
             MessageDataSource outboundMessageSource = EntityBodyHandler.getMessageDataSource(entityStruct);
             serializeMsgDataSource(outboundMessageSource, entityStruct, messageOutputStream);
