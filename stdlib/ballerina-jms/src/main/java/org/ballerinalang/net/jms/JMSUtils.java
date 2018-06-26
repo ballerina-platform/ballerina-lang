@@ -24,7 +24,8 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -220,7 +221,7 @@ public class JMSUtils {
      * @param messageStruct ballerina struct.
      * @return {@link Message} instance located in struct.
      */
-    public static Message getJMSMessage(BStruct messageStruct) {
+    public static Message getJMSMessage(BMap<String, BValue> messageStruct) {
         Object nativeData = messageStruct.getNativeData(Constants.JMS_MESSAGE_OBJECT);
         if (nativeData instanceof Message) {
             return (Message) nativeData;

@@ -21,7 +21,8 @@ package org.ballerinalang.net.http;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
 import static org.ballerinalang.net.http.HttpConstants.PACKAGE_BALLERINA_BUILTIN;
@@ -41,21 +42,22 @@ public class DataContext {
         this.correlatedMessage = correlatedMessage;
     }
 
-    public void notifyInboundResponseStatus(BStruct inboundResponse, BStruct httpConnectorError) {
+    public void notifyInboundResponseStatus(BMap<String, BValue> inboundResponse,
+                                            BMap<String, BValue> httpConnectorError) {
         //Make the request associate with this response consumable again so that it can be reused.
         if (inboundResponse != null) {
             context.setReturnValues(inboundResponse);
         } else if (httpConnectorError != null) {
             context.setReturnValues(httpConnectorError);
         } else {
-            BStruct err = BLangConnectorSPIUtil.createBStruct(context, PACKAGE_BALLERINA_BUILTIN,
+            BMap<String, BValue> err = BLangConnectorSPIUtil.createBStruct(context, PACKAGE_BALLERINA_BUILTIN,
                     STRUCT_GENERIC_ERROR, "HttpClient failed");
             context.setReturnValues(err);
         }
         callback.notifySuccess();
     }
 
-    public void notifyOutboundResponseStatus(BStruct httpConnectorError) {
+    public void notifyOutboundResponseStatus(BMap<String, BValue> httpConnectorError) {
         if (httpConnectorError == null) {
             context.setReturnValues();
         } else {

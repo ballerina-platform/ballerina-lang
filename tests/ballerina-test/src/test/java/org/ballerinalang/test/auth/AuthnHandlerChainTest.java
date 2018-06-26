@@ -23,7 +23,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -79,8 +79,8 @@ public class AuthnHandlerChainTest {
     @Test(description = "Test case for creating authn handler chain")
     public void testCreateAuthnHandlerChain() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateAuthnHandlerChain");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertTrue(((BStruct) returns[0]) != null);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertTrue(returns[0] != null);
     }
 
     @Test(description = "Test case for authn handler chain authn failure scenario")

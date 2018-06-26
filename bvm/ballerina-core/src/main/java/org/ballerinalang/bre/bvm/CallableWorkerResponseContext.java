@@ -18,7 +18,8 @@
 package org.ballerinalang.bre.bvm;
 
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.program.BLangVMUtils;
 
 import java.util.LinkedHashMap;
@@ -36,8 +37,8 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
 
     protected boolean fulfilled;
 
-    protected Map<String, BStruct> workerErrors;
-        
+    protected Map<String, BMap<String, BValue>> workerErrors;
+
     protected int haltCount;
 
     public CallableWorkerResponseContext(BType[] responseTypes, int workerCount) {
@@ -79,9 +80,9 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
                 "' trying to return on already returned callable '" + 
                 signal.getSourceContext().callableUnitInfo.getName() + "'.");
     }
-    
+
     protected WorkerExecutionContext propagateErrorToTarget() {
-        BStruct error = BLangVMErrors.createCallFailedException(this.targetCtx, this.getWorkerErrors());
+        BMap<String, BValue> error = BLangVMErrors.createCallFailedException(this.targetCtx, this.getWorkerErrors());
         WorkerExecutionContext ctx = this.onFinalizedError(this.targetCtx, error);
         this.doFailCallbackNotify(error);
         return ctx;
@@ -117,7 +118,7 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
         }
     }
     
-    protected void printError(BStruct error) {
+    protected void printError(BMap<?, ?> error) {
         BLangVMUtils.log(error.stringValue());
     }
     
@@ -127,11 +128,11 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
         return ((this.workerErrors == null ? 0 : this.workerErrors.size()) + this.haltCount) >= this.workerCount;
     }
     
-    protected void storeError(WorkerExecutionContext sourceCtx, BStruct error) {
+    protected void storeError(WorkerExecutionContext sourceCtx, BMap<String, BValue> error) {
         this.workerErrors.put(sourceCtx.workerInfo.getWorkerName(), error);
     }
     
-    protected Map<String, BStruct> getWorkerErrors() {
+    protected Map<String, BMap<String, BValue>> getWorkerErrors() {
         return workerErrors;
     }
     
@@ -150,13 +151,13 @@ public class CallableWorkerResponseContext extends BaseWorkerResponseContext {
         }
         return null;
     }
-    
-    protected WorkerExecutionContext onFinalizedError(WorkerExecutionContext targetCtx, BStruct error) {
+
+    protected WorkerExecutionContext onFinalizedError(WorkerExecutionContext targetCtx, BMap<String, BValue> error) {
         this.modifyDebugCommands(targetCtx, this.currentSignal.getSourceContext());
         WorkerExecutionContext runInCallerCtx = BLangScheduler.errorThrown(targetCtx, error);
         return runInCallerCtx;
     }
-    
+
     protected void printStoredErrors() {
         if (this.workerErrors != null) {
             BLangVMUtils.log("worker errors: " + this.workerErrors);

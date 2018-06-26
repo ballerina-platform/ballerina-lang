@@ -19,7 +19,8 @@ package org.ballerinalang.nativeimpl.internal.compression;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.file.utils.Constants;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -77,10 +78,10 @@ public class Decompress extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct srcPathStruct = (BStruct) context.getRefArgument(SRC_PATH_FIELD_INDEX);
+        BMap<String, BValue> srcPathStruct = (BMap) context.getRefArgument(SRC_PATH_FIELD_INDEX);
         Path srcPath = (Path) srcPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
 
-        BStruct destPathStruct = (BStruct) context.getRefArgument(DEST_PATH_FIELD_INDEX);
+        BMap<String, BValue> destPathStruct = (BMap) context.getRefArgument(DEST_PATH_FIELD_INDEX);
         Path destPath = (Path) destPathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
 
         if (!srcPath.toFile().exists()) {

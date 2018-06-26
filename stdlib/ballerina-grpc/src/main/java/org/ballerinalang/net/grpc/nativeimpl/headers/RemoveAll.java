@@ -19,7 +19,8 @@ import io.grpc.Metadata;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.MessageHeaders;
@@ -45,7 +46,7 @@ import static org.ballerinalang.net.grpc.MessageHeaders.METADATA_KEY;
 public class RemoveAll extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct headerValues = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
         MessageHeaders metadata = headerValues != null ? (MessageHeaders) headerValues.getNativeData(METADATA_KEY)
                 : null;
         if (metadata != null) {

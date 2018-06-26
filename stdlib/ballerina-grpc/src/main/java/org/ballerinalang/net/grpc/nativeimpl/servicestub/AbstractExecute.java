@@ -21,11 +21,14 @@ import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import io.grpc.MethodDescriptor;
 import org.ballerinalang.bre.Context;
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -78,19 +81,19 @@ abstract class AbstractExecute extends BlockingNativeCallableUnit {
         return MessageUtils.getMethodType(methodDescriptorProto);
     }
     
-    BStruct createStruct(Context context, String structName) {
+    BMap<String, BValue> createStruct(Context context, String structName) {
         PackageInfo httpPackageInfo = context.getProgramFile()
                 .getPackageInfo(PROTOCOL_STRUCT_PACKAGE_GRPC);
         StructureTypeInfo structInfo = httpPackageInfo.getStructInfo(structName);
         BStructureType structType = structInfo.getType();
-        return new BStruct(structType);
+        return new BMap<>(structType);
     }
-    
+
     void notifyErrorReply(Context context, String errorMessage) {
         PackageInfo errorPackageInfo = context.getProgramFile().getPackageInfo(BALLERINA_BUILTIN_PKG);
         StructureTypeInfo errorStructInfo = errorPackageInfo.getStructInfo(STRUCT_GENERIC_ERROR);
-        BStruct outboundError = new BStruct(errorStructInfo.getType());
-        outboundError.setStringField(0, errorMessage);
+        BMap<String, BValue> outboundError = new BMap<>(errorStructInfo.getType());
+        outboundError.put(BLangVMErrors.ERROR_MESSAGE_FIELD, new BString(errorMessage));
         context.setReturnValues(outboundError);
     }
 }

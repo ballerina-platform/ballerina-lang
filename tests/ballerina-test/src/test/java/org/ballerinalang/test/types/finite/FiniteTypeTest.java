@@ -22,8 +22,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -120,7 +120,7 @@ public class FiniteTypeTest {
         BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentRefValueType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertTrue(returns[0] instanceof BMap);
     }
 
     @Test()

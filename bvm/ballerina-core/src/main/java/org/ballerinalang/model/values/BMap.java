@@ -17,15 +17,16 @@
  */
 package org.ballerinalang.model.values;
 
-import org.ballerinalang.model.types.BMapType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.runtime.message.BallerinaMessageDataSource;
 import org.ballerinalang.util.exceptions.BallerinaException;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -49,14 +50,31 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     private final Lock readLock = lock.readLock();
     private final Lock writeLock = lock.writeLock();
     private BType type = BTypes.typeMap;
+    private HashMap<String, Object> nativeData = new HashMap<>();
 
     public BMap() {
         map =  new LinkedHashMap<>();
     }
 
-    public BMap(BMapType type) {
+    public BMap(BType type) {
         this.map = new LinkedHashMap<>();
         this.type = type;
+    }
+
+    /**
+     * Retrieve the value for the given key from map.
+     * A null will be returned if the key does not exists.
+     * 
+     * @param key key used to get the value
+     * @return value
+     */
+    public V get(K key) {
+        readLock.lock();
+        try {
+            return map.get(key);
+        } finally {
+            readLock.unlock();
+        }
     }
 
     /**
@@ -66,7 +84,7 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
      * @param key key used to get the value
      * @return value
      */
-    public V get(K key) {
+    public V getIfExist(K key) {
         readLock.lock();
         try {
             if (!map.containsKey(key)) {
@@ -213,15 +231,15 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     public String stringValue() {
         readLock.lock();
         try {
+            String keySeparator = type.getTag() == TypeTags.MAP_TAG ? "\"" : "";
             StringJoiner sj = new StringJoiner(", ", "{", "}");
-    
             for (Iterator<Map.Entry<K, V>> i = map.entrySet().iterator(); i.hasNext();) {
     
                 String key;
                 String stringValue;
     
                 Map.Entry<K, V> e = i.next();
-                key = "\"" + (String) e.getKey() + "\"";
+                key = keySeparator + (String) e.getKey() + keySeparator;
                 V value = e.getValue();
     
                 if (value == null) {
@@ -238,7 +256,6 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         } finally {
             readLock.unlock();
         }
-
     }
 
     @Override
@@ -308,6 +325,31 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
         public boolean hasNext() {
             return iterator.hasNext();
         }
+    }
+
+    /**
+     * Add natively accessible data.
+     *
+     * @param key key to store data with
+     * @param data data to be stored
+     */
+    public void addNativeData(String key, Object data) {
+        this.nativeData.put(key, data);
+    }
+
+    /**
+     * Get natively accessible data.
+     *
+     * @param key key by which data was stored
+     * @return data which was stored with given key or null if no value corresponding to key
+     */
+    public Object getNativeData(String key) {
+        return this.nativeData.get(key);
+    }
+
+    @Override
+    public String toString() {
+        return stringValue();
     }
 }
 

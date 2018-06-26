@@ -26,7 +26,8 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -167,10 +168,10 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         @Override
         public void onSuccess(WebSocketConnection webSocketConnection, HttpCarbonResponse carbonResponse) {
             //using only one service endpoint in the client as there can be only one connection.
-            BStruct webSocketClientEndpoint = ((BStruct) context.getRefArgument(0));
-            webSocketClientEndpoint.setRefField(WebSocketConstants.CLIENT_RESPONSE_INDEX,
+            BMap<String, BValue> webSocketClientEndpoint = ((BMap<String, BValue>) context.getRefArgument(0));
+            webSocketClientEndpoint.put(WebSocketConstants.CLIENT_RESPONSE_FIELD,
                                                 HttpUtil.createResponseStruct(context, carbonResponse));
-            BStruct webSocketConnector = BLangConnectorSPIUtil.createObject(
+            BMap<String, BValue> webSocketConnector = BLangConnectorSPIUtil.createObject(
                     wsService.getResources()[0].getResourceInfo().getServiceInfo().getPackageInfo().getProgramFile(),
                     PROTOCOL_PACKAGE_HTTP, WebSocketConstants.WEBSOCKET_CONNECTOR);
             WebSocketOpenConnectionInfo connectionInfo =
@@ -178,7 +179,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
             webSocketConnector.addNativeData(WebSocketConstants.NATIVE_DATA_WEBSOCKET_CONNECTION_INFO, connectionInfo);
             WebSocketUtil.populateEndpoint(webSocketConnection, webSocketClientEndpoint);
             clientConnectorListener.setConnectionInfo(connectionInfo);
-            webSocketClientEndpoint.setRefField(WebSocketConstants.CLIENT_CONNECTOR_INDEX, webSocketConnector);
+            webSocketClientEndpoint.put(WebSocketConstants.CLIENT_CONNECTOR_FIELD, webSocketConnector);
             context.setReturnValues();
             if (readyOnConnect) {
                 webSocketConnection.readNextFrame();
@@ -189,8 +190,8 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         @Override
         public void onError(Throwable throwable, HttpCarbonResponse response) {
             if (response != null) {
-                BStruct webSocketClientEndpoint = ((BStruct) context.getRefArgument(0));
-                webSocketClientEndpoint.setRefField(WebSocketConstants.CLIENT_RESPONSE_INDEX,
+                BMap<String, BValue> webSocketClientEndpoint = ((BMap<String, BValue>) context.getRefArgument(0));
+                webSocketClientEndpoint.put(WebSocketConstants.CLIENT_RESPONSE_FIELD,
                                                     HttpUtil.createResponseStruct(context, response));
             }
             countDownLatch.countDown();

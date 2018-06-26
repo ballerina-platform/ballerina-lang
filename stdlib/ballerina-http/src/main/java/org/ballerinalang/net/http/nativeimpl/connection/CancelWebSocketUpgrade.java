@@ -23,7 +23,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -52,7 +53,7 @@ public class CancelWebSocketUpgrade implements NativeCallableUnit {
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
         try {
-            BStruct httpConnection = (BStruct) context.getRefArgument(0);
+            BMap<String, BValue> httpConnection = (BMap<String, BValue>) context.getRefArgument(0);
             int statusCode = (int) context.getIntArgument(0);
             String reason = context.getStringArgument(0);
             WebSocketInitMessage initMessage =

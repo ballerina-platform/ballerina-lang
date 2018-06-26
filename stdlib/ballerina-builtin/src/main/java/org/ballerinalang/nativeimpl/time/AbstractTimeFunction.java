@@ -19,7 +19,9 @@ package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -41,18 +43,21 @@ import java.time.temporal.TemporalAccessor;
 public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
 
     public static final String KEY_ZONED_DATETIME = "ZonedDateTime";
-
+    public static final String TIME_FIELD = "time";
+    public static final String ZONE_FIELD = "zone";
+    public static final String ZONE_ID_FIELD = "zoneId";
+    
     private StructureTypeInfo timeStructInfo;
     private StructureTypeInfo zoneStructInfo;
 
-    BStruct createCurrentTime(Context context) {
+    BMap<String, BValue> createCurrentTime(Context context) {
         long currentTime = Instant.now().toEpochMilli();
         return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), currentTime,
                 ZoneId.systemDefault().toString());
     }
 
-    BStruct createDateTime(Context context, int year, int month, int day, int hour, int minute, int second,
-            int milliSecond, String zoneIDStr) {
+    BMap<String, BValue> createDateTime(Context context, int year, int month, int day, int hour, int minute,
+                                        int second, int milliSecond, String zoneIDStr) {
         int nanoSecond = milliSecond * 1000000;
         ZoneId zoneId;
         if (zoneIDStr.isEmpty()) {
@@ -66,7 +71,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), timeValue, zoneIDStr);
     }
 
-    BStruct parseTime(Context context, String dateValue, String pattern) {
+    BMap<String, BValue> parseTime(Context context, String dateValue, String pattern) {
         try {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
             TemporalAccessor temporalAccessor = formatter.parse(dateValue);
@@ -119,7 +124,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         }
     }
 
-    String getFormattedtString(BStruct timeStruct, String pattern) {
+    String getFormattedtString(BMap<String, BValue> timeStruct, String pattern) {
         String formattedString;
         try {
             ZonedDateTime dateTime = getZonedDateTime(timeStruct);
@@ -131,93 +136,93 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         return formattedString;
     }
 
-    String getDefaultString(BStruct timeStruct) {
+    String getDefaultString(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
     }
 
-    BStruct addDuration(Context context, BStruct timeStruct, long years, long months, long days, long hours,
-            long minutes, long seconds, long milliSeconds) {
+    BMap<String, BValue> addDuration(Context context, BMap<String, BValue> timeStruct, long years, long months,
+                                     long days, long hours, long minutes, long seconds, long milliSeconds) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         long nanoSeconds = milliSeconds * 1000000;
         dateTime = dateTime.plusYears(years).plusMonths(months).plusDays(days).plusHours(hours).plusMinutes(minutes)
                 .plusSeconds(seconds).plusNanos(nanoSeconds);
-        BStruct zoneData = (BStruct) timeStruct.getRefField(0);
-        String zoneIdName = zoneData.getStringField(0);
+        BMap<String, BValue> zoneData = (BMap<String, BValue>) timeStruct.get(ZONE_FIELD);
+        String zoneIdName = zoneData.get(ZONE_ID_FIELD).stringValue();
         long mSec = dateTime.toInstant().toEpochMilli();
         return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
     }
 
-    BStruct subtractDuration(Context context, BStruct timeStruct, long years, long months, long days, long hours,
-            long minutes, long seconds, long milliSeconds) {
+    BMap<String, BValue> subtractDuration(Context context, BMap<String, BValue> timeStruct, long years, long months,
+                                          long days, long hours, long minutes, long seconds, long milliSeconds) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         long nanoSeconds = milliSeconds * 1000000;
         dateTime = dateTime.minusYears(years).minusMonths(months).minusDays(days).minusHours(hours)
                 .minusMinutes(minutes).minusSeconds(seconds).minusNanos(nanoSeconds);
-        BStruct zoneData = (BStruct) timeStruct.getRefField(0);
-        String zoneIdName = zoneData.getStringField(0);
+        BMap<String, BValue> zoneData = (BMap<String, BValue>) timeStruct.get(ZONE_FIELD);
+        String zoneIdName = zoneData.get(ZONE_ID_FIELD).stringValue();
         long mSec = dateTime.toInstant().toEpochMilli();
         return Utils.createTimeStruct(getTimeZoneStructInfo(context), getTimeStructInfo(context), mSec, zoneIdName);
     }
 
-    BStruct changeTimezone(Context context, BStruct timeStruct, String zoneId) {
-        BStruct timezone = Utils.createTimeZone(Utils.getTimeZoneStructInfo(context), zoneId);
-        timeStruct.setRefField(0, timezone);
+    BMap<String, BValue> changeTimezone(Context context, BMap<String, BValue> timeStruct, String zoneId) {
+        BMap<String, BValue> timezone = Utils.createTimeZone(Utils.getTimeZoneStructInfo(context), zoneId);
+        timeStruct.put(ZONE_FIELD, timezone);
         clearStructCache(timeStruct);
         return timeStruct;
     }
 
 
-    int getYear(BStruct timeStruct) {
+    int getYear(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.getYear();
     }
 
-    int getMonth(BStruct timeStruct) {
+    int getMonth(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.getMonthValue();
     }
 
-    int getDay(BStruct timeStruct) {
+    int getDay(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.getDayOfMonth();
     }
 
-    int getHour(BStruct timeStruct) {
+    int getHour(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.getHour();
     }
 
-    int getMinute(BStruct timeStruct) {
+    int getMinute(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.getMinute();
     }
 
-    int getSecond(BStruct timeStruct) {
+    int getSecond(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.getSecond();
     }
 
-    int getMilliSecond(BStruct timeStruct) {
+    int getMilliSecond(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.getNano() / 1000000;
     }
 
-    String getWeekDay(BStruct timeStruct) {
+    String getWeekDay(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = getZonedDateTime(timeStruct);
         return dateTime.getDayOfWeek().toString();
     }
 
-    protected ZonedDateTime getZonedDateTime(BStruct timeStruct) {
+    protected ZonedDateTime getZonedDateTime(BMap<String, BValue> timeStruct) {
         ZonedDateTime dateTime = (ZonedDateTime) timeStruct.getNativeData(KEY_ZONED_DATETIME);
         if (dateTime != null) {
             return dateTime;
         }
-        long timeData = timeStruct.getIntField(0);
-        BStruct zoneData = (BStruct) timeStruct.getRefField(0);
+        long timeData = ((BInteger) timeStruct.get(TIME_FIELD)).intValue();
+        BMap<String, BValue> zoneData = (BMap<String, BValue>) timeStruct.get(ZONE_FIELD);
         ZoneId zoneId;
         if (zoneData != null) {
-            String zoneIdName = zoneData.getStringField(0);
+            String zoneIdName = zoneData.get(ZONE_ID_FIELD).stringValue();
             if (zoneIdName.isEmpty()) {
                 zoneId = ZoneId.systemDefault();
             } else {
@@ -231,7 +236,7 @@ public abstract class AbstractTimeFunction extends BlockingNativeCallableUnit {
         return dateTime;
     }
 
-    private void clearStructCache(BStruct timeStruct) {
+    private void clearStructCache(BMap<String, BValue> timeStruct) {
         timeStruct.addNativeData(KEY_ZONED_DATETIME, null);
     }
 

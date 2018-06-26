@@ -18,7 +18,8 @@
 
 package org.ballerinalang.net.http;
 
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 
 /**
@@ -28,12 +29,12 @@ import org.wso2.transport.http.netty.contract.websocket.WebSocketConnection;
 public class WebSocketOpenConnectionInfo {
 
     private final WebSocketService webSocketService;
-    private final BStruct webSocketEndpoint;
+    private final BMap<String, BValue> webSocketEndpoint;
     private final WebSocketConnection webSocketConnection;
     private int closeStatusCode = -1;
 
     public WebSocketOpenConnectionInfo(WebSocketService webSocketService, WebSocketConnection webSocketConnection,
-                                       BStruct webSocketEndpoint) {
+                                       BMap<String, BValue> webSocketEndpoint) {
         this.webSocketService = webSocketService;
         this.webSocketConnection = webSocketConnection;
         this.webSocketEndpoint = webSocketEndpoint;
@@ -43,7 +44,7 @@ public class WebSocketOpenConnectionInfo {
         return webSocketService;
     }
 
-    public BStruct getWebSocketEndpoint() {
+    public BMap<String, BValue> getWebSocketEndpoint() {
         return webSocketEndpoint;
     }
 

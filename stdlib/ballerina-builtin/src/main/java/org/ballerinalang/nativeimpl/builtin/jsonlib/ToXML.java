@@ -23,7 +23,8 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JSONUtils;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
@@ -48,10 +49,13 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
 )
 public class ToXML extends BlockingNativeCallableUnit {
 
+    private static final String XML_OPTIONS_ATTRIBUTE_PREFIX = "attributePrefix";
+    private static final String XML_OPTIONS_ARRAY_ENTRY_TAG = "arrayEntryTag";
+
     @Override
     public void execute(Context ctx) {
         BXML<?> xml = null;
-        BStruct error = null;
+        BMap<String, BValue> error = null;
         try {
             // Accessing Parameters
             BJSON json = (BJSON) ctx.getNullableRefArgument(0);
@@ -61,9 +65,9 @@ public class ToXML extends BlockingNativeCallableUnit {
                 return;
             }
 
-            BStruct optionsStruct = ((BStruct) ctx.getRefArgument(1));
-            String attributePrefix = optionsStruct.getStringField(0);
-            String arrayEntryTag = optionsStruct.getStringField(1);
+            BMap<String, BValue> optionsStruct = ((BMap<String, BValue>) ctx.getRefArgument(1));
+            String attributePrefix = optionsStruct.get(XML_OPTIONS_ATTRIBUTE_PREFIX).stringValue();
+            String arrayEntryTag = optionsStruct.get(XML_OPTIONS_ARRAY_ENTRY_TAG).stringValue();
             //Converting to xml.
             xml = JSONUtils.convertToXML(json, attributePrefix, arrayEntryTag);
             ctx.setReturnValues(xml);

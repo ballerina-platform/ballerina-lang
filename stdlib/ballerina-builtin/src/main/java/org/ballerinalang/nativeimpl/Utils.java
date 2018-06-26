@@ -23,8 +23,8 @@ import org.ballerinalang.bre.bvm.BLangVMStructs;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
@@ -63,7 +63,7 @@ public class Utils {
     public static final String BASE64_DECODE_ERROR = "Base64DecodeError";
     private static final String STRUCT_TYPE = "ByteChannel";
 
-    public static BStruct createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
+    public static BMap<String, BValue> createTimeZone(StructureTypeInfo timezoneStructInfo, String zoneIdValue) {
         String zoneIdName;
         try {
             ZoneId zoneId = ZoneId.of(zoneIdValue);
@@ -78,9 +78,9 @@ public class Utils {
         }
     }
 
-    public static BStruct createTimeStruct(StructureTypeInfo timezoneStructInfo,
+    public static BMap<String, BValue> createTimeStruct(StructureTypeInfo timezoneStructInfo,
                                            StructureTypeInfo timeStructInfo, long millis, String zoneIdName) {
-        BStruct timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
+        BMap<String, BValue> timezone = Utils.createTimeZone(timezoneStructInfo, zoneIdName);
         return BLangVMStructs.createBStruct(timeStructInfo, millis, timezone);
     }
 
@@ -100,11 +100,12 @@ public class Utils {
         return timePackageInfo.getStructInfo(STRUCT_TYPE_TIME);
     }
 
-    public static BStruct createConversionError(Context context, String msg) {
+    public static BMap<String, BValue> createConversionError(Context context, String msg) {
         return BLangVMErrors.createError(context, msg);
     }
 
-    private static BStruct createBase64Error(Context context, String msg, boolean isMimeSpecific, boolean isEncoder) {
+    private static BMap<String, BValue> createBase64Error(Context context, String msg, boolean isMimeSpecific,
+                                                          boolean isEncoder) {
         PackageInfo filePkg;
         if (isMimeSpecific) {
             filePkg = context.getProgramFile().getPackageInfo(PROTOCOL_PACKAGE_MIME);
@@ -140,6 +141,7 @@ public class Utils {
      * @param charset        Represent the charset value to be used with string
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
+    @SuppressWarnings("unchecked")
     public static void encode(Context context, BValue input, String charset, boolean isMimeSpecific) {
         switch (input.getType().getTag()) {
             case TypeTags.BLOB_TAG:
@@ -149,11 +151,9 @@ public class Utils {
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                if (input instanceof BStruct) {
-                    BStruct byteChannel = (BStruct) input;
-                    if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
-                        encodeByteChannel(context, byteChannel, isMimeSpecific);
-                    }
+                BMap<String, BValue> byteChannel = (BMap<String, BValue>) input;
+                if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
+                    encodeByteChannel(context, byteChannel, isMimeSpecific);
                 }
                 break;
             case TypeTags.STRING_TAG:
@@ -172,6 +172,7 @@ public class Utils {
      * @param charset        Represent the charset value to be used with string
      * @param isMimeSpecific A boolean indicating whether the decoder should be mime specific or not
      */
+    @SuppressWarnings("unchecked")
     public static void decode(Context context, BValue encodedInput, String charset, boolean isMimeSpecific) {
         switch (encodedInput.getType().getTag()) {
             case TypeTags.BLOB_TAG:
@@ -181,9 +182,7 @@ public class Utils {
                 break;
             case TypeTags.OBJECT_TYPE_TAG:
             case TypeTags.RECORD_TYPE_TAG:
-                if (encodedInput instanceof BStruct) {
-                    decodeByteChannel(context, (BStruct) encodedInput, isMimeSpecific);
-                }
+                decodeByteChannel(context, (BMap<String, BValue>) encodedInput, isMimeSpecific);
                 break;
             case TypeTags.STRING_TAG:
                 decodeString(context, encodedInput, charset, isMimeSpecific);
@@ -269,9 +268,9 @@ public class Utils {
      * @param byteChannel    Represent the byte channel that needs to be encoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
-    public static void encodeByteChannel(Context context, BStruct byteChannel, boolean isMimeSpecific) {
+    public static void encodeByteChannel(Context context, BMap<String, BValue> byteChannel, boolean isMimeSpecific) {
         Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-        BStruct byteChannelStruct;
+        BMap<String, BValue> byteChannelStruct;
         try {
             byte[] encodedByteArray;
             if (isMimeSpecific) {
@@ -300,10 +299,10 @@ public class Utils {
      * @param byteChannel    Represent the byte channel that needs to be decoded
      * @param isMimeSpecific A boolean indicating whether the encoder should be mime specific or not
      */
-    public static void decodeByteChannel(Context context, BStruct byteChannel, boolean isMimeSpecific) {
+    public static void decodeByteChannel(Context context, BMap<String, BValue> byteChannel, boolean isMimeSpecific) {
         if (STRUCT_TYPE.equals(byteChannel.getType().getName())) {
             Channel channel = (Channel) byteChannel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            BStruct byteChannelStruct;
+            BMap<String, BValue> byteChannelStruct;
             byte[] decodedByteArray;
             try {
                 if (isMimeSpecific) {

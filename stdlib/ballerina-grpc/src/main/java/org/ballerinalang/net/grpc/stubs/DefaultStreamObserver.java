@@ -24,7 +24,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
@@ -75,7 +75,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        BStruct headerStruct = getHeaderStruct(resource);
+        BMap<String, BValue> headerStruct = getHeaderStruct(resource);
         Metadata respMetadata = headerCapture.get();
         if (headerStruct != null && respMetadata != null) {
             headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
@@ -102,9 +102,9 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onError.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BType errorType = paramDetails.get(0).getVarType();
-        BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, t);
+        BMap<String, BValue> errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, t);
         signatureParams[0] = errorStruct;
-        BStruct headerStruct = getHeaderStruct(onError);
+        BMap<String, BValue> headerStruct = getHeaderStruct(onError);
         Metadata respMetadata = headerCapture.get();
         if (headerStruct != null && respMetadata != null) {
             headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));
@@ -128,7 +128,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        BStruct headerStruct = getHeaderStruct(onCompleted);
+        BMap<String, BValue> headerStruct = getHeaderStruct(onCompleted);
         Metadata respMetadata = headerCapture.get();
         if (headerStruct != null && respMetadata != null) {
             headerStruct.addNativeData(METADATA_KEY, new MessageHeaders(respMetadata));

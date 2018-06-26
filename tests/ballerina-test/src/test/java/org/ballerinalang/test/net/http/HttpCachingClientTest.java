@@ -26,8 +26,8 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.Constants;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -47,11 +47,11 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_INDEX;
+import static org.ballerinalang.mime.util.Constants.REQUEST_ENTITY_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.HTTP_STATUS_CODE;
 import static org.ballerinalang.net.http.HttpConstants.PROTOCOL_PACKAGE_HTTP;
 import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL;
-import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_INDEX;
+import static org.ballerinalang.net.http.HttpConstants.REQUEST_CACHE_CONTROL_FIELD;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE;
 import static org.ballerinalang.net.http.HttpConstants.RESPONSE_CACHE_CONTROL;
 
@@ -84,7 +84,7 @@ public class HttpCachingClientTest {
     @Test(description = "Tests whether the Age header is parsed correctly, according to the specification",
           enabled = false)
     public void testGetResponseAge() {
-        BStruct cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+        BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
 
@@ -110,7 +110,7 @@ public class HttpCachingClientTest {
     @Test(description = "Tests whether the Date header is parsed correctly to an integer value", enabled = false)
     public void testGetDateValue() {
         String expectedDate = "Thu, 01 Mar 2018 15:36:34 GMT";
-        BStruct inResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+        BMap<String, BValue> inResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                              PROTOCOL_PACKAGE_HTTP,
                                                              RESPONSE);
 
@@ -134,7 +134,7 @@ public class HttpCachingClientTest {
     public void testRetain2xxWarnings() {
         final String warning214 = "Warning: 214 - \"Transformation Applied\"";
         final String warning299 = "Warning: 299 - \"Miscellaneous Persistent Warning\"";
-        BStruct inResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+        BMap<String, BValue> inResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                              PROTOCOL_PACKAGE_HTTP,
                                                              RESPONSE);
 
@@ -170,7 +170,7 @@ public class HttpCachingClientTest {
         final String cacheControlHeader = "no-cache=\"Set-Cookie\",max-age=120";
         final String etagHeader = "1sps79e:q0efehi8";
 
-        BStruct cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+        BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
         HTTPCarbonMessage cachedResponseMsg = HttpUtil.createHttpCarbonMessage(false);
@@ -181,7 +181,7 @@ public class HttpCachingClientTest {
         cachedResponseMsg.setHeader(ETAG, etagHeader);
         initInboundResponse(cachedResponse, cachedResponseMsg);
 
-        BStruct validationResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+        BMap<String, BValue> validationResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                      PROTOCOL_PACKAGE_HTTP,
                                                                      RESPONSE);
         HTTPCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
@@ -232,7 +232,7 @@ public class HttpCachingClientTest {
         final String lastModifiedHeader = "Thu, 01 Mar 2018 15:36:34 GMT";
         final String etagHeader = "1sps79e:q0efehi8";
 
-        BStruct validationResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+        BMap<String, BValue> validationResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                      PROTOCOL_PACKAGE_HTTP,
                                                                      RESPONSE);
         HTTPCarbonMessage validationResponseMsg = HttpUtil.createHttpCarbonMessage(false);
@@ -272,7 +272,7 @@ public class HttpCachingClientTest {
                                                         .getStructInfo(REQUEST_CACHE_CONTROL));
         requestCacheControl.setMaxStale(Long.MAX_VALUE);
 
-        BStruct cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+        BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
         ResponseCacheControlStruct responseCacheControl
@@ -360,7 +360,7 @@ public class HttpCachingClientTest {
         final String dateHeader = "Thu, 01 Mar 2018 15:36:34 GMT";
         final String expiresHeader = "Thu, 01 Mar 2018 15:46:34 GMT"; // 600 second difference
 
-        BStruct cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+        BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
         ResponseCacheControlStruct responseCacheControl
@@ -422,7 +422,7 @@ public class HttpCachingClientTest {
         final String dateHeader = "Thu, 01 Mar 2018 15:36:34 GMT";
         final String expiresHeader = "Thu, 01 Mar 2018 15:46:34 GMT"; // 600 second difference
 
-        BStruct cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+        BMap<String, BValue> cachedResponse = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                                  PROTOCOL_PACKAGE_HTTP,
                                                                  RESPONSE);
         ResponseCacheControlStruct responseCacheControl
@@ -477,20 +477,20 @@ public class HttpCachingClientTest {
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue());
     }
 
-    private void initInboundResponse(BStruct inResponse, HTTPCarbonMessage inResponseMsg) {
+    private void initInboundResponse(BMap<String, BValue> inResponse, HTTPCarbonMessage inResponseMsg) {
         HttpUtil.addCarbonMsg(inResponse, inResponseMsg);
-        BStruct entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(), Constants.PROTOCOL_PACKAGE_MIME,
-                                                         Constants.ENTITY);
-        BStruct mediaType = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+        BMap<String, BValue> entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+                Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
+        BMap<String, BValue> mediaType = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
                                                             Constants.PROTOCOL_PACKAGE_MIME, Constants.MEDIA_TYPE);
         HttpUtil.populateInboundResponse(inResponse, entity, mediaType, compileResult.getProgFile(), inResponseMsg);
     }
 
-    private void initOutboundRequest(BStruct outRequest, RequestCacheControlStruct cacheControl) {
-        BStruct entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(), Constants.PROTOCOL_PACKAGE_MIME,
-                                                         Constants.ENTITY);
-        outRequest.setRefField(REQUEST_ENTITY_INDEX, entity);
+    private void initOutboundRequest(BMap<String, BValue> outRequest, RequestCacheControlStruct cacheControl) {
+        BMap<String, BValue> entity = BCompileUtil.createAndGetStruct(compileResult.getProgFile(),
+                Constants.PROTOCOL_PACKAGE_MIME, Constants.ENTITY);
+        outRequest.put(REQUEST_ENTITY_FIELD, entity);
 
-        outRequest.setRefField(REQUEST_CACHE_CONTROL_INDEX, cacheControl.getStruct());
+        outRequest.put(REQUEST_CACHE_CONTROL_FIELD, cacheControl.getStruct());
     }
 }
