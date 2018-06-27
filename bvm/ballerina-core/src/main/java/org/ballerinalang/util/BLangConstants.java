@@ -75,4 +75,7 @@ public class BLangConstants {
 
     // Empty value for blob
     public static final byte[] BLOB_EMPTY_VALUE = new byte[0];
+
+    public static final Integer BBYTE_MIN_VALUE = 0;
+    public static final Integer BBYTE_MAX_VALUE = 255;
 }

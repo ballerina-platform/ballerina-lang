@@ -21,9 +21,11 @@ package org.ballerinalang.test.balo.types;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.balo.BaloCreator;
 import org.testng.Assert;
@@ -122,7 +124,7 @@ public class FiniteTypeTest {
         BValue[] returns = BRunUtil.invoke(result, "finiteAssignmentRefValueType");
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
-        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertTrue(returns[0] instanceof BMap);
     }
 
     @Test()
@@ -238,6 +240,37 @@ public class FiniteTypeTest {
         Assert.assertTrue(returns[1] instanceof BInteger);
         Assert.assertEquals((((BInteger) returns[0]).intValue()), 2);
         Assert.assertEquals((((BInteger) returns[1]).intValue()), 23);
+    }
+
+    @Test()
+    public void testTypeDefinitionWithByteArray() {
+        BValue[] returns = BRunUtil.invoke(result, "testTypeDefinitionWithByteArray");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertSame(returns[0].getClass(), BInteger.class);
+        Assert.assertSame(returns[1].getClass(), BByte.class);
+        Assert.assertEquals((((BInteger) returns[0]).intValue()), 2);
+        Assert.assertEquals((((BByte) returns[1]).byteValue()), 23);
+    }
+
+    @Test()
+    public void testFiniteAssignmentByteType() {
+        BValue[] returns = BRunUtil.invoke(result, "testFiniteAssignmentByteType");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertSame(returns[0].getClass(), BByte.class);
+        Assert.assertEquals((((BByte) returns[0]).byteValue()), (byte) 222);
+    }
+
+    @Test()
+    public void testByteTypeDefinitionWithVarArgs() {
+        BValue[] returns = BRunUtil.invoke(result, "testByteTypeDefinitionWithVarArgs");
+        Assert.assertEquals(returns.length, 2);
+        Assert.assertNotNull(returns[0]);
+        Assert.assertSame(returns[0].getClass(), BByte.class);
+        Assert.assertEquals((((BByte) returns[0]).byteValue()), 34);
+        Assert.assertNotNull(returns[1]);
+        Assert.assertSame(returns[1].getClass(), BFloat.class);
+        Assert.assertEquals((((BFloat) returns[1]).floatValue()), 4.5);
     }
 
     @AfterClass

@@ -25,7 +25,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -70,7 +71,7 @@ public class Init extends BlockingNativeCallableUnit {
     public void execute(Context context) {
 
         Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-        BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+        BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
         Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
         ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
         io.grpc.ServerBuilder serverBuilder;

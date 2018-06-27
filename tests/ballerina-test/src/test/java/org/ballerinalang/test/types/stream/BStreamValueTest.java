@@ -22,8 +22,9 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBooleanArray;
 import org.ballerinalang.model.values.BIntArray;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -87,33 +88,37 @@ public class BStreamValueTest {
             + " declared stream")
     public void testGlobalStream() {
         BValue[] returns = BRunUtil.invoke(result, "testGlobalStream");
-        BStruct origEmployee = (BStruct) returns[0];
-        BStruct publishedEmployee = (BStruct) returns[1];
-        BStruct modifiedOrigEmployee = (BStruct) returns[2];
-        Assert.assertEquals(origEmployee.getIntField(0), 0);
-        Assert.assertTrue(origEmployee.getStringField(0).isEmpty());
+        BMap<String, BValue> origEmployee = (BMap<String, BValue>) returns[0];
+        BMap<String, BValue> publishedEmployee = (BMap<String, BValue>) returns[1];
+        BMap<String, BValue> modifiedOrigEmployee = (BMap<String, BValue>) returns[2];
+        Assert.assertEquals(((BInteger) origEmployee.get("id")).intValue(), 0);
+        Assert.assertTrue(origEmployee.get("name").stringValue().isEmpty());
         Assert.assertTrue(Objects.equals(modifiedOrigEmployee.getType().getName(),
                                          publishedEmployee.getType().getName()));
-        Assert.assertEquals(modifiedOrigEmployee.getIntField(0), publishedEmployee.getIntField(0),
-                            "Object field \"id\" of received event does not match that of published event");
-        Assert.assertEquals(modifiedOrigEmployee.getStringField(0), publishedEmployee.getStringField(0),
-                            "Object field \"name\" of received event does not match that of published event");
+        Assert.assertEquals(((BInteger) modifiedOrigEmployee.get("id")).intValue(),
+                ((BInteger) publishedEmployee.get("id")).intValue(),
+                "Object field \"id\" of received event does not match that of published event");
+        Assert.assertEquals(modifiedOrigEmployee.get("name").stringValue(),
+                publishedEmployee.get("name").stringValue(),
+                "Object field \"name\" of received event does not match that of published event");
     }
 
     @Test(description = "Test receipt of single object event with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForObject() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForObject");
-        BStruct origEmployee = (BStruct) returns[0];
-        BStruct publishedEmployee = (BStruct) returns[1];
-        BStruct modifiedOrigEmployee = (BStruct) returns[2];
-        Assert.assertEquals(origEmployee.getIntField(0), 0);
-        Assert.assertTrue(origEmployee.getStringField(0).isEmpty());
+        BMap<String, BValue> origEmployee = (BMap<String, BValue>) returns[0];
+        BMap<String, BValue> publishedEmployee = (BMap<String, BValue>) returns[1];
+        BMap<String, BValue> modifiedOrigEmployee = (BMap<String, BValue>) returns[2];
+        Assert.assertEquals(((BInteger) origEmployee.get("id")).intValue(), 0);
+        Assert.assertTrue(origEmployee.get("name").stringValue().isEmpty());
         Assert.assertTrue(Objects.equals(publishedEmployee.getType().getName(),
                                          modifiedOrigEmployee.getType().getName()));
-        Assert.assertEquals(modifiedOrigEmployee.getIntField(0), publishedEmployee.getIntField(0),
-                            "Object field \"id\" of received event does not match that of published event");
-        Assert.assertEquals(modifiedOrigEmployee.getStringField(0), publishedEmployee.getStringField(0),
-                            "Object field \"name\" of received event does not match that of published event");
+        Assert.assertEquals(((BInteger) modifiedOrigEmployee.get("id")).intValue(),
+                ((BInteger) publishedEmployee.get("id")).intValue(),
+                "Object field \"id\" of received event does not match that of published event");
+        Assert.assertEquals(modifiedOrigEmployee.get("name").stringValue(),
+                publishedEmployee.get("name").stringValue(),
+                "Object field \"name\" of received event does not match that of published event");
     }
 
     @Test(description = "Test receipt of multiple object events with correct subscription and publishing")
@@ -127,14 +132,16 @@ public class BStreamValueTest {
         Assert.assertEquals(receivedEmployeeEvents.size(), publishedEmployeeEvents.size(), "Number of Employee "
                 + "Events received does not match the number published");
         for (int i = 0; i < publishedEmployeeEvents.size(); i++) {
-            BStruct publishedEmployeeEvent = (BStruct) publishedEmployeeEvents.get(i);
-            BStruct receivedEmployeeEvent = (BStruct) receivedEmployeeEvents.get(i);
+            BMap<String, BValue> publishedEmployeeEvent = (BMap<String, BValue>) publishedEmployeeEvents.get(i);
+            BMap<String, BValue> receivedEmployeeEvent = (BMap<String, BValue>) receivedEmployeeEvents.get(i);
             Assert.assertTrue(Objects.equals(publishedEmployeeEvent.getType().getName(),
                                              receivedEmployeeEvent.getType().getName()));
-            Assert.assertEquals(receivedEmployeeEvent.getIntField(0), publishedEmployeeEvent.getIntField(0),
-                                "Object field \"id\" of received event does not match that of published event");
-            Assert.assertEquals(receivedEmployeeEvent.getStringField(0), publishedEmployeeEvent.getStringField(0),
-                                "Object field \"name\" of received event does not match that of published event");
+            Assert.assertEquals(((BInteger) receivedEmployeeEvent.get("id")).intValue(),
+                    ((BInteger) publishedEmployeeEvent.get("id")).intValue(),
+                    "Object field \"id\" of received event does not match that of published event");
+            Assert.assertEquals(receivedEmployeeEvent.get("name").stringValue(),
+                    publishedEmployeeEvent.get("name").stringValue(),
+                    "Object field \"name\" of received event does not match that of published event");
         }
     }
 

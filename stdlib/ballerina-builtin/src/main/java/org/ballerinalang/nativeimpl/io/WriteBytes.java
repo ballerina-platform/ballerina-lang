@@ -23,7 +23,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
 import org.ballerinalang.nativeimpl.io.events.EventResult;
@@ -77,7 +78,7 @@ public class WriteBytes implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         CallableUnitCallback callback = eventContext.getCallback();
         if (null != error) {
-            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
+            BMap<String, BValue> errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
             Integer numberOfBytesWritten = result.getResponse();
@@ -95,7 +96,7 @@ public class WriteBytes implements NativeCallableUnit {
      */
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct channel = (BStruct) context.getRefArgument(BYTE_CHANNEL_INDEX);
+        BMap<String, BValue> channel = (BMap<String, BValue>) context.getRefArgument(BYTE_CHANNEL_INDEX);
         byte[] content = context.getBlobArgument(CONTENT_INDEX);
         int offset = (int) context.getIntArgument(START_OFFSET_INDEX);
         Channel byteChannel = (Channel) channel.getNativeData(IOConstants.BYTE_CHANNEL_NAME);

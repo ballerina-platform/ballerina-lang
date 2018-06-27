@@ -35,9 +35,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 import java.util.Stack;
@@ -1879,6 +1877,30 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
 
+    @Override
+    public void exitBitwiseExpression(BallerinaParser.BitwiseExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
+    }
+
+
+    @Override
+    public void exitBitwiseShiftExpression(BallerinaParser.BitwiseShiftExpressionContext ctx) {
+        if (ctx.exception != null) {
+            return;
+        }
+
+        StringBuilder operator = new StringBuilder();
+
+        for (int i = 1; i < ctx.getChildCount() - 1; i++) {
+            operator.append(ctx.getChild(i).getText());
+        }
+
+        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), operator.toString());
+    }
 
     /**
      * {@inheritDoc}
@@ -1946,16 +1968,6 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         }
 
         this.pkgBuilder.createCheckedExpr(getCurrentPos(ctx), getWS(ctx));
-    }
-
-
-    @Override
-    public void exitBinaryPowExpression(BallerinaParser.BinaryPowExpressionContext ctx) {
-        if (ctx.exception != null) {
-            return;
-        }
-
-        this.pkgBuilder.createBinaryExpr(getCurrentPos(ctx), getWS(ctx), ctx.getChild(1).getText());
     }
 
     @Override
@@ -2092,8 +2104,7 @@ public class BLangParserListener extends BallerinaParserBaseListener {
         } else if (ctx.NullLiteral() != null || ctx.emptyTupleLiteral() != null) {
             this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.NIL, null);
         } else if (ctx.blobLiteral() != null) {
-            byte[] blobValue = getBlobLiteral(ctx.blobLiteral());
-            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BLOB, blobValue);
+            this.pkgBuilder.addLiteralValue(pos, ws, TypeTags.BYTE_ARRAY, ctx.blobLiteral().getText());
         }
     }
 
@@ -3050,30 +3061,5 @@ public class BLangParserListener extends BallerinaParserBaseListener {
                     .toLowerCase().replace("0b", ""), 2);
         }
         return null;
-    }
-
-    private byte[] getBlobLiteral(BallerinaParser.BlobLiteralContext blobLiteralContext) {
-        byte[] blobLiteralValue = new byte[0];
-        if (blobLiteralContext.Base16BlobLiteral() != null) {
-            blobLiteralValue = hexStringToByteArray(getBlobTextValue(blobLiteralContext.getText()));
-        } else if (blobLiteralContext.Base64BlobLiteral() != null) {
-            blobLiteralValue = Base64.getDecoder().decode(getBlobTextValue(blobLiteralContext.getText()).
-                    getBytes(StandardCharsets.UTF_8));
-        }
-        return blobLiteralValue;
-    }
-
-    private String getBlobTextValue(String blobLiteralNodeText) {
-        String nodeText = blobLiteralNodeText.replaceAll(" ", "");
-        return nodeText.substring(nodeText.indexOf('`') + 1, nodeText.lastIndexOf('`'));
-    }
-
-    private static byte[] hexStringToByteArray(String str) {
-        int len = str.length();
-        byte[] data = new byte[len / 2];
-        for (int i = 0; i < len; i += 2) {
-            data[i / 2] = (byte) ((Character.digit(str.charAt(i), 16) << 4) + Character.digit(str.charAt(i + 1), 16));
-        }
-        return data;
     }
 }

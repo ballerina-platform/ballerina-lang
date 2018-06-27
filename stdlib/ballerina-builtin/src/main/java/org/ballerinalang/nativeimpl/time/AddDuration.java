@@ -19,7 +19,8 @@ package org.ballerinalang.nativeimpl.time;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -51,7 +52,7 @@ public class AddDuration extends AbstractTimeFunction {
 
     @Override
     public void execute(Context context) {
-        BStruct timeStruct = ((BStruct) context.getRefArgument(0));
+        BMap<String, BValue> timeStruct = ((BMap<String, BValue>) context.getRefArgument(0));
         long years = context.getIntArgument(0);
         long months = context.getIntArgument(1);
         long dates = context.getIntArgument(2);

@@ -18,7 +18,8 @@
 package org.ballerinalang.net.grpc.nativeimpl;
 
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.GRPC_SERVER;
 import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_BUILDER;
@@ -30,11 +31,11 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_BUILDER;
  */
 public abstract class AbstractGrpcNativeFunction extends BlockingNativeCallableUnit {
     
-    protected io.grpc.ServerBuilder getServiceBuilder(BStruct serviceEndpoint) {
+    protected io.grpc.ServerBuilder getServiceBuilder(BMap<String, BValue> serviceEndpoint) {
         return (io.grpc.ServerBuilder) serviceEndpoint.getNativeData(SERVICE_BUILDER);
     }
     
-    protected io.grpc.Server getServerInstance(BStruct serviceEndpoint) {
+    protected io.grpc.Server getServerInstance(BMap<String, BValue> serviceEndpoint) {
         return (io.grpc.Server) serviceEndpoint.getNativeData(GRPC_SERVER);
     }
 }

@@ -30,7 +30,6 @@ import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BTable;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -44,6 +43,7 @@ import org.testng.annotations.Test;
 public class TypeCastExprTest {
     private static final double DELTA = 0.01;
     private CompileResult result;
+    private static final String ERROR_MESSAGE_FIELD = "message";
 
     @BeforeClass
     public void setup() {
@@ -189,7 +189,7 @@ public class TypeCastExprTest {
     @Test
     public void testJSONObjectToStringCast() {
         BValue[] returns = BRunUtil.invoke(result, "testJSONObjectToStringCast");
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0),
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get(ERROR_MESSAGE_FIELD).stringValue(),
                             "'json' cannot be cast to 'string'");
     }
 
@@ -302,20 +302,20 @@ public class TypeCastExprTest {
     @Test
     public void testStructToStruct() {
         BValue[] returns = BRunUtil.invoke(result, "testStructToStruct");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct student = (BStruct) returns[0];
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> student = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(student.getStringField(0), "Supun");
+        Assert.assertEquals(student.get("name").stringValue(), "Supun");
 
-        Assert.assertEquals(student.getIntField(0), 25);
+        Assert.assertEquals(((BInteger) student.get("age")).intValue(), 25);
 
-        BValue address = student.getRefField(0);
+        BValue address = student.get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        BMap<String, ?> addressMap = (BMap<String, ?>) address;
+        BMap<String, BValue> addressMap = (BMap<String, BValue>) address;
         Assert.assertEquals(addressMap.get("city").stringValue(), "Kandy");
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
-        BIntArray marksArray = (BIntArray) student.getRefField(1);
+        BIntArray marksArray = (BIntArray) student.get("marks");
         Assert.assertTrue(marksArray instanceof BIntArray);
         Assert.assertEquals(marksArray.size(), 2);
         Assert.assertEquals(marksArray.get(0), 24);
@@ -477,29 +477,27 @@ public class TypeCastExprTest {
     @Test(description = "Test casting struct stored as any to struct")
     public void testStructAsAnyToStruct() {
         BValue[] returns = BRunUtil.invoke(result, "testStructAsAnyToStruct");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct student = (BStruct) returns[0];
+        Assert.assertTrue(returns[0] instanceof BMap);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> student = (BMap<String, BValue>) returns[0];
 
-        String name = student.getStringField(0);
-        Assert.assertEquals(name, "Supun");
+        Assert.assertEquals(student.get("name").stringValue(), "Supun");
 
-        int age = (int) student.getIntField(0);
-        Assert.assertEquals(age, 25);
+        Assert.assertEquals(((BInteger) student.get("age")).intValue(), 25);
 
-        BValue address = student.getRefField(0);
+        BValue address = student.get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        BMap<String, ?> addressMap = (BMap<String, ?>) address;
+        BMap<String, BValue> addressMap = (BMap<String, BValue>) address;
         Assert.assertEquals(addressMap.get("city").stringValue(), "Kandy");
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
-        BIntArray marks = (BIntArray) student.getRefField(1);
-        Assert.assertTrue(marks instanceof BIntArray);
-        Assert.assertEquals(marks.size(), 2);
-        Assert.assertEquals(marks.get(0), 24);
-        Assert.assertEquals(marks.get(1), 81);
+        BIntArray marksArray = (BIntArray) student.get("marks");
+        Assert.assertTrue(marksArray instanceof BIntArray);
+        Assert.assertEquals(marksArray.size(), 2);
+        Assert.assertEquals(marksArray.get(0), 24);
+        Assert.assertEquals(marksArray.get(1), 81);
 
-        double score = student.getFloatField(0);
+        double score = ((BFloat) student.get("score")).floatValue();
         Assert.assertEquals(score, 0.0);
     }
 
@@ -537,33 +535,33 @@ public class TypeCastExprTest {
     @Test(description = "Test explicit casting struct to any")
     public void testStructToAnyExplicit() {
         BValue[] returns = BRunUtil.invoke(result, "testStructToAnyExplicit");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct student = (BStruct) returns[0];
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> student = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(student.getStringField(0), "Supun");
+        Assert.assertEquals(student.get("name").stringValue(), "Supun");
 
-        Assert.assertEquals(student.getIntField(0), 25);
+        Assert.assertEquals(((BInteger) student.get("age")).intValue(), 25);
 
-        BValue address = student.getRefField(0);
+        BValue address = student.get("address");
         Assert.assertTrue(address instanceof BMap<?, ?>);
-        BMap<String, BString> addressMap = (BMap<String, BString>) address;
+        BMap<String, BValue> addressMap = (BMap<String, BValue>) address;
         Assert.assertEquals(addressMap.get("city").stringValue(), "Kandy");
         Assert.assertEquals(addressMap.get("country").stringValue(), "SriLanka");
 
-        BIntArray marksArray = (BIntArray) student.getRefField(1);
+        BIntArray marksArray = (BIntArray) student.get("marks");
         Assert.assertTrue(marksArray instanceof BIntArray);
         Assert.assertEquals(marksArray.size(), 2);
         Assert.assertEquals(marksArray.get(0), 24);
         Assert.assertEquals(marksArray.get(1), 81);
 
-        Assert.assertEquals(student.getFloatField(0), 0.0);
+        Assert.assertEquals(((BFloat) student.get("score")).floatValue(), 0.0);
     }
 
     @Test(description = "Test explicit casting struct to any")
     public void testMapToAnyExplicit() {
         BValue[] returns = BRunUtil.invoke(result, "testMapToAnyExplicit");
         Assert.assertTrue(returns[0] instanceof BMap<?, ?>);
-        BMap<String, BString> map = (BMap<String, BString>) returns[0];
+        BMap<String, BValue> map = (BMap<String, BValue>) returns[0];
         Assert.assertEquals(map.get("name").stringValue(), "supun");
     }
 
@@ -576,12 +574,12 @@ public class TypeCastExprTest {
     @Test
     public void testCompatibleStructForceCasting() {
         BValue[] returns = BRunUtil.invoke(result, "testCompatibleStructForceCasting");
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct structC = (BStruct) returns[0];
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> structC = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(structC.getStringField(0), "updated-x-valueof-a");
+        Assert.assertEquals(structC.get("x").stringValue(), "updated-x-valueof-a");
 
-        Assert.assertEquals(structC.getIntField(0), 4);
+        Assert.assertEquals(((BInteger) structC.get("y")).intValue(), 4);
     }
 
     @Test
@@ -589,9 +587,9 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testInCompatibleStructForceCasting");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct error = (BStruct) returns[0];
-        String errorMsg = error.getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
+        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
         Assert.assertEquals(errorMsg, "'B' cannot be cast to 'A'");
     }
 
@@ -635,9 +633,9 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToBooleanWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct error = (BStruct) returns[0];
-        String errorMsg = error.getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
+        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
         Assert.assertEquals(errorMsg, "'int' cannot be cast to 'boolean'");
     }
 
@@ -646,9 +644,9 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToBooleanWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct error = (BStruct) returns[0];
-        String errorMsg = error.getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
+        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
         Assert.assertEquals(errorMsg, "'null' cannot be cast to 'boolean'");
     }
 
@@ -657,9 +655,9 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToIntWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct error = (BStruct) returns[0];
-        String errorMsg = error.getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
+        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
         Assert.assertEquals(errorMsg, "'string' cannot be cast to 'int'");
     }
 
@@ -668,9 +666,9 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToIntWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct error = (BStruct) returns[0];
-        String errorMsg = error.getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
+        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
         Assert.assertEquals(errorMsg, "'null' cannot be cast to 'int'");
     }
 
@@ -679,9 +677,9 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToFloatWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct error = (BStruct) returns[0];
-        String errorMsg = error.getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
+        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
         Assert.assertEquals(errorMsg, "'string' cannot be cast to 'float'");
     }
 
@@ -690,9 +688,9 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToFloatWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct error = (BStruct) returns[0];
-        String errorMsg = error.getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
+        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
         Assert.assertEquals(errorMsg, "'null' cannot be cast to 'float'");
     }
 
@@ -701,9 +699,9 @@ public class TypeCastExprTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToMapWithErrors");
 
         // check the error
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct error = (BStruct) returns[0];
-        String errorMsg = error.getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
+        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
         Assert.assertEquals(errorMsg, "'string' cannot be cast to 'map'");
     }
 
@@ -711,9 +709,9 @@ public class TypeCastExprTest {
     public void testAnyToTableWithErrors() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToTableWithErrors", new BValue[] {});
 
-        Assert.assertTrue(returns[0] instanceof BStruct);
-        BStruct error = (BStruct) returns[0];
-        String errorMsg = error.getStringField(0);
+        Assert.assertTrue(returns[0] instanceof BMap);
+        BMap<String, BValue> error = (BMap<String, BValue>) returns[0];
+        String errorMsg = error.get(ERROR_MESSAGE_FIELD).stringValue();
         Assert.assertEquals(errorMsg, "'string' cannot be cast to 'table'");
     }
 

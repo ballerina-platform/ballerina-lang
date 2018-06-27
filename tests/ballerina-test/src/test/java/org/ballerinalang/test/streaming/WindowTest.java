@@ -20,7 +20,8 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -48,11 +49,11 @@ public class WindowTest {
 
         Assert.assertEquals(outputStatusCountArray.length, 2, "Expected events are not received");
 
-        BStruct statusCount0 = (BStruct) outputStatusCountArray[0];
-        BStruct statusCount1 = (BStruct) outputStatusCountArray[1];
+        BMap<String, BValue> statusCount0 = (BMap<String, BValue>) outputStatusCountArray[0];
+        BMap<String, BValue> statusCount1 = (BMap<String, BValue>) outputStatusCountArray[1];
 
-        Assert.assertEquals(statusCount0.getIntField(0), 2);
-        Assert.assertEquals(statusCount1.getIntField(0), 1);
+        Assert.assertEquals(((BInteger) statusCount0.get("totalCount")).intValue(), 2);
+        Assert.assertEquals(((BInteger) statusCount1.get("totalCount")).intValue(), 1);
     }
 
 }

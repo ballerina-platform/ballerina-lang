@@ -20,7 +20,8 @@
 package org.ballerinalang.net.jms.nativeimpl.endpoint.common;
 
 import org.ballerinalang.bre.Context;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.utils.BallerinaAdapter;
 
@@ -36,7 +37,7 @@ public class CloseConsumerHandler {
     }
 
     public static void handle(Context context) {
-        BStruct connectorBObject = (BStruct) context.getRefArgument(1);
+        BMap<String, BValue> connectorBObject = (BMap<String, BValue>) context.getRefArgument(1);
         MessageConsumer consumer = BallerinaAdapter.getNativeObject(connectorBObject,
                                                                     Constants.JMS_CONSUMER_OBJECT,
                                                                     MessageConsumer.class,

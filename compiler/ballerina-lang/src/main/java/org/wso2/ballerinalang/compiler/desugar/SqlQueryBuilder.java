@@ -106,7 +106,7 @@ public abstract class SqlQueryBuilder extends BLangNodeVisitor {
             case LESS_EQUAL:
                 sqlExpr.append(lhsExpr).append(String.valueOf(expr.opKind)).append(rhsExpr);
                 break;
-            case POW:
+            case BITWISE_XOR:
                 sqlExpr.append("power(").append(lhsExpr).append(", ").append(rhsExpr).append(")");
                 break;
             case AND:

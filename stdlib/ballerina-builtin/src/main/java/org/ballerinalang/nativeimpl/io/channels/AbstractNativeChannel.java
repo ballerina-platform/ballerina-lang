@@ -20,7 +20,8 @@ package org.ballerinalang.nativeimpl.io.channels;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.util.exceptions.BallerinaException;
@@ -63,7 +64,8 @@ public abstract class AbstractNativeChannel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         Channel channel = inFlow(context);
-        BStruct channelStruct = BLangConnectorSPIUtil.createBStruct(context, BYTE_CHANNEL_PACKAGE, STRUCT_TYPE);
+        BMap<String, BValue> channelStruct =
+                BLangConnectorSPIUtil.createBStruct(context, BYTE_CHANNEL_PACKAGE, STRUCT_TYPE);
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, channel);
         context.setReturnValues(channelStruct);
     }

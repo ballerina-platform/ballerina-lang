@@ -25,13 +25,17 @@ public class SocketConstants {
 
     public static final String PKCS_STORE_TYPE = "PKCS12";
     public static final String DEFAULT_SSL_PROTOCOL = "TLS";
-    public static final int LOCAL_PORT_OPTION_FIELD_INDEX = 0;
-    public static final int KEY_STORE_OPTION_FIELD_INDEX = 0;
-    public static final int KEY_STORE_PASS_OPTION_FIELD_INDEX = 1;
-    public static final int TRUST_STORE_OPTION_FIELD_INDEX = 2;
-    public static final int TRUST_STORE_PASS_OPTION_FIELD_INDEX = 3;
-    public static final int CERT_PASS_OPTION_FIELD_INDEX = 4;
-    public static final int SSL_ENABLED_PROTOCOLS_OPTION_FIELD_INDEX = 5;
-    public static final int CIPHERS_OPTION_FIELD_INDEX = 6;
-    public static final int SSL_PROTOCOL_OPTION_FIELD_INDEX = 7;
+    public static final String LOCAL_PORT_OPTION_FIELD = "localPort";
+    public static final String KEY_STORE_OPTION_FIELD = "keyStoreFile";
+    public static final String KEY_STORE_PASS_OPTION_FIELD = "keyStorePassword";
+    public static final String TRUST_STORE_OPTION_FIELD = "trustStoreFile";
+    public static final String TRUST_STORE_PASS_OPTION_FIELD = "trustStorePassword";
+    public static final String CERT_PASS_OPTION_FIELD = "certPassword";
+    public static final String SSL_ENABLED_PROTOCOLS_OPTION_FIELD = "sslEnabledProtocols";
+    public static final String CIPHERS_OPTION_FIELD = "ciphers";
+    public static final String SSL_PROTOCOL_OPTION_FIELD = "sslProtocol";
+
+    public static final String PORT_FIELD = "port";
+    public static final String ADDRESS_FIELD = "address";
+    public static final String LOCAL_ADDRESS_FIELD = "localAddress";
 }

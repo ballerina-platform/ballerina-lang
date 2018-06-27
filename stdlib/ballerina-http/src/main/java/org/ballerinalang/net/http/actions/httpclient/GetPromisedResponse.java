@@ -19,7 +19,8 @@ package org.ballerinalang.net.http.actions.httpclient;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -59,12 +60,12 @@ public class GetPromisedResponse extends AbstractHTTPAction {
     public void execute(Context context, CallableUnitCallback callback) {
 
         DataContext dataContext = new DataContext(context, callback, null);
-        BStruct pushPromiseStruct = (BStruct) context.getRefArgument(1);
+        BMap<String, BValue> pushPromiseStruct = (BMap<String, BValue>) context.getRefArgument(1);
         Http2PushPromise http2PushPromise = HttpUtil.getPushPromise(pushPromiseStruct, null);
         if (http2PushPromise == null) {
             throw new BallerinaException("invalid push promise");
         }
-        BStruct bConnector = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> bConnector = (BMap<String, BValue>) context.getRefArgument(0);
         HttpClientConnector clientConnector =
                 (HttpClientConnector) bConnector.getNativeData(HttpConstants.CALLER_ACTIONS);
         clientConnector.getPushResponse(http2PushPromise).
@@ -87,7 +88,7 @@ public class GetPromisedResponse extends AbstractHTTPAction {
 
         @Override
         public void onError(Throwable throwable) {
-            BStruct httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
+            BMap<String, BValue> httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
             dataContext.notifyInboundResponseStatus(null, httpConnectorError);
         }
     }

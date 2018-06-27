@@ -22,8 +22,10 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -64,16 +66,16 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         // Address struct
         StructureTypeInfo addressInfo = packageInfo.getStructInfo("Address");
         BStructureType addressType = addressInfo.getType();
-        BStruct addressStruct = new BStruct(addressType);
-        addressStruct.setIntField(0, 10300);
-        addressStruct.setStringField(0, "Western");
-        addressStruct.setStringField(1, "Sri Lanka");
+        BMap<String, BValue> addressStruct = new BMap<String, BValue>(addressType);
+        addressStruct.put("postalCode", new BInteger(10300));
+        addressStruct.put("state", new BString("Western"));
+        addressStruct.put("country", new BString("Sri Lanka"));
         // Person struct
         StructureTypeInfo personInfo = packageInfo.getStructInfo("Person");
         BStructureType personType = personInfo.getType();
-        BStruct personStruct = new BStruct(personType);
-        personStruct.setStringField(0, "Sam");
-        personStruct.setRefField(0, addressStruct);
+        BMap<String, BValue> personStruct = new BMap<String, BValue>(personType);
+        personStruct.put("name", new BString("Sam"));
+        personStruct.put("address", addressStruct);
 
         BValue[] responses = BRunUtil.invoke(result, "testInputNestedStruct", new BValue[]{personStruct});
         Assert.assertEquals(responses.length, 1);
@@ -89,15 +91,15 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
 
         BValue[] responses = BRunUtil.invoke(result, "testOutputNestedStruct", new BValue[]{request});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStruct);
-        final BStruct response = (BStruct) responses[0];
+        Assert.assertTrue(responses[0] instanceof BMap);
+        final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
         // Person person = {name: "Sam", address: {postalCode:10300, state:"CA", country:"USA"}};
-        Assert.assertEquals(response.getStringField(0), "Sam");
-        Assert.assertTrue(response.getRefField(0) instanceof BStruct);
-        final BStruct nestedStruct = (BStruct) response.getRefField(0);
-        Assert.assertEquals(nestedStruct.getIntField(0), 10300);
-        Assert.assertEquals(nestedStruct.getStringField(0), "CA");
-        Assert.assertEquals(nestedStruct.getStringField(1), "USA");
+        Assert.assertEquals(response.get("name").stringValue(), "Sam");
+        Assert.assertTrue(response.get("address") instanceof BMap);
+        final BMap<String, BValue> nestedStruct = (BMap<String, BValue>) response.get("address");
+        Assert.assertEquals(((BInteger) nestedStruct.get("postalCode")).intValue(), 10300);
+        Assert.assertEquals(nestedStruct.get("state").stringValue(), "CA");
+        Assert.assertEquals(nestedStruct.get("country").stringValue(), "USA");
     }
 
     @Test
@@ -109,20 +111,20 @@ public class UnaryBlockingNestedStructTestCase extends IntegrationTestCase {
         // Address struct
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("StockRequest");
         BStructureType requestType = requestInfo.getType();
-        BStruct requestStruct = new BStruct(requestType);
-        requestStruct.setStringField(0, "WSO2");
+        BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
+        requestStruct.put("name", new BString("WSO2"));
 
         BValue[] responses = BRunUtil.invoke(result, "testInputStructOutputStruct", new BValue[]{requestStruct});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStruct);
-        final BStruct response = (BStruct) responses[0];
+        Assert.assertTrue(responses[0] instanceof BMap);
+        final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
         // StockQuote res = {symbol: "WSO2", name: "WSO2.com", last: 149.52, low: 150.70, high:
         //        149.18};
-        Assert.assertEquals(response.getStringField(0), "WSO2");
-        Assert.assertEquals(response.getStringField(1), "WSO2.com");
-        Assert.assertEquals(response.getFloatField(0), 149.52);
-        Assert.assertEquals(response.getFloatField(1), 150.70);
-        Assert.assertEquals(response.getFloatField(2), 149.18);
+        Assert.assertEquals(response.get("symbol").stringValue(), "WSO2");
+        Assert.assertEquals(response.get("name").stringValue(), "WSO2.com");
+        Assert.assertEquals(((BFloat) response.get("last")).floatValue(), 149.52);
+        Assert.assertEquals(((BFloat) response.get("low")).floatValue(), 150.70);
+        Assert.assertEquals(((BFloat) response.get("high")).floatValue(), 149.18);
     }
     
     @AfterClass
