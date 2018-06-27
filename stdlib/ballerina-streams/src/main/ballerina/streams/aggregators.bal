@@ -1,19 +1,54 @@
+import ballerina/reflect;
+
 public type Sum object {
-    private {
-        function (StreamEvent) nextProcessorPointer;
-        string field;
+    public {
+        int sumValue = 0;
     }
 
-    new(nextProcessorPointer, field) {
+    public new() {
 
     }
 
-    public function process(StreamEvent[] streamEvents) {
-
+    public function process(int value, EventType eventType) returns int {
+        if (eventType == "CURRENT") {
+            sumValue += value;
+        } else if (eventType == "EXPIRED"){
+            sumValue -= value;
+        } else if (eventType == "RESET"){
+            sumValue = 0;
+        }
+        return  sumValue;
     }
+
+    public function clone() returns Aggregator {
+        Sum sumAggregator = new ();
+        return sumAggregator;
+    }
+
 };
 
-public function sum(function(StreamEvent) nextProcPointer, string field) returns Sum {
-    Sum sum1 = new(nextProcPointer, field);
-    return sum1;
+public function createSumAggregator() returns Sum {
+    Sum sumAggregator = new ();
+    return sumAggregator;
 }
+
+
+
+
+public type Aggregator object {
+
+    public new () {
+
+    }
+
+    public function clone() returns Aggregator {
+        Aggregator aggregator = new ();
+        return aggregator;
+    }
+
+    public function process(int value, EventType eventType) returns int {
+        return 10;
+    }
+
+};
+

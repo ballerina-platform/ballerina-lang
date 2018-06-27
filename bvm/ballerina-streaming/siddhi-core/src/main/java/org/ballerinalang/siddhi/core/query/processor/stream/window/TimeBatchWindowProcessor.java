@@ -175,7 +175,7 @@ public class TimeBatchWindowProcessor extends WindowProcessor implements Schedul
                            StreamEventCloner streamEventCloner) {
         synchronized (this) {
             if (nextEmitTime == -1) {
-                if(windowTimeExpressionExecutor != null) {
+                if (windowTimeExpressionExecutor != null) {
                     if (windowTimeExpressionExecutor.getReturnType() == Attribute.Type.INT) {
                         timeInMilliSeconds = (Integer) windowTimeExpressionExecutor.
                                 execute(streamEventChunk.getFirst());

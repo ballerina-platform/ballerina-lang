@@ -1398,7 +1398,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSelectExpression selectExpression) {
         ExpressionNode expressionNode = selectExpression.getExpression();
-        ((BLangExpression) expressionNode).accept(this);
+        if (!isSiddhiRuntimeEnabled) {
+            this.typeChecker.checkExpr((BLangExpression) expressionNode, env);
+        } else {
+            ((BLangExpression) expressionNode).accept(this);
+        }
     }
 
     @Override

@@ -1,3 +1,11 @@
+public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET";
+
+public type StreamEvent record {
+    EventType eventType;
+    any eventObject;
+    int timestamp;
+};
+
 public type LengthWindow object {
     public {
         int counter;
@@ -44,7 +52,7 @@ public type LengthWindow object {
         match eventToBeExpired {
             StreamEvent value => {
                 EventType evType = "EXPIRED";
-                StreamEvent event = { eventType: evType, eventObject: value.eventObject, timestamp: value.timestamp };
+                StreamEvent event = {eventType : evType, eventObject : value.eventObject, timestamp : value.timestamp};
                 return event;
             }
             () => {
@@ -194,8 +202,8 @@ public type TimeWindow object {
             if (!eventQueue.isEmpty()) {
                 StreamEvent streamEvent = check <StreamEvent>eventQueue.dequeue();
                 EventType evType = "EXPIRED";
-                StreamEvent event = { eventType: evType, eventObject: streamEvent.eventObject,
-                    timestamp: streamEvent.timestamp };
+                StreamEvent event = {eventType : evType, eventObject : streamEvent.eventObject,
+                    timestamp : streamEvent.timestamp};
                 expiredEvents[index] = event;
                 index += 1;
                 frontEvent = check <StreamEvent>eventQueue.peekFront();
@@ -220,7 +228,7 @@ public type TimeWindow object {
     }
 
     public function returnContent() returns StreamEvent[] {
-        StreamEvent[] events = [];
+        StreamEvent [] events = [];
         int i = 0;
         foreach item in eventQueue.asArray() {
             StreamEvent event = check <StreamEvent>item;
@@ -231,7 +239,7 @@ public type TimeWindow object {
     }
 };
 
-public function timeWindow(int timeLength, EventType eventType, function(StreamEvent[]) nextProcessPointer)
+public function timeWindow(int timeLength, EventType  eventType, function(StreamEvent[]) nextProcessPointer)
                     returns TimeWindow {
     TimeWindow timeWindow1 = new(timeLength, eventType, nextProcessPointer);
     return timeWindow1;
