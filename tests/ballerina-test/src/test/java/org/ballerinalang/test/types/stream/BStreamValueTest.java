@@ -21,10 +21,12 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
+import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -98,6 +100,24 @@ public class BStreamValueTest {
                     + "function accepting:Captain.*")
     public void testSubscriptionFunctionWithIncorrectObjectParameter() {
         BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectObjectParameter");
+    }
+
+    @Test(description = "Test subscribing to a union type constrained stream with a function of whose parameter union"
+            + " type does not contain all possible types or assignable types",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a "
+                    + "function accepting:.*")
+    public void testSubscriptionFunctionWithUnassignableUnionParameter() {
+        BRunUtil.invoke(result, "testSubscriptionFunctionWithUnassignableUnionParameter");
+    }
+
+    @Test(description = "Test subscribing to a tuple type constrained stream with a function where the elements of "
+            + "the constraint tuple type are not assignable to those of the parameter of the subscription function",
+            expectedExceptions = { BLangRuntimeException.class },
+            expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a "
+                    + "function accepting:.*")
+    public void testSubscriptionFunctionWithUnassignableTupleTypeParameter() {
+        BRunUtil.invoke(result, "testSubscriptionFunctionWithUnassignableTupleTypeParameter");
     }
 
     @Test(description = "Test receipt of single record event with correct subscription and publishing, for a globally"
@@ -216,6 +236,22 @@ public class BStreamValueTest {
         }
     }
 
+    @Test(description = "Test receipt of stream constrained by tuple type with correct subscription and publishing, "
+            + "where the constrain types are assignable to the subscription function's parameter types")
+    public void testStreamPublishingAndSubscriptionForAssignableTupleTypeStream() {
+        BString s1 = new BString("Maryam");
+        BInteger i1 = new BInteger(100);
+        BString s2 = new BString("Ziyad");
+        BInteger i2 = new BInteger(101);
+
+        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAssignableTupleTypeStream",
+                                           new BValue[]{ s1, i1, s2, i2 });
+        Assert.assertEquals(s1.stringValue(), returns[0].stringValue());
+        Assert.assertEquals(i1.floatValue(), ((BFloat) returns[1]).value());
+        Assert.assertEquals(s2.stringValue(), returns[2].stringValue());
+        Assert.assertEquals(i2.floatValue(), ((BFloat) returns[3]).value());
+    }
+
     @Test(description = "Test receipt of stream constrained by any type with correct subscription and publishing")
     public void testStreamPublishingAndSubscriptionForAnyTypeStream() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAnyTypeStream");
@@ -239,6 +275,27 @@ public class BStreamValueTest {
     public void testStreamsPublishingForStructurallyEquivalentObjects() {
         BValue[] returns = BRunUtil.invoke(result, "testStreamsPublishingForStructurallyEquivalentObjects");
         assertEventEquality((BRefValueArray) returns[0], (BRefValueArray) returns[1]);
+    }
+
+    @Test(description = "Test receipt of stream constrained by union type with correct publishing and subscribing "
+            + "with a function to whose parameter types the stream constraint is assignable")
+    public void testStreamPublishingAndSubscriptionForAssignableUnionTypeStream() {
+        BInteger intVal = new BInteger(100);
+        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForAssignableUnionTypeStream",
+                                           new BValue[]{ intVal });
+        BRefValueArray publishedEvents = (BRefValueArray) returns[0];
+        BRefValueArray receivedEvents = (BRefValueArray) returns[1];
+
+        Assert.assertNotNull(publishedEvents);
+        Assert.assertNotNull(receivedEvents);
+        Assert.assertEquals(receivedEvents.size(), publishedEvents.size(), "Number of Events received does not "
+                + "match the number published");
+        for (int i = 0; i < publishedEvents.size() - 1; i++) {
+            Assert.assertEquals(receivedEvents.get(i), publishedEvents.get(i),
+                                "Received event does not match the published event");
+        }
+        Assert.assertEquals(receivedEvents.get(receivedEvents.size() - 1).value(), intVal.floatValue(),
+                            "Received event does not match the expected casted value");
     }
 
     private void assertEventEquality(BRefValueArray publishedEvents, BRefValueArray receivedEvents) {
