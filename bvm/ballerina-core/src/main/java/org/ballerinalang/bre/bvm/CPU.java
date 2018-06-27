@@ -4167,11 +4167,7 @@ public class CPU {
     }
 
     private static boolean checkFunctionCast(BValue value, BType lhsType) {
-        if (value.getType().getTag() != TypeTags.FUNCTION_POINTER_TAG) {
-            return false;
-        }
-
-        return checkFunctionTypeEquality((BFunctionType) value.getType(), (BFunctionType) lhsType);
+        return checkFunctionCastByType(value.getType(), lhsType);
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType) {
@@ -4233,7 +4229,7 @@ public class CPU {
         // TODO: impl. finite type assignable
 
         if (targetType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
-            return checkFunctionAssignable(sourceType, targetType);
+            return checkFunctionCastByType(sourceType, targetType);
         }
 
         return false;
@@ -4273,7 +4269,7 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkFunctionAssignable(BType rhsType, BType lhsType) {
+    private static boolean checkFunctionCastByType(BType rhsType, BType lhsType) {
         if (rhsType.getTag() != TypeTags.FUNCTION_POINTER_TAG) {
             return false;
         }
