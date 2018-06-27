@@ -35,4 +35,8 @@ public class ProgramFileConstants {
     public static final int BOOL_OFFSET = 3;
     public static final int BLOB_OFFSET = 4;
     public static final int REF_OFFSET = 5;
+
+    // byte has been given negative offset value in order to properly find the correct opCodes at
+    // {@link CodeGenerator#getOpcodeForArrayOperations(int, int)} method.
+    public static final int BYTE_NEGATIVE_OFFSET = 1;
 }

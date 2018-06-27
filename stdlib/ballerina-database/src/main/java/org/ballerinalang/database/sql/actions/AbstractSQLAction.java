@@ -37,6 +37,8 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BFloatArray;
 import org.ballerinalang.model.values.BIntArray;
@@ -554,6 +556,9 @@ public abstract class AbstractSQLAction extends BlockingNativeCallableUnit {
                         switch (typeTag) {
                         case TypeTags.INT_TAG:
                             paramValue = new BInteger(((BIntArray) value).get(i));
+                            break;
+                        case TypeTags.BYTE_TAG:
+                            paramValue = new BByte(((BByteArray) value).get(i));
                             break;
                         case TypeTags.FLOAT_TAG:
                             paramValue = new BFloat(((BFloatArray) value).get(i));
