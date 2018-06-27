@@ -18,7 +18,7 @@ import ballerina/runtime;
 import ballerina/io;
 import ballerina/streams;
 
-type Teacher {
+type Teacher record {
     string name;
     int age;
     string status;
@@ -26,14 +26,16 @@ type Teacher {
     string school;
 };
 
-type TeacherOutput {
-    string name;
+type TeacherOutput record{
+    string name1;
     int age;
 };
 
 int index = 0;
 stream<Teacher> inputStream;
 stream<TeacherOutput> outputStream;
+
+stream<Teacher> nextOutputStream;
 
 TeacherOutput[] globalEmployeeArray = [];
 
@@ -56,6 +58,7 @@ function startFilterQuery() {
     foo();
 
     outputStream.subscribe(printTeachers);
+    nextOutputStream.subscribe(printFinal);
     foreach t in teachers {
         inputStream.publish(t);
     }
@@ -76,32 +79,17 @@ function startFilterQuery() {
 
 function foo() {
 
-    function (any) outputFunc = (any t) => {
-        TeacherOutput t1 = check <TeacherOutput>t;
-        io:println("dsdsdsdsdsOOOOOOOOOOOO");
-        outputStream.publish(t1);
-    };
+    forever {
+        from inputStream where inputStream.age > 25
+        select inputStream.name as name1, inputStream.age
+        => (TeacherOutput emp) {
+            outputStream.publish(emp);
+        }
+    }
+}
 
-    streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
-
-    streams:SimpleSelect simpleSelect = streams:createSimpleSelect( outputProcess.process ,
-        (any o)  => any {
-            Teacher t = check <Teacher>o;
-            TeacherOutput teacherOutput = {name: t.name, age: t.age};
-            return teacherOutput;
-        });
-
-    //streams:Filter filter = streams:createFilter(simpleSelect.process1, (any o) => boolean {
-    //        Teacher teacher = check <Teacher> o;
-    //        io:println("Filter: ", teacher);
-    //        return teacher.age > 25;
-    //    });
-
-
-    inputStream.subscribe((Teacher t) => {
-            streams:StreamEvent[] eventArr = streams:buildStreamEvent(t);
-            outputProcess.process(eventArr);
-        });
+function printFinal(Teacher e) {
+    io:println("Final", e);
 }
 
 function printTeachers(TeacherOutput e) {
