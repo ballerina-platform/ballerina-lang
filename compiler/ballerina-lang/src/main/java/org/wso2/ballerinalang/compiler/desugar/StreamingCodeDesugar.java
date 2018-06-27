@@ -179,8 +179,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     public void visit(BLangLambdaFunction lambdaFunction) {
 
         //Create lambda function Variable
-        BLangVariable oldFunctionVarible = (BLangVariable) lambdaFunction.getFunctionNode().getParameters().get(0);
-        BLangVariable lambdaFunctionVariable = this.createAnyTypeVariable(oldFunctionVarible.symbol.name.getValue(),
+        BLangVariable oldFunctionVariable = (BLangVariable) lambdaFunction.getFunctionNode().getParameters().get(0);
+        BLangVariable lambdaFunctionVariable = this.createAnyTypeVariable(oldFunctionVariable.symbol.name.getValue(),
                 lambdaFunction.pos, env);
 
         //Create new lambda function to process the output events
@@ -207,16 +207,16 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         //Create type casting for the output variable
         BVarSymbol typeCastingVarSymbol = new BVarSymbol(0,
-                new Name(getVariableName(oldFunctionVarible.getName().getValue())),
-                lambdaFunctionVariable.symbol.pkgID, oldFunctionVarible.type, env.scope.owner);
+                new Name(getVariableName(oldFunctionVariable.getName().getValue())),
+                lambdaFunctionVariable.symbol.pkgID, oldFunctionVariable.type, env.scope.owner);
         BLangSimpleVarRef typeCastingSimpleVarRef = ASTBuilderUtil.createVariableRef(lambdaFunction.pos,
                 lambdaFunctionVariable.symbol);
         BLangExpression typeCastingExpression = generateConversionExpr(typeCastingSimpleVarRef,
-                oldFunctionVarible.type, symResolver);
+                oldFunctionVariable.type, symResolver);
         BLangVariable typeCastingVariable = ASTBuilderUtil.
-                createVariable(lambdaFunction.pos, getVariableName(oldFunctionVarible.getName().getValue()),
-                        oldFunctionVarible.type, typeCastingExpression, typeCastingVarSymbol);
-        typeCastingVariable.typeNode = ASTBuilderUtil.createTypeNode(oldFunctionVarible.type);
+                createVariable(lambdaFunction.pos, getVariableName(oldFunctionVariable.getName().getValue()),
+                        oldFunctionVariable.type, typeCastingExpression, typeCastingVarSymbol);
+        typeCastingVariable.typeNode = ASTBuilderUtil.createTypeNode(oldFunctionVariable.type);
         BLangVariableDef typeCastingVariableDef = ASTBuilderUtil.createVariableDef(lambdaFunction.pos,
                 typeCastingVariable);
         outputEventTypeVariable = typeCastingVariable;
@@ -495,8 +495,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         //Implement the lambdaBody
 
-        //----- Event conversion to StreamEvent
-
+        //Event conversion to StreamEvent
         BLangSimpleVarRef lambdaParameterSimpleVarRef = ASTBuilderUtil.createVariableRef(streamingInput.pos,
                 inputStreamLambdaFunctionVariable.symbol);
         BInvokableSymbol streamEventBuilderInvokableSymbol = (BInvokableSymbol) symResolver.
@@ -529,8 +528,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         lambdaBody.stmts.add(streamEventArrayTypeVariableDef);
 
-        //-------- Function invocation to call output process
-
+        //Function invocation to call output process
         BVarSymbol filterInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
         List<BAttachedFunction> attachedFunctionsList = ((BObjectTypeSymbol)
                 (filterInvokableTypeVarSymbol).type.tsymbol).attachedFuncs;
@@ -655,9 +653,9 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaBody.stmts.add(returnStmt);
 
         //Create event filter definition
-        BVarSymbol outputProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
+        BVarSymbol nextProcessInvokableTypeVarSymbol = nextProcessVarSymbolStack.pop();
         List<BAttachedFunction> attachedFunctionsList = ((BObjectTypeSymbol)
-                (outputProcessInvokableTypeVarSymbol).type.tsymbol).attachedFuncs;
+                (nextProcessInvokableTypeVarSymbol).type.tsymbol).attachedFuncs;
         BInvokableSymbol nextProcessInvokableSymbol = null;
         for (BAttachedFunction attachedFunction : attachedFunctionsList) {
             if (attachedFunction.funcName.toString().equals("process")) {
@@ -665,15 +663,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
             }
         }
 
-        BLangSimpleVarRef outputProcessFunctionSimpleVarRef = ASTBuilderUtil.createVariableRef(where.pos,
-                outputProcessInvokableTypeVarSymbol);
-        BLangFieldBasedAccess outputProcessMethodAccess = (BLangFieldBasedAccess)
+        BLangSimpleVarRef nextProcessSimpleVarRef = ASTBuilderUtil.createVariableRef(where.pos,
+                nextProcessInvokableTypeVarSymbol);
+        BLangFieldBasedAccess nextProcessMethodAccess = (BLangFieldBasedAccess)
                 TreeBuilder.createFieldBasedAccessNode();
-        outputProcessMethodAccess.expr = outputProcessFunctionSimpleVarRef;
-        outputProcessMethodAccess.symbol = nextProcessInvokableSymbol;
-        outputProcessMethodAccess.type = nextProcessInvokableSymbol.type;
-        outputProcessMethodAccess.pos = where.pos;
-        outputProcessMethodAccess.field = ASTBuilderUtil.createIdentifier(where.pos, "process");
+        nextProcessMethodAccess.expr = nextProcessSimpleVarRef;
+        nextProcessMethodAccess.symbol = nextProcessInvokableSymbol;
+        nextProcessMethodAccess.type = nextProcessInvokableSymbol.type;
+        nextProcessMethodAccess.pos = where.pos;
+        nextProcessMethodAccess.field = ASTBuilderUtil.createIdentifier(where.pos, "process");
 
         BInvokableSymbol filterInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(where.pos, env, names.fromString("streams")).
@@ -686,7 +684,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         nextProcessVarSymbolStack.push(filterInvokableTypeVarSymbol);
 
         List<BLangExpression> args = new ArrayList<>();
-        args.add(outputProcessMethodAccess);
+        args.add(nextProcessMethodAccess);
         args.add(filterLambdaFunction);
 
         BLangInvocation filterMethodInvocation = ASTBuilderUtil.
@@ -737,8 +735,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         filterConditionalExpression = literalExpr;
     }
 
-
-    //-------------------------------------- Private methods ----------------------------------------------
+    //----------------------------------------- Util Methods ---------------------------------------------------------
 
     private String getFunctionName(String name) {
         return name + lambdaFunctionCount++;
@@ -755,8 +752,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         packageEnv.enclPkg.functions.add(funcNode);
         packageEnv.enclPkg.topLevelNodes.add(funcNode);
     }
-
-    //----------------------------------------- Util Methods ---------------------------------------------------------
 
     private BLangVariable createAnyTypeVariable(String variableName, DiagnosticPos pos, SymbolEnv env) {
         BType varType = this.symTable.anyType;
@@ -790,9 +785,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return streamEventTypeVariable;
     }
 
-
-    //----------------------------------------- Static Util Methods ---------------------------------------------------
-
     private static BLangExpression generateConversionExpr(BLangExpression varRef, BType target,
                                                           SymbolResolver symResolver) {
 
@@ -805,17 +797,6 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         conversion.conversionSymbol = (BConversionOperatorSymbol) symResolver.resolveConversionOperator(varRef.type,
                 target);
         return conversion;
-    }
-
-    private static BLangVariable cloneBLangVariable(BLangVariable langVariable, DiagnosticPos pos, SymbolEnv env) {
-        BType varType = langVariable.type;
-        BVarSymbol varSymbol = new BVarSymbol(0, ((BVarSymbol) langVariable.symbol).name,
-                varType.tsymbol.pkgID, varType, env.scope.owner);
-
-        BLangVariable clonedBLangVariable = ASTBuilderUtil.createVariable(pos, (langVariable.symbol).name.getValue(),
-                varType, null, varSymbol);
-        clonedBLangVariable.typeNode = langVariable.getTypeNode();
-        return clonedBLangVariable;
     }
 
     private static BVarSymbol getOutputEventFieldSymbol(BLangVariable outputEventTypeVariable, String fieldName) {
