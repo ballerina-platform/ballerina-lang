@@ -16,13 +16,13 @@ services:
   - mysql
 
 script:
-- BALLERINA_VERSION=0.975.0
+- BALLERINA_VERSION=0.976.1-SNAPSHOT
 - DISTRIBUTION_NAME=ballerina-platform-$BALLERINA_VERSION
 - MYSQL_CONNECTOR_VERSION=mysql-connector-java-5.1.45
 - ACTIVEMQ_VERSION=apache-activemq-5.12.0
 
 # Ballerina
-- wget https://product-dist.ballerina.io/downloads/$BALLERINA_VERSION/$DISTRIBUTION_NAME.zip
+- wget https://product-dist.ballerina.io/nightly/$BALLERINA_VERSION/$DISTRIBUTION_NAME.zip
 - unzip $DISTRIBUTION_NAME.zip
 - export PATH=$PATH:$(pwd)/$DISTRIBUTION_NAME/bin
 - ballerina version
