@@ -597,11 +597,7 @@ public class PackageInfoWriter {
         for (Instruction instruction : instructions) {
             dataOutStream.write(instruction.opcode);
             for (Operand operand : instruction.ops) {
-                try {
-                    dataOutStream.writeInt(operand.value);
-                } catch (NullPointerException np) {
-                    System.out.println("dffff");
-                }
+                dataOutStream.writeInt(operand.value);
             }
         }
         return byteAOS.toByteArray();

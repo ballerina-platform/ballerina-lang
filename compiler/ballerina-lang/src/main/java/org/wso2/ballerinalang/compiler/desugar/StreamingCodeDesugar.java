@@ -33,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
@@ -324,6 +325,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         eventObjectField.type = symTable.anyType;
         eventObjectField.symbol = ((BRecordType) (lambdaFunctionVariable).type).fields.get(1).symbol;
         eventObjectField.fieldKind = FieldKind.SINGLE;
+        eventObjectField.pos = selectClause.pos;
+        eventObjectField.field = ASTBuilderUtil.createIdentifier(selectClause.pos, "eventObject");
 
         BLangExpression typeCastingExpression = generateConversionExpr(eventObjectField, inputStreamEventType,
                 symResolver);
@@ -353,24 +356,29 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 varRef.variableName = ASTBuilderUtil.createIdentifier(selectClause.pos,
                         selectExpression.getIdentifier());
                 recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
-                recordKeyValue.key.fieldSymbol = (BVarSymbol) ((BLangFieldBasedAccess) selectExpression.
-                        getExpression()).symbol;
+                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventTypeVariable,
+                        selectExpression.getIdentifier());
             } else {
                 BLangSimpleVarRef varRef = (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
                 varRef.variableName = ((BLangFieldBasedAccess) selectExpression.getExpression()).field;
                 recordKeyValue.key = new BLangRecordLiteral.BLangRecordKey(varRef);
-                recordKeyValue.key.fieldSymbol = (BVarSymbol) ((BLangFieldBasedAccess) selectExpression.
-                        getExpression()).symbol;
+                recordKeyValue.key.fieldSymbol = getOutputEventFieldSymbol(outputEventTypeVariable,
+                        ((BLangFieldBasedAccess) selectExpression.getExpression()).field.value);
             }
 
-            BLangFieldBasedAccess fieldAccessExpr = ((BLangFieldBasedAccess) selectExpression.getExpression());
-            BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(selectExpression.pos,
-                    typeCastingVariable.symbol);
-            BLangExpression selectFieldExpression = ASTBuilderUtil.createFieldAccessExpr(varRef,
-                    fieldAccessExpr.field);
-            ((BLangFieldBasedAccess) selectFieldExpression).symbol = fieldAccessExpr.symbol;
-            (selectFieldExpression).type = fieldAccessExpr.type;
-            recordKeyValue.valueExpr = selectFieldExpression;
+            if (selectExpression.getExpression() instanceof BLangFieldBasedAccess) {
+                BLangFieldBasedAccess fieldAccessExpr = ((BLangFieldBasedAccess) selectExpression.getExpression());
+                BLangSimpleVarRef varRef = ASTBuilderUtil.createVariableRef(selectExpression.pos,
+                        typeCastingVariable.symbol);
+                BLangExpression selectFieldExpression = ASTBuilderUtil.createFieldAccessExpr(varRef,
+                        fieldAccessExpr.field);
+                ((BLangFieldBasedAccess) selectFieldExpression).symbol = fieldAccessExpr.symbol;
+                (selectFieldExpression).type = fieldAccessExpr.type;
+                recordKeyValue.valueExpr = selectFieldExpression;
+            } else {
+                recordKeyValue.valueExpr = (BLangLiteral) selectExpression.getExpression();
+            }
+
             recordKeyValueList.add(recordKeyValue);
         }
 
@@ -413,6 +421,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         nextProcessMethodAccess.expr = nextProcessSimpleVarRef;
         nextProcessMethodAccess.symbol = nextProcessInvokableSymbol;
         nextProcessMethodAccess.type = nextProcessInvokableSymbol.type;
+        nextProcessMethodAccess.pos = selectClause.pos;
+        nextProcessMethodAccess.field = ASTBuilderUtil.createIdentifier(selectClause.pos, "process");
 
         BInvokableSymbol simpleSelectInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(selectClause.pos, env, names.fromString("streams")).
@@ -662,6 +672,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         outputProcessMethodAccess.expr = outputProcessFunctionSimpleVarRef;
         outputProcessMethodAccess.symbol = nextProcessInvokableSymbol;
         outputProcessMethodAccess.type = nextProcessInvokableSymbol.type;
+        outputProcessMethodAccess.pos = where.pos;
+        outputProcessMethodAccess.field = ASTBuilderUtil.createIdentifier(where.pos, "process");
 
         BInvokableSymbol filterInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(where.pos, env, names.fromString("streams")).
@@ -804,5 +816,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 varType, null, varSymbol);
         clonedBLangVariable.typeNode = langVariable.getTypeNode();
         return clonedBLangVariable;
+    }
+
+    private static BVarSymbol getOutputEventFieldSymbol(BLangVariable outputEventTypeVariable, String fieldName) {
+        List<BField> recordTypeFieldList = ((BRecordType) outputEventTypeVariable.type).fields;
+        for (BField field : recordTypeFieldList) {
+            if (field.getName().value.equals(fieldName)) {
+                return field.symbol;
+            }
+        }
+        return null;
     }
 }
