@@ -15,19 +15,23 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
+
 package org.ballerinalang.test.streaming;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
- * This contains methods to test filter behaviour of Ballerina Streaming.
+ * This contains methods to test filter & select behaviour in Ballerina Streaming V2
  *
- * @since 0.965.0
+ * @since 0.980.0
  */
 public class BallerinaStreamsV2Test {
 
@@ -35,23 +39,24 @@ public class BallerinaStreamsV2Test {
 
     @BeforeClass
     public void setup() {
-//        result = BCompileUtil.compile("test-src/streaming/ballerina-streaming-v2-test.bal");
-        result = BCompileUtil.compile("test-src/streaming/ballerina-streaming-siddhi-v2-test.bal");
+        System.setProperty("enable.siddhiRuntime", "false");
+        result = BCompileUtil.compile("test-src/streaming/streamingv2-select-test.bal");
     }
 
     @Test(description = "Test filter streaming query")
     public void testFilterQuery() {
-        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startFilterQuery");
+        BValue[] outputEmployeeEvents = BRunUtil.invoke(result, "startSelectQuery");
+        System.setProperty("enable.siddhiRuntime", "true");
+        Assert.assertNotNull(outputEmployeeEvents);
 
+        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
 
-//        Assert.assertNotNull(outputEmployeeEvents);
-//
-//        Assert.assertEquals(outputEmployeeEvents.length, 2, "Expected events are not received");
-//
-//        BStruct employee0 = (BStruct) outputEmployeeEvents[0];
-//        BStruct employee1 = (BStruct) outputEmployeeEvents[1];
-//
-//        Assert.assertEquals(employee0.getIntField(0), 33);
-//        Assert.assertEquals(employee1.getIntField(0), 45);
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+
+        Assert.assertEquals(employee0.get("TeacherName").stringValue(), "Mohan");
+        Assert.assertEquals(((BInteger) employee0.get("age")).intValue(), 45);
+        Assert.assertEquals(employee1.get("TeacherName").stringValue(), "Shareek");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 50);
     }
 }

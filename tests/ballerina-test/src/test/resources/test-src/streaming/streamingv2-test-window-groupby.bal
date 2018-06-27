@@ -19,7 +19,7 @@ import ballerina/io;
 
 type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET";
 
-type Teacher {
+type Teacher record {
     string name;
     int age;
     string status;

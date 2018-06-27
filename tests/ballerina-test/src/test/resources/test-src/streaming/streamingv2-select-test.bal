@@ -27,69 +27,46 @@ type Teacher record {
 };
 
 type TeacherOutput record{
-    string name1;
+    string TeacherName;
     int age;
 };
 
 int index = 0;
 stream<Teacher> inputStream;
 stream<TeacherOutput> outputStream;
-
-stream<Teacher> nextOutputStream;
-
 TeacherOutput[] globalEmployeeArray = [];
 
-function startFilterQuery() {
+function startSelectQuery() returns (TeacherOutput[]) {
 
     Teacher[] teachers = [];
-    Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Hindu College" };
-    Teacher t2 = { name: "Raja", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher t1 = { name: "Raja", age: 25, status: "single", batch: "LK2014", school: "Ananda College" };
+    Teacher t2 = { name: "Mohan", age: 45, status: "single", batch: "LK2014", school: "Hindu College" };
+    Teacher t3 = { name: "Shareek", age: 50, status: "single", batch: "LK2014", school: "Zahira College" };
     teachers[0] = t1;
     teachers[1] = t2;
-    teachers[2] = t2;
-    //teachers[3] = t1;
-    //teachers[4] = t2;
-    //teachers[5] = t1;
-    //teachers[6] = t2;
-    //teachers[7] = t1;
-    //teachers[8] = t2;
-    //teachers[9] = t1;
+    teachers[2] = t3;
 
-    foo();
+    testSelectQuery();
 
     outputStream.subscribe(printTeachers);
-    nextOutputStream.subscribe(printFinal);
     foreach t in teachers {
         inputStream.publish(t);
     }
 
     runtime:sleep(1000);
-
     io:println("output: ", globalEmployeeArray);
+    return globalEmployeeArray;
 }
 
-
-//  ------------- Query to be implemented -------------------------------------------------------
-//  from inputStream
-//  select inputStream.name, inputStream.age
-//      => (TeacherOutput [] o) {
-//            outputStream.publish(o);
-//      }
-//
-
-function foo() {
+function testSelectQuery() {
 
     forever {
         from inputStream where inputStream.age > 25
-        select inputStream.name as name1, inputStream.age
+        select inputStream.name as TeacherName, inputStream.age
         => (TeacherOutput emp) {
             outputStream.publish(emp);
         }
     }
-}
-
-function printFinal(Teacher e) {
-    io:println("Final", e);
 }
 
 function printTeachers(TeacherOutput e) {

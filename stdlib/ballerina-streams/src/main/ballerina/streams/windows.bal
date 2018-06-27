@@ -1,3 +1,19 @@
+// Copyright (c) 2018 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
 public type EventType "CURRENT"|"EXPIRED"|"ALL"|"RESET";
 
 public type StreamEvent record {
@@ -52,7 +68,7 @@ public type LengthWindow object {
         match eventToBeExpired {
             StreamEvent value => {
                 EventType evType = "EXPIRED";
-                StreamEvent event = {eventType : evType, eventObject : value.eventObject, timestamp : value.timestamp};
+                StreamEvent event = { eventType: evType, eventObject: value.eventObject, timestamp: value.timestamp };
                 return event;
             }
             () => {
@@ -67,7 +83,6 @@ public function lengthWindow(int length, EventType eventType, function (StreamEv
     LengthWindow lengthWindow1 = new(nextProcessorPointer, length, eventType);
     return lengthWindow1;
 }
-
 
 type QNode object {
     public {
@@ -202,8 +217,8 @@ public type TimeWindow object {
             if (!eventQueue.isEmpty()) {
                 StreamEvent streamEvent = check <StreamEvent>eventQueue.dequeue();
                 EventType evType = "EXPIRED";
-                StreamEvent event = {eventType : evType, eventObject : streamEvent.eventObject,
-                    timestamp : streamEvent.timestamp};
+                StreamEvent event = { eventType: evType, eventObject: streamEvent.eventObject,
+                    timestamp: streamEvent.timestamp };
                 expiredEvents[index] = event;
                 index += 1;
                 frontEvent = check <StreamEvent>eventQueue.peekFront();
@@ -228,7 +243,7 @@ public type TimeWindow object {
     }
 
     public function returnContent() returns StreamEvent[] {
-        StreamEvent [] events = [];
+        StreamEvent[] events = [];
         int i = 0;
         foreach item in eventQueue.asArray() {
             StreamEvent event = check <StreamEvent>item;
@@ -239,7 +254,7 @@ public type TimeWindow object {
     }
 };
 
-public function timeWindow(int timeLength, EventType  eventType, function(StreamEvent[]) nextProcessPointer)
+public function timeWindow(int timeLength, EventType eventType, function(StreamEvent[]) nextProcessPointer)
                     returns TimeWindow {
     TimeWindow timeWindow1 = new(timeLength, eventType, nextProcessPointer);
     return timeWindow1;
