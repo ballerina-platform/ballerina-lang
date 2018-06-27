@@ -68,23 +68,23 @@ public class BStreamValueTest {
                                   + " converted to 'stream<Employee>'", 63, 18);
     }
 
-    @Test(description = "Test publishing objects of invalid type to a stream",
+    @Test(description = "Test publishing records of invalid type to a stream",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*message: incompatible types: value of type:Job cannot be added to "
                     + "a stream of type:Employee.*")
-    public void testInvalidObjectPublishingToStream() {
-        BRunUtil.invoke(result, "testInvalidObjectPublishingToStream");
+    public void testInvalidRecordPublishingToStream() {
+        BRunUtil.invoke(result, "testInvalidRecordPublishingToStream");
     }
 
-    @Test(description = "Test subscribing with a function accepting a different kind of object",
+    @Test(description = "Test subscribing with a function accepting a different kind of record",
             expectedExceptions = { BLangRuntimeException.class },
             expectedExceptionsMessageRegExp = ".*message: incompatible function: subscription function needs to be a "
                     + "function accepting:Employee.*")
-    public void testSubscriptionFunctionWithIncorrectObjectParameter() {
-        BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectObjectParameter");
+    public void testSubscriptionFunctionWithIncorrectRecordParameter() {
+        BRunUtil.invoke(result, "testSubscriptionFunctionWithIncorrectRecordParameter");
     }
 
-    @Test(description = "Test receipt of single object event with correct subscription and publishing, for a globally"
+    @Test(description = "Test receipt of single record event with correct subscription and publishing, for a globally"
             + " declared stream")
     public void testGlobalStream() {
         BValue[] returns = BRunUtil.invoke(result, "testGlobalStream");
@@ -97,15 +97,15 @@ public class BStreamValueTest {
                                          publishedEmployee.getType().getName()));
         Assert.assertEquals(((BInteger) modifiedOrigEmployee.get("id")).intValue(),
                 ((BInteger) publishedEmployee.get("id")).intValue(),
-                "Object field \"id\" of received event does not match that of published event");
+                "Record field \"id\" of received event does not match that of published event");
         Assert.assertEquals(modifiedOrigEmployee.get("name").stringValue(),
                 publishedEmployee.get("name").stringValue(),
-                "Object field \"name\" of received event does not match that of published event");
+                "Record field \"name\" of received event does not match that of published event");
     }
 
-    @Test(description = "Test receipt of single object event with correct subscription and publishing")
-    public void testStreamPublishingAndSubscriptionForObject() {
-        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForObject");
+    @Test(description = "Test receipt of single record event with correct subscription and publishing")
+    public void testStreamPublishingAndSubscriptionForRecord() {
+        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForRecord");
         BMap<String, BValue> origEmployee = (BMap<String, BValue>) returns[0];
         BMap<String, BValue> publishedEmployee = (BMap<String, BValue>) returns[1];
         BMap<String, BValue> modifiedOrigEmployee = (BMap<String, BValue>) returns[2];
@@ -115,15 +115,15 @@ public class BStreamValueTest {
                                          modifiedOrigEmployee.getType().getName()));
         Assert.assertEquals(((BInteger) modifiedOrigEmployee.get("id")).intValue(),
                 ((BInteger) publishedEmployee.get("id")).intValue(),
-                "Object field \"id\" of received event does not match that of published event");
+                "Record field \"id\" of received event does not match that of published event");
         Assert.assertEquals(modifiedOrigEmployee.get("name").stringValue(),
                 publishedEmployee.get("name").stringValue(),
-                "Object field \"name\" of received event does not match that of published event");
+                "Record field \"name\" of received event does not match that of published event");
     }
 
-    @Test(description = "Test receipt of multiple object events with correct subscription and publishing")
-    public void testStreamPublishingAndSubscriptionForMultipleObjectEvents() {
-        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForMultipleObjectEvents");
+    @Test(description = "Test receipt of multiple record events with correct subscription and publishing")
+    public void testStreamPublishingAndSubscriptionForMultipleRecordEvents() {
+        BValue[] returns = BRunUtil.invoke(result, "testStreamPublishingAndSubscriptionForMultipleRecordEvents");
         BRefValueArray publishedEmployeeEvents = (BRefValueArray) returns[0];
         BRefValueArray receivedEmployeeEvents = (BRefValueArray) returns[1];
 
@@ -138,10 +138,10 @@ public class BStreamValueTest {
                                              receivedEmployeeEvent.getType().getName()));
             Assert.assertEquals(((BInteger) receivedEmployeeEvent.get("id")).intValue(),
                     ((BInteger) publishedEmployeeEvent.get("id")).intValue(),
-                    "Object field \"id\" of received event does not match that of published event");
+                    "Record field \"id\" of received event does not match that of published event");
             Assert.assertEquals(receivedEmployeeEvent.get("name").stringValue(),
                     publishedEmployeeEvent.get("name").stringValue(),
-                    "Object field \"name\" of received event does not match that of published event");
+                    "Record field \"name\" of received event does not match that of published event");
         }
     }
 

@@ -17,13 +17,13 @@ type Person record {
     string name,
 };
 
-function testInvalidObjectPublishingToStream () {
+function testInvalidRecordPublishingToStream() {
     stream<Employee> s1;
     Job j1 = { description:"Dummy Description 1" };
     s1.publish(j1);
 }
 
-function testSubscriptionFunctionWithIncorrectObjectParameter () {
+function testSubscriptionFunctionWithIncorrectRecordParameter() {
     stream<Employee> s1;
     s1.subscribe(printJobDescription);
 }
@@ -43,7 +43,7 @@ function testGlobalStream () returns (Employee, Employee, Employee) {
     return (origEmployee, publishedEmployee, globalEmployee);
 }
 
-function testStreamPublishingAndSubscriptionForObject () returns (Employee, Employee, Employee) {
+function testStreamPublishingAndSubscriptionForRecord() returns (Employee, Employee, Employee) {
     Employee origEmployee = globalEmployee;
     stream<Employee> s1;
     s1.subscribe(assignGlobalEmployee);
@@ -59,7 +59,7 @@ function testStreamPublishingAndSubscriptionForObject () returns (Employee, Empl
 
 Employee[] globalEmployeeArray = [];
 
-function testStreamPublishingAndSubscriptionForMultipleObjectEvents () returns (Employee[], Employee[]) {
+function testStreamPublishingAndSubscriptionForMultipleRecordEvents() returns (Employee[], Employee[]) {
     arrayIndex = 0;
     stream<Employee> s1;
     s1.subscribe(addToGlobalEmployeeArray);
