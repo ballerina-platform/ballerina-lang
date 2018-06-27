@@ -19,8 +19,10 @@ package org.ballerinalang.stdlib.io.nativeimpl;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
-import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.types.TypeTags;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
@@ -156,10 +158,11 @@ public class Sprintf extends BlockingNativeCallableUnit {
 
     private void formatHexString(BRefValueArray args, StringBuilder result, int k, StringBuilder padding, String x) {
         BRefType ref = args.get(k);
-        if (BTypes.typeBlob.getTag() == ref.getType().getTag()) {
-            byte[] blob = (byte[]) ref.value();
-            for (byte b : blob) {
-                result.append(String.format("%" + padding + x, b));
+        if (TypeTags.ARRAY_TAG == ref.getType().getTag() &&
+                TypeTags.BYTE_TAG == ((BArrayType) ref.getType()).getElementType().getTag()) {
+            BByteArray byteArray = ((BByteArray) ref);
+            for (int i = 0; i < byteArray.size(); i++) {
+                result.append(String.format("%" + padding + x, byteArray.get(i)));
             }
         } else {
             result.append(String.format("%" + padding + x, args.get(k).value()));

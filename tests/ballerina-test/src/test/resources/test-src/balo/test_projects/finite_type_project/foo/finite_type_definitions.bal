@@ -42,3 +42,8 @@ public type ParamTest string|int;
 
 public type ArrayCustom int[];
 
+public type ByteType byte;
+
+public type ByteArrayType byte[];
+
+public type BFType byte|float;
