@@ -22,7 +22,7 @@ import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
 import org.ballerinalang.net.grpc.GrpcConstants;
@@ -44,7 +44,7 @@ import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
  *
  * @since 1.0.0
  */
-public class DefaultStreamObserver implements StreamObserver<Message> {
+public class DefaultStreamObserver implements StreamObserver {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultStreamObserver.class);
     private Map<String, Resource> resourceMap = new HashMap<>();
     
@@ -68,7 +68,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        BStruct headerStruct = getHeaderStruct(resource);
+        BMap<String, BValue> headerStruct = getHeaderStruct(resource);
         BValue requestParam = getRequestParameter(resource, value, headerStruct != null);
         if (requestParam != null) {
             signatureParams[0] = requestParam;
@@ -91,9 +91,9 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         List<ParamDetail> paramDetails = onError.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         BType errorType = paramDetails.get(0).getVarType();
-        BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, error.getError());
+        BMap<String, BValue> errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, error.getError());
         signatureParams[0] = errorStruct;
-        BStruct headerStruct = getHeaderStruct(onError);
+        BMap<String, BValue> headerStruct = getHeaderStruct(onError);
         if (headerStruct != null && signatureParams.length == 2) {
             signatureParams[1] = headerStruct;
         }
@@ -111,7 +111,7 @@ public class DefaultStreamObserver implements StreamObserver<Message> {
         }
         List<ParamDetail> paramDetails = onCompleted.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
-        BStruct headerStruct = getHeaderStruct(onCompleted);
+        BMap<String, BValue> headerStruct = getHeaderStruct(onCompleted);
         if (headerStruct != null && signatureParams.length == 1) {
             signatureParams[0] = headerStruct;
         }

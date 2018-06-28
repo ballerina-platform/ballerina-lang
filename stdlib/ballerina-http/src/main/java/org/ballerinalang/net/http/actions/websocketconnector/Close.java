@@ -21,7 +21,9 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -52,7 +54,7 @@ public class Close implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct webSocketConnector = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> webSocketConnector = (BMap<String, BValue>) context.getRefArgument(0);
         int statusCode = (int) context.getIntArgument(0);
         String reason = context.getStringArgument(0);
         int timeoutInSecs = (int) context.getIntArgument(1);
@@ -63,7 +65,7 @@ public class Close implements NativeCallableUnit {
                 initiateConnectionClosure(context, statusCode, reason, connectionInfo, countDownLatch);
         waitForTimeout(context, timeoutInSecs, countDownLatch);
         closeFuture.channel().close().addListener(future -> {
-            connectionInfo.getWebSocketEndpoint().setBooleanField(WebSocketConstants.LISTENER_IS_OPEN_INDEX, 0);
+            connectionInfo.getWebSocketEndpoint().put(WebSocketConstants.LISTENER_IS_OPEN_FIELD, new BBoolean(false));
             callback.notifySuccess();
         });
 

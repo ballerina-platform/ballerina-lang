@@ -26,7 +26,8 @@ import org.ballerinalang.connector.api.ParamDetail;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.types.BType;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.CallStreamObserver;
 import org.ballerinalang.net.grpc.GrpcCallableUnitCallBack;
@@ -42,6 +43,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_CONNECTION_FIELD;
+import static org.ballerinalang.net.grpc.GrpcConstants.LISTENER_ID_FIELD;
 import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_HEADERS;
 import static org.ballerinalang.net.grpc.MessageUtils.getHeaderStruct;
 import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
@@ -52,11 +55,9 @@ import static org.ballerinalang.net.grpc.MessageUtils.getProgramFile;
  * Referenced from grpc-java implementation.
  * <p>
  *
- * @param <RequestT>  InboundMessage Message
- * @param <ResponseT> OutboundMessage Message
  */
 
-public abstract class ServerCallHandler<RequestT, ResponseT> {
+public abstract class ServerCallHandler {
 
     static final String TOO_MANY_REQUESTS = "Too many requests";
     static final String MISSING_REQUEST = "Half-closed without a request";
@@ -73,20 +74,19 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
      * @param call object for responding to the remote client.
      * @return listener for processing incoming request messages for {@code call}
      */
-    public abstract Listener<RequestT> startCall(ServerCall<RequestT, ResponseT> call);
+    public abstract Listener startCall(ServerCall call);
 
     /**
      * Receives notifications from an observable stream of response messages from server side.
      *
-     * @param <RespT> Response message type.
      */
-    public static final class ServerCallStreamObserver<RespT> implements CallStreamObserver<RespT> {
+    public static final class ServerCallStreamObserver implements CallStreamObserver {
 
-        final ServerCall<?, RespT> call;
+        final ServerCall call;
         volatile boolean cancelled;
         private boolean sentHeaders;
 
-        ServerCallStreamObserver(ServerCall<?, RespT> call) {
+        ServerCallStreamObserver(ServerCall call) {
             this.call = call;
         }
 
@@ -100,24 +100,24 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         }
 
         @Override
-        public void onNext(RespT response) {
+        public void onNext(Message response) {
             if (cancelled) {
                 throw Status.Code.CANCELLED.toStatus().withDescription("call already cancelled").asRuntimeException();
             }
             if (!sentHeaders) {
-                call.sendHeaders(((Message) response).getHeaders());
+                call.sendHeaders(response.getHeaders());
                 sentHeaders = true;
             }
             call.sendMessage(response);
         }
 
         @Override
-        public void onError(RespT error) {
+        public void onError(Message error) {
             if (!sentHeaders) {
-                call.sendHeaders(((Message) error).getHeaders());
+                call.sendHeaders(error.getHeaders());
                 sentHeaders = true;
             }
-            call.close(Status.fromThrowable(((Message) error).getError()), new DefaultHttpHeaders());
+            call.close(Status.fromThrowable(error.getError()), new DefaultHttpHeaders());
         }
 
         @Override
@@ -145,19 +145,19 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
      * @param responseObserver client responder instance.
      * @return instance of endpoint type.
      */
-    private BValue getConnectionParameter(Resource resource, StreamObserver<ResponseT> responseObserver) {
+    private BValue getConnectionParameter(Resource resource, StreamObserver responseObserver) {
         ProgramFile programFile = getProgramFile(resource);
         // generate client responder struct on request message with response observer and response msg type.
-        BStruct clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
+        BMap<String, BValue> clientEndpoint = BLangConnectorSPIUtil.createBStruct(programFile,
                 GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.CALLER_ACTION);
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_OBSERVER, responseObserver);
         clientEndpoint.addNativeData(GrpcConstants.RESPONSE_MESSAGE_DEFINITION, methodDescriptor.getOutputType());
 
         // create endpoint type instance on request.
-        BStruct endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
+        BMap<String, BValue> endpoint = BLangConnectorSPIUtil.createBStruct(programFile,
                 GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC, GrpcConstants.SERVICE_ENDPOINT_TYPE);
-        endpoint.setRefField(0, clientEndpoint);
-        endpoint.setIntField(0, responseObserver.hashCode());
+        endpoint.put(LISTENER_CONNECTION_FIELD, clientEndpoint);
+        endpoint.put(LISTENER_ID_FIELD, new BInteger(responseObserver.hashCode()));
         return endpoint;
     }
 
@@ -167,7 +167,7 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
      * @param requestMessage protobuf request message.
      * @return b7a message.
      */
-    private BValue getRequestParameter(Resource resource, RequestT requestMessage, boolean isHeaderRequired) {
+    private BValue getRequestParameter(Resource resource, Message requestMessage, boolean isHeaderRequired) {
         if (resource.getParamDetails().size() > 3) {
             throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than three");
         }
@@ -177,7 +177,7 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
                     .getVarType();
             String requestName = paramDetails.get(GrpcConstants.REQUEST_MESSAGE_PARAM_INDEX)
                     .getVarName();
-            return MessageUtils.generateRequestStruct((Message) requestMessage, getProgramFile(resource), requestName,
+            return MessageUtils.generateRequestStruct(requestMessage, getProgramFile(resource), requestName,
                     requestType);
         } else {
             return null;
@@ -193,7 +193,7 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         return methodDescriptor != null && MessageUtils.isEmptyResponse(methodDescriptor.getOutputType());
     }
 
-    void onErrorInvoke(Resource resource, StreamObserver<ResponseT> responseObserver, RequestT error) {
+    void onErrorInvoke(Resource resource, StreamObserver responseObserver, Message error) {
         if (resource == null) {
             String message = "Error in listener service definition. onError resource does not exists";
             LOG.error(message);
@@ -203,32 +203,32 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
         BType errorType = paramDetails.get(1).getVarType();
-        BStruct errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, ((Message) error).getError());
+        BMap<String, BValue> errorStruct = MessageUtils.getConnectorError((BStructureType) errorType, error.getError());
         signatureParams[1] = errorStruct;
-        BStruct headerStruct = getHeaderStruct(resource);
+        BMap<String, BValue> headerStruct = getHeaderStruct(resource);
         if (headerStruct != null) {
-            headerStruct.addNativeData(MESSAGE_HEADERS, ((Message) error).getHeaders());
+            headerStruct.addNativeData(MESSAGE_HEADERS, error.getHeaders());
         }
 
         if (headerStruct != null && signatureParams.length == 3) {
             signatureParams[2] = headerStruct;
         }
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack<>(null);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(resource, callback, null, null, signatureParams);
     }
 
-    void onMessageInvoke(Resource resource, RequestT request, StreamObserver<ResponseT> responseObserver) {
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack<>(responseObserver, isEmptyResponse());
+    void onMessageInvoke(Resource resource, Message request, StreamObserver responseObserver) {
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, isEmptyResponse());
         Executor.submit(resource, callback, null, null, computeMessageParams(resource, request, responseObserver));
     }
 
-    BValue[] computeMessageParams(Resource resource, RequestT request, StreamObserver<ResponseT> responseObserver) {
+    BValue[] computeMessageParams(Resource resource, Message request, StreamObserver responseObserver) {
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
         signatureParams[0] = getConnectionParameter(resource, responseObserver);
-        BStruct headerStruct = getHeaderStruct(resource);
+        BMap<String, BValue> headerStruct = getHeaderStruct(resource);
         if (headerStruct != null) {
-            headerStruct.addNativeData(MESSAGE_HEADERS, ((Message) request).getHeaders());
+            headerStruct.addNativeData(MESSAGE_HEADERS, request.getHeaders());
         }
         BValue requestParam = getRequestParameter(resource, request, (headerStruct != null));
         if (requestParam != null) {
@@ -248,10 +248,8 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
      * <p>
      * <p>Implementations are free to block for extended periods of time. Implementations are not
      * required to be thread-safe.
-     *
-     * @param <ReqT> parsed type of request message.
      */
-    public abstract static class Listener<ReqT> {
+    public interface Listener {
 
         /**
          * A request message has been received. For streaming calls, there may be zero or more request
@@ -259,16 +257,12 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
          *
          * @param message a received request message.
          */
-        public void onMessage(ReqT message) {
-
-        }
+        void onMessage(Message message);
 
         /**
          * The client completed all message sending. However, the call may still be cancelled.
          */
-        public void onHalfClose() {
-
-        }
+        void onHalfClose();
 
         /**
          * The call was cancelled and the server is encouraged to abort processing to save resources,
@@ -277,9 +271,7 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
          * <p>
          * <p>There will be no further callbacks for the call.
          */
-        public void onCancel() {
-
-        }
+        void onCancel();
 
         /**
          * The call is considered complete and {@link #onCancel} is guaranteed not to be called.
@@ -287,15 +279,11 @@ public abstract class ServerCallHandler<RequestT, ResponseT> {
          * <p>
          * <p>There will be no further callbacks for the call.
          */
-        public void onComplete() {
-
-        }
+        void onComplete();
 
         /**
          * This indicates that the call is now capable of sending additional messages.
          */
-        public void onReady() {
-
-        }
+        void onReady();
     }
 }

@@ -114,13 +114,12 @@ public class ServerConnectorListener implements HttpConnectorListener {
         });
     }
 
-    private <ReqT, RespT> ServerCall.ServerStreamListener startCall(InboundMessage inboundMessage, OutboundMessage
+    private ServerCall.ServerStreamListener startCall(InboundMessage inboundMessage, OutboundMessage
             outboundMessage, String fullMethodName) {
         // Get method definition of the inboundMessage.
-        ServerMethodDefinition<ReqT, RespT> methodDefinition = (ServerMethodDefinition<ReqT, RespT>)
-                servicesRegistry.lookupMethod(fullMethodName);
+        ServerMethodDefinition methodDefinition = servicesRegistry.lookupMethod(fullMethodName);
         // Create service call instance for the inboundMessage.
-        ServerCall<ReqT, RespT> call = new ServerCall<>(inboundMessage, outboundMessage, methodDefinition
+        ServerCall call = new ServerCall(inboundMessage, outboundMessage, methodDefinition
                 .getMethodDescriptor(), DecompressorRegistry.getDefaultInstance(), CompressorRegistry
                 .getDefaultInstance());
         return call.newServerStreamListener(methodDefinition.getServerCallHandler().startCall(call));

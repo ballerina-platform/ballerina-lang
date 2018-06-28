@@ -39,12 +39,9 @@ import static org.ballerinalang.net.grpc.GrpcConstants.MESSAGE_ENCODING;
  * Referenced from grpc-java implementation.
  * <p>
  *
- * @param <ReqT> Request Message Type.
- * @param <RespT> Response Message Type.
- *
  * @since 0.980.0
  */
-public final class ServerCall<ReqT, RespT> {
+public final class ServerCall {
 
     /**
      * The accepted message encodings (i.e. compression) that can be used in the stream.
@@ -56,7 +53,7 @@ public final class ServerCall<ReqT, RespT> {
 
     private final InboundMessage inboundMessage;
     private final OutboundMessage outboundMessage;
-    private final MethodDescriptor<ReqT, RespT> method;
+    private final MethodDescriptor method;
 
     private volatile boolean cancelled;
     private boolean sendHeadersCalled;
@@ -68,7 +65,7 @@ public final class ServerCall<ReqT, RespT> {
     private DecompressorRegistry decompressorRegistry;
     private CompressorRegistry compressorRegistry;
 
-    ServerCall(InboundMessage inboundMessage, OutboundMessage outboundMessage, MethodDescriptor<ReqT, RespT>
+    ServerCall(InboundMessage inboundMessage, OutboundMessage outboundMessage, MethodDescriptor
             method, DecompressorRegistry decompressorRegistry, CompressorRegistry compressorRegistry) {
         this.inboundMessage = inboundMessage;
         this.outboundMessage = outboundMessage;
@@ -123,7 +120,7 @@ public final class ServerCall<ReqT, RespT> {
         sendHeadersCalled = true;
     }
 
-    public void sendMessage(RespT message) {
+    public void sendMessage(Message message) {
         if (!sendHeadersCalled) {
             throw new IllegalStateException("sendHeaders has not been called");
         }
@@ -181,26 +178,23 @@ public final class ServerCall<ReqT, RespT> {
         return cancelled;
     }
 
-    ServerStreamListener newServerStreamListener(ServerCallHandler.Listener<ReqT> listener) {
-        return new ServerStreamListener<>(this, listener);
+    ServerStreamListener newServerStreamListener(ServerCallHandler.Listener listener) {
+        return new ServerStreamListener(this, listener);
     }
 
-    public MethodDescriptor<ReqT, RespT> getMethodDescriptor() {
+    public MethodDescriptor getMethodDescriptor() {
         return method;
     }
 
     /**
      * Server Stream Listener instance.
-     *
-     * @param <ReqT> Request message type.
      */
-    public static final class ServerStreamListener<ReqT> implements StreamListener {
+    public static final class ServerStreamListener implements StreamListener {
 
-        private final ServerCall<ReqT, ?> call;
-        private final ServerCallHandler.Listener<ReqT> listener;
+        private final ServerCall call;
+        private final ServerCallHandler.Listener listener;
 
-        ServerStreamListener(
-                ServerCall<ReqT, ?> call, ServerCallHandler.Listener<ReqT> listener) {
+        ServerStreamListener(ServerCall call, ServerCallHandler.Listener listener) {
             this.call = call;
             this.listener = listener;
         }
@@ -212,9 +206,9 @@ public final class ServerCall<ReqT, RespT> {
                 return;
             }
             try {
-                Message request = (Message) call.method.parseRequest(message);
+                Message request = call.method.parseRequest(message);
                 request.setHeaders(call.inboundMessage.getHeaders());
-                listener.onMessage((ReqT) request);
+                listener.onMessage(request);
             } catch (Exception ex) {
                 MessageUtils.closeQuietly(message);
                 throw new RuntimeException(ex);

@@ -34,11 +34,8 @@ import java.util.Map;
 /**
  * Interface to initiate processing of incoming remote calls for streaming services.
  * This is used in client and bidirectional streaming services.
- *
- * @param <ReqT> Request message type.
- * @param <RespT> Response message type.
  */
-public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT, RespT> {
+public class StreamingServerCallHandler extends ServerCallHandler {
 
     private final Map<String, Resource> resourceMap;
 
@@ -49,29 +46,29 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
     }
 
     @Override
-    public Listener<ReqT> startCall(ServerCall<ReqT, RespT> call) {
-        ServerCallStreamObserver<RespT> responseObserver = new ServerCallStreamObserver<>(call);
-        StreamObserver<ReqT> requestObserver = invoke(responseObserver);
+    public Listener startCall(ServerCall call) {
+        ServerCallStreamObserver responseObserver = new ServerCallStreamObserver(call);
+        StreamObserver requestObserver = invoke(responseObserver);
         return new StreamingServerCallListener(requestObserver, responseObserver);
     }
 
-    public StreamObserver<ReqT> invoke(StreamObserver<RespT> responseObserver) {
+    public StreamObserver invoke(StreamObserver responseObserver) {
         Resource onOpen = resourceMap.get(GrpcConstants.ON_OPEN_RESOURCE);
-        CallableUnitCallback callback = new GrpcCallableUnitCallBack<>(null);
+        CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
         Executor.submit(onOpen, callback, null, null, computeMessageParams
                 (onOpen, null, responseObserver));
 
-        return new StreamObserver<ReqT>() {
+        return new StreamObserver() {
             @Override
-            public void onNext(ReqT value) {
+            public void onNext(Message value) {
                 Resource onMessage = resourceMap.get(GrpcConstants.ON_MESSAGE_RESOURCE);
-                CallableUnitCallback callback = new GrpcCallableUnitCallBack<>(null);
+                CallableUnitCallback callback = new GrpcCallableUnitCallBack(null);
                 Executor.submit(onMessage, callback, null, null, computeMessageParams
                         (onMessage, value, responseObserver));
             }
 
             @Override
-            public void onError(ReqT error) {
+            public void onError(Message error) {
                 Resource onError = resourceMap.get(GrpcConstants.ON_ERROR_RESOURCE);
                 onErrorInvoke(onError, responseObserver, error);
             }
@@ -83,29 +80,29 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
                     String message = "Error in listener service definition. onError resource does not exists";
                     throw new RuntimeException(message);
                 }
-                CallableUnitCallback callback = new GrpcCallableUnitCallBack<>(responseObserver, Boolean.FALSE);
+                CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
                 Executor.submit(onCompleted, callback, null, null, computeMessageParams
                         (onCompleted, null, responseObserver));
             }
         };
     }
 
-    private final class StreamingServerCallListener extends Listener<ReqT> {
+    private static final class StreamingServerCallListener implements Listener {
 
-        private final StreamObserver<ReqT> requestObserver;
-        private final ServerCallStreamObserver<RespT> responseObserver;
+        private final StreamObserver requestObserver;
+        private final ServerCallStreamObserver responseObserver;
         private boolean halfClosed = false;
 
         // Non private to avoid synthetic class
         StreamingServerCallListener(
-                StreamObserver<ReqT> requestObserver,
-                ServerCallStreamObserver<RespT> responseObserver) {
+                StreamObserver requestObserver,
+                ServerCallStreamObserver responseObserver) {
             this.requestObserver = requestObserver;
             this.responseObserver = responseObserver;
         }
 
         @Override
-        public void onMessage(ReqT request) {
+        public void onMessage(Message request) {
             requestObserver.onNext(request);
         }
 
@@ -122,8 +119,13 @@ public class StreamingServerCallHandler<ReqT, RespT> extends ServerCallHandler<R
                 Message message = new Message(Status.Code.CANCELLED.toStatus()
                         .withDescription("cancelled before receiving half close")
                         .asRuntimeException());
-                requestObserver.onError((ReqT) message);
+                requestObserver.onError(message);
             }
+        }
+
+        @Override
+        public void onComplete() {
+            // TODO: check whether it is used.
         }
 
         @Override

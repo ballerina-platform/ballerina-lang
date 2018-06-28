@@ -21,8 +21,6 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.net.grpc.nativeimpl.AbstractGrpcNativeFunction;
 
-import java.io.PrintStream;
-
 import static org.ballerinalang.net.grpc.GrpcConstants.ORG_NAME;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_PACKAGE_GRPC;
 import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_GRPC;
@@ -42,7 +40,6 @@ import static org.ballerinalang.net.grpc.GrpcConstants.SERVICE_ENDPOINT_TYPE;
         isPublic = true
 )
 public class Start extends AbstractGrpcNativeFunction {
-    private static final PrintStream console = System.out;
 
     @Override
     public void execute(Context context) {

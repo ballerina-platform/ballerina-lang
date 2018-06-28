@@ -41,7 +41,7 @@ public class CompositeContent {
         return (b1 << 24) | (b2 << 16) | (b3 << 8) | b4;
     }
 
-    protected final void checkReadable(int length) {
+    private void checkReadable(int length) {
         if (readableBytes() < length) {
             throw new IndexOutOfBoundsException();
         }

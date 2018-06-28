@@ -19,7 +19,7 @@ import com.google.protobuf.Descriptors;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -60,10 +60,9 @@ public class Send extends BlockingNativeCallableUnit {
     
     @Override
     public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
         BValue responseValue = context.getRefArgument(1);
-        StreamObserver<Message> requestSender = (StreamObserver<Message>) connectionStruct.getNativeData
-                (REQUEST_SENDER);
+        StreamObserver requestSender = (StreamObserver) connectionStruct.getNativeData(REQUEST_SENDER);
         if (requestSender == null) {
             context.setError(MessageUtils.getConnectorError(context, new StatusRuntimeException(Status
                     .fromCode(Status.Code.INTERNAL.toStatus().getCode()).withDescription("Error while sending the " +

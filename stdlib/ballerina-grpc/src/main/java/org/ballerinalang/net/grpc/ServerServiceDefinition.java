@@ -52,7 +52,7 @@ public final class ServerServiceDefinition {
     private final Map<String, ServerMethodDefinition> methods;
 
     private ServerServiceDefinition(
-            ServiceDescriptor serviceDescriptor, Map<String, ServerMethodDefinition<?, ?>> methods) {
+            ServiceDescriptor serviceDescriptor, Map<String, ServerMethodDefinition> methods) {
         this.serviceDescriptor = serviceDescriptor;
         this.methods = Collections.unmodifiableMap(new HashMap<>(methods));
     }
@@ -85,8 +85,7 @@ public final class ServerServiceDefinition {
     public static final class Builder {
 
         private final String serviceName;
-        private final Map<String, ServerMethodDefinition<?, ?>> methods =
-                new HashMap<>();
+        private final Map<String, ServerMethodDefinition> methods = new HashMap<>();
 
         private Builder(String serviceName) throws GrpcServerException {
             if (serviceName == null) {
@@ -101,8 +100,8 @@ public final class ServerServiceDefinition {
          * @param method  the {@link MethodDescriptor} of this method.
          * @param handler handler for incoming calls
          */
-        public <ReqT, RespT> void addMethod(
-                MethodDescriptor<ReqT, RespT> method, ServerCallHandler<ReqT, RespT> handler) throws
+        public void addMethod(
+                MethodDescriptor method, ServerCallHandler handler) throws
                 GrpcServerException {
             if (method == null) {
                 throw new GrpcServerException("Method Descriptor cannot be null");
@@ -117,12 +116,10 @@ public final class ServerServiceDefinition {
          * Add a method to be supported by the service.
          *
          * @param def Service method definition.
-         * @param <ReqT> Request Message type.
-         * @param <RespT> Reponse Message type.
          * @throws GrpcServerException if failed.
          */
-        <ReqT, RespT> void addMethod(ServerMethodDefinition<ReqT, RespT> def) throws GrpcServerException {
-            MethodDescriptor<ReqT, RespT> method = def.getMethodDescriptor();
+        void addMethod(ServerMethodDefinition def) throws GrpcServerException {
+            MethodDescriptor method = def.getMethodDescriptor();
             if (!serviceName.equals(MethodDescriptor.extractFullServiceName(method.getFullMethodName()))) {
                 throw new GrpcServerException(String.format("Method name should be prefixed with service name and " +
                         "separated with '/'. Expected service name: '%s'. Actual fully qualifed method name: '%s'.",
@@ -144,14 +141,14 @@ public final class ServerServiceDefinition {
          */
         public ServerServiceDefinition build() throws GrpcServerException {
             List<MethodDescriptor> methodDescriptors = new ArrayList<>(methods.size());
-            for (ServerMethodDefinition<?, ?> serverMethod : methods.values()) {
+            for (ServerMethodDefinition serverMethod : methods.values()) {
                 methodDescriptors.add(serverMethod.getMethodDescriptor());
             }
             ServiceDescriptor descriptor = ServiceDescriptor.newBuilder(serviceName).addAllMethods(methodDescriptors)
                     .build();
-            Map<String, ServerMethodDefinition<?, ?>> tmpMethods = new HashMap<>(methods);
-            for (MethodDescriptor<?, ?> descriptorMethod : descriptor.getMethods()) {
-                ServerMethodDefinition<?, ?> removed = tmpMethods.remove(
+            Map<String, ServerMethodDefinition> tmpMethods = new HashMap<>(methods);
+            for (MethodDescriptor descriptorMethod : descriptor.getMethods()) {
+                ServerMethodDefinition removed = tmpMethods.remove(
                         descriptorMethod.getFullMethodName());
                 if (removed == null) {
                     throw new IllegalStateException(

@@ -168,7 +168,7 @@ public final class Status implements Serializable {
     private static final List<Status> STATUS_LIST = buildStatusList();
 
     private static List<Status> buildStatusList() {
-        TreeMap<Integer, Status> canonicalizer = new TreeMap<Integer, Status>();
+        TreeMap<Integer, Status> canonicalizer = new TreeMap<>();
         for (Code code : Code.values()) {
             Status replaced = canonicalizer.put(code.value(), new Status(code));
             if (replaced != null) {
@@ -176,7 +176,7 @@ public final class Status implements Serializable {
                         + replaced.getCode().name() + " & " + code.name());
             }
         }
-        return Collections.unmodifiableList(new ArrayList<Status>(canonicalizer.values()));
+        return Collections.unmodifiableList(new ArrayList<>(canonicalizer.values()));
     }
 
     /**
@@ -362,15 +362,6 @@ public final class Status implements Serializable {
      */
     public StatusRuntimeException asRuntimeException() {
         return new StatusRuntimeException(this);
-    }
-
-    /**
-     * Convert this {@link Status} to an {@link Exception}.
-     *
-     * @return StatusException instance.
-     */
-    public StatusException asException() {
-        return new StatusException(this);
     }
 
     @Override

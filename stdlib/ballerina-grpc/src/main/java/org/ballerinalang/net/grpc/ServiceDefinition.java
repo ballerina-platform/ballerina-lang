@@ -97,8 +97,8 @@ public final class ServiceDefinition {
         return descriptor.getFile().getServices().get(0);
     }
 
-    public Map<String, MethodDescriptor<Message, Message>> getMethodDescriptors() throws GrpcClientException {
-        Map<String, MethodDescriptor<Message, Message>> descriptorMap = new HashMap<>();
+    public Map<String, MethodDescriptor> getMethodDescriptors() throws GrpcClientException {
+        Map<String, MethodDescriptor> descriptorMap = new HashMap<>();
         Descriptors.ServiceDescriptor serviceDescriptor = getServiceDescriptor();
 
         for (Descriptors.MethodDescriptor methodDescriptor:  serviceDescriptor.getMethods()) {
@@ -106,7 +106,7 @@ public final class ServiceDefinition {
             Descriptors.Descriptor reqMessage = methodDescriptor.getInputType();
             Descriptors.Descriptor resMessage = methodDescriptor.getOutputType();
             String fullMethodName = generateFullMethodName(serviceDescriptor.getFullName(), methodName);
-            MethodDescriptor<Message, Message> descriptor =
+            MethodDescriptor descriptor =
                     MethodDescriptor.<Message, Message>newBuilder()
                             .setType(MessageUtils.getMethodType(methodDescriptor.toProto()))
                             .setFullMethodName(fullMethodName)

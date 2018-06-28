@@ -78,13 +78,13 @@ public class ServicesBuilderUtils {
             messageRegistry.addMessageDescriptor(responseDescriptor.getName(), responseDescriptor);
             setNestedMessages(responseDescriptor, messageRegistry);
 
-            MethodDescriptor.Marshaller<Message> reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
+            MethodDescriptor.Marshaller reqMarshaller = ProtoUtils.marshaller(new Message(requestDescriptor
                     .getName()));
-            MethodDescriptor.Marshaller<Message> resMarshaller = ProtoUtils.marshaller(new Message(responseDescriptor
+            MethodDescriptor.Marshaller resMarshaller = ProtoUtils.marshaller(new Message(responseDescriptor
                     .getName()));
 
             MethodDescriptor.MethodType methodType;
-            ServerCallHandler<Message, Message> serverCallHandler;
+            ServerCallHandler serverCallHandler;
             Map<String, Resource> resourceMap = new HashMap<>();
             Resource mappedResource = null;
 
@@ -109,8 +109,8 @@ public class ServicesBuilderUtils {
                 serverCallHandler = new UnaryServerCallHandler(methodDescriptor, mappedResource);
             }
 
-            MethodDescriptor.Builder<Message, Message> methodBuilder = MethodDescriptor.newBuilder();
-            MethodDescriptor<Message, Message> grpcMethodDescriptor = methodBuilder.setType(methodType)
+            MethodDescriptor.Builder methodBuilder = MethodDescriptor.newBuilder();
+            MethodDescriptor grpcMethodDescriptor = methodBuilder.setType(methodType)
                     .setFullMethodName(methodName)
                     .setRequestMarshaller(reqMarshaller)
                     .setResponseMarshaller(resMarshaller)

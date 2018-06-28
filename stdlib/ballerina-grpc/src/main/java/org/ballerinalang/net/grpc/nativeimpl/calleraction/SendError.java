@@ -20,7 +20,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -71,7 +71,7 @@ public class SendError extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct endpointClient = (BStruct) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
+        BMap<String, BValue> endpointClient = (BMap<String, BValue>) context.getRefArgument(CLIENT_RESPONDER_REF_INDEX);
         BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
         long statusCode = context.getIntArgument(0);
         String errorMsg = context.getStringArgument(0);
@@ -88,7 +88,7 @@ public class SendError extends BlockingNativeCallableUnit {
                 Message errorMessage = new Message(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
                         .withDescription(errorMsg)));
                 if (headerValues != null && headerValues.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-                    headers = (HttpHeaders) ((BStruct) headerValues).getNativeData(MESSAGE_HEADERS);
+                    headers = (HttpHeaders) ((BMap<String, BValue>) headerValues).getNativeData(MESSAGE_HEADERS);
                 }
                 if (headers != null) {
                     errorMessage.setHeaders(headers);

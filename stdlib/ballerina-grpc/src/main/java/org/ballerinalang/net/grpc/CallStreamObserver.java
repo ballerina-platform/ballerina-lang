@@ -25,22 +25,21 @@ package org.ballerinalang.net.grpc;
  * <p>It is used by both the client stubs and service implementations for sending or receiving
  * stream messages.
  *
- * @param <V> Request/Response Message Type.
  * @since 0.980.0
  */
-public interface CallStreamObserver<V> extends StreamObserver<V> {
+public interface CallStreamObserver extends StreamObserver {
 
     /**
      * Indicates that the observer is capable of sending additional messages.
      *
      * @return true, if the stream is open and ready to send messages, false otherwise.
      */
-    public abstract boolean isReady();
+    boolean isReady();
 
     /**
      * Sets message compression for subsequent calls.
      *
      * @param enable flag to enable compression.
      */
-    public abstract void setMessageCompression(boolean enable);
+    void setMessageCompression(boolean enable);
 }

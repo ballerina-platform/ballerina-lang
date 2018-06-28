@@ -38,7 +38,7 @@ class ProtoInputStream extends InputStream implements Drainable, KnownLength {
     private Message message;
     private ByteArrayInputStream partial;
 
-    public ProtoInputStream(Message message) {
+    ProtoInputStream(Message message) {
         this.message = message;
     }
 

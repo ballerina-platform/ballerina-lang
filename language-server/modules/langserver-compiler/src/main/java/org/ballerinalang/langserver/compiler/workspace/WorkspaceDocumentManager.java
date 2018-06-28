@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.compiler.workspace;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.locks.Lock;
 
 /**
@@ -72,4 +73,9 @@ public interface WorkspaceDocumentManager {
      * @return lock or null
      */
     Optional<Lock> lockFile(Path filePath);
+
+    /**
+     * Returns a list of all file paths.
+     */
+    Set<Path> getAllFilePaths();
 }

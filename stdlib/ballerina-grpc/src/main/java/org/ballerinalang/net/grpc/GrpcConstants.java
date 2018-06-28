@@ -108,7 +108,7 @@ public class GrpcConstants {
     public static final String WRAPPER_BOOL_MESSAGE = "BoolValue";
     public static final String WRAPPER_STRING_MESSAGE = "StringValue";
     public static final String WRAPPER_BYTES_MESSAGE = "BytesValue";
-    
+
     // Server Streaming method resources.
     public static final String ON_OPEN_RESOURCE = "onOpen";
     public static final String ON_COMPLETE_RESOURCE = "onComplete";
@@ -145,7 +145,7 @@ public class GrpcConstants {
     public static final String ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
     public static final String CIPHERS = "ciphers";
     public static final String PKCS_STORE_TYPE = "PKCS12";
-    
+
     public static final String CLIENT_ENDPOINT_URL = "url";
 
     //Header keys
@@ -182,4 +182,9 @@ public class GrpcConstants {
 
     private GrpcConstants() {
     }
+
+    // Listener struct fields
+    public static final String LISTENER_ID_FIELD = "id";
+    public static final String LISTENER_CONNECTION_FIELD = "conn";
+
 }

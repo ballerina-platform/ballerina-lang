@@ -25,11 +25,9 @@ package org.ballerinalang.net.grpc;
  * <p>It is used by both the client stubs and service implementations for sending or receiving
  * stream messages. It is used for all {@link MethodDescriptor.MethodType}.
  *
- * @param <V> Request/Response Message Type.
- *
  * @since 0.980.0
  */
-public interface StreamObserver<V> {
+public interface StreamObserver {
 
     /**
      * Receives a value from the stream.
@@ -41,7 +39,7 @@ public interface StreamObserver<V> {
      *
      * @param value Request/Response value.
      */
-    void onNext(V value);
+    void onNext(Message value);
 
     /**
      * Receives a terminating error from the stream.
@@ -50,7 +48,7 @@ public interface StreamObserver<V> {
      *
      * @param t the error occurred on the stream
      */
-    void onError(V t);
+    void onError(Message t);
 
     /**
      * Receives a notification of successful stream completion.

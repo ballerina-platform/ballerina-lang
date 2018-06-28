@@ -62,4 +62,5 @@ public class IOConstants {
      * Represents the base number of protobuf.
      */
     public static final int PROTO_BUF_BASE = 7;
+
 }

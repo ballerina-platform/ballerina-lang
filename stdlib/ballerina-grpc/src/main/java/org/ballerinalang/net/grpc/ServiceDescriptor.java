@@ -72,7 +72,7 @@ public final class ServiceDescriptor {
     private static void validateMethodNames(String serviceName, Collection<MethodDescriptor> methods) throws
             GrpcServerException {
         Set<String> allNames = new HashSet<>(methods.size());
-        for (MethodDescriptor<?, ?> method : methods) {
+        for (MethodDescriptor method : methods) {
             if (method == null) {
                 throw new GrpcServerException("method cannot be null");
             }

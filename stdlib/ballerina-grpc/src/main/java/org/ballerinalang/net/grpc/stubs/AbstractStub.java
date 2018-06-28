@@ -22,6 +22,7 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.GrpcConstants;
+import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.OutboundMessage;
 import org.ballerinalang.net.grpc.Status;
@@ -166,7 +167,7 @@ public abstract class AbstractStub {
      * @param call client call.
      * @param t RuntimeException/Error.
      */
-    static RuntimeException cancelThrow(ClientCall<?, ?> call, Throwable t) {
+    static RuntimeException cancelThrow(ClientCall call, Throwable t) {
         try {
             call.cancel(null, t);
         } catch (Throwable e) {
@@ -185,10 +186,8 @@ public abstract class AbstractStub {
      * <p>
      * Referenced from grpc-java implementation.
      * <p>
-     *
-     * @param <T> message Type
      */
-    public abstract static class Listener<T> {
+    public abstract static class Listener {
 
         /**
          * Calls when response headers is received.
@@ -203,7 +202,7 @@ public abstract class AbstractStub {
          *
          * @param message response message.
          */
-        public void onMessage(T message) {
+        public void onMessage(Message message) {
         }
 
         /**

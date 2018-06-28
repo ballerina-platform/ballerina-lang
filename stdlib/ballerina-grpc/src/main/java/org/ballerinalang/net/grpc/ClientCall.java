@@ -43,14 +43,12 @@ import static org.ballerinalang.net.grpc.GrpcConstants.TE_KEY;
  * Referenced from grpc-java implementation.
  * <p>
  *
- * @param <ReqT> Request Message Type.
- * @param <RespT> Response Message Type.
  * @since 0.980.0
  */
-public final class ClientCall<ReqT, RespT> {
+public final class ClientCall {
 
     private static final Logger log = Logger.getLogger(ClientCall.class.getName());
-    private final MethodDescriptor<ReqT, RespT> method;
+    private final MethodDescriptor method;
     private final boolean unaryRequest;
     private HttpClientConnector connector;
     private final OutboundMessage outboundMessage;
@@ -60,8 +58,7 @@ public final class ClientCall<ReqT, RespT> {
     private DecompressorRegistry decompressorRegistry = DecompressorRegistry.getDefaultInstance();
     private CompressorRegistry compressorRegistry = CompressorRegistry.getDefaultInstance();
 
-    public ClientCall(HttpClientConnector connector, OutboundMessage outboundMessage, MethodDescriptor<ReqT, RespT>
-            method) {
+    public ClientCall(HttpClientConnector connector, OutboundMessage outboundMessage, MethodDescriptor method) {
         this.method = method;
         this.unaryRequest = method.getType() == MethodDescriptor.MethodType.UNARY
                 || method.getType() == MethodDescriptor.MethodType.SERVER_STREAMING;
@@ -92,7 +89,7 @@ public final class ClientCall<ReqT, RespT> {
      *
      * @param observer response listener instance
      */
-    public void start(final AbstractStub.Listener<RespT> observer) {
+    public void start(final AbstractStub.Listener observer) {
         if (connectorListener != null) {
             throw new IllegalStateException(String.valueOf("Client connection us already setup."));
         }
@@ -175,7 +172,7 @@ public final class ClientCall<ReqT, RespT> {
      *
      * @param message Request message.
      */
-    public void sendMessage(ReqT message) {
+    public void sendMessage(Message message) {
         if (connectorListener == null) {
             throw new IllegalStateException("Connector listener didn't initialize properly.");
         }
@@ -211,7 +208,7 @@ public final class ClientCall<ReqT, RespT> {
         outboundMessage.setMessageCompression(enabled);
     }
 
-    private void closeObserver(AbstractStub.Listener<RespT> observer, Status status, HttpHeaders trailers) {
+    private void closeObserver(AbstractStub.Listener observer, Status status, HttpHeaders trailers) {
         observer.onClose(status, trailers);
     }
 
@@ -224,11 +221,11 @@ public final class ClientCall<ReqT, RespT> {
      */
     public class ClientStreamListener implements StreamListener {
 
-        private final AbstractStub.Listener<RespT> observer;
+        private final AbstractStub.Listener observer;
         private boolean closed;
         private HttpHeaders responseHeaders;
 
-        ClientStreamListener(AbstractStub.Listener<RespT> observer) {
+        ClientStreamListener(AbstractStub.Listener observer) {
             this.observer = observer;
         }
 
@@ -253,9 +250,9 @@ public final class ClientCall<ReqT, RespT> {
                 return;
             }
             try {
-                Message responseMessage = (Message) method.parseResponse(message);
+                Message responseMessage = method.parseResponse(message);
                 responseMessage.setHeaders(responseHeaders);
-                observer.onMessage((RespT) responseMessage);
+                observer.onMessage(responseMessage);
                 message.close();
             } catch (Exception ex) {
                 MessageUtils.closeQuietly(message);

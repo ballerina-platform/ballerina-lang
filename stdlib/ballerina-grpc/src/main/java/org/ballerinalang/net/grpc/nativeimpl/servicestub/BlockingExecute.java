@@ -22,7 +22,7 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.types.TypeTags;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -79,7 +79,7 @@ public class BlockingExecute extends AbstractExecute {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
+        BMap<String, BValue> serviceStub = (BMap<String, BValue>) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         if (serviceStub == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC service stub " +
                     "is not initialized properly");
@@ -97,8 +97,8 @@ public class BlockingExecute extends AbstractExecute {
                     "doesn't set properly");
             return;
         }
-        Map<String, MethodDescriptor<Message, Message>> methodDescriptors = (Map<String, MethodDescriptor<Message,
-                        Message>>) serviceStub.getNativeData(METHOD_DESCRIPTORS);
+        Map<String, MethodDescriptor> methodDescriptors = (Map<String, MethodDescriptor>) serviceStub.getNativeData
+                (METHOD_DESCRIPTORS);
         if (methodDescriptors == null) {
             notifyErrorReply(context, "Error while processing the request. method descriptors " +
                     "doesn't set properly");
@@ -120,7 +120,7 @@ public class BlockingExecute extends AbstractExecute {
             BValue headerValues = context.getNullableRefArgument(MESSAGE_HEADER_REF_INDEX);
             HttpHeaders headers = null;
             if (headerValues != null && headerValues.getType().getTag() == TypeTags.OBJECT_TYPE_TAG) {
-                headers = (HttpHeaders) ((BStruct) headerValues).getNativeData(MESSAGE_HEADERS);
+                headers = (HttpHeaders) ((BMap<String, BValue>) headerValues).getNativeData(MESSAGE_HEADERS);
             }
             if (headers != null) {
                 requestMsg.setHeaders(headers);
@@ -151,7 +151,6 @@ public class BlockingExecute extends AbstractExecute {
 
     @Override
     public boolean isBlocking() {
-
         return false;
     }
 }

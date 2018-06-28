@@ -38,7 +38,7 @@ public class InboundMessage {
 
     private final HTTPCarbonMessage httpCarbonMessage;
 
-    public InboundMessage(HTTPCarbonMessage httpCarbonMessage) {
+    InboundMessage(HTTPCarbonMessage httpCarbonMessage) {
         this.httpCarbonMessage = httpCarbonMessage;
     }
 

@@ -24,7 +24,7 @@ import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -149,7 +149,7 @@ public class ArraysOfArraysTest {
     public void testRefArrayIterator() {
         BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(result, "testRefArrayIterator", args);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "ballerina");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("name").stringValue(), "ballerina");
     }
 
     private static byte[] hexStringToByteArray(String str) {

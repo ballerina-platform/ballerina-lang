@@ -20,7 +20,8 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -48,7 +49,7 @@ import static org.ballerinalang.net.grpc.GrpcConstants.PROTOCOL_STRUCT_PACKAGE_G
 public class AddEntry extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct headerValues = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
         HttpHeaders headers = (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS);
         String headerName = context.getStringArgument(0);
         String headerValue = context.getStringArgument(1);

@@ -25,9 +25,9 @@ import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.types.BTupleType;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.BTypes;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefType;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.ClientCall;
 import org.ballerinalang.net.grpc.Message;
@@ -72,11 +72,11 @@ public class BlockingStub extends AbstractStub {
      * @param request          request message.
      * @param methodDescriptor method descriptor
      */
-    public <ReqT, RespT> void executeUnary(ReqT request, MethodDescriptor<ReqT, RespT> methodDescriptor,
+    public void executeUnary(Message request, MethodDescriptor methodDescriptor,
                                            DataContext dataContext) {
-        ClientCall<ReqT, RespT> call = new ClientCall<>(getConnector(), createOutboundRequest(((Message) request)
+        ClientCall call = new ClientCall(getConnector(), createOutboundRequest(request
                 .getHeaders()), methodDescriptor);
-        call.start(new CallBlockingListener<RespT>(dataContext, methodDescriptor.getSchemaDescriptor()
+        call.start(new CallBlockingListener(dataContext, methodDescriptor.getSchemaDescriptor()
                 .getOutputType()));
         try {
             call.sendMessage(request);
@@ -89,11 +89,11 @@ public class BlockingStub extends AbstractStub {
     /**
      *  Callbacks for receiving headers, response messages and completion status in blocking calls.
      */
-    private static final class CallBlockingListener<RespT> extends Listener<RespT> {
+    private static final class CallBlockingListener extends Listener {
 
         private final DataContext dataContext;
         private final Descriptors.Descriptor outputDescriptor;
-        private RespT value;
+        private Message value;
 
         // Non private to avoid synthetic class
         private CallBlockingListener(DataContext dataContext, Descriptors.Descriptor outputDescriptor) {
@@ -106,7 +106,7 @@ public class BlockingStub extends AbstractStub {
         }
 
         @Override
-        public void onMessage(RespT value) {
+        public void onMessage(Message value) {
             if (this.value != null) {
                 throw Status.Code.INTERNAL.toStatus().withDescription("More than one value received for unary call")
                         .asRuntimeException();
@@ -116,7 +116,7 @@ public class BlockingStub extends AbstractStub {
 
         @Override
         public void onClose(Status status, HttpHeaders trailers) {
-            BStruct httpConnectorError = null;
+            BMap<String, BValue> httpConnectorError = null;
             BRefValueArray inboundResponse = null;
             if (status.isOk()) {
                 if (value == null) {
@@ -125,13 +125,13 @@ public class BlockingStub extends AbstractStub {
                             Status.Code.INTERNAL.toStatus()
                                     .withDescription("No value received for unary call").asRuntimeException());
                 } else {
-                    BValue responseBValue = MessageUtils.generateRequestStruct((Message) value, dataContext.context
+                    BValue responseBValue = MessageUtils.generateRequestStruct(value, dataContext.context
                             .getProgramFile(), outputDescriptor.getName(), getBalType(outputDescriptor.getName(),
                             dataContext.context));
                     // Set response headers, when response headers exists in the message context.
-                    BStruct headerStruct = BLangConnectorSPIUtil.createBStruct(dataContext.context.getProgramFile(),
-                            PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
-                    headerStruct.addNativeData(MESSAGE_HEADERS, ((Message) value).getHeaders());
+                    BMap<String, BValue> headerStruct = BLangConnectorSPIUtil.createBStruct(dataContext.context
+                            .getProgramFile(), PROTOCOL_STRUCT_PACKAGE_GRPC, "Headers");
+                    headerStruct.addNativeData(MESSAGE_HEADERS, value.getHeaders());
                     BRefValueArray contentTuple = new BRefValueArray(RESP_TUPLE_TYPE);
                     contentTuple.add(0, (BRefType) responseBValue);
                     contentTuple.add(1, headerStruct);
@@ -145,8 +145,8 @@ public class BlockingStub extends AbstractStub {
             } else if (httpConnectorError != null) {
                 dataContext.context.setReturnValues(httpConnectorError);
             } else {
-                BStruct err = BLangConnectorSPIUtil.createBStruct(dataContext.context, PACKAGE_BALLERINA_BUILTIN,
-                        STRUCT_GENERIC_ERROR, "HttpClient failed");
+                BMap<String, BValue> err = BLangConnectorSPIUtil.createBStruct(dataContext.context,
+                        PACKAGE_BALLERINA_BUILTIN, STRUCT_GENERIC_ERROR, "HttpClient failed");
                 dataContext.context.setReturnValues(err);
             }
             dataContext.callback.notifySuccess();

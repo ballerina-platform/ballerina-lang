@@ -19,8 +19,9 @@ import io.netty.handler.codec.http.HttpHeaders;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -50,7 +51,7 @@ public class Get extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
         String headerName = context.getStringArgument(0);
-        BStruct headerValues = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> headerValues = (BMap<String, BValue>) context.getRefArgument(0);
         HttpHeaders headers = headerValues != null ? (HttpHeaders) headerValues.getNativeData(MESSAGE_HEADERS) : null;
         String headerValue = headers != null ? headers.get(headerName) : null;
         if (headerValue != null) {

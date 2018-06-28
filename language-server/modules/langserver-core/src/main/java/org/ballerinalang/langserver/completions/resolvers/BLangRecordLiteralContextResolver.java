@@ -34,7 +34,7 @@ import java.util.List;
  */
 public class BLangRecordLiteralContextResolver extends AbstractItemResolver {
     @Override
-    public ArrayList<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
+    public List<CompletionItem> resolveItems(LSServiceOperationContext completionContext) {
         ArrayList<CompletionItem> completionItems = new ArrayList<>();
         BLangNode bLangNode = completionContext.get(CompletionKeys.SYMBOL_ENV_NODE_KEY);
         BType recordType = bLangNode.type;

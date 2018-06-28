@@ -44,9 +44,9 @@ public class ProtoUtils {
     /**
      * Create a {@code Marshaller} for protos of the same type as {@code defaultInstance}.
      */
-    public static MethodDescriptor.Marshaller<Message> marshaller(Message defaultInstance) {
+    public static MethodDescriptor.Marshaller marshaller(Message defaultInstance) {
         final MessageParser parser = defaultInstance.getParserForType();
-        return new MethodDescriptor.Marshaller<Message>() {
+        return new MethodDescriptor.Marshaller() {
 
             @Override
             public InputStream stream(Message value) {

@@ -18,12 +18,14 @@ package org.ballerinalang.net.grpc.nativeimpl.client;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.net.grpc.GrpcConstants;
+import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
@@ -58,7 +60,7 @@ public class SendError extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct connectionStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> connectionStruct = (BMap<String, BValue>) context.getRefArgument(0);
         long statusCode = context.getIntArgument(0);
         String errorMsg = context.getStringArgument(0);
 
@@ -69,8 +71,8 @@ public class SendError extends BlockingNativeCallableUnit {
                             "error. endpoint does not exist"))));
         } else {
             try {
-                requestSender.onError(new StatusRuntimeException(Status.fromCodeValue((int) statusCode).withDescription
-                        (errorMsg)));
+                requestSender.onError(new Message(new StatusRuntimeException(Status.fromCodeValue((int) statusCode)
+                        .withDescription(errorMsg))));
             } catch (Throwable e) {
                 LOG.error("Error while sending error to server.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));

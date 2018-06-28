@@ -21,7 +21,8 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -51,13 +52,13 @@ public class ProjectionTest {
 
         Assert.assertEquals(outputEmployeeEvents.length, 3, "Expected events are not received");
 
-        BStruct employee0 = (BStruct) outputEmployeeEvents[0];
-        BStruct employee1 = (BStruct) outputEmployeeEvents[1];
-        BStruct employee2 = (BStruct) outputEmployeeEvents[2];
+        BMap<String, BValue> employee0 = (BMap<String, BValue>) outputEmployeeEvents[0];
+        BMap<String, BValue> employee1 = (BMap<String, BValue>) outputEmployeeEvents[1];
+        BMap<String, BValue> employee2 = (BMap<String, BValue>) outputEmployeeEvents[2];
 
-        Assert.assertEquals(employee0.getStringField(0), "Raja");
-        Assert.assertEquals(employee1.getIntField(0), 33);
-        Assert.assertEquals(employee2.getStringField(1), "married");
+        Assert.assertEquals(employee0.get("name").stringValue(), "Raja");
+        Assert.assertEquals(((BInteger) employee1.get("age")).intValue(), 33);
+        Assert.assertEquals(employee2.get("status").stringValue(), "married");
     }
 
     @Test(description = "Test streaming projection query with errors")

@@ -49,7 +49,7 @@ public class OutboundMessage {
         this.framer = new MessageFramer(responseMessage);
     }
 
-    public OutboundMessage(InboundMessage inboundMessage) {
+    OutboundMessage(InboundMessage inboundMessage) {
         this(inboundMessage.getHttpCarbonMessage().cloneCarbonMessageWithOutData());
     }
 

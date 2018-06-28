@@ -8,7 +8,8 @@ import org.ballerinalang.mime.util.EntityWrapper;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -35,8 +36,8 @@ import static org.ballerinalang.mime.util.Constants.FIRST_PARAMETER_INDEX;
 public class GetBodyPartsAsChannel extends BlockingNativeCallableUnit {
     @Override
     public void execute(Context context) {
-        BStruct byteChannelStruct;
-        BStruct entityStruct = (BStruct) context.getRefArgument(FIRST_PARAMETER_INDEX);
+        BMap<String, BValue> byteChannelStruct;
+        BMap<String, BValue> entityStruct = (BMap<String, BValue>) context.getRefArgument(FIRST_PARAMETER_INDEX);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         String multipartDataBoundary = MimeUtil.getNewMultipartDelimiter();
         MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, multipartDataBoundary);

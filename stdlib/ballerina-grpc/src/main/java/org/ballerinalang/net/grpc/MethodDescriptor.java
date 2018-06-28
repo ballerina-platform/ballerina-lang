@@ -27,17 +27,14 @@ import java.io.InputStream;
  * Referenced from grpc-java implementation.
  * <p>
  *
- * @param <ReqT> InboundMessage Message Type
- * @param <RespT> OutboundMessage Message Type
- *
  * @since 0.980.0
  */
-public final class MethodDescriptor<ReqT, RespT> {
+public final class MethodDescriptor {
 
     private final MethodType type;
     private final String fullMethodName;
-    private final Marshaller<ReqT> requestMarshaller;
-    private final Marshaller<RespT> responseMarshaller;
+    private final Marshaller requestMarshaller;
+    private final Marshaller responseMarshaller;
     private final com.google.protobuf.Descriptors.MethodDescriptor schemaDescriptor;
 
     /**
@@ -94,10 +91,8 @@ public final class MethodDescriptor<ReqT, RespT> {
      * <p>
      * Referenced from grpc-java implementation.
      * <p>
-     *
-     * @param <Message> type of serializable message
      */
-    public interface Marshaller<Message> {
+    public interface Marshaller {
 
         /**
          * Produces an {@link InputStream} for given messages.
@@ -105,7 +100,7 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @param value to serialize.
          * @return serialized value as stream of bytes.
          */
-        public InputStream stream(Message value);
+        InputStream stream(Message value);
 
         /**
          * Produces an {@link Message} instance for given {@link InputStream}.
@@ -113,14 +108,14 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @param stream of bytes for serialized value
          * @return parsed value
          */
-        public Message parse(InputStream stream);
+        Message parse(InputStream stream);
     }
 
     private MethodDescriptor(
             MethodType type,
             String fullMethodName,
-            Marshaller<ReqT> requestMarshaller,
-            Marshaller<RespT> responseMarshaller,
+            Marshaller requestMarshaller,
+            Marshaller responseMarshaller,
             com.google.protobuf.Descriptors.MethodDescriptor schemaDescriptor) {
 
         this.type = type;
@@ -154,7 +149,7 @@ public final class MethodDescriptor<ReqT, RespT> {
      * @param input stream containing response message to parse.
      * @return parsed response message object.
      */
-    public RespT parseResponse(InputStream input) {
+    public Message parseResponse(InputStream input) {
         return responseMarshaller.parse(input);
     }
 
@@ -164,7 +159,7 @@ public final class MethodDescriptor<ReqT, RespT> {
      * @param requestMessage to serialize using the request {@link Marshaller}.
      * @return serialized request message.
      */
-    public InputStream streamRequest(ReqT requestMessage) {
+    public InputStream streamRequest(Message requestMessage) {
         return requestMarshaller.stream(requestMessage);
     }
 
@@ -174,7 +169,7 @@ public final class MethodDescriptor<ReqT, RespT> {
      * @param input the serialized message as a byte stream.
      * @return a parsed instance of the message.
      */
-    public ReqT parseRequest(InputStream input) {
+    public Message parseRequest(InputStream input) {
         return requestMarshaller.parse(input);
     }
 
@@ -185,7 +180,7 @@ public final class MethodDescriptor<ReqT, RespT> {
      * @return the serialized message as a byte stream.
      * @since 1.0.0
      */
-    public InputStream streamResponse(RespT response) {
+    public InputStream streamResponse(Message response) {
         return responseMarshaller.stream(response);
     }
 
@@ -194,7 +189,7 @@ public final class MethodDescriptor<ReqT, RespT> {
      *
      * @return request marshaller instance.
      */
-    public Marshaller<ReqT> getRequestMarshaller() {
+    public Marshaller getRequestMarshaller() {
         return requestMarshaller;
     }
 
@@ -203,7 +198,7 @@ public final class MethodDescriptor<ReqT, RespT> {
      *
      * @return response marshaller instance.
      */
-    public Marshaller<RespT> getResponseMarshaller() {
+    public Marshaller getResponseMarshaller() {
         return responseMarshaller;
     }
 
@@ -223,7 +218,7 @@ public final class MethodDescriptor<ReqT, RespT> {
      * @param methodName      the short method name
      * @return fully qualified method name.
      */
-    public static String generateFullMethodName(String fullServiceName, String methodName) {
+    static String generateFullMethodName(String fullServiceName, String methodName) {
         if (fullServiceName == null) {
             throw new RuntimeException("Full service name cannot be null");
         }
@@ -251,24 +246,20 @@ public final class MethodDescriptor<ReqT, RespT> {
     /**
      * Creates a new builder for a {@link MethodDescriptor}.
      *
-     * @param <ReqT> Request Message type.
-     * @param <RespT> Response Message type.
      * @return new builder instance.
      */
-    public static <ReqT, RespT> Builder<ReqT, RespT> newBuilder() {
-        return new Builder<>();
+    public static Builder newBuilder() {
+        return new Builder();
     }
 
     /**
      * A builder for a {@link MethodDescriptor}.
      *
-     * @param <ReqT> InboundMessage Message Type
-     * @param <RespT> OutboundMessage Message Type
      */
-    public static final class Builder<ReqT, RespT> {
+    public static final class Builder {
 
-        private Marshaller<ReqT> requestMarshaller;
-        private Marshaller<RespT> responseMarshaller;
+        private Marshaller requestMarshaller;
+        private Marshaller responseMarshaller;
         private MethodType type;
         private String fullMethodName;
         private com.google.protobuf.Descriptors.MethodDescriptor schemaDescriptor;
@@ -282,7 +273,7 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @param requestMarshaller the marshaller to use.
          * @return builder instance.
          */
-        public Builder<ReqT, RespT> setRequestMarshaller(Marshaller<ReqT> requestMarshaller) {
+        public Builder setRequestMarshaller(Marshaller requestMarshaller) {
             this.requestMarshaller = requestMarshaller;
             return this;
         }
@@ -293,7 +284,7 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @param responseMarshaller the marshaller to use.
          * @return builder instance.
          */
-        public Builder<ReqT, RespT> setResponseMarshaller(Marshaller<RespT> responseMarshaller) {
+        public Builder setResponseMarshaller(Marshaller responseMarshaller) {
             this.responseMarshaller = responseMarshaller;
             return this;
         }
@@ -304,7 +295,7 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @param type the type of the method.
          * @return builder instance.
          */
-        public Builder<ReqT, RespT> setType(MethodType type) {
+        public Builder setType(MethodType type) {
             this.type = type;
             return this;
         }
@@ -315,7 +306,7 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @see MethodDescriptor#generateFullMethodName
          * @return builder instance.
          */
-        public Builder<ReqT, RespT> setFullMethodName(String fullMethodName) {
+        public Builder setFullMethodName(String fullMethodName) {
             this.fullMethodName = fullMethodName;
             return this;
         }
@@ -326,7 +317,7 @@ public final class MethodDescriptor<ReqT, RespT> {
          * @param schemaDescriptor an object that describes the service structure.  Should be immutable.
          * @return builder instance.
          */
-        public Builder<ReqT, RespT> setSchemaDescriptor(com.google.protobuf.Descriptors.MethodDescriptor
+        public Builder setSchemaDescriptor(com.google.protobuf.Descriptors.MethodDescriptor
                                                                 schemaDescriptor) {
             this.schemaDescriptor = schemaDescriptor;
             return this;
@@ -338,8 +329,8 @@ public final class MethodDescriptor<ReqT, RespT> {
          *
          * @return new {@link MethodDescriptor} instance.
          */
-        public MethodDescriptor<ReqT, RespT> build() {
-            return new MethodDescriptor<>(
+        public MethodDescriptor build() {
+            return new MethodDescriptor(
                     type,
                     fullMethodName,
                     requestMarshaller,

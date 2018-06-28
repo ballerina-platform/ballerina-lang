@@ -24,7 +24,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -56,7 +57,7 @@ public class InitEndpoint implements NativeCallableUnit {
 
         Struct sessionConfig = sessionBObject.getStructField(Constants.SESSION_CONFIG);
 
-        BStruct connectionBObject = (BStruct) context.getRefArgument(1);
+        BMap<String, BValue> connectionBObject = (BMap<String, BValue>) context.getRefArgument(1);
         Connection connection = BallerinaAdapter.getNativeObject(connectionBObject,
                                                                    Constants.JMS_CONNECTION,
                                                                    Connection.class,

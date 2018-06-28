@@ -23,7 +23,8 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -88,7 +89,7 @@ public class Init extends AbstractGrpcNativeFunction {
     public void execute(Context context) {
         try {
             Struct serviceEndpoint = BLangConnectorSPIUtil.getConnectorEndpointStruct(context);
-            BStruct endpointConfigStruct = (BStruct) context.getRefArgument(1);
+            BMap<String, BValue> endpointConfigStruct = (BMap<String, BValue>) context.getRefArgument(1);
             Struct serviceEndpointConfig = BLangConnectorSPIUtil.toStruct(endpointConfigStruct);
             ListenerConfiguration configuration = getListenerConfig(serviceEndpointConfig);
             ServerConnector httpServerConnector =
@@ -99,7 +100,8 @@ public class Init extends AbstractGrpcNativeFunction {
             serviceEndpoint.addNativeData(SERVICE_REGISTRY_BUILDER, grpcServicesRegistryBuilder);
             context.setReturnValues();
         } catch (Throwable throwable) {
-            BStruct errorStruct = MessageUtils.getConnectorError(context, throwable);
+            BMap<String, BValue> errorStruct = (BMap<String, BValue>) MessageUtils.getConnectorError(context,
+                    throwable);
             context.setReturnValues(errorStruct);
         }
     }
@@ -129,7 +131,7 @@ public class Init extends AbstractGrpcNativeFunction {
         
         listenerConfiguration.setServerHeader(getServerName());
         listenerConfiguration.setVersion(String.valueOf(Constants.HTTP_2_0));
-        
+
         return listenerConfiguration;
     }
     

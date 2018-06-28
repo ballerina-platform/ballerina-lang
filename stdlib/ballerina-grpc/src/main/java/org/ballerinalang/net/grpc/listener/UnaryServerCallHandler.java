@@ -21,6 +21,7 @@ package org.ballerinalang.net.grpc.listener;
 import com.google.protobuf.Descriptors;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import org.ballerinalang.connector.api.Resource;
+import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.Status;
 
@@ -28,10 +29,8 @@ import org.ballerinalang.net.grpc.Status;
  * Interface to initiate processing of incoming remote calls for unary services.
  * This is used in unary and server streaming services.
  *
- * @param <ReqT> Request message type.
- * @param <RespT> Response message type.
  */
-public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT, RespT> {
+public class UnaryServerCallHandler extends ServerCallHandler {
 
     public Resource resource;
 
@@ -41,31 +40,28 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
     }
 
     @Override
-    public Listener<ReqT> startCall(ServerCall<ReqT, RespT> call) {
+    public Listener startCall(ServerCall call) {
         if (!call.getMethodDescriptor().getType().clientSendsOneMessage()) {
             throw new RuntimeException("asyncUnaryRequestCall is only for clientSendsOneMessage methods");
         }
-        ServerCallStreamObserver<RespT> responseObserver =
-                new ServerCallStreamObserver<>(call);
+        ServerCallStreamObserver responseObserver = new ServerCallStreamObserver(call);
         return new UnaryServerCallListener(responseObserver, call);
     }
 
-    private final class UnaryServerCallListener extends Listener<ReqT> {
+    private final class UnaryServerCallListener implements Listener {
 
-        private final ServerCall<ReqT, RespT> call;
-        private final ServerCallStreamObserver<RespT> responseObserver;
+        private final ServerCall call;
+        private final ServerCallStreamObserver responseObserver;
         private boolean canInvoke = true;
-        private ReqT request;
+        private Message request;
 
-        UnaryServerCallListener(
-                ServerCallStreamObserver<RespT> responseObserver,
-                ServerCall<ReqT, RespT> call) {
+        UnaryServerCallListener(ServerCallStreamObserver responseObserver, ServerCall call) {
             this.call = call;
             this.responseObserver = responseObserver;
         }
 
         @Override
-        public void onMessage(ReqT request) {
+        public void onMessage(Message request) {
             if (this.request != null) {
                 call.close(Status.Code.INTERNAL.toStatus().withDescription(TOO_MANY_REQUESTS),
                         new DefaultHttpHeaders());
@@ -94,10 +90,15 @@ public class UnaryServerCallHandler<ReqT, RespT> extends ServerCallHandler<ReqT,
         }
 
         @Override
+        public void onComplete() {
+            // TODO: check whether it is used.
+        }
+
+        @Override
         public void onReady() {
         }
 
-        public void invoke(ReqT request, ServerCallStreamObserver<RespT> responseObserver) {
+        public void invoke(Message request, ServerCallStreamObserver responseObserver) {
             onMessageInvoke(resource, request, responseObserver);
         }
     }

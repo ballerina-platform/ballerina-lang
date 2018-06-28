@@ -18,7 +18,8 @@
 package org.ballerinalang.net.grpc;
 
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 
 import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
@@ -26,20 +27,19 @@ import static org.ballerinalang.net.grpc.GrpcConstants.EMPTY_DATATYPE_NAME;
 /**
  * gRPC call back class registered in B7a executor.
  *
- * @param <ResponseT> Response message type.
  * @since 1.0.0
  */
-public class GrpcCallableUnitCallBack<ResponseT> implements CallableUnitCallback {
+public class GrpcCallableUnitCallBack implements CallableUnitCallback {
 
-    private StreamObserver<ResponseT> requestSender;
+    private StreamObserver requestSender;
     private boolean emptyResponse;
     
-    public GrpcCallableUnitCallBack(StreamObserver<ResponseT> requestSender, boolean isEmptyResponse) {
+    public GrpcCallableUnitCallBack(StreamObserver requestSender, boolean isEmptyResponse) {
         this.requestSender = requestSender;
         this.emptyResponse = isEmptyResponse;
     }
 
-    public GrpcCallableUnitCallBack(StreamObserver<ResponseT> requestSender) {
+    public GrpcCallableUnitCallBack(StreamObserver requestSender) {
         this.requestSender = requestSender;
         this.emptyResponse = false;
     }
@@ -64,14 +64,14 @@ public class GrpcCallableUnitCallBack<ResponseT> implements CallableUnitCallback
         // notify success only if response message is empty. Service impl doesn't send empty message. Empty response
         // scenarios handles here.
         if (emptyResponse) {
-            requestSender.onNext((ResponseT) new Message(EMPTY_DATATYPE_NAME));
+            requestSender.onNext(new Message(EMPTY_DATATYPE_NAME));
         }
         // Notify complete if service impl doesn't call complete;
         requestSender.onCompleted();
     }
     
     @Override
-    public void notifyFailure(BStruct error) {
+    public void notifyFailure(BMap<String, BValue> error) {
         // request sender becomes null when calling callback service resource in client side. in that case we don't
         // need to handle error.
         if (requestSender != null) {

@@ -47,8 +47,7 @@ public class ServicesRegistry {
         return services;
     }
 
-
-    ServerMethodDefinition<?, ?> lookupMethod(String methodName) {
+    ServerMethodDefinition lookupMethod(String methodName) {
         return methods.get(methodName);
     }
 
@@ -65,9 +64,9 @@ public class ServicesRegistry {
         }
 
         public ServicesRegistry build() {
-            Map<String, ServerMethodDefinition<?, ?>> map = new HashMap<>();
+            Map<String, ServerMethodDefinition> map = new HashMap<>();
             for (ServerServiceDefinition service : services.values()) {
-                for (ServerMethodDefinition<?, ?> method : service.getMethods()) {
+                for (ServerMethodDefinition method : service.getMethods()) {
                     map.put(method.getMethodDescriptor().getFullMethodName(), method);
                 }
             }

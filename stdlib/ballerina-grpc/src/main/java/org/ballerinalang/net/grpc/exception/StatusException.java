@@ -21,27 +21,26 @@ import org.ballerinalang.net.grpc.Status;
 
 /**
  * {@link Status} in Exception form, for propagating Status information via exceptions.
- *
  * <p>
  * Referenced from grpc-java implementation.
  * <p>
  */
 public class StatusException extends Exception {
-  private static final long serialVersionUID = -660954903976144640L;
-  private final Status status;
 
-  /**
-   * Constructs an exception with both a status and trailers.
-   */
-  public StatusException(Status status) {
-    super(Status.formatThrowableMessage(status), status.getCause());
-    this.status = status;
-  }
+    private final Status status;
 
-  /**
-   * Returns the status code as a {@link Status} object.
-   */
-  public final Status getStatus() {
-    return status;
-  }
+    /**
+     * Constructs an exception with both a status and trailers.
+     */
+    public StatusException(Status status) {
+        super(Status.formatThrowableMessage(status), status.getCause());
+        this.status = status;
+    }
+
+    /**
+     * Returns the status code as a {@link Status} object.
+     */
+    public final Status getStatus() {
+        return status;
+    }
 }
