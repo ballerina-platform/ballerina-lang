@@ -34,7 +34,11 @@ const sourceGenSkip = config.skip["source-gen"];
 const testFilesDir = path.join(__dirname, '../resources/ballerina-examples');
 
 describe('Ballerina Composer Test Suite', () => {
-    const testFiles = findBalFilesInDirSync(testFilesDir);
+    let testFiles = [];
+    if (fs.existsSync(testFilesDir)) {
+        testFiles = findBalFilesInDirSync(testFilesDir);
+    }
+
     let backEndProcess;
     
     before(function (beforeAllDone) {

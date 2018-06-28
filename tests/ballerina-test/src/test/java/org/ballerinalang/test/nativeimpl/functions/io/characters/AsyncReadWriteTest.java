@@ -18,12 +18,12 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io.characters;
 
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
-import org.ballerinalang.nativeimpl.io.events.EventManager;
-import org.ballerinalang.nativeimpl.io.events.EventResult;
-import org.ballerinalang.nativeimpl.io.events.characters.ReadCharactersEvent;
-import org.ballerinalang.nativeimpl.io.events.characters.WriteCharactersEvent;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.events.EventManager;
+import org.ballerinalang.stdlib.io.events.EventResult;
+import org.ballerinalang.stdlib.io.events.characters.ReadCharactersEvent;
+import org.ballerinalang.stdlib.io.events.characters.WriteCharactersEvent;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
