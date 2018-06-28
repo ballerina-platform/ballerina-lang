@@ -526,7 +526,7 @@ UnionTypeNode
    ;
 
 UserDefinedType
-   : <anonType.source>
+   : <isAnonType?> <anonType.source>
    | <nullableOperatorAvailable?> <grouped?> ( <packageAlias.value> : <typeName.value> ? )
    | <nullableOperatorAvailable?>              <packageAlias.value> : <typeName.value> ?
    | <nullableOperatorAvailable?> <grouped?> (                        <typeName.value> ? )
@@ -546,9 +546,9 @@ ValueType
    ;
 
 Variable
-   : <isAnonType?> <endWithSemicolon?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const>       record { <typeNode.source> }          <name.value>                                ;
-   | <isAnonType?> <endWithComma?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const>       record { <typeNode.source> }          <name.value>                                ,
-   | <isAnonType?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>* <public?public> <const?const>       record { <typeNode.source> }          <name.value>
+   : <isAnonType?> <endWithSemicolon?> <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                 <const?const>       record { <typeNode.source> }          <name.value>                                ;
+   | <isAnonType?> <endWithComma?>     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                 <const?const>       record { <typeNode.source> }          <name.value>                                ,
+   | <isAnonType?>                     <annotationAttachments>* <documentationAttachments>* <deprecatedAttachments>*                 <const?const>       record { <typeNode.source> }          <name.value>
    | <noVisibleName?>                                                                                                                                           <typeNode.source>
    | <endpoint?>                                                                                                                                       endpoint <typeNode.source>            <name.value> {   <initialExpression.source> ; }
    | <endpoint?>                                                                                                                                       endpoint <typeNode.source>            <name.value> {                                }

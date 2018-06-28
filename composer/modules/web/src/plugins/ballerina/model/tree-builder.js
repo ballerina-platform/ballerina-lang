@@ -210,10 +210,6 @@ class TreeBuilder {
                 node.isAnonType = true;
             }
 
-            if (node.public && node.ws && node.ws[0].text !== 'public') {
-                node.public = false;
-            }
-
             if (node.initialExpression && node.initialExpression.async) {
                 if (node.ws) {
                     for (let i = 0; i < node.ws.length; i++) {

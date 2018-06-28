@@ -403,7 +403,8 @@ class FormattingUtil {
             node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
         }
 
-        if (node.body.statements.length <= 0 && node.endpointNodes.length <= 0 && node.workers.length <= 0) {
+        if (node.body && node.body.statements.length <= 0 && node.endpointNodes.length <= 0 &&
+            node.workers.length <= 0) {
             if (!this.isHeightAvailable(node.ws[node.ws.length - 1].ws)) {
                 node.ws[node.ws.length - 1].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn) + NEW_LINE
                     + this.getWhiteSpaces(node.position.startColumn);
@@ -514,7 +515,8 @@ class FormattingUtil {
             node.ws[node.ws.length - 2].ws = SINGLE_SPACE;
         }
 
-        if (node.body.statements.length <= 0 && node.workers.length <= 0 && node.endpointNodes.length <= 0) {
+        if (node.body && node.body.statements.length <= 0 && node.workers.length <= 0 &&
+            node.endpointNodes.length <= 0) {
             if (!this.isHeightAvailable(node.ws[node.ws.length - 1].ws)) {
                 node.ws[node.ws.length - 1].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn) + NEW_LINE +
                     this.getWhiteSpaces(node.position.startColumn);
@@ -619,7 +621,38 @@ class FormattingUtil {
      *
      */
     formatTypeDefinitionNode(node) {
-        // Not implemented.
+        if (!node.ws) {
+            return;
+        }
+
+        this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
+        let typeDefinitionIndex = this.findIndex(node);
+
+        if (!this.isHeightAvailable(node.ws[0].ws)) {
+            node.ws[0].ws = typeDefinitionIndex > 0
+                ? BETWEEN_BLOCK_SPACE
+                : EMPTY_SPACE;
+        } else if (!this.isNewLine(node.ws[0].ws[0]) && typeDefinitionIndex !== 0) {
+            node.ws[0].ws = NEW_LINE + node.ws[0].ws;
+        }
+
+        if (!this.isHeightAvailable(node.ws[node.ws.length - 3].ws)) {
+            node.ws[node.ws.length - 3].ws = SINGLE_SPACE;
+        }
+
+        if (node.typeNode && node.typeNode.fields.length <= 0) {
+            if (!this.isHeightAvailable(node.ws[node.ws.length - 2].ws)) {
+                node.ws[node.ws.length - 2].ws = NEW_LINE + SPACE_TAB + NEW_LINE;
+            }
+        } else {
+            if (!this.isHeightAvailable(node.ws[node.ws.length - 2].ws)) {
+                node.ws[node.ws.length - 2].ws = NEW_LINE;
+            }
+        }
+
+        if (node.typeNode) {
+            node.typeNode.position.startColumn = node.position.startColumn
+        }
     }
 
 
@@ -637,17 +670,44 @@ class FormattingUtil {
         this.preserveHeight(node.ws, this.getWhiteSpaces(node.position.startColumn));
         let variableIndex = this.findIndex(node);
 
-        if (node.parent.kind === 'VariableDef' || node.parent.kind === "CompilationUnit") {
-            if (node.typeNode && node.typeNode.ws) {
-                this.preserveHeight(node.typeNode.ws, this.getWhiteSpaces(node.position.startColumn));
+        if (node.parent.kind === 'VariableDef' || node.parent.kind === "CompilationUnit" ||
+            node.parent.kind === 'RecordType') {
+            if (node.typeNode) {
+                node.typeNode.position.startColumn = node.position.startColumn;
+                if (node.typeNode.ws) {
+                    this.preserveHeight(node.typeNode.ws, this.getWhiteSpaces(node.position.startColumn));
 
-                if ((variableIndex > 0 || variableIndex < 0)) {
-                    if (!this.isHeightAvailable(node.typeNode.ws[0].ws)) {
-                        node.typeNode.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                    if ((variableIndex > 0 || variableIndex < 0)) {
+                        if (!this.isHeightAvailable(node.typeNode.ws[0].ws)) {
+                            node.typeNode.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                        }
+                    } else {
+                        if (!this.isHeightAvailable(node.typeNode.ws[0].ws)) {
+                            if (node.parent.kind === 'RecordType') {
+                                node.typeNode.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                            } else {
+                                node.typeNode.ws[0].ws = EMPTY_SPACE;
+                            }
+                        }
                     }
-                } else {
-                    if (!this.isHeightAvailable(node.typeNode.ws[0].ws)) {
-                        node.typeNode.ws[0].ws = EMPTY_SPACE;
+                } else if (node.isAnonType && node.ws && node.ws.length > 3) {
+                    if (!this.isHeightAvailable(node.ws[0].ws)) {
+                        node.ws[0].ws = NEW_LINE + this.getWhiteSpaces(node.position.startColumn);
+                    }
+
+                    if (!this.isHeightAvailable(node.ws[1].ws)) {
+                        node.ws[1].ws = SINGLE_SPACE;
+                    }
+
+                    if (node.typeNode && node.typeNode.anonType && node.typeNode.anonType.fields &&
+                        node.typeNode.anonType.fields.length <= 0) {
+                        if (!this.isHeightAvailable(node.ws[2].ws)) {
+                            node.ws[2].ws = NEW_LINE + SPACE_TAB + NEW_LINE;
+                        }
+                    } else {
+                        if (!this.isHeightAvailable(node.ws[2].ws)) {
+                            node.ws[2].ws = NEW_LINE;
+                        }
                     }
                 }
             }
@@ -1488,7 +1548,9 @@ class FormattingUtil {
      *
      */
     formatUserDefinedTypeNode(node) {
-        // Not implemented.
+        if (node.isAnonType && node.anonType) {
+            node.anonType.position.startColumn = node.position.startColumn;
+        }
     }
 
 
@@ -1521,7 +1583,11 @@ class FormattingUtil {
      *
      */
     formatRecordTypeNode(node) {
-        // Not implemented.
+        // Add the start column and sorted index.
+        for (let i = 0; i < node.fields.length; i++) {
+            let child = node.fields[i];
+            child.position.startColumn = node.position.startColumn + this.getWhiteSpaceCount(SPACE_TAB);
+        }
     }
 
 
