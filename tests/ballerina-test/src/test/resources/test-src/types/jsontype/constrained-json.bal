@@ -1,10 +1,10 @@
-type Person record {
+type Person sealed record {
     string name;
     int age;
     string address;
 };
 
-type Student record {
+type Student sealed record {
     string name;
     int age;
     string address;
@@ -62,21 +62,21 @@ function getStudent() returns (json<Student>){
     return j;
 }
 
-type Employee record {
+type Employee sealed record {
     string first_name;
     string last_name;
     int age;
     Address address;
 };
 
-type Address record {
+type Address sealed record {
     string number;
     string street;
     string city;
     PhoneNumber phoneNumber;
 };
 
-type PhoneNumber record {
+type PhoneNumber sealed record {
     string areaCode;
     string number;
 };

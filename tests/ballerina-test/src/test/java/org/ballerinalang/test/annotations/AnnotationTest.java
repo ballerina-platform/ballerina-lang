@@ -203,10 +203,8 @@ public class AnnotationTest {
     @Test(description = "Test child annotation from a wrong package")
     public void testInvalidChildAnnotation() {
         CompileResult resNegative = BCompileUtil.compile("test-src/lang/annotations/invalid-child-annotation.bal");
-        Assert.assertEquals(resNegative.getErrorCount(), 2);
-        BAssertUtil.validateError(resNegative, 0, "undefined field 'val' in struct 'Arguments'",
-                1, 7);
-        BAssertUtil.validateError(resNegative, 1, "invalid literal for type 'other'",
+        Assert.assertEquals(resNegative.getErrorCount(), 1);
+        BAssertUtil.validateError(resNegative, 0, "invalid usage of record literal with type 'any'",
                 1, 12);
     }
 

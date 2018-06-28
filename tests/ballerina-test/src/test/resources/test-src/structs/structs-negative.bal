@@ -1,14 +1,14 @@
-type Department record {
+type Department sealed record {
     string dptName;
     boolean y;
 };
 
-type Department record {
+type Department sealed record {
     string name;
     int[] a1;
 };
 
-type Department2 record {
+type Department2 sealed record {
     string dptName;
     int id;
     string id;

@@ -505,6 +505,10 @@ public class Types {
             }
         }
 
+        if (type.tag == TypeTags.RECORD) {
+            return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType);
+        }
+
         return true;
     }
 
@@ -629,6 +633,11 @@ public class Types {
                 return false;
             }
         }
+
+        if (type.tag == TypeTags.RECORD) {
+            return checkStructFieldToJSONCompatibility(type, ((BRecordType) type).restFieldType);
+        }
+
         return true;
     }
 

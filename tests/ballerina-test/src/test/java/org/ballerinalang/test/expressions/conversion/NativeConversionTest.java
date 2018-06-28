@@ -623,19 +623,19 @@ public class NativeConversionTest {
         Assert.assertEquals(((BInteger) struct.get("z")).intValue(), 2);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testObjectRecordConversion1() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRecordConversion1");
         Assert.assertTrue(returns[0] instanceof BMap);
     }
     
-    @Test
+    @Test(enabled = false)
     public void testObjectRecordConversion2() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRecordConversion2");
         Assert.assertTrue(returns[0] instanceof BMap);
     }
     
-    @Test
+    @Test(enabled = false)
     public void testObjectRecordConversion3() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testObjectRecordConversion3");
         Assert.assertTrue(returns[0] instanceof BMap);
