@@ -39,10 +39,9 @@ documentation {
     F{{config}} The configurations associated with the SQL endpoint
 }
 public type Client object {
-    private {
-        ClientEndpointConfiguration config;
-        sql:CallerActions callerActions;
-    }
+
+    private ClientEndpointConfiguration config;
+    private sql:CallerActions callerActions;
 
     documentation {
         Gets called when the endpoint is being initialized during the package initialization.
