@@ -129,7 +129,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import javax.xml.XMLConstants;
 
 import static org.wso2.ballerinalang.compiler.semantics.model.SymbolTable.BBYTE_MAX_VALUE;
@@ -288,7 +287,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // var a = []; and var a = [1,2,3,4]; are illegal statements, because we cannot infer the type here.
         BType actualType = symTable.errType;
 
-        if (expType.tag == TypeTags.ANY) { // TODO disallow array literal in unions?
+        if (expType.tag == TypeTags.ANY) {
             dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
             resultType = symTable.errType;
             return;
@@ -333,6 +332,21 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = superType;
             }
             actualType = new BArrayType(actualType, null, arrayLiteral.exprs.size(), BArrayState.UNSEALED);
+
+            if (expType.tag == TypeTags.UNION) {
+                BUnionType expType = (BUnionType) this.expType;
+                int count = 0;
+                for (BType memType : expType.memberTypes) {
+                    if (memType.tag == TypeTags.ARRAY && types.isAssignable(actualType, memType)) {
+                        count++;
+                    }
+                }
+                if (count > 1) {
+                    dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+                    resultType = symTable.errType;
+                    return;
+                }
+            }
         }
 
         resultType = types.checkType(arrayLiteral, actualType, expType);
