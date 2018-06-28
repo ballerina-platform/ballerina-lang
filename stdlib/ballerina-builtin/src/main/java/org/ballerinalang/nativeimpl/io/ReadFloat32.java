@@ -24,7 +24,8 @@ import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BFloat;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Representation;
 import org.ballerinalang.nativeimpl.io.events.EventContext;
@@ -68,7 +69,7 @@ public class ReadFloat32 implements NativeCallableUnit {
         Throwable error = eventContext.getError();
         CallableUnitCallback callback = eventContext.getCallback();
         if (null != error) {
-            BStruct errorStruct = IOUtils.createError(context, error.getMessage());
+            BMap<String, BValue> errorStruct = IOUtils.createError(context, error.getMessage());
             context.setReturnValues(errorStruct);
         } else {
             Double readDouble = result.getResponse();
@@ -80,7 +81,7 @@ public class ReadFloat32 implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct dataChannelStruct = (BStruct) context.getRefArgument(DATA_CHANNEL_INDEX);
+        BMap<String, BValue> dataChannelStruct = (BMap<String, BValue>) context.getRefArgument(DATA_CHANNEL_INDEX);
         DataChannel channel = (DataChannel) dataChannelStruct.getNativeData(IOConstants.DATA_CHANNEL_NAME);
         EventContext eventContext = new EventContext(context, callback);
         ReadFloatEvent event = new ReadFloatEvent(channel, Representation.BIT_32, eventContext);

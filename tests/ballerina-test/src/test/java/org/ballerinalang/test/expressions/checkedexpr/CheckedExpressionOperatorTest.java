@@ -21,8 +21,8 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -35,6 +35,8 @@ import org.testng.annotations.Test;
 public class CheckedExpressionOperatorTest {
 
     private CompileResult result;
+    private static final String ERROR_MESSAGE_FIELD = "message";
+    private static final String ERROR_DATA_FIELD = "data";
 
     @BeforeClass
     public void setup() {
@@ -54,9 +56,9 @@ public class CheckedExpressionOperatorTest {
     public void testSafeAssignmentBasics2() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeAssignmentBasics2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
-        BStruct errorStruct = (BStruct) returns[0];
-        Assert.assertEquals(errorStruct.getStringField(0),
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        BMap<String, BValue> errorStruct = (BMap) returns[0];
+        Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
                 "file not found error: /home/sameera/bar.txt", "Invalid error message value returned.");
     }
 
@@ -84,9 +86,9 @@ public class CheckedExpressionOperatorTest {
     public void testSafeAssignOpInAssignmentStatement2() {
         BValue[] returns = BRunUtil.invoke(result, "testSafeAssignOpInAssignmentStatement2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
-        BStruct errorStruct = (BStruct) returns[0];
-        Assert.assertEquals(errorStruct.getStringField(0),
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        BMap<String, BValue> errorStruct = (BMap) returns[0];
+        Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
                 "file not found error: /home/sameera/foo.txt", "Invalid error message value returned.");
     }
 
@@ -133,9 +135,9 @@ public class CheckedExpressionOperatorTest {
     public void testCheckExprInBinaryExpr1() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr1", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
-        BStruct errorStruct = (BStruct) returns[0];
-        Assert.assertEquals(errorStruct.getStringField(0),
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        BMap<String, BValue> errorStruct = (BMap) returns[0];
+        Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
                 "io error", "Invalid error message value returned.");
     }
 
@@ -143,9 +145,9 @@ public class CheckedExpressionOperatorTest {
     public void testCheckExprInBinaryExpr2() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr2", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
-        BStruct errorStruct = (BStruct) returns[0];
-        Assert.assertEquals(errorStruct.getStringField(0),
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        BMap<String, BValue> errorStruct = (BMap) returns[0];
+        Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
                 "io error", "Invalid error message value returned.");
     }
 
@@ -173,11 +175,11 @@ public class CheckedExpressionOperatorTest {
     public void testCheckExprInBinaryExpr6() {
         BValue[] returns = BRunUtil.invoke(result, "testCheckExprInBinaryExpr6", new BValue[]{});
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
-        BStruct errorStruct = (BStruct) returns[0];
-        Assert.assertEquals(errorStruct.getStringField(0),
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        BMap<String, BValue> errorStruct = (BMap) returns[0];
+        Assert.assertEquals(errorStruct.get(ERROR_MESSAGE_FIELD).stringValue(),
                 "custom io error", "Invalid error message value returned.");
-        Assert.assertEquals(errorStruct.getStringField(1),
+        Assert.assertEquals(errorStruct.get(ERROR_DATA_FIELD).stringValue(),
                 "foo.txt", "Invalid error message value returned.");
     }
 

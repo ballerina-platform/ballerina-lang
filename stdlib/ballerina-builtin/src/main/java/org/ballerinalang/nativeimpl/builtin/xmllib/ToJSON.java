@@ -21,8 +21,10 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.XMLUtils;
+import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.nativeimpl.lang.utils.ErrorHandler;
 import org.ballerinalang.natives.annotations.Argument;
@@ -44,15 +46,18 @@ import org.ballerinalang.natives.annotations.ReturnType;
 )
 public class ToJSON extends BlockingNativeCallableUnit {
 
+    private static final String OPTIONS_ATTRIBUTE_PREFIX = "attributePrefix";
+    private static final String OPTIONS_PRESERVE_NS = "preserveNamespaces";
+
     @Override
     public void execute(Context ctx) {
         BJSON json = null;
         try {
             // Accessing Parameters
             BXML xml = (BXML) ctx.getRefArgument(0);
-            BStruct optionsStruct = ((BStruct) ctx.getRefArgument(1));
-            String attributePrefix = optionsStruct.getStringField(0);
-            Boolean preserveNamespaces = optionsStruct.getBooleanField(0) == 1;
+            BMap<String, BValue> optionsStruct = ((BMap<String, BValue>) ctx.getRefArgument(1));
+            String attributePrefix = optionsStruct.get(OPTIONS_ATTRIBUTE_PREFIX).stringValue();
+            boolean preserveNamespaces = ((BBoolean) optionsStruct.get(OPTIONS_PRESERVE_NS)).booleanValue();
             //Converting to json
             json = XMLUtils.convertToJSON(xml, attributePrefix, preserveNamespaces);
         } catch (Throwable e) {

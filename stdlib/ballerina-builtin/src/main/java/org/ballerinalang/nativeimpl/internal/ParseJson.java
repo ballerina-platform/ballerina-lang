@@ -24,7 +24,8 @@ import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.util.JsonNode;
 import org.ballerinalang.model.util.JsonParser;
 import org.ballerinalang.model.values.BJSON;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.Utils;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -50,7 +51,8 @@ public class ParseJson extends BlockingNativeCallableUnit {
             JsonNode jsonNode = JsonParser.parse(value);
             context.setReturnValues(new BJSON(jsonNode));
         } catch (Throwable e) {
-            BStruct error = Utils.createConversionError(context, "Failed to parse json string: " + e.getMessage());
+            BMap<String, BValue> error =
+                    Utils.createConversionError(context, "Failed to parse json string: " + e.getMessage());
             context.setReturnValues(error);
         }
     }

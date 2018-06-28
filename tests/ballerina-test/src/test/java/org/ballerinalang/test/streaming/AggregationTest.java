@@ -20,7 +20,8 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -48,10 +49,10 @@ public class AggregationTest {
 
         Assert.assertEquals(outputStatusCountArray.length, 1, "Expected events are not received");
 
-        BStruct statusCount0 = (BStruct) outputStatusCountArray[0];
+        BMap<String, BValue> statusCount0 = (BMap<String, BValue>) outputStatusCountArray[0];
 
-        Assert.assertEquals(statusCount0.getStringField(0), "single");
-        Assert.assertEquals(statusCount0.getIntField(0), 2);
+        Assert.assertEquals(statusCount0.get("status").stringValue(), "single");
+        Assert.assertEquals(((BInteger) statusCount0.get("totalCount")).intValue(), 2);
     }
 
 }

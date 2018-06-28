@@ -24,7 +24,8 @@ import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.connector.api.Resource;
 import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Struct;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.jms.Constants;
 import org.ballerinalang.net.jms.JMSUtils;
 import org.ballerinalang.net.jms.JmsMessageListenerImpl;
@@ -47,7 +48,7 @@ public class MessageListenerHandler {
     public static void createAndRegister(Context context) {
         Struct queueConsumerBObject = BallerinaAdapter.getReceiverObject(context);
         Service service = BLangConnectorSPIUtil.getServiceRegistered(context);
-        BStruct consumerConnector = (BStruct) context.getRefArgument(2);
+        BMap<String, BValue> consumerConnector = (BMap<String, BValue>) context.getRefArgument(2);
 
         Resource resource = JMSUtils.extractJMSResource(service);
 

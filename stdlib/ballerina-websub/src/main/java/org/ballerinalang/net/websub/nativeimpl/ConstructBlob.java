@@ -23,7 +23,8 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.mime.util.MimeUtil;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.model.values.BBlob;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -50,7 +51,7 @@ public class ConstructBlob extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct byteChannel = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> byteChannel = (BMap<String, BValue>) context.getRefArgument(0);
         Channel channel = (Channel) byteChannel.getNativeData(BYTE_CHANNEL_NAME);
         if (channel == null) {
             context.setReturnValues(new BBlob(new byte[0]));

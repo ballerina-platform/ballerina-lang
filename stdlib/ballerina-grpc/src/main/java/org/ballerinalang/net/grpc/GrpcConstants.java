@@ -181,4 +181,8 @@ public class GrpcConstants {
     
     public static final String CLIENT_ENDPOINT_URL = "url";
     
+    // Listener struct fields
+    public static final String LISTENER_ID_FIELD = "id";
+    public static final String LISTENER_CONNECTION_FIELD = "conn";
+    
 }
