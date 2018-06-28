@@ -336,9 +336,22 @@ public class TypeChecker extends BLangNodeVisitor {
             if (expType.tag == TypeTags.UNION) {
                 BUnionType expType = (BUnionType) this.expType;
                 int count = 0;
+                // array literals can not be assigned to union types that include
+                // any[],
+                // union arrays eg:(int|boolean)[],
+                // two or more matching types eg: int[] | int[4]
                 for (BType memType : expType.memberTypes) {
-                    if (memType.tag == TypeTags.ARRAY && types.isAssignable(actualType, memType)) {
-                        count++;
+                    if (memType.tag == TypeTags.ARRAY) {
+                        if (((BArrayType) memType).eType.tag == TypeTags.ANY ||
+                                ((BArrayType) memType).eType.tag == TypeTags.UNION) {
+                            dlog.error(arrayLiteral.pos, DiagnosticCode.INVALID_ARRAY_LITERAL, expType);
+                            resultType = symTable.errType;
+                            return;
+                        }
+                        if (types.isAssignable(actualType, memType)) {
+                            checkExprs(arrayLiteral.exprs, this.env, ((BArrayType) memType).eType);
+                            count++;
+                        }
                     }
                 }
                 if (count > 1) {

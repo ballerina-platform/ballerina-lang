@@ -55,7 +55,11 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     public String getDesc() {
-        return TypeDescriptor.SIG_ARRAY + size + SEMI_COLON + eType.getDesc();
+        if (state == BArrayState.UNSEALED) {
+            return TypeDescriptor.SIG_ARRAY + -1 + SEMI_COLON + eType.getDesc();
+        } else {
+            return TypeDescriptor.SIG_ARRAY + size + SEMI_COLON + eType.getDesc();
+        }
     }
 
     @Override

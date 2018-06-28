@@ -168,19 +168,41 @@ function assignedArrayInvalidIndexAccess() {
 
 // Match Statments
 
-function unionAndMatchStatementSealedArray(float[4] x) returns string {
-    return unionTest(x);
+function unionAndMatchStatementSealedArray(float[] x) returns string {
+    return unionTestSealedArray(x);
 }
 
 function unionAndMatchStatementUnsealedArray(float[] x) returns string {
-    return unionTest(x);
+    return unionTestNoSealedArray(x);
 }
 
-function unionTest(boolean | int[] | float[4] | float[] x) returns string {
+function unionTestSealedArray(boolean | int[] | float[4] | float[] | float[6] x) returns string {
     match x {
         boolean k => return "matched boolean";
         int[] k => return "matched int array";
+        float[6] k => return "matched sealed float array size 6";
         float[4] k => return "matched sealed float array size 4";
         float[] k => return "matched float array";
+    }
+}
+
+function unionTestNoSealedArray(boolean | int[] | float[4] | float[] x) returns string {
+    match x {
+        boolean k => return "matched boolean";
+        int[] k => return "matched int array";
+        float[] k => return "matched float array";
+    }
+}
+
+function accessIndexOfMatchedSealedArray(int[] | int[3] x, int index) returns int {
+    match x {
+        int[3] k => {
+            k[index] = 10;
+            return k[index];
+        }
+        int[] k => {
+            k[index] = 10;
+            return k[index];
+        }
     }
 }

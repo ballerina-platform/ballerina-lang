@@ -58,3 +58,18 @@ function mockFunction(boolean[4] sealedArray) returns (string[]) {
     sealed string[] sealedStrArray = ["Sam", "Smith"];
     return sealedStrArray;
 }
+
+function unionMatchStatments() {
+    int | int[] | int[4] x = [1, 2, 3, 4];
+    int | int[] | int[4] x1 = [1, 2, 3, 4, 5];
+    int | int[] | int[4] | int[5] x2 = [1, 2, 3, 4, 5];
+}
+
+function unionTestInvalidOrderedMatch(boolean | int[] | float[4] | float[] x) returns string {
+    match x {
+        boolean k => return "matched boolean";
+        int[] k => return "matched int array";
+        float[] k => return "matched float array";
+        float[4] k => return "matched sealed float array size 4";
+    }
+}

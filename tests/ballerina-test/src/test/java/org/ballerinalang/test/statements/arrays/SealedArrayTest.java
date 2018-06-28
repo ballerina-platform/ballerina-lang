@@ -23,6 +23,7 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BFloatArray;
+import org.ballerinalang.model.values.BIntArray;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
@@ -183,7 +184,7 @@ public class SealedArrayTest {
     }
 
     @Test
-    public void testUnionAndMatchStatement() {
+    public void testUnionAndMatchSealedArrayStatement() {
         BFloatArray bFloatArray = new BFloatArray(4);
         bFloatArray.add(0, 01.0);
         bFloatArray.add(0, 12.2);
@@ -195,6 +196,46 @@ public class SealedArrayTest {
                 returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
         Assert.assertEquals(returnValues[0].stringValue(),
                 "matched sealed float array size 4", "Couldn't match sealed array type");
+
+        bFloatArray = new BFloatArray(5);
+        bFloatArray.add(0, 01.0);
+        bFloatArray.add(0, 12.2);
+        bFloatArray.add(0, 23.3);
+        bFloatArray.add(0, 34.4);
+        bFloatArray.add(0, 45.5);
+        BValue[] args2 = {bFloatArray};
+        returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementSealedArray", args2);
+        Assert.assertFalse(
+                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "matched float array", "Couldn't match sealed array type");
+
+        bFloatArray = new BFloatArray();
+        bFloatArray.add(0, 01.0);
+        bFloatArray.add(0, 12.2);
+        bFloatArray.add(0, 23.3);
+        bFloatArray.add(0, 34.4);
+        BValue[] args3 = {bFloatArray};
+        returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args3);
+        Assert.assertFalse(
+                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "matched float array", "Couldn't match unsealed array type");
+    }
+
+    @Test
+    public void testUnionAndMatchNoSealedArrayStatement() {
+        BFloatArray bFloatArray = new BFloatArray(4);
+        bFloatArray.add(0, 01.0);
+        bFloatArray.add(0, 12.2);
+        bFloatArray.add(0, 23.3);
+        bFloatArray.add(0, 34.4);
+        BValue[] args = {bFloatArray};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "unionAndMatchStatementUnsealedArray", args);
+        Assert.assertFalse(
+                returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
+        Assert.assertEquals(returnValues[0].stringValue(),
+                "matched float array", "Couldn't match sealed array type");
 
         bFloatArray = new BFloatArray();
         bFloatArray.add(0, 01.0);
@@ -229,6 +270,13 @@ public class SealedArrayTest {
                 resultNegative, 8, "incompatible types: expected 'boolean[4]', found 'boolean[3]'", 52, 47);
         BAssertUtil.validateError(
                 resultNegative, 9, "incompatible types: expected 'string[2]', found 'string[]'", 52, 34);
+        BAssertUtil.validateError(
+                resultNegative, 10, "invalid usage of array literal with type 'int|int[]|int[4]'", 63, 30);
+        BAssertUtil.validateError(
+                resultNegative, 11, "invalid usage of array literal with type 'int|int[]|int[4]|int[5]'", 65, 40);
+        BAssertUtil.validateError(
+                resultNegative, 12, "unreachable pattern: preceding patterns are too" +
+                        " general or the pattern ordering is not correct", 73, 9);
     }
 
     @Test(description = "Test accessing invalid index of sealed array",
@@ -246,4 +294,26 @@ public class SealedArrayTest {
         BRunUtil.invoke(compileResult, "assignedArrayInvalidIndexAccess");
     }
 
+    @Test(description = "Test accessing invalid index of sealed array matched union type",
+            expectedExceptions = {BLangRuntimeException.class},
+            expectedExceptionsMessageRegExp = ".*message: index number too large: 5.*")
+    public void accessInvalidIndexOfMatchedSealedArray() {
+        BIntArray bIntArray = new BIntArray(3);
+        bIntArray.add(0, 1);
+        bIntArray.add(0, 3);
+        bIntArray.add(0, 5);
+        BValue[] args = {bIntArray, new BInteger(5)};
+        BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
+    }
+
+    @Test
+    public void accessValidIndexOfMatchedUnsealedArray() {
+        BIntArray bIntArray = new BIntArray();
+        bIntArray.add(0, 1);
+        bIntArray.add(0, 3);
+        bIntArray.add(0, 5);
+        BValue[] args = {bIntArray, new BInteger(5)};
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "accessIndexOfMatchedSealedArray", args);
+        Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 10, "Invalid match for sealed array");
+    }
 }
