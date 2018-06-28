@@ -20,7 +20,8 @@ package org.ballerinalang.nativeimpl.socket.server;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.nativeimpl.socket.SocketConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -49,14 +50,14 @@ public class SocketAcceptCallback {
     }
 
     public void notifyAccept() {
-        BStruct serverSocketStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> serverSocketStruct = (BMap<String, BValue>) context.getRefArgument(0);
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) serverSocketStruct
                 .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
         SocketChannel socketChannel = SocketQueue.getSocket(serverSocketChannel.hashCode());
         if (socketChannel != null) {
             try {
                 PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SocketConstants.SOCKET_PACKAGE);
-                BStruct socketStruct = ServerSocketUtils.getSocketStruct(socketChannel, ioPackageInfo);
+                BMap<String, BValue> socketStruct = ServerSocketUtils.getSocketStruct(socketChannel, ioPackageInfo);
                 context.setReturnValues(socketStruct);
                 callback.notifySuccess();
             } catch (IOException e) {

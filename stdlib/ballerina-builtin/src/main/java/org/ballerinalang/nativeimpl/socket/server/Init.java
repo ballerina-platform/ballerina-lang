@@ -21,7 +21,8 @@ package org.ballerinalang.nativeimpl.socket.server;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.socket.SocketConstants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -49,9 +50,9 @@ public class Init extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct serverSocketStruct;
+        BMap<String, BValue> serverSocketStruct;
         try {
-            serverSocketStruct = (BStruct) context.getRefArgument(0);
+            serverSocketStruct = (BMap<String, BValue>) context.getRefArgument(0);
             ServerSocketChannel serverSocket = ServerSocketChannel.open();
             serverSocket.configureBlocking(false);
             serverSocketStruct.addNativeData(SocketConstants.SERVER_SOCKET_KEY, serverSocket);

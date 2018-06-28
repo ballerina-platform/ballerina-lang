@@ -74,7 +74,7 @@ public class Connect extends BlockingNativeCallableUnit {
         Socket socket;
         try {
             // Open a client connection
-            BStruct socketStruct = (BStruct) context.getRefArgument(0);
+            BMap<String, BValue> socketStruct = (BMap<String, BValue>) context.getRefArgument(0);
             SocketChannel socketChannel = (SocketChannel) socketStruct.getNativeData(SocketConstants.SOCKET_KEY);
             socketChannel.connect(new InetSocketAddress(host, port));
             log.debug("Successfully connect to remote server.");
@@ -89,29 +89,19 @@ public class Connect extends BlockingNativeCallableUnit {
             // Create ByteChannel Struct
             StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
             Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, 0);
-            BMap<String, BValue> channelStruct =
-                    BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
-            Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, 0);
-            BStruct channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
+            BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo);
             channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
 
             // Create Socket Struct
-            socketStruct.setRefField(0, channelStruct);
-            socketStruct.setIntField(0, socket.getPort());
-            socketStruct.setIntField(1, socket.getLocalPort());
-            socketStruct.setStringField(0, socket.getInetAddress().getHostAddress());
-            socketStruct.setStringField(1, socket.getLocalAddress().getHostAddress());
-            socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, socketChannel);
-            StructureTypeInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
-            BMap<String, BValue> socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
             socketStruct.put(IOConstants.BYTE_CHANNEL_NAME, channelStruct);
-            socketStruct.put(PORT_FIELD, new BInteger(socket.getPort()));
-            socketStruct.put(LOCAL_PORT_OPTION_FIELD, new BInteger(socket.getLocalPort()));
-            socketStruct.put(ADDRESS_FIELD, new BString(socket.getInetAddress().getHostAddress()));
-            socketStruct.put(LOCAL_ADDRESS_FIELD,
+            socketStruct.put(SocketConstants.REMOTE_PORT_FIELD, new BInteger(socket.getPort()));
+            socketStruct.put(SocketConstants.LOCAL_PORT_OPTION_FIELD, new BInteger(socket.getLocalPort()));
+            socketStruct.put(SocketConstants.REMOTE_ADDRESS_FIELD,
+                    new BString(socket.getInetAddress().getHostAddress()));
+            socketStruct.put(SocketConstants.LOCAL_ADDRESS_FIELD,
                     new BString(socket.getLocalAddress().getHostAddress()));
-            socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, channel);
-            context.setReturnValues(socketStruct);
+            socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, socketChannel);
+            context.setReturnValues();
         } catch (Throwable e) {
             String msg = "Failed to open a connection to [" + host + ":" + port + "] : " + e.getMessage();
             log.error(msg, e);

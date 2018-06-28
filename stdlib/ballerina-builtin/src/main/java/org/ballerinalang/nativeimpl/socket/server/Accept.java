@@ -22,7 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.CallableUnitCallback;
 import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.utils.IOUtils;
 import org.ballerinalang.nativeimpl.socket.SocketConstants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
@@ -57,7 +58,7 @@ public class Accept implements NativeCallableUnit {
 
     @Override
     public void execute(Context context, CallableUnitCallback callback) {
-        BStruct serverSocketStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> serverSocketStruct = (BMap<String, BValue>) context.getRefArgument(0);
         ServerSocketChannel serverSocketChannel = (ServerSocketChannel) serverSocketStruct
                 .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
         int serverSocketHash = serverSocketChannel.hashCode();
@@ -65,7 +66,7 @@ public class Accept implements NativeCallableUnit {
         if (socketChannel != null) {
             try {
                 PackageInfo ioPackageInfo = context.getProgramFile().getPackageInfo(SocketConstants.SOCKET_PACKAGE);
-                BStruct socketStruct = ServerSocketUtils.getSocketStruct(socketChannel, ioPackageInfo);
+                BMap<String, BValue> socketStruct = ServerSocketUtils.getSocketStruct(socketChannel, ioPackageInfo);
                 context.setReturnValues(socketStruct);
                 callback.notifySuccess();
             } catch (IOException e) {

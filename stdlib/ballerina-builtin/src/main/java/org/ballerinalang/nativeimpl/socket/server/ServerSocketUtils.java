@@ -19,10 +19,14 @@
 package org.ballerinalang.nativeimpl.socket.server;
 
 import org.ballerinalang.bre.bvm.BLangVMStructs;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BString;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.IOConstants;
 import org.ballerinalang.nativeimpl.io.channels.SocketIOChannel;
 import org.ballerinalang.nativeimpl.io.channels.base.Channel;
+import org.ballerinalang.nativeimpl.socket.SocketConstants;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.StructureTypeInfo;
 
@@ -48,24 +52,25 @@ public class ServerSocketUtils {
      * @return Ballerina socket struct.
      * @throws IOException Throws if unable to create a Java socket from SocketChannel.
      */
-    public static BStruct getSocketStruct(SocketChannel socketChannel, PackageInfo ioPackageInfo) throws IOException {
+    public static BMap<String, BValue> getSocketStruct(SocketChannel socketChannel, PackageInfo ioPackageInfo)
+            throws IOException {
         StructureTypeInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
         Socket socket = socketChannel.socket();
-        BStruct socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
-        socketStruct.setRefField(0, getByteChannelStruct(socketChannel, ioPackageInfo));
-        socketStruct.setIntField(0, socket.getPort());
-        socketStruct.setIntField(1, socket.getLocalPort());
-        socketStruct.setStringField(0, socket.getInetAddress().getHostAddress());
-        socketStruct.setStringField(1, socket.getLocalAddress().getHostAddress());
+        BMap<String, BValue> socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
+        socketStruct.put(IOConstants.BYTE_CHANNEL_NAME, getByteChannelStruct(socketChannel, ioPackageInfo));
+        socketStruct.put(SocketConstants.REMOTE_PORT_FIELD, new BInteger(socket.getPort()));
+        socketStruct.put(SocketConstants.LOCAL_PORT_OPTION_FIELD, new BInteger(socket.getLocalPort()));
+        socketStruct.put(SocketConstants.REMOTE_ADDRESS_FIELD, new BString(socket.getInetAddress().getHostAddress()));
+        socketStruct.put(SocketConstants.LOCAL_ADDRESS_FIELD, new BString(socket.getLocalAddress().getHostAddress()));
         socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, socketChannel);
         return socketStruct;
     }
 
-    private static BStruct getByteChannelStruct(SocketChannel socketChannel, PackageInfo ioPackageInfo)
+    private static BMap<String, BValue> getByteChannelStruct(SocketChannel socketChannel, PackageInfo ioPackageInfo)
             throws IOException {
         StructureTypeInfo channelStructInfo = ioPackageInfo.getStructInfo(BYTE_CHANNEL_STRUCT_TYPE);
         Channel ballerinaSocketChannel = new SocketIOChannel(socketChannel, 0);
-        BStruct channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
+        BMap<String, BValue> channelStruct = BLangVMStructs.createBStruct(channelStructInfo, ballerinaSocketChannel);
         channelStruct.addNativeData(IOConstants.BYTE_CHANNEL_NAME, ballerinaSocketChannel);
         return channelStruct;
     }

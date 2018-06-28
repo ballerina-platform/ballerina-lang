@@ -49,3 +49,7 @@ function read (int size) returns (blob, int) | error {
 function close (io:Socket localSocket) {
     error? err = localSocket.close();
 }
+
+function main (string... args)  {
+    openSocketConnection("localhost", 9999);
+}

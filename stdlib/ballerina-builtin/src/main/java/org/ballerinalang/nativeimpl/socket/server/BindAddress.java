@@ -21,7 +21,7 @@ package org.ballerinalang.nativeimpl.socket.server;
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.io.BallerinaIOException;
 import org.ballerinalang.nativeimpl.socket.SelectorManager;
@@ -58,9 +58,9 @@ public class BindAddress extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct serverSocketStruct;
+        BMap<String, BValue> serverSocketStruct;
         try {
-            serverSocketStruct = (BStruct) context.getRefArgument(0);
+            serverSocketStruct = (BMap<String, BValue>) context.getRefArgument(0);
             BValue networkInterface = context.getNullableRefArgument(1);
             int port = (int) context.getIntArgument(0);
             ServerSocketChannel serverSocket = (ServerSocketChannel) serverSocketStruct
