@@ -22,9 +22,8 @@ const request = require('request');
 
 const parserUrl = `http://127.0.0.1:9091/composer/ballerina/parser/file/validate-and-parse`;
 
-function findBalFilesInDirSync(dir, filelist) {
+function findBalFilesInDirSync(dir, filelist=[]) {
     const files = fs.readdirSync(dir);
-    filelist = filelist || [];
     files.forEach((file) => {
         if (fs.statSync(path.join(dir, file)).isDirectory()) {
             filelist = findBalFilesInDirSync(path.join(dir, file), filelist);

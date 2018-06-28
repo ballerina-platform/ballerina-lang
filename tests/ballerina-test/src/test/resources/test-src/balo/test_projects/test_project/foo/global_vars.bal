@@ -13,3 +13,11 @@ public float glbVarFloat1 = glbVarFloat;
 public json glbVarJson;
 
 public float glbVarFloatLater;
+
+public byte glbByte = 234;
+
+public byte[] glbByteArray1 = [2,3,4,67,89];
+
+public byte[] glbByteArray2 = base64 `afcd34abcdef+dfginermkmf123w/bc234cd/1a4bdfaaFGTdaKMN8923as=`;
+
+public byte[] glbByteArray3 = base16 `afcd34abcdef123abc234bcd1a4bdfaaabadabcd892312df`;
