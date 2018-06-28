@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.stdlib.io.socket;
+package org.ballerinalang.stdlib.io.socket.client;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMStructs;
@@ -30,6 +30,8 @@ import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
 import org.ballerinalang.stdlib.io.channels.SocketIOChannel;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.socket.SocketByteChannel;
+import org.ballerinalang.stdlib.io.socket.SocketConstants;
 import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.ballerinalang.util.codegen.PackageInfo;
@@ -58,18 +60,6 @@ import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
-
-import static org.ballerinalang.stdlib.io.socket.SocketConstants.ADDRESS_FIELD;
-import static org.ballerinalang.stdlib.io.socket.SocketConstants.CERT_PASS_OPTION_FIELD;
-import static org.ballerinalang.stdlib.io.socket.SocketConstants.KEY_STORE_OPTION_FIELD;
-import static org.ballerinalang.stdlib.io.socket.SocketConstants.KEY_STORE_PASS_OPTION_FIELD;
-import static org.ballerinalang.stdlib.io.socket.SocketConstants.LOCAL_ADDRESS_FIELD;
-import static org.ballerinalang.stdlib.io.socket.SocketConstants.LOCAL_PORT_OPTION_FIELD;
-import static org.ballerinalang.stdlib.io.socket.SocketConstants.PORT_FIELD;
-import static org.ballerinalang.stdlib.io.socket.SocketConstants.SSL_PROTOCOL_OPTION_FIELD;
-import static org.ballerinalang.stdlib.io.socket.SocketConstants.TRUST_STORE_OPTION_FIELD;
-import static org.ballerinalang.stdlib.io.socket.SocketConstants.TRUST_STORE_PASS_OPTION_FIELD;
-import static org.ballerinalang.stdlib.io.utils.IOConstants.BYTE_CHANNEL_NAME;
 
 /**
  * Native function to open a secure client socket.
@@ -162,11 +152,12 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
         // Create Socket Struct
         StructureTypeInfo socketStructInfo = ioPackageInfo.getStructInfo(SOCKET_STRUCT_TYPE);
         BMap<String, BValue> socketStruct = BLangVMStructs.createBStruct(socketStructInfo);
-        socketStruct.put(BYTE_CHANNEL_NAME, channelStruct);
-        socketStruct.put(PORT_FIELD, new BInteger(sslSocket.getPort()));
-        socketStruct.put(LOCAL_PORT_OPTION_FIELD, new BInteger(sslSocket.getLocalPort()));
-        socketStruct.put(ADDRESS_FIELD, new BString(sslSocket.getInetAddress().getHostAddress()));
-        socketStruct.put(LOCAL_ADDRESS_FIELD,
+        socketStruct.put(IOConstants.BYTE_CHANNEL_NAME, channelStruct);
+        socketStruct.put(SocketConstants.REMOTE_PORT_FIELD, new BInteger(sslSocket.getPort()));
+        socketStruct.put(SocketConstants.LOCAL_PORT_OPTION_FIELD, new BInteger(sslSocket.getLocalPort()));
+        socketStruct.put(SocketConstants.REMOTE_ADDRESS_FIELD,
+                new BString(sslSocket.getInetAddress().getHostAddress()));
+        socketStruct.put(SocketConstants.LOCAL_ADDRESS_FIELD,
                 new BString(sslSocket.getLocalAddress().getHostAddress()));
         socketStruct.addNativeData(IOConstants.CLIENT_SOCKET_NAME, channel);
         return socketStruct;
@@ -182,12 +173,12 @@ public class OpenSecureSocket extends BlockingNativeCallableUnit {
         if (log.isDebugEnabled()) {
             log.debug("SSL algorithm : " + algorithm);
         }
-        String keyStorePath = options.get(KEY_STORE_OPTION_FIELD).stringValue();
-        String keyStorePass = options.get(KEY_STORE_PASS_OPTION_FIELD).stringValue();
-        String trustStorePath = options.get(TRUST_STORE_OPTION_FIELD).stringValue();
-        String trustStorePass = options.get(TRUST_STORE_PASS_OPTION_FIELD).stringValue();
-        String certPassword = options.get(CERT_PASS_OPTION_FIELD).stringValue();
-        String protocol = options.get(SSL_PROTOCOL_OPTION_FIELD).stringValue();
+        String keyStorePath = options.get(SocketConstants.KEY_STORE_OPTION_FIELD).stringValue();
+        String keyStorePass = options.get(SocketConstants.KEY_STORE_PASS_OPTION_FIELD).stringValue();
+        String trustStorePath = options.get(SocketConstants.TRUST_STORE_OPTION_FIELD).stringValue();
+        String trustStorePass = options.get(SocketConstants.TRUST_STORE_PASS_OPTION_FIELD).stringValue();
+        String certPassword = options.get(SocketConstants.CERT_PASS_OPTION_FIELD).stringValue();
+        String protocol = options.get(SocketConstants.SSL_PROTOCOL_OPTION_FIELD).stringValue();
         String sslProtocol = (protocol == null || protocol.isEmpty()) ?
                 SocketConstants.DEFAULT_SSL_PROTOCOL :
                 options.get(SocketConstants.SSL_PROTOCOL_OPTION_FIELD).stringValue();

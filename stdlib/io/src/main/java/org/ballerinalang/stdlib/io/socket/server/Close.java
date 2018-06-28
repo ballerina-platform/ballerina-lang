@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerinalang.stdlib.io.socket;
+package org.ballerinalang.stdlib.io.socket.server;
 
 import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
@@ -26,24 +26,24 @@ import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
 import org.ballerinalang.natives.annotations.ReturnType;
-import org.ballerinalang.stdlib.io.channels.base.Channel;
-import org.ballerinalang.stdlib.io.utils.IOConstants;
+import org.ballerinalang.stdlib.io.socket.SocketConstants;
 import org.ballerinalang.stdlib.io.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.channels.ByteChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.ServerSocketChannel;
 
 /**
- * Native function to close a Client socket.
+ * Native function to close a server socket.
  *
- * @since 0.963.0
+ * @since 0.971.1
  */
 @BallerinaFunction(
-        orgName = "ballerina", packageName = "io",
-        functionName = "close",
-        receiver = @Receiver(type = TypeKind.OBJECT, structType = "Socket", structPackage = "ballerina/io"),
-        returnType = { @ReturnType(type = TypeKind.RECORD, structType = "error")},
+        orgName = "ballerina", packageName = "io", functionName = "close",
+        receiver = @Receiver(type = TypeKind.OBJECT, structType = "ServerSocket",
+                             structPackage = SocketConstants.SOCKET_PACKAGE),
+        returnType = { @ReturnType(type = TypeKind.OBJECT, structType = "error")},
         isPublic = true
 )
 public class Close extends BlockingNativeCallableUnit {
@@ -52,16 +52,16 @@ public class Close extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BMap<String, BValue> socket;
+        BMap<String, BValue> serverSocketStruct;
         try {
-            socket = (BMap<String, BValue>) context.getRefArgument(0);
-            ByteChannel byteChannel = (ByteChannel) socket.getNativeData(IOConstants.CLIENT_SOCKET_NAME);
-            BMap<String, BValue> byteChannelStruct = (BMap<String, BValue>) socket.get(IOConstants.BYTE_CHANNEL_NAME);
-            Channel channel = (Channel) byteChannelStruct.getNativeData(IOConstants.BYTE_CHANNEL_NAME);
-            byteChannel.close();
-            channel.close();
+            serverSocketStruct = (BMap<String, BValue>) context.getRefArgument(0);
+            ServerSocketChannel serverSocket = (ServerSocketChannel) serverSocketStruct
+                    .getNativeData(SocketConstants.SERVER_SOCKET_KEY);
+            final SelectionKey selectionKey = serverSocket.keyFor(SelectorManager.getInstance());
+            selectionKey.cancel();
+            serverSocket.close();
         } catch (Throwable e) {
-            String message = "Failed to close the socket:" + e.getMessage();
+            String message = "Failed to close the ServerSocket: " + e.getMessage();
             log.error(message, e);
             context.setReturnValues(IOUtils.createError(context, message));
         }
