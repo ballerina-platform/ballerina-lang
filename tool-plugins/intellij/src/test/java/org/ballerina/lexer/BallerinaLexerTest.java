@@ -22,6 +22,7 @@ import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.openapi.vfs.CharsetToolkit;
 import com.intellij.testFramework.LexerTestCase;
 import io.ballerina.plugins.idea.lexer.BallerinaLexerAdapter;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,20 +38,21 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
  */
 public class BallerinaLexerTest extends LexerTestCase {
 
+    private final String testDataPath =  "src/test/resources/testData/lexer/BBE";
+    private final String expectedResultsPath  = "src/test/resources/testData/lexer/BBE";
+
     private String getTestDataDirectoryPath() {
-        return "src/test/resources/testData/lexer/BBE";
+        return testDataPath;
     }
 
     private String getExpectedResultDirectoryPath() {
-        return "src/test/resources/testData/lexer/expectedResults";
+        return expectedResultsPath;
     }
 
-    //this test validates the lexer token generation for all the ballerina-by-example files
-    public void testBBE() throws RuntimeException {
-
+    //this test validates the lexer token generation the ballerina-by-examples
+    public void testForBBE() throws RuntimeException {
         //This flag is used to include/filter BBE testerina files in lexer testing
         boolean includeTests = false;
-
         Path path = Paths.get(getTestDataDirectoryPath());
         doTestDirectory(path, includeTests);
     }
@@ -62,7 +64,6 @@ public class BallerinaLexerTest extends LexerTestCase {
                 return;
             } else if (resource.isFile() && resource.getName().endsWith(".bal")) {
                 doTestFile(resource);
-
                 //if the resource is a directory, recursively test the sub directories/files accordingly
             } else if (resource.isDirectory() && (includeTests || !resource.getName().contains("tests"))) {
                 DirectoryStream<Path> ds = Files.newDirectoryStream(path);
@@ -72,15 +73,14 @@ public class BallerinaLexerTest extends LexerTestCase {
                 ds.close();
             }
         } catch (IOException e) {
-            //throw new RuntimeException(e);
+            throw new RuntimeException(e);
         }
     }
 
-    private void doTestFile(File sourceFile) {
+    private void doTestFile(@NotNull File sourceFile) {
         try {
             String text = FileUtil.loadFile(sourceFile, CharsetToolkit.UTF8);
             String actual = printTokens(StringUtil.convertLineSeparators(text.trim()), 0);
-
             String relativePath = sourceFile.getPath().replace(getTestDataDirectoryPath(), EMPTY_STRING);
             String pathname = (getExpectedResultDirectoryPath() + relativePath).replace(".bal", "") + ".txt";
             File expectedResultFile = new File(pathname);

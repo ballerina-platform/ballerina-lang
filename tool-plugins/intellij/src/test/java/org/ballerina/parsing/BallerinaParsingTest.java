@@ -37,17 +37,20 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
  */
 public class BallerinaParsingTest extends ParsingTestCase {
 
+    private final String testDataPath = "src/test/resources/testData/parsing/BBE";
+    private final String expectedResultsPath = "src/test/resources/testData/parsing/expectedResults";
+
     public BallerinaParsingTest() {
         super("", "bal", new BallerinaParserDefinition());
     }
 
     @Override
     protected String getTestDataPath() {
-        return "src/test/resources/testData/parsing/BBE";
+        return testDataPath;
     }
 
     protected String getExpectedResultPath() {
-        return "src/test/resources/testData/parsing/expectedResults";
+        return expectedResultsPath;
     }
 
     @Override
@@ -60,10 +63,9 @@ public class BallerinaParsingTest extends ParsingTestCase {
         return true;
     }
 
-    public void testBBE() {
+    public void testForBBE() {
         //This flag is used to include/filter BBE testerina files in lexer testing
         boolean includeTests = false;
-
         Path path = Paths.get(getTestDataPath());
         doTestDirectory(path, includeTests);
     }
@@ -93,11 +95,9 @@ public class BallerinaParsingTest extends ParsingTestCase {
 
         try {
             String name = resource.getName().replace("." + myFileExt, EMPTY_STRING);
-
             //Retrieves relative path of the file since loadFile() uses "myFullDataPath" as the source root
             String relativeFilePath = resource.getPath().replace(getTestDataPath(), EMPTY_STRING);
             String text = loadFile(relativeFilePath);
-
             myFile = createPsiFile(name, text);
             ensureParsed(myFile);
             assertEquals("light virtual file text mismatch", text,
@@ -120,7 +120,7 @@ public class BallerinaParsingTest extends ParsingTestCase {
     protected void checkResult(@NonNls String var1, PsiFile var2) throws IOException {
         doCheckResult((new File(getExpectedResultPath() + var1)).getParent(), var2, this.checkAllPsiRoots(),
                 (new File(var1)).getName().replace("." + myFileExt, EMPTY_STRING), this.skipSpaces(),
-                this.includeRanges(), this.allTreesInSingleFile());
+                this.includeRanges());
     }
 }
 
