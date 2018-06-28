@@ -111,7 +111,7 @@ rem find the version of the jdk
 set CMD=RUN %*
 
 :checkJdk18
-"%JAVA_HOME%\bin\java" -version 2>&1 | findstr /r "1.[8|9]" >NUL
+"%JAVA_HOME%\bin\java" -version 2>&1 | findstr /r "[1.8|9|10]" >NUL
 IF ERRORLEVEL 1 goto unknownJdk
 goto jdk18
 

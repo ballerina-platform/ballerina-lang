@@ -157,6 +157,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 import org.wso2.ballerinalang.programfile.AnnotationInfo;
@@ -3465,14 +3466,16 @@ public class CodeGenerator extends BLangNodeVisitor {
         if (pkgNode == null) {
             // This is a package loaded from a BALO
             packageSymbol.imports.forEach(importPkdSymbol -> addPackageInfo(importPkdSymbol, programFile));
-            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())) {
+            if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())
+                    && !packageSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
                 programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
             }
             return;
         }
 
         pkgNode.imports.forEach(importPkdNode -> addPackageInfo(importPkdNode.symbol, programFile));
-        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())) {
+        if (!programFile.packageFileMap.containsKey(packageSymbol.pkgID.toString())
+                && !packageSymbol.pkgID.orgName.equals(Names.BUILTIN_ORG)) {
             programFile.packageFileMap.put(packageSymbol.pkgID.toString(), packageSymbol.packageFile);
         }
     }
