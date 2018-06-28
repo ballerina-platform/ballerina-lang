@@ -223,7 +223,7 @@ public class BByteArrayValueTest {
         assertResult(bytes, returns[0]);
     }
 
-    @Test(description = "Test byte array return")
+    @Test(description = "Test equality of byte array returned and their size")
     public void testByteArrayReturn() {
         byte[] bytes1 = ByteArrayUtils.hexStringToByteArray("aaabcfccadafcd341a4bdfabcd8912df");
         byte[] bytes2 = ByteArrayUtils.decodeBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ==");
