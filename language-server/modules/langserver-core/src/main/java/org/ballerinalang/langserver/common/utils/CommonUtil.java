@@ -729,6 +729,24 @@ public class CommonUtil {
         return endpointActions;
     }
 
+    /**
+     * Get the BType name as string.
+     * @param bType             BType to get the name
+     * @param ctx               LS Operation Context
+     * @return {@link String}   BType Name as String
+     */
+    public static String getBTypeName(BType bType, LSContext ctx) {
+        PackageID pkgId = bType.tsymbol.pkgID;
+        PackageID currentPkgId = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
+        String[] nameComponents = bType.toString().split(":");
+        if (pkgId.toString().equals(currentPkgId.toString()) || pkgId.getName().getValue().equals("builtin")) {
+            return nameComponents[nameComponents.length - 1];
+        } else {
+            return pkgId.getName().getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                    + nameComponents[nameComponents.length - 1];
+        }
+    }
+
     // Private Methods
 
     private static void populateIterableOperations(SymbolInfo variable, List<SymbolInfo> symbolInfoList) {
