@@ -148,13 +148,13 @@ public class SealedArrayTest {
     }
 
     @Test
-    public void testCreateBlobSealedArray() {
-        BValue[] returnValues = BRunUtil.invoke(compileResult, "createBlobSealedArray");
+    public void testCreateByteSealedArray() {
+        BValue[] returnValues = BRunUtil.invoke(compileResult, "createByteSealedArray");
         Assert.assertFalse(
                 returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");
 
-        returnValues = BRunUtil.invoke(compileResult, "createBlobSealedArrayWithLabel");
+        returnValues = BRunUtil.invoke(compileResult, "createByteSealedArrayWithLabel");
         Assert.assertFalse(
                 returnValues == null || returnValues.length == 0 || returnValues[0] == null, "Invalid Return Values.");
         Assert.assertEquals(((BInteger) returnValues[0]).intValue(), 5, "Length didn't match");

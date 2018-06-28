@@ -111,17 +111,17 @@ function createRecordSealedArrayWithLabel() returns int {
     return lengthof sealedArray;
 }
 
-// Blob Arrays
+// Byte Arrays
 
-function createBlobSealedArray() returns int {
-    blob a = base16 `aaabcfccadafcd341a4bdfabcd8912df`;
-    blob[5] sealedArray = [a, a, a, a, a];
+function createByteSealedArray() returns int {
+    byte a = base16 `aaabcfccadafcd341a4bdfabcd8912df`;
+    byte[5] sealedArray = [a, a, a, a, a];
     return lengthof sealedArray;
 }
 
-function createBlobSealedArrayWithLabel() returns int {
-    blob a = base16 `aaabcfccadafcd341a4bdfabcd8912df`;
-    sealed blob[] sealedArray = [a, a, a, a, a];
+function createByteSealedArrayWithLabel() returns int {
+    byte a = base16 `aaabcfccadafcd341a4bdfabcd8912df`;
+    sealed byte[] sealedArray = [a, a, a, a, a];
     return lengthof sealedArray;
 }
 // Tuple Arrays

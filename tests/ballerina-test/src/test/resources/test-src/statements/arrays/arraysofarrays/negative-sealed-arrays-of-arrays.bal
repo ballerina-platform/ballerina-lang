@@ -50,7 +50,4 @@ function arrayAssignments() {
     int[2][] x5 = [x1, x1];
     x5[1][4] = 12;
     x4[1][4] = 12;
-
 }
-
-

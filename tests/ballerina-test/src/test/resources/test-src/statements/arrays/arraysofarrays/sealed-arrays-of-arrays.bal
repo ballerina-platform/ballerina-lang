@@ -41,4 +41,3 @@ function twoDArrayStringAssignment(string[2] x2) returns (string, string, string
 
     return (xx1[0][0], xx1[1][0], xx1[2][0]);
 }
-

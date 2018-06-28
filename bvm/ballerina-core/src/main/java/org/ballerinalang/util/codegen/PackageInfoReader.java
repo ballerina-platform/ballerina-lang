@@ -1825,7 +1825,7 @@ public class PackageInfoReader {
         }
 
         @Override
-        public BType getCollenctionType(char typeChar, List<BType> memberTypes) {
+        public BType getCollectionType(char typeChar, List<BType> memberTypes) {
             switch (typeChar) {
                 case 'O':
                     return new BUnionType(memberTypes);

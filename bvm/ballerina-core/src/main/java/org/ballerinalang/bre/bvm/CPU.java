@@ -587,7 +587,8 @@ public class CPU {
                         break;
                     case InstructionCodes.BINEWARRAY:
                         i = operands[0];
-                        sf.refRegs[i] = new BByteArray();
+                        j = operands[2];
+                        sf.refRegs[i] = new BByteArray((int) sf.longRegs[j]);
                         break;
                     case InstructionCodes.ARRAYLEN:
                         i = operands[0];

@@ -643,7 +643,8 @@ public class CodeGenerator extends BLangNodeVisitor {
         BLangLiteral arraySizeLiteral = new BLangLiteral();
         arraySizeLiteral.pos = arrayLiteral.pos;
         arraySizeLiteral.value = -1L;
-        if (arrayLiteral.type.tag == TypeTags.ARRAY && ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED) {
+        if (arrayLiteral.type.tag == TypeTags.ARRAY &&
+                ((BArrayType) arrayLiteral.type).state != BArrayState.UNSEALED) {
             arraySizeLiteral.value = (long) ((BArrayType) arrayLiteral.type).size;
         }
         arraySizeLiteral.type = symTable.intType;
