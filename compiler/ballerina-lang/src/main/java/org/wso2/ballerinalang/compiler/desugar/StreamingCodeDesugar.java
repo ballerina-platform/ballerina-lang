@@ -184,6 +184,25 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         lambdaFunction.accept(this);
     }
 
+    //
+    // This method creates the constructs to publish output events.
+    //
+    // eg: Below query,
+    //
+    //      => (TeacherOutput[] emp) {
+    //              outputStream.publish(emp);
+    //      }
+    //
+    // convert into below constructs.
+    //
+    //      function (any) outputFunc = (any t) => {
+    //          TeacherOutput t1 = check <TeacherOutput>t;
+    //          outputStream.publish(t1);
+    //      };
+    //
+    //      streams:OutputProcess outputProcess = streams:createOutputProcess(outputFunc);
+    //
+    //
     @Override
     public void visit(BLangLambdaFunction lambdaFunction) {
 
@@ -297,6 +316,22 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         stmts.add(outputProcessInvokableTypeVariableDef);
     }
 
+    //
+    // This method converts the select clause of the streaming query in to Ballerina native constructs.
+    //
+    // eg: Below query,
+    //          select inputStream.name as TeacherName, inputStream.age
+    //
+    // convert into below constructs.
+    //
+    //          streams:SimpleSelect simpleSelect = streams:createSimpleSelect(outputProcess.process,
+    //              (streams:StreamEvent o)  => any {
+    //                  Teacher t = check <Teacher>o.eventObject;
+    //                  TeacherOutput teacherOutput = {name: t.name, age: t.age};
+    //                  return teacherOutput;
+    //              });
+    //
+    //
     @Override
     public void visit(BLangSelectClause selectClause) {
 
@@ -421,6 +456,21 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     }
 
 
+    //
+    // This method create necessary Ballerina native constructs to consume events from stream based on the 'from'
+    // statement of the streaming query.
+    //
+    // eg: Below query,
+    //          from inputStream
+    //
+    // converts into below constructs.
+    //
+    //          inputStream.subscribe((Teacher t) => {
+    //              streams:StreamEvent[] eventArr = streams:buildStreamEvent(t);
+    //              filter.process(eventArr);
+    //          });
+    //
+    //
     @Override
     public void visit(BLangStreamingInput streamingInput) {
 
@@ -543,6 +593,20 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         stmts.add(inputStreamSubscribeStatement);
     }
 
+    //
+    // Below method creates the constructs to perform filtering based on the 'where' clause of the streaming query.
+    //
+    // eg: Below query,
+    //          where inputStream.age > 25
+    //
+    // converts into below constructs.
+    //
+    //          streams:Filter filter = streams:createFilter(select.process, (any o) => boolean {
+    //                  Teacher teacher = check <Teacher> o;
+    //                  return teacher.age > 25;
+    //              });
+    //
+    //
     @Override
     public void visit(BLangWhere where) {
 
