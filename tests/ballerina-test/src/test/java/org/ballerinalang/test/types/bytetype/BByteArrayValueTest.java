@@ -222,4 +222,25 @@ public class BByteArrayValueTest {
         Assert.assertEquals(returns.length, 1);
         assertResult(bytes, returns[0]);
     }
+
+    @Test(description = "Test return byte array")
+    public void testByteArrayReturn() {
+        byte[] a = ByteArrayUtils.hexStringToByteArray("aaabcfccadafcd341a4bdfabcd8912df");
+        byte[] b = ByteArrayUtils.decodeBase64("aGVsbG8gYmFsbGVyaW5hICEhIQ==");
+        byte[] c = new byte[]{3,4,5,6,7,8,9};
+        BValue[] returns = BRunUtil.invoke(result, "testByteArrayReturn", new BValue[]{});
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BByteArray.class);
+        Assert.assertSame(returns[1].getClass(), BByteArray.class);
+        Assert.assertSame(returns[2].getClass(), BByteArray.class);
+        BByteArray byteArray1 = (BByteArray) returns[0];
+        BByteArray byteArray2 = (BByteArray) returns[1];
+        BByteArray byteArray3 = (BByteArray) returns[2];
+        Assert.assertEquals(a.length, byteArray1.size());
+        ByteArrayUtils.assertJBytesWithBBytes(a, byteArray1.getBytes());
+        Assert.assertEquals(b.length, byteArray2.size());
+        ByteArrayUtils.assertJBytesWithBBytes(b, byteArray2.getBytes());
+        Assert.assertEquals(c.length, byteArray3.size());
+        ByteArrayUtils.assertJBytesWithBBytes(c, byteArray3.getBytes());
+    }
 }
