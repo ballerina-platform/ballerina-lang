@@ -60,10 +60,10 @@ public class BStream implements BRefType<Object> {
             throw new BallerinaException("a stream cannot be declared without a constraint");
         }
         this.constraintType = ((BStreamType) type).getConstrainedType();
-        if (constraintType.getName() != null) {
-            this.topicName = TOPIC_NAME_PREFIX + constraintType.getName().toUpperCase() + "_" + name;
-        } else if (constraintType instanceof BIndexedType) {
+        if (constraintType instanceof BIndexedType) {
             this.topicName = TOPIC_NAME_PREFIX + ((BIndexedType) constraintType).getElementType() + "_" + name;
+        } else if (constraintType != null) {
+            this.topicName = TOPIC_NAME_PREFIX + constraintType + "_" + name;
         } else {
             this.topicName = TOPIC_NAME_PREFIX + name; //TODO: check for improvement
         }
@@ -107,8 +107,8 @@ public class BStream implements BRefType<Object> {
     public void publish(BValue data) {
         BType dataType = data.getType();
         if (!CPU.isAssignable(data, constraintType)) {
-            throw new BallerinaException("incompatible types: value of type:" + dataType.getName()
-                    + " cannot be added to a stream of type:" + this.constraintType.getName());
+            throw new BallerinaException("incompatible types: value of type:" + dataType
+                    + " cannot be added to a stream of type:" + this.constraintType);
         }
         BrokerUtils.publish(topicName, new BallerinaBrokerByteBuf(data));
     }
@@ -122,14 +122,8 @@ public class BStream implements BRefType<Object> {
     public void subscribe(BFunctionPointer functionPointer) {
         BType[] parameters = functionPointer.funcRefCPEntry.getFunctionInfo().getParamTypes();
         if (!CPU.isAssignable(constraintType, parameters[0])) {
-            if (constraintType.getTag() == TypeTags.RECORD_TYPE_TAG
-                    || constraintType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
-                throw new BallerinaException("incompatible function: subscription function needs to be a function"
-                                                     + " accepting:" + this.constraintType.getName());
-            } else {
-                throw new BallerinaException("incompatible function: subscription function needs to be a function"
-                                                     + " accepting:" + this.constraintType);
-            }
+            throw new BallerinaException("incompatible function: subscription function needs to be a function"
+                                                 + " accepting:" + this.constraintType);
         }
         String queueName = String.valueOf(System.currentTimeMillis()) + UUID.randomUUID().toString();
         BrokerUtils.addSubscription(topicName, new StreamSubscriber(queueName, functionPointer));
