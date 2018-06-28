@@ -3191,78 +3191,8 @@ public class CPU {
         if (rhsValue == null) {
             return false;
         }
-        
-        if (lhsType.getTag() == TypeTags.UNION_TAG) {
-            return checkUnionCast(rhsValue, lhsType);
-        }
 
-        BType rhsType = rhsValue.getType();
-        if (rhsType.equals(lhsType)) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.INT_TAG &&
-                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG ||
-                        lhsType.getTag() == TypeTags.BYTE_TAG)) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.STRING_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.BOOLEAN_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        } else if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
-            return true;
-        }
-
-        // if lhs type is JSON
-        if (getElementType(lhsType).getTag() == TypeTags.JSON_TAG &&
-                getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
-            return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
-        }
-
-        if ((rhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || rhsType.getTag() == TypeTags.RECORD_TYPE_TAG)
-                && (lhsType.getTag() == TypeTags.OBJECT_TYPE_TAG || lhsType.getTag() == TypeTags.RECORD_TYPE_TAG)) {
-            return checkStructEquivalency((BStructureType) rhsType, (BStructureType) lhsType);
-        }
-
-        if (lhsType.getTag() == TypeTags.ANY_TAG) {
-            return true;
-        }
-
-        // Array casting
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
-            return checkArrayCast((BNewArray) rhsValue, (BArrayType) lhsType);
-        }
-
-        // Check MAP casting
-        if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
-            return checkMapCast(rhsType, lhsType);
-        }
-
-        // This doesn't compare constraints as there is a requirement to be able to return raw table type and assign
-        // it to a constrained table reference.
-        if (rhsType.getTag() == TypeTags.TABLE_TAG && lhsType.getTag() == TypeTags.TABLE_TAG) {
-            return true;
-        }
-
-        if (rhsType.getTag() == TypeTags.STREAM_TAG && lhsType.getTag() == TypeTags.STREAM_TAG) {
-            return isAssignable(((BStreamType) rhsType).getConstrainedType(),
-                                ((BStreamType) lhsType).getConstrainedType());
-        }
-
-        if (rhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG &&
-                lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
-            return true;
-        }
-        
-        if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
-            return checkTupleCast(rhsValue, lhsType);
-        }
-
-        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            return checkFiniteTypeAssignable(rhsValue, lhsType);
-        }
-
-        return false;
+        return checkCast(rhsValue, lhsType);
     }
 
     private static boolean checkFiniteTypeAssignable(BValue bRefTypeValue, BType lhsType) {
@@ -3295,26 +3225,49 @@ public class CPU {
     }
 
     private static boolean checkCast(BValue rhsValue, BType lhsType) {
-        // Check union types
-        if (lhsType.getTag() == TypeTags.UNION_TAG) {
-            return checkUnionCast(rhsValue, lhsType);
-        }
-        
         BType rhsType = BTypes.typeNull;
         if (rhsValue != null) {
             rhsType = rhsValue.getType();
         }
 
+        if (lhsType.getTag() == TypeTags.UNION_TAG) {
+            return checkUnionCast(rhsValue, lhsType);
+        }
+
+        if (getElementType(lhsType).getTag() == TypeTags.JSON_TAG
+                && getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
+            return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
+        }
+
+        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
+            return checkArrayCast((BNewArray) rhsValue, (BArrayType) lhsType);
+        }
+
+        if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
+            return checkTupleCast(rhsValue, lhsType);
+        }
+
+        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
+            return checkFiniteTypeAssignable(rhsValue, lhsType);
+        }
+
+        return checkCast(rhsType, lhsType);
+    }
+
+    private static boolean checkCast(BType rhsType, BType lhsType) {
         if (rhsType.equals(lhsType)) {
             return true;
-        }
-
-        if (rhsType.getTag() == TypeTags.INT_TAG && (lhsType.getTag() == TypeTags.FLOAT_TAG ||
-                lhsType.getTag() == TypeTags.BYTE_TAG)) {
+        } else if (rhsType.getTag() == TypeTags.INT_TAG &&
+                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG ||
+                         lhsType.getTag() == TypeTags.BYTE_TAG)) {
             return true;
-        }
-
-        if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
+        } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.STRING_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.BOOLEAN_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
             return true;
         }
 
@@ -3327,32 +3280,21 @@ public class CPU {
             return true;
         }
 
-        // Check JSON casting
-        if (getElementType(rhsType).getTag() == TypeTags.JSON_TAG) {
-            return checkJSONCast(((BJSON) rhsValue).value(), rhsType, lhsType);
-        }
-
-        // Array casting
-        if (lhsType.getTag() == TypeTags.ARRAY_TAG && rhsValue instanceof BNewArray) {
-            return checkArrayCast((BNewArray) rhsValue, (BArrayType) lhsType);
-        }
-
-        // Check MAP casting
         if (rhsType.getTag() == TypeTags.MAP_TAG && lhsType.getTag() == TypeTags.MAP_TAG) {
             return checkMapCast(rhsType, lhsType);
         }
-        
-        // Check tuple casting
-        if (rhsType.getTag() == TypeTags.TUPLE_TAG && lhsType.getTag() == TypeTags.TUPLE_TAG) {
-            return checkTupleCast(rhsValue, lhsType);
-        } 
-        
-        if (lhsType.getTag() == TypeTags.FINITE_TYPE_TAG) {
-            return checkFiniteTypeAssignable(rhsValue, lhsType);
+
+        if (rhsType.getTag() == TypeTags.TABLE_TAG && lhsType.getTag() == TypeTags.TABLE_TAG) {
+            return true;
         }
 
-        if (lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
-            return checkFunctionCast(rhsValue, lhsType);
+        if (rhsType.getTag() == TypeTags.STREAM_TAG && lhsType.getTag() == TypeTags.STREAM_TAG) {
+            return isAssignable(((BStreamType) rhsType).getConstrainedType(),
+                                ((BStreamType) lhsType).getConstrainedType());
+        }
+
+        if (rhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG && lhsType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
+            return checkFunctionCast(rhsType, lhsType);
         }
 
         return false;
@@ -3379,7 +3321,11 @@ public class CPU {
     }
     
     private static boolean checkArrayCast(BNewArray sourceValue, BArrayType targetType) {
-        return checkArrayCast(sourceValue.getType(), targetType.getElementType());
+        BType sourceType = sourceValue.getType();
+        if (sourceType.getTag() == TypeTags.ARRAY_TAG) {
+            sourceType = ((BArrayType) sourceValue.getType()).getElementType();
+        }
+        return checkArrayCast(sourceType, targetType.getElementType());
     }
     
     private static boolean checkArrayCast(BType sourceType, BType targetType) {
@@ -4166,37 +4112,14 @@ public class CPU {
         return false;
     }
 
+    @Deprecated
     private static boolean checkFunctionCast(BValue value, BType lhsType) {
-        return checkFunctionCastByType(value.getType(), lhsType);
+        return checkFunctionCast(value.getType(), lhsType);
     }
 
     public static boolean isAssignable(BType sourceType, BType targetType) {
-
-        if (targetType.getTag() == TypeTags.ANY_TAG) {
-            return true;
-        }
-
         if (targetType.getTag() == TypeTags.UNION_TAG) {
             return checkUnionAssignable(sourceType, targetType);
-        }
-
-        if (sourceType.equals(targetType)) {
-            return true;
-        } else if (sourceType.getTag() == TypeTags.INT_TAG &&
-                (targetType.getTag() == TypeTags.JSON_TAG || targetType.getTag() == TypeTags.FLOAT_TAG)) {
-            return true;
-        } else if (sourceType.getTag() == TypeTags.FLOAT_TAG && targetType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        } else if (sourceType.getTag() == TypeTags.STRING_TAG && targetType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        } else if (sourceType.getTag() == TypeTags.BOOLEAN_TAG && targetType.getTag() == TypeTags.JSON_TAG) {
-            return true;
-        }
-
-        if ((sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG && targetType.getTag() == TypeTags.OBJECT_TYPE_TAG)
-                || (sourceType.getTag() == TypeTags.RECORD_TYPE_TAG
-                            && targetType.getTag() == TypeTags.RECORD_TYPE_TAG)) {
-            return checkStructEquivalency((BStructureType) sourceType, (BStructureType) targetType);
         }
 
         // TODO: 6/26/18 complete impl. for JSON assignable
@@ -4209,30 +4132,11 @@ public class CPU {
                                   ((BArrayType) targetType).getElementType());
         }
 
-        if (sourceType.getTag() == TypeTags.MAP_TAG && targetType.getTag() == TypeTags.MAP_TAG) {
-            return checkMapCast(sourceType, targetType);
-        }
-
-        if (sourceType.getTag() == TypeTags.TABLE_TAG && targetType.getTag() == TypeTags.TABLE_TAG) {
-            return true;
-        }
-
-        if (sourceType.getTag() == TypeTags.STREAM_TAG && targetType.getTag() == TypeTags.STREAM_TAG) {
-            return isAssignable(((BStreamType) sourceType).getConstrainedType(),
-                                ((BStreamType) targetType).getConstrainedType());
-        }
-
         if (sourceType.getTag() == TypeTags.TUPLE_TAG && targetType.getTag() == TypeTags.TUPLE_TAG) {
             return checkTupleAssignable(sourceType, targetType);
         }
 
-        // TODO: impl. finite type assignable
-
-        if (targetType.getTag() == TypeTags.FUNCTION_POINTER_TAG) {
-            return checkFunctionCastByType(sourceType, targetType);
-        }
-
-        return false;
+        return checkCast(sourceType, targetType);
     }
 
     private static boolean checkUnionAssignable(BType sourceType, BType targetType) {
@@ -4269,7 +4173,7 @@ public class CPU {
         return true;
     }
 
-    private static boolean checkFunctionCastByType(BType rhsType, BType lhsType) {
+    private static boolean checkFunctionCast(BType rhsType, BType lhsType) {
         if (rhsType.getTag() != TypeTags.FUNCTION_POINTER_TAG) {
             return false;
         }
