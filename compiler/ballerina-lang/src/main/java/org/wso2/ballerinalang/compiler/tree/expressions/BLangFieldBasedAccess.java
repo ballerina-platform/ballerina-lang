@@ -64,24 +64,6 @@ public class BLangFieldBasedAccess extends BLangAccessExpression implements Fiel
     }
 
     /**
-     * @since 0.94
-     */
-    public static class BLangStructFieldAccessExpr extends BLangFieldBasedAccess {
-
-        public BLangStructFieldAccessExpr(DiagnosticPos pos, BLangVariableReference varRef, BVarSymbol fieldSymbol) {
-            this.pos = pos;
-            this.expr = varRef;
-            this.symbol = fieldSymbol;
-            this.varSymbol = fieldSymbol;
-        }
-
-        @Override
-        public void accept(BLangNodeVisitor visitor) {
-            visitor.visit(this);
-        }
-    }
-
-    /**
      * @since 0.97
      */
     public static class BLangStructFunctionVarRef extends BLangFieldBasedAccess {

@@ -1,25 +1,26 @@
 /*
-*  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-*
-*  WSO2 Inc. licenses this file to you under the Apache License,
-*  Version 2.0 (the "License"); you may not use this file except
-*  in compliance with the License.
-*  You may obtain a copy of the License at
-*
-*    http://www.apache.org/licenses/LICENSE-2.0
-*
-*  Unless required by applicable law or agreed to in writing,
-*  software distributed under the License is distributed on an
-*  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
-*  KIND, either express or implied.  See the License for the
-*  specific language governing permissions and limitations
-*  under the License.
-*/
+ *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *
+ *  WSO2 Inc. licenses this file to you under the Apache License,
+ *  Version 2.0 (the "License"); you may not use this file except
+ *  in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing,
+ *  software distributed under the License is distributed on an
+ *  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ *  KIND, either express or implied.  See the License for the
+ *  specific language governing permissions and limitations
+ *  under the License.
+ */
 package org.ballerinalang.test.closures;
 
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BValue;
@@ -198,9 +199,30 @@ public class ClosureTest {
         Assert.assertEquals(((BFloat) returns[0]).floatValue(), 0.0);
     }
 
+    @Test(description = "Test byte and boolean")
+    public void testByteAndBoolean() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "test27");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertSame(returns[0].getClass(), BByteArray.class);
+        Assert.assertSame(returns[1].getClass(), BByteArray.class);
+        Assert.assertSame(returns[2].getClass(), BByteArray.class);
+        BByteArray blob1 = (BByteArray) returns[0];
+        BByteArray blob2 = (BByteArray) returns[1];
+        BByteArray blob3 = (BByteArray) returns[2];
+        assertJBytesWithBBytes(new byte[]{13, 7, 4, 3}, blob1);
+        assertJBytesWithBBytes(new byte[]{3, 13, 5, 7, 3}, blob2);
+        assertJBytesWithBBytes(new byte[]{1, 2, 3, 13, 7}, blob3);
+    }
+
+    private void assertJBytesWithBBytes(byte[] jBytes, BByteArray bBytes) {
+        for (int i = 0; i < jBytes.length; i++) {
+            Assert.assertEquals(bBytes.get(i), jBytes[i], "Invalid byte value returned.");
+        }
+    }
+
     @Test(description = "Test multi level block statements with closure test case")
     public void testMultiLevelBlockStatements() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "test27");
+        BValue[] returns = BRunUtil.invoke(compileResult, "test28");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 57);
         Assert.assertEquals(((BInteger) returns[1]).intValue(), 167);
     }
