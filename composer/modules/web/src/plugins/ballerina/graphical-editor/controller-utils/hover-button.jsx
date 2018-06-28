@@ -58,7 +58,7 @@ class HoverButton extends React.Component {
                 <Transition visible={this.state.isMenuActive} animation='scale' duration={200}>
                     <Popup
                         open={this.state.isMenuActive}
-                        on='focus'
+                        on='click'
                         context={this.triggerRef}
                         hoverable
                         basic
@@ -84,7 +84,6 @@ class HoverButton extends React.Component {
 }
 
 HoverButton.defaultProps = {
-    showButtonAlways: false,
     style: {},
 };
 

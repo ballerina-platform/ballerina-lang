@@ -17,9 +17,7 @@
  */
 
 import React from 'react';
-import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
-import ActionBox from 'plugins/ballerina/diagram/views/default/components/decorators/action-box';
 import HoverItemVisiter from '../visitors/hover-item-visitor';
 
 // require all react components

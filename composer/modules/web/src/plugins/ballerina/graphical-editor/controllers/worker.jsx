@@ -27,10 +27,10 @@ import Toolbox from 'plugins/ballerina/diagram/views/default/components/decorato
 class MainRegion extends React.Component {
     render() {
         const { model } = this.props;
-        const { viewState, viewState: { bBox } } = model;
+        const { viewState: { bBox } } = model.getBody();
         const items = ControllerUtil.convertToAddItems(WorkerTools, model.getBody());
-        const top = bBox.y + bBox.h - 20;
-        const left = viewState.components['statement-box'].x;
+        const top = bBox.y + bBox.h + 15;
+        const left = bBox.x;
         
         return (
             <HoverButton
@@ -51,72 +51,9 @@ MainRegion.contextTypes = {
     designer: PropTypes.instanceOf(Object),
 };
 
-class ActionBox extends React.Component {
-    render() {
-        const { model } = this.props;
-        const { viewState, viewState: { bBox } } = model;
-        const titleH = this.context.designer.config.flowChartControlStatement.heading.height;
-        const gapTop = this.context.designer.config.flowChartControlStatement.padding.top;
-        const top = bBox.y + titleH + gapTop;
-        const left = viewState.components['statement-box'].x;
-        const onDelete = () => { model.remove(); };
-        const onJumptoCodeLine = () => {
-            const { editor } = this.context;
-            editor.goToSource(model);
-        };
-        return (
-            <Toolbox
-                onDelete={onDelete}
-                onJumptoCodeLine={onJumptoCodeLine}
-                show
-                style={{
-                    top,
-                    left,
-                }}
-            />
-        );
-    }
-}
-
-ActionBox.contextTypes = {
-    editor: PropTypes.shape({
-        isFileOpenedInEditor: PropTypes.func,
-        getEditorByID: PropTypes.func,
-        setActiveEditor: PropTypes.func,
-        getActiveEditor: PropTypes.func,
-        getDefaultContent: PropTypes.func,
-    }).isRequired,
-    designer: PropTypes.instanceOf(Object),
-};
-
-class Else extends React.Component {
-    render() {
-        const { model } = this.props;
-        const { viewState, viewState: { bBox } } = model;
-        const items = ControllerUtil.convertToAddItems(WorkerTools, model.getBody());
-        const top = bBox.y + bBox.h - 20;
-        const left = viewState.components['statement-box'].x + viewState.components['statement-box'].w;
-
-        return (
-            <HoverButton
-                style={{
-                    top,
-                    left,
-                }}
-            >
-                <Menu vertical>
-                    {items}
-                </Menu>
-            </HoverButton>
-        );
-    }
-}
-
 export default {
     regions: {
         main: MainRegion,
-        actionBox: ActionBox,
-        else: Else,
     },
-    name: 'Lifeline',
+    name: 'Function',
 };

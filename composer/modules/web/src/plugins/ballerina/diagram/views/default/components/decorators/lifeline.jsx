@@ -178,10 +178,10 @@ class LifeLine extends React.Component {
             >{identifier}</text>
             <HoverGroup model={this.props.model} region='main'>
                 <rect
-                    x={startX - 25}
-                    y={solidY1 - 15}
-                    width={50}
-                    height={solidY2 - solidY1}
+                    x={bBox.x}
+                    y={bBox.y}
+                    width={bBox.w}
+                    height={bBox.h}
                     className='invisible-rect'
                 />
             </HoverGroup>
