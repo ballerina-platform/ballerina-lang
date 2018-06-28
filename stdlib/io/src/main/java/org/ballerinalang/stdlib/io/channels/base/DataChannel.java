@@ -18,7 +18,7 @@
 
 package org.ballerinalang.stdlib.io.channels.base;
 
-import org.ballerinalang.nativeimpl.io.channels.base.data.LongResult;
+import org.ballerinalang.stdlib.io.channels.base.data.LongResult;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

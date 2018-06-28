@@ -20,14 +20,11 @@
 package org.ballerinalang.test.nativeimpl.functions.io.data;
 
 import org.apache.commons.codec.CharEncoding;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.Representation;
-import org.ballerinalang.nativeimpl.io.channels.base.data.LongResult;
 import org.ballerinalang.stdlib.io.channels.base.Channel;
 import org.ballerinalang.stdlib.io.channels.base.DataChannel;
 import org.ballerinalang.stdlib.io.channels.base.Representation;
+import org.ballerinalang.stdlib.io.channels.base.data.LongResult;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
@@ -69,12 +66,12 @@ public class DataInputOutputTest {
         byteChannel = TestUtil.openForReadingAndWriting(filePath);
         channel = new MockByteChannel(byteChannel);
         dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        long readInt = dataChannel.readLong(representation);
+        long readInt = dataChannel.readLong(representation).getValue();
         Assert.assertEquals(readInt, value);
     }
 
     @Test(description = "Test signed var long", dataProvider = "SignedVarLongValues")
-    public void testSingedVarLong(long value) throws IOException {
+    public void testSingedVarLong(long value, int byteCount) throws IOException {
         String filePath = currentDirectoryPath + "/sample.bin";
         ByteChannel byteChannel = TestUtil.openForReadingAndWriting(filePath);
         Channel channel = new MockByteChannel(byteChannel);
@@ -84,8 +81,11 @@ public class DataInputOutputTest {
         byteChannel = TestUtil.openForReadingAndWriting(filePath);
         channel = new MockByteChannel(byteChannel);
         dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        long readInt = dataChannel.readLong(Representation.VARIABLE);
+        LongResult longResult = dataChannel.readLong(Representation.VARIABLE);
+        long readInt = longResult.getValue();
+        int nBytes = longResult.getByteCount();
         Assert.assertEquals(readInt, value);
+        Assert.assertEquals(nBytes, byteCount);
     }
 
     @Test(description = "Test floating point values", dataProvider = "DoubleValues")
@@ -143,7 +143,7 @@ public class DataInputOutputTest {
         byteChannel = TestUtil.openForReadingAndWriting(filePath);
         channel = new MockByteChannel(byteChannel);
         dataChannel = new DataChannel(channel, ByteOrder.nativeOrder());
-        long longValue = dataChannel.readLong(Representation.BIT_32);
+        long longValue = dataChannel.readLong(Representation.BIT_32).getValue();
         double doubleValue = dataChannel.readDouble(Representation.BIT_32);
         boolean booleanValue = dataChannel.readBoolean();
         Assert.assertEquals(writtenInt, longValue);
