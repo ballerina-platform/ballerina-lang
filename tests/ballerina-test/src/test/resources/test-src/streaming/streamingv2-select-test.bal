@@ -63,7 +63,7 @@ function testSelectQuery() {
     forever {
         from inputStream where inputStream.age > 25
         select inputStream.name as TeacherName, inputStream.age
-        => (TeacherOutput emp) {
+        => (TeacherOutput[] emp) {
             outputStream.publish(emp);
         }
     }

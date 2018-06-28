@@ -32,6 +32,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
@@ -208,15 +209,15 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         //Create type casting for the output variable
         BVarSymbol typeCastingVarSymbol = new BVarSymbol(0,
                 new Name(getVariableName(oldFunctionVariable.getName().getValue())),
-                lambdaFunctionVariable.symbol.pkgID, oldFunctionVariable.type, env.scope.owner);
+                lambdaFunctionVariable.symbol.pkgID, ((BArrayType) oldFunctionVariable.type).eType, env.scope.owner);
         BLangSimpleVarRef typeCastingSimpleVarRef = ASTBuilderUtil.createVariableRef(lambdaFunction.pos,
                 lambdaFunctionVariable.symbol);
         BLangExpression typeCastingExpression = generateConversionExpr(typeCastingSimpleVarRef,
-                oldFunctionVariable.type, symResolver);
+                ((BArrayType) oldFunctionVariable.type).eType, symResolver);
         BLangVariable typeCastingVariable = ASTBuilderUtil.
                 createVariable(lambdaFunction.pos, getVariableName(oldFunctionVariable.getName().getValue()),
-                        oldFunctionVariable.type, typeCastingExpression, typeCastingVarSymbol);
-        typeCastingVariable.typeNode = ASTBuilderUtil.createTypeNode(oldFunctionVariable.type);
+                        ((BArrayType) oldFunctionVariable.type).eType, typeCastingExpression, typeCastingVarSymbol);
+        typeCastingVariable.typeNode = ASTBuilderUtil.createTypeNode(((BArrayType) oldFunctionVariable.type).eType);
         BLangVariableDef typeCastingVariableDef = ASTBuilderUtil.createVariableDef(lambdaFunction.pos,
                 typeCastingVariable);
         outputEventTypeVariable = typeCastingVariable;

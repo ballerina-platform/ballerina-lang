@@ -1409,9 +1409,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangStreamAction streamAction) {
         BLangLambdaFunction function = (BLangLambdaFunction) streamAction.getInvokableBody();
         typeChecker.checkExpr(function, env);
-        if (isSiddhiRuntimeEnabled) {
-            validateStreamingActionFunctionParameters(streamAction);
-        }
+        validateStreamingActionFunctionParameters(streamAction);
     }
 
     @Override
