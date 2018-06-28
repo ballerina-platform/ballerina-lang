@@ -94,6 +94,7 @@ import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
 import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ConstantPoolEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -273,7 +274,7 @@ public class CPU {
                     case InstructionCodes.BACONST:
                         cpIndex = operands[0];
                         i = operands[1];
-                        sf.refRegs[i] = new BByteArray(((BlobCPEntry) ctx.constPool[cpIndex]).getValue());
+                        sf.refRegs[i] = getByteArray((BlobCPEntry) ctx.constPool[cpIndex]);
                         break;
     
                     case InstructionCodes.IMOVE:
@@ -777,6 +778,15 @@ public class CPU {
                 handleError(ctx);
             }
         }
+    }
+
+    private static BByteArray getByteArray(BlobCPEntry blobCPEntry) {
+        byte[] bytes = blobCPEntry.getValue();
+        BByteArray byteArray = new BByteArray();
+        for (int index = 0; index < bytes.length; index++) {
+            byteArray.add(index, bytes[index]);
+        }
+        return byteArray;
     }
 
     private static WorkerExecutionContext invokeCallable(WorkerExecutionContext ctx, BFunctionPointer fp,

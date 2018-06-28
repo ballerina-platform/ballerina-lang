@@ -36,7 +36,7 @@ public class BByteArray extends BNewArray {
 
     private byte[] values;
 
-    public BByteArray(byte[] values) {
+    private BByteArray(byte[] values) {
         this.values = values;
         this.size = values.length;
     }
