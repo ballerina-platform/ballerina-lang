@@ -25,7 +25,6 @@ public class SocketConstants {
 
     public static final String PKCS_STORE_TYPE = "PKCS12";
     public static final String DEFAULT_SSL_PROTOCOL = "TLS";
-    public static final String LOCAL_PORT_OPTION_FIELD = "localPort";
     public static final String KEY_STORE_OPTION_FIELD = "keyStoreFile";
     public static final String KEY_STORE_PASS_OPTION_FIELD = "keyStorePassword";
     public static final String TRUST_STORE_OPTION_FIELD = "trustStoreFile";
@@ -35,7 +34,13 @@ public class SocketConstants {
     public static final String CIPHERS_OPTION_FIELD = "ciphers";
     public static final String SSL_PROTOCOL_OPTION_FIELD = "sslProtocol";
 
-    public static final String PORT_FIELD = "port";
-    public static final String ADDRESS_FIELD = "address";
+    public static final String LOCAL_PORT_OPTION_FIELD = "localPort";
     public static final String LOCAL_ADDRESS_FIELD = "localAddress";
+    public static final String REMOTE_PORT_FIELD = "remotePort";
+    public static final String REMOTE_ADDRESS_FIELD = "remoteAddress";
+
+    public static final String SERVER_SOCKET_KEY = "ServerSocket";
+    public static final String SOCKET_KEY = "Socket";
+
+    public static final String SOCKET_PACKAGE = "ballerina/io";
 }
