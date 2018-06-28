@@ -284,7 +284,6 @@ public class PackageInfoReader {
 
     public void readPackageInfo() throws IOException {
         PackageInfo packageInfo = new PackageInfo();
-        packageInfo.pkgIndex = programFile.currentPkgIndex++;
 
         // Read constant pool in the package.
         readConstantPool(packageInfo);
@@ -310,10 +309,13 @@ public class PackageInfoReader {
                 getPackagePath(orgNameCPEntry.getValue(), pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue());
 
         packageInfo.setProgramFile(programFile);
-        programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read import package entries
-        readImportPackageInfoEntries();
+        readImportPackageInfoEntries(packageInfo);
+
+        packageInfo.pkgIndex = programFile.currentPkgIndex++;
+
+        programFile.addPackageInfo(packageInfo.pkgPath, packageInfo);
 
         // Read type def info entries
         readTypeDefInfoEntries(packageInfo);
@@ -351,12 +353,20 @@ public class PackageInfoReader {
         packageInfo.complete();
     }
 
-    private void readImportPackageInfoEntries() throws IOException {
+    private void readImportPackageInfoEntries(PackageInfo packageInfo) throws IOException {
         int impPkgCount = dataInStream.readShort();
         for (int i = 0; i < impPkgCount; i++) {
-            dataInStream.readInt();
-            dataInStream.readInt();
-            dataInStream.readInt();
+            int orgNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry orgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(orgNameCPIndex);
+
+            int pkgNameCPIndex = dataInStream.readInt();
+            UTF8CPEntry pkgNameCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgNameCPIndex);
+
+            int pkgVersionCPIndex = dataInStream.readInt();
+            UTF8CPEntry pkgVersionCPEntry = (UTF8CPEntry) packageInfo.getCPEntry(pkgVersionCPIndex);
+
+            this.getPackageInfo(getPackagePath(orgNameCPEntry.getValue(),
+                    pkgNameCPEntry.getValue(), pkgVersionCPEntry.getValue()));
         }
     }
 
@@ -1484,25 +1494,25 @@ public class PackageInfoReader {
         packageInfo.addInstruction(InstructionFactory.get(opcode, operands));
     }
 
-    private void resolveCPEntries(PackageInfo currentPackageInfo) {
+    void resolveCPEntries(PackageInfo currentPackageInfo) {
         for (ConstantPoolEntry cpEntry : unresolvedCPEntries) {
             PackageInfo packageInfo;
             StructureRefCPEntry structureRefCPEntry;
             switch (cpEntry.getEntryType()) {
                 case CP_ENTRY_PACKAGE:
                     PackageRefCPEntry pkgRefCPEntry = (PackageRefCPEntry) cpEntry;
-                    packageInfo = programFile.getPackageInfo(pkgRefCPEntry.getPackageName());
+                    packageInfo = this.getPackageInfo(pkgRefCPEntry.getPackageName());
                     pkgRefCPEntry.setPackageInfo(packageInfo);
                     break;
                 case CP_ENTRY_FUNCTION_REF:
                     FunctionRefCPEntry funcRefCPEntry = (FunctionRefCPEntry) cpEntry;
-                    packageInfo = programFile.getPackageInfo(funcRefCPEntry.getPackagePath());
+                    packageInfo = this.getPackageInfo(funcRefCPEntry.getPackagePath());
                     FunctionInfo functionInfo = packageInfo.getFunctionInfo(funcRefCPEntry.getFunctionName());
                     funcRefCPEntry.setFunctionInfo(functionInfo);
                     break;
                 case CP_ENTRY_STRUCTURE_REF:
                     structureRefCPEntry = (StructureRefCPEntry) cpEntry;
-                    packageInfo = programFile.getPackageInfo(structureRefCPEntry.getPackagePath());
+                    packageInfo = this.getPackageInfo(structureRefCPEntry.getPackagePath());
                     CustomTypeInfo structureTypeInfo = packageInfo.getStructureTypeInfo(
                             structureRefCPEntry.getStructureName());
                     structureRefCPEntry.setStructureTypeInfo(structureTypeInfo);
