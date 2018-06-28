@@ -523,7 +523,8 @@ public function startUpBallerinaHub(int? port = (), int? leaseSeconds = (), stri
 documentation {
     Object representing a Ballerina WebSub Hub.
 
-    F{{hubUrl}} The URL of the started up Ballerina WebSub Hub
+    F{{hubUrl}}             The URL of the started up Ballerina WebSub Hub
+    F{{hubServiceEndpoint}} The HTTP endpoint to which the Ballerina WebSub Hub is bound
 }
 public type WebSubHub object {
 
@@ -531,14 +532,18 @@ public type WebSubHub object {
         string hubUrl;
     }
 
-    new (hubUrl) {}
+    private {
+        http:Listener hubServiceEndpoint;
+    }
+
+    new (hubUrl, hubServiceEndpoint) {}
 
     documentation {
         Stops the started up Ballerina WebSub Hub.
         
         R{{}} `boolean` indicating whether the internal Ballerina Hub was stopped
     }
-    public function stop() returns (boolean);
+    public function stop() returns boolean;
 
     documentation {
         Publishes an update against the topic in the initialized Ballerina Hub.
@@ -569,7 +574,8 @@ public type WebSubHub object {
 
 };
 
-public function WebSubHub::stop() returns (boolean) {
+public function WebSubHub::stop() returns boolean {
+    self.hubServiceEndpoint.stop();
     return stopHubService(self.hubUrl);
 }
 

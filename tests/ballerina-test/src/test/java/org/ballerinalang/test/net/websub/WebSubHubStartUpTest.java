@@ -45,7 +45,7 @@ public class WebSubHubStartUpTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(returns[0] instanceof BMap);
         hubStartUpObject = (BMap<String, BValue>) returns[0];
-        Assert.assertEquals(hubStartUpObject.get(HUB_URL_FIELD).stringValue(), "Ballerina Hub already started up");
+        Assert.assertEquals(hubStartUpObject.get("message").stringValue(), "Ballerina Hub already started up");
         Assert.assertTrue(hubStartUpObject.get(STARTED_UP_HUB_FIELD) instanceof BMap);
         BMap<String, BValue> hubObject = (BMap<String, BValue>) hubStartUpObject.get(STARTED_UP_HUB_FIELD);
         Assert.assertEquals(hubObject.get(HUB_URL_FIELD).stringValue(), "http://localhost:" + port + "/websub/hub");

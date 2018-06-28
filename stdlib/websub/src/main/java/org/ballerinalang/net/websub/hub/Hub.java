@@ -54,6 +54,7 @@ public class Hub {
 
     private static Hub instance = new Hub();
     private BMap<String, BValue> hubObject = null;
+    private BValue hubEndpoint = null;
     private String hubUrl;
     private boolean hubTopicRegistrationRequired;
     private boolean hubPersistenceEnabled;
@@ -70,6 +71,14 @@ public class Hub {
     }
 
     private Hub() {
+    }
+
+    private void setHubEndpoint(BValue hubEndpoint) {
+        this.hubEndpoint = hubEndpoint;
+    }
+
+    public BValue getHubEndpoint() {
+        return hubEndpoint;
     }
 
     private void setHubUrl(String hubUrl) {
@@ -241,8 +250,8 @@ public class Hub {
                 ProgramFile hubProgramFile = context.getProgramFile();
                 PackageInfo hubPackageInfo = hubProgramFile.getPackageInfo(WEBSUB_PACKAGE);
                 if (hubPackageInfo != null) {
-                    BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"),
-                                                  new BValue[] {});
+                    BValue[] returns = BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("startHubService"),
+                                                                     new BValue[]{});
                     hubTopicRegistrationRequired = topicRegistrationRequired.booleanValue();
 
                     String hubUrl = publicUrl.stringValue();
@@ -256,9 +265,10 @@ public class Hub {
                     setHubProgramFile(hubProgramFile);
                     started = true;
                     BLangFunctions.invokeCallable(hubPackageInfo.getFunctionInfo("setupOnStartup"), args);
+                    setHubEndpoint(returns[0]);
                     setHubUrl(hubUrl);
                     setHubObject(BLangConnectorSPIUtil.createObject(context, WEBSUB_PACKAGE,
-                                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl)));
+                                                     STRUCT_WEBSUB_BALLERINA_HUB, new BString(hubUrl), returns[0]));
                 }
             } else {
                 throw new BallerinaWebSubException("Hub Service already started up");
