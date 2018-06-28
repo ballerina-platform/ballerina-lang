@@ -20,6 +20,7 @@ package org.ballerinalang.net.grpc;
 import com.google.protobuf.DescriptorProtos;
 import com.google.protobuf.Descriptors;
 import com.google.protobuf.InvalidProtocolBufferException;
+import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 
 import java.io.ByteArrayInputStream;
@@ -70,7 +71,7 @@ public final class ServiceDefinition {
                         .FileDescriptor[] {});
                 i++;
             } catch (InvalidProtocolBufferException | Descriptors.DescriptorValidationException e) {
-                throw new RuntimeException("Error while gen extracting depend descriptors. ", e);
+                throw new ClientRuntimeException("Error while gen extracting depend descriptors. ", e);
             }
         }
         
@@ -80,7 +81,7 @@ public final class ServiceDefinition {
             fileDescriptor = Descriptors.FileDescriptor.buildFrom(descriptorProto, depSet);
             return fileDescriptor;
         } catch (IOException | Descriptors.DescriptorValidationException e) {
-            throw new RuntimeException("Error while generating service descriptor : ", e);
+            throw new ClientRuntimeException("Error while generating service descriptor : ", e);
         }
     }
 

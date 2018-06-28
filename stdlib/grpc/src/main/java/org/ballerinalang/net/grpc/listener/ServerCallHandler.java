@@ -37,6 +37,7 @@ import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
+import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.util.codegen.ProgramFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,7 +170,8 @@ public abstract class ServerCallHandler {
      */
     private BValue getRequestParameter(Resource resource, Message requestMessage, boolean isHeaderRequired) {
         if (resource.getParamDetails().size() > 3) {
-            throw new RuntimeException("Invalid resource input arguments. arguments must not be greater than three");
+            throw new ServerRuntimeException("Invalid resource input arguments. arguments must not be greater than " +
+                    "three");
         }
         List<ParamDetail> paramDetails = resource.getParamDetails();
         if ((isHeaderRequired && paramDetails.size() == 3) || (!isHeaderRequired && paramDetails.size() == 2)) {
@@ -197,7 +199,7 @@ public abstract class ServerCallHandler {
         if (resource == null) {
             String message = "Error in listener service definition. onError resource does not exists";
             LOG.error(message);
-            throw new RuntimeException(message);
+            throw new ServerRuntimeException(message);
         }
         List<ParamDetail> paramDetails = resource.getParamDetails();
         BValue[] signatureParams = new BValue[paramDetails.size()];
@@ -280,10 +282,5 @@ public abstract class ServerCallHandler {
          * <p>There will be no further callbacks for the call.
          */
         void onComplete();
-
-        /**
-         * This indicates that the call is now capable of sending additional messages.
-         */
-        void onReady();
     }
 }

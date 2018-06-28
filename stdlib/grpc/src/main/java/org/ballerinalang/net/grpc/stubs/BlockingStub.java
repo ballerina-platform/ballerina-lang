@@ -81,7 +81,7 @@ public class BlockingStub extends AbstractStub {
         try {
             call.sendMessage(request);
             call.halfClose();
-        } catch (RuntimeException | Error e) {
+        } catch (Exception e) {
             throw cancelThrow(call, e);
         }
     }
@@ -89,7 +89,7 @@ public class BlockingStub extends AbstractStub {
     /**
      *  Callbacks for receiving headers, response messages and completion status in blocking calls.
      */
-    private static final class CallBlockingListener extends Listener {
+    private static final class CallBlockingListener implements Listener {
 
         private final DataContext dataContext;
         private final Descriptors.Descriptor outputDescriptor;
@@ -103,6 +103,7 @@ public class BlockingStub extends AbstractStub {
 
         @Override
         public void onHeaders(HttpHeaders headers) {
+            // Headers are processed at client connector listener. Do not need to further process.
         }
 
         @Override
@@ -151,32 +152,32 @@ public class BlockingStub extends AbstractStub {
             }
             dataContext.callback.notifySuccess();
         }
-    }
 
-    /**
-     * Returns corresponding Ballerina type for the proto buffer type.
-     *
-     * @param protoType Protocol buffer type
-     * @param context   Ballerina Context
-     * @return .
-     */
-    private static BType getBalType(String protoType, Context context) {
-        if (protoType.equalsIgnoreCase(WRAPPER_DOUBLE_MESSAGE) || protoType
-                .equalsIgnoreCase(WRAPPER_FLOAT_MESSAGE)) {
-            return BTypes.typeFloat;
-        } else if (protoType.equalsIgnoreCase(WRAPPER_INT32_MESSAGE) || protoType
-                .equalsIgnoreCase(WRAPPER_INT64_MESSAGE) || protoType
-                .equalsIgnoreCase(WRAPPER_UINT32_MESSAGE) || protoType
-                .equalsIgnoreCase(WRAPPER_UINT64_MESSAGE)) {
-            return BTypes.typeInt;
-        } else if (protoType.equalsIgnoreCase(WRAPPER_BOOL_MESSAGE)) {
-            return BTypes.typeBoolean;
-        } else if (protoType.equalsIgnoreCase(WRAPPER_STRING_MESSAGE)) {
-            return BTypes.typeString;
-        } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
-            return BTypes.typeBlob;
-        } else {
-            return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
+        /**
+         * Returns corresponding Ballerina type for the proto buffer type.
+         *
+         * @param protoType Protocol buffer type
+         * @param context   Ballerina Context
+         * @return .
+         */
+        private static BType getBalType(String protoType, Context context) {
+            if (protoType.equalsIgnoreCase(WRAPPER_DOUBLE_MESSAGE) || protoType
+                    .equalsIgnoreCase(WRAPPER_FLOAT_MESSAGE)) {
+                return BTypes.typeFloat;
+            } else if (protoType.equalsIgnoreCase(WRAPPER_INT32_MESSAGE) || protoType
+                    .equalsIgnoreCase(WRAPPER_INT64_MESSAGE) || protoType
+                    .equalsIgnoreCase(WRAPPER_UINT32_MESSAGE) || protoType
+                    .equalsIgnoreCase(WRAPPER_UINT64_MESSAGE)) {
+                return BTypes.typeInt;
+            } else if (protoType.equalsIgnoreCase(WRAPPER_BOOL_MESSAGE)) {
+                return BTypes.typeBoolean;
+            } else if (protoType.equalsIgnoreCase(WRAPPER_STRING_MESSAGE)) {
+                return BTypes.typeString;
+            } else if (protoType.equalsIgnoreCase(WRAPPER_BYTES_MESSAGE)) {
+                return BTypes.typeBlob;
+            } else {
+                return context.getProgramFile().getEntryPackage().getStructInfo(protoType).getType();
+            }
         }
     }
 }

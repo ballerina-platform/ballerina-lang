@@ -52,7 +52,7 @@ public class NonBlockingStub extends AbstractStub {
         try {
             call.sendMessage(request);
             call.halfClose();
-        } catch (RuntimeException | Error e) {
+        } catch (Exception e) {
             throw cancelThrow(call, e);
         }
     }
@@ -87,7 +87,7 @@ public class NonBlockingStub extends AbstractStub {
         try {
             call.sendMessage(request);
             call.halfClose();
-        } catch (RuntimeException | Error e) {
+        } catch (Exception e) {
             throw cancelThrow(call, e);
         }
     }
@@ -110,7 +110,7 @@ public class NonBlockingStub extends AbstractStub {
     /**
      *  Callbacks for receiving headers, response messages and completion status in non-blocking calls.
      */
-    private static final class NonblockingCallListener extends Listener {
+    private static final class NonblockingCallListener implements Listener {
 
         private final StreamObserver observer;
         private final boolean streamingResponse;
@@ -124,7 +124,7 @@ public class NonBlockingStub extends AbstractStub {
 
         @Override
         public void onHeaders(HttpHeaders headers) {
-
+            // Headers are processed at client connector listener. Do not need to further process.
         }
 
         @Override

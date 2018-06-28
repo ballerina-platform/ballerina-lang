@@ -75,7 +75,7 @@ public class Complete extends BlockingNativeCallableUnit {
                 if (!MessageUtils.isEmptyResponse(outputType)) {
                     responseObserver.onCompleted();
                 }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 LOG.error("Error while sending complete message to caller.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));
             }

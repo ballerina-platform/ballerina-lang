@@ -99,7 +99,7 @@ public class Send extends BlockingNativeCallableUnit {
                     }
                     responseObserver.onNext(responseMessage);
                 }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 LOG.error("Error while sending client response.", e);
                 context.setError(MessageUtils.getConnectorError(context, e));
             }

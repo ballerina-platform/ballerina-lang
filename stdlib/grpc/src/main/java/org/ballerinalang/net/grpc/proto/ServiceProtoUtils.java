@@ -86,6 +86,10 @@ public class ServiceProtoUtils {
 
     private static final String NO_PACKAGE_PATH = ".";
 
+    private ServiceProtoUtils() {
+
+    }
+
     static File generateProtoDefinition(ServiceNode serviceNode) throws GrpcServerException {
         // Protobuf file definition builder.
         String packageName = serviceNode.getPosition().getSource().getPackageName();
@@ -157,27 +161,27 @@ public class ServiceProtoUtils {
         
         for (ResourceNode resourceNode : serviceNode.getResources()) {
             Message requestMessage = getRequestMessage(resourceNode);
+            if (requestMessage == null) {
+                throw new GrpcServerException("Error while deriving request message of the resource");
+            }
             if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
                 updateFileBuilder(fileBuilder, requestMessage);
             }
-            if (requestMessage.getDependency() != null) {
-                if (!fileBuilder.getRegisteredDependencies().contains(requestMessage.getDependency())) {
-                    fileBuilder.setDependency(requestMessage.getDependency());
-                }
+            if (requestMessage.getDependency() != null && !fileBuilder.getRegisteredDependencies().contains
+                    (requestMessage.getDependency())) {
+                fileBuilder.setDependency(requestMessage.getDependency());
             }
+
             Message responseMessage = getResponseMessage(resourceNode);
-            
             if (responseMessage == null) {
                 throw new GrpcServerException("Connection send expression not found in resource body");
             }
-            
             if (responseMessage.getMessageKind() == MessageKind.USER_DEFINED) {
                 updateFileBuilder(fileBuilder, responseMessage);
             }
-            if (responseMessage.getDependency() != null) {
-                if (!fileBuilder.getRegisteredDependencies().contains(responseMessage.getDependency())) {
-                    fileBuilder.setDependency(responseMessage.getDependency());
-                }
+            if (responseMessage.getDependency() != null && !fileBuilder.getRegisteredDependencies().contains
+                    (responseMessage.getDependency())) {
+                fileBuilder.setDependency(responseMessage.getDependency());
             }
             
             boolean serverStreaming = isServerStreaming(resourceNode);
@@ -250,18 +254,16 @@ public class ServiceProtoUtils {
         if (requestMessage.getMessageKind() == MessageKind.USER_DEFINED) {
             updateFileBuilder(fileBuilder, requestMessage);
         }
-        if (requestMessage.getDependency() != null) {
-            if (!fileBuilder.getRegisteredDependencies().contains(requestMessage.getDependency())) {
-                fileBuilder.setDependency(requestMessage.getDependency());
-            }
+        if (requestMessage.getDependency() != null && !fileBuilder.getRegisteredDependencies().contains
+                (requestMessage.getDependency())) {
+            fileBuilder.setDependency(requestMessage.getDependency());
         }
         if (responseMessage.getMessageKind() == MessageKind.USER_DEFINED) {
             updateFileBuilder(fileBuilder, responseMessage);
         }
-        if (responseMessage.getDependency() != null) {
-            if (!fileBuilder.getRegisteredDependencies().contains(responseMessage.getDependency())) {
-                fileBuilder.setDependency(responseMessage.getDependency());
-            }
+        if (responseMessage.getDependency() != null && !fileBuilder.getRegisteredDependencies().contains
+                (responseMessage.getDependency())) {
+            fileBuilder.setDependency(responseMessage.getDependency());
         }
         Method resourceMethod = Method.newBuilder(serviceConfig.getRpcEndpoint())
                 .setClientStreaming(serviceConfig.isClientStreaming())
@@ -325,7 +327,7 @@ public class ServiceProtoUtils {
     }
     
     private static Message getRequestMessage(ResourceNode resourceNode) throws GrpcServerException {
-        if (!(resourceNode.getParameters().size() > 0 || resourceNode.getParameters().size() < 4)) {
+        if (!(!resourceNode.getParameters().isEmpty() || resourceNode.getParameters().size() < 4)) {
             throw new GrpcServerException("Service resource definition should contain more than one and less than " +
                     "four params. but contains " + resourceNode.getParameters().size());
         }
@@ -464,7 +466,7 @@ public class ServiceProtoUtils {
         }
         for (StatementNode statementNode : body.getStatements()) {
             BLangExpression expression = null;
-            // example : conn.send inside while block.
+            // send inside while block.
             if (statementNode instanceof BLangWhile) {
                 BLangWhile langWhile = (BLangWhile) statementNode;
                 BLangInvocation invocExp = getInvocationExpression(langWhile.getBody());
@@ -472,7 +474,7 @@ public class ServiceProtoUtils {
                     return invocExp;
                 }
             }
-            // example : conn.send inside for block.
+            // send inside for block.
             if (statementNode instanceof BLangForeach) {
                 BLangForeach langForeach = (BLangForeach) statementNode;
                 BLangInvocation invocExp = getInvocationExpression(langForeach.getBody());
@@ -480,7 +482,7 @@ public class ServiceProtoUtils {
                     return invocExp;
                 }
             }
-            // example : conn.send inside if block.
+            // send inside if block.
             if (statementNode instanceof BLangIf) {
                 BLangIf langIf = (BLangIf) statementNode;
                 BLangInvocation invocExp = getInvocationExpression(langIf.getBody());
@@ -492,12 +494,12 @@ public class ServiceProtoUtils {
                     return invocExp;
                 }
             }
-            // example : _ = conn.send(msg);
+            // ignore return value of send method.
             if (statementNode instanceof BLangAssignment) {
                 BLangAssignment assignment = (BLangAssignment) statementNode;
                 expression = assignment.getExpression();
             }
-            // example : grpc:HttpConnectorError err = conn.send(msg);
+            // variable assignment.
             if (statementNode instanceof BLangVariableDef) {
                 BLangVariableDef variableDef = (BLangVariableDef) statementNode;
                 BLangVariable variable = variableDef.getVariable();

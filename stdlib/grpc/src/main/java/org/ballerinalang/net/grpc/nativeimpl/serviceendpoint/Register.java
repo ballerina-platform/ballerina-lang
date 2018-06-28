@@ -88,7 +88,7 @@ public class Register extends AbstractGrpcNativeFunction {
         serverConnectorFuture.setPortBindingEventListener(new ServerConnectorPortBindingListener());
         try {
             serverConnectorFuture.sync();
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             throw new BallerinaException("failed to start server connector '" + serverConnector.getConnectorID()
                     + "': " + ex.getMessage(), ex);
         }

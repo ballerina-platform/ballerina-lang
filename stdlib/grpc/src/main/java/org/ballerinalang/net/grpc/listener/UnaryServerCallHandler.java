@@ -32,7 +32,7 @@ import org.ballerinalang.net.grpc.Status;
  */
 public class UnaryServerCallHandler extends ServerCallHandler {
 
-    public Resource resource;
+    private Resource resource;
 
     public UnaryServerCallHandler(Descriptors.MethodDescriptor methodDescriptor, Resource resource) {
         super(methodDescriptor);
@@ -91,11 +91,7 @@ public class UnaryServerCallHandler extends ServerCallHandler {
 
         @Override
         public void onComplete() {
-            // TODO: check whether it is used.
-        }
-
-        @Override
-        public void onReady() {
+            // Additional logic when closing the stream at server side.
         }
 
         public void invoke(Message request, ServerCallStreamObserver responseObserver) {

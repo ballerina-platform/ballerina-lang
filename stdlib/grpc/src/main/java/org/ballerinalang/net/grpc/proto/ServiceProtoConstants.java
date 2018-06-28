@@ -71,4 +71,8 @@ public class ServiceProtoConstants {
         sTypeMap.put(DescriptorProtos.FieldDescriptorProto.Type.TYPE_BYTES_VALUE, "bytes");
         FIELD_TYPE_MAP = Collections.unmodifiableMap(sTypeMap);
     }
+
+    private ServiceProtoConstants() {
+
+    }
 }

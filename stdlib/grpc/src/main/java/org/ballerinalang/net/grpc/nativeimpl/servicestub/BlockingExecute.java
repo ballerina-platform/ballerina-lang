@@ -34,8 +34,6 @@ import org.ballerinalang.net.grpc.MethodDescriptor;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.BlockingStub;
 import org.ballerinalang.net.http.DataContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -74,7 +72,6 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         isPublic = true
 )
 public class BlockingExecute extends AbstractExecute {
-    private static final Logger LOG = LoggerFactory.getLogger(BlockingExecute.class);
     private static final int MESSAGE_HEADER_REF_INDEX = 2;
 
     @Override

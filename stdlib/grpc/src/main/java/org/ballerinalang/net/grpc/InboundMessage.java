@@ -198,8 +198,8 @@ public class InboundMessage {
         final void deframe(final HttpContent httpContent) {
             try {
                 deframer.deframe(httpContent);
-            } catch (Throwable t) {
-                deframeFailed(t);
+            } catch (Exception ex) {
+                deframeFailed(ex);
             }
         }
 

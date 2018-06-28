@@ -15,26 +15,24 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.net.grpc;
-
-import java.io.InputStream;
+package org.ballerinalang.net.grpc.exception;
 
 /**
- * An observer of Stream events. It is guaranteed to only have one concurrent callback at a
- * time.
- * <p>
- * <p>
- * Referenced from grpc-java implementation.
- * <p>
+ * Exception that is thrown when gRPC service registration.
  *
- * @since 0.980.0
+ * @since 1.0.0
  */
-public interface StreamListener {
+public class ServerRuntimeException extends RuntimeException {
 
-    /**
-     * Called upon receiving a message from the remote end-point.
-     *
-     * @param inputStream deframed message stream.
-     */
-    void messagesAvailable(InputStream inputStream);
+    public ServerRuntimeException(String message, Throwable throwable) {
+        super(message, throwable);
+    }
+
+    public ServerRuntimeException(String message) {
+        super(message);
+    }
+
+    public ServerRuntimeException(Throwable throwable) {
+        super(throwable);
+    }
 }

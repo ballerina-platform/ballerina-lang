@@ -28,6 +28,7 @@ import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.ServerCall;
 import org.ballerinalang.net.grpc.Status;
 import org.ballerinalang.net.grpc.StreamObserver;
+import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 
 import java.util.Map;
 
@@ -78,7 +79,7 @@ public class StreamingServerCallHandler extends ServerCallHandler {
                 Resource onCompleted = resourceMap.get(GrpcConstants.ON_COMPLETE_RESOURCE);
                 if (onCompleted == null) {
                     String message = "Error in listener service definition. onError resource does not exists";
-                    throw new RuntimeException(message);
+                    throw new ServerRuntimeException(message);
                 }
                 CallableUnitCallback callback = new GrpcCallableUnitCallBack(responseObserver, Boolean.FALSE);
                 Executor.submit(onCompleted, callback, null, null, computeMessageParams
@@ -125,11 +126,7 @@ public class StreamingServerCallHandler extends ServerCallHandler {
 
         @Override
         public void onComplete() {
-            // TODO: check whether it is used.
-        }
-
-        @Override
-        public void onReady() {
+            // Additional logic when closing the stream at server side.
         }
     }
 }

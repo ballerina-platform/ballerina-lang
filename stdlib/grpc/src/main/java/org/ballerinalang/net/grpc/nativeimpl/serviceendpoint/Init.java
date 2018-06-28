@@ -99,9 +99,8 @@ public class Init extends AbstractGrpcNativeFunction {
             serviceEndpoint.addNativeData(SERVER_CONNECTOR, httpServerConnector);
             serviceEndpoint.addNativeData(SERVICE_REGISTRY_BUILDER, grpcServicesRegistryBuilder);
             context.setReturnValues();
-        } catch (Throwable throwable) {
-            BMap<String, BValue> errorStruct = (BMap<String, BValue>) MessageUtils.getConnectorError(context,
-                    throwable);
+        } catch (Exception ex) {
+            BMap<String, BValue> errorStruct = MessageUtils.getConnectorError(context, ex);
             context.setReturnValues(errorStruct);
         }
     }
@@ -147,11 +146,9 @@ public class Init extends AbstractGrpcNativeFunction {
             String keyStoreFile = keyStore.getStringField(FILE_PATH);
             String keyStorePassword = keyStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(keyStoreFile)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore location must be provided for secure connection");
             }
             if (StringUtils.isBlank(keyStorePassword)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaConnectorException("Keystore password value must be provided for secure connection");
             }
             listenerConfiguration.setKeyStoreFile(keyStoreFile);
@@ -163,11 +160,9 @@ public class Init extends AbstractGrpcNativeFunction {
             String trustStoreFile = trustStore.getStringField(FILE_PATH);
             String trustStorePassword = trustStore.getStringField(PASSWORD);
             if (StringUtils.isBlank(trustStoreFile) && StringUtils.isNotBlank(sslVerifyClient)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaException("Truststore location must be provided to enable Mutual SSL");
             }
             if (StringUtils.isBlank(trustStorePassword) && StringUtils.isNotBlank(sslVerifyClient)) {
-                //TODO get from language pack, and add location
                 throw new BallerinaException("Truststore password value must be provided to enable Mutual SSL");
             }
             listenerConfiguration.setTrustStoreFile(trustStoreFile);
@@ -178,7 +173,7 @@ public class Init extends AbstractGrpcNativeFunction {
         if (protocols != null) {
             List<Value> sslEnabledProtocolsValueList = Arrays
                     .asList(protocols.getArrayField(ENABLED_PROTOCOLS));
-            if (sslEnabledProtocolsValueList.size() > 0) {
+            if (!sslEnabledProtocolsValueList.isEmpty()) {
                 String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
                         .collect(Collectors.joining(",", "", ""));
                 serverParameters = new Parameter(GrpcConstants.ANN_CONFIG_ATTR_SSL_ENABLED_PROTOCOLS,
@@ -193,7 +188,7 @@ public class Init extends AbstractGrpcNativeFunction {
         }
         
         List<Value> ciphersValueList = Arrays.asList(sslConfig.getArrayField(SSL_CONFIG_CIPHERS));
-        if (ciphersValueList.size() > 0) {
+        if (!ciphersValueList.isEmpty()) {
             String ciphers = ciphersValueList.stream().map(Value::getStringValue)
                     .collect(Collectors.joining(",", "", ""));
             serverParameters = new Parameter(GrpcConstants.CIPHERS, ciphers);

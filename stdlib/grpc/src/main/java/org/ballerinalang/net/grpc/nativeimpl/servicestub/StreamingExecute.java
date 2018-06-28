@@ -38,8 +38,6 @@ import org.ballerinalang.net.grpc.StreamObserver;
 import org.ballerinalang.net.grpc.exception.GrpcClientException;
 import org.ballerinalang.net.grpc.stubs.DefaultStreamObserver;
 import org.ballerinalang.net.grpc.stubs.NonBlockingStub;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -84,7 +82,6 @@ import static org.ballerinalang.util.BLangConstants.BALLERINA_BUILTIN_PKG;
         isPublic = true
 )
 public class StreamingExecute extends AbstractExecute {
-    private static final Logger LOG = LoggerFactory.getLogger(StreamingExecute.class);
     private static final int MESSAGE_HEADER_REF_INDEX = 2;
 
     @Override

@@ -26,6 +26,7 @@ import org.ballerinalang.net.grpc.Message;
 import org.ballerinalang.net.grpc.MessageUtils;
 import org.ballerinalang.net.grpc.OutboundMessage;
 import org.ballerinalang.net.grpc.Status;
+import org.ballerinalang.net.grpc.exception.ClientRuntimeException;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.util.exceptions.BallerinaException;
 import org.wso2.transport.http.netty.common.Constants;
@@ -104,7 +105,7 @@ public abstract class AbstractStub {
             return new OutboundMessage(carbonMessage);
         } catch (MalformedURLException e) {
             throw new BallerinaException("Malformed url specified. " + e.getMessage());
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw new BallerinaException("Failed to prepare request. " + t.getMessage());
         }
     }
@@ -170,7 +171,7 @@ public abstract class AbstractStub {
     static RuntimeException cancelThrow(ClientCall call, Throwable t) {
         try {
             call.cancel(null, t);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             logger.log(Level.SEVERE, "RuntimeException encountered while closing call", e);
         }
         if (t instanceof RuntimeException) {
@@ -178,7 +179,7 @@ public abstract class AbstractStub {
         } else if (t instanceof Error) {
             throw (Error) t;
         }
-        throw new RuntimeException(t);
+        throw new ClientRuntimeException(t);
     }
 
     /**
@@ -187,23 +188,21 @@ public abstract class AbstractStub {
      * Referenced from grpc-java implementation.
      * <p>
      */
-    public abstract static class Listener {
+    public interface Listener {
 
         /**
          * Calls when response headers is received.
          *
          * @param headers response headers.
          */
-        public void onHeaders(HttpHeaders headers) {
-        }
+        void onHeaders(HttpHeaders headers);
 
         /**
          * Calls when response message is received.
          *
          * @param message response message.
          */
-        public void onMessage(Message message) {
-        }
+        void onMessage(Message message);
 
         /**
          *  Calls when call is closed.
@@ -213,13 +212,6 @@ public abstract class AbstractStub {
          * @param status   the result of the remote call.
          * @param trailers headers sent at call completion.
          */
-        public void onClose(Status status, HttpHeaders trailers) {
-        }
-
-        /**
-         * Indicates whether ClientCall is capable of sending additional messages.
-         */
-        public void onReady() {
-        }
+        void onClose(Status status, HttpHeaders trailers);
     }
 }

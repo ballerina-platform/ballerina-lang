@@ -19,6 +19,7 @@ package org.ballerinalang.net.grpc;
 
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpHeaders;
+import org.ballerinalang.net.grpc.exception.ServerRuntimeException;
 import org.ballerinalang.net.grpc.listener.ServerCallHandler;
 import org.wso2.transport.http.netty.contract.ServerConnectorException;
 
@@ -115,7 +116,7 @@ public final class ServerCall {
             // Send response headers.
             inboundMessage.respond(outboundMessage.getResponseMessage());
         } catch (ServerConnectorException e) {
-            throw new RuntimeException("Error while sending the response.", e);
+            throw new ServerRuntimeException("Error while sending the response.", e);
         }
         sendHeadersCalled = true;
     }
@@ -162,7 +163,7 @@ public final class ServerCall {
 
     public void close(Status status, HttpHeaders trailers) {
         if (closeCalled) {
-            throw new RuntimeException("call already closed");
+            throw new ServerRuntimeException("call already closed");
         }
         closeCalled = true;
 
@@ -211,7 +212,7 @@ public final class ServerCall {
                 listener.onMessage(request);
             } catch (Exception ex) {
                 MessageUtils.closeQuietly(message);
-                throw new RuntimeException(ex);
+                throw new ServerRuntimeException(ex);
             } finally {
                 try {
                     message.close();
@@ -235,14 +236,6 @@ public final class ServerCall {
                 call.cancelled = true;
                 listener.onCancel();
             }
-        }
-
-        @Override
-        public void onReady() {
-            if (call.cancelled) {
-                return;
-            }
-            listener.onReady();
         }
     }
 }

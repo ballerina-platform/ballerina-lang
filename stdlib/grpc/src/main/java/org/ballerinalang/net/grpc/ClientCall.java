@@ -273,17 +273,5 @@ public final class ClientCall {
             }
             close(status, trailers);
         }
-
-        @Override
-        public void onReady() {
-            try {
-                observer.onReady();
-            } catch (Exception ex) {
-                Status status =
-                        Status.Code.CANCELLED.toStatus().withCause(ex).withDescription("Failed to call onReady.");
-                close(status, new DefaultHttpHeaders());
-            }
-
-        }
     }
 }

@@ -61,6 +61,7 @@ public class UserDefinedEnumMessage extends Message {
         return new UserDefinedEnumMessage.Builder(name);
     }
 
+    @Override
     public String getMessageDefinition() {
         StringBuilder msgDefinition = new StringBuilder();
         msgDefinition.append("enum ").append(messageName).append(" {\n");

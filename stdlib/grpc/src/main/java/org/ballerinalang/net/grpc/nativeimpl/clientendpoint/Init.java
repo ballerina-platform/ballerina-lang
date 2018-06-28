@@ -160,7 +160,7 @@ public class Init extends BlockingNativeCallableUnit {
             if (protocols != null) {
                 List<Value> sslEnabledProtocolsValueList = Arrays
                         .asList(protocols.getArrayField(ENABLED_PROTOCOLS));
-                if (sslEnabledProtocolsValueList.size() > 0) {
+                if (!sslEnabledProtocolsValueList.isEmpty()) {
                     String sslEnabledProtocols = sslEnabledProtocolsValueList.stream().map(Value::getStringValue)
                             .collect(Collectors.joining(",", "", ""));
                     Parameter clientProtocols = new Parameter(GrpcConstants.SSL_ENABLED_PROTOCOLS,
@@ -194,7 +194,7 @@ public class Init extends BlockingNativeCallableUnit {
 
             List<Value> ciphersValueList = Arrays
                     .asList(secureSocket.getArrayField(SSL_CONFIG_CIPHERS));
-            if (ciphersValueList.size() > 0) {
+            if (!ciphersValueList.isEmpty()) {
                 String ciphers = ciphersValueList.stream().map(Value::getStringValue)
                         .collect(Collectors.joining(",", "", ""));
                 Parameter clientCiphers = new Parameter(GrpcConstants.CIPHERS, ciphers);
