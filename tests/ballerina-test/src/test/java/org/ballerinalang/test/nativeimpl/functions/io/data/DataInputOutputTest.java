@@ -20,9 +20,9 @@
 package org.ballerinalang.test.nativeimpl.functions.io.data;
 
 import org.apache.commons.codec.CharEncoding;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.channels.base.DataChannel;
-import org.ballerinalang.nativeimpl.io.channels.base.Representation;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.DataChannel;
+import org.ballerinalang.stdlib.io.channels.base.Representation;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.testng.Assert;
@@ -35,9 +35,9 @@ import java.net.URISyntaxException;
 import java.nio.ByteOrder;
 import java.nio.channels.ByteChannel;
 
-import static org.ballerinalang.nativeimpl.io.channels.base.Representation.BIT_16;
-import static org.ballerinalang.nativeimpl.io.channels.base.Representation.BIT_32;
-import static org.ballerinalang.nativeimpl.io.channels.base.Representation.BIT_64;
+import static org.ballerinalang.stdlib.io.channels.base.Representation.BIT_16;
+import static org.ballerinalang.stdlib.io.channels.base.Representation.BIT_32;
+import static org.ballerinalang.stdlib.io.channels.base.Representation.BIT_64;
 
 /**
  * Test data i/o.
