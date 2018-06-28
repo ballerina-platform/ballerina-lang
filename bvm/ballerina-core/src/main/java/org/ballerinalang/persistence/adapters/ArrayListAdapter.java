@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -30,6 +30,11 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 
+/**
+ * This implements @{@link JsonSerializer} to serialize and deserialize @{@link ArrayList} objects.
+ *
+ * @since 0.976.0
+ */
 public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, JsonDeserializer<ArrayList<Object>> {
 
     public JsonElement serialize(ArrayList<Object> list, Type type, JsonSerializationContext context) {
@@ -47,10 +52,9 @@ public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, Json
         return result;
     }
 
-    public ArrayList<Object> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-
+    public ArrayList<Object> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
         JsonArray jsonObject = json.getAsJsonArray();
-        ArrayList<Object> list = new ArrayList<Object>();
+        ArrayList<Object> list = new ArrayList<>();
         try {
             for (int i = 0; i < jsonObject.size(); i++) {
                 JsonObject wrapper = jsonObject.get(i).getAsJsonObject();
@@ -63,8 +67,8 @@ public class ArrayListAdapter implements JsonSerializer<ArrayList<Object>>, Json
                     list.add(i, o);
                 }
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            throw new JsonParseException("Unknown element type found after deserialize the element.", e);
         }
         return list;
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,50 +17,82 @@
  */
 package org.ballerinalang.persistence;
 
-import org.ballerinalang.model.values.BStruct;
-import org.ballerinalang.util.codegen.ProgramFile;
+import org.apache.commons.io.FileUtils;
+import org.ballerinalang.persistence.states.State;
+import org.ballerinalang.persistence.store.StorageProvider;
+import org.ballerinalang.util.exceptions.BallerinaException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.io.File;
+import java.io.IOException;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
-public abstract class StateStore {
+/**
+ * This class implements @{@link StorageProvider} for persist @{@link State}s as files.
+ *
+ * @since 0.976.0
+ */
+public class StateStore implements StorageProvider {
 
-    private static StateStore stateStore;
+    private static final String BASE_PATH = "states";
+    private static final Logger log = LoggerFactory.getLogger(StateStore.class);
 
-    private static DataMapper dataMapper;
-
-    public static Map<String, Map<String, BStruct>> tempBStructs = new HashMap<>();
-
-    public static StateStore getInstance() {
-        if (stateStore == null) {
-            stateStore = new FileBasedStore();
+    @Override
+    public void persistState(String instanceId, String workerName, String stateString) {
+        File baseDir = new File(BASE_PATH);
+        if (!baseDir.exists()) {
+            baseDir.mkdir();
         }
-        return stateStore;
+        File stateFile = new File(baseDir, instanceId + "_" + workerName + ".json");
+        try {
+            FileUtils.write(stateFile, stateString);
+        } catch (IOException e) {
+            log.error("Error while persisting state for instance id: {}", instanceId + "_" + workerName, e);
+        }
     }
 
-    public static void setStateStore(StateStore stateStore) {
-        StateStore.stateStore = stateStore;
+    @Override
+    public void removeStates(String instanceId) {
+        File baseDir = new File(BASE_PATH);
+        if (!baseDir.exists()) {
+            return;
+        }
+        File[] stateFiles = baseDir.listFiles();
+        String instancePrefix = instanceId + "_";
+        if (Objects.nonNull(stateFiles)) {
+            for (File stateFile : stateFiles) {
+                if (stateFile.getName().startsWith(instancePrefix)) {
+                    stateFile.delete();
+                }
+            }
+        }
     }
 
-    public abstract void persistState(String instanceId, State state);
-
-    public abstract void persistFaildState(String instanceId, State state);
-
-    public abstract List<State> getStates(ProgramFile programFile);
-
-    public abstract List<State> getStates(String instanceId);
-
-    public abstract void removeStates(String instanceId);
-
-    public abstract List<State> getFailedStates(String instanceId);
-
-    public abstract void removeFailedStates(String instanceId);
-
-    public static DataMapper getDataMapper() {
-        if (dataMapper == null) {
-            dataMapper = new DataMapper();
+    @Override
+    public List<String> getAllSerializedStates() {
+        List<String> states = new LinkedList<>();
+        File baseDir = new File(BASE_PATH);
+        if (!baseDir.exists()) {
+            return states;
         }
-        return dataMapper;
+        File[] stateFiles = baseDir.listFiles();
+        if (stateFiles != null) {
+            for (File stateFile : stateFiles) {
+                try {
+                    String jsonState = FileUtils.readFileToString(stateFile);
+                    states.add(jsonState);
+                } catch (IOException e) {
+                    throw new BallerinaException("Failed to retrieve states.", e);
+                }
+            }
+        }
+        return states;
+    }
+
+    @Override
+    public void removeFailedStates(String instanceId) {
     }
 }

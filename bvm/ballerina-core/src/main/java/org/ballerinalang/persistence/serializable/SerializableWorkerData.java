@@ -21,6 +21,11 @@ import org.ballerinalang.util.codegen.ProgramFile;
 
 import java.util.ArrayList;
 
+/**
+ * This class represents a serializable Ballerina worker data.
+ *
+ * @since 0.976.0
+ */
 public class SerializableWorkerData {
 
     public long[] longRegs;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,6 +17,11 @@
  */
 package org.ballerinalang.persistence.serializable;
 
+/**
+ * This class is a representation of local native data key.
+ *
+ * @since 0.976.0
+ */
 public class NativeDataKey {
 
     private String pkgPath;
@@ -33,15 +38,19 @@ public class NativeDataKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        NativeDataKey that = (NativeDataKey) o;
-
-        if (!pkgPath.equals(that.pkgPath)) return false;
-        if (!structName.equals(that.structName)) return false;
-        if (!dataKey.equals(that.dataKey)) return false;
-        return dataIdentifier.equals(that.dataIdentifier);
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        NativeDataKey nativeDataKey = (NativeDataKey) o;
+        if (!pkgPath.equals(nativeDataKey.pkgPath) ||
+                !structName.equals(nativeDataKey.structName) ||
+                !dataKey.equals(nativeDataKey.dataKey)) {
+            return false;
+        }
+        return dataIdentifier.equals(nativeDataKey.dataIdentifier);
     }
 
     @Override
@@ -67,21 +76,5 @@ public class NativeDataKey {
 
     public void setStructName(String structName) {
         this.structName = structName;
-    }
-
-    public String getDataKey() {
-        return dataKey;
-    }
-
-    public void setDataKey(String dataKey) {
-        this.dataKey = dataKey;
-    }
-
-    public String getDataIdentifier() {
-        return dataIdentifier;
-    }
-
-    public void setDataIdentifier(String dataIdentifier) {
-        this.dataIdentifier = dataIdentifier;
     }
 }

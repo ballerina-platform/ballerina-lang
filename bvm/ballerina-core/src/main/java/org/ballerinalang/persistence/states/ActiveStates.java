@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -15,23 +15,24 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package org.ballerinalang.persistence;
+package org.ballerinalang.persistence.states;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This is used to manage the active @{@link State}s of the system.
+ *
+ * @since 0.976.0
+ */
 public class ActiveStates {
 
     private static Map<String, List<State>> states = new HashMap<>();
 
     public static void add(String instanceId, State state) {
-        List<State> stateList = get(instanceId);
-        if (stateList == null) {
-            stateList = new ArrayList<>();
-            states.put(instanceId, stateList);
-        }
+        List<State> stateList = states.computeIfAbsent(instanceId, k -> new ArrayList<>());
         stateList.add(state);
     }
 

@@ -23,6 +23,7 @@ import org.ballerinalang.bre.bvm.WorkerExecutionContext;
 import org.ballerinalang.persistence.adapters.ArrayListAdapter;
 import org.ballerinalang.persistence.adapters.HashMapAdapter;
 import org.ballerinalang.persistence.adapters.RefTypeAdaptor;
+import org.ballerinalang.persistence.serializable.DataMapper;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBJSON;
 import org.ballerinalang.persistence.serializable.reftypes.impl.SerializableBStruct;
 import org.ballerinalang.persistence.serializable.reftypes.SerializableRefType;
@@ -33,9 +34,6 @@ import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.persistence.serializable.SerializableState;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -43,19 +41,20 @@ import java.util.List;
 import java.util.Map;
 
 public class PersistenceUtils {
-    public static boolean reloaded = false;
+
+    public static final String INSTANCE_ID = "b7a.instance.id";
 
     private static boolean initialized = false;
 
-//    private static Map<String, RefTypeHandler> refTypeHandlers = new HashMap<>();
-
     private static List<String> serializableClasses = new ArrayList<>();
 
-    public static Map<String, Map<String, BRefType>> tempRefTypes = new HashMap<>();
-    public static Map<String, WorkerExecutionContext> tempContexts = new HashMap<>();
-    public static Map<String, CallableWorkerResponseContext> tempRespContexts = new HashMap<>();
+    private static Map<String, Map<String, BRefType>> tempRefTypes = new HashMap<>();
 
-    public static List<WorkerExecutionContext> persistableContexts = new ArrayList<>();
+    private static Map<String, WorkerExecutionContext> tempContexts = new HashMap<>();
+
+    private static Map<String, CallableWorkerResponseContext> tempRespContexts = new HashMap<>();
+
+    private static DataMapper dataMapper;
 
     private static Gson gson;
 
@@ -76,18 +75,11 @@ public class PersistenceUtils {
         else return stateRefTypes.get(key);
     }
 
-    public static void clearTempRefTypes(String stateId) {
-        tempRefTypes.remove(stateId);
-    }
-
-    public static void clearTempContexts() {
-        tempContexts.clear();
-    }
-
     public synchronized static void init() {
         if (initialized) {
             return;
         }
+        FileBasedStore.init();
         serializableClasses.add(String.class.getName());
         serializableClasses.add(Integer.class.getName());
         serializableClasses.add(Long.class.getName());
@@ -105,23 +97,13 @@ public class PersistenceUtils {
         gsonBuilder.registerTypeAdapter(new HashMap<String, Object>().getClass(), new HashMapAdapter());
         gsonBuilder.registerTypeAdapter(new ArrayList<Object>().getClass(), new ArrayListAdapter());
         gson = gsonBuilder.create();
-
-//        refTypeHandlers.put(BStruct.class.getName(), new BStructHandler());
-
+        dataMapper = new DataMapper();
         initialized = true;
     }
 
     public static Gson getGson() {
         return gson;
     }
-
-    //    public static RefTypeHandler getRefTypeHandler(BRefType refType) {
-//        if (refType == null) {
-//            return null;
-//        }
-//        RefTypeHandler refTypeHandler = refTypeHandlers.get(refType.getClass().getName());
-//        return refTypeHandler;
-//    }
 
     public static boolean isSerializable(Object o) {
         if (o == null) {
@@ -156,17 +138,6 @@ public class PersistenceUtils {
         return getMainPackageContext(context.parent);
     }
 
-    public static void saveJsonFIle(String jsonStr, File file) {
-        //        File f = new File("test.json");
-        //        if (!f.exists()) {
-        try (PrintWriter out = new PrintWriter(file)) {
-            out.println(jsonStr);
-            out.close();
-        } catch (FileNotFoundException e) {
-            //ignore
-        }
-    }
-
     public static SerializableRefType serializeRefType(BRefType refType, SerializableState state) {
         if (refType instanceof BStruct) {
             return new SerializableBStruct((BStruct) refType, state);
@@ -175,5 +146,30 @@ public class PersistenceUtils {
         } else {
             return null;
         }
+    }
+
+    public static String getInstanceId(WorkerExecutionContext context) {
+        String instanceId = null;
+        Object o = context.globalProps.get("instance.id");
+        if (o instanceof String) {
+            instanceId = (String) o;
+        }
+        return instanceId;
+    }
+
+    public static Map<String, Map<String, BRefType>> getTempRefTypes() {
+        return tempRefTypes;
+    }
+
+    public static Map<String, WorkerExecutionContext> getTempContexts() {
+        return tempContexts;
+    }
+
+    public static Map<String, CallableWorkerResponseContext> getTempRespContexts() {
+        return tempRespContexts;
+    }
+
+    public static DataMapper getDataMapper() {
+        return dataMapper;
     }
 }

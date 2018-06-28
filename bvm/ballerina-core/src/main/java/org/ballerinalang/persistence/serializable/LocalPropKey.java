@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -17,6 +17,11 @@
  */
 package org.ballerinalang.persistence.serializable;
 
+/**
+ * This class is a representation of  local property key.
+ *
+ * @since 0.976.0
+ */
 public class LocalPropKey {
 
     private String propKey;
@@ -29,13 +34,17 @@ public class LocalPropKey {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        LocalPropKey that = (LocalPropKey) o;
-
-        if (!propKey.equals(that.propKey)) return false;
-        return dataIdentifier.equals(that.dataIdentifier);
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        LocalPropKey localPropKey = (LocalPropKey) o;
+        if (!propKey.equals(localPropKey.propKey)) {
+            return false;
+        }
+        return dataIdentifier.equals(localPropKey.dataIdentifier);
     }
 
     @Override
@@ -45,3 +54,4 @@ public class LocalPropKey {
         return result;
     }
 }
+

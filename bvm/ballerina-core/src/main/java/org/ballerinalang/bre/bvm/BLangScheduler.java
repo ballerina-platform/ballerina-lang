@@ -24,8 +24,8 @@ import org.ballerinalang.model.NativeCallableUnit;
 import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.ActiveStates;
-import org.ballerinalang.persistence.StateStore;
+import org.ballerinalang.persistence.FileBasedStore;
+import org.ballerinalang.persistence.states.ActiveStates;
 import org.ballerinalang.runtime.threadpool.ThreadPoolFactory;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -159,7 +159,7 @@ public class BLangScheduler {
             if (o != null && o instanceof String) {
                 String instanceId = (String) o;
                 ActiveStates.remove(instanceId);
-                StateStore.getInstance().removeStates(instanceId);
+                FileBasedStore.removeStates(instanceId);
             }
         }
         workerCountDown();

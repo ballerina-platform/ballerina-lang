@@ -40,10 +40,10 @@ import org.ballerinalang.model.types.BTypes;
 import org.ballerinalang.model.values.BCallableFuture;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.persistence.PendingCheckpoints;
+import org.ballerinalang.persistence.FileBasedStore;
 import org.ballerinalang.persistence.PersistenceUtils;
-import org.ballerinalang.persistence.State;
-import org.ballerinalang.persistence.StateStore;
+import org.ballerinalang.persistence.states.PendingCheckpoints;
+import org.ballerinalang.persistence.states.State;
 import org.ballerinalang.runtime.Constants;
 import org.ballerinalang.util.FunctionFlags;
 import org.ballerinalang.util.codegen.CallableUnitInfo;
@@ -271,7 +271,7 @@ public class BLangFunctions {
                     String instanceId = (String) o;
                     WorkerExecutionContext runnableContext = PersistenceUtils.getMainPackageContext(parentCtx);
                     if (interruptibleNativeCallableUnit.persistBeforeOperation()) {
-                        StateStore.getInstance().persistState(instanceId, new State(runnableContext));
+                        FileBasedStore.persistState(instanceId, new State(runnableContext));
                     }
                     if (interruptibleNativeCallableUnit.persistAfterOperation()) {
                         PendingCheckpoints.addCheckpoint(instanceId, (runnableContext.ip + 1));
