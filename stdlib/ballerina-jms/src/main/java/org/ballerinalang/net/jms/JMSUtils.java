@@ -111,8 +111,13 @@ public class JMSUtils {
         try {
             InitialContext initialContext = new InitialContext(properties);
             ConnectionFactory connectionFactory = (ConnectionFactory) initialContext.lookup(factoryName);
-            String username = connectionConfig.getStringField(Constants.ALIAS_USERNAME);
-            String password = connectionConfig.getStringField(Constants.ALIAS_PASSWORD);
+            String username = null;
+            String password = null;
+            if (connectionConfig.getRefField(Constants.ALIAS_USERNAME) != null &&
+                    connectionConfig.getRefField(Constants.ALIAS_PASSWORD) != null) {
+                username = connectionConfig.getRefField(Constants.ALIAS_USERNAME).getStringValue();
+                password = connectionConfig.getRefField(Constants.ALIAS_PASSWORD).getStringValue();
+            }
 
             if (!JMSUtils.isNullOrEmptyAfterTrim(username) && !JMSUtils.isNullOrEmptyAfterTrim(password)) {
                 return connectionFactory.createConnection(username, password);
