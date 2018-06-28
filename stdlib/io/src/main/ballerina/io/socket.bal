@@ -27,10 +27,33 @@ documentation {
 public type Socket object {
 
     @readonly public ByteChannel channel;
-    @readonly public int port;
+    @readonly public int remotePort;
     @readonly public int localPort;
-    @readonly public string address;
+    @readonly public string remoteAddress;
     @readonly public string localAddress;
+
+    public new() {
+        init();
+    }
+
+    documentation {
+        Initializes a socket.
+    }
+    native function init();
+
+    documentation {
+        Binds socket to a local port.
+
+        R{{}} An error if could not bind to the port
+    }
+    public native function bindAddress(int port, string? interface = ()) returns error?;
+
+    documentation {
+        Open a connection with remote server.
+
+        R{{}} An error if could not connect with the remote server.
+    }
+    public native function connect(@sensitive string host, @sensitive int port) returns error?;
 
     documentation {
         Closes a socket connection.
@@ -52,6 +75,42 @@ public type Socket object {
         R{{}} An error if the connection could not be shutdown properly
     }
     public native function shutdownOutput() returns error?;
+};
+
+documentation {
+    Represents a TCP server socket.
+}
+public type ServerSocket object {
+
+    public new() {
+        init();
+    }
+
+    documentation {
+        Initializes a server socket.
+    }
+    native function init();
+
+    documentation {
+        Binds socket to a local port.
+
+        R{{}} An error if could not bind to the port
+    }
+    public native function bindAddress(int port, string? interface = ()) returns error?;
+
+    documentation {
+        This blocking function will wait until new client socket connect.
+
+        R{{}} An error if could not create new socket.
+    }
+    public native function accept() returns @tainted Socket|error;
+
+    documentation {
+        Closes a socket connection.
+
+        R{{}} An error if the connection could not be closed properly
+    }
+    public native function close() returns error?;
 };
 
 documentation {
