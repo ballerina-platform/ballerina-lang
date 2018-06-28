@@ -19,9 +19,7 @@ documentation {
     Generated client endpoint actions uses these functions to interact with gRPC service.
 }
 public type Stub object {
-    public {
-        Client client;
-    }
+    public Client client;
 
     documentation {
         Calls when initializing client endpoint with service descriptor data extracted from proto file.

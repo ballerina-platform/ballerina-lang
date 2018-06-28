@@ -21,13 +21,9 @@ documentation {
     F{{id}} - Caller endpoint id.
 }
 public type Listener object {
-    public {
-        int id;
-    }
+    public int id;
 
-    private {
-        CallerAction conn;
-    }
+    private CallerAction conn;
 
     documentation {
         Gets called when the endpoint is being initialize during package init time.
