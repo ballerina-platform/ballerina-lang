@@ -29,6 +29,10 @@ import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.tree.BLangPackage;
+import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
+
+import java.util.Optional;
 
 /**
  * Test cases for user defined record types in ballerina.
@@ -40,6 +44,26 @@ public class RecordTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/record/record.bal");
+    }
+
+    @Test(description = "Test fix for empty record Diagnostic Position")
+    public void testEmptyRecordDiagnosticPos() {
+        BLangPackage packageNode = (BLangPackage) compileResult.getAST();
+
+        Optional<BLangTypeDefinition> recordContainer = packageNode.getTypeDefinitions()
+                .stream()
+                .filter(def -> def.getName().getValue().equals("EmptyRecord"))
+                .findAny();
+
+        Assert.assertTrue(recordContainer.isPresent());
+        BLangTypeDefinition emptyRecord = recordContainer.get();
+
+        Assert.assertNotNull(emptyRecord);
+
+        Assert.assertEquals(emptyRecord.typeNode.pos.sLine, 153);
+        Assert.assertEquals(emptyRecord.typeNode.pos.eLine, 156);
+        Assert.assertEquals(emptyRecord.typeNode.pos.sCol, 18);
+        Assert.assertEquals(emptyRecord.typeNode.pos.eCol, 1);
     }
 
     @Test(description = "Test using expressions as index for record arrays")
