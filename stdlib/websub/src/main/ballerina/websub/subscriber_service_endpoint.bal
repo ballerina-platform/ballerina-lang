@@ -29,13 +29,9 @@ documentation {
 }
 public type Listener object {
 
-    public {
-        SubscriberServiceEndpointConfiguration config;
-    }
+    public SubscriberServiceEndpointConfiguration config;
 
-    private {
-        http:Listener serviceEndpoint;
-    }
+    private http:Listener serviceEndpoint;
 
     public new () {
         http:Listener httpEndpoint = new;

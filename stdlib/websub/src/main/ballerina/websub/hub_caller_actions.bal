@@ -28,14 +28,10 @@ documentation {
 }
 public type CallerActions object {
 
-    public {
-        string hubUrl;
-    }
+    public string hubUrl;
 
-    private {
-        http:Client httpClientEndpoint;
-        http:FollowRedirects? followRedirects;
-    }
+    private http:Client httpClientEndpoint;
+    private http:FollowRedirects? followRedirects;
 
     new (hubUrl, httpClientEndpoint, followRedirects) {}
 

@@ -137,13 +137,11 @@ documentation {
 }
 public type IntentVerificationRequest object {
 
-    public {
-        string mode;
-        string topic;
-        string challenge;
-        int leaseSeconds;
-        http:Request request;
-    }
+    public string mode;
+    public string topic;
+    public string challenge;
+    public int leaseSeconds;
+    public http:Request request;
 
     documentation {
         Builds the response for the request, verifying intention to subscribe, if the topic matches that expected.
@@ -297,9 +295,7 @@ documentation {
 }
 public type Notification object {
 
-    private {
-        http:Request request;
-    }
+    private http:Request request;
 
     documentation {
         Retrieves the query parameters of the content delivery request, as a map.
@@ -527,9 +523,7 @@ documentation {
 }
 public type WebSubHub object {
 
-    public {
-        string hubUrl;
-    }
+    public string hubUrl;
 
     new (hubUrl) {}
 
