@@ -474,7 +474,7 @@ public class Desugar extends BLangNodeVisitor {
             stmt.addWS(foreverStatement.getWS());
             result = rewrite(stmt, env);
         } else {
-            result = streamingCodeDesugar.desugar(foreverStatement, this);
+            result = streamingCodeDesugar.desugar(foreverStatement);
             result = rewrite(result, env);
         }
     }
@@ -1308,20 +1308,19 @@ public class Desugar extends BLangNodeVisitor {
     /**
      * This method checks whether given binary expression is related to shift operation.
      * If its true, then both lhs and rhs of the binary expression will be converted to 'int' type.
-     *
-     *      byte a = 12;
-     *      byte b = 34;
-     *      int i = 234;
-     *      int j = -4;
-     *
-     *      true: where binary expression's expected type is 'int'
-     *      int i1 = a >> b;
-     *      int i2 = a << b;
-     *      int i3 = a >> i;
-     *      int i4 = a << i;
-     *      int i5 = i >> j;
-     *      int i6 = i << j;
-     *
+     * <p>
+     * byte a = 12;
+     * byte b = 34;
+     * int i = 234;
+     * int j = -4;
+     * <p>
+     * true: where binary expression's expected type is 'int'
+     * int i1 = a >> b;
+     * int i2 = a << b;
+     * int i3 = a >> i;
+     * int i4 = a << i;
+     * int i5 = i >> j;
+     * int i6 = i << j;
      */
     private boolean isBitwiseShiftOperation(BLangBinaryExpr binaryExpr) {
         return binaryExpr.opKind == OperatorKind.BITWISE_LEFT_SHIFT ||
@@ -1717,7 +1716,7 @@ public class Desugar extends BLangNodeVisitor {
         //Order matters, because these are the args for a function invocation.
         args.add(getSQLPreparedStatement(tableQueryExpression));
         args.add(getFromTableVarRef(tableQueryExpression));
-       // BLangTypeofExpr
+        // BLangTypeofExpr
         BType retType = tableQueryExpression.type;
         BLangSimpleVarRef joinTable = getJoinTableVarRef(tableQueryExpression);
         if (joinTable != null) {
@@ -2378,7 +2377,7 @@ public class Desugar extends BLangNodeVisitor {
         invocationNode.type = type;
 
         BLangIdentifier pkgNameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        BLangIdentifier nameNode = (BLangIdentifier)  TreeBuilder.createIdentifierNode();
+        BLangIdentifier nameNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
 
         nameNode.setLiteral(false);
         nameNode.setValue(Names.OBJECT_INIT_SUFFIX.getValue());
@@ -2858,18 +2857,18 @@ public class Desugar extends BLangNodeVisitor {
     private BLangBinaryExpr getModifiedIntRangeStartExpr(BLangExpression expr) {
         BLangLiteral constOneLiteral = ASTBuilderUtil.createLiteral(expr.pos, symTable.intType, 1L);
         return ASTBuilderUtil.createBinaryExpr(expr.pos, expr, constOneLiteral, symTable.intType, OperatorKind.ADD,
-                                               (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD,
-                                                                                                   symTable.intType,
-                                                                                                   symTable.intType));
+                (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.ADD,
+                        symTable.intType,
+                        symTable.intType));
     }
 
 
     private BLangBinaryExpr getModifiedIntRangeEndExpr(BLangExpression expr) {
         BLangLiteral constOneLiteral = ASTBuilderUtil.createLiteral(expr.pos, symTable.intType, 1L);
         return ASTBuilderUtil.createBinaryExpr(expr.pos, expr, constOneLiteral, symTable.intType, OperatorKind.SUB,
-                                               (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.SUB,
-                                                                                                   symTable.intType,
-                                                                                                   symTable.intType));
+                (BOperatorSymbol) symResolver.resolveBinaryOperator(OperatorKind.SUB,
+                        symTable.intType,
+                        symTable.intType));
     }
 
     private BLangExpression getDefaultValueExpr(BLangAccessExpression expr) {

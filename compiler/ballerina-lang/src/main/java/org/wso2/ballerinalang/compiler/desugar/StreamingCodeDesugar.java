@@ -97,6 +97,14 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
     private static final String STREAMS_STDLIB_PACKAGE_NAME = "streams";
     private static final String NEXT_PROCESS_METHOD_NAME = "process";
     private static final String STREAM_EVENT_OBJECT_NAME = "StreamEvent";
+    private static final String FILTER_OBJECT_NAME = "Filter";
+    private static final String OUTPUT_PROCESS_OBJECT_NAME = "OutputProcess";
+    private static final String CREATE_OUTPUT_PROCESS_METHOD_NAME = "createOutputProcess";
+    private static final String CREATE_FILTER_METHOD_NAME = "createFilter";
+    private static final String SIMPLE_SELECT_OBJECT_NAME = "SimpleSelect";
+    private static final String CREATE_SIMPLE_SELECT_METHOD_NAME = "createSimpleSelect";
+    private static final String EVENT_OBJECT_VARIABLE_NAME = "eventObject";
+    private static final String BUILD_STREAM_EVENT_METHOD_NAME = "buildStreamEvent";
 
     private static final CompilerContext.Key<StreamingCodeDesugar> STREAMING_DESUGAR_KEY =
             new CompilerContext.Key<>();
@@ -123,6 +131,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         this.symResolver = SymbolResolver.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.names = Names.getInstance(context);
+        this.parentDesugar = Desugar.getInstance(context);
     }
 
     public static StreamingCodeDesugar getInstance(CompilerContext context) {
@@ -134,9 +143,8 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         return desugar;
     }
 
-    public BLangBlockStmt desugar(BLangForever foreverStatement, Desugar desugar) {
+    public BLangBlockStmt desugar(BLangForever foreverStatement) {
 
-        this.parentDesugar = desugar;
         this.env = foreverStatement.getEnv();
         stmts = new ArrayList<>();
         List<? extends StatementNode> statementNodes = foreverStatement.getStreamingQueryStatements();
@@ -260,7 +268,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 outputStreamFunctionVariable.symbol);
         BInvokableSymbol outputProcessInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(lambdaFunction.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
-                scope.lookup(new Name("createOutputProcess")).symbol;
+                scope.lookup(new Name(CREATE_OUTPUT_PROCESS_METHOD_NAME)).symbol;
 
         BType outputProcessInvokableType = outputProcessInvokableSymbol.type.getReturnType();
         BVarSymbol outputProcessInvokableTypeVarSymbol = new BVarSymbol(0,
@@ -280,7 +288,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
 
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(lambdaFunction.pos, "OutputProcess");
+        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(lambdaFunction.pos, OUTPUT_PROCESS_OBJECT_NAME);
         userDefinedType.type = outputProcessInvokableType;
         outputProcessInvokableTypeVariable.setTypeNode(userDefinedType);
         BLangVariableDef outputProcessInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(lambdaFunction.pos,
@@ -327,7 +335,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
         eventObjectField.symbol = ((BRecordType) (lambdaFunctionVariable).type).fields.get(1).symbol;
         eventObjectField.fieldKind = FieldKind.SINGLE;
         eventObjectField.pos = selectClause.pos;
-        eventObjectField.field = ASTBuilderUtil.createIdentifier(selectClause.pos, "eventObject");
+        eventObjectField.field = ASTBuilderUtil.createIdentifier(selectClause.pos, EVENT_OBJECT_VARIABLE_NAME);
 
         BLangExpression typeCastingExpression = generateConversionExpr(eventObjectField, inputStreamEventType,
                 symResolver);
@@ -383,7 +391,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         BInvokableSymbol simpleSelectInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(selectClause.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
-                scope.lookup(new Name("createSimpleSelect")).symbol;
+                scope.lookup(new Name(CREATE_SIMPLE_SELECT_METHOD_NAME)).symbol;
 
         BType simpleSelectInvokableType = simpleSelectInvokableSymbol.type.getReturnType();
         BVarSymbol simpleSelectInvokableTypeVarSymbol = new BVarSymbol(0,
@@ -404,7 +412,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         simpleSelectInvokableType, simpleSelectMethodInvocation, simpleSelectInvokableTypeVarSymbol);
 
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(selectClause.pos, "SimpleSelect");
+        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(selectClause.pos, SIMPLE_SELECT_OBJECT_NAME);
         userDefinedType.type = simpleSelectInvokableType;
         simpleSelectInvokableTypeVariable.setTypeNode(userDefinedType);
         BLangVariableDef simpleSelectInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(selectClause.pos,
@@ -456,7 +464,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                 inputStreamLambdaFunctionVariable.symbol);
         BInvokableSymbol streamEventBuilderInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(streamingInput.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
-                scope.lookup(new Name("buildStreamEvent")).symbol;
+                scope.lookup(new Name(BUILD_STREAM_EVENT_METHOD_NAME)).symbol;
 
         BType streamEventArrayType = streamEventBuilderInvokableSymbol.type.getReturnType();
         BVarSymbol streamEventArrayTypeVarSymbol = new BVarSymbol(0,
@@ -615,7 +623,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
 
         BInvokableSymbol filterInvokableSymbol = (BInvokableSymbol) symResolver.
                 resolvePkgSymbol(where.pos, env, names.fromString(STREAMS_STDLIB_PACKAGE_NAME)).
-                scope.lookup(new Name("createFilter")).symbol;
+                scope.lookup(new Name(CREATE_FILTER_METHOD_NAME)).symbol;
 
         BType filterInvokableType = filterInvokableSymbol.type.getReturnType();
         BVarSymbol filterInvokableTypeVarSymbol = new BVarSymbol(0,
@@ -636,7 +644,7 @@ public class StreamingCodeDesugar extends BLangNodeVisitor {
                         filterInvokableType, filterMethodInvocation, filterInvokableTypeVarSymbol);
 
         BLangUserDefinedType userDefinedType = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
-        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(where.pos, "Filter");
+        userDefinedType.typeName = ASTBuilderUtil.createIdentifier(where.pos, FILTER_OBJECT_NAME);
         userDefinedType.type = filterInvokableType;
         filterInvokableTypeVariable.setTypeNode(userDefinedType);
         BLangVariableDef filterInvokableTypeVariableDef = ASTBuilderUtil.createVariableDef(where.pos,
