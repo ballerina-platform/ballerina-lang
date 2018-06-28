@@ -23,6 +23,7 @@ import org.ballerinalang.model.types.BType;
 import org.ballerinalang.model.types.TypeTags;
 import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBoolean;
+import org.ballerinalang.model.values.BByte;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
 import org.ballerinalang.model.values.BMap;
@@ -57,7 +58,7 @@ public class BLangVMStructs {
             if (values.length >= i + 1) {
                 value = getBValue(structFields[i].fieldType, values[i]);
             } else {
-                value = structFields[i].fieldType.getZeroValue();
+                value = structFields[i].fieldType.getEmptyValue();
             }
             bStruct.put(structFields[i].fieldName, value);
         }
@@ -93,6 +94,15 @@ public class BLangVMStructs {
                     return new BInteger(((Long) value).longValue());
                 } else if (value instanceof BInteger) {
                     return (BInteger) value;
+                }
+                break;
+            case TypeTags.BYTE_TAG:
+                if (value instanceof Byte) {
+                    return new BByte(((Byte) value));
+                } else if (value instanceof Integer) {
+                    return new BByte(((Integer) value).byteValue());
+                } else if (value instanceof BByte) {
+                    return (BByte) value;
                 }
                 break;
             case TypeTags.FLOAT_TAG:

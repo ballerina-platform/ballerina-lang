@@ -21,8 +21,8 @@ package org.ballerinalang.test.mime;
 import org.ballerinalang.launcher.util.BServiceUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.mime.util.MimeUtil;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.channels.base.CharacterChannel;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.CharacterChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.MockByteChannel;
 import org.ballerinalang.test.nativeimpl.functions.io.util.TestUtil;
 import org.ballerinalang.test.services.testutils.HTTPTestRequest;
@@ -46,7 +46,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Test mime with http.
  *
- * @since  0.970.0
+ * @since 0.970.0
  */
 public class MimeWithHttpTest {
     private static final Logger log = LoggerFactory.getLogger(MimeWithHttpTest.class);
@@ -73,11 +73,18 @@ public class MimeWithHttpTest {
                     responseValue);
             HTTPCarbonMessage response = Services.invokeNew(serviceResult, "mockEP", cMsg);
             Assert.assertNotNull(response, "Response message not found");
+
             InputStream inputStream = new HttpMessageDataStreamer(response).getInputStream();
             Assert.assertNotNull(inputStream, "Inputstream is null");
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             MimeUtil.writeInputToOutputStream(inputStream, outputStream);
-            Assert.assertEquals(outputStream.size(), 2323779);
+
+            //length of the output stream depends on the OS because of the line terminating
+            if (System.getProperty("os.name").toUpperCase().contains("WINDOWS")) {
+                Assert.assertEquals(outputStream.size(), 2355885);
+            } else {
+                Assert.assertEquals(outputStream.size(), 2323779);
+            }
         } catch (IOException | URISyntaxException e) {
             log.error("Error occurred in testLargePayload", e.getMessage());
         }

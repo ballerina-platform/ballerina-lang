@@ -17,12 +17,12 @@
 
 package org.ballerinalang.test.nativeimpl.functions.io;
 
-import org.ballerinalang.nativeimpl.io.BallerinaIOException;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.io.channels.base.readers.AsyncReader;
-import org.ballerinalang.nativeimpl.io.channels.base.readers.BlockingReader;
-import org.ballerinalang.nativeimpl.io.channels.base.writers.AsyncWriter;
-import org.ballerinalang.nativeimpl.io.channels.base.writers.BlockingWriter;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.channels.base.readers.AsyncReader;
+import org.ballerinalang.stdlib.io.channels.base.readers.BlockingReader;
+import org.ballerinalang.stdlib.io.channels.base.writers.AsyncWriter;
+import org.ballerinalang.stdlib.io.channels.base.writers.BlockingWriter;
+import org.ballerinalang.stdlib.io.utils.BallerinaIOException;
 
 import java.nio.channels.ByteChannel;
 import java.nio.channels.WritableByteChannel;

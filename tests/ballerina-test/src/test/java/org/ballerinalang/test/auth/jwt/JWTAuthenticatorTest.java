@@ -26,8 +26,8 @@ import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BValue;
-import org.ballerinalang.nativeimpl.internal.jwt.crypto.JWSSigner;
-import org.ballerinalang.nativeimpl.internal.jwt.crypto.RSASigner;
+import org.ballerinalang.stdlib.internal.jwt.crypto.JWSSigner;
+import org.ballerinalang.stdlib.internal.jwt.crypto.RSASigner;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -96,7 +96,8 @@ public class JWTAuthenticatorTest {
     public void setup() throws Exception {
         trustStorePath = getClass().getClassLoader().getResource(
                 "datafiles/security/keyStore/ballerinaTruststore.p12").getPath();
-        resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+                .getAbsolutePath();
         Path sourceRoot = Paths.get(resourceRoot, "test-src", "auth");
         Path ballerinaConfPath = Paths
                 .get(resourceRoot, "datafiles", "config", "auth", "jwt", BALLERINA_CONF);

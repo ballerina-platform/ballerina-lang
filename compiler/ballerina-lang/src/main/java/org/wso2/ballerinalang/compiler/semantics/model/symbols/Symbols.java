@@ -235,6 +235,9 @@ public class Symbols {
                 case TypeTags.INT:
                     opcode = InstructionCodes.ANY2I;
                     break;
+                case TypeTags.BYTE:
+                    opcode = InstructionCodes.ANY2BI;
+                    break;
                 case TypeTags.FLOAT:
                     opcode = InstructionCodes.ANY2F;
                     break;

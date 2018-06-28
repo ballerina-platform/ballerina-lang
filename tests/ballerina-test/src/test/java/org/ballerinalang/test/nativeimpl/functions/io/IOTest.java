@@ -32,10 +32,10 @@ import org.ballerinalang.model.values.BStringArray;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.model.values.BXML;
 import org.ballerinalang.model.values.BXMLItem;
-import org.ballerinalang.nativeimpl.io.IOConstants;
-import org.ballerinalang.nativeimpl.io.channels.base.Channel;
-import org.ballerinalang.nativeimpl.util.Base64ByteChannel;
-import org.ballerinalang.nativeimpl.util.Base64Wrapper;
+import org.ballerinalang.stdlib.io.channels.base.Channel;
+import org.ballerinalang.stdlib.io.utils.Base64ByteChannel;
+import org.ballerinalang.stdlib.io.utils.Base64Wrapper;
+import org.ballerinalang.stdlib.io.utils.IOConstants;
 import org.ballerinalang.test.mime.Util;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -206,7 +206,8 @@ public class IOTest {
         BValue[] returns = BRunUtil.invokeStateful(characterInputOutputProgramFile, "readAllCharacters");
         readCharacters = (BString) returns[0];
 
-        String returnedString = readCharacters.stringValue();
+        //getting the result string and filtering the CR characters which were added when running in windows
+        String returnedString = readCharacters.stringValue().replaceAll("\r", "");
         Assert.assertEquals(returnedString.length(), expectedNumberOfCharacters);
     }
 

@@ -346,5 +346,10 @@ public class BMap<K, V extends BValue> extends BallerinaMessageDataSource implem
     public Object getNativeData(String key) {
         return this.nativeData.get(key);
     }
+
+    @Override
+    public String toString() {
+        return stringValue();
+    }
 }
 
