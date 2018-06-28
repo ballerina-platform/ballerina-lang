@@ -151,6 +151,21 @@ public type DataChannel object {
     public native function writeString(string value, string encoding) returns error?;
 
     documentation {
+        Reads a variable length integer.
+
+        R{{}} value of the integer which is read or an error
+    }
+    public native function readVarInt() returns int|error;
+
+    documentation {
+        Writes a given integer identifying the variable length.
+
+        P{{value}} the value which should be written
+        R{{}} nill if the content is written successfully or an error
+    }
+    public native function writeVarInt(int value) returns error?;
+
+    documentation {
         Closes the data channel.
 
         R{{}} nill if the channel is closed successfully or an i/o error
