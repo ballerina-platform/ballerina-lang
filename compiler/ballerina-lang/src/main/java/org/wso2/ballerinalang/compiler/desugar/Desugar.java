@@ -1496,7 +1496,9 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructFieldAccessExpr fieldAccessExpr) {
-        result = fieldAccessExpr;
+        BType expType = fieldAccessExpr.type;
+        fieldAccessExpr.type = symTable.anyType;
+        result = addConversionExprIfRequired(fieldAccessExpr, expType);
     }
 
     @Override

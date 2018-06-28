@@ -67,13 +67,6 @@ public interface InstructionCodes {
     int LGLOAD = 39;
     int RGLOAD = 40;
 
-    int IFIELDLOAD = 41;
-    int FFIELDLOAD = 42;
-    int SFIELDLOAD = 43;
-    int BFIELDLOAD = 44;
-    int LFIELDLOAD = 45;
-    int RFIELDLOAD = 46;
-
     int MAPLOAD = 47;
     int JSONLOAD = 48;
 
@@ -97,13 +90,6 @@ public interface InstructionCodes {
     int BGSTORE = 65;
     int LGSTORE = 66;
     int RGSTORE = 67;
-
-    int IFIELDSTORE = 68;
-    int FFIELDSTORE = 69;
-    int SFIELDSTORE = 70;
-    int BFIELDSTORE = 71;
-    int LFIELDSTORE = 72;
-    int RFIELDSTORE = 73;
 
     int MAPSTORE = 74;
     int JSONSTORE = 75;
