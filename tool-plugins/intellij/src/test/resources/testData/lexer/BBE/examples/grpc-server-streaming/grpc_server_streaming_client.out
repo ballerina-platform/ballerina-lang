@@ -1,0 +1,11 @@
+# Create a Ballerina project and a package inside it. 
+# Add the following files inside the package directory and
+# build the project.
+# * grpc_server_streaming_client.bal
+# * grpc_server_streaming_pb.bal
+# For example, if you create a package named 'client', execute the following command to build
+# the 'client' package.
+$ ballerina build client
+
+# Run the client using the following command.
+$ ballerina run client.balx

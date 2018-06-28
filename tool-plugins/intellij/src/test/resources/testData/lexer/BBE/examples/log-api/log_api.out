@@ -1,0 +1,15 @@
+# As shown in the output, only `INFO` and higher level logs are logged by default.
+$ ballerina run log_api.bal
+2018-05-30 11:00:50,875 ERROR [] - error log
+2018-05-30 11:00:50,883 ERROR [] - error log with cause : {message:"error occurred", cause:null}
+2018-05-30 11:00:50,884 INFO  [] - info log
+2018-05-30 11:00:50,886 WARN  [] - warn log
+
+# If the log level is set to `TRACE`, logs of all log levels are logged.
+$ ballerina run log_api.bal -e b7a.log.level=TRACE
+2018-05-30 11:01:26,083 DEBUG [] - debug log
+2018-05-30 11:01:26,086 ERROR [] - error log
+2018-05-30 11:01:26,087 ERROR [] - error log with cause : {message:"error occurred", cause:null}
+2018-05-30 11:01:26,088 INFO  [] - info log
+2018-05-30 11:01:26,088 TRACE [] - trace log
+2018-05-30 11:01:26,089 WARN  [] - warn log

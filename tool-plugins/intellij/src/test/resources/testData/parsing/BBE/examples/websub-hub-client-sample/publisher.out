@@ -1,0 +1,15 @@
+# This sample requires running the subscriber client main program after the
+# Publisher starts up the hub and registers the topic, and the subscriber
+# service representing the callback is started up.
+
+# Note the port specified as a configuration, the hub service will be started up
+# on the default port if not specified as a parameter or a configuration.
+$ ballerina run publisher.bal
+Starting up the Ballerina Hub Service
+ballerina: Default Ballerina WebSub Hub started up at https://localhost:9191/websub/hub
+ballerina: started HTTPS/WSS endpoint 0.0.0.0:9191
+Topic registration successful!
+2018-04-26 22:40:35,678 INFO  [ballerina.websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
+Update notification successful!
+2018-04-26 22:40:50,493 INFO  [ballerina.websub] - Intent verification successful for mode: [unsubscribe], for callback URL: [http://localhost:8181/websub]
+Update notification successful!

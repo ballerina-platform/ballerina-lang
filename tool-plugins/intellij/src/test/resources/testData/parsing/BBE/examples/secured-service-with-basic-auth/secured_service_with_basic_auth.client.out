@@ -1,0 +1,5 @@
+// Invoke the service using this cURL command. 
+// Note that it is required to provide the correct basic authentication header
+// with the cURL command.
+$ curl -vk -u <username>:<password> https://localhost:9090/hello/sayHello
+Hello, World!

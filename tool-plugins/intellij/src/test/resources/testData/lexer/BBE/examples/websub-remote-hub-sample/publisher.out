@@ -1,0 +1,4 @@
+$ ballerina run publisher.bal
+Topic registration successful!
+Publishing update to remote Hub
+Update notification successful!

@@ -1,0 +1,7 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command. 
+$ ballerina run fork_join_conditional_join.bal
+[w1] i: 23 s: Colombo
+[w2] f: 10.344
+#The worker that has finished executing is `w2`.
+[join-block] fW2: 10.344

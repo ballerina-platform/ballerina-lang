@@ -1,0 +1,6 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command. 
+$ ballerina run try_catch_finally.bal
+Start dividing numbers
+Error occurred: call failed
+Finally block executed

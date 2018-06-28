@@ -1,0 +1,9 @@
+# This sample requires starting up the Subscriber Service after the Publisher starts up the hub and registers the topic
+$ ballerina run publisher.bal
+Starting up the Ballerina Hub Service
+ballerina: Default Ballerina WebSub Hub started up at https://localhost:9191/websub/hub
+ballerina: started HTTPS/WSS endpoint 0.0.0.0:9191
+Topic registration successful!
+2018-04-26 21:43:17,627 INFO  [ballerina.websub] - Intent verification successful for mode: [subscribe], for callback URL: [http://localhost:8181/websub]
+Publishing update to internal Hub
+Update notification successful!

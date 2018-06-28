@@ -1,0 +1,3 @@
+// Ballerina program files have the `.bal` extension and the file names do not have semantics.
+// These source files can be grouped into packages. The code within a package can refer to any package-level symbol (name) declared
+// in the same package.

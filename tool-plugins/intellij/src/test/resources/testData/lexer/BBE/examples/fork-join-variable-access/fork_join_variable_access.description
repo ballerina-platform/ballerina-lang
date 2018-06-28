@@ -1,0 +1,10 @@
+// Workers within a fork-join can access the variables that are declared within the scope of that statement.
+// The variables can be value type variables or reference type variables.
+// Value type variables such as `string`, `int`, `float`, and `blob` are passed into the workers as a copy
+// of the original data. Therefore, you are able to update the value of it within the worker and that value is only
+// defined within the specific worker.
+// Reference type variables such as `map`, `json`, `xml`, and `record` are passed into these workers as a
+// reference to the original data. Therefore, if you update the value of these variables within a worker, the value gets
+// updated for the entire function.
+// The `join` block receives a map of `any` type values, which contains the data sent from the respective workers,
+// keyed by the worker name.

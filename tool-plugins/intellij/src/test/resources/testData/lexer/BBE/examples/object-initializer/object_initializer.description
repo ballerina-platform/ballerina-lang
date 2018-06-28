@@ -1,0 +1,3 @@
+// In Ballerina, objects can have a constructor that can be used to initialize the object.
+// This constructor can have parameters similar to function parameters, and you can refer to
+// object fields directly as constructor parameters.

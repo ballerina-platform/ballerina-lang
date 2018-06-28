@@ -1,0 +1,6 @@
+// You can tag your test cases with a single group name or multiple group names (one or more).
+// This allows you to control the execution of selected tests.
+// In order to execute tests belonging to a selected test group, you can name the 
+// test groups that are to be executed when you run tests. 
+// Likewise, you can exclude executing selected tests as well.
+

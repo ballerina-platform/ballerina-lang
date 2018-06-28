@@ -1,0 +1,7 @@
+#At the command line, navigate to the directory that contains the 
+#`.bal` file and run the `ballerina run` command to start the server. 
+$ ballerina run http_expect_header.bal
+ballerina: initiating service(s) in 'http_100_continue.bal'
+ballerina: started HTTP/WS endpoint 0.0.0.0:9090
+2018-04-25 15:18:56,033 INFO  [] - TEST 100 CONTINUE
+

@@ -1,0 +1,3 @@
+// The gRPC Server Connector exposes the gRPC service over http2.
+// This sample demonstrates how the gRPC unary service interacts with the gRPC blocking client, and how
+// header values are handled.

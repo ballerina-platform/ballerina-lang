@@ -1,0 +1,4 @@
+// Ballerina supports querying tables using a syntax similar to SQL. This query syntax can only be used to query a table.
+// Editing an existing table is not supported.
+// When an existing table is queried using Ballerina SQL, a new in-memory table is created with the queried data and
+// that table is returned.
