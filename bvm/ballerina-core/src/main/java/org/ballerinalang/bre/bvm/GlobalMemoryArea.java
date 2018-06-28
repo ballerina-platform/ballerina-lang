@@ -20,7 +20,6 @@ package org.ballerinalang.bre.bvm;
 import org.ballerinalang.model.types.BRecordType;
 import org.ballerinalang.model.types.BStructureType;
 import org.ballerinalang.model.values.BRefType;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.LockableStructureType;
 import org.ballerinalang.util.codegen.PackageInfo;
 import org.ballerinalang.util.codegen.attributes.AttributeInfo;
@@ -35,7 +34,7 @@ public class GlobalMemoryArea {
     private final LockableStructureType[] globalMemBlock;
 
     public GlobalMemoryArea(PackageInfo[] packageInfoArray) {
-        this.globalMemBlock = new BStruct[packageInfoArray.length];
+        this.globalMemBlock = new GlobalMemoryBlock[packageInfoArray.length];
         initGlobalMemBlock(packageInfoArray);
     }
 
@@ -149,7 +148,7 @@ public class GlobalMemoryArea {
             // We are using the struct value to hold package-level variable values for the moment.
             BStructureType dummyType = new BRecordType(null, "", "", 0);
             dummyType.setFieldTypeCount(globalVarCount);
-            globalMemBlock[packageInfo.pkgIndex] = new BStruct(dummyType);
+            globalMemBlock[packageInfo.pkgIndex] = new GlobalMemoryBlock(dummyType);
         }
     }
 }

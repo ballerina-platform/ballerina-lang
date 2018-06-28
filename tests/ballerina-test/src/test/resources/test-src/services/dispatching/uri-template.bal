@@ -22,7 +22,7 @@ service<http:Service> Ecommerce bind testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = caller -> respond(res);
     }
 
@@ -38,7 +38,7 @@ service<http:Service> Ecommerce bind testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = caller -> respond(res);
     }
 
@@ -54,7 +54,7 @@ service<http:Service> Ecommerce bind testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = caller -> respond(res);
     }
 
@@ -71,7 +71,7 @@ service<http:Service> Ecommerce bind testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = caller -> respond(res);
     }
 
@@ -90,7 +90,7 @@ service<http:Service> Ecommerce bind testEP {
         io:println (responseJson.toString ());
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = caller -> respond(res);
     }
 
@@ -107,7 +107,7 @@ service<http:Service> Ecommerce bind testEP {
         io:println(responseJson.toString());
 
         http:Response res = new;
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = caller -> respond(res);
     }
 
@@ -237,7 +237,7 @@ service<http:Service> echo113 bind testEP {
      productsInfo (endpoint caller, http:Request req, string foo) {
         http:Response res = new;
         json responseJson = {"echo113": foo};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = caller -> respond(res);
     }
 }
@@ -254,7 +254,7 @@ service<http:Service> echo114 bind testEP {
      productsInfo (endpoint caller, http:Request req, string foo) {
         http:Response res = new;
         json responseJson = {"echo114": foo};
-        res.setJsonPayload(responseJson);
+        res.setJsonPayload(untaint responseJson);
         _ = caller -> respond(res);
     }
 }

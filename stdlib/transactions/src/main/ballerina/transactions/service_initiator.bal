@@ -108,7 +108,7 @@ service InitiatorService bind coordinatorListener {
                 RegistrationResponse regRes = {transactionId:txnId, coordinatorProtocols:coordinatorProtocols};
                 json resPayload = check <json>regRes;
                 http:Response res = new; res.statusCode = http:OK_200;
-                res.setJsonPayload(resPayload);
+                res.setJsonPayload(untaint resPayload);
                 var resResult = conn->respond(res);
                 match resResult {
                     error err => log:printError("Sending response for register request for transaction " + txnId +

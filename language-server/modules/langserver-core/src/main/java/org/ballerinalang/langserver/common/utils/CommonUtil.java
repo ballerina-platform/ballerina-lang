@@ -15,17 +15,18 @@
  */
 package org.ballerinalang.langserver.common.utils;
 
+import com.google.common.collect.Lists;
 import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.TokenStream;
 import org.ballerinalang.langserver.common.UtilSymbolKeys;
 import org.ballerinalang.langserver.compiler.DocumentServiceKeys;
+import org.ballerinalang.langserver.compiler.LSContext;
 import org.ballerinalang.langserver.compiler.LSServiceOperationContext;
 import org.ballerinalang.langserver.compiler.common.LSDocument;
 import org.ballerinalang.langserver.compiler.common.modal.BallerinaPackage;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.completions.CompletionKeys;
 import org.ballerinalang.langserver.completions.SymbolInfo;
-import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Priority;
 import org.ballerinalang.langserver.completions.util.Snippet;
@@ -74,6 +75,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 /**
  * Common utils to be reuse in language server implementation.
@@ -194,6 +196,49 @@ public class CommonUtil {
     }
 
     /**
+     * Get n number of default tokens from a given start index.
+     * @param tokenStream       Token Stream
+     * @param n                 number of tokens to extract
+     * @param startIndex        Start token index
+     * @return {@link List}     List of tokens extracted
+     */
+    public static List<Token> getNDefaultTokensToLeft(TokenStream tokenStream, int n, int startIndex) {
+        List<Token> tokens = new ArrayList<>();
+        Token t;
+        while (n > 0) {
+            t = getDefaultTokenToLeftOrRight(tokenStream, startIndex, -1);
+            if (t == null) {
+                return new ArrayList<>();
+            }
+            tokens.add(t);
+            n--;
+            startIndex = t.getTokenIndex();
+        }
+        
+        return Lists.reverse(tokens);
+    }
+
+    /**
+     * Get n number of default tokens from a given start index.
+     * @param tokenStream       Token Stream
+     * @param n                 number of tokens to extract
+     * @param startIndex        Start token index
+     * @return {@link List}     List of tokens extracted
+     */
+    public static List<Token> getNDefaultTokensToRight(TokenStream tokenStream, int n, int startIndex) {
+        List<Token> tokens = new ArrayList<>();
+        Token t;
+        while (n > 0) {
+            t = getDefaultTokenToLeftOrRight(tokenStream, startIndex, 1);
+            tokens.add(t);
+            n--;
+            startIndex = t.getTokenIndex();
+        }
+        
+        return Lists.reverse(tokens);
+    }
+
+    /**
      * Get the Nth Default token to the left of current token index.
      *
      * @param tokenStream Token Stream to traverse
@@ -231,6 +276,55 @@ public class CommonUtil {
         return token;
     }
 
+    /**
+     * Get the current token index from the token stream.
+     *
+     * @param context               LSServiceOperationContext
+     * @return {@link Integer}      token index
+     */
+    public static int getCurrentTokenFromTokenStream(LSContext context) {
+        TokenStream tokenStream = context.get(CompletionKeys.TOKEN_STREAM_KEY);
+        Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
+        Token lastToken = null;
+        int line = position.getLine();
+        int col = position.getCharacter();
+        int tokenLine;
+        int tokenCol;
+        int index = 0;
+        
+        while (true) {
+            Token token = tokenStream.get(index);
+            tokenLine = token.getLine() - 1;
+            tokenCol = token.getCharPositionInLine();
+            if (tokenLine > line || (tokenLine == line && tokenCol >= col)) {
+                break;
+            }
+            index++;
+            lastToken = token;
+        }
+        
+        return lastToken == null ? -1 : lastToken.getTokenIndex();
+    }
+
+    /**
+     * Pop n number of Elements from the stack and return as a List.
+     * 
+     * Note: If n is greater than stack, then all the elements of list will be returned
+     * 
+     * @param itemStack         Item Stack to pop elements from     
+     * @param n                 number of elements to pop
+     * @param <T>               Type of the Elements
+     * @return {@link List}     List of popped Items
+     */
+    public static  <T> List<T> popNFromStack(Stack<T> itemStack, int n) {
+        List<T> poppedList = new ArrayList<>(itemStack);
+        if (n > poppedList.size()) {
+            return poppedList;
+        }
+        
+        return poppedList.subList(poppedList.size() - n, poppedList.size());
+    }
+
     private static Token getDefaultTokenToLeftOrRight(TokenStream tokenStream, int startIndex, int direction) {
         Token token = null;
         while (true) {
@@ -254,39 +348,7 @@ public class CommonUtil {
      * @return {@link Boolean}  Whether the cursor is within the brackets or not
      */
     public static boolean isWithinBrackets(LSServiceOperationContext context, List<String> terminalTokens) {
-        int currentTokenIndex = context.get(DocumentServiceKeys.TOKEN_INDEX_KEY);
-        TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        Token previousToken = tokenStream.get(currentTokenIndex);
-        Token currentToken;
-        while (true) {
-            if (currentTokenIndex < 0) {
-                break;
-            }
-            currentToken = CommonUtil.getPreviousDefaultToken(tokenStream, currentTokenIndex);
-            if (terminalTokens.contains(currentToken.getText())) {
-                break;
-            }
-            previousToken = currentToken;
-            currentTokenIndex = currentToken.getTokenIndex();
-        }
-
-        if (previousToken != null && previousToken.getText().equals(OPEN_BRACKET_KEY_WORD)) {
-            Position position = context.get(DocumentServiceKeys.POSITION_KEY).getPosition();
-            Token closeBracket = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY)
-                    .get(context.get(DocumentServiceKeys.TOKEN_INDEX_KEY));
-            int cursorLine = position.getLine();
-            int cursorCol = position.getCharacter();
-            int startBracketLine = previousToken.getLine() - 1;
-            int startBracketCol = previousToken.getCharPositionInLine();
-            int closeBracketLine = closeBracket.getLine() - 1;
-            int closeBracketCol = closeBracket.getCharPositionInLine();
-
-            return (cursorLine >= startBracketLine && cursorLine < closeBracketLine)
-                    || (cursorLine > startBracketLine && cursorLine <= closeBracketLine)
-                    || (cursorLine == startBracketLine && cursorLine == closeBracketLine
-                    && cursorCol > startBracketCol && cursorCol <= closeBracketCol);
-        }
-
+        // TODO: Revamp implementation
         return false;
     }
 
@@ -379,10 +441,14 @@ public class CommonUtil {
         if (!packageID.getName().getValue().equals(Names.BUILTIN_PACKAGE.getValue())) {
             annotationStart.append(pkgAlias).append(UtilSymbolKeys.PKG_DELIMITER_KEYWORD);
         }
-        annotationStart.append(annotationSymbol.getName().getValue()).append(" ").append(UtilSymbolKeys.OPEN_BRACE_KEY);
-
-        annotationStart.append(LINE_SEPARATOR).append("\t").append("${1}").append(LINE_SEPARATOR)
-                .append(UtilSymbolKeys.CLOSE_BRACE_KEY);
+        if (annotationSymbol.attachedType != null) {
+            annotationStart.append(annotationSymbol.getName().getValue()).append(" ")
+                    .append(UtilSymbolKeys.OPEN_BRACE_KEY).append(LINE_SEPARATOR)
+                    .append("\t").append("${1}").append(LINE_SEPARATOR)
+                    .append(UtilSymbolKeys.CLOSE_BRACE_KEY);
+        } else {
+            annotationStart.append(annotationSymbol.getName().getValue());
+        }
         
         return annotationStart.toString();
     }
@@ -471,24 +537,14 @@ public class CommonUtil {
     /**
      * Get the invocations and fields against an identifier (functions, struct fields and types including the enums).
      *
-     * @param context        Text Document Service context (Completion Context)
-     * @param delimiterIndex delimiter index (index of either . or :)
+     * @param context               Text Document Service context (Completion Context)
+     * @param variableName          Variable name to evaluate against (Can be package alias or defined variable)
+     * @param delimiter             delimiter String (. or :)
      * @return {@link ArrayList}    List of filtered symbol info
      */
     public static ArrayList<SymbolInfo> invocationsAndFieldsOnIdentifier(LSServiceOperationContext context,
-                                                                         int delimiterIndex) {
+                                                                         String variableName, String delimiter) {
         ArrayList<SymbolInfo> actionFunctionList = new ArrayList<>();
-        String lineSegment = context.get(CompletionKeys.CURRENT_LINE_SEGMENT_KEY);
-        String variableName;
-        String delimiter;
-        TokenStream tokenStream = context.get(DocumentServiceKeys.TOKEN_STREAM_KEY);
-        if (tokenStream == null) {
-            variableName = CompletionUtil.getPreviousTokenFromLineSegment(lineSegment, delimiterIndex);
-            delimiter = CompletionUtil.getDelimiterTokenFromLineSegment(context, lineSegment);
-        } else {
-            variableName = CommonUtil.getPreviousDefaultToken(tokenStream, delimiterIndex).getText();
-            delimiter = tokenStream.get(delimiterIndex).getText();
-        }
         List<SymbolInfo> symbols = context.get(CompletionKeys.VISIBLE_SYMBOLS_KEY);
         SymbolTable symbolTable = context.get(DocumentServiceKeys.SYMBOL_TABLE_KEY);
         SymbolInfo variable = CommonUtil.getVariableByName(variableName, symbols);
@@ -671,6 +727,24 @@ public class CommonUtil {
         });
 
         return endpointActions;
+    }
+
+    /**
+     * Get the BType name as string.
+     * @param bType             BType to get the name
+     * @param ctx               LS Operation Context
+     * @return {@link String}   BType Name as String
+     */
+    public static String getBTypeName(BType bType, LSContext ctx) {
+        PackageID pkgId = bType.tsymbol.pkgID;
+        PackageID currentPkgId = ctx.get(DocumentServiceKeys.CURRENT_BLANG_PACKAGE_CONTEXT_KEY).packageID;
+        String[] nameComponents = bType.toString().split(":");
+        if (pkgId.toString().equals(currentPkgId.toString()) || pkgId.getName().getValue().equals("builtin")) {
+            return nameComponents[nameComponents.length - 1];
+        } else {
+            return pkgId.getName().getValue() + UtilSymbolKeys.PKG_DELIMITER_KEYWORD
+                    + nameComponents[nameComponents.length - 1];
+        }
     }
 
     // Private Methods

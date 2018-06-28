@@ -21,7 +21,8 @@ package org.ballerinalang.test.streaming;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -44,12 +45,12 @@ public class SequenceTest {
 
         Assert.assertNotNull(initialAndPeakTemps);
 
-        BStruct initialAndPeakTemp1 = (BStruct) initialAndPeakTemps[0];
-        Assert.assertEquals(initialAndPeakTemp1.getFloatField(0), 20.0);
-        Assert.assertEquals(initialAndPeakTemp1.getFloatField(1), 23.0);
+        BMap<String, BValue> initialAndPeakTemp1 = (BMap<String, BValue>) initialAndPeakTemps[0];
+        Assert.assertEquals(((BFloat) initialAndPeakTemp1.get("initialTemp")).floatValue(), 20.0);
+        Assert.assertEquals(((BFloat) initialAndPeakTemp1.get("peakTemp")).floatValue(), 23.0);
 
-        BStruct initialAndPeakTemp2 = (BStruct) initialAndPeakTemps[1];
-        Assert.assertEquals(initialAndPeakTemp2.getFloatField(0), 21.0);
-        Assert.assertEquals(initialAndPeakTemp2.getFloatField(1), 24.0);
+        BMap<String, BValue> initialAndPeakTemp2 = (BMap<String, BValue>) initialAndPeakTemps[1];
+        Assert.assertEquals(((BFloat) initialAndPeakTemp2.get("initialTemp")).floatValue(), 21.0);
+        Assert.assertEquals(((BFloat) initialAndPeakTemp2.get("peakTemp")).floatValue(), 24.0);
     }
 }
