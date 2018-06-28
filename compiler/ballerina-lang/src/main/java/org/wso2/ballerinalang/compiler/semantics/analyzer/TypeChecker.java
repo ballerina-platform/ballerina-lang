@@ -497,6 +497,7 @@ public class TypeChecker extends BLangNodeVisitor {
         varRefType = getSafeType(varRefType, iExpr.safeNavigate, iExpr.pos);
         switch (varRefType.tag) {
             case TypeTags.OBJECT:
+            case TypeTags.RECORD:
                 // Invoking a function bound to a struct
                 // First check whether there exist a function with this name
                 // Then perform arg and param matching

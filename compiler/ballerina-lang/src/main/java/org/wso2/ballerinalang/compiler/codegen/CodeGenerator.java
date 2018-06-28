@@ -718,12 +718,16 @@ public class CodeGenerator extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangStructLiteral structLiteral) {
+        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) structLiteral.type.tsymbol;
+        int pkgCPIndex = addPackageRefCPEntry(currentPkgInfo, recordSymbol.pkgID);
+        int structNameCPIndex = addUTF8CPEntry(currentPkgInfo, recordSymbol.name.value);
+        StructureRefCPEntry structureRefCPEntry = new StructureRefCPEntry(pkgCPIndex, structNameCPIndex);
+        Operand structCPIndex = getOperand(currentPkgInfo.addCPEntry(structureRefCPEntry));
+
         // Emit an instruction to create a new record.
         RegIndex structRegIndex = calcAndGetExprRegIndex(structLiteral);
-        Operand typeCPIndex = getTypeCPIndex(symTable.mapType);
-        emit(InstructionCodes.NEWMAP, structRegIndex, typeCPIndex);
+        emit(InstructionCodes.NEWSTRUCT, structCPIndex, structRegIndex);
 
-        BRecordTypeSymbol recordSymbol = (BRecordTypeSymbol) structLiteral.type.tsymbol;
         // Invoke the struct default values init function here.
         if (recordSymbol.defaultsValuesInitFunc != null) {
             int funcRefCPIndex = getFuncRefCPIndex(recordSymbol.defaultsValuesInitFunc.symbol);
@@ -766,18 +770,11 @@ public class CodeGenerator extends BLangNodeVisitor {
 
             int opcode;
             if (fieldNames.contains(keyExpr.value)) {
-                opcode = getValueToRefTypeCastOpcode(valueExpr.type.tag);
+                opcode = getOpcode(valueExpr.type.tag, InstructionCodes.IFIELDSTORE);
             } else {
-                opcode = getValueToRefTypeCastOpcode(recordType.restFieldType.tag);
+                opcode = getOpcode(recordType.restFieldType.tag, InstructionCodes.IFIELDSTORE);
             }
-
-            if (opcode == InstructionCodes.NOP) {
-                emit(InstructionCodes.MAPSTORE, structRegIndex, keyExpr.regIndex, valueExpr.regIndex);
-            } else {
-                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
-                emit(opcode, valueExpr.regIndex, refRegMapValue);
-                emit(InstructionCodes.MAPSTORE, structRegIndex, keyExpr.regIndex, refRegMapValue);
-            }
+            emit(opcode, structRegIndex, keyExpr.regIndex, keyValue.valueExpr.regIndex);
         }
     }
 
@@ -878,44 +875,24 @@ public class CodeGenerator extends BLangNodeVisitor {
         Map<String, BField> fieldsMap = recordType.fields.stream()
                 .collect(Collectors.toMap(fKey -> fKey.name.value, field -> field));
 
+        BLangLiteral indexExpr = (BLangLiteral) fieldAccessExpr.indexExpr;
+        int opcode;
         if (variableStore) {
-            int opcode;
-            BLangLiteral indexExpr = (BLangLiteral) fieldAccessExpr.indexExpr;
             if (fieldsMap.containsKey(indexExpr.value)) {
                 BField field = fieldsMap.get(indexExpr.value);
-                opcode = getValueToRefTypeCastOpcode(field.type.tag);
+                opcode = getOpcode(field.type.tag, InstructionCodes.IFIELDSTORE);
             } else {
-                opcode = getValueToRefTypeCastOpcode(recordType.restFieldType.tag);
+                opcode = getOpcode(recordType.restFieldType.tag, InstructionCodes.IFIELDSTORE);
             }
-
-            if (opcode == InstructionCodes.NOP) {
-                emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
-            } else {
-                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
-                emit(opcode, fieldAccessExpr.regIndex, refRegMapValue);
-                emit(InstructionCodes.MAPSTORE, varRefRegIndex, keyRegIndex, refRegMapValue);
-            }
+            emit(opcode, varRefRegIndex, keyRegIndex, fieldAccessExpr.regIndex);
         } else {
-            IntegerCPEntry exceptCPEntry = new IntegerCPEntry(fieldAccessExpr.except ? 1 : 0);
-            Operand except = getOperand(currentPkgInfo.addCPEntry(exceptCPEntry));
-
-            int opcode;
-            BLangLiteral indexExpr = (BLangLiteral) fieldAccessExpr.indexExpr;
             if (fieldsMap.containsKey(indexExpr.value)) {
                 BField field = fieldsMap.get(indexExpr.value);
-                opcode = getRefToValueTypeCastOpcode(field.type.tag);
+                opcode = getOpcode(field.type.tag, InstructionCodes.IFIELDLOAD);
             } else {
-                opcode = getRefToValueTypeCastOpcode(recordType.restFieldType.tag);
+                opcode = getOpcode(recordType.restFieldType.tag, InstructionCodes.IFIELDLOAD);
             }
-
-            if (opcode == InstructionCodes.NOP) {
-                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr),
-                     except);
-            } else {
-                RegIndex refRegMapValue = getRegIndex(TypeTags.ANY);
-                emit(InstructionCodes.MAPLOAD, varRefRegIndex, keyRegIndex, refRegMapValue, except);
-                emit(opcode, refRegMapValue, calcAndGetExprRegIndex(fieldAccessExpr));
-            }
+            emit(opcode, varRefRegIndex, keyRegIndex, calcAndGetExprRegIndex(fieldAccessExpr));
         }
 
         this.varAssignment = variableStore;
