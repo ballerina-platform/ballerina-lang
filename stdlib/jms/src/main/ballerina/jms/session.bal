@@ -19,9 +19,7 @@ documentation { Represents JMS session
 }
 public type Session object {
 
-    public {
-        SessionConfiguration config;
-    }
+    public SessionConfiguration config;
 
     documentation { Default constructor of the JMS session
     }

@@ -22,14 +22,10 @@ documentation { Ballerina message broker simple topic subscriber
 }
 public type SimpleTopicSubscriber object {
 
-    public {
-        SimpleTopicSubscriberEndpointConfiguration config;
-    }
+    public SimpleTopicSubscriberEndpointConfiguration config;
 
-    private {
-        jms:SimpleTopicSubscriber subscriber;
-        TopicSubscriberActions? consumerActions;
-    }
+    private jms:SimpleTopicSubscriber subscriber;
+    private TopicSubscriberActions? consumerActions;
 
     documentation { Initialize simple topic subscriber
         P{{c}} Simple topic subscrirber enpoint configuration
@@ -121,9 +117,7 @@ public type SimpleTopicSubscriberEndpointConfiguration record {
 documentation { Actions that topic subscriber endpoint could perform }
 public type TopicSubscriberActions object {
 
-    public {
-        jms:TopicSubscriberActions helper;
-    }
+    public jms:TopicSubscriberActions helper;
 
     public new(helper) {
 

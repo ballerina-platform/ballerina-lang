@@ -23,10 +23,8 @@ documentation { Queue Receiver endpoint
 }
 public type QueueReceiver object {
 
-    public {
-        QueueReceiverActions consumerActions;
-        QueueReceiverEndpointConfiguration config;
-    }
+    public QueueReceiverActions consumerActions;
+    public QueueReceiverEndpointConfiguration config;
 
     documentation { Initializes the QueueReceiver endpoint
         P{{c}} Configurations related to the QueueReceiver endpoint

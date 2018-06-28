@@ -25,14 +25,10 @@ documentation { Simplified queue receiver endpoint.
 }
 public type SimpleQueueReceiver object {
 
-    public {
-        SimpleQueueListenerEndpointConfiguration config;
-    }
+    public SimpleQueueListenerEndpointConfiguration config;
 
-    private {
-        jms:SimpleQueueReceiver receiver;
-        QueueReceiverActions? consumerActions;
-    }
+    private jms:SimpleQueueReceiver receiver;
+    private QueueReceiverActions? consumerActions;
 
     documentation { Initialize the SimpleQueueReceiver endpoint
         P{{c}} Configurations related to the SimpleQueueReceiver endpoint
@@ -126,9 +122,7 @@ public type SimpleQueueListenerEndpointConfiguration record {
 documentation { Caller action handler related to SimpleQueueReceiver endpoint }
 public type QueueReceiverActions object {
 
-    public {
-        jms:QueueReceiverActions helper;
-    }
+    public jms:QueueReceiverActions helper;
 
     public new(helper) {}
 

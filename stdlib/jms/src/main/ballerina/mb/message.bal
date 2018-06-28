@@ -24,9 +24,7 @@ identification; the body contains the application data being sent.
 }
 public type Message object {
 
-    private {
-        jms:Message message;
-    }
+    private jms:Message message;
 
     public new(message) {}
 

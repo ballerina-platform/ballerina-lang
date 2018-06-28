@@ -35,10 +35,8 @@ documentation { Represent a JMS consumer endpoint
 }
 public type ConsumerTemplate object {
 
-    public {
-        ConsumerActions consumerActions;
-        ConsumerEndpointConfiguration config;
-    }
+    public ConsumerActions consumerActions;
+    public ConsumerEndpointConfiguration config;
 
     documentation { Initialize the consumer endpoint
         P{{c}} Configurations related to the endpoint

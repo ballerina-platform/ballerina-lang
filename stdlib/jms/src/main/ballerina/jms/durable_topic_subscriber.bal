@@ -23,10 +23,8 @@ documentation { Durable Topic Subscriber
 }
 public type DurableTopicSubscriber object {
 
-    public {
-        DurableTopicSubscriberActions consumerActions;
-        DurableTopicSubscriberEndpointConfiguration config;
-    }
+    public DurableTopicSubscriberActions consumerActions;
+    public DurableTopicSubscriberEndpointConfiguration config;
 
     documentation { Initialize durable topic subscriber endpoint
         P{{c}} Configurations for a durable topic subscriber
