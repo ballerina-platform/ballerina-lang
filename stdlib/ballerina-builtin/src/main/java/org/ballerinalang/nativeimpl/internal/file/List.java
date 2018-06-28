@@ -24,9 +24,10 @@ import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.connector.api.BLangConnectorSPIUtil;
 import org.ballerinalang.model.types.BArrayType;
 import org.ballerinalang.model.types.TypeKind;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.nativeimpl.internal.Constants;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -66,12 +67,12 @@ public class List extends BlockingNativeCallableUnit {
 
     @Override
     public void execute(Context context) {
-        BStruct pathStruct = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> pathStruct = (BMap<String, BValue>) context.getRefArgument(0);
         Path path = (Path) pathStruct.getNativeData(Constants.PATH_DEFINITION_NAME);
         final BRefValueArray filesList = new BRefValueArray(new BArrayType(pathStruct.getType()));
         try {
             Files.list(path).forEach(p -> {
-                BStruct filePaths = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH,
+                BMap<String, BValue> filePaths = BLangConnectorSPIUtil.createObject(context, Constants.PACKAGE_PATH,
                         Constants.PATH_STRUCT, new BString(p.toString()));
                 long index = filesList.size();
                 filesList.add((index), filePaths);

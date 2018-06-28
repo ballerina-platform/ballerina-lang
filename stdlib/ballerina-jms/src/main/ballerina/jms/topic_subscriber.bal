@@ -77,7 +77,7 @@ documentation { Configuration related to topic subscriber endpoint
     F{{messageSelector}} Message selector condition to filter messages
     F{{identifier}} Identifier of topic subscriber endpoint
 }
-public type TopicSubscriberEndpointConfiguration {
+public type TopicSubscriberEndpointConfiguration record {
     Session? session;
     string topicPattern;
     string messageSelector;

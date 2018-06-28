@@ -58,7 +58,7 @@ documentation {
     F{{totalBuckets}} The discrete time buckets into which the time window is divided
     F{{lastUsedBucketId}} ID of the last bucket used in Circuit Breaker calculations
 }
-public type CircuitHealth {
+public type CircuitHealth record {
    time:Time startTime,
    int requestCount,
    int errorCount,
@@ -78,7 +78,7 @@ documentation {
                          the upstream service
     F{{statusCodes}} Array of HTTP response status codes which are considered as failures
 }
-public type CircuitBreakerConfig {
+public type CircuitBreakerConfig record {
     RollingWindow rollingWindow,
     float failureThreshold,
     int resetTimeMillis,
@@ -91,7 +91,7 @@ documentation {
     F{{timeWindowMillis}} Time period in milliseconds for which the failure threshold is calculated
     F{{bucketSizeMillis}} The granularity at which the time window slides. This is measured in milliseconds.
 }
-public type RollingWindow {
+public type RollingWindow record {
     int timeWindowMillis = 60000,
     int bucketSizeMillis = 10000,
 };
@@ -102,7 +102,7 @@ documentation {
     F{{successCount}} Number of successful requests during the sub-window time frame
     F{{failureCount}} Number of failed requests during the sub-window time frame
 }
-public type Bucket {
+public type Bucket record {
     int successCount,
     int failureCount,
 };
@@ -118,7 +118,7 @@ documentation {
     F{{noOfBuckets}} Number of buckets derived from the `RollingWindow`
     F{{rollingWindow}} `RollingWindow` options provided in the `CircuitBreakerConfig`
 }
-public type CircuitBreakerInferredConfig {
+public type CircuitBreakerInferredConfig record {
    float failureThreshold,
    int resetTimeMillis,
    boolean[] statusCodes,

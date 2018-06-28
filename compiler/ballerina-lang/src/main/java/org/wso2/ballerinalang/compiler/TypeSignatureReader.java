@@ -38,6 +38,7 @@ public class TypeSignatureReader<T> {
         char typeChar = chars[index];
         switch (typeChar) {
             case 'I':
+            case 'W':
             case 'F':
             case 'S':
             case 'B':
@@ -114,6 +115,7 @@ public class TypeSignatureReader<T> {
         char ch = desc.charAt(0);
         switch (ch) {
             case 'I':
+            case 'W':
             case 'F':
             case 'S':
             case 'B':

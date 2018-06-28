@@ -4,7 +4,7 @@ service<DummyService> helloWorld {
     }
 }
 
-type Config {
+type Config record {
 };
 
 type DummyEndpoint object {

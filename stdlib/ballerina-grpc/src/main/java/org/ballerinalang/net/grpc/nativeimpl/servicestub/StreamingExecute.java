@@ -28,7 +28,7 @@ import org.ballerinalang.connector.api.Service;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.connector.impl.ValueImpl;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BTypeDescValue;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
@@ -93,7 +93,7 @@ public class StreamingExecute extends AbstractExecute {
 
     @Override
     public void execute(Context context) {
-        BStruct serviceStub = (BStruct) context.getRefArgument(SERVICE_STUB_REF_INDEX);
+        BMap<String, BValue> serviceStub = (BMap<String, BValue>) context.getRefArgument(SERVICE_STUB_REF_INDEX);
         if (serviceStub == null) {
             notifyErrorReply(context, "Error while getting connector. gRPC Client connector " +
                     "is not initialized properly");
@@ -163,11 +163,12 @@ public class StreamingExecute extends AbstractExecute {
                             methodType.name() + " not supported");
                     return;
                 }
-                BStruct connStruct = createStruct(context, GRPC_CLIENT);
+                BMap<String, BValue> connStruct = createStruct(context, GRPC_CLIENT);
                 connStruct.addNativeData(REQUEST_SENDER, requestSender);
                 connStruct.addNativeData(REQUEST_MESSAGE_DEFINITION, methodDescriptor
                         .getInputType());
-                BStruct clientEndpoint = (BStruct) serviceStub.getNativeData(CLIENT_END_POINT);
+                BMap<String, BValue> clientEndpoint =
+                        (BMap<String, BValue>) serviceStub.getNativeData(CLIENT_END_POINT);
                 clientEndpoint.addNativeData(GRPC_CLIENT, connStruct);
                 context.setReturnValues(clientEndpoint);
             } catch (RuntimeException | GrpcClientException e) {

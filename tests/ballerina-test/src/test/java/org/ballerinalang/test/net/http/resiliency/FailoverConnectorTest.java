@@ -18,10 +18,12 @@
 
 package org.ballerinalang.test.net.http.resiliency;
 
+import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -33,6 +35,7 @@ import org.testng.annotations.Test;
 public class FailoverConnectorTest {
 
     private CompileResult compileResult;
+    private static final String STATUS_CODE_FIELD = "statusCode";
 
     @BeforeClass
     public void setup() {
@@ -52,10 +55,10 @@ public class FailoverConnectorTest {
 
         Assert.assertNotNull(returnVals);
         Assert.assertEquals(returnVals.length, 1);
-        BStruct res = (BStruct) returnVals[0];
+        BMap<String, BValue> res = (BMap<String, BValue>) returnVals[0];
 
         if (res != null) {
-            long statusCode = res.getIntField(0);
+            long statusCode = ((BInteger) res.get(STATUS_CODE_FIELD)).intValue();
             Assert.assertEquals(statusCode, expectedHttpSC);
         }
     }
@@ -75,11 +78,11 @@ public class FailoverConnectorTest {
 
         Assert.assertNotNull(returnVals);
         Assert.assertEquals(returnVals.length, 1);
-        BStruct res = (BStruct) returnVals[0];
+        BMap<String, BValue> res = (BMap<String, BValue>) returnVals[0];
 
         if (res != null) {
           //  long statusCode = res.getIntField(0);
-            String errorMsg = res.getStringField(0);
+            String errorMsg = res.get(BLangVMErrors.ERROR_MESSAGE_FIELD).stringValue();
          //   Assert.assertEquals(statusCode, expectedHttpSC);
             Assert.assertEquals(errorMsg, expectedErrprMessageContent);
         }

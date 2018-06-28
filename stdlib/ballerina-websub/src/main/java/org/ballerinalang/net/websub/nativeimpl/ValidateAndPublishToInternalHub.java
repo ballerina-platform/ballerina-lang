@@ -22,7 +22,8 @@ import org.ballerinalang.bre.Context;
 import org.ballerinalang.bre.bvm.BLangVMErrors;
 import org.ballerinalang.bre.bvm.BlockingNativeCallableUnit;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.Argument;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.ReturnType;
@@ -49,7 +50,7 @@ public class ValidateAndPublishToInternalHub extends BlockingNativeCallableUnit 
     public void execute(Context context) {
         String hubUrl = context.getStringArgument(0);
         String topic = context.getStringArgument(1);
-        BStruct content = (BStruct) context.getRefArgument(0);
+        BMap<String, BValue> content = (BMap<String, BValue>) context.getRefArgument(0);
         Hub hubInstance = Hub.getInstance();
         if (hubInstance.isStarted() && hubInstance.getHubUrl().equals(hubUrl)) {
             try {

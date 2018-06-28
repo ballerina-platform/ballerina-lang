@@ -27,7 +27,7 @@ import org.ballerinalang.connector.api.BallerinaConnectorException;
 import org.ballerinalang.connector.api.Struct;
 import org.ballerinalang.connector.api.Value;
 import org.ballerinalang.model.types.TypeKind;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.natives.annotations.BallerinaFunction;
 import org.ballerinalang.natives.annotations.Receiver;
@@ -86,7 +86,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
 
             context.setReturnValues((BValue) null);
         } catch (Throwable throwable) {
-            BStruct errorStruct = HttpUtil.getError(context, throwable);
+            BMap<String, BValue> errorStruct = HttpUtil.getError(context, throwable);
             context.setReturnValues(errorStruct);
         }
 
@@ -99,6 +99,7 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         Struct sslConfig = endpointConfig.getStructField(HttpConstants.ENDPOINT_CONFIG_SECURE_SOCKET);
         String httpVersion = endpointConfig.getStringField(HttpConstants.ENDPOINT_CONFIG_VERSION);
         Struct requestLimits = endpointConfig.getStructField(HttpConstants.ENDPOINT_REQUEST_LIMITS);
+        long idleTimeout = endpointConfig.getIntField(HttpConstants.ENDPOINT_CONFIG_TIMEOUT);
 
         ListenerConfiguration listenerConfiguration = new ListenerConfiguration();
 
@@ -120,6 +121,12 @@ public class InitEndpoint extends BlockingNativeCallableUnit {
         if (requestLimits != null) {
             setRequestSizeValidationConfig(requestLimits, listenerConfiguration);
         }
+
+        if (idleTimeout < 0) {
+            throw new BallerinaConnectorException("Idle timeout cannot be negative. If you want to disable the " +
+                    "timeout please use value 0");
+        }
+        listenerConfiguration.setSocketIdleTimeout(Math.toIntExact(idleTimeout));
 
         // Set HTTP version
         if (httpVersion != null) {

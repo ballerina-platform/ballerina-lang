@@ -21,10 +21,10 @@ import org.ballerinalang.launcher.util.BAssertUtil;
 import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
-import org.ballerinalang.model.values.BBlob;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BFloat;
 import org.ballerinalang.model.values.BInteger;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -141,15 +141,15 @@ public class ArraysOfArraysTest {
     @Test(description = "Test nested string array iteration")
     public void testBlobArrayIterator() {
         BValue[] args = new BValue[0];
-        BValue[] returns = BRunUtil.invoke(result, "testBlobArrayIterator", args);
-        Assert.assertEquals(((BBlob) returns[0]).blobValue(), hexStringToByteArray("aa"));
+        BValue[] returns = BRunUtil.invoke(result, "testByteArrayIterator", args);
+        assertJBytesWithBBytes(hexStringToByteArray("aa"), (BByteArray) returns[0]);
     }
 
     @Test(description = "Test nested string array iteration")
     public void testRefArrayIterator() {
         BValue[] args = new BValue[0];
         BValue[] returns = BRunUtil.invoke(result, "testRefArrayIterator", args);
-        Assert.assertEquals(((BStruct) returns[0]).getStringField(0), "ballerina");
+        Assert.assertEquals(((BMap<String, BValue>) returns[0]).get("name").stringValue(), "ballerina");
     }
 
     private static byte[] hexStringToByteArray(String str) {
@@ -161,4 +161,9 @@ public class ArraysOfArraysTest {
         return data;
     }
 
+    private void assertJBytesWithBBytes(byte[] jBytes, BByteArray bBytes) {
+        for (int i = 0; i < jBytes.length; i++) {
+            Assert.assertEquals(bBytes.get(i), jBytes[i], "Invalid byte value returned.");
+        }
+    }
 }

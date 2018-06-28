@@ -22,9 +22,10 @@ import org.ballerinalang.launcher.util.BCompileUtil;
 import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.types.BStructureType;
+import org.ballerinalang.model.values.BFloat;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.test.IntegrationTestCase;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -64,12 +65,12 @@ public class UnaryBlockingEmptyValueTestCase extends IntegrationTestCase {
 
         BValue[] responses = BRunUtil.invoke(result, "testNoInputOutputStruct", new BValue[]{});
         Assert.assertEquals(responses.length, 1);
-        Assert.assertTrue(responses[0] instanceof BStruct);
-        final BStruct response = (BStruct) responses[0];
+        Assert.assertTrue(responses[0] instanceof BMap);
+        final BMap<String, BValue> response = (BMap<String, BValue>) responses[0];
 //        StockQuote res = {symbol: "WSO2", name: "WSO2 Inc.", last: 14, low: 15, high: 16};
 //        StockQuote res1 = {symbol: "Google", name: "Google Inc.", last: 100, low: 101, high: 102};
-        Assert.assertTrue(response.getRefField(0) instanceof BRefValueArray);
-        final BRefValueArray structArray = (BRefValueArray) response.getRefField(0);
+        Assert.assertTrue(response.get("stock") instanceof BRefValueArray);
+        final BRefValueArray structArray = (BRefValueArray) response.get("stock");
         Assert.assertEquals(structArray.size(), 2);
     }
 
@@ -82,12 +83,12 @@ public class UnaryBlockingEmptyValueTestCase extends IntegrationTestCase {
         // StockQuote quote2 = {symbol: "Ballerina", name:"ballerina/io", last:1.0, low:0.5, high:2.0};
         StructureTypeInfo requestInfo = packageInfo.getStructInfo("StockQuote");
         BStructureType requestType = requestInfo.getType();
-        BStruct requestStruct = new BStruct(requestType);
-        requestStruct.setStringField(0, "Ballerina");
-        requestStruct.setStringField(1, "ballerina/io");
-        requestStruct.setFloatField(0, 1.0);
-        requestStruct.setFloatField(1, 0.5);
-        requestStruct.setFloatField(2, 2.0);
+        BMap<String, BValue> requestStruct = new BMap<String, BValue>(requestType);
+        requestStruct.put("symbol", new BString("Ballerina"));
+        requestStruct.put("name", new BString("ballerina/io"));
+        requestStruct.put("last", new BFloat(1.0));
+        requestStruct.put("low", new BFloat(0.5));
+        requestStruct.put("high", new BFloat(2.0));
 
         BValue[] responses = BRunUtil.invoke(result, "testInputStructNoOutput", new BValue[]{requestStruct});
         Assert.assertEquals(responses.length, 1);

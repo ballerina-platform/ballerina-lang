@@ -133,7 +133,7 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
         String[] clientArgs = {new File("src" + File.separator + "test" + File.separator + "resources"
             + File.separator + "websub" + File.separator + "websub_test_unsubscription_client.bal").getAbsolutePath()};
         ballerinaWebSubSubscriptionChangeClient.runMain(clientArgs);
-        ballerinaWebSubSubscriptionChangeClient.addLogLeecher(logAbsenceTestLogLeecher);
+        ballerinaWebSubSubscriber.addLogLeecher(logAbsenceTestLogLeecher);
         unsubscriptionIntentVerificationLogLeecher.waitForText(30000);
     }
 
@@ -143,7 +143,7 @@ public class WebSubSubscriptionChangeTestCase extends IntegrationTestCase {
             expectedExceptionsMessageRegExp = ".*Timeout expired waiting for matching log.*"
     )
     public void testUnsubscription() throws BallerinaTestException {
-        logAbsenceTestLogLeecher.waitForText(10000);
+        logAbsenceTestLogLeecher.waitForText(5000);
     }
 
     @AfterClass

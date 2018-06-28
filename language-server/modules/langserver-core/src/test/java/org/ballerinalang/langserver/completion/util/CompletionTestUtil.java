@@ -26,7 +26,7 @@ import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManager;
 import org.ballerinalang.langserver.compiler.workspace.WorkspaceDocumentManagerImpl;
 import org.ballerinalang.langserver.completions.CompletionCustomErrorStrategy;
 import org.ballerinalang.langserver.completions.CompletionKeys;
-import org.ballerinalang.langserver.completions.TreeVisitor;
+import org.ballerinalang.langserver.completions.CompletionSubRuleParser;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.Position;
@@ -138,11 +138,9 @@ public class CompletionTestUtil {
                 CompletionCustomErrorStrategy.class, false).get(0);
         completionContext.put(DocumentServiceKeys.CURRENT_PACKAGE_NAME_KEY,
                               bLangPackage.symbol.getName().getValue());
-        // Visit the package to resolve the symbols
-        TreeVisitor treeVisitor = new TreeVisitor(completionContext);
-        bLangPackage.accept(treeVisitor);
 
         CompletionUtil.resolveSymbols(completionContext, bLangPackage);
+        CompletionSubRuleParser.parse(completionContext);
         completions = CompletionUtil.getCompletionItems(completionContext);
 
         return completions;

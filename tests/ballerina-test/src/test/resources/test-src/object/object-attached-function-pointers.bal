@@ -34,7 +34,7 @@ type Person object {
     }
 
     function attachedFn6(int a, float b) returns (int) {
-        var foo = attachedFn3;
+        var foo = self.attachedFn3;
         return a + <int>b + foo(43, 10.8);
     }
 
@@ -139,3 +139,69 @@ function test8() returns (string, int) {
 
     return(q, r);
 }
+
+function test9() returns string {
+    string[] vals = ["finally", "ballerina"];
+    O1 o1 = new ((string[] v) => string { return vals[0]; });
+    O2 o2 = new(o1.process);
+    O3 o3 = new(o2.process);
+    O4 o4 = new(o3.process);
+    O5 o5 = new(o4.process);
+    return o5.process(vals);
+}
+
+public type O1 object {
+    private {
+        (function(string[]) returns string) fpO1;
+    }
+    new (fpO1){
+    }
+
+    public function process(string[] vals) returns string{
+        return fpO1(vals);
+    }
+};
+
+public type O2 object {
+    private {
+        (function(string[]) returns string) fpO2;
+    }
+    new (fpO2){}
+
+    public function process(string[] vals) returns string{
+        return fpO2(vals);
+    }
+};
+
+public type O3 object {
+    private {
+        (function(string[]) returns string) fpO3;
+    }
+    new (fpO3){}
+
+    public function process(string[] vals) returns string{
+        return fpO3(vals);
+    }
+};
+
+public type O4 object {
+    private {
+        (function(string[]) returns string) fpO4;
+    }
+    new (fpO4){}
+
+    public function process(string[] vals) returns string{
+        return fpO4(vals);
+    }
+};
+
+public type O5 object {
+    private {
+        (function(string[]) returns string) fpO5;
+    }
+    new (fpO5){}
+
+    public function process(string[] vals) returns string{
+        return fpO5(vals);
+    }
+};

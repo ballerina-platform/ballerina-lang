@@ -1,4 +1,4 @@
-type Person {
+type Person record {
     int a;
     string fname = "John";
     string lname;
@@ -6,12 +6,12 @@ type Person {
     Info|() info2;
 };
 
-type Info {
+type Info record {
     Address|error address1;
     Address|() address2;
 };
 
-type Address {
+type Address record {
     string street;
     string city;
     string country = "Sri Lanka";
@@ -64,7 +64,7 @@ function testUpdatingNullableStructField () returns any {
     return p;
 }
 
-type Student {
+type Student record {
     json info;
 };
 

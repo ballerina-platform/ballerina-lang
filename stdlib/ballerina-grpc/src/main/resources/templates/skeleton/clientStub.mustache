@@ -73,7 +73,7 @@ public type {{connectorId}}{{stubTypeName}}{{stubType}}Client object {
 };
 {{/client}}
 {{#structs}}
-type {{structId}} {
+type {{structId}} record {
     {{#attribute}}{{type}}{{label}} {{name}};
     {{/attribute}}
 };

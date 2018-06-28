@@ -70,7 +70,7 @@ service<http:Service> Ecommerce bind serviceEndpoint {
                 io:println("Error occurred while reading products payload");
             }
             json products => {
-                clientRequest.setJsonPayload(products);
+                clientRequest.setJsonPayload(untaint products);
             }
         }
 

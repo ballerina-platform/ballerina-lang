@@ -46,14 +46,14 @@ service<http:Service> test bind mockEP {
         path:"/nested_parts_in_outresponse"
     }
     nestedPartsInOutResponse (endpoint conn, http:Request request) {
-        string contentType = request.getHeader("content-type");
+        string contentType = untaint request.getHeader("content-type");
         http:Response outResponse = new;
         match (request.getBodyParts()) {
             error err => {
-                outResponse.setTextPayload(err.message);
+                outResponse.setTextPayload(untaint err.message);
             }
             mime:Entity[] bodyParts => {
-                outResponse.setBodyParts(bodyParts, contentType = contentType);
+                outResponse.setBodyParts(untaint bodyParts, contentType = contentType);
             }
         }
         _ = conn -> respond(outResponse);

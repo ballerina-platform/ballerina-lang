@@ -22,8 +22,9 @@ import org.ballerinalang.mime.util.EntityBodyHandler;
 import org.ballerinalang.mime.util.HeaderUtil;
 import org.ballerinalang.mime.util.MultipartDataSource;
 import org.ballerinalang.model.NativeCallableUnit;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BRefValueArray;
-import org.ballerinalang.model.values.BStruct;
+import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.net.http.DataContext;
 import org.ballerinalang.net.http.HttpConstants;
 import org.ballerinalang.net.http.HttpUtil;
@@ -48,7 +49,8 @@ import static org.ballerinalang.net.http.HttpUtil.extractEntity;
 public abstract class ConnectionAction implements NativeCallableUnit {
 
     protected void sendOutboundResponseRobust(DataContext dataContext, HTTPCarbonMessage requestMessage,
-                                                BStruct outboundResponseStruct, HTTPCarbonMessage responseMessage) {
+                                              BMap<String, BValue> outboundResponseStruct,
+                                              HTTPCarbonMessage responseMessage) {
         String contentType = HttpUtil.getContentTypeFromTransportMessage(responseMessage);
         String boundaryString = null;
         if (HeaderUtil.isMultipart(contentType)) {
@@ -62,7 +64,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         outboundRespStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
 
         OutputStream messageOutputStream = outboundMsgDataStreamer.getOutputStream();
-        BStruct entityStruct = extractEntity(outboundResponseStruct);
+        BMap<String, BValue> entityStruct = extractEntity(outboundResponseStruct);
         if (entityStruct != null) {
             if (boundaryString != null) {
                 serializeMultiparts(boundaryString, entityStruct, messageOutputStream);
@@ -81,7 +83,8 @@ public abstract class ConnectionAction implements NativeCallableUnit {
      * @param entityStruct             Represent the entity that holds the actual body
      * @param messageOutputStream      Represent the output stream
      */
-    private void serializeMultiparts(String boundaryString, BStruct entityStruct, OutputStream messageOutputStream) {
+    private void serializeMultiparts(String boundaryString, BMap<String, BValue> entityStruct,
+                                     OutputStream messageOutputStream) {
         BRefValueArray bodyParts = EntityBodyHandler.getBodyPartArray(entityStruct);
         if (bodyParts != null && bodyParts.size() > 0) {
             MultipartDataSource multipartDataSource = new MultipartDataSource(entityStruct, boundaryString);
@@ -104,7 +107,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
         outResponseStatusFuture.setHttpConnectorListener(outboundResStatusConnectorListener);
     }
 
-    protected void serializeMsgDataSource(MessageDataSource outboundMessageSource, BStruct entityStruct,
+    protected void serializeMsgDataSource(MessageDataSource outboundMessageSource, BMap<String, BValue> entityStruct,
                                           OutputStream messageOutputStream) {
         try {
             if (outboundMessageSource != null) {
@@ -157,7 +160,7 @@ public abstract class ConnectionAction implements NativeCallableUnit {
 
         @Override
         public void onError(Throwable throwable) {
-            BStruct httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
+            BMap<String, BValue> httpConnectorError =  HttpUtil.getError(dataContext.context, throwable);
             if (outboundMsgDataStreamer != null) {
                 if (throwable instanceof IOException) {
                     this.outboundMsgDataStreamer.setIoException((IOException) throwable);

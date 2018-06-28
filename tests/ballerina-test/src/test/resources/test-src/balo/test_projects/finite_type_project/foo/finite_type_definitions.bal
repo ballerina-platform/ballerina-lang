@@ -8,7 +8,7 @@ public type Int int;
 
 public type POrInt Person|int;
 
-public type Person {
+public type Person record {
    string name;
 };
 
@@ -42,3 +42,8 @@ public type ParamTest string|int;
 
 public type ArrayCustom int[];
 
+public type ByteType byte;
+
+public type ByteArrayType byte[];
+
+public type BFType byte|float;
