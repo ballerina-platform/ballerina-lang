@@ -35,16 +35,13 @@ import static io.netty.util.internal.StringUtil.EMPTY_STRING;
  */
 public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase {
 
-    private final String testDataPath = "src/test/resources/testData/formatting/BBE/";
-    private final String expectedResultsPath = "src/test/resources/testData/formatting/BBE/expectedResults";
-
     @Override
     protected String getTestDataPath() {
-        return testDataPath;
+        return "src/test/resources/testData/formatting/BBE";
     }
 
-    protected String getExpectedResultsPath() {
-        return expectedResultsPath;
+    protected String getExpectedResultsRelativePath(String relativeDataPath) {
+        return relativeDataPath.replace("examples", "expectedResults");
     }
 
     //this test validates the formatting for the ballerina-by-examples
@@ -62,7 +59,6 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
                 return;
             } else if (resource.isFile() && resource.getName().endsWith(".bal")) {
                 doTest(resource, null);
-
                 //if the resource is a directory, recursively test the sub directories/files accordingly
             } else if (resource.isDirectory() && (includeTests || !resource.getName().contains("tests"))) {
                 DirectoryStream<Path> ds = Files.newDirectoryStream(path);
@@ -86,7 +82,7 @@ public class BallerinaFormattingTest extends BallerinaCodeInsightFixtureTestCase
         } else {
             myFixture.type(c);
         }
-        myFixture.checkResultByFile(relativeFilePath);
+        myFixture.checkResultByFile(relativeFilePath, getExpectedResultsRelativePath(relativeFilePath), true);
         // To debug - Comment the above line and uncomment these lines and add expected result.
         // String result = "";
         // myFixture.checkResult(result);
