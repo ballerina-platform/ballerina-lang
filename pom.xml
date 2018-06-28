@@ -1637,7 +1637,7 @@
                 <module>stdlib/time</module>
                 <module>stdlib/websub</module>
                 <module>stdlib/jms</module>
-                <module>stdlib/ballerina-observability</module>
+                <module>stdlib/observability</module>
                 <module>stdlib/database/h2</module>
                 <module>stdlib/database/jdbc</module>
                 <module>stdlib/database/mysql</module>
