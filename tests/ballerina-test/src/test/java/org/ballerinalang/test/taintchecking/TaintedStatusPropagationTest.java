@@ -307,7 +307,7 @@ public class TaintedStatusPropagationTest {
         CompileResult result = BCompileUtil
                 .compile("test-src/taintchecking/propagation/multiple-invocation-levels-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 10, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'normalInput'", 2, 20);
     }
 
     @Test

@@ -6,7 +6,7 @@ function initDelimitedRecordChannel(string filePath, io:Mode permission, string 
                                     string fieldSeperator) {
     io:ByteChannel byteChannel = io:openFile(filePath, permission);
     io:CharacterChannel charChannel = new io:CharacterChannel(byteChannel, encoding);
-    txtChannel = new io:DelimitedTextRecordChannel(charChannel, fs = fieldSeperator, rs = recordSeperator);
+    txtChannel = untaint new io:DelimitedTextRecordChannel(charChannel, fs = fieldSeperator, rs = recordSeperator);
 }
 
 function nextRecord() returns (string[]|error) {

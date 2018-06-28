@@ -42,14 +42,22 @@ public class RecursionTest {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/" +
                 "recursive-function-calling-sensitive-function-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'inputData'", 2, 21);
+    }
+
+    @Test
+    public void testRecursiveFunctionAlteringSensitiveStatusCallingSensitiveFunction1Negative() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/" +
+                "cyclic-call-altering-sensitive-status-calling-sensitive-function-1-negative.bal");
+        Assert.assertTrue(result.getDiagnostics().length == 1);
         BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 12, 20);
     }
 
     @Test
-    public void testRecursiveFunctionAlteringSensitiveStatusCallingSensitiveFunctionNegative() {
+    public void testRecursiveFunctionAlteringSensitiveStatusCallingSensitiveFunction2Negative() {
         CompileResult result = BCompileUtil.compile("test-src/taintchecking/recursions/" +
-                "cyclic-call-altering-sensitive-status-calling-sensitive-function-negative.bal");
+                "cyclic-call-altering-sensitive-status-calling-sensitive-function-2-negative.bal");
         Assert.assertTrue(result.getDiagnostics().length == 1);
-        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 12, 20);
+        BAssertUtil.validateError(result, 0, "tainted value passed to sensitive parameter 'secureIn'", 18, 20);
     }
 }

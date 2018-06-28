@@ -95,7 +95,7 @@ function testManipulateHeaders () returns (string[]) {
     entity.addHeader("HEADER3", "testVal");
     string[] headerNames = entity.getHeaderNames();
     foreach header in headerNames {
-        entity.removeHeader(header);
+        entity.removeHeader(untaint header);
     }
 
     return entity.getHeaderNames();
