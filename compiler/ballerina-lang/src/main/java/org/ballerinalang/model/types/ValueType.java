@@ -20,7 +20,7 @@ package org.ballerinalang.model.types;
 /**
  * {@code ValueType} represents a value type in Ballerina.
  * <p>
- * {@code int}, {@code float}, {@code string}, {@code boolean}, and {@code blob}.
+ * {@code int}, {@code byte}, {@code float}, {@code string}, {@code boolean}, and {@code blob}.
  *
  * @since 0.94
  */

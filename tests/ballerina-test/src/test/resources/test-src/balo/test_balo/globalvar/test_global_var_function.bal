@@ -31,6 +31,23 @@ function initializeGlobalVarSeparately() returns (json, float) {
     return (foo:glbVarJson, foo:glbVarFloatLater);
 }
 
+function getGlobalVarByte() returns byte {
+    return foo:glbByte;
+}
+
+function getGlobalVarByteArray1() returns byte[] {
+    return foo:glbByteArray1;
+}
+
+function getGlobalVarByteArray2() returns byte[] {
+    return foo:glbByteArray2;
+}
+
+function getGlobalVarByteArray3() returns byte[] {
+    return foo:glbByteArray3;
+}
+
+
 function getGlobalArrays() returns (int, int, int, int, int, int, int) {
     int[2][3] x = foo:glbSealed2DArray;
     int[3][] x1 = foo:glbSealed2DArray2;

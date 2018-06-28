@@ -35,6 +35,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 import org.wso2.transport.http.netty.message.HTTPCarbonMessage;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -56,7 +57,8 @@ public class ConfigTest {
 
     @BeforeClass
     public void setup() throws IOException {
-        resourceRoot = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+       resourceRoot = new File(getClass().getProtectionDomain().getCodeSource().getLocation().getPath())
+               .getAbsolutePath();
         sourceRoot = Paths.get(resourceRoot, "test-src", "config");
         ballerinaConfPath = Paths.get(resourceRoot, "datafiles", "config", "default", BALLERINA_CONF);
         customConfigFilePath = Paths.get(resourceRoot, "datafiles", "config", BALLERINA_CONF).toString();

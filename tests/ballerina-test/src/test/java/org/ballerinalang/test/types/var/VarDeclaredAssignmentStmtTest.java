@@ -23,8 +23,8 @@ import org.ballerinalang.launcher.util.BRunUtil;
 import org.ballerinalang.launcher.util.CompileResult;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BInteger;
+import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -212,7 +212,7 @@ public class VarDeclaredAssignmentStmtTest {
                 new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
 
         Assert.assertEquals(returns[0].stringValue(),
                 "{message:\"cannot convert 'json' to type 'Person': error while mapping"
@@ -225,7 +225,7 @@ public class VarDeclaredAssignmentStmtTest {
                 new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
 
         Assert.assertEquals(returns[0].stringValue(),
                 "{message:\"cannot convert 'json' to type 'PersonA': error while mapping 'age': "
@@ -234,15 +234,15 @@ public class VarDeclaredAssignmentStmtTest {
 
     @Test(description = "Test compatible struct with force casting.")
     public void testCompatibleStructForceCasting() {
-        BValue[] returns = BRunUtil.invoke(result, "testCompatibleStructForceCasting", new BValue[]{});
+        BValue[] returns = BRunUtil.invoke(result, "testCompatibleStructForceCasting");
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
-        BStruct structC = (BStruct) returns[0];
+        Assert.assertSame(returns[0].getClass(), BMap.class);
+        BMap<String, BValue> structC = (BMap<String, BValue>) returns[0];
 
-        Assert.assertEquals(structC.getStringField(0), "updated-x-valueof-a");
+        Assert.assertEquals(structC.get("x").stringValue(), "updated-x-valueof-a");
 
-        Assert.assertEquals(structC.getIntField(0), 4);
+        Assert.assertEquals(((BInteger) structC.get("y")).intValue(), 4);
     }
 
     @Test(description = "Test incompatible struct with force casting.")
@@ -250,7 +250,7 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testInCompatibleStructForceCasting", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
 
         Assert.assertEquals(returns[0].stringValue(), "{message:\"'B' cannot be cast to 'A'\", cause:null}");
     }
@@ -278,7 +278,7 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToBooleanWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
 
         Assert.assertEquals(returns[0].stringValue(), "{message:\"'int' cannot be cast to 'boolean'\", cause:null}");
     }
@@ -288,7 +288,7 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToBooleanWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
 
         Assert.assertEquals(returns[0].stringValue(), "{message:\"'null' cannot be cast to 'boolean'\", cause:null}");
     }
@@ -298,7 +298,7 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToIntWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
 
         Assert.assertEquals(returns[0].stringValue(), "{message:\"'string' cannot be cast to 'int'\", cause:null}");
     }
@@ -308,7 +308,7 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToIntWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
 
         Assert.assertEquals(returns[0].stringValue(), "{message:\"'null' cannot be cast to 'int'\", cause:null}");
     }
@@ -318,7 +318,7 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToFloatWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
 
         Assert.assertEquals(returns[0].stringValue(), "{message:\"'string' cannot be cast to 'float'\", cause:null}");
     }
@@ -328,7 +328,7 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToFloatWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
 
         Assert.assertEquals(returns[0].stringValue(), "{message:\"'null' cannot be cast to 'float'\", cause:null}");
     }
@@ -338,7 +338,7 @@ public class VarDeclaredAssignmentStmtTest {
         BValue[] returns = BRunUtil.invoke(result, "testAnyToMapWithErrors", new BValue[]{});
 
         Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BStruct.class);
+        Assert.assertSame(returns[0].getClass(), BMap.class);
 
         Assert.assertEquals(returns[0].stringValue(), "{message:\"'string' cannot be cast to 'map'\", cause:null}");
     }

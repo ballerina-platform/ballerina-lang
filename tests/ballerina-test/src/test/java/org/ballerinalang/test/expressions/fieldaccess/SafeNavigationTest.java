@@ -26,7 +26,6 @@ import org.ballerinalang.model.values.BJSON;
 import org.ballerinalang.model.values.BMap;
 import org.ballerinalang.model.values.BString;
 import org.ballerinalang.model.values.BStringArray;
-import org.ballerinalang.model.values.BStruct;
 import org.ballerinalang.model.values.BValue;
 import org.ballerinalang.util.exceptions.BLangRuntimeException;
 import org.testng.Assert;
@@ -98,14 +97,14 @@ public class SafeNavigationTest {
     @Test
     public void testErrorInMiddle() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInMiddle");
-        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{message:\"custom error\", cause:null}");
     }
 
     @Test
     public void testErrorInFirstVar() {
         BValue[] returns = BRunUtil.invoke(result, "testErrorInFirstVar");
-        Assert.assertTrue(returns[0] instanceof BStruct);
+        Assert.assertTrue(returns[0] instanceof BMap);
         Assert.assertEquals(returns[0].stringValue(), "{message:\"custom error\", cause:null}");
     }
 
