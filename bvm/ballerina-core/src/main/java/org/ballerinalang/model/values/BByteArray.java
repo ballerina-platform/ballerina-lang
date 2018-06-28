@@ -56,8 +56,7 @@ public class BByteArray extends BNewArray {
     }
 
     public byte[] getBytes() {
-        BByteArray copy = (BByteArray) this.copy();
-        return copy.values;
+        return values.clone();
     }
 
     @Override
