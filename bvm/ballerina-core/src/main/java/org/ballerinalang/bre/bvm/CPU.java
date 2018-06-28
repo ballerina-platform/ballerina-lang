@@ -41,6 +41,8 @@ import org.ballerinalang.model.values.BBlob;
 import org.ballerinalang.model.values.BBlobArray;
 import org.ballerinalang.model.values.BBoolean;
 import org.ballerinalang.model.values.BBooleanArray;
+import org.ballerinalang.model.values.BByte;
+import org.ballerinalang.model.values.BByteArray;
 import org.ballerinalang.model.values.BClosure;
 import org.ballerinalang.model.values.BCollection;
 import org.ballerinalang.model.values.BFloat;
@@ -91,6 +93,7 @@ import org.ballerinalang.util.codegen.attributes.AttributeInfoPool;
 import org.ballerinalang.util.codegen.attributes.CodeAttributeInfo;
 import org.ballerinalang.util.codegen.attributes.DefaultValueAttributeInfo;
 import org.ballerinalang.util.codegen.cpentries.BlobCPEntry;
+import org.ballerinalang.util.codegen.cpentries.ByteCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FloatCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionCallCPEntry;
 import org.ballerinalang.util.codegen.cpentries.FunctionRefCPEntry;
@@ -119,6 +122,8 @@ import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.stream.LongStream;
 
+import static org.ballerinalang.util.BLangConstants.BBYTE_MAX_VALUE;
+import static org.ballerinalang.util.BLangConstants.BBYTE_MIN_VALUE;
 import static org.ballerinalang.util.BLangConstants.STRING_NULL_VALUE;
 
 /**
@@ -260,10 +265,15 @@ public class CPU {
                         i = operands[0];
                         sf.refRegs[i] = null;
                         break;
-                    case InstructionCodes.LCONST:
+                    case InstructionCodes.BICONST:
                         cpIndex = operands[0];
                         i = operands[1];
-                        sf.byteRegs[i] = ((BlobCPEntry) ctx.constPool[cpIndex]).getValue();
+                        sf.intRegs[i] = ((ByteCPEntry) ctx.constPool[cpIndex]).getValue();
+                        break;
+                    case InstructionCodes.BACONST:
+                        cpIndex = operands[0];
+                        i = operands[1];
+                        sf.refRegs[i] = new BByteArray(((BlobCPEntry) ctx.constPool[cpIndex]).getValue());
                         break;
     
                     case InstructionCodes.IMOVE:
@@ -273,6 +283,7 @@ public class CPU {
                     case InstructionCodes.LMOVE:
                     case InstructionCodes.RMOVE:
                     case InstructionCodes.IALOAD:
+                    case InstructionCodes.BIALOAD:
                     case InstructionCodes.FALOAD:
                     case InstructionCodes.SALOAD:
                     case InstructionCodes.BALOAD:
@@ -297,6 +308,7 @@ public class CPU {
                         break;
     
                     case InstructionCodes.IASTORE:
+                    case InstructionCodes.BIASTORE:
                     case InstructionCodes.FASTORE:
                     case InstructionCodes.SASTORE:
                     case InstructionCodes.BASTORE:
@@ -347,6 +359,14 @@ public class CPU {
                     case InstructionCodes.BNE:
                     case InstructionCodes.RNE:
                     case InstructionCodes.TNE:
+                    case InstructionCodes.IAND:
+                    case InstructionCodes.BIAND:
+                    case InstructionCodes.IOR:
+                    case InstructionCodes.BIOR:
+                    case InstructionCodes.IXOR:
+                    case InstructionCodes.BIXOR:
+                    case InstructionCodes.BISHL:
+                    case InstructionCodes.BISHR:
                         execBinaryOpCodes(ctx, sf, opcode, operands);
                         break;
     
@@ -493,11 +513,13 @@ public class CPU {
                         break;
     
                     case InstructionCodes.I2ANY:
+                    case InstructionCodes.BI2ANY:
                     case InstructionCodes.F2ANY:
                     case InstructionCodes.S2ANY:
                     case InstructionCodes.B2ANY:
                     case InstructionCodes.L2ANY:
                     case InstructionCodes.ANY2I:
+                    case InstructionCodes.ANY2BI:
                     case InstructionCodes.ANY2F:
                     case InstructionCodes.ANY2S:
                     case InstructionCodes.ANY2B:
@@ -528,7 +550,9 @@ public class CPU {
                     case InstructionCodes.I2F:
                     case InstructionCodes.I2S:
                     case InstructionCodes.I2B:
+                    case InstructionCodes.I2BI:
                     case InstructionCodes.I2JSON:
+                    case InstructionCodes.BI2I:
                     case InstructionCodes.F2I:
                     case InstructionCodes.F2S:
                     case InstructionCodes.F2B:
@@ -559,6 +583,10 @@ public class CPU {
                     case InstructionCodes.INEWARRAY:
                         i = operands[0];
                         sf.refRegs[i] = new BIntArray();
+                        break;
+                    case InstructionCodes.BINEWARRAY:
+                        i = operands[0];
+                        sf.refRegs[i] = new BByteArray();
                         break;
                     case InstructionCodes.ARRAYLEN:
                         i = operands[0];
@@ -778,6 +806,11 @@ public class CPU {
                     newArgRegs[argRegIndex++] = longIndex++;
                     break;
                 }
+                case TypeTags.BYTE_TAG: {
+                    sf.intRegs[intIndex] = ((BByte) closure.value()).byteValue();
+                    newArgRegs[argRegIndex++] = intIndex++;
+                    break;
+                }
                 case TypeTags.FLOAT_TAG: {
                     sf.doubleRegs[doubleIndex] = ((BFloat) closure.value()).floatValue();
                     newArgRegs[argRegIndex++] = doubleIndex++;
@@ -824,11 +857,13 @@ public class CPU {
 
     private static int expandIntRegs(WorkerData sf, BFunctionPointer fp) {
         int intIndex = 0;
-        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0) {
+        if (fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) > 0  ||
+                fp.getAdditionalIndexCount(BTypes.typeByte.getTag()) > 0) {
             if (sf.intRegs == null) {
                 sf.intRegs = new int[0];
             }
-            int[] newIntRegs = new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag())];
+            int[] newIntRegs = new int[sf.intRegs.length + fp.getAdditionalIndexCount(BTypes.typeBoolean.getTag()) +
+                    fp.getAdditionalIndexCount(BTypes.typeByte.getTag())];
             System.arraycopy(sf.intRegs, 0, newIntRegs, 0, sf.intRegs.length);
             intIndex = sf.intRegs.length;
             sf.intRegs = newIntRegs;
@@ -914,6 +949,10 @@ public class CPU {
             switch (type) {
                 case TypeTags.INT_TAG: {
                     fp.addClosureVar(new BClosure(new BInteger(ctx.workerLocal.longRegs[index])), TypeTags.INT_TAG);
+                    break;
+                }
+                case TypeTags.BYTE_TAG: {
+                    fp.addClosureVar(new BClosure(new BByte((byte) ctx.workerLocal.intRegs[index])), TypeTags.BYTE_TAG);
                     break;
                 }
                 case TypeTags.FLOAT_TAG: {
@@ -1073,6 +1112,7 @@ public class CPU {
         int fieldIndex;
 
         BIntArray bIntArray;
+        BByteArray bByteArray;
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
@@ -1124,6 +1164,23 @@ public class CPU {
 
                 try {
                     sf.longRegs[k] = bIntArray.get(sf.longRegs[j]);
+                } catch (Exception e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
+                }
+                break;
+            case InstructionCodes.BIALOAD:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bByteArray = (BByteArray) sf.refRegs[i];
+                if (bByteArray == null) {
+                    handleNullRefError(ctx);
+                    break;
+                }
+
+                try {
+                    sf.intRegs[k] = bByteArray.get(sf.longRegs[j]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1385,6 +1442,7 @@ public class CPU {
         int fieldIndex;
 
         BIntArray bIntArray;
+        BByteArray bByteArray;
         BFloatArray bFloatArray;
         BStringArray bStringArray;
         BBooleanArray bBooleanArray;
@@ -1406,6 +1464,23 @@ public class CPU {
 
                 try {
                     bIntArray.add(sf.longRegs[j], sf.longRegs[k]);
+                } catch (Exception e) {
+                    ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
+                    handleError(ctx);
+                }
+                break;
+            case InstructionCodes.BIASTORE:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                bByteArray = (BByteArray) sf.refRegs[i];
+                if (bByteArray == null) {
+                    handleNullRefError(ctx);
+                    break;
+                }
+
+                try {
+                    bByteArray.add(sf.longRegs[j], (byte) sf.intRegs[k]);
                 } catch (Exception e) {
                     ctx.setError(BLangVMErrors.createError(ctx, e.getMessage()));
                     handleError(ctx);
@@ -1873,6 +1948,54 @@ public class CPU {
                 }
                 sf.intRegs[k] = (!sf.refRegs[i].equals(sf.refRegs[j])) ? 1 : 0;
                 break;
+            case InstructionCodes.BIAND:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.intRegs[i] & sf.intRegs[j];
+                break;
+            case InstructionCodes.BIOR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.intRegs[i] | sf.intRegs[j];
+                break;
+            case InstructionCodes.BIXOR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.intRegs[k] = sf.intRegs[i] ^ sf.intRegs[j];
+                break;
+            case InstructionCodes.IAND:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] & sf.longRegs[j];
+                break;
+            case InstructionCodes.IOR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] | sf.longRegs[j];
+                break;
+            case InstructionCodes.IXOR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] ^ sf.longRegs[j];
+                break;
+            case InstructionCodes.BISHL:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] << sf.longRegs[j];
+                break;
+            case InstructionCodes.BISHR:
+                i = operands[0];
+                j = operands[1];
+                k = operands[2];
+                sf.longRegs[k] = sf.longRegs[i] >> sf.longRegs[j];
+                break;
             default:
                 throw new UnsupportedOperationException();
         }
@@ -2042,6 +2165,11 @@ public class CPU {
                 j = operands[1];
                 sf.refRegs[j] = new BInteger(sf.longRegs[i]);
                 break;
+            case InstructionCodes.BI2ANY:
+                i = operands[0];
+                j = operands[1];
+                sf.refRegs[j] = new BByte((byte) sf.intRegs[i]);
+                break;
             case InstructionCodes.F2ANY:
                 i = operands[0];
                 j = operands[1];
@@ -2065,7 +2193,12 @@ public class CPU {
             case InstructionCodes.ANY2I:
                 i = operands[0];
                 j = operands[1];
-                sf.longRegs[j] = ((BInteger) sf.refRegs[i]).intValue();
+                sf.longRegs[j] = ((BValueType) sf.refRegs[i]).intValue();
+                break;
+            case InstructionCodes.ANY2BI:
+                i = operands[0];
+                j = operands[1];
+                sf.intRegs[j] = ((BValueType) sf.refRegs[i]).byteValue();
                 break;
             case InstructionCodes.ANY2F:
                 i = operands[0];
@@ -2209,10 +2342,24 @@ public class CPU {
                 j = operands[1];
                 sf.intRegs[j] = sf.longRegs[i] != 0 ? 1 : 0;
                 break;
+            case InstructionCodes.I2BI:
+                i = operands[0];
+                j = operands[1];
+                if (isByteLiteral((int) sf.longRegs[i])) {
+                    sf.refRegs[j] = new BByte((byte) sf.longRegs[i]);
+                } else {
+                    handleTypeConversionError(ctx, sf, j, TypeConstants.INT_TNAME, TypeConstants.BYTE_TNAME);
+                }
+                break;
             case InstructionCodes.I2JSON:
                 i = operands[0];
                 j = operands[1];
                 sf.refRegs[j] = new BJSON(Long.toString(sf.longRegs[i]));
+                break;
+            case InstructionCodes.BI2I:
+                i = operands[0];
+                j = operands[1];
+                sf.longRegs[j] = (long) sf.intRegs[i];
                 break;
             case InstructionCodes.F2I:
                 i = operands[0];
@@ -2410,6 +2557,10 @@ public class CPU {
         }
     }
 
+    private static boolean isByteLiteral(int longValue) {
+        return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
+    }
+
     private static void execIteratorOperation(WorkerExecutionContext ctx, WorkerData sf, Instruction instruction) {
         int i, j;
         BCollection collection;
@@ -2456,6 +2607,9 @@ public class CPU {
             switch (typeTags[i]) {
                 case TypeTags.INT_TAG:
                     sf.longRegs[target] = ((BInteger) source).intValue();
+                    break;
+                case TypeTags.BYTE_TAG:
+                    sf.intRegs[target] = ((BByte) source).byteValue();
                     break;
                 case TypeTags.FLOAT_TAG:
                     sf.doubleRegs[target] = ((BFloat) source).floatValue();
@@ -2560,6 +2714,9 @@ public class CPU {
                 case TypeTags.INT_TAG:
                     lockAcquired = ctx.programFile.globalMemArea.lockIntField(ctx, pkgIndex, regIndex);
                     break;
+                case TypeTags.BYTE_TAG:
+                    lockAcquired = ctx.programFile.globalMemArea.lockBooleanField(ctx, pkgIndex, regIndex);
+                    break;
                 case TypeTags.FLOAT_TAG:
                     lockAcquired = ctx.programFile.globalMemArea.lockFloatField(ctx, pkgIndex, regIndex);
                     break;
@@ -2588,6 +2745,9 @@ public class CPU {
             switch (paramType.getTag()) {
                 case TypeTags.INT_TAG:
                     ctx.programFile.globalMemArea.unlockIntField(pkgIndex, regIndex);
+                    break;
+                case TypeTags.BYTE_TAG:
+                    ctx.programFile.globalMemArea.unlockBooleanField(pkgIndex, regIndex);
                     break;
                 case TypeTags.FLOAT_TAG:
                     ctx.programFile.globalMemArea.unlockFloatField(pkgIndex, regIndex);
@@ -2909,6 +3069,9 @@ public class CPU {
             case TypeTags.INT_TAG:
                 result = new BInteger(data.longRegs[reg]);
                 break;
+            case TypeTags.BYTE_TAG:
+                result = new BByte((byte) data.intRegs[reg]);
+                break;
             case TypeTags.FLOAT_TAG:
                 result = new BFloat(data.doubleRegs[reg]);
                 break;
@@ -2953,6 +3116,9 @@ public class CPU {
         switch (paramType.getTag()) {
             case TypeTags.INT_TAG:
                 currentSF.longRegs[regIndex] = ((BInteger) passedInValue).intValue();
+                break;
+            case TypeTags.BYTE_TAG:
+                currentSF.intRegs[regIndex] = ((BByte) passedInValue).byteValue();
                 break;
             case TypeTags.FLOAT_TAG:
                 currentSF.doubleRegs[regIndex] = ((BFloat) passedInValue).floatValue();
@@ -3033,13 +3199,16 @@ public class CPU {
         if (rhsType.equals(lhsType)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.INT_TAG &&
-                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG)) {
+                (lhsType.getTag() == TypeTags.JSON_TAG || lhsType.getTag() == TypeTags.FLOAT_TAG ||
+                        lhsType.getTag() == TypeTags.BYTE_TAG)) {
             return true;
         } else if (rhsType.getTag() == TypeTags.FLOAT_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
             return true;
         } else if (rhsType.getTag() == TypeTags.STRING_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
             return true;
         } else if (rhsType.getTag() == TypeTags.BOOLEAN_TAG && lhsType.getTag() == TypeTags.JSON_TAG) {
+            return true;
+        } else if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
             return true;
         }
 
@@ -3138,7 +3307,12 @@ public class CPU {
             return true;
         }
 
-        if (rhsType.getTag() == TypeTags.INT_TAG && lhsType.getTag() == TypeTags.FLOAT_TAG) {
+        if (rhsType.getTag() == TypeTags.INT_TAG && (lhsType.getTag() == TypeTags.FLOAT_TAG ||
+                lhsType.getTag() == TypeTags.BYTE_TAG)) {
+            return true;
+        }
+
+        if (rhsType.getTag() == TypeTags.BYTE_TAG && lhsType.getTag() == TypeTags.INT_TAG) {
             return true;
         }
 
@@ -3626,7 +3800,7 @@ public class CPU {
     private static void convertStructToMap(WorkerExecutionContext ctx, int[] operands, WorkerData sf) {
         int i = operands[0];
         int j = operands[1];
-        
+
         // TODO: do validation for type?
         sf.refRegs[j] = sf.refRegs[i];
     }
@@ -3783,6 +3957,13 @@ public class CPU {
                             bStruct.put(key, mapVal);
                         } else if (defaultValAttrInfo != null) {
                             bStruct.put(key, new BInteger(defaultValAttrInfo.getDefaultValue().getIntValue()));
+                        }
+                        break;
+                    case TypeTags.BYTE_TAG:
+                        if (containsField) {
+                            bStruct.put(key, mapVal);
+                        } else if (defaultValAttrInfo != null) {
+                            bStruct.put(key, new BByte(defaultValAttrInfo.getDefaultValue().getByteValue()));
                         }
                         break;
                     case TypeTags.FLOAT_TAG:
