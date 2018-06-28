@@ -172,3 +172,29 @@ function testTypeDefinitionWithArray() returns (int, int) {
     foo:ArrayCustom val = [34, 23];
     return (lengthof val , val[1]);
 }
+
+function testTypeDefinitionWithByteArray() returns (int, byte) {
+    foo:ByteArrayType val = [34, 23];
+    return (lengthof val , val[1]);
+}
+
+function testFiniteAssignmentByteType() returns foo:ByteType {
+    foo:ByteType si = 123;
+    foo:ByteType comparator = 123;
+    if (si == comparator) {
+        si = 222;
+    }
+    return si;
+}
+
+function testByteTypeDefinitionWithVarArgs() returns (foo:BFType, foo:BFType) {
+    byte a = 34;
+    float f = 4.5;
+    foo:BFType p1 = testVarByteArgs(a);
+    foo:BFType p2 = testVarByteArgs(f);
+    return (p1, p2);
+}
+
+function testVarByteArgs(foo:BFType... p1) returns foo:BFType {
+    return p1[0];
+}
