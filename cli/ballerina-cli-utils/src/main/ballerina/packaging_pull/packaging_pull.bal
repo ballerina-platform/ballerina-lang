@@ -195,10 +195,10 @@ documentation {
 
     P{{channel}} Byte channel
     P{{numberOfBytes}} Number of bytes to be read
-    R{{}} Bytes read as a blob along with the number of bytes read.
+    R{{}} Bytes read as a byte[] along with the number of bytes read.
 }
-function readBytes (io:ByteChannel channel, int numberOfBytes) returns (blob, int) {
-    blob bytes;
+function readBytes (io:ByteChannel channel, int numberOfBytes) returns (byte[], int) {
+    byte[] bytes;
     int numberOfBytesRead;
     (bytes, numberOfBytesRead) = check (channel.read(numberOfBytes));
     return (bytes, numberOfBytesRead);
@@ -208,11 +208,11 @@ documentation {
     This function will write the bytes from the byte channel.
 
     P{{channel}} Byte channel
-    P{{content}} Content to be written as a blob
+    P{{content}} Content to be written as a byte[]
     P{{startOffset}} Offset
     R{{}} number of bytes written.
 }
-function writeBytes (io:ByteChannel channel, blob content, int startOffset) returns (int) {
+function writeBytes (io:ByteChannel channel, byte[] content, int startOffset) returns (int) {
     int numberOfBytesWritten = check (channel.write(content, startOffset));
     return numberOfBytesWritten;
 }
@@ -235,7 +235,7 @@ function copy (int pkgSize, io:ByteChannel src, io:ByteChannel dest, string full
         terminalWidth = terminalWidth - tabLength;
     }
     int bytesChunk = 8;
-    blob readContent;
+    byte[] readContent;
     int readCount = -1;
     float totalCount = 0.0;
     int numberOfBytesWritten = 0;

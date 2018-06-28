@@ -6,11 +6,11 @@ function initFileChannel (string filePath, io:Mode permission) {
     channel = io:openFile(filePath, permission);
 }
 
-function readBytes (int numberOfBytes) returns (blob|error) {
-    blob empty;
+function readBytes (int numberOfBytes) returns (byte[]|error) {
+    byte[] empty;
     var result = channel.read(numberOfBytes);
     match result {
-        (blob,int) content =>{
+        (byte[],int) content =>{
             var (bytes, _) = content;
             return bytes;
         }
@@ -20,7 +20,7 @@ function readBytes (int numberOfBytes) returns (blob|error) {
     }
 }
 
-function writeBytes (blob content, int startOffset) returns (int|error) {
+function writeBytes (byte[] content, int startOffset) returns (int|error) {
     int empty = -1;
     var result = channel.write(content, startOffset);
     match result {
