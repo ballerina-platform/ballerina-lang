@@ -37,7 +37,6 @@ import org.wso2.ballerinalang.compiler.util.diagnotic.BDiagnosticSource;
 import org.wso2.ballerinalang.compiler.util.diagnotic.DiagnosticPos;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
